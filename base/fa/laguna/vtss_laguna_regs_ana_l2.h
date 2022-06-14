@@ -2985,6 +2985,8 @@
 
 
 /**
+ * \brief Control CPU access to PMAC table
+ *
  * \details
  * The PMAC_ACCESS_CMD field of this register is used for updating and
  * reading the PMAC table. The command (PMAC_ACCESS_CMD) selects between
@@ -3134,6 +3136,8 @@
 
 
 /**
+ * \brief PMAC table configuration
+ *
  * \details
  * Register: \a ANA_L2:PMAC:PMAC_CFG
  */
@@ -3164,7 +3168,11 @@
 
 
 /**
+ * \brief PMAC table configuration. DMAC
+ *
  * \details
+ * DMAC configuration
+ *
  * Register: \a ANA_L2:PMAC:PMAC_CFG_2
  */
 #define VTSS_ANA_L2_PMAC_CFG_2               VTSS_IOREG(VTSS_TO_ANA_L2,0x2257d)
@@ -3195,6 +3203,8 @@
 
 
 /**
+ * \brief PMAC table VLAN configuration
+ *
  * \details
  * The PMAC table is organized as 4,096 entries per VLAN supporting up to 4
  * VLANs. The PMAC table is enabled in ANA_L2::PMAC_CFG.PMAC_ENA.

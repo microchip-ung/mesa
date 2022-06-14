@@ -1143,7 +1143,7 @@
  * The sum of all rising edge pointer adjustments during measurement
  * period.Two's complement encoded.The field is set to 0 when measurement
  * is started.If sender is faster than receiver, then the number will
- * become postive.If sender is slower than receiver, then the number will
+ * become positive.If sender is slower than receiver, then the number will
  * become negative.Saturates at maximum/minimum value.Before reading this
  * field, M_LATCH must be set to latch current value.
  *

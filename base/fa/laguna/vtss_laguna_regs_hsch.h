@@ -872,7 +872,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:EVENTS_CORE
  */
-#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x2451)
+#define VTSS_HSCH_EVENTS_CORE                VTSS_IOREG(VTSS_TO_HSCH,0x245d)
 
 /**
  * \brief
@@ -909,7 +909,7 @@
  *
  * Register: \a HSCH:HSCH_MISC:DEBUG_CTRL
  */
-#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2452)
+#define VTSS_HSCH_DEBUG_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x245e)
 
 /**
  * \brief
@@ -931,7 +931,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_UPDATE_STAT
  */
-#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x2453)
+#define VTSS_HSCH_HSCH_UPDATE_STAT           VTSS_IOREG(VTSS_TO_HSCH,0x245f)
 
 /**
  * \brief
@@ -952,7 +952,7 @@
  * \details
  * Register: \a HSCH:HSCH_MISC:HSCH_FORCE_CTRL
  */
-#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x2454)
+#define VTSS_HSCH_HSCH_FORCE_CTRL            VTSS_IOREG(VTSS_TO_HSCH,0x2461)
 
 /**
  * \brief
@@ -1009,7 +1009,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_TIMER_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x2455,gi,8,ri,0)
+#define VTSS_HSCH_HSCH_TIMER_CFG(gi,ri)      VTSS_IOREG_IX(VTSS_TO_HSCH,0x2462,gi,8,ri,0)
 
 /**
  * \brief
@@ -1043,7 +1043,7 @@
  * @param gi Register: HSCH_LEAK_LISTS (??), 0-3
  * @param ri Register: HSCH_LEAK_CFG (??), 0-3
  */
-#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x2455,gi,8,ri,4)
+#define VTSS_HSCH_HSCH_LEAK_CFG(gi,ri)       VTSS_IOREG_IX(VTSS_TO_HSCH,0x2462,gi,8,ri,4)
 
 /**
  * \brief
@@ -1081,7 +1081,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:EQ_STAT
  */
-#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x2475)
+#define VTSS_HSCH_EQ_STAT                    VTSS_IOREG(VTSS_TO_HSCH,0x2482)
 
 /**
  * \brief
@@ -1101,7 +1101,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:FLUSH_CTRL
  */
-#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2476)
+#define VTSS_HSCH_FLUSH_CTRL                 VTSS_IOREG(VTSS_TO_HSCH,0x2483)
 
 /**
  * \brief
@@ -1194,7 +1194,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x2477 + (ri))
+#define VTSS_HSCH_PORT_MODE(ri)              VTSS_IOREG(VTSS_TO_HSCH,0x2484 + (ri))
 
 /**
  * \brief
@@ -1270,7 +1270,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_INTPORT_CNT (??), 0-4
  */
-#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x24bd + (ri))
+#define VTSS_HSCH_OUTB_SHARE_ENA(ri)         VTSS_IOREG(VTSS_TO_HSCH,0x24ca + (ri))
 
 /**
  * \brief
@@ -1300,7 +1300,7 @@
  * \details
  * Register: \a HSCH:SYSTEM:OUTB_CPU_SHARE_ENA
  */
-#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x24c2)
+#define VTSS_HSCH_OUTB_CPU_SHARE_ENA         VTSS_IOREG(VTSS_TO_HSCH,0x24cf)
 
 /**
  * \brief
@@ -1442,7 +1442,7 @@
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL
  */
-#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x24c3)
+#define VTSS_HSCH_TAS_CFG_CTRL               VTSS_IOREG(VTSS_TO_HSCH,0x24d0)
 
 /**
  * \brief
@@ -1508,7 +1508,7 @@
  *
  * Register: \a HSCH:TAS_CONFIG:TAS_GATE_STATE_CTRL
  */
-#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x24c4)
+#define VTSS_HSCH_TAS_GATE_STATE_CTRL        VTSS_IOREG(VTSS_TO_HSCH,0x24d1)
 
 /**
  * \brief
@@ -1523,12 +1523,62 @@
 
 
 /**
+ * \brief Configure the state machine
+ *
+ * \details
+ * Use to reduce the amount of list processings without any activity
+ *
+ * Register: \a HSCH:TAS_CONFIG:TAS_STATEMACHINE_CFG
+ */
+#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x24d2)
+
+/**
+ * \brief
+ * The predicted run rate of the egress pipe will be adjusted by 1/value.
+ * Even values increases bandwidth a bit with potential overshooting a tas
+ * window. Odd values reduces bandwidth a bit with potential loss of
+ * throughput.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_CBSHP_ADJ
+ */
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_ENCODE_BITFIELD(x,18,12)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ     VTSS_ENCODE_BITMASK(18,12)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_EXTRACT_BITFIELD(x,18,12)
+
+/**
+ * \brief
+ * Tas actions will taken place this amount of nsec in advance to better
+ * hit timing on the physical interfaces
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_PIPE_DLY_NS
+ */
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_ENCODE_BITFIELD(x,8,10)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS     VTSS_ENCODE_BITMASK(8,10)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_EXTRACT_BITFIELD(x,8,10)
+
+/**
+ * \brief
+ * When a list is found to have the next gate event in X nanosecs, the list
+ * will not be revisited before X * this / 256 state machine clock cycles
+ * has elapsed.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . REVISIT_DLY
+ */
+#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
  * \brief TAS parameters installer configuration register.
  *
  * \details
  * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL2
  */
-#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x24c5)
+#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x24d3)
 
 /**
  * \brief
@@ -1544,167 +1594,11 @@
 #define  VTSS_M_HSCH_TAS_CFG_CTRL2_MINIMUM_GB_VAL     VTSS_ENCODE_BITMASK(0,5)
 #define  VTSS_X_HSCH_TAS_CFG_CTRL2_MINIMUM_GB_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
-
-/**
- * \brief Configure the state machine
- *
- * \details
- * Use to reduce the amount of list processings without any activity
- *
- * Register: \a HSCH:TAS_CONFIG:TAS_STATEMACHINE_CFG
- */
-#define VTSS_HSCH_TAS_STATEMACHINE_CFG       VTSS_IOREG(VTSS_TO_HSCH,0x24c6)
-
-/**
- * \brief
- * When a list is found to have the next gate event in X nanosecs, the list
- * will not be revisited before X * this / 256 state machine clock cycles
- * has elapsed.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . REVISIT_DLY
- */
-#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_ENCODE_BITFIELD(x,22,8)
-#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY     VTSS_ENCODE_BITMASK(22,8)
-#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,22,8)
-
-/**
- * \brief
- * The predicted run rate of the egress pipe will be adjusted by 1/value.
- * Even values increases bandwidth a bit with potential overshooting a tas
- * window. Odd values reduces bandwidth a bit with potential loss of
- * throughput.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_CBSHP_ADJ
- */
-#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_ENCODE_BITFIELD(x,10,12)
-#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ     VTSS_ENCODE_BITMASK(10,12)
-#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_CBSHP_ADJ(x)  VTSS_EXTRACT_BITFIELD(x,10,12)
-
-/**
- * \brief
- * Tas actions will taken place this amount of nsec in advance to better
- * hit timing on the physical interfaces
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_STATEMACHINE_CFG . TAS_PIPE_DLY_NS
- */
-#define  VTSS_F_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_ENCODE_BITFIELD(x,0,10)
-#define  VTSS_M_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS     VTSS_ENCODE_BITMASK(0,10)
-#define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_TAS_PIPE_DLY_NS(x)  VTSS_EXTRACT_BITFIELD(x,0,10)
-
 /**
  * Register Group: \a HSCH:TAS_PROFILE_CFG
  *
  * TAS Port configuration
  */
-
-
-/**
- * \brief Time aware gate configuration register
- *
- * \details
- * Register: \a HSCH:TAS_PROFILE_CFG:TAS_PROFILE_CONFIG
- *
- * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
- */
-#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24c7,gi,17,0,0)
-
-/**
- * \brief
- * Specifies the link speed for the port. This is used to evaluate the time
- * taken by a frame on the line.
- *
- * \details
- * The encoding of the bits is as follows:
- * 000: No guard banding
- * 001: 10 Mbps
- * 010: 100 Mbps.
- * 011: 1 Gbps.
- * 100: 2.5 Gbps.
- * 101: 5 Gbps.
- * 110: 10 Gbps.
- * 111: Reserved
- *
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . LINK_SPEED
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_ENCODE_BITFIELD(x,23,3)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED     VTSS_ENCODE_BITMASK(23,3)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,23,3)
-
-/**
- * \brief
- * A 8-bit vector that determines port queues which will allow scheduled
- * traffic among the 8 queues. If a bit is set then the corresponding queue
- * allows scheduled traffic.
- *
- * \details
- * For ith bit or bit[i] (corresponds to ith queue):
- * 1: the queue serves schedule traffic provided TAS is enabled for the
- * port.
- * 0: the queue does not serve scheduled traffic.
-
- *
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . SCH_TRAFFIC_QUEUES
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_ENCODE_BITFIELD(x,15,8)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES     VTSS_ENCODE_BITMASK(15,8)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_EXTRACT_BITFIELD(x,15,8)
-
-/**
- * \brief
- * Sets the guard-band for the Set-And-Hold-MAC gate operation. The unit is
- * 64 bytes times the value of link_speed. A Set-And-Hold-MAC operation
- * takes effect this much time in advance of the nominal gate operation
- * time to leave time for the transmission of preemptible frames to
- * complete inside the MAC.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . HOLDADVANCE
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_ENCODE_BITFIELD(x,7,8)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE     VTSS_ENCODE_BITMASK(7,8)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_EXTRACT_BITFIELD(x,7,8)
-
-/**
- * \brief
- * A TAS gate will open a delay prior to the configured gate control
- * time.The delay is the sum of TAS_PIPE_DLY_NS and TAS_PORT_DLY. Unit is
- * 64 byte times on the port.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_PORT_DLY
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_ENCODE_BITFIELD(x,4,3)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY     VTSS_ENCODE_BITMASK(4,3)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,4,3)
-
-/**
- * \brief
- * A TAS gate will close a delay prior to the configured gate control
- * time.The delay is the sum of TAS_PIPE_DLY_NS, TAS_PORT_DLY,
- * TAS_CLOSE_DLY and the QMAXSDU based guard banding configured. Unit is 64
- * byte times on the port.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CLOSE_DLY
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_ENCODE_BITFIELD(x,1,3)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY     VTSS_ENCODE_BITMASK(1,3)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_EXTRACT_BITFIELD(x,1,3)
-
-/**
- * \brief
- * Enable shaping of egress cell bus to accomplish better TAS window
- * accuracy.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CBSHP_ENA
- */
-#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA  VTSS_BIT(0)
-#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 /**
@@ -1716,7 +1610,7 @@
  * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
  * @param ri Register: TAS_QMAXSDU_CFG (??), 0-7
  */
-#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24c7,gi,17,ri,1)
+#define VTSS_HSCH_TAS_QMAXSDU_CFG(gi,ri)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24d4,gi,17,ri,0)
 
 /**
  * \brief
@@ -1741,6 +1635,112 @@
 
 
 /**
+ * \brief Time aware gate configuration register
+ *
+ * \details
+ * Register: \a HSCH:TAS_PROFILE_CFG:TAS_PROFILE_CONFIG
+ *
+ * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
+ */
+#define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24d4,gi,17,0,8)
+
+/**
+ * \brief
+ * Sets the guard-band for the Set-And-Hold-MAC gate operation. The unit is
+ * 64 bytes times the value of link_speed. A Set-And-Hold-MAC operation
+ * takes effect this much time in advance of the nominal gate operation
+ * time to leave time for the transmission of preemptible frames to
+ * complete inside the MAC.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . HOLDADVANCE
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_ENCODE_BITFIELD(x,18,8)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE     VTSS_ENCODE_BITMASK(18,8)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(x)  VTSS_EXTRACT_BITFIELD(x,18,8)
+
+/**
+ * \brief
+ * A TAS gate will open a delay prior to the configured gate control
+ * time.The delay is the sum of TAS_PIPE_DLY_NS and TAS_PORT_DLY. Unit is
+ * 64 byte times on the port.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_PORT_DLY
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_ENCODE_BITFIELD(x,15,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY     VTSS_ENCODE_BITMASK(15,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_PORT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,15,3)
+
+/**
+ * \brief
+ * A TAS gate will close a delay prior to the configured gate control
+ * time.The delay is the sum of TAS_PIPE_DLY_NS, TAS_PORT_DLY,
+ * TAS_CLOSE_DLY and the QMAXSDU based guard banding configured. Unit is 64
+ * byte times on the port.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CLOSE_DLY
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_ENCODE_BITFIELD(x,12,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY     VTSS_ENCODE_BITMASK(12,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(x)  VTSS_EXTRACT_BITFIELD(x,12,3)
+
+/**
+ * \brief
+ * Enable shaping of egress cell bus to accomplish better TAS window
+ * accuracy.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . TAS_CBSHP_ENA
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA  VTSS_BIT(11)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_TAS_CBSHP_ENA(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
+ * Specifies the link speed for the port. This is used to evaluate the time
+ * taken by a frame on the line.
+ *
+ * \details
+ * The encoding of the bits is as follows:
+ * 000: No guard banding
+ * 001: 10 Mbps
+ * 010: 100 Mbps.
+ * 011: 1 Gbps.
+ * 100: 2.5 Gbps.
+ * 101: 5 Gbps.
+ * 110: 10 Gbps.
+ * 111: Reserved
+ *
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . LINK_SPEED
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_ENCODE_BITFIELD(x,8,3)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED     VTSS_ENCODE_BITMASK(8,3)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(x)  VTSS_EXTRACT_BITFIELD(x,8,3)
+
+/**
+ * \brief
+ * A 8-bit vector that determines port queues which will allow scheduled
+ * traffic among the 8 queues. If a bit is set then the corresponding queue
+ * allows scheduled traffic.
+ *
+ * \details
+ * For ith bit or bit[i] (corresponds to ith queue):
+ * 1: the queue serves schedule traffic provided TAS is enabled for the
+ * port.
+ * 0: the queue does not serve scheduled traffic.
+
+ *
+ * Field: ::VTSS_HSCH_TAS_PROFILE_CONFIG . SCH_TRAFFIC_QUEUES
+ */
+#define  VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
  * \brief MAX SDU discard for traffic classes
  *
  * \details
@@ -1749,7 +1749,7 @@
  * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
  * @param ri Register: QMAXSDU_DISC_CFG (??), 0-7
  */
-#define VTSS_HSCH_QMAXSDU_DISC_CFG(gi,ri)    VTSS_IOREG_IX(VTSS_TO_HSCH,0x24c7,gi,17,ri,9)
+#define VTSS_HSCH_QMAXSDU_DISC_CFG(gi,ri)    VTSS_IOREG_IX(VTSS_TO_HSCH,0x24d4,gi,17,ri,9)
 
 /**
  * \brief
@@ -1998,9 +1998,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_HSCH_POS
  */
-#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_ENCODE_BITFIELD(x,19,11)
-#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_HSCH_POS     VTSS_ENCODE_BITMASK(19,11)
-#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_EXTRACT_BITFIELD(x,19,11)
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_ENCODE_BITFIELD(x,21,11)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_HSCH_POS     VTSS_ENCODE_BITMASK(21,11)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(x)  VTSS_EXTRACT_BITFIELD(x,21,11)
 
 /**
  * \brief
@@ -2009,9 +2009,20 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_PORT_NUM
  */
-#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,14,5)
-#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_PORT_NUM     VTSS_ENCODE_BITMASK(14,5)
-#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,14,5)
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_ENCODE_BITFIELD(x,16,5)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_PORT_NUM     VTSS_ENCODE_BITMASK(16,5)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(x)  VTSS_EXTRACT_BITFIELD(x,16,5)
+
+/**
+ * \brief
+ * Time of day domain the list is synchronized to
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_TOD_DOM
+ */
+#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_ENCODE_BITFIELD(x,14,2)
+#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_TOD_DOM     VTSS_ENCODE_BITMASK(14,2)
+#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_EXTRACT_BITFIELD(x,14,2)
 
 /**
  * \brief
@@ -2024,17 +2035,6 @@
 #define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
 #define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR     VTSS_ENCODE_BITMASK(0,12)
 #define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
-
-/**
- * \brief
- * Time of day domain the list is synchronized to
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_LIST_CFG . LIST_TOD_DOM
- */
-#define  VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_ENCODE_BITFIELD(x,12,2)
-#define  VTSS_M_HSCH_TAS_LIST_CFG_LIST_TOD_DOM     VTSS_ENCODE_BITMASK(12,2)
-#define  VTSS_X_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 
 /**
@@ -2088,32 +2088,12 @@
 
 
 /**
- * \brief TAS running pointer state
- *
- * \details
- * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_PTR_STATE
- */
-#define VTSS_HSCH_TAS_LIST_PTR_STATE         VTSS_IOREG(VTSS_TO_HSCH,0x237a)
-
-/**
- * \brief
- * Next entry to process by the list execution.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_LIST_PTR_STATE . CUR_PTR
- */
-#define  VTSS_F_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
-#define  VTSS_M_HSCH_TAS_LIST_PTR_STATE_CUR_PTR     VTSS_ENCODE_BITMASK(0,12)
-#define  VTSS_X_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
-
-
-/**
  * \brief TAS running state
  *
  * \details
  * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_STATE_INT
  */
-#define VTSS_HSCH_TAS_LIST_STATE_INT         VTSS_IOREG(VTSS_TO_HSCH,0x237b)
+#define VTSS_HSCH_TAS_LIST_STATE_INT         VTSS_IOREG(VTSS_TO_HSCH,0x237a)
 
 /**
  * \brief
@@ -2125,6 +2105,26 @@
 #define  VTSS_F_HSCH_TAS_LIST_STATE_INT_CYC_TIME_REMAIN(x)  (x)
 #define  VTSS_M_HSCH_TAS_LIST_STATE_INT_CYC_TIME_REMAIN     0xffffffff
 #define  VTSS_X_HSCH_TAS_LIST_STATE_INT_CYC_TIME_REMAIN(x)  (x)
+
+
+/**
+ * \brief TAS running pointer state
+ *
+ * \details
+ * Register: \a HSCH:TAS_LIST_CFG:TAS_LIST_PTR_STATE
+ */
+#define VTSS_HSCH_TAS_LIST_PTR_STATE         VTSS_IOREG(VTSS_TO_HSCH,0x237b)
+
+/**
+ * \brief
+ * Next entry to process by the list execution.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_LIST_PTR_STATE . CUR_PTR
+ */
+#define  VTSS_F_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_HSCH_TAS_LIST_PTR_STATE_CUR_PTR     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_HSCH_TAS_LIST_PTR_STATE_CUR_PTR(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 /**
  * Register Group: \a HSCH:TAS_GCL_CFG
@@ -2149,9 +2149,9 @@
  * \details
  * Field: ::VTSS_HSCH_TAS_GCL_CTRL_CFG . GATE_STATE
  */
-#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(x)  VTSS_ENCODE_BITFIELD(x,2,8)
-#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE     VTSS_ENCODE_BITMASK(2,8)
-#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(x)  VTSS_EXTRACT_BITFIELD(x,2,8)
+#define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(x)  VTSS_ENCODE_BITFIELD(x,20,8)
+#define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE     VTSS_ENCODE_BITMASK(20,8)
+#define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(x)  VTSS_EXTRACT_BITFIELD(x,20,8)
 
 /**
  * \brief
@@ -2181,12 +2181,35 @@
 
 
 /**
+ * \brief TAS - Oper Gate control list status register - 3
+ *
+ * \details
+ * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_TIME_CFG
+ */
+#define VTSS_HSCH_TAS_GCL_TIME_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x2365)
+
+/**
+ * \brief
+ * Time interval expressed as nanoseconds used for execution of
+ * corresponding gate state. This is 'timeIntervalValue' value (IEEE
+ * 802.1Qbv).Reading this register actually performs RAM read for GCL entry
+ * (GCL_ENTRY_NUM) with values {TIME_INTERVAL, GATE_STATE}.
+ *
+ * \details
+ * Field: ::VTSS_HSCH_TAS_GCL_TIME_CFG . TIME_INTERVAL
+ */
+#define  VTSS_F_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL(x)  (x)
+#define  VTSS_M_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL     0xffffffff
+#define  VTSS_X_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL(x)  (x)
+
+
+/**
  * \brief TAS - Oper Gate control list status register - 2
  *
  * \details
  * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_CTRL_CFG2
  */
-#define VTSS_HSCH_TAS_GCL_CTRL_CFG2          VTSS_IOREG(VTSS_TO_HSCH,0x2365)
+#define VTSS_HSCH_TAS_GCL_CTRL_CFG2          VTSS_IOREG(VTSS_TO_HSCH,0x2366)
 
 /**
  * \brief
@@ -2212,29 +2235,6 @@
 #define  VTSS_F_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_ENCODE_BITFIELD(x,0,12)
 #define  VTSS_M_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL     VTSS_ENCODE_BITMASK(0,12)
 #define  VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
-
-
-/**
- * \brief TAS - Oper Gate control list status register - 3
- *
- * \details
- * Register: \a HSCH:TAS_GCL_CFG:TAS_GCL_TIME_CFG
- */
-#define VTSS_HSCH_TAS_GCL_TIME_CFG           VTSS_IOREG(VTSS_TO_HSCH,0x2366)
-
-/**
- * \brief
- * Time interval expressed as nanoseconds used for execution of
- * corresponding gate state. This is 'timeIntervalValue' value (IEEE
- * 802.1Qbv).Reading this register actually performs RAM read for GCL entry
- * (GCL_ENTRY_NUM) with values {TIME_INTERVAL, GATE_STATE}.
- *
- * \details
- * Field: ::VTSS_HSCH_TAS_GCL_TIME_CFG . TIME_INTERVAL
- */
-#define  VTSS_F_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL(x)  (x)
-#define  VTSS_M_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL     0xffffffff
-#define  VTSS_X_HSCH_TAS_GCL_TIME_CFG_TIME_INTERVAL(x)  (x)
 
 /**
  * Register Group: \a HSCH:HSCH_TAS_STATE

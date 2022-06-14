@@ -75,26 +75,6 @@
 
 
 /**
- * \brief REV ID register
- *
- * \details
- * Register: \a DEVCPU_GCB:CHIP_REGS:REVID_RAW
- */
-#define VTSS_DEVCPU_GCB_REVID_RAW            VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x1)
-
-/**
- * \brief
- * Raw revision ID.
- *
- * \details
- * Field: ::VTSS_DEVCPU_GCB_REVID_RAW . REV_ID_RAW
- */
-#define  VTSS_F_DEVCPU_GCB_REVID_RAW_REV_ID_RAW(x)  VTSS_ENCODE_BITFIELD(x,0,15)
-#define  VTSS_M_DEVCPU_GCB_REVID_RAW_REV_ID_RAW     VTSS_ENCODE_BITMASK(0,15)
-#define  VTSS_X_DEVCPU_GCB_REVID_RAW_REV_ID_RAW(x)  VTSS_EXTRACT_BITFIELD(x,0,15)
-
-
-/**
  * \brief General purpose register
  *
  * \details
@@ -159,7 +139,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_FPORT_CNT (??), 0-29
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x4 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x5 + (ri))
 
 /**
  * \brief
@@ -181,7 +161,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_SERDES_CNT (??), 0-9
  */
-#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x22 + (ri))
+#define VTSS_DEVCPU_GCB_HW_SGPIO_TO_SERDES_SD_MAP_CFG(ri)  VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x23 + (ri))
 
 /**
  * \brief
@@ -201,7 +181,7 @@
  * \details
  * Register: \a DEVCPU_GCB:CHIP_REGS:BUILDID
  */
-#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x2c)
+#define VTSS_DEVCPU_GCB_BUILDID              VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x1)
 
 /**
  * \details

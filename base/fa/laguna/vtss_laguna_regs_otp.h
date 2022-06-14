@@ -305,6 +305,36 @@
 
 /**
  * \brief
+ * BISR RDBISR Test Mode enables mapping of Blank Check failures or
+ * Programming failures to alternate locations in the BISR (Built-In Self
+ * Repair) repair row. Use this to Read to repair row.Note: This bit self
+ * clears after the command is completed.Note: This bit clears after
+ * command is accepted by the OTP controller.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_TEST_CMD . OTP_BISR_RD
+ */
+#define  VTSS_F_OTP_OTP_TEST_CMD_OTP_BISR_RD(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_OTP_OTP_TEST_CMD_OTP_BISR_RD  VTSS_BIT(6)
+#define  VTSS_X_OTP_OTP_TEST_CMD_OTP_BISR_RD(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * BISR WRBISR Test Mode enables mapping of Blank Check failures or
+ * Programming failures to alternate locations in the BISR (Built-In Self
+ * Repair) repair row. Use this to write to repair row.Note: This bit self
+ * clears after the command is completed.Note: This bit clears after
+ * command is accepted by the OTP controller.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_TEST_CMD . OTP_BISR_WR
+ */
+#define  VTSS_F_OTP_OTP_TEST_CMD_OTP_BISR_WR(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_OTP_OTP_TEST_CMD_OTP_BISR_WR  VTSS_BIT(5)
+#define  VTSS_X_OTP_OTP_TEST_CMD_OTP_BISR_WR(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
  * TESTDEC is valid only for un-programmed units.If TESTDEC isperformed on
  * a programmed unit, the result is undefined.
  *
@@ -1438,7 +1468,7 @@
  *
  * \details
  * OTP_NP1_VAL Register
- * (RESET=0X0002)
+ * (RESET=0X0001)
  *
  * Register: \a OTP:OTP_REGS:OTP_NP1_VAL
  */

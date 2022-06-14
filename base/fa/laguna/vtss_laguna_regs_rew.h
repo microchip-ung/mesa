@@ -2791,6 +2791,66 @@
 
 /**
  * \brief
+ * Select alternative ingress delay for frames coming from a redbox port.
+ * If the rewrite command requests addition of PTP_IDLY1,  AND the frame
+ * came in on LRE-B, AND this configuration field is set, PTP_IDLY2 will be
+ * used instead.This configuration field is taken from the source port
+ * during processing. Ex  if port 17 is connected to a redbox, register
+ * replication 17 should get this configuration set.
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_DLY_SEL
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL  VTSS_BIT(11)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
+
+/**
+ * \brief
+ * Specified whether the redbox connected to this SwC port operates as a
+ * HSR-PRP-A or HSR-PRP-B.
+ *
+ * \details
+ *
+ *	     00:Not in HSR-PRP mode
+ *	     01:Undefined
+ *	     10:Port operates as HSR-PRP-A
+ *	     11:Port operates as HSR-PRP-B
+
+ *
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_PRP_LAN
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_ENCODE_BITFIELD(x,9,2)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN     VTSS_ENCODE_BITMASK(9,2)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_EXTRACT_BITFIELD(x,9,2)
+
+/**
+ * \brief
+ * Disable Redbox tagging for frames passed trhough the ptp rewriter
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_TAG_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS  VTSS_BIT(8)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
+
+/**
+ * \brief
+ * Select which sourceport id field to insert LRE number into.
+ *
+ * \details
+ * 0: Use ID field 13:12
+ * 1: Use ID field 15:14
+ *
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_ID_SEL
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_ID_SEL  VTSS_BIT(7)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
  * Set to skip detection and indication of overflow conditions for frame
  * transmitted on this port
  *
@@ -3488,6 +3548,52 @@
 
 
 /**
+ * \brief CF field range check
+ *
+ * \details
+ * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY
+ */
+#define VTSS_REW_CF_TOO_BIG_STICKY           VTSS_IOREG(VTSS_TO_REW,0x5bc0)
+
+/**
+ * \brief
+ * The correction field update went out of range. Valid range is -2^47 to
+ * 2^48-1. The frame CF will be changed to the maximum value. This range
+ * check is bypassed if ADDS48 mode is in use on the ingress or egress
+ * port.
+ *
+ * \details
+ * Field: ::VTSS_REW_CF_TOO_BIG_STICKY . CF_TOO_BIG_STICKY
+ */
+#define  VTSS_F_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY(x)  (x)
+#define  VTSS_M_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY     0xffffffff
+#define  VTSS_X_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY(x)  (x)
+
+
+/**
+ * \brief CF field range check
+ *
+ * \details
+ * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY1
+ */
+#define VTSS_REW_CF_TOO_BIG_STICKY1          VTSS_IOREG(VTSS_TO_REW,0x5bc1)
+
+/**
+ * \brief
+ * The correction field update went out of range. Valid range is -2^47 to
+ * 2^48-1. The frame CF will be changed to the maximum value. This range
+ * check is bypassed if ADDS48 mode is in use on the ingress or egress
+ * port.
+ *
+ * \details
+ * Field: ::VTSS_REW_CF_TOO_BIG_STICKY1 . CF_TOO_BIG_STICKY1
+ */
+#define  VTSS_F_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief PTP reserved field check
  *
  * \details
@@ -3557,7 +3663,7 @@
 
 /**
  * \brief
- * Value format for recidense time field, expressed as fixed point number
+ * Value format for recidence time field, expressed as fixed point number
  * of nanoseconds.
  *
  * \details

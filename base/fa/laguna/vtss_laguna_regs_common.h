@@ -67,6 +67,7 @@
 #define VTSS_TO_MCAN_0          VTSS_IO_OFFSET2(0x0081c000) /*!< Base offset for target MCAN_0 */
 #define VTSS_TO_MCAN_1          VTSS_IO_OFFSET2(0x00820000) /*!< Base offset for target MCAN_1 */
 #define VTSS_TO_MCAN_TIMER      VTSS_IO_OFFSET2(0x00824000) /*!< Base offset for target MCAN_TIMER */
+#define VTSS_TO_UVOV            VTSS_IO_OFFSET2(0x00094000) /*!< Base offset for target UVOV */
 #define VTSS_TO_OTP             VTSS_IO_OFFSET2(0x00021000) /*!< Base offset for target OTP */
 #define VTSS_TO_PCIE_CFG        VTSS_IO_OFFSET2(0x000d0000) /*!< Base offset for target PCIE_CFG */
 #define VTSS_TO_PCIE_DBI        VTSS_IO_OFFSET2(0x00400000) /*!< Base offset for target PCIE_DBI */

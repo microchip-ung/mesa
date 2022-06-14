@@ -87,12 +87,23 @@
 
 /**
  * \brief
+ * Power good signal from ovuv028_IPTOP pad cell.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_RESET_CFG . POWER_GOOD_STATUS
+ */
+#define  VTSS_F_CHIP_TOP_RESET_CFG_POWER_GOOD_STATUS(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_RESET_CFG_POWER_GOOD_STATUS  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_RESET_CFG_POWER_GOOD_STATUS(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
  * When enabled the over voltage monitor is allowed to do a chip reset in
  * case an over voltage event is detected.
  *
  * \details
- * 0: Disable UV reset
- * 1: Allow UV reset
+ * 0: Disable OV reset
+ * 1: Allow OV reset
  *
  * Field: ::VTSS_CHIP_TOP_RESET_CFG . OV_RST_ENA
  */
@@ -564,35 +575,6 @@
 #define  VTSS_X_CHIP_TOP_PROC_MBIST_DONE_PROC_MBIST_DONE(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 /**
- * Register Group: \a CHIP_TOP:GPIO_CLK_MON
- *
- * Not documented
- */
-
-
-/**
- * \brief Configuration of clock monitors
- *
- * \details
- * Register: \a CHIP_TOP:GPIO_CLK_MON:GPIO_CLK_MON
- */
-#define VTSS_CHIP_TOP_GPIO_CLK_MON           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x17)
-
-/**
- * \brief
- * When enabled the respective GPIO index starting from 40 is multiplexed
- * to output a subdivided PLL clock for monitoring.
- *
- * \details
- * 0: Disable clock monitor for GPIO index1: Enable clock monitoring
- *
- * Field: ::VTSS_CHIP_TOP_GPIO_CLK_MON . ENA
- */
-#define  VTSS_F_CHIP_TOP_GPIO_CLK_MON_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_CHIP_TOP_GPIO_CLK_MON_ENA     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_CHIP_TOP_GPIO_CLK_MON_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-/**
  * Register Group: \a CHIP_TOP:OTP_MEM
  *
  * OTP memory
@@ -605,7 +587,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_CFG
  */
-#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x18)
+#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x17)
 
 /**
  * \brief
@@ -627,7 +609,7 @@
  *
  * @param ri Register: OTP_RCR (??), 0-2
  */
-#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x19 + (ri))
+#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x18 + (ri))
 
 /**
  * \details
@@ -656,7 +638,7 @@
  *
  * @param ri Register: OTP_MSC (??), 0-3
  */
-#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1c + (ri))
+#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1b + (ri))
 
 /**
  * \details
@@ -673,7 +655,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_ID
  */
-#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x20)
+#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1f)
 
 /**
  * \details
@@ -692,7 +674,7 @@
  *
  * @param ri Register: OTP_PRD (??), 0-7
  */
-#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x21 + (ri))
+#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x28 + (ri))
 
 /**
  * \details
@@ -715,7 +697,7 @@
  * \details
  * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_CFG
  */
-#define VTSS_CHIP_TOP_CPU_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x29)
+#define VTSS_CHIP_TOP_CPU_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x30)
 
 /**
  * \brief
@@ -847,7 +829,7 @@
  *
  * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2a)
+#define VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x31)
 
 /**
  * \brief
@@ -855,8 +837,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_CPU_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -912,7 +892,7 @@
  * \details
  * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_CFG
  */
-#define VTSS_CHIP_TOP_DDR_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2b)
+#define VTSS_CHIP_TOP_DDR_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x32)
 
 /**
  * \brief
@@ -1042,7 +1022,7 @@
  *
  * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2c)
+#define VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x33)
 
 /**
  * \brief
@@ -1050,8 +1030,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_DDR_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -1107,7 +1085,7 @@
  * \details
  * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_CFG
  */
-#define VTSS_CHIP_TOP_CORE_PLL_CFG           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2d)
+#define VTSS_CHIP_TOP_CORE_PLL_CFG           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x34)
 
 /**
  * \brief
@@ -1255,7 +1233,7 @@
  *
  * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2e)
+#define VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x35)
 
 /**
  * \brief
@@ -1263,8 +1241,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -1320,7 +1296,7 @@
  * \details
  * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_CFG
  */
-#define VTSS_CHIP_TOP_RGMII_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x2f)
+#define VTSS_CHIP_TOP_RGMII_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x36)
 
 /**
  * \brief
@@ -1442,7 +1418,7 @@
  *
  * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x30)
+#define VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x37)
 
 /**
  * \brief
@@ -1450,8 +1426,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_RGMII_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -1507,7 +1481,7 @@
  * \details
  * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_CFG
  */
-#define VTSS_CHIP_TOP_FX100_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x31)
+#define VTSS_CHIP_TOP_FX100_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x38)
 
 /**
  * \brief
@@ -1630,7 +1604,7 @@
  *
  * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x32)
+#define VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x39)
 
 /**
  * \brief
@@ -1638,8 +1612,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -1695,7 +1667,7 @@
  * \details
  * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_CFG
  */
-#define VTSS_CHIP_TOP_SPARE_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x33)
+#define VTSS_CHIP_TOP_SPARE_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3a)
 
 /**
  * \brief
@@ -1874,7 +1846,7 @@
  *
  * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x34)
+#define VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3b)
 
 /**
  * \brief
@@ -1882,8 +1854,6 @@
  * frequency
  *
  * \details
- * TBD
- *
  * Field: ::VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG . FILTER_CTRL
  */
 #define  VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_FILTER_CTRL(x)  VTSS_ENCODE_BITFIELD(x,28,4)
@@ -1939,7 +1909,7 @@
  * \details
  * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_CTRL
  */
-#define VTSS_CHIP_TOP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x35)
+#define VTSS_CHIP_TOP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3c)
 
 /**
  * \brief
@@ -2016,7 +1986,7 @@
  * \details
  * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_CFG
  */
-#define VTSS_CHIP_TOP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x36)
+#define VTSS_CHIP_TOP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3d)
 
 /**
  * \brief
@@ -2123,7 +2093,7 @@
  * \details
  * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_STAT
  */
-#define VTSS_CHIP_TOP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x37)
+#define VTSS_CHIP_TOP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3e)
 
 /**
  * \brief

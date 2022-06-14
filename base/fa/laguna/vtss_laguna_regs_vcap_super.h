@@ -1203,7 +1203,7 @@
  *
  * Register: \a VCAP_SUPER:TCAM_BIST:BIST_DIAG_BITMAPA_STAT
  *
- * @param ri Register: BIST_DIAG_BITMAPA_STAT (??), 0-2
+ * @param ri Register: BIST_DIAG_BITMAPA_STAT (??), 0-1
  */
 #define VTSS_VCAP_SUPER_BIST_DIAG_BITMAPA_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x108 + (ri))
 
@@ -1235,9 +1235,9 @@
  *
  * Register: \a VCAP_SUPER:TCAM_BIST:BIST_DIAG_BITMAPB_STAT
  *
- * @param ri Register: BIST_DIAG_BITMAPB_STAT (??), 0-2
+ * @param ri Register: BIST_DIAG_BITMAPB_STAT (??), 0-1
  */
-#define VTSS_VCAP_SUPER_BIST_DIAG_BITMAPB_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10b + (ri))
+#define VTSS_VCAP_SUPER_BIST_DIAG_BITMAPB_STAT(ri)  VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10a + (ri))
 
 /**
  * \brief
@@ -1261,7 +1261,7 @@
  * \details
  * Register: \a VCAP_SUPER:TCAM_BIST:RCR_CTRL
  */
-#define VTSS_VCAP_SUPER_RCR_CTRL             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10e)
+#define VTSS_VCAP_SUPER_RCR_CTRL             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10c)
 
 /**
  * \brief
@@ -1341,7 +1341,7 @@
  * \details
  * Register: \a VCAP_SUPER:TCAM_BIST:RCR_STAT
  */
-#define VTSS_VCAP_SUPER_RCR_STAT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10f)
+#define VTSS_VCAP_SUPER_RCR_STAT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10d)
 
 /**
  * \brief
@@ -1370,7 +1370,7 @@
  * \details
  * Register: \a VCAP_SUPER:ECC_CHK:ECC_CTRL
  */
-#define VTSS_VCAP_SUPER_ECC_CTRL             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x110)
+#define VTSS_VCAP_SUPER_ECC_CTRL             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10e)
 
 /**
  * \brief
@@ -1420,7 +1420,7 @@
  * \details
  * Register: \a VCAP_SUPER:ECC_CHK:ECC_STAT
  */
-#define VTSS_VCAP_SUPER_ECC_STAT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x111)
+#define VTSS_VCAP_SUPER_ECC_STAT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x10f)
 
 /**
  * \brief
@@ -1452,7 +1452,7 @@
  * \details
  * Register: \a VCAP_SUPER:ECC_CHK:ECC_BLK_DLY
  */
-#define VTSS_VCAP_SUPER_ECC_BLK_DLY          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x112)
+#define VTSS_VCAP_SUPER_ECC_BLK_DLY          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x110)
 
 /**
  * \brief
@@ -1477,7 +1477,7 @@
  * \details
  * Register: \a VCAP_SUPER:ECC_CHK:ECC_INV
  */
-#define VTSS_VCAP_SUPER_ECC_INV              VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x113)
+#define VTSS_VCAP_SUPER_ECC_INV              VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x111)
 
 /**
  * \brief
@@ -1528,7 +1528,7 @@
  * \details
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_CTRL
  */
-#define VTSS_VCAP_SUPER_MEMITGR_CTRL         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x114)
+#define VTSS_VCAP_SUPER_MEMITGR_CTRL         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x112)
 
 /**
  * \brief
@@ -1563,7 +1563,7 @@
  * \details
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_STAT
  */
-#define VTSS_VCAP_SUPER_MEMITGR_STAT         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x115)
+#define VTSS_VCAP_SUPER_MEMITGR_STAT         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x113)
 
 /**
  * \brief
@@ -1653,7 +1653,7 @@
  *
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_INFO
  */
-#define VTSS_VCAP_SUPER_MEMITGR_INFO         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x116)
+#define VTSS_VCAP_SUPER_MEMITGR_INFO         VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x114)
 
 /**
  * \brief
@@ -1740,7 +1740,7 @@
  *
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_IDX
  */
-#define VTSS_VCAP_SUPER_MEMITGR_IDX          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x117)
+#define VTSS_VCAP_SUPER_MEMITGR_IDX          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x115)
 
 /**
  * \brief
@@ -1762,7 +1762,7 @@
  * \details
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_DIV
  */
-#define VTSS_VCAP_SUPER_MEMITGR_DIV          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x118)
+#define VTSS_VCAP_SUPER_MEMITGR_DIV          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x116)
 
 /**
  * \brief
@@ -1786,7 +1786,7 @@
  * \details
  * Register: \a VCAP_SUPER:MEMITGR:MEMITGR_DBG
  */
-#define VTSS_VCAP_SUPER_MEMITGR_DBG          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x119)
+#define VTSS_VCAP_SUPER_MEMITGR_DBG          VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x117)
 
 /**
  * \brief
@@ -1929,7 +1929,7 @@
  *
  * Register: \a VCAP_SUPER:RAM_CTRL:RAM_INIT
  */
-#define VTSS_VCAP_SUPER_RAM_INIT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11a)
+#define VTSS_VCAP_SUPER_RAM_INIT             VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x118)
 
 /**
  * \brief
@@ -1968,7 +1968,7 @@
  * \details
  * Register: \a VCAP_SUPER:COREMEM:CM_ADDR
  */
-#define VTSS_VCAP_SUPER_CM_ADDR              VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11b)
+#define VTSS_VCAP_SUPER_CM_ADDR              VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x119)
 
 /**
  * \brief
@@ -1988,7 +1988,7 @@
  * \details
  * Register: \a VCAP_SUPER:COREMEM:CM_DATA_WR
  */
-#define VTSS_VCAP_SUPER_CM_DATA_WR           VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11c)
+#define VTSS_VCAP_SUPER_CM_DATA_WR           VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11a)
 
 /**
  * \brief
@@ -2010,7 +2010,7 @@
  * \details
  * Register: \a VCAP_SUPER:COREMEM:CM_DATA_RD
  */
-#define VTSS_VCAP_SUPER_CM_DATA_RD           VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11d)
+#define VTSS_VCAP_SUPER_CM_DATA_RD           VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11b)
 
 /**
  * \brief
@@ -2030,7 +2030,7 @@
  * \details
  * Register: \a VCAP_SUPER:COREMEM:CM_OP
  */
-#define VTSS_VCAP_SUPER_CM_OP                VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11e)
+#define VTSS_VCAP_SUPER_CM_OP                VTSS_IOREG(VTSS_TO_VCAP_SUPER,0x11c)
 
 /**
  * \brief

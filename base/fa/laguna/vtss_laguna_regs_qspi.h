@@ -1840,6 +1840,12 @@
  *	 / Data: Dual SPI
  * 6: QUAD_CMD	     Instruction: Quad SPI	 / Address-Option: Quad SPI
  *	 / Data: Quad SPI
+ * 7: OCT_OUTPUT Instruction: Single-bit SPI / Address-Option: Single-bit
+ * SPI / Data: Octal SPI
+ * 8: OCT_IO Instruction: Single-bit SPI / Address-Option: Octal SPI /
+ * Data: Octal SPI
+ * 9: OCT_CMD Instruction: Octal SPI / Address-Option: Octal SPI / Data:
+ * Octal SPI
  *
  * Field: ::VTSS_QSPI_QSPI_IFR . WIDTH
  */
@@ -2467,6 +2473,112 @@
 #define  VTSS_F_QSPI_QSPI_VERSION_VERSION(x)  VTSS_ENCODE_BITFIELD(x,0,12)
 #define  VTSS_M_QSPI_QSPI_VERSION_VERSION     VTSS_ENCODE_BITMASK(0,12)
 #define  VTSS_X_QSPI_QSPI_VERSION_VERSION(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
+
+
+/**
+ * \brief QSPI DLL Offset Selection Registe
+ *
+ * \details
+ * QSPI DLL Offset Selection Registe
+ *
+ * Register: \a QSPI:QSPI_REGS:QSPI_DLL_OS
+ *
+ * @param target A \a ::vtss_target_QSPI_e target
+ */
+#define VTSS_QSPI_QSPI_DLL_OS(target)        VTSS_IOREG(target,0xc0)
+
+/**
+ * \brief
+ * SELOFF : Offset Selection.0: The hardcoded offsets are selected.   1:
+ * The programmable offsets are selected.
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_OS . SELOFF
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_OS_SELOFF(x)    VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_QSPI_QSPI_DLL_OS_SELOFF       VTSS_BIT(0)
+#define  VTSS_X_QSPI_QSPI_DLL_OS_SELOFF(x)    VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief QSPI DLL client Offset0 Registe
+ *
+ * \details
+ * QSPI DLL client Offset0 Registe
+ *
+ * Register: \a QSPI:QSPI_REGS:QSPI_DLL_SO0
+ *
+ * @param target A \a ::vtss_target_QSPI_e target
+ */
+#define VTSS_QSPI_QSPI_DLL_SO0(target)       VTSS_IOREG(target,0xc2)
+
+/**
+ * \brief
+ * S1OFF : ClientO Delay line offset.The Value stored by this field is
+ * signed. When this filed is written, the programmab;e client0 delay line
+ * offset is written. When this field is read: QSPI_DLL_OS.SELOFF = 0 : The
+ * hardcoded Cliento delay line offset is read QSPI_DLL_OS.SELOFF = 1 : The
+ * programmable Cliento delay line offset is read .
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_SO0 . S1OFF
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_QSPI_QSPI_DLL_SO0_S1OFF       VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * S0OFF : ClientO Delay line offset.The Value stored by this field is
+ * signed. When this filed is written, the programmab;e client0 delay line
+ * offset is written. When this field is read: QSPI_DLL_OS.SELOFF = 0 : The
+ * hardcoded Cliento delay line offset is read QSPI_DLL_OS.SELOFF = 1 : The
+ * programmable Cliento delay line offset is read .
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_SO0 . S0OFF
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_QSPI_QSPI_DLL_SO0_S0OFF       VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_EXTRACT_BITFIELD(x,0,4)
+
+
+/**
+ * \brief QSPI DQSDELAY Version Register
+ *
+ * \details
+ * QSPI DQSDELAY  Version Register
+ *
+ * Register: \a QSPI:QSPI_REGS:QSPI_DLL_VERSION
+ *
+ * @param target A \a ::vtss_target_QSPI_e target
+ */
+#define VTSS_QSPI_QSPI_DLL_VERSION(target)   VTSS_IOREG(target,0xff)
+
+/**
+ * \brief
+ * Metal Fix NumberReserved. Value subject to change. No functionality
+ * associated.
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_VERSION . DQSDELAY_MFN
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_VERSION_DQSDELAY_MFN(x)  VTSS_ENCODE_BITFIELD(x,16,3)
+#define  VTSS_M_QSPI_QSPI_DLL_VERSION_DQSDELAY_MFN     VTSS_ENCODE_BITMASK(16,3)
+#define  VTSS_X_QSPI_QSPI_DLL_VERSION_DQSDELAY_MFN(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+
+/**
+ * \brief
+ * Hardware Module Version.Reserved. Value subject to change. No
+ * functionality associated. This is the Microchip internal version of the
+ * macrocell.
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_VERSION . DQSDELAY_VERSION
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_VERSION_DQSDELAY_VERSION(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_QSPI_QSPI_DLL_VERSION_DQSDELAY_VERSION     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_QSPI_QSPI_DLL_VERSION_DQSDELAY_VERSION(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 
 #endif /* _VTSS_LAGUNA_REGS_QSPI_H_ */

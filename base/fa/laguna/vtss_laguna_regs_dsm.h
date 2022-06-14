@@ -619,7 +619,7 @@
  *
  * \details
  * '0': FDX FC is used.
- * '1': HDX backpreassure is used.
+ * '1': HDX backpressure is used.
  *
  * Field: ::VTSS_DSM_MAC_CFG . HDX_BACKPRESSURE
  */

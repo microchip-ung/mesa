@@ -836,58 +836,12 @@
 
 
 /**
- * \brief FDMA
- *
- * \details
- * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_SET
- */
-#define VTSS_FDMA_FDMA_INTR_DCB_ENA_SET      VTSS_IOREG(VTSS_TO_FDMA,0x64)
-
-/**
- * \brief
- * Setting a bit in this field will immediately set the corresponding bit
- * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is set.
- *
- * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_SET . INTR_DCB_ENA_SET
- */
-#define  VTSS_F_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \details
- * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_CLR
- */
-#define VTSS_FDMA_FDMA_INTR_DCB_ENA_CLR      VTSS_IOREG(VTSS_TO_FDMA,0x65)
-
-/**
- * \brief
- * Setting a bit in this field will immediately clear the corresponding bit
- * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is cleared.
- *
- * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_CLR . INTR_DCB_ENA_CLR
- */
-#define  VTSS_F_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
  * \brief DB-event
  *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DB
  */
-#define VTSS_FDMA_FDMA_INTR_DB               VTSS_IOREG(VTSS_TO_FDMA,0x66)
+#define VTSS_FDMA_FDMA_INTR_DB               VTSS_IOREG(VTSS_TO_FDMA,0x64)
 
 /**
  * \brief
@@ -912,7 +866,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA
  */
-#define VTSS_FDMA_FDMA_INTR_DB_ENA           VTSS_IOREG(VTSS_TO_FDMA,0x67)
+#define VTSS_FDMA_FDMA_INTR_DB_ENA           VTSS_IOREG(VTSS_TO_FDMA,0x65)
 
 /**
  * \brief
@@ -928,56 +882,12 @@
 
 
 /**
- * \details
- * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_SET
- */
-#define VTSS_FDMA_FDMA_INTR_DB_ENA_SET       VTSS_IOREG(VTSS_TO_FDMA,0x68)
-
-/**
- * \brief
- * Setting a bit in this field will immediately set the corresponding bit
- * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is set.
- *
- * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_SET . INTR_DB_ENA_SET
- */
-#define  VTSS_F_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \details
- * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_CLR
- */
-#define VTSS_FDMA_FDMA_INTR_DB_ENA_CLR       VTSS_IOREG(VTSS_TO_FDMA,0x69)
-
-/**
- * \brief
- * Setting a bit in this field will immediately clear the corresponding bit
- * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
- *
- * \details
- * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is cleared.
- *
- * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_CLR . INTR_DB_ENA_CLR
- */
-#define  VTSS_F_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
  * \brief ERR-event
  *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_ERR
  */
-#define VTSS_FDMA_FDMA_INTR_ERR              VTSS_IOREG(VTSS_TO_FDMA,0x6a)
+#define VTSS_FDMA_FDMA_INTR_ERR              VTSS_IOREG(VTSS_TO_FDMA,0x66)
 
 /**
  * \brief
@@ -1011,7 +921,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_ENA
  */
-#define VTSS_FDMA_FDMA_INTR_ENA              VTSS_IOREG(VTSS_TO_FDMA,0x6b)
+#define VTSS_FDMA_FDMA_INTR_ENA              VTSS_IOREG(VTSS_TO_FDMA,0x67)
 
 /**
  * \brief
@@ -1044,7 +954,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_IDENT
  */
-#define VTSS_FDMA_FDMA_INTR_IDENT            VTSS_IOREG(VTSS_TO_FDMA,0x6c)
+#define VTSS_FDMA_FDMA_INTR_IDENT            VTSS_IOREG(VTSS_TO_FDMA,0x68)
 
 /**
  * \brief
@@ -1074,74 +984,12 @@
 
 
 /**
- * \brief Currently interrupting channels
- *
- * \details
- * Register: \a FDMA:FDMA:FDMA_INTR_IDENT2
- */
-#define VTSS_FDMA_FDMA_INTR_IDENT2           VTSS_IOREG(VTSS_TO_FDMA,0x6d)
-
-/**
- * \brief
- * Shows currently interrupting DCB. When a bit is set in this register the
- * FDMA is generating interrupt towards the VCore interrupt controller.
- *
- * \details
- * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_DCB_IDENT
- */
-#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT(x)  VTSS_ENCODE_BITFIELD(x,18,8)
-#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT     VTSS_ENCODE_BITMASK(18,8)
-#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,18,8)
-
-/**
- * \brief
- * Shows currently interrupting DB. When a bit is set in this register the
- * FDMA is generating interrupt towards the VCore interrupt controller.
- *
- * \details
- * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_DB_IDENT
- */
-#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT(x)  VTSS_ENCODE_BITFIELD(x,10,8)
-#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT     VTSS_ENCODE_BITMASK(10,8)
-#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,10,8)
-
-/**
- * \brief
- * Shows currently interrupting channels related to ERR-event, there is one
- * bit per channel. When a bit is set in this register the FDMA is
- * generating interrupt towards the VCore interrupt controller.See the data
- * sheet for information on when this event can occur.
- *
- * \details
- * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_CH_ERR_IDENT
- */
-#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT(x)  VTSS_ENCODE_BITFIELD(x,2,8)
-#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT     VTSS_ENCODE_BITMASK(2,8)
-#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,2,8)
-
-/**
- * \brief
- * Shows currently interrupting injection ports related to ERR-event, there
- * is one bit per port. When a bit is set in this register the FDMA is
- * generating interrupt towards the VCore interrupt controller.It signals
- * errors related only to injection ports that the injection channel source
- * cannot be retrieved.
- *
- * \details
- * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_PORT_ERR_IDENT
- */
-#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT(x)  VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT     VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
-
-
-/**
  * \brief Error sticky flags
  *
  * \details
  * Register: \a FDMA:FDMA:FDMA_ERRORS
  */
-#define VTSS_FDMA_FDMA_ERRORS                VTSS_IOREG(VTSS_TO_FDMA,0x6e)
+#define VTSS_FDMA_FDMA_ERRORS                VTSS_IOREG(VTSS_TO_FDMA,0x69)
 
 /**
  * \brief
@@ -1282,7 +1130,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_ERRORS_2
  */
-#define VTSS_FDMA_FDMA_ERRORS_2              VTSS_IOREG(VTSS_TO_FDMA,0x6f)
+#define VTSS_FDMA_FDMA_ERRORS_2              VTSS_IOREG(VTSS_TO_FDMA,0x6a)
 
 /**
  * \brief
@@ -1303,7 +1151,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_IDLECNT
  */
-#define VTSS_FDMA_FDMA_IDLECNT               VTSS_IOREG(VTSS_TO_FDMA,0x70)
+#define VTSS_FDMA_FDMA_IDLECNT               VTSS_IOREG(VTSS_TO_FDMA,0x6b)
 
 /**
  * \brief
@@ -1326,7 +1174,7 @@
  * \details
  * Register: \a FDMA:FDMA:FDMA_CTRL
  */
-#define VTSS_FDMA_FDMA_CTRL                  VTSS_IOREG(VTSS_TO_FDMA,0x71)
+#define VTSS_FDMA_FDMA_CTRL                  VTSS_IOREG(VTSS_TO_FDMA,0x6c)
 
 /**
  * \brief
@@ -1339,6 +1187,158 @@
 #define  VTSS_F_FDMA_FDMA_CTRL_NRESET(x)      VTSS_ENCODE_BITFIELD(!!(x),0,1)
 #define  VTSS_M_FDMA_FDMA_CTRL_NRESET         VTSS_BIT(0)
 #define  VTSS_X_FDMA_FDMA_CTRL_NRESET(x)      VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief FDMA
+ *
+ * \details
+ * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_SET
+ */
+#define VTSS_FDMA_FDMA_INTR_DCB_ENA_SET      VTSS_IOREG(VTSS_TO_FDMA,0x6d)
+
+/**
+ * \brief
+ * Setting a bit in this field will immediately set the corresponding bit
+ * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is set.
+ *
+ * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_SET . INTR_DCB_ENA_SET
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_FDMA_FDMA_INTR_DCB_ENA_SET_INTR_DCB_ENA_SET(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \details
+ * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_CLR
+ */
+#define VTSS_FDMA_FDMA_INTR_DCB_ENA_CLR      VTSS_IOREG(VTSS_TO_FDMA,0x6e)
+
+/**
+ * \brief
+ * Setting a bit in this field will immediately clear the corresponding bit
+ * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is cleared.
+ *
+ * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_CLR . INTR_DCB_ENA_CLR
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_FDMA_FDMA_INTR_DCB_ENA_CLR_INTR_DCB_ENA_CLR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \details
+ * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_SET
+ */
+#define VTSS_FDMA_FDMA_INTR_DB_ENA_SET       VTSS_IOREG(VTSS_TO_FDMA,0x6f)
+
+/**
+ * \brief
+ * Setting a bit in this field will immediately set the corresponding bit
+ * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is set.
+ *
+ * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_SET . INTR_DB_ENA_SET
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_FDMA_FDMA_INTR_DB_ENA_SET_INTR_DB_ENA_SET(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \details
+ * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_CLR
+ */
+#define VTSS_FDMA_FDMA_INTR_DB_ENA_CLR       VTSS_IOREG(VTSS_TO_FDMA,0x70)
+
+/**
+ * \brief
+ * Setting a bit in this field will immediately clear the corresponding bit
+ * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
+ *
+ * \details
+ * '0': No change
+ * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is cleared.
+ *
+ * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_CLR . INTR_DB_ENA_CLR
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_FDMA_FDMA_INTR_DB_ENA_CLR_INTR_DB_ENA_CLR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Currently interrupting channels
+ *
+ * \details
+ * Register: \a FDMA:FDMA:FDMA_INTR_IDENT2
+ */
+#define VTSS_FDMA_FDMA_INTR_IDENT2           VTSS_IOREG(VTSS_TO_FDMA,0x71)
+
+/**
+ * \brief
+ * Shows currently interrupting DCB. When a bit is set in this register the
+ * FDMA is generating interrupt towards the VCore interrupt controller.
+ *
+ * \details
+ * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_DCB_IDENT
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT(x)  VTSS_ENCODE_BITFIELD(x,18,8)
+#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT     VTSS_ENCODE_BITMASK(18,8)
+#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_DCB_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,18,8)
+
+/**
+ * \brief
+ * Shows currently interrupting DB. When a bit is set in this register the
+ * FDMA is generating interrupt towards the VCore interrupt controller.
+ *
+ * \details
+ * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_DB_IDENT
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT(x)  VTSS_ENCODE_BITFIELD(x,10,8)
+#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT     VTSS_ENCODE_BITMASK(10,8)
+#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_DB_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,10,8)
+
+/**
+ * \brief
+ * Shows currently interrupting channels related to ERR-event, there is one
+ * bit per channel. When a bit is set in this register the FDMA is
+ * generating interrupt towards the VCore interrupt controller.See the data
+ * sheet for information on when this event can occur.
+ *
+ * \details
+ * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_CH_ERR_IDENT
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT(x)  VTSS_ENCODE_BITFIELD(x,2,8)
+#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT     VTSS_ENCODE_BITMASK(2,8)
+#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_CH_ERR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,2,8)
+
+/**
+ * \brief
+ * Shows currently interrupting injection ports related to ERR-event, there
+ * is one bit per port. When a bit is set in this register the FDMA is
+ * generating interrupt towards the VCore interrupt controller.It signals
+ * errors related only to injection ports that the injection channel source
+ * cannot be retrieved.
+ *
+ * \details
+ * Field: ::VTSS_FDMA_FDMA_INTR_IDENT2 . INTR_PORT_ERR_IDENT
+ */
+#define  VTSS_F_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_FDMA_FDMA_INTR_IDENT2_INTR_PORT_ERR_IDENT(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 /**
  * Register Group: \a FDMA:FDMA_HA

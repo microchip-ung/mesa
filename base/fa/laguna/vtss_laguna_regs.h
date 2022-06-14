@@ -19,6 +19,7 @@
 #include "vtss_laguna_regs_hmatrix2.h"
 #include "vtss_laguna_regs_mcan.h"
 #include "vtss_laguna_regs_mcan_timer.h"
+#include "vtss_laguna_regs_uvov.h"
 #include "vtss_laguna_regs_otp.h"
 #include "vtss_laguna_regs_pcie_cfg.h"
 #include "vtss_laguna_regs_pcie_dbi.h"

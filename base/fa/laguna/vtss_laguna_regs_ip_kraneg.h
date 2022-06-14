@@ -12,7 +12,7 @@
  *
  * \see vtss_target_IP_KRANEG_e
  *
- *
+ * KR Config and Status Register set
  *
  ***********************************************************************/
 
@@ -1237,6 +1237,101 @@
 
 /**
  * \brief
+ * Configuration to specify if RSFEC is to be enabled for the HCD
+ * Technology when FW_RESOLVE_ENA is set to 1. RSFEC ena should be set to 1
+ * only when the HCD technology in FW_HCD is 25GBaseKR or 100GBaseKR4
+ *
+ * \details
+ * 1 :- RS-FEC is to be enabled for HCD Technology (used only when
+ * FW_RESOLVE_ENA is set to 1)
+ * 0 :- RS-FEC is to be disabled for HCD Technology
+ *
+ * Field: ::VTSS_IP_KRANEG_AN_CFG1 . FW_RSFEC_ENA
+ */
+#define  VTSS_F_IP_KRANEG_AN_CFG1_FW_RSFEC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),25,1)
+#define  VTSS_M_IP_KRANEG_AN_CFG1_FW_RSFEC_ENA  VTSS_BIT(25)
+#define  VTSS_X_IP_KRANEG_AN_CFG1_FW_RSFEC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,25,1)
+
+/**
+ * \brief
+ * Configuration to specify if RFEC is to be enabled for the HCD Technology
+ * when FW_RESOLVE_ENA is set to 1. RFEC ena should be set to 1 only when
+ * the HCD technology in FW_HCD is 10GBaseKR or greater
+ *
+ * \details
+ * 1 :- KR-FEC is to be enabled for HCD Technology (used only when
+ * FW_RESOLVE_ENA is set to 1)
+ * 0 :- KR-FEC is to be disabled for HCD Technology
+ *
+ * Field: ::VTSS_IP_KRANEG_AN_CFG1 . FW_RFEC_ENA
+ */
+#define  VTSS_F_IP_KRANEG_AN_CFG1_FW_RFEC_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_IP_KRANEG_AN_CFG1_FW_RFEC_ENA  VTSS_BIT(24)
+#define  VTSS_X_IP_KRANEG_AN_CFG1_FW_RFEC_ENA(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+/**
+ * \brief
+ * Configuration to control the HCD value from FW when FW_RESOLVE_ENA is
+ * set to 1. This field is unused when FW_RESOLVE_ENA is set to 0.
+ *
+ * \details
+ * 0: Incompatible Link 1 : 100G-CR4
+ * 2 : 100G-KR4
+ * 3 : 100G-KP4
+ * 4 : 100G-CR10
+ * 5 : 40G-CR4
+ * 6 : 40G-KR4
+ * 7 : 25G-KR
+ * 8 : 25G-KR-S
+ * 9 : 10G-KR
+ * 10 : 10G-KX4
+ * 11 : 5G-KR
+ * 12 : 2.5G-KX
+ * 13 : 1G-KX
+
+ *
+ * Field: ::VTSS_IP_KRANEG_AN_CFG1 . FW_HCD
+ */
+#define  VTSS_F_IP_KRANEG_AN_CFG1_FW_HCD(x)   VTSS_ENCODE_BITFIELD(x,20,4)
+#define  VTSS_M_IP_KRANEG_AN_CFG1_FW_HCD      VTSS_ENCODE_BITMASK(20,4)
+#define  VTSS_X_IP_KRANEG_AN_CFG1_FW_HCD(x)   VTSS_EXTRACT_BITFIELD(x,20,4)
+
+/**
+ * \brief
+ * Configuration to control the Priority Resolution function by HW or SW.
+ *
+ * \details
+ * 1:- SW Decides the HCD technology
+ * 0:- HW Decides the HCD technology (Default)
+ *
+ * Field: ::VTSS_IP_KRANEG_AN_CFG1 . FW_RESOLVE_ENA
+ */
+#define  VTSS_F_IP_KRANEG_AN_CFG1_FW_RESOLVE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_IP_KRANEG_AN_CFG1_FW_RESOLVE_ENA  VTSS_BIT(19)
+#define  VTSS_X_IP_KRANEG_AN_CFG1_FW_RESOLVE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/**
+ * \brief
+ * Specifies the number of pages to be transmitted in COMPLETE_ACKNOWLEDGE
+ * state before the ack_finished is asserted.
+ *
+ * \details
+ * 0 : 1 Page
+ * 1 : 2 Pages
+ * 2 : 3 Pages
+ * 7 : 8 Pages
+ *
+ * Valid values as per the protocol are 5 to 7. Others are for Debug
+ * purpose.
+ *
+ * Field: ::VTSS_IP_KRANEG_AN_CFG1 . ACK_FIN_PAGE_CNT
+ */
+#define  VTSS_F_IP_KRANEG_AN_CFG1_ACK_FIN_PAGE_CNT(x)  VTSS_ENCODE_BITFIELD(x,16,3)
+#define  VTSS_M_IP_KRANEG_AN_CFG1_ACK_FIN_PAGE_CNT     VTSS_ENCODE_BITMASK(16,3)
+#define  VTSS_X_IP_KRANEG_AN_CFG1_ACK_FIN_PAGE_CNT(x)  VTSS_EXTRACT_BITFIELD(x,16,3)
+
+/**
+ * \brief
  * Enable 16-bit data input for 5G mode
  *
  * \details
@@ -1407,7 +1502,7 @@
 #define  VTSS_X_IP_KRANEG_AW_TMR_TMR(x)       (x)
 
 /**
- * Register Group: \a IP_KRANEG:LFLONG_TMR
+ * Register Group: \a IP_KRANEG:LF_TMR
  *
  * Not documented
  */
@@ -1417,54 +1512,55 @@
  * \brief AN link_fail_inhibit timer
  *
  * \details
- * Register: \a IP_KRANEG:LFLONG_TMR:LFLONG_TMR
+ * Register: \a IP_KRANEG:LF_TMR:LF_TMR
  *
  * @param target A \a ::vtss_target_IP_KRANEG_e target
  */
-#define VTSS_IP_KRANEG_LFLONG_TMR(target)    VTSS_IOREG(target,0x1014)
+#define VTSS_IP_KRANEG_LF_TMR(target)        VTSS_IOREG(target,0x1014)
 
 /**
  * \brief
- * 10g link_fail_inhibit_timer setting. Default value is set to 50ms for a
- * system clock period of 1.6ns and a timer divider value of 4. Long timer
- * and short timer are set to same values as there is a training timer in
- * TRAIN state which takes care of the training time of 500ms.
+ * link_fail_inhibit_timer setting. Default value is set to 50ms for a
+ * system clock period of 1.6ns and a timer divider value of 4. Time shall
+ * not be modified whether Training is run or not as there is a training
+ * timer in TRAIN state which takes care of the training time of 500ms.
  *
  * \details
- * Field: ::VTSS_IP_KRANEG_LFLONG_TMR . TMR
+ * Field: ::VTSS_IP_KRANEG_LF_TMR . TMR
  */
-#define  VTSS_F_IP_KRANEG_LFLONG_TMR_TMR(x)   (x)
-#define  VTSS_M_IP_KRANEG_LFLONG_TMR_TMR      0xffffffff
-#define  VTSS_X_IP_KRANEG_LFLONG_TMR_TMR(x)   (x)
+#define  VTSS_F_IP_KRANEG_LF_TMR_TMR(x)       (x)
+#define  VTSS_M_IP_KRANEG_LF_TMR_TMR          0xffffffff
+#define  VTSS_X_IP_KRANEG_LF_TMR_TMR(x)       (x)
 
 /**
- * Register Group: \a IP_KRANEG:LFSHORT_TMR
+ * Register Group: \a IP_KRANEG:FR_TMR
  *
  * Not documented
  */
 
 
 /**
- * \brief AN link_fail_inhibit_short timer
+ * \brief Firmware Priority Resolution Timeout
  *
  * \details
- * Register: \a IP_KRANEG:LFSHORT_TMR:LFSHORT_TMR
+ * Register: \a IP_KRANEG:FR_TMR:FR_TMR
  *
  * @param target A \a ::vtss_target_IP_KRANEG_e target
  */
-#define VTSS_IP_KRANEG_LFSHORT_TMR(target)   VTSS_IOREG(target,0x1016)
+#define VTSS_IP_KRANEG_FR_TMR(target)        VTSS_IOREG(target,0x1016)
 
 /**
  * \brief
- * 1g link_fail_inhibit_timer settingDefault value is set to 50ms for a
- * system clock period of 1.6ns and a timer divider value of 4.
+ * Timeout Value before which Firmware is expected to complete Priority
+ * Resolution when FW_RESOLVE_ENA is set to 1.Default value is set to 5ms
+ * for a system clock period of 1.6ns and a timer divider value of 4.
  *
  * \details
- * Field: ::VTSS_IP_KRANEG_LFSHORT_TMR . TMR
+ * Field: ::VTSS_IP_KRANEG_FR_TMR . TMR
  */
-#define  VTSS_F_IP_KRANEG_LFSHORT_TMR_TMR(x)  (x)
-#define  VTSS_M_IP_KRANEG_LFSHORT_TMR_TMR     0xffffffff
-#define  VTSS_X_IP_KRANEG_LFSHORT_TMR_TMR(x)  (x)
+#define  VTSS_F_IP_KRANEG_FR_TMR_TMR(x)       (x)
+#define  VTSS_M_IP_KRANEG_FR_TMR_TMR          0xffffffff
+#define  VTSS_X_IP_KRANEG_FR_TMR_TMR(x)       (x)
 
 /**
  * Register Group: \a IP_KRANEG:LP_TMR
@@ -1887,6 +1983,20 @@
 
 /**
  * \brief
+ * Indicates that the FW has completed the Priority Resolution function and
+ * updated the HCD Capabilities of the Link Partners in AN_CFG1.FW_HCD,
+ * AN_CFG1.FW_RFEC_ENA, AN_CFG1.FW_RSFEC_ENA.  It is expected that the
+ * RFEC_ENA and RSFEC_ENA are not set to 1 at the same time.
+ *
+ * \details
+ * Field: ::VTSS_IP_KRANEG_FW_MSG . FW_RESOLVE_DONE
+ */
+#define  VTSS_F_IP_KRANEG_FW_MSG_FW_RESOLVE_DONE(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_IP_KRANEG_FW_MSG_FW_RESOLVE_DONE  VTSS_BIT(5)
+#define  VTSS_X_IP_KRANEG_FW_MSG_FW_RESOLVE_DONE(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
  * Indicates that training has completed (SC)
  *
  * \details
@@ -2028,6 +2138,38 @@
  * @param target A \a ::vtss_target_IP_KRANEG_e target
  */
 #define VTSS_IP_KRANEG_IRQ_VEC(target)       VTSS_IOREG(target,0x1042)
+
+/**
+ * \brief
+ * Interrupt to indicate that a new request to configure the NP_TX
+ * registers is being made. Asserted along with CMPL_ACK Interrupt if a
+ * Next Page is to be transmitted.
+ *
+ * \details
+ * 1 :- A next page is to be transmitted next and np_tx registers are
+ * requested to be configured.
+ * 0 :- No Next page is to be transmitted next and the Auto-negotiation
+ * would enter into Priority Resolution now.
+ *
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . NP_REQ
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_NP_REQ(x)   VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_NP_REQ      VTSS_BIT(31)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_NP_REQ(x)   VTSS_EXTRACT_BITFIELD(x,31,1)
+
+/**
+ * \brief
+ * Interrupt Sticky bit to indicate the assertion of ack_finished signal.
+ *
+ * \details
+ * 1 : ack_finished asserted since the last clearing of the same.
+ * 0 : ack_finished is not asserted since the last clearing of the same.
+ *
+ * Field: ::VTSS_IP_KRANEG_IRQ_VEC . ACK_FIN
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_VEC_ACK_FIN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_IP_KRANEG_IRQ_VEC_ACK_FIN     VTSS_BIT(30)
+#define  VTSS_X_IP_KRANEG_IRQ_VEC_ACK_FIN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
 
 /**
  * \brief
@@ -2342,6 +2484,28 @@
  * @param target A \a ::vtss_target_IP_KRANEG_e target
  */
 #define VTSS_IP_KRANEG_IRQ_MASK(target)      VTSS_IOREG(target,0x1043)
+
+/**
+ * \brief
+ * Interrupt mask for NP_REQ Interrupt
+ *
+ * \details
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . NP_REQ
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_NP_REQ(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_NP_REQ     VTSS_BIT(31)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_NP_REQ(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+
+/**
+ * \brief
+ * Interrupt mask for ACK_FIN Interrupt
+ *
+ * \details
+ * Field: ::VTSS_IP_KRANEG_IRQ_MASK . ACK_FIN
+ */
+#define  VTSS_F_IP_KRANEG_IRQ_MASK_ACK_FIN(x)  VTSS_ENCODE_BITFIELD(!!(x),30,1)
+#define  VTSS_M_IP_KRANEG_IRQ_MASK_ACK_FIN    VTSS_BIT(30)
+#define  VTSS_X_IP_KRANEG_IRQ_MASK_ACK_FIN(x)  VTSS_EXTRACT_BITFIELD(x,30,1)
 
 /**
  * \brief

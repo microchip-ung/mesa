@@ -27,7 +27,7 @@
  * \details
  * Register: \a XQS:SYSTEM:STAT_CNT_CFG
  */
-#define VTSS_XQS_STAT_CNT_CFG                VTSS_IOREG(VTSS_TO_XQS,0x55c)
+#define VTSS_XQS_STAT_CNT_CFG                VTSS_IOREG(VTSS_TO_XQS,0x59c)
 
 /**
  * \brief
@@ -50,7 +50,7 @@
  * \details
  * Register: \a XQS:SYSTEM:MAP_CFG_CFG
  */
-#define VTSS_XQS_MAP_CFG_CFG                 VTSS_IOREG(VTSS_TO_XQS,0x55d)
+#define VTSS_XQS_MAP_CFG_CFG                 VTSS_IOREG(VTSS_TO_XQS,0x59d)
 
 /**
  * \brief
@@ -71,7 +71,7 @@
  * \details
  * Register: \a XQS:SYSTEM:FWD_CTRL
  */
-#define VTSS_XQS_FWD_CTRL                    VTSS_IOREG(VTSS_TO_XQS,0x55e)
+#define VTSS_XQS_FWD_CTRL                    VTSS_IOREG(VTSS_TO_XQS,0x59e)
 
 /**
  * \brief
@@ -106,7 +106,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_XQS_FWD_DROP_EVENTS(ri)         VTSS_IOREG(VTSS_TO_XQS,0x55f + (ri))
+#define VTSS_XQS_FWD_DROP_EVENTS(ri)         VTSS_IOREG(VTSS_TO_XQS,0x59f + (ri))
 
 /**
  * \brief
@@ -180,7 +180,7 @@
  *
  * @param ri Register: FWD_STAT_CNT (??), 0-4
  */
-#define VTSS_XQS_FWD_STAT_CNT(ri)            VTSS_IOREG(VTSS_TO_XQS,0x582 + (ri))
+#define VTSS_XQS_FWD_STAT_CNT(ri)            VTSS_IOREG(VTSS_TO_XQS,0x5e5 + (ri))
 
 /**
  * \brief
@@ -200,7 +200,7 @@
  * \details
  * Register: \a XQS:SYSTEM:FWD_CPU_DROP_CNT
  */
-#define VTSS_XQS_FWD_CPU_DROP_CNT            VTSS_IOREG(VTSS_TO_XQS,0x587)
+#define VTSS_XQS_FWD_CPU_DROP_CNT            VTSS_IOREG(VTSS_TO_XQS,0x5ea)
 
 /**
  * \brief
@@ -225,7 +225,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_ETHPORT_CNT (??), 0-29
  */
-#define VTSS_XQS_FWD_CT_CFG(ri)              VTSS_IOREG(VTSS_TO_XQS,0x588 + (ri))
+#define VTSS_XQS_FWD_CT_CFG(ri)              VTSS_IOREG(VTSS_TO_XQS,0x5eb + (ri))
 
 /**
  * \brief
@@ -303,7 +303,7 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_XQS_QMAP_PORT_MODE(ri)          VTSS_IOREG(VTSS_TO_XQS,0x5a6 + (ri))
+#define VTSS_XQS_QMAP_PORT_MODE(ri)          VTSS_IOREG(VTSS_TO_XQS,0x62c + (ri))
 
 /**
  * \brief
@@ -353,7 +353,7 @@
  * \details
  * Register: \a XQS:SYSTEM:QMAP_EACL
  */
-#define VTSS_XQS_QMAP_EACL                   VTSS_IOREG(VTSS_TO_XQS,0x5c9)
+#define VTSS_XQS_QMAP_EACL                   VTSS_IOREG(VTSS_TO_XQS,0x672)
 
 /**
  * \brief
@@ -405,7 +405,7 @@
  * \details
  * Register: \a XQS:SYSTEM:STAT_CFG
  */
-#define VTSS_XQS_STAT_CFG                    VTSS_IOREG(VTSS_TO_XQS,0x5ca)
+#define VTSS_XQS_STAT_CFG                    VTSS_IOREG(VTSS_TO_XQS,0x673)
 
 /**
  * \brief
@@ -429,9 +429,9 @@
  *
  * Field: ::VTSS_XQS_STAT_CFG . STAT_CLEAR_SHOT
  */
-#define  VTSS_F_XQS_STAT_CFG_STAT_CLEAR_SHOT(x)  VTSS_ENCODE_BITFIELD(x,15,4)
-#define  VTSS_M_XQS_STAT_CFG_STAT_CLEAR_SHOT     VTSS_ENCODE_BITMASK(15,4)
-#define  VTSS_X_XQS_STAT_CFG_STAT_CLEAR_SHOT(x)  VTSS_EXTRACT_BITFIELD(x,15,4)
+#define  VTSS_F_XQS_STAT_CFG_STAT_CLEAR_SHOT(x)  VTSS_ENCODE_BITFIELD(x,18,4)
+#define  VTSS_M_XQS_STAT_CFG_STAT_CLEAR_SHOT     VTSS_ENCODE_BITMASK(18,4)
+#define  VTSS_X_XQS_STAT_CFG_STAT_CLEAR_SHOT(x)  VTSS_EXTRACT_BITFIELD(x,18,4)
 
 /**
  * \brief
@@ -482,7 +482,7 @@
  * \details
  * Register: \a XQS:SYSTEM:MIRROR_CFG
  */
-#define VTSS_XQS_MIRROR_CFG                  VTSS_IOREG(VTSS_TO_XQS,0x5cb)
+#define VTSS_XQS_MIRROR_CFG                  VTSS_IOREG(VTSS_TO_XQS,0x674)
 
 /**
  * \brief
@@ -503,7 +503,7 @@
  * \details
  * Register: \a XQS:SYSTEM:CPUQ_DISCARD
  */
-#define VTSS_XQS_CPUQ_DISCARD                VTSS_IOREG(VTSS_TO_XQS,0x5cc)
+#define VTSS_XQS_CPUQ_DISCARD                VTSS_IOREG(VTSS_TO_XQS,0x675)
 
 /**
  * \brief
@@ -579,7 +579,7 @@
  *
  * @param gi Register: QMAP_SE_TBL (??), 0-3
  */
-#define VTSS_XQS_QMAP_SE_TBL(gi)             VTSS_IOREG_IX(VTSS_TO_XQS,0x550,gi,2,0,0)
+#define VTSS_XQS_QMAP_SE_TBL(gi)             VTSS_IOREG_IX(VTSS_TO_XQS,0x590,gi,2,0,0)
 
 /**
  * \brief
@@ -608,7 +608,7 @@
  *
  * @param gi Register: QMAP_SE_TBL (??), 0-3
  */
-#define VTSS_XQS_QMAP_CT_ESP(gi)             VTSS_IOREG_IX(VTSS_TO_XQS,0x550,gi,2,0,1)
+#define VTSS_XQS_QMAP_CT_ESP(gi)             VTSS_IOREG_IX(VTSS_TO_XQS,0x590,gi,2,0,1)
 
 /**
  * \brief
@@ -657,7 +657,7 @@
  *
  * @param gi Register: QMAP_QOS_TBL (??), 0-3
  */
-#define VTSS_XQS_QMAP_QOS_TBL(gi)            VTSS_IOREG_IX(VTSS_TO_XQS,0x540,gi,4,0,0)
+#define VTSS_XQS_QMAP_QOS_TBL(gi)            VTSS_IOREG_IX(VTSS_TO_XQS,0x580,gi,4,0,0)
 
 /**
  * \brief
@@ -692,7 +692,7 @@
  *
  * @param gi Register: QMAP_QOS_TBL (??), 0-3
  */
-#define VTSS_XQS_QMAP_QOS_SIZE(gi)           VTSS_IOREG_IX(VTSS_TO_XQS,0x540,gi,4,0,1)
+#define VTSS_XQS_QMAP_QOS_SIZE(gi)           VTSS_IOREG_IX(VTSS_TO_XQS,0x580,gi,4,0,1)
 
 /**
  * \brief
@@ -728,7 +728,7 @@
  *
  * @param gi Register: QMAP_QOS_TBL (??), 0-3
  */
-#define VTSS_XQS_DROP_STAT_CTRL(gi)          VTSS_IOREG_IX(VTSS_TO_XQS,0x540,gi,4,0,2)
+#define VTSS_XQS_DROP_STAT_CTRL(gi)          VTSS_IOREG_IX(VTSS_TO_XQS,0x580,gi,4,0,2)
 
 /**
  * \brief
@@ -810,7 +810,7 @@
  *
  * @param gi Register: QLIMIT_QUEUE (??), 0-3
  */
-#define VTSS_XQS_QUEUE_SIZE(gi)              VTSS_IOREG_IX(VTSS_TO_XQS,0x558,gi,1,0,0)
+#define VTSS_XQS_QUEUE_SIZE(gi)              VTSS_IOREG_IX(VTSS_TO_XQS,0x598,gi,1,0,0)
 
 /**
  * \brief
@@ -861,7 +861,7 @@
  *
  * @param gi Register: QLIMIT_SE (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SE_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,16,0,0)
+#define VTSS_XQS_QLIMIT_SE_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,0,0)
 
 /**
  * \brief
@@ -885,7 +885,7 @@
  * @param gi Register: QLIMIT_SE (??), 0-3
  * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SE_USE(gi,ri)        VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,16,ri,1)
+#define VTSS_XQS_QLIMIT_SE_USE(gi,ri)        VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,1)
 
 /**
  * \brief
@@ -900,29 +900,6 @@
 
 
 /**
- * \brief Which memory share does this SE belong to
- *
- * \details
- * Register: \a XQS:QLIMIT_SE:QLIMIT_SE_SHR
- *
- * @param gi Register: QLIMIT_SE (??), 0-3
- * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
- */
-#define VTSS_XQS_QLIMIT_SE_SHR(gi,ri)        VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,16,ri,5)
-
-/**
- * \brief
- * Shared memory pool this se belongs to
- *
- * \details
- * Field: ::VTSS_XQS_QLIMIT_SE_SHR . QLIMIT_SE_SHR
- */
-#define  VTSS_F_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_ENCODE_BITFIELD(x,0,2)
-#define  VTSS_M_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR     VTSS_ENCODE_BITMASK(0,2)
-#define  VTSS_X_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
-
-
-/**
  * \brief Current congestion count for the scheduling element
  *
  * \details
@@ -931,7 +908,7 @@
  * @param gi Register: QLIMIT_SE (??), 0-3
  * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_CONG_CNT(gi,ri)      VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,16,ri,9)
+#define VTSS_XQS_QLIMIT_CONG_CNT(gi,ri)      VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,10)
 
 /**
  * \brief
@@ -943,6 +920,29 @@
 #define  VTSS_F_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,6)
 #define  VTSS_M_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT     VTSS_ENCODE_BITMASK(0,6)
 #define  VTSS_X_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+
+
+/**
+ * \brief Which memory share does this SE belong to
+ *
+ * \details
+ * Register: \a XQS:QLIMIT_SE:QLIMIT_SE_SHR
+ *
+ * @param gi Register: QLIMIT_SE (??), 0-3
+ * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
+ */
+#define VTSS_XQS_QLIMIT_SE_SHR(gi,ri)        VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,19)
+
+/**
+ * \brief
+ * Shared memory pool this se belongs to
+ *
+ * \details
+ * Field: ::VTSS_XQS_QLIMIT_SE_SHR . QLIMIT_SE_SHR
+ */
+#define  VTSS_F_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 /**
  * Register Group: \a XQS:QLIMIT_CFG
@@ -959,7 +959,19 @@
  *
  * @param ri Replicator: x_GAZ_CORE_PORT_CNT (??), 0-34
  */
-#define VTSS_XQS_QLIMIT_PORT_CFG(ri)         VTSS_IOREG(VTSS_TO_XQS,0x5cd + (ri))
+#define VTSS_XQS_QLIMIT_PORT_CFG(ri)         VTSS_IOREG(VTSS_TO_XQS,0x676 + (ri))
+
+/**
+ * \brief
+ * Allow an empty scheduling element to accept a frame no matter shared
+ * fill level.
+ *
+ * \details
+ * Field: ::VTSS_XQS_QLIMIT_PORT_CFG . QLIMIT_EMPTY_ALLOW
+ */
+#define  VTSS_F_XQS_QLIMIT_PORT_CFG_QLIMIT_EMPTY_ALLOW(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_XQS_QLIMIT_PORT_CFG_QLIMIT_EMPTY_ALLOW  VTSS_BIT(4)
+#define  VTSS_X_XQS_QLIMIT_PORT_CFG_QLIMIT_EMPTY_ALLOW(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
@@ -1022,7 +1034,7 @@
  *
  * @param ri Register: QLIMIT_DP_CFG (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_DP_CFG(ri)           VTSS_IOREG(VTSS_TO_XQS,0x5f0 + (ri))
+#define VTSS_XQS_QLIMIT_DP_CFG(ri)           VTSS_IOREG(VTSS_TO_XQS,0x6bc + (ri))
 
 /**
  * \brief
@@ -1034,9 +1046,9 @@
  * \details
  * Field: ::VTSS_XQS_QLIMIT_DP_CFG . QLIMIT_DP_RSRV
  */
-#define  VTSS_F_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
-#define  VTSS_M_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV  VTSS_BIT(14)
-#define  VTSS_X_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+#define  VTSS_F_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV  VTSS_BIT(15)
+#define  VTSS_X_XQS_QLIMIT_DP_CFG_QLIMIT_DP_RSRV(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
 
 /**
  * \brief
@@ -1065,7 +1077,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_TOP_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,0)
+#define VTSS_XQS_QLIMIT_SHR_TOP_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,0)
 
 /**
  * \brief
@@ -1088,7 +1100,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_ATOP_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,1)
+#define VTSS_XQS_QLIMIT_SHR_ATOP_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,1)
 
 /**
  * \brief
@@ -1110,7 +1122,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_CTOP_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,2)
+#define VTSS_XQS_QLIMIT_SHR_CTOP_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,2)
 
 /**
  * \brief
@@ -1133,7 +1145,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_QLIM_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,3)
+#define VTSS_XQS_QLIMIT_SHR_QLIM_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,3)
 
 /**
  * \brief
@@ -1156,7 +1168,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_QDIV_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,4)
+#define VTSS_XQS_QLIMIT_SHR_QDIV_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,4)
 
 /**
  * \brief
@@ -1179,7 +1191,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_QUE_CONG_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,5)
+#define VTSS_XQS_QLIMIT_QUE_CONG_CFG(gi)     VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,5)
 
 /**
  * \details
@@ -1198,7 +1210,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SE_CONG_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,6)
+#define VTSS_XQS_QLIMIT_SE_CONG_CFG(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,6)
 
 /**
  * \brief
@@ -1220,7 +1232,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,7)
+#define VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,7)
 
 /**
  * \brief
@@ -1243,7 +1255,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SE_EIR_CFG(gi)       VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,8)
+#define VTSS_XQS_QLIMIT_SE_EIR_CFG(gi)       VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,8)
 
 /**
  * \brief
@@ -1266,7 +1278,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_CONG_CNT_STAT(gi)    VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,9)
+#define VTSS_XQS_QLIMIT_CONG_CNT_STAT(gi)    VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,9)
 
 /**
  * \details
@@ -1285,7 +1297,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_FILL_STAT(gi)    VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,10)
+#define VTSS_XQS_QLIMIT_SHR_FILL_STAT(gi)    VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,10)
 
 /**
  * \details
@@ -1304,7 +1316,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_WM_STAT(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x5f4,gi,12,0,11)
+#define VTSS_XQS_QLIMIT_SHR_WM_STAT(gi)      VTSS_IOREG_IX(VTSS_TO_XQS,0x6c0,gi,12,0,11)
 
 /**
  * \details
@@ -1331,7 +1343,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_MON_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_XQS,0x624,gi,3,0,0)
+#define VTSS_XQS_QLIMIT_MON_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_XQS,0x6f0,gi,3,0,0)
 
 /**
  * \brief
@@ -1353,7 +1365,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x624,gi,3,0,1)
+#define VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x6f0,gi,3,0,1)
 
 /**
  * \details
@@ -1372,7 +1384,7 @@
  *
  * @param gi Replicator: x_GAZ_CORE_QLIM_SHR_CNT (??), 0-3
  */
-#define VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x624,gi,3,0,2)
+#define VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(gi)  VTSS_IOREG_IX(VTSS_TO_XQS,0x6f0,gi,3,0,2)
 
 /**
  * \details

@@ -3224,23 +3224,9 @@
  * \details
  * Field: ::VTSS_DEV1G_PTP_EVENTS . PCH_SUB_PORT_ID_ERR_STICKY
  */
-#define  VTSS_F_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY  VTSS_BIT(2)
-#define  VTSS_X_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * The correction field update went out of range. Valid range is -2^47 to
- * 2^48-1. The frame CF will be changed to the maximum value. This range
- * check is bypassed if ADDS48 mode is in use on the ingress or egress
- * port.
- *
- * \details
- * Field: ::VTSS_DEV1G_PTP_EVENTS . CF_TOO_BIG_STICKY
- */
-#define  VTSS_F_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY  VTSS_BIT(1)
-#define  VTSS_X_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY  VTSS_BIT(1)
+#define  VTSS_X_DEV1G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
 
 /**
  * \brief
@@ -3328,12 +3314,6 @@
  * For timestamping and phase detection to work reliably, the mac clock
  * domains must be reset after clock change, ie when the link is detected
  * up and stable.
- * If high accuracy detection is to be used:
- *   The PHAD_ENA must be set, TWEAKS should be set to 5, and DIV_CFG
- * should be set to 3. LOCK_ACC will define how big an error at realignment
- * is accepted for the PHAD_LOCK indication to be seen.
- * If high accuracy is not to be used:
- *   The PHAD_ENA should be cleared, and TWEAKS should be set to 7.
  *
  * Register: \a DEV1G:PHASE_DETECTOR_CTRL:PHAD_CTRL
  *
@@ -3344,25 +3324,27 @@
 
 /**
  * \brief
- * Phase detector is locked to port clock
+ * Phase detector is locked to port clock. This indicates that the error
+ * level has been lower than the cfg_lock configuration for the past 5
+ * times an error is seen.
  *
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . PHAD_LOCK
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
-#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_LOCK     VTSS_BIT(21)
-#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_LOCK     VTSS_BIT(18)
+#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_LOCK(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
 
 /**
  * \brief
- * Event clock is currently divided by the power of this
+ * Event clock is currently divided by this
  *
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . DIV_STATE
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_DIV_STATE(x)  VTSS_ENCODE_BITFIELD(x,17,4)
-#define  VTSS_M_DEV1G_PHAD_CTRL_DIV_STATE     VTSS_ENCODE_BITMASK(17,4)
-#define  VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(x)  VTSS_EXTRACT_BITFIELD(x,17,4)
+#define  VTSS_F_DEV1G_PHAD_CTRL_DIV_STATE(x)  VTSS_ENCODE_BITFIELD(x,15,3)
+#define  VTSS_M_DEV1G_PHAD_CTRL_DIV_STATE     VTSS_ENCODE_BITMASK(15,3)
+#define  VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(x)  VTSS_EXTRACT_BITFIELD(x,15,3)
 
 /**
  * \brief
@@ -3372,96 +3354,106 @@
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . PHAD_ADJ
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_ADJ(x)   VTSS_ENCODE_BITFIELD(x,15,2)
-#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_ADJ      VTSS_ENCODE_BITMASK(15,2)
-#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,15,2)
+#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_ADJ(x)   VTSS_ENCODE_BITFIELD(x,13,2)
+#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_ADJ      VTSS_ENCODE_BITMASK(13,2)
+#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,13,2)
 
 /**
  * \brief
- * When set, PHAD_ERR_STAT returns the largest error seen since this field
- * is set.
+ * Configure wjat the PHAD_ERR_STAT shows
  *
  * \details
+ * 0: Show the latest error level
+ * 1: Show the largests error level
+ *
  * Field: ::VTSS_DEV1G_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
-#define  VTSS_M_DEV1G_PHAD_CTRL_ERR_MAX_ENA   VTSS_BIT(14)
-#define  VTSS_X_DEV1G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+#define  VTSS_F_DEV1G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_DEV1G_PHAD_CTRL_ERR_MAX_ENA   VTSS_BIT(12)
+#define  VTSS_X_DEV1G_PHAD_CTRL_ERR_MAX_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
 
 /**
  * \brief
  * Divide port clock by the power of this
  *
  * \details
- * 0: Do not divide.
- * 1: Divide port clock by two.
- * 2: Divide port clock by four.
- * 7: Automode.
+ * 0: Auto detect.
+ * 1: Divide port clock by one
+ * 2: Divide port clock by two.
+ * ...
+ * 7: Divide port clock by 7.
  *
  * Field: ::VTSS_DEV1G_PHAD_CTRL . DIV_CFG
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG(x)    VTSS_ENCODE_BITFIELD(x,11,3)
-#define  VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG       VTSS_ENCODE_BITMASK(11,3)
-#define  VTSS_X_DEV1G_PHAD_CTRL_DIV_CFG(x)    VTSS_EXTRACT_BITFIELD(x,11,3)
+#define  VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG(x)    VTSS_ENCODE_BITFIELD(x,9,3)
+#define  VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG       VTSS_ENCODE_BITMASK(9,3)
+#define  VTSS_X_DEV1G_PHAD_CTRL_DIV_CFG(x)    VTSS_EXTRACT_BITFIELD(x,9,3)
 
 /**
  * \brief
- * Internal tweaks on how port period is analyzed
+ * Internal tweaks. Can be left at default value.
  *
  * \details
- * x00: Count once and adjust 0.2 fs at reallignment
- * xx1: Tune in on the port period at double speed
- * x1x: Reserved
- * 1xx: Reserved
+ * xx1: Count up to 4K port cycles when detecting port clock period.
+ * Otherwise up to 128K cycles. If more than 1 ms has passed in the
+ * counting, the evaluation stops at the next power of two port cycles
+ * 00x: In sync mode, delay chain is 8 inverter pairs long
+ * 01x: In sync mode, delay chain is 6 inverter pairs long
+ * 10x: In sync mode, delay chain is 4 inverter pairs long
+ * 11x: In sync mode, delay chain is 2 inverter pairs long
+
  *
  * Field: ::VTSS_DEV1G_PHAD_CTRL . TWEAKS
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_TWEAKS(x)     VTSS_ENCODE_BITFIELD(x,8,3)
-#define  VTSS_M_DEV1G_PHAD_CTRL_TWEAKS        VTSS_ENCODE_BITMASK(8,3)
-#define  VTSS_X_DEV1G_PHAD_CTRL_TWEAKS(x)     VTSS_EXTRACT_BITFIELD(x,8,3)
+#define  VTSS_F_DEV1G_PHAD_CTRL_TWEAKS(x)     VTSS_ENCODE_BITFIELD(x,6,3)
+#define  VTSS_M_DEV1G_PHAD_CTRL_TWEAKS        VTSS_ENCODE_BITMASK(6,3)
+#define  VTSS_X_DEV1G_PHAD_CTRL_TWEAKS(x)     VTSS_EXTRACT_BITFIELD(x,6,3)
 
 /**
  * \brief
- * Enable phase detector
+ * Enable high accuracy TOD transfer
  *
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . PHAD_ENA
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA      VTSS_BIT(7)
-#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_ENA(x)   VTSS_EXTRACT_BITFIELD(x,7,1)
+#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA      VTSS_BIT(5)
+#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_ENA(x)   VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * The high accuracy TOD traphase detector can operator in two
+ * modes:RANGEMODE: Main TOD is sampled at every port clock edge and
+ * verified to be within 0-1 main LTC clock cycles off predicted port TOD.
+ * Otherwise port TOD is moved into range.SYNCMODE: Main TOD is sampled at
+ * main clock edges falling close to a port clock edge, and port TOD is set
+ * to the sampled value. The close edge detection is based on concurrent
+ * sampling of the port clock and a delayed version (see TWEAKS).
+ *
+ * \details
+ * Field: ::VTSS_DEV1G_PHAD_CTRL . PHAD_MODE
+ */
+#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_MODE     VTSS_BIT(4)
+#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_MODE(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
  * Phase detector has lost lock since the clearing of the bit. Can be
- * cleared writing one to this field.>
- *	     This field become unreliable for event clocks slower than 10
- * MHz, but phase detection can still be trusted. Slow event clocks are
- * only seen in synchronuous PPS detection.
+ * cleared writing one to this field.
 
  *
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . PHAD_FAILED
  */
-#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_FAILED   VTSS_BIT(6)
-#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_FAILED(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
-
-/**
- * \brief
- * When phase is outside expected range but within locked range, adjust
- * phase 8ps x (2**REALIGN_OFS)
- *
- * \details
- * Field: ::VTSS_DEV1G_PHAD_CTRL . REALIGN_OFS
- */
-#define  VTSS_F_DEV1G_PHAD_CTRL_REALIGN_OFS(x)  VTSS_ENCODE_BITFIELD(x,3,3)
-#define  VTSS_M_DEV1G_PHAD_CTRL_REALIGN_OFS     VTSS_ENCODE_BITMASK(3,3)
-#define  VTSS_X_DEV1G_PHAD_CTRL_REALIGN_OFS(x)  VTSS_EXTRACT_BITFIELD(x,3,3)
+#define  VTSS_F_DEV1G_PHAD_CTRL_PHAD_FAILED(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_DEV1G_PHAD_CTRL_PHAD_FAILED   VTSS_BIT(3)
+#define  VTSS_X_DEV1G_PHAD_CTRL_PHAD_FAILED(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
 /**
  * \brief
  * Phase is assumed locked when it is never outside 60 ps x (2**LOCK_ACC)
+ * from expected range.
  *
  * \details
  * Field: ::VTSS_DEV1G_PHAD_CTRL . LOCK_ACC
@@ -3511,7 +3503,7 @@
 
 /**
  * \brief
- * Latest or maximum error detected in alignment process, with format 10.8
+ * Latest or maximum error detected in alignment process with format 10.8
  * fixedpoint format. ERR_MAX_ENA determines mode.
  *
  * \details
