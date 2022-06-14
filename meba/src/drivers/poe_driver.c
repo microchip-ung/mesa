@@ -947,12 +947,12 @@ mesa_rc pd69200bt_get_serial_number(const meba_poe_ctrl_inst_t* const inst,
     ptSN->PN                  = ((uint16_t)buf[6] << 8) | (uint16_t)buf[7];
     ptSN->UN                  = ((uint32_t)buf[8] << 16) | ((uint32_t)buf[9] << 8) | (uint32_t)buf[10];
 
-    /* T_DG(VTSS_TRACE_POEBT_GRP_CUSTOM, "(GET_SERIAL_NUMBER):CH=%d,Year=%d,Week=%d,PN=%d,UN=%d", */
-    /*      ptSN->NumOfCh_HC08_Sprt, */
-    /*      ptSN->Year, */
-    /*      ptSN->Week, */
-    /*      ptSN->PN, */
-    /*      ptSN->UN); */
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET SERIAL NUMBER] CH=%d,Year=%d,Week=%d,PN=%d,UN=%d",
+         ptSN->NumOfCh_HC08_Sprt,
+         ptSN->Year,
+         ptSN->Week,
+         ptSN->PN,
+         ptSN->UN);
 
     return MESA_RC_OK;
 }
@@ -983,6 +983,11 @@ mesa_rc meba_poe_pd69200_individual_mask_get(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
     *indv_mask_value = buf[2];
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET INDIVIDUAL MASK] mask_key_number=%d, indv_mask_value=%d",
+         mask_key_number,
+         *indv_mask_value);
+
     return MESA_RC_OK;
 }
 
@@ -1015,7 +1020,12 @@ mesa_rc meba_poe_pd69200_individual_mask_set(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf))
 
-            return MESA_RC_OK;
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET INDIVIDUAL MASK] mask=%d, val=%d",
+         mask,
+         val);
+
+
+    return MESA_RC_OK;
 }
 
 
@@ -1050,6 +1060,11 @@ mesa_rc meba_poe_pd69200_get_pm_method(
     *pm2 = buf[3];
     *pm3 = buf[4];
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET PM METHOD] pm1=%d, pm2=%d, pm3=%d",
+         *pm1,
+         *pm2,
+         *pm3);
+
     return MESA_RC_OK;
 }
 
@@ -1081,7 +1096,12 @@ mesa_rc meba_poe_pd69200_set_pm_method(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf))
 
-            return MESA_RC_OK;
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET PM METHOD] pm1=%d, pm2=%d, pm3=%d",
+         pm1,
+         pm2,
+         pm3);
+
+    return MESA_RC_OK;
 }
 
 static mesa_rc meba_poe_pd69200_set_power_banks(
@@ -1112,6 +1132,14 @@ static mesa_rc meba_poe_pd69200_set_power_banks(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET POWER BANKS] bank=%d, power_limit=%lu, max_shutdown_voltage=%lu, min_shutdown_voltage=%lu, guard_band=%d",
+         bank,
+         power_limit,
+         max_shutdown_voltage,
+         min_shutdown_voltage,
+         guard_band);
+
     return MESA_RC_OK;
 }
 
@@ -1145,12 +1173,20 @@ static mesa_rc pd69200_get_power_supply_parameters(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
-    *power_consumption = (buf[2] << 8) + buf[3];
+    *power_consumption    = (buf[2] << 8) + buf[3];
     *max_shutdown_voltage = (buf[4] << 8) + buf[5];
     *min_shutdown_voltage = (buf[6] << 8) + buf[7];
-    *guard_band = buf[8];
-    *bank = buf[9];
-    *power_limit = (buf[10] << 8) + buf[11];
+    *guard_band           = buf[8];
+    *bank                 = buf[9];
+    *power_limit          = (buf[10] << 8) + buf[11];
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET POWER SUPPLY PARAMETERS] pwr_consumption=%lu, max_shutdown_voltage=%lu, min_shutdown_voltage=%lu, guard_band=%d, bank=%d, power_limit=%lu",
+         *power_consumption,
+         *max_shutdown_voltage,
+         *min_shutdown_voltage,
+         *guard_band,
+         *bank,
+         *power_limit);
     return MESA_RC_OK;
 }
 
@@ -1187,6 +1223,12 @@ static mesa_rc meba_poe_pd69200_ctrl_get_port_power_limit(
 
     *ppl = (buf[2] << 8) + buf[3];
     *tppl  = (buf[4] << 8) + buf[5];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET PORT POWER LIMIT] CH=%d, ppl=%lu, tppl=%lu",
+         channel,
+         *ppl,
+         *tppl);
+
     return MESA_RC_OK;
 }
 
@@ -1216,6 +1258,11 @@ static mesa_rc meba_poe_pd69200_ctrl_set_enable_disable_channels(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET ENABLE DISABLE CHANNELS] CH=%d, cmd=%d, port_type=%d",
+         channel,
+         cmd,
+         port_type);
+
     return MESA_RC_OK;
 }
 
@@ -1242,6 +1289,10 @@ static mesa_rc meba_poe_pd69200_ctrl_set_port_priority(
         DUMMY_BYTE
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET PORT PRIORITY] CH=%d, priority=%d",
+         channel,
+         priority);
 
     return MESA_RC_OK;
 }
@@ -1363,6 +1414,15 @@ mesa_rc meba_poe_pd69200_ctrl_set_port_layer2_lldp_pd_data(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET PORT LAYER2 LLDP PD DATA] CH=%d,layer2_pd_type=%d, requested_power=%lu, allocated_power=%lu, cable_len=%d, execute_lldp=%d",
+       channel,
+       layer2_pd_type,
+       requested_power,
+       allocated_power,
+       cable_len,
+       execute_lldp);
+
     return MESA_RC_OK;
 }
 
@@ -1412,6 +1472,18 @@ mesa_rc meba_poe_pd69200_ctrl_get_port_layer2_lldp_pse_data(
     *cable_len           =  buf[10];
     *power_indicator     =  (buf[11] << 8) + buf[12];
 
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+           "[GET PORT LAYER2 LLDP PSE DATA] CH=%d, pse_allocated_power=%lu, pd_requested_power=%lu, pse_power_type=%d, power_class=%d, pse_power_pair=%d, mdi_power_status=%d, cable_len=%d, power_indicator=%lu",
+           channel,
+           *pse_allocated_power,
+           *pd_requested_power,
+           *pse_power_type,
+           *power_class,
+           *pse_power_pair,
+           *mdi_power_status,
+           *cable_len,
+           *power_indicator);
+
     return MESA_RC_OK;
 }
 
@@ -1449,13 +1521,24 @@ mesa_rc meba_poe_pd69200_ctrl_get_single_port_status(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
-    *enable = buf[2];
-    *port_status = buf[3];
+    *enable             = buf[2];
+    *port_status        = buf[3];
     *force_power_enable = buf[4];
-    *latch = buf[5];
-    *class = buf[6];
-    *af_at_poh = buf[10];
-    *four_pair_enable = buf[11];
+    *latch              = buf[5];
+    *class              = buf[6];
+    *af_at_poh          = buf[10];
+    *four_pair_enable   = buf[11];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+           "[GET SINGLE PORT STATUS] CH=%d, enable=%d, port_status=%d, force_power_enable=%d, latch=%d, class=%d, af_at_poh=%d, four_pair_enable=%d",
+           channel,
+           *enable,
+           *port_status,
+           *force_power_enable,
+           *latch,
+           *class,
+           *af_at_poh,
+           *four_pair_enable);
 
     return MESA_RC_OK;
 }
@@ -1494,6 +1577,15 @@ mesa_rc meba_poe_pd69200_ctrl_port_measurements_get(
     *calculated_current = (buf[4] << 8) + buf[5];
     *port_power_consumption = (buf[6] << 8) + buf[7];
     *port_voltage = (buf[9] << 8) + buf[10];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+       "[GET PORT MEASUREMENTS] CH=%d, main_voltage=%lu, calculated_current=%lu, port_power_consumption=%lu, port_voltage=%lu",
+       channel,
+       *main_voltage,
+       *calculated_current,
+       *port_power_consumption,
+       *port_voltage);
+
     return MESA_RC_OK;
 }
 
@@ -1519,6 +1611,8 @@ static mesa_rc meba_poe_pd69200_ctrl_reset_command(
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[RESET COMMAND]");
+
     return MESA_RC_OK;
 }
 
@@ -1543,6 +1637,8 @@ static mesa_rc meba_poe_pd69200_ctrl_save_command(
         DUMMY_BYTE
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SAVE COMMAND]");
 
     return MESA_RC_OK;
 }
@@ -1579,6 +1675,13 @@ mesa_rc meba_poe_pd69200_ctrl_get_temporary_matrix(
 
     *phys_numb_a = buf[2];
     *phys_numb_b = buf[3];
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET TEMPORARY MATRIX] CH=%d, phys_numb_a=%d, phys_numb_b=%d",
+       handle,
+       *phys_numb_a,
+       *phys_numb_b);
+
+
     return MESA_RC_OK;
 }
 
@@ -1614,6 +1717,12 @@ mesa_rc meba_poe_pd69200_ctrl_get_active_matrix(
 
     *phys_numb_a = buf[2];
     *phys_numb_b = buf[3];
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET ACTIVE MATRIX] CH=%d, phys_numb_a=%d, phys_numb_b=%d",
+       handle,
+       *phys_numb_a,
+       *phys_numb_b);
+
     return MESA_RC_OK;
 }
 
@@ -1645,6 +1754,12 @@ mesa_rc meba_poe_pd69200_ctrl_set_temporary_matrix(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET TEMPORARY MATRIX] CH=%d, phys_numb_a=%d, phys_numb_b=%d",
+       handle,
+       phys_numb_a,
+       phys_numb_b);
+
+
     return MESA_RC_OK;
 }
 
@@ -1672,6 +1787,8 @@ mesa_rc pd69200_program_global_matrix(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[PROGRAM GLOBAL MATRIX]");
 
     return MESA_RC_OK;
 }
@@ -1983,13 +2100,22 @@ mesa_rc meba_poe_pd69200_ctrl_get_software_version(
         return rc;
     }
 
-    *hw_version = buf[2];
-    *prod_number = buf[4];
-    *sw_version = (buf[5] << 8) + buf[6];
-    *param_number = buf[7];
-    *build_number = buf[8];
+    *hw_version          = buf[2];
+    *prod_number         = buf[4];
+    *sw_version          = (buf[5] << 8) + buf[6];
+    *param_number        = buf[7];
+    *build_number        = buf[8];
     *internal_sw_version = (buf[9] << 8) + buf[10];
-    *asic_patch_number = (buf[11] << 8) + buf[12];
+    *asic_patch_number   = (buf[11] << 8) + buf[12];
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET SOFTWARE VERSION] hw_version=%d, prod_number=%d, sw_version=%lu, param_number=%d, build_number=%d, internal_sw_version=%lu, asic_patch_number=%lu",
+          *hw_version,
+          *prod_number,
+          *sw_version,
+          *param_number,
+          *build_number,
+          *internal_sw_version,
+          *asic_patch_number);
 
     return MESA_RC_OK;
 }
@@ -2023,6 +2149,8 @@ mesa_rc meba_poe_pd69200_ctrl_restore_factory_default(
     }
 
     VTSS_MSLEEP(150); // Wait 100ms (4.1.2 note 1)
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s called line %d\n",  __FUNCTION__, __LINE__);
 
     return MESA_RC_OK;
 }
@@ -4745,7 +4873,7 @@ void meba_pd69200_driver_init(
     POE_MAX_LOGICAL_PORTS = (inst->port_map_length / 8) * 8;
     POE_MAX_LOGICAL_PORTS += (inst->port_map_length % 8) ? 8 : 0;
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "POE_MAX_LOGICAL_PORTS: %d", POE_MAX_LOGICAL_PORTS);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "POE MAX LOGICAL PORTS: %d", POE_MAX_LOGICAL_PORTS);
 
     return;
 }
@@ -4794,6 +4922,14 @@ mesa_rc meba_poe_pd69200bt_ctrl_set_BT_port_parameters(
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET BT PORT PARAMETERS] CH=%d,port_mode_cfg1=%d,port_mode_cfg2=%d,port_operation_mode=%d,add_power_for_port_mode=%d,priority=%d",
+           channel,
+          port_mode_cfg1,
+          port_mode_cfg2,
+          port_operation_mode,
+          add_power_for_port_mode,
+          priority);
+
     return MESA_RC_OK;
 
 }
@@ -4841,18 +4977,17 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_parameters(
     cfg_POEMCU->add_power_for_port_mode_dW = buf[6] ;
     cfg_POEMCU->priority                   = buf[7] ;
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO,
-          "[GET_BT_PORT_PARAM] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Operation_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
-          handle,
-          cfg_POEMCU->enable,
-          cfg_POEMCU->ignored_inrush_check,
-          cfg_POEMCU->ignore_pd_auto_class_request,
-          cfg_POEMCU->bt_port_pm_mode,
-          cfg_POEMCU->class_error_selection,
-          cfg_POEMCU->port_operation_mode,
-          cfg_POEMCU->legacy_support,
-          cfg_POEMCU->add_power_for_port_mode_dW,
-          cfg_POEMCU->priority);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET_BT_PORT_PARAM] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Operation_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
+               handle,
+               cfg_POEMCU->enable,
+               cfg_POEMCU->ignored_inrush_check,
+               cfg_POEMCU->ignore_pd_auto_class_request,
+               cfg_POEMCU->bt_port_pm_mode,
+               cfg_POEMCU->class_error_selection,
+               cfg_POEMCU->port_operation_mode,
+               cfg_POEMCU->legacy_support,
+               cfg_POEMCU->add_power_for_port_mode_dW,
+               cfg_POEMCU->priority);
 
     return MESA_RC_OK;
 }
@@ -4961,12 +5096,22 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_status(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
-    *port_status = buf[2];
-    *enable = buf[3];
-    *assigned_class = buf[4];
-    *measured_port_power = (buf[5] << 8) + buf[6];
+    *port_status                = buf[2];
+    *enable                     = buf[3];
+    *assigned_class             = buf[4];
+    *measured_port_power        = (buf[5] << 8) + buf[6];
     *last_shutdown_error_status = buf[9];
-    *port_event = buf[10];
+    *port_event                 = buf[10];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT STATUS] CH=%d, port_status=%d, enable=%d, assigned_class=%d, measured_port_power=%lu, last_shutdown_error_status=%d, port_event=%d",
+               channel,
+              *port_status,
+              *enable,
+              *assigned_class,
+              *measured_port_power,
+              *last_shutdown_error_status,
+              *port_event);
+
 
     return MESA_RC_OK;
 }
@@ -4980,9 +5125,9 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_class(
     uint8_t* port_phy_info,
     uint8_t* measured_class,
     uint8_t* requested_class,
-    uint16_t* requested_power,
+    uint16_t* requested_power_dW,
     uint8_t* assigned_class,
-    uint16_t* assigned_power,
+    uint16_t* assigned_power_dW,
     uint8_t* auto_class_support,
     uint16_t* auto_class_measurement)
 {
@@ -5005,15 +5150,27 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_class(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
-    *port_status = buf[2];
-    *port_phy_info = buf[3];
-    *measured_class = buf[4];
-    *requested_class = buf[5];
-    *requested_power = (buf[6] << 8) + buf[7];
-    *assigned_class = buf[8];
-    *assigned_power = (buf[9] << 8) + buf[10];
-    *auto_class_support = (buf[11] & 0xF0) >> 4;
+    *port_status            = buf[2];
+    *port_phy_info          = buf[3];
+    *measured_class         = buf[4];
+    *requested_class        = buf[5];
+    *requested_power_dW     = (buf[6] << 8) + buf[7];
+    *assigned_class         = buf[8];
+    *assigned_power_dW      = (buf[9] << 8) + buf[10];
+    *auto_class_support     = (buf[11] & 0xF0) >> 4;
     *auto_class_measurement = ((buf[11] & 0xF) << 8) + buf[12];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT CLASS] CH=%d, port_status=%d, port_phy_info=%d, measured_class=%d, requested_class=%d, requested_power_dW=%lu, assigned_class=%d, assigned_power_dW=%lu, auto_class_support=%lu",
+               channel,
+               *port_status,
+               *port_phy_info,
+               *measured_class,
+               *requested_class,
+               *requested_power_dW,
+               *assigned_class,
+               *assigned_power_dW,
+               *auto_class_support,
+               *auto_class_measurement);
 
     return MESA_RC_OK;
 }
@@ -5048,10 +5205,18 @@ mesa_rc meba_poe_pd69200bt_get_BT_port_measurements(
     };
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
-    *main_voltage = (buf[2] << 8) + buf[3];
-    *calculated_current = (buf[4] << 8) + buf[5];
+    *main_voltage           = (buf[2] << 8) + buf[3];
+    *calculated_current     = (buf[4] << 8) + buf[5];
     *port_power_consumption = (buf[6] << 8) + buf[7];
-    *port_voltage = (buf[9] << 8) + buf[10];
+    *port_voltage           = (buf[9] << 8) + buf[10];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT MEASUREMENTS] CH=%d, main_voltage=%lu, calculated_current=%lu, port_power_consumption=%lu, port_voltage=%lu",
+               channel,
+               *main_voltage,
+               *calculated_current,
+               *port_power_consumption,
+               *port_voltage);
+
     return MESA_RC_OK;
 }
 
@@ -5285,26 +5450,26 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
 
     if(bParamChanged == true)
     {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "[CFG-SET_BT_PORT_PARAMS] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Oper_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
-              handle,
-              port_cfg->enable,
-              port_cfg->ignored_inrush_check,
-              port_cfg->ignore_pd_auto_class_request,
-              port_cfg->bt_port_pm_mode,
-              port_cfg->class_error_selection,
-              port_cfg->port_operation_mode,
-              port_cfg->legacy_support,
-              port_cfg->add_power_for_port_mode_dW,
-              port_cfg->priority);
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "[CFG-SET BT PORT PARAMS] CH=%d,EnDis=%d,IgInr=%d,IgAuClass=%d,PM_mode=0x%X,CLS_err=0x%X,Oper_Mode=0x%X,legacy=%d,Addition_pwr=%d,Priority=0x%X",
+               handle,
+               port_cfg->enable,
+               port_cfg->ignored_inrush_check,
+               port_cfg->ignore_pd_auto_class_request,
+               port_cfg->bt_port_pm_mode,
+               port_cfg->class_error_selection,
+               port_cfg->port_operation_mode,
+               port_cfg->legacy_support,
+               port_cfg->add_power_for_port_mode_dW,
+               port_cfg->priority);
 
 
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET_BT_PORT_PARAMETERS] CH=%d,CFG1=0x%X,CFG2=0x%X,Op_mode=0x%X,Add_Pwr=%d,Prio=0x%X",
-              handle ,
-              CFG1,
-              CFG2,
-              BT_port_Operation_Mode,
-              Add_power_for_port_mode_dW,
-              Priority);
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET BT PORT PARAMETERS] CH=%d,CFG1=0x%X,CFG2=0x%X,Op_mode=0x%X,Add_Pwr=%d,Prio=0x%X",
+                   handle ,
+                   CFG1,
+                   CFG2,
+                   BT_port_Operation_Mode,
+                   Add_power_for_port_mode_dW,
+                   Priority);
 
 
         // 4.3.6        Set BT Port Parameters
@@ -5332,7 +5497,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
 
 
 static
-mesa_rc meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
+mesa_rc meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
     const meba_poe_ctrl_inst_t* const inst,
     meba_poe_port_handle_t      channel,
     uint16_t                    requested_power_single,  // deciwatt
@@ -5358,6 +5523,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET BT PORT LAYER2 LLDP PD REQUEST] CH=%d,requested_power_single=%lu,requested_power_dual_a=%lu,requested_power_dual_b=%lu,cable_len=%d,autoclass=%d",
+           channel,
+           requested_power_single,
+           requested_power_dual_a,
+           requested_power_dual_b,
+           cable_len,
+           autoclass);
     return MESA_RC_OK;
 }
 
@@ -5370,7 +5542,9 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_port_layer2_lldp_pse_data(
     uint16_t* pse_max_power,
     uint8_t* assigned_class,
     uint8_t* status,
-    uint8_t* power_bits)
+    uint8_t* power_bits,
+    uint8_t* cable_length_in_use,
+    uint8_t* l2_cfg)
 {
     uint8_t  buf[PD_BUFFER_SIZE] = {
         REQUEST_KEY,
@@ -5398,6 +5572,19 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_port_layer2_lldp_pse_data(
     *assigned_class                  =  buf[8];
     *status                          =  buf[9];
     *power_bits                      =  buf[10];
+    *cable_length_in_use             =  buf[11];
+    *l2_cfg                          =  buf[12];
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT LAYER2 LLDP PSE DATA] CH=%d, pse_alloc_pwr_a_or_single=%lu, pse_alloc_pwr_b=%lu, pse_max_pwr=%lu, assigned_class=%d, status=%d, power_bits=%d, cable_len_in_use=%d, l2_cfg=%d",
+       channel,
+       *pse_allocated_power_a_or_single,
+       *pse_allocated_power_b,
+       *pse_max_power,
+       *assigned_class,
+       *status,
+       *power_bits,
+       *cable_length_in_use,
+       *l2_cfg);
 
     return MESA_RC_OK;
 }
@@ -5871,29 +6058,30 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
         uint8_t  port_phy_info;
         uint8_t  measured_class;
         uint8_t  requested_class;
-        uint16_t requested_power;
-        uint16_t assigned_power = 0;
+        uint16_t requested_power_dW;
+        uint16_t assigned_power_dW = 0;
         uint8_t  auto_class_support;
         uint16_t auto_class_measurement;
 
         // 'Get BT Class Power' driver
         MESA_RC(meba_poe_pd69200bt_ctrl_get_BT_port_class(
-            inst,
-            channel,
-            &port_state,
-            &port_phy_info,
-            &measured_class,
-            &requested_class,
-            &requested_power,
-            &assigned_class,
-            &assigned_power,
-            &auto_class_support,
-            &auto_class_measurement));
+                    inst,
+                    channel,
+                    &port_state,
+                    &port_phy_info,
+                    &measured_class,
+                    &requested_class,
+                    &requested_power_dW,
+                    &assigned_class,
+                    &assigned_power_dW,
+                    &auto_class_support,
+                    &auto_class_measurement));
 
-        port_status->requested_power = assigned_power * 100; // Convert from deciwatt to milliWatts
+        port_status->requested_power = assigned_power_dW * 100; // Convert from deciwatt to milliWatts
         port_status->pd_structure = port_phy_info & 0x0F;
         //port_status->poe_port_status = port_state;
 
+        port_status->assigned_power = assigned_power_dW * 100; // Convert from deciwatt to milliWatts
 
         port_status->measured_pd_class_a = (measured_class & 0xF0) >> 4;
         if (port_status->measured_pd_class_a == 0xC) {
@@ -5951,16 +6139,21 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     uint16_t pse_max_power;
     uint8_t  layer2_status;
     uint8_t  power_bits;
+    uint8_t  cable_length_in_use;
+    uint8_t  l2_cfg;
+
 
     MESA_RC(meba_poe_pd69200bt_ctrl_get_port_layer2_lldp_pse_data(
-        inst,
-        channel,
-        &pse_allocated_power_a_or_single,
-        &pse_allocated_power_b,
-        &pse_max_power,
-        &assigned_class,
-        &layer2_status,
-        &power_bits));
+                inst,
+                channel,
+                &pse_allocated_power_a_or_single,
+                &pse_allocated_power_b,
+                &pse_max_power,
+                &assigned_class,
+                &layer2_status,
+                &power_bits,
+                &cable_length_in_use,
+                &l2_cfg));
 
     port_status->power_pairs_control_ability = false;  // TODO assign real value
     port_status->pse_alloc_power_alt_a = pse_allocated_power_a_or_single * 100;
@@ -6033,7 +6226,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_data_set(
         return MESA_RC_ERROR;
     }
 
-    return meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
+    return meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
         inst,
         handle,
         pd_data->pd_requested_power / 100, // convert from milliwatt to deciwatt
@@ -6052,14 +6245,14 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_bt_data_set(
         return MESA_RC_ERROR;
     }
 
-    MESA_RC(meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
-        inst,
-        handle,
-        pd_data->pd_requested_power_single / 100, // convert from milliwatt to deciwatt
-        pd_data->pd_requested_power_alt_a / 100, // convert from milliwatt to deciwatt
-        pd_data->pd_requested_power_alt_b / 100, // convert from milliwatt to deciwatt
-        10, // corresponds to 100m
-        0));
+    MESA_RC(meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
+                inst,
+                handle,
+                pd_data->pd_requested_power_single / 100, // convert from milliwatt to deciwatt
+                pd_data->pd_requested_power_alt_a / 100, // convert from milliwatt to deciwatt
+                pd_data->pd_requested_power_alt_b / 100, // convert from milliwatt to deciwatt
+                10, // corresponds to 100m
+                0));
 
     meba_poe_port_private_status_t* current_port_status = &(((poe_driver_private_t*)(inst->private_data))->status.ports[handle]);
 
@@ -6174,7 +6367,7 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
             //MESA_RC(meba_poe_pd69200_ctrl_set_port_layer2_lldp_pd_data(inst, i, 0, 0, 0, 0, 0));
             //MESA_RC(meba_poe_pd69200_ctrl_set_bt_port_layer2_lldp_pd_request(inst, i, 0, 0, 0, 0, 0));
 
-            MESA_RC(meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_data(
+            MESA_RC(meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
                 inst,
                 i,
                 0, // convert from milliwatt to deciwatt
@@ -6305,7 +6498,7 @@ void meba_pd69200bt_driver_init(
     POE_MAX_LOGICAL_PORTS = (inst->port_map_length / 8) * 8;
     POE_MAX_LOGICAL_PORTS += (inst->port_map_length % 8) ? 8 : 0;
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "POE_MAX_LOGICAL_PORTS: %d", POE_MAX_LOGICAL_PORTS);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "POE MAX LOGICAL PORTS: %d", POE_MAX_LOGICAL_PORTS);
 
     return;
 }

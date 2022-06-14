@@ -579,6 +579,8 @@ typedef struct {
     // PoE port requested power.
     mesa_poe_milliwatt_t        requested_power;
 
+    mesa_poe_milliwatt_t        assigned_power;
+
     // The power reserved for the PD. When power is allocated on basis of PD
     // class, this number will be equal to the consumed power. When LLDP is used
     // to allocated power, this will be the amount of power reserved through
