@@ -1751,6 +1751,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
 
     age = (ht == FA_HT_PROXY ? FA_RB_AGE_IDX_PNT : FA_RB_AGE_IDX_NT);
     REG_WR(RB_ADDRX(VTSS_RB_TBL_CFG, rb_id, j),
+           VTSS_F_RB_TBL_CFG_CLR_AGE_FLAG_DIS(1) |
            VTSS_F_RB_TBL_CFG_DUPL_DISC_ENA(dupl_disc) |
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
            VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(age) |
@@ -1794,7 +1795,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
     u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
     u32            hsr_sv = FA_RB_SV_FORWARD, prp_sv = FA_RB_SV_FORWARD;
-    u32            age, clk_period, val, unit;
+    u32            age, clk_period, val, unit, mask = 0x4;
     u64            x64;
 
     mode = (conf->mode == VTSS_RB_MODE_PRP_SAN ? FA_RB_MODE_PRP_SAN:
@@ -1802,7 +1803,16 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
             conf->mode == VTSS_RB_MODE_HSR_PRP ? FA_RB_MODE_HSR_PRP :
             conf->mode == VTSS_RB_MODE_HSR_HSR ? FA_RB_MODE_HSR_HSR : 0);
     ena = (conf->mode == VTSS_RB_MODE_DISABLED ? 0 : 1);
+    if (ena) {
+        if (vtss_state->l2.port_state[conf->port_a]) {
+            mask |= 0x1;
+        }
+        if (vtss_state->l2.port_state[conf->port_b]) {
+            mask |= 0x2;
+        }
+    }
     REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id),
+           VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) |
            VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
            VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
            VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) |
@@ -3050,6 +3060,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
            FA_RB_MODE_PRP_SAN, FA_RB_MODE_HSR_SAN,
            FA_RB_MODE_HSR_PRP, FA_RB_MODE_HSR_HSR);
+        FA_DEBUG_RB_FLD(&val, RB_CFG_DEFAULT_FWD_MASK);
         FA_DEBUG_RB_FLD(&val, RB_CFG_RCT_MISSING_DISC_ENA);
         FA_DEBUG_RB_FLD(&val, RB_CFG_RCT_VALIDATE_ENA);
         FA_DEBUG_RB_FLD(&val, RB_CFG_DAN_DETECT_ENA);
@@ -3193,6 +3204,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
                 REG_RD(RB_ADDRX(VTSS_RB_STICKY, i, j), &x[j]);
             }
+            FA_DEBUG_RB_PORT_STICKY(x, RCT_MISSING_DISC);
+            FA_DEBUG_RB_PORT_STICKY(x, RCT_MISSING);
             FA_DEBUG_RB_PORT_STICKY(x, PTP_INT);
             FA_DEBUG_RB_PORT_STICKY(x, PTP_ETH);
             FA_DEBUG_RB_PORT_STICKY(x, PTP_IP4);

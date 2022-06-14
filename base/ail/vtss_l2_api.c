@@ -1407,6 +1407,22 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
             (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
+#if defined(VTSS_FEATURE_REDBOX)
+        if (rc == VTSS_RC_OK) {
+            vtss_rb_id_t   id;
+            vtss_rb_conf_t *conf;
+
+            // RedBox port mask may need update
+            for (id = 0; id < VTSS_REDBOX_CNT; id++) {
+                conf = &vtss_state->l2.rb_conf[id];
+                if (conf->mode != VTSS_RB_MODE_DISABLED &&
+                    (conf->port_a == port_no || conf->port_b == port_no)) {
+                    rc = VTSS_FUNC(l2.rb_conf_set, id);
+                    break;
+                }
+            }
+        }
+#endif
     }
     VTSS_EXIT();
     return rc;
