@@ -34,6 +34,10 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 #    |                     |
 #    +---------------------+
 
+# Serial connection to the IE4000 system is currently done like this on the PC:
+#
+# termhub -b 9600 -d /dev/ttyS0
+#
 # On the IE4000, select configuration and reboot, one of these:
 #
 # HSR-SAN : 'copy hsr-san-config startup-config' and 'reload'
@@ -45,7 +49,7 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 # Laguna RedBox mode must match IE4000 RedBox mode
 $mode = "PRP_SAN"
 #$mode = "HSR_SAN"
-#mode = "HSR_PRP"
+#$mode = "HSR_PRP"
 
 # Select if VLAN tagging is used on LRE ports
 $vlan = false
@@ -136,7 +140,7 @@ test "frame-io" do
                 cmd += " tx #{name} name f1"
             else
                 cmd += " rx #{name} name "
-                cmd += ((hsr_prp and (idx_tx/2) != (idx/2)) ? (idx == 3 ? " f3" : " f2") : "f1")
+                cmd += ((hsr_prp and (idx_tx/2) != (idx/2)) ? (idx == 3 ? "f3" : "f2") : "f1")
             end
         end
         $ts.pc.try(cmd)
