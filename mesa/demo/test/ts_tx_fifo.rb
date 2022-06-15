@@ -22,6 +22,7 @@ check_capabilities do
     loop_pair_check
     $loop_port0 = $ts.dut.looped_port_list[0]
     $loop_port1 = $ts.dut.looped_port_list[1]
+    assert(($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) || ($cap_fpga != 0), "This test must be checked on Laguna chip")
 end
 
 loop_pair_check
@@ -71,8 +72,12 @@ def tod_tx_fifo_test
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
     end
 
+    diff = 1000
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        diff = 1035
+    end
     t_i ("difference between RX and TX timestamp  #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
-    if (($frame_info["hw_tstamp"] - ts_tx["ts"]) > (1000<<16))    #Experimental value of max 1000 ns difference between transmitting TC and received TC
+    if (($frame_info["hw_tstamp"] - ts_tx["ts"]) > (diff<<16))    #Experimental value of max diff ns difference between transmitting TC and received TC
         t_e("Not the expected difference between RX and TX timestamp. ts_tx[ts] = #{ts_tx["ts"]}  $frame_info[hw_tstamp] = #{$frame_info["hw_tstamp"]}  diff = #{($frame_info["hw_tstamp"] - ts_tx["ts"])>>16}")
     end
 

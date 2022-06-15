@@ -265,7 +265,7 @@ def tod_domain_test(domain, seconds)
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         # This is FPGA values
         min = 710
-        max = 755
+        max = 830
     end
     if (diff > max)
         t_e("Difference between TX TC and RX TC is unexpected high.  max: #{max}")
