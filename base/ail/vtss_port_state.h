@@ -429,9 +429,9 @@ typedef struct {
 } vtss_port_kr_fw_req_t;
 
 typedef struct {
-    u32  amplitude;
-    u32  tap_dly;
-    u32  tap_adv;
+    u16  amplitude;
+    u16  tap_dly;
+    u16  tap_adv;
     BOOL c0_done;
     BOOL compl_ack;
     BOOL base_page;

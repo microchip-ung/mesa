@@ -1404,6 +1404,11 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 30 ms
     }
 
+    // Store the cuurnet TxEq values
+    vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
+    VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &st->tap_dly, &st->tap_adv, &st->amplitude));
+
+
     return VTSS_RC_OK;
 }
 

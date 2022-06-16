@@ -111,6 +111,9 @@ typedef struct {
     uint32_t pollcnt;
     uint32_t conf_pollcnt;
     mesa_bool_t compl_ack_done;
+    mesa_bool_t global_stop;
+    mesa_bool_t mesa_kr_an_good;
+    mesa_bool_t link_break;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

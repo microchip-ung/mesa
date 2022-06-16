@@ -18,7 +18,6 @@ kr_appl_conf_t *kr_conf_state;
 
 // For debug
 uint32_t deb_dump_irq = 0;
-mesa_bool_t global_stop = 0;
 mesa_bool_t kr_debug = 0;
 mesa_bool_t BASE_KR_V2 = 0;
 mesa_bool_t BASE_KR_V3 = 0;
@@ -418,7 +417,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
 
     if (BASE_KR_V3) {
         mesa_port_kr_conf_t conf = {0};
-        global_stop = 0;
+
 
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
 
@@ -429,7 +428,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             if (mesa_port_kr_conf_get(NULL, iport, &conf) != MESA_RC_OK) {
                 continue;
             }
-
+            kr_conf_state[iport].link_break = 0;
             (void)fa_kr_reset_state(iport);
             if (req->set) {
                 kr_conf_state[iport].compl_ack_done = FALSE;
@@ -470,6 +469,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 if (!mreq->dis) {
                     mesa_port_state_set(NULL, iport, FALSE);
                 }
+
                 conf.aneg.next_page = mreq->np;
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
@@ -490,6 +490,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 continue;
             }
             if (req->set) {
+                kr_conf_state[iport].aneg_enable = 1;
                 conf.aneg.enable = 1;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
@@ -531,9 +532,9 @@ static void cli_cmd_port_kr_debug(cli_req_t *req)
             printf("Port %d: Aneg State machine debug %s\n",uport, kr_conf_state[iport].aneg_sm_deb ? "enabled" : "disabled");
         }
         if (mreq->stop) {
-            global_stop = 1;
+            kr_conf_state[iport].global_stop = 1;
             kr_conf_state[iport].stop_train = kr_conf_state[iport].stop_train ? 0 : 1;
-            printf("Port %d: Stop aneg %s\n",uport, kr_conf_state[iport].stop_train ? "enabled" : "disabled");
+            printf("Port %d: Stop aneg (if link failure) %s\n",uport, kr_conf_state[iport].stop_train ? "enabled" : "disabled");
         }
         if (mreq->use_ber) {
             if (kr_conf_state[iport].use_ber) {
@@ -1095,14 +1096,18 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
     mesa_port_kr_status_t status;
     mesa_port_kr_fec_t fec = {0};
 
-    if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK ||
-        !kr_conf.aneg.enable || global_stop) {
+    if (mesa_port_kr_conf_get(NULL, iport, &kr_conf) != MESA_RC_OK || !kr_conf.aneg.enable) {
         return;
     }
+
+    // For debugging..
+    if (kr_conf_state[iport].global_stop && kr_conf_state[iport].link_break) {
+        return;
+    }
+
     uport = iport2uport(iport);
     kr = &kr_conf_state[iport].tr;
     krs = &kr->state;
-
     // Poll the IRQs
     if (mesa_port_kr_irq_get(NULL, iport, &irq) != MESA_RC_OK) {
         printf("-->Failure during mesa_port_kr_irq_get\n");
@@ -1134,6 +1139,13 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
         kr_conf_state[iport].compl_ack_done = FALSE;
         kr_conf_state[iport].pollcnt = kr_conf_state[iport].conf_pollcnt;
         (void)time_start(&kr->time_start_aneg);
+    }
+
+    if ((irq & MESA_KR_LINK_FAIL || irq & MESA_KR_AN_XMIT_DISABLE) && kr_conf_state[iport].mesa_kr_an_good) {
+        kr_conf_state[iport].link_break = 1;
+        kr_conf_state[iport].mesa_kr_an_good = 0;
+        printf("Port:%d - %s %d ms after TRAIN start\n",uport,
+               irq & MESA_KR_LINK_FAIL ? "LINK_FAIL" : "AN_XMIT_DIS", get_time_ms(&kr->time_start_train));
     }
 
     if (irq & MESA_KR_CMPL_ACK) {
@@ -1235,6 +1247,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
             mesa_port_kr_eye_dim_t  eye;
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             printf("Port:%d - Training (eye:%d) and Aneg (%s) completed in %d ms\n",uport, eye.height, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
+            kr_conf_state[iport].mesa_kr_an_good = 1;
         } else {
             printf("Port:%d - Aneg completed (%s) in %d ms\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
@@ -1251,7 +1264,6 @@ static void kr_poll_v2(meba_inst_t inst, mesa_port_no_t iport)
         !conf.aneg.enable) {
         return;
     }
-
     // 10G KR surveilance
     (void)(mesa_port_kr_status_get(NULL, iport, &status));
 
