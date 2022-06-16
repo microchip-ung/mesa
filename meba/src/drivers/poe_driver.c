@@ -5160,7 +5160,10 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_class(
     *auto_class_support     = (buf[11] & 0xF0) >> 4;
     *auto_class_measurement = ((buf[11] & 0xF) << 8) + buf[12];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT CLASS] CH=%d, port_status=%d, port_phy_info=%d, measured_class=%d, requested_class=%d, requested_power_dW=%lu, assigned_class=%d, assigned_power_dW=%lu, auto_class_support=%lu",
+    uint16_t AutoClass_Measurement = (*auto_class_measurement & 0xFFF);
+    uint8_t AutoClass_Support      = ((*auto_class_measurement >> 12) & 0xF);
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT CLASS] CH=%d, port_status=0x%X, port_phy_info=0x%X, measured_class=0x%X, requested_class=0x%X, requested_power_dW=%lu, assigned_class=0x%X, assigned_power_dW=%lu, AutoClass measurement=%lu, AutoClass Support=%d",
                channel,
                *port_status,
                *port_phy_info,
@@ -5170,7 +5173,8 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_class(
                *assigned_class,
                *assigned_power_dW,
                *auto_class_support,
-               *auto_class_measurement);
+               AutoClass_Measurement,
+               AutoClass_Support);
 
     return MESA_RC_OK;
 }
