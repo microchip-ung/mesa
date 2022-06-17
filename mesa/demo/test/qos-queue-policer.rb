@@ -134,8 +134,11 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
         if $cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")
             measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [1.6],       true,              [default_cos2pcp(cos)])
+        else if $cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")
+            measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [1.3],       true,              [default_cos2pcp(cos)])
         else
             measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [1],         true,              [default_cos2pcp(cos)])
+        end
         end
     end
 
