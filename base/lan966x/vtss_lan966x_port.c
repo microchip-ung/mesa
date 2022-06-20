@@ -934,6 +934,15 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         return VTSS_RC_ERROR;
     }
 
+#if !defined(VTSS_OPT_FPGA)
+    if (lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req) != VTSS_RC_OK) {
+        return VTSS_RC_ERROR;
+    }
+    if (conf->power_down && port_type == PORT_TYPE_CUPHY) {
+        // The phy power down will cause the link down at the other end
+        return VTSS_RC_OK;
+    }
+#endif
     if (disable && disable_serdes) {
         // Disable SerDes to cause link down at the other end
         mode = VTSS_SERDES_MODE_DISABLE;
