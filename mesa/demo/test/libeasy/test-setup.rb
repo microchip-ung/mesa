@@ -1499,6 +1499,8 @@ def basic_br_init()
     $eth1_mac_peer = "::1:1:1"
     $eth2_mac      = "::1:0:2"
     $eth2_mac_peer = "::1:1:2"
+    $eth3_mac      = "::1:0:3"
+    $eth3_mac_peer = "::1:1:3"
     $br_mac        = "::1:0:0"
 
     # try to delete the bridge on PC in case one exists
