@@ -44,7 +44,7 @@ Aquantia Firmware and API:
             AQR412_B0:  4.2.3
     Aquantia documentation will be delivered by Marvell Technology, Inc.
 
-Intel driver for GPY211 version 2.5.1.
+Intel driver for GPY211 version 2.7.1.
 Intel documentation will be delivered by MaxLinear.
 
 General
