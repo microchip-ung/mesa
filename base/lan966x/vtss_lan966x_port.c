@@ -856,14 +856,85 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     return rc;
 }
 
+static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    u32      port = VTSS_CHIP_PORT(port_no);
+    u32      delay = 0, value;
+    vtss_rc  rc = VTSS_RC_OK;
+
+    /* 1: Reset the PCS Rx clock domain  */
+    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
+
+    /* 2: Disable MAC frame reception */
+    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_RX_ENA_M);
+
+    /* 3: Disable traffic being sent to or from switch port */
+    REG_WRM_CLR(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
+
+    /* 4: Disable dequeuing from the egress queues  */
+    REG_WRM_SET(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
+
+    /* 5: Disable Flowcontrol */
+    REG_WRM_CLR(SYS_PAUSE_CFG(port), SYS_PAUSE_CFG_PAUSE_ENA_M);
+
+    /* 5.1: Disable PFC */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_TX_PFC_ENA(0),
+            QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
+
+    /* 6: Wait a worst case time 8ms (jumbo/10Mbit) */
+    VTSS_MSLEEP(8);
+
+    /* 7: Disable HDX backpressure (Bugzilla 3203) */
+    REG_WRM_CLR(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_HDX_MODE_M);
+
+    /* 8: Flush the queues accociated with the port */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_AGING_MODE(3),
+            QSYS_SW_PORT_MODE_AGING_MODE_M);
+
+    /* 9: Enable dequeuing from the egress queues */
+    REG_WRM_CLR(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
+
+    /* 10: Wait until flushing is complete */
+    do {
+        REG_RD(QSYS_SW_STATUS(port), &value);
+        VTSS_MSLEEP(1);
+        delay++;
+        if (delay == 2000) {
+            VTSS_E("Flush timeout chip port %u", port);
+            rc = VTSS_RC_ERROR;
+            break;
+        }
+    } while (value & QSYS_SW_STATUS_EQ_AVAIL_M);
+
+    /* 11: Reset the Port and MAC clock domains */
+    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
+    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PORT_RST_M);
+    VTSS_MSLEEP(1);
+    REG_WRM_SET(DEV_CLOCK_CFG(port),
+                DEV_CLOCK_CFG_MAC_TX_RST_M |
+                DEV_CLOCK_CFG_MAC_RX_RST_M |
+                DEV_CLOCK_CFG_PORT_RST_M);
+
+    /* 12: Clear flushing */
+    REG_WRM(QSYS_SW_PORT_MODE(port),
+            QSYS_SW_PORT_MODE_AGING_MODE(0),
+            QSYS_SW_PORT_MODE_AGING_MODE_M);
+
+    return rc;
+
+    /* The port is disabled and flushed, now set up the port in the new operating mode */
+}
+
 static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc                rc = VTSS_RC_OK;
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no), i, p;
-    u32                    value, link_speed = 1, delay = 0, pfc_mask;
+    u32                    value, link_speed = 1, pfc_mask;
     BOOL                   disable = conf->power_down, disable_serdes = 0, giga = 1;
-    BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST);
+    BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST), skip_port_flush = 0;
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
@@ -934,82 +1005,19 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
         return VTSS_RC_ERROR;
     }
 
-#if !defined(VTSS_OPT_FPGA)
-    if (lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req) != VTSS_RC_OK) {
-        return VTSS_RC_ERROR;
+    if (sgmii && disable && !disable_serdes) {
+        // power-down a port connected to a phy. Port flush/disable not needed.
+        skip_port_flush = 1;
     }
-    if (conf->power_down && port_type == PORT_TYPE_CUPHY) {
-        // The phy power down will cause the link down at the other end
-        return VTSS_RC_OK;
-    }
-#endif
+
     if (disable && disable_serdes) {
         // Disable SerDes to cause link down at the other end
         mode = VTSS_SERDES_MODE_DISABLE;
     }
-
-    /* 1: Reset the PCS Rx clock domain  */
-    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
-
-    /* 2: Disable MAC frame reception */
-    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_RX_ENA_M);
-
-    /* 3: Disable traffic being sent to or from switch port */
-    REG_WRM_CLR(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
-
-    /* 4: Disable dequeuing from the egress queues  */
-    REG_WRM_SET(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
-
-    /* 5: Disable Flowcontrol */
-    REG_WRM_CLR(SYS_PAUSE_CFG(port), SYS_PAUSE_CFG_PAUSE_ENA_M);
-
-    /* 5.1: Disable PFC */
-    REG_WRM(QSYS_SW_PORT_MODE(port),
-            QSYS_SW_PORT_MODE_TX_PFC_ENA(0),
-            QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
-
-    /* 6: Wait a worst case time 8ms (jumbo/10Mbit) */
-    VTSS_MSLEEP(8);
-
-    /* 7: Disable HDX backpressure (Bugzilla 3203) */
-    REG_WRM_CLR(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_HDX_MODE_M);
-
-    /* 8: Flush the queues accociated with the port */
-    REG_WRM(QSYS_SW_PORT_MODE(port),
-            QSYS_SW_PORT_MODE_AGING_MODE(3),
-            QSYS_SW_PORT_MODE_AGING_MODE_M);
-
-    /* 9: Enable dequeuing from the egress queues */
-    REG_WRM_CLR(QSYS_PORT_MODE(port), QSYS_PORT_MODE_DEQUEUE_DIS_M);
-
-    /* 10: Wait until flushing is complete */
-    do {
-        REG_RD(QSYS_SW_STATUS(port), &value);
-        VTSS_MSLEEP(1);
-        delay++;
-        if (delay == 2000) {
-            VTSS_E("Flush timeout chip port %u", port);
-            rc = VTSS_RC_ERROR;
-            break;
-        }
-    } while (value & QSYS_SW_STATUS_EQ_AVAIL_M);
-
-    /* 11: Reset the Port and MAC clock domains */
-    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
-    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PORT_RST_M);
-    VTSS_MSLEEP(1);
-    REG_WRM_SET(DEV_CLOCK_CFG(port),
-                DEV_CLOCK_CFG_MAC_TX_RST_M |
-                DEV_CLOCK_CFG_MAC_RX_RST_M |
-                DEV_CLOCK_CFG_PORT_RST_M);
-
-    /* 12: Clear flushing */
-    REG_WRM(QSYS_SW_PORT_MODE(port),
-            QSYS_SW_PORT_MODE_AGING_MODE(0),
-            QSYS_SW_PORT_MODE_AGING_MODE_M);
-
-    /* The port is disabled and flushed, now set up the port in the new operating mode */
-
+    if (!skip_port_flush) {
+        // Flush and disable the port
+        VTSS_RC(fa_port_flush(vtss_state, port_no));
+    }
     // Setup SerDes
     VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no, mode));
 
