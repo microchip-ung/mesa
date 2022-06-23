@@ -115,7 +115,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 //     power for the higher priority port.
 // '1' If power is not available for powering-up any port, any new connected port
 //     power-up is denied, regardless of its priority.
-#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
+#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.

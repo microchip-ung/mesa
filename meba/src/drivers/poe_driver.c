@@ -418,7 +418,13 @@ typedef struct   // parameters taken from DB according to PN read from POEMCU se
 
 
 static const uint16_t ClassMode_MaxPower_W[]     = { 15 , 30 , 60 , 90 };                  // System has 4 modes = 15/30/60/90
-static uint8_t        MAX_ADDED_CLASS_POWER_dW = 25;   // Extra power per class in DeciWatt (25=2.5W)
+// The MAX_ADDED_CLASS_POWER_dW defines how much extra power to allocate when a PD has negotiated is class.
+// By reserving some extra power, it is guaranteed that the power supply is able to provide the requested
+// power, but it also means that a large percentage of the available power may be reserved in stead of
+// being used for powering up devices.
+// For small power supplies the advice value is 0, in order to utilize the power supply as effeciently as
+// possible. For large power supplies, extra power should be reserved (e.g. 25 = 2.5W).
+static uint8_t        MAX_ADDED_CLASS_POWER_dW = 0;   // Extra power per class in DeciWatt (25=2.5W)
 //static const uint8_t  PowerPerClass_W[]        = { 0, 4 , 7,  15, 30, 45, 60, 75, 90 };  // Max PoE power per Class
 
 int POE_MAX_LOGICAL_PORTS      =       48;
@@ -5320,7 +5326,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
     port_cfg->ignore_pd_auto_class_request   = req_port_cfg->ignore_pd_auto_class_request; //- set by AutoClass global var
     Special_Port_Configuration_Bits_4_7      = port_cfg->ignore_pd_auto_class_request;
     // BT / legacy
-    port_cfg->bt_port_pm_mode = eBT_port_PM_mode_dynamic_Iport_x_Vmain;
+    port_cfg->bt_port_pm_mode = eBT_port_PM_mode_Dynamic_for_non_LLDP_ports_and_TPPL_BT_for_LLDP_ports;
     port_cfg->add_power_for_port_mode_dW = MAX_ADDED_CLASS_POWER_dW;
 
 
