@@ -210,9 +210,13 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         MEPA_phy_lib[6] = mepa_ksz9031_driver_init();
 #endif
 
+#if defined(MEPA_HAS_LAN8770)
+        MEPA_phy_lib[7] = mepa_lan8770_driver_init();
+#endif
+
         // Shall be last
 #if defined(MEPA_HAS_VTSS)
-        MEPA_phy_lib[7] = mepa_default_phy_driver_init();
+        MEPA_phy_lib[8] = mepa_default_phy_driver_init();
 #endif
     }
 
@@ -356,6 +360,16 @@ mepa_rc mepa_media_set(struct mepa_device *dev,
     }
 
     return dev->drv->mepa_driver_media_set(dev, phy_media_if);
+}
+
+mepa_rc mepa_media_get(struct mepa_device *dev,
+                       mepa_media_interface_t *phy_media_if)
+{
+    if (!dev || !dev->drv->mepa_driver_media_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_media_get(dev, phy_media_if);
 }
 
 mepa_rc mepa_aneg_status_get(struct mepa_device *dev,
@@ -1088,4 +1102,13 @@ mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
     }
 
     return dev->drv->mepa_debug_info_dump(dev, pr, info);
+}
+
+mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value)
+{
+    if (!dev->drv->mepa_driver_sqi_read) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_sqi_read(dev, value);
 }

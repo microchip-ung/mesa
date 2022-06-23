@@ -55,6 +55,7 @@ ENABLED:: Enables Actiphy and PerfectReach together at link-up.
 
 In case if port is dual media port with external PHY, media type
 (`mepa_media_interface_t`) is set using API `mepa_media_set()`
+API `mepa_media_get()` is used to get configured media type.
 
 == Loopbacks
 
@@ -106,6 +107,9 @@ and TS TX/RX settings.
 The API `mepa_delete()` is used to delete MEPA instance created for a
 PHY. It clears up the data allocated in `mepa_create()` function.
 
+== PHY SQI(Signal Quality Indicator) value
+The API `mepa_sqi_read()` is used to get the signal quality indication
+
 == API References
 
 `mepa_clause22_read()` +
@@ -117,6 +121,7 @@ PHY. It clears up the data allocated in `mepa_create()` function.
 `mepa_aneg_status_get()` +
 `mepa_power_set()` +
 `mepa_media_set()` +
+`mepa_media_get()` +
 `mepa_loopback_get()` +
 `mepa_loopback_set()` +
 `mepa_gpio_mode_set()` +
@@ -124,4 +129,5 @@ PHY. It clears up the data allocated in `mepa_create()` function.
 `mepa_gpio_out_set()` +
 `mepa_isolate_mode_conf()` +
 `mepa_debug_info_dump()` +
-`mepa_delete()`
+`mepa_delete()` +
+`mepa_sqi_read()`

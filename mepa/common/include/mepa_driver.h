@@ -153,7 +153,7 @@ typedef mepa_rc (*mepa_driver_power_set_t)(
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_driver_cable_diag_start_t)(
-    struct mepa_device *dev, int mode);
+    struct mepa_device *dev, int32_t mode);
 
 /**
  * \brief Gets result from cable diagnostics.
@@ -180,6 +180,18 @@ typedef mepa_rc (*mepa_driver_cable_diag_get_t)(
  **/
 typedef mepa_rc (*mepa_driver_media_set_t)(
     struct mepa_device *dev, mepa_media_interface_t phy_media_if);
+
+/**
+ * \brief Gets the media type in case the port is a dual media port with external phy.
+ *
+ *  \param dev           [IN]  Driver instance.
+ *  \param phy_media_if  [OUT] Media type.
+ *
+ *  \return
+ *     MEPA_RC_NOT_IMPLEMENTED when not supported.
+ **/
+typedef mepa_rc (*mepa_driver_media_get_t)(
+    struct mepa_device *dev, mepa_media_interface_t *phy_media_if);
 
 /**
  *  \brief Create an instance of the driver and initialize the PHY.
@@ -487,8 +499,17 @@ typedef mepa_rc (*mepa_driver_phy_i2c_write_t)(struct mepa_device *dev,
                              uint8_t cnt,
                              const mepa_bool_t word_access);
 
-
-
+/**
+ * \brief PHY get SQI value
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param value [OUT]   SQI value to return
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_sqi_read_t)(struct mepa_device *dev, uint32_t *const value);
 
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
@@ -502,6 +523,7 @@ typedef struct mepa_driver {
     mepa_driver_cable_diag_start_t     mepa_driver_cable_diag_start;
     mepa_driver_cable_diag_get_t       mepa_driver_cable_diag_get;
     mepa_driver_media_set_t            mepa_driver_media_set;
+    mepa_driver_media_get_t            mepa_driver_media_get;
     mepa_driver_probe_t                mepa_driver_probe;
     mepa_driver_aneg_status_get_t      mepa_driver_aneg_status_get;
     mepa_driver_clause22_read_t        mepa_driver_clause22_read;
@@ -523,6 +545,7 @@ typedef struct mepa_driver {
     mepa_debug_info_dump_t             mepa_debug_info_dump;
     mepa_driver_phy_i2c_read_t         mepa_driver_phy_i2c_read;
     mepa_driver_phy_i2c_write_t        mepa_driver_phy_i2c_write;
+    mepa_driver_sqi_read_t             mepa_driver_sqi_read;
 
     mepa_ts_driver_t                   *mepa_ts;
 
@@ -593,6 +616,9 @@ mepa_drivers_t mepa_ksz9031_driver_init();
 
 /** \brief Returns drivers for lan8814 PHY */
 mepa_drivers_t mepa_lan8814_driver_init();
+
+/** \brief Returns drivers for lan8770 PHY */
+mepa_drivers_t mepa_lan8770_driver_init();
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_ */

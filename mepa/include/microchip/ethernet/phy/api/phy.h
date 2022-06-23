@@ -296,6 +296,19 @@ mepa_rc mepa_media_set(struct mepa_device *dev,
                        mepa_media_interface_t phy_media_if);
 
 /**
+ * \brief Get the media type in case the port is a dual media port with external
+ * phy.
+ *
+ *  \param dev           [IN]  Driver instance.
+ *  \param phy_media_if  [OUT] Media type.
+ *
+ *  \return
+ *     MEPA_RC_NOT_IMPLEMENTED when not supported.
+ **/
+mepa_rc mepa_media_get(struct mepa_device *dev,
+                       mepa_media_interface_t *phy_media_if);
+
+/**
  * \brief  Gets copper PHY auto-negotiation status.
  *
  * \param dev   [IN]   Driver instance.
@@ -615,7 +628,17 @@ mepa_rc mepa_i2c_write(mepa_device_t *dev,
                         const mepa_bool_t word_access);
 
 
-
+/**
+ * \brief PHY get SQI value
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param value [OUT]   SQI value to return
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif

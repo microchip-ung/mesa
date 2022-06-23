@@ -370,5 +370,6 @@ typedef struct {
     mepa_bool_t        clear;       /**< Clear counters */
     mepa_bool_t        vml_format;  /**< VML format register dump */
 } mepa_debug_info_t;
+
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_TYPES_H_ */

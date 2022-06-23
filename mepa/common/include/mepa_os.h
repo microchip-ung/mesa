@@ -15,8 +15,18 @@
 // i16 must be printable using "%hd"
 // i32 must be printable using "%d"
 // i64 must be printable using "%lld"
+
+//
+// MEPA_OPSYS_PLATFORM:
+//	os_platform is OS agnostic environment of Trafford family.
+//	It is based on POSIX and provides APIs and framework regardless of
+//	Linux or FreeRTOS.
+//
+
 #if defined(MEPA_OPSYS_LMSTAX)
  #include <mepa_os_lmstax.h>
+#elif defined(MEPA_OPSYS_PLATFORM)
+ #include <mepa_os_platform.h>
 #else
  #include <mepa_os_linux.h>
 #endif

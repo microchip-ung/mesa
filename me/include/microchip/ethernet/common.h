@@ -55,7 +55,10 @@ typedef enum {
     MESA_PHY_MEDIA_IF_AMS_CU_1000BX,           /**< AMS - Cat5/1000BX/CuSFP */
     MESA_PHY_MEDIA_IF_AMS_FI_1000BX,
     MESA_PHY_MEDIA_IF_AMS_CU_100FX,            /**< AMS - Cat5/100FX/CuSFP */
-    MESA_PHY_MEDIA_IF_AMS_FI_100FX
+    MESA_PHY_MEDIA_IF_AMS_FI_100FX,
+    MESA_PHY_MEDIA_IF_T1S_10FX,                /**< 10Base-T1S */
+    MESA_PHY_MEDIA_IF_T1_100FX,                /**< 100Base-T1 */
+    MESA_PHY_MEDIA_IF_T1_1000FX                /**< 1000Base-T1 */
 } mesa_phy_media_interface_t;
 
 /** \brief PHY media interface type */
@@ -230,7 +233,7 @@ typedef  uint32_t mesa_phy_event_t;
 typedef uint32_t mesa_chip_no_t;
 
 // Error code type
-typedef int mesa_rc;
+typedef int32_t mesa_rc;
 
 #define MESA_PORT_NO_NONE    (0xffffffff) // Port number none
 #define MESA_PORT_NO_CPU     (0xfffffffe) // Port number for CPU for special purposes
