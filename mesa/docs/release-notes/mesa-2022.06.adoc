@@ -1,0 +1,17 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2022.06
+
+== MESA-2022.06
+
+|===
+|Version:          |MESA-2022.06
+|Previous Version: |MESA-2022.03
+|Date:             |2022-07-08
+|Description:      |Roadmap release
+|===
+
+=== General
+
+This is a bug fix release with no significant new features added.
