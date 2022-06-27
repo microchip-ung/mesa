@@ -1256,7 +1256,7 @@ class Mesa_Pc_b2b
 end
 
 def show_mesa_setup(ts)
-    test "show-setup" do
+    test("show-setup", false) do
         pmap = ts.port_map
 
         max = 0

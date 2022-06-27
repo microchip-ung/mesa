@@ -459,3 +459,5 @@ action_table.each do |t|
         $ts.pc.run(cmd + cmd_end)
     end
 end
+
+test_summary

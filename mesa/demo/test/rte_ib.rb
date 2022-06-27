@@ -339,17 +339,19 @@ test "otf" do
     otf_test
 end
 
-test "dg-QSPI" do
+test "dg-qspi" do
     tx_dg_test("QSPI", 1)
 end
 
-test "dg-SRAM-PN" do
+test "dg-sram-pn" do
     tx_dg_test("SRAM", 2)
 end
 
-test "dg-SRAM-OPC" do
+test "dg-sram-opc" do
     tx_dg_test("SRAM", 3, true)
 end
+
+test_summary
 
 test "dump" do
     break

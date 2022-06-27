@@ -482,3 +482,5 @@ test_table.each do |t|
         end
     end
 end
+
+test_summary

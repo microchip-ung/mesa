@@ -646,3 +646,5 @@ $conf_table.each do |e|
         end
     end
 end
+
+test_summary

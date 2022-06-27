@@ -573,3 +573,4 @@ test_table.each do |t|
     end
 end
 
+test_summary

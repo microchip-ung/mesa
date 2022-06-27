@@ -450,6 +450,8 @@ test_table.each do |t|
     end
 end
 
+test_summary
+
 test "dump" do
     break
     $ts.dut.run("mera-cmd debug api ob")
