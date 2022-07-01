@@ -805,6 +805,33 @@ static vtss_rc srvl_gpio_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc srvl_gpio_event_enable(vtss_state_t          *vtss_state,
+                                      const vtss_chip_no_t  chip_no,
+                                      const vtss_gpio_no_t  gpio_no,
+                                      const BOOL            enable)
+{
+    u32 mask = VTSS_BIT(gpio_no);
+
+    SRVL_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_GPIO_INTR_ENA, enable, mask);
+    return VTSS_RC_OK;
+}
+
+static vtss_rc srvl_gpio_event_poll(vtss_state_t          *vtss_state,
+                                    const vtss_chip_no_t  chip_no,
+                                    BOOL                  *const events)
+{
+    u32 pending, mask, i;
+
+    SRVL_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_INTR, &pending);
+    SRVL_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_INTR_ENA, &mask);
+    pending &= mask;
+    SRVL_WR(VTSS_DEVCPU_GCB_GPIO_GPIO_INTR, pending);
+    for (i = 0; i < 32; i++) {
+        events[i] = (pending & VTSS_BIT(i) ? TRUE : FALSE);
+    }
+    return VTSS_RC_OK;
+}
+
 static vtss_rc srvl_sgpio_event_poll(vtss_state_t *vtss_state,
                                      const vtss_chip_no_t     chip_no,
                                      const vtss_sgpio_group_t group,
@@ -1173,6 +1200,8 @@ vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->gpio_mode = vtss_srvl_gpio_mode;
         state->gpio_read = srvl_gpio_read;
         state->gpio_write = srvl_gpio_write;
+        state->gpio_event_enable = srvl_gpio_event_enable;
+        state->gpio_event_poll = srvl_gpio_event_poll;
         state->sgpio_conf_set = srvl_sgpio_conf_set;
         state->sgpio_read = srvl_sgpio_read;
         state->sgpio_event_enable = srvl_sgpio_event_enable;
