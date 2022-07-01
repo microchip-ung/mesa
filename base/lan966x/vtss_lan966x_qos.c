@@ -471,6 +471,7 @@ static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_po
         VTSS_RC(lan966x_queue_policer_set(vtss_state, port, queue, conf->policer_queue[queue].rate != VTSS_BITRATE_DISABLED, &pol_cfg));
     }
 
+#if defined(VTSS_FEATURE_VCAP)
     /* Update QCL port configuration */
     VTSS_RC(vtss_lan966x_vcap_port_key_addr_set(vtss_state,
                                                 port_no,
@@ -478,7 +479,7 @@ static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_po
                                                 vtss_state->qos.port_conf[port_no].key_type,
                                                 vtss_state->qos.port_conf_old.key_type,
                                                 vtss_state->qos.port_conf[port_no].dmac_dip));
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -604,6 +605,7 @@ static vtss_rc lan966x_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
 #define TAS_LIST_STATE_ADMIN       0
 #define TAS_LIST_STATE_ADVANCING   1
 #define TAS_LIST_STATE_PENDING     2
@@ -1600,6 +1602,7 @@ static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t              *vtss_s
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_QOS_TAS
 
 static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_reset)
 {
@@ -1662,11 +1665,16 @@ vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t po
     /* Setup depending on port speed */
     VTSS_RC(lan966x_qos_fp_port_conf_set(vtss_state, port_no, in_reset));
     VTSS_RC(lan966x_qos_queue_cut_through_set(vtss_state, port_no));
-    return lan966x_qos_tas_frag_size_update(vtss_state, port_no);
+#if defined(VTSS_FEATURE_QOS_TAS)
+    VTSS_RC(lan966x_qos_tas_frag_size_update(vtss_state, port_no));
+#endif
+    return VTSS_RC_OK;
 }
 
 /* - Debug print --------------------------------------------------- */
 
+#if VTSS_OPT_DEBUG_PRINT
+#if defined(VTSS_FEATURE_QOS_TAS)
 static char *debug_tas_state_string(u32 value)
 {
     switch (value) {
@@ -1756,16 +1764,21 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
 
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
                                  const vtss_debug_printf_t  pr,
                                  const vtss_debug_info_t    *const info)
 {
-    u32            i, j, port, pir, value, mode, terminal_se, dwrr_se;
-    u32            cir, qmap, tas_list_idx = 0, div = 0, policer;
+    u32            i, port, pir, value, mode, terminal_se, dwrr_se;
+    u32            cir, qmap, policer;
     int            queue;
     BOOL           header = 1;
-    vtss_port_no_t port_no, tas_port = 0;
+    vtss_port_no_t port_no;
+#if defined(VTSS_FEATURE_QOS_TAS)
+    u32            j, tas_list_idx = 0, div = 0;
+    vtss_port_no_t tas_port = 0;
+#endif
     char           buf[16];
     BOOL           show_act, basics_act, port_pol_act,
                    storm_pol_act, schedul_act, policer_act, shape_act, tas_act, tas_state_act, tas_count_act;
@@ -1786,6 +1799,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
         tas_count_act =        (info->action == 9)  ? TRUE : FALSE;
     }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
     if (info->action > 9) { /* This potentially a TAS configuration or analyze action */
         for (i = 0, div = 10000; i < 5; ++i, (div = div / 10)) {
             tas_act = ((info->action / div) == 7) ? TRUE : FALSE;
@@ -1805,6 +1819,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
         VTSS_D("tas_act %u  tas_state_act %u  tas_count_act %u  tas_list_idx %u  tas_port %u  div %u",
                 tas_act, tas_state_act, tas_count_act, tas_list_idx, tas_port, div);
     }
+#endif
 
     VTSS_D("show %u  basic %u  port_pol %u  storm_pol %u  policer %u  schedul %u  shape %u",
             show_act, basics_act, port_pol_act, storm_pol_act, policer_act, schedul_act, shape_act);
@@ -2218,6 +2233,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
         }
     }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
     if (!info->has_action || tas_act) { /* SAT configuration must be printed */
         vtss_tas_gcl_state_t *gcl;
         vtss_tas_list_t *lists = vtss_state->qos.tas.tas_lists;
@@ -2358,6 +2374,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
 //        }
 //        pr("index %u  chip_port %u  ts1.seconds %u  ts0.seconds %u\n", index, chip_port, ts1.seconds, ts0.seconds);
 //    }
+#endif // VTSS_FEATURE_QOS_TAS
 
     if (!header) {
         pr("\n");
@@ -2372,6 +2389,7 @@ vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t               *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, lan966x_qos_debug, vtss_state, pr, info);
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
 {
@@ -2389,9 +2407,11 @@ static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
 /* - Initialization ------------------------------------------------ */
 vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    u32                 i, clk_period;
     vtss_qos_state_t    *state = &vtss_state->qos;
     vtss_policer_conf_t pol_conf;
+#if defined(VTSS_FEATURE_QOS_TAS)
+    u32                 i, clk_period;
+#endif
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
@@ -2399,8 +2419,10 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->port_conf_set = vtss_cmn_qos_port_conf_set;
         state->port_conf_update = lan966x_qos_port_conf_set;
         state->status_get = lan966x_qos_status_get;
+#if defined(VTSS_FEATURE_QCL)
         state->qce_add = vtss_cmn_qce_add;
         state->qce_del = vtss_cmn_qce_del;
+#endif
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
         state->cpu_port_shaper_set = lan966x_qos_cpu_port_shaper_set;
 #endif
@@ -2420,6 +2442,7 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
+#if defined(VTSS_FEATURE_QOS_TAS)
         // Initialize the TAS max number of GCL
         REG_WRM(QSYS_TAS_CFG_CTRL, QSYS_TAS_CFG_CTRL_LIST_NUM_MAX(VTSS_TAS_NUMBER_OF_LISTS-1), QSYS_TAS_CFG_CTRL_LIST_NUM_MAX_M);
 
@@ -2442,6 +2465,7 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         REG_WRM(QSYS_TAS_STM_CFG,
                 QSYS_TAS_STM_CFG_REVISIT_DLY((256 * 1000) / clk_period),
                 QSYS_TAS_STM_CFG_REVISIT_DLY_M);
+#endif
 
         /* Setup discard policer */
         VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));

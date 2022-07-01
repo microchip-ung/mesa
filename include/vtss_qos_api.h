@@ -423,6 +423,7 @@ typedef struct {
 vtss_rc vtss_qos_status_get(const vtss_inst_t inst,
                             vtss_qos_status_t *const status);
 
+#if defined(VTSS_FEATURE_QCL)
 /** \page qos
 
     \section qcl_conf QoS Control List Configuration
@@ -619,6 +620,7 @@ vtss_rc vtss_qce_add(const vtss_inst_t    inst,
 vtss_rc vtss_qce_del(const vtss_inst_t    inst,
                      const vtss_qcl_id_t  qcl_id,
                      const vtss_qce_id_t  qce_id);
+#endif // VTSS_FEATURE_QCL
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 /** \brief Key that determines what to match */

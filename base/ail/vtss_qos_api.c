@@ -145,6 +145,7 @@ vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst)
 
 /* - QCL configuration --------------------------------------------- */
 
+#if defined(VTSS_FEATURE_QCL)
 vtss_rc vtss_qce_init(const vtss_inst_t      inst,
                       const vtss_qce_type_t  type,
                       vtss_qce_t             *const qce)
@@ -192,6 +193,7 @@ vtss_rc vtss_qce_del(const vtss_inst_t    inst,
     VTSS_EXIT();
     return rc;
 }
+#endif // VTSS_FEATURE_QCL
 
 /* - Common Ingress/Egress map functionality ----------------------- */
 
@@ -1623,6 +1625,7 @@ u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
     return i;
 }
 
+#if defined(VTSS_FEATURE_QCL)
 /* Add QCE */
 vtss_rc vtss_cmn_qce_add(vtss_state_t *vtss_state,
                          const vtss_qcl_id_t  qcl_id,
@@ -1834,9 +1837,11 @@ vtss_rc vtss_cmn_qce_del(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_QCL
 
 /* - Debug print --------------------------------------------------- */
 
+#if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_EVC_POLICERS)
 void vtss_qos_debug_print_dlb(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr,
@@ -2495,4 +2500,6 @@ void vtss_qos_debug_print(vtss_state_t *vtss_state,
     pr("\n");
 #endif /* VTSS_FEATURE_QOS_FRAME_PREEMPTION */
 }
+#endif // VTSS_OPT_DEBUG_PRINT
+
 #endif /* VTSS_FEATURE_QOS */

@@ -152,7 +152,9 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_QOS
 
+#if defined(VTSS_FEATURE_QCL)
 mesa_rc mesa_conv2_vtss_qce_key_t_to_mesa_qce_key_t(const vtss_qce_key_t *in, mesa_qce_key_t *out)
 {
     switch (in->type) {
@@ -200,7 +202,7 @@ mesa_rc mesa_conv2_mesa_qce_key_t_to_vtss_qce_key_t(const mesa_qce_key_t *in, vt
     }
     return VTSS_RC_OK;
 }
-#endif // VTSS_FEATURE_QOS
+#endif // VTSS_FEATURE_QCL
 
 #define VTSS_RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }
 
@@ -592,7 +594,7 @@ mesa_rc mesa_qce_add(const mesa_inst_t   inst,
                      const mesa_qce_id_t qce_id,
                      const mesa_qce_t    *const qce)
 {
-#if defined(VTSS_FEATURE_QOS)
+#if defined(VTSS_FEATURE_QCL)
     vtss_qce_t vtss_qce;
 
     mesa_conv_mesa_qce_t_to_vtss_qce_t(qce, &vtss_qce);
@@ -605,7 +607,7 @@ mesa_rc mesa_qce_add(const mesa_inst_t   inst,
 mesa_rc mesa_qce_del(const mesa_inst_t   inst,
                      const mesa_qce_id_t qce_id)
 {
-#if defined(VTSS_FEATURE_QOS)
+#if defined(VTSS_FEATURE_QCL)
     return vtss_qce_del((vtss_inst_t)inst, VTSS_QCL_ID_START, qce_id);
 #else
     return VTSS_RC_ERROR;
