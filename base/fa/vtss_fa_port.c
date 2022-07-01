@@ -2267,6 +2267,11 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
         }
     }
 
+    REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt),
+                VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+    REG_WRM_CLR(VTSS_DEV1G_PCS_FX100_CFG(tgt),
+                VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA);
+
     /* The port is now flushed and disabled  */
 
     return VTSS_RC_OK;
