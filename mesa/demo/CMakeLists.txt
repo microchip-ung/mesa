@@ -96,7 +96,7 @@ macro(APP_TARGET)
 endmacro()
 
 macro(IMG_TARGET)
-    set(options )
+    set(options MERA)
     set(oneValueArgs NAME APP MACHINE TYPE)
     set(multiValueArgs )
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -125,7 +125,7 @@ macro(IMG_TARGET)
     # List of executables to install on target
     set(EXECUTABLES ${A_APP} cli er fa_board_fpga_init spi_reg_read base64decode)
 
-    if (${HAS_RTE})
+    if (${A_MERA})
         set(EXECUTABLES ${EXECUTABLES} mera-demo mera-cmd mera-sram-rw)
     endif ()
 
@@ -290,6 +290,12 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
     # TODO, need to merge the BBB and none BBB versions
+    if (${HAS_RTE})
+        IMG_TARGET(NAME armv7_lan9662     TYPE fit    APP app_lan966x         MACHINE lan966x MERA)
+    else ()
+        IMG_TARGET(NAME armv7_lan9662     TYPE fit    APP app_lan966x         MACHINE lan966x)
+    endif ()
+
     IMG_TARGET(NAME armv7_lan966x         TYPE fit    APP app_lan966x         MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_lm      TYPE fit    APP app_lan966x_lm      MACHINE lan966x)
     IMG_TARGET(NAME armv7_lan966x_sr      TYPE fit    APP app_lan966x_sr      MACHINE lan966x)
