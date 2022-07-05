@@ -772,7 +772,7 @@ static mepa_rc indy_cab_diag_exit_config(mepa_device_t *dev)
 // Indy phy dignostics is calculated only when there is no remote link partner for the port.
 // For mode values {0,1} corresponding to {VTSS_PHY_MODE_ANEG, VTSS_PHY_MODE_FORCED}, diagnostics is calculated.
 // For power down mode(2), diagnostics is not calculated.
-static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int mode)
+static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int32_t mode)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t value, mask = 0, pair, status;
