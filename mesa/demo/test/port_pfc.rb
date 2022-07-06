@@ -105,13 +105,56 @@ $test_list.each do |entry|
         end
 
         $ts.dut.run "mesa-cmd port statis clear"
+
         sz = $frame_size - 14 - 4 - 4
-        cmd =  "sudo ef "
+        cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,1000 "
+        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+        cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
+        $ts.pc.try cmd
+
+        test ("Check that no Pause frame is received") do
+        pkts = $ts.pc.get_pcap "#{$ts.pc.p[$port_tx1]}.pcap"
+        for inx in 0..999
+            data = pkts[inx][:data].each_byte.map{|c| c.to_i}
+            if (data[12] == 0x88)
+                t_e "Unexpected Pause frame received   inx #{inx} data #{data}"
+                break
+            end
+        end
+        end
+
+        $ts.dut.run "mesa-cmd port statis clear"
+
+        sz = $frame_size - 14 - 4 - 4
+        cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,50 "
         cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
         cmd += "name f#{$port_tx2} eth dmac #{$pause_dmac} smac #{$frame_dmac} et #{$pause_etype} data hex #{pause_str} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
         cmd += "tx #{$ts.pc.p[$port_tx2]} rep #{$num_of_pause} name f#{$port_tx2} "
         $ts.pc.try cmd
+
+        if ((conf_pfc[entry[:data_frame_pcp]] == 1) && (pause_frame_pfc[entry[:data_frame_pcp]] == 1))
+            # Pause frames are transmitted
+            test ("Check the Pause frame source MAC") do
+            pkts = $ts.pc.get_pcap "#{$ts.pc.p[$port_tx1]}.pcap"
+            for inx in 0..49
+                data = pkts[inx][:data].each_byte.map{|c| c.to_i}
+                if (data[12] == 0x88)
+                    t_i "inx #{inx} data #{data}"
+                    break
+                end
+            end
+            if (inx == 49)
+                t_e "No Pause frame received"
+            else
+                if (data[6] != 0) || (data[7] != 1) || (data[8] != 2) ||
+                (data[9] != 3) || (data[10] != 4) || (data[11] != 5)
+                    t_e "Pause frame received with unexpected source MAC"
+                end
+            end
+            end # end test
+        end
+
         $ts.dut.run "mesa-cmd port statis pac"
 
         # Test verification

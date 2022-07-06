@@ -1547,8 +1547,8 @@ static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
     }
     // Set source buffer size for each priority and each port to 1500 bytes */
     for (i = 0; i <= 95; i++) {
-        REG_WR(QSYS_RES_CFG((i)), 1500/64);
-        REG_WR(QSYS_RES_CFG((512 + i)), 1500/64);
+        REG_WR(QSYS_RES_CFG((i)), 1700/64);
+        REG_WR(QSYS_RES_CFG((512 + i)), 1700/64);
     }
 
     // The CPU will only use its reserved buffer in the shared queue system and
