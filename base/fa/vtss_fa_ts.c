@@ -736,6 +736,16 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
+    case VTSS_PORT_INTERFACE_SXGMII:
+    case VTSS_PORT_INTERFACE_USGMII:
+    case VTSS_PORT_INTERFACE_QXGMII:
+    case VTSS_PORT_INTERFACE_DXGMII_5G:
+    case VTSS_PORT_INTERFACE_DXGMII_10G:
+        /* In case of this interface types it is the PHY in front that are doing the time stamping */
+        /* so in the switch the latency is configured as zero */
+        rx_delay = 0;
+        tx_delay = 0;
+        break;
     default:
         VTSS_E("unsupported interface: %u", interface);
         return VTSS_RC_ERROR;
@@ -786,6 +796,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         rx_delay += 230 * 1000;
         tx_delay += 230 * 1000;
         break;
+
     default:
         break;
     }
