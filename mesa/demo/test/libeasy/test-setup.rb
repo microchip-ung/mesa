@@ -330,7 +330,7 @@ class MesaDut
         @io.read_line_expect_end /#/ do |l|
             console l
         end
-        #@io.cmd "echo 4 > /proc/sys/kernel/printk"
+        @io.cmd "echo 4 > /proc/sys/kernel/printk"
     end
 
     def terminal_alive timeout

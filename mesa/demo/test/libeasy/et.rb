@@ -279,12 +279,13 @@ def run cmd, flags = []
 end
 
 # Global variable for test summary
-$test_list = []
+$test_summary_list = []
 
 def test_summary(all = true)
-    cnt_total = $test_list.length
+    list = $test_summary_list
+    cnt_total = list.length
     cnt_err = 0
-    $test_list.each_with_index do |e, i|
+    list.each_with_index do |e, i|
         txt = nil
         if (e[:status] == "not-ok")
             cnt_err += 1
@@ -352,7 +353,7 @@ def test(name, summary = true)
         end
 
         if (summary)
-            $test_list << {name: name, status: attrs["status"]}
+            $test_summary_list << {name: name, status: attrs["status"]}
         end
 
         ts_end = Time.now
