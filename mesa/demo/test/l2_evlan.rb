@@ -455,4 +455,6 @@ test_table.each do |t|
     end
 end
 
-test_summary
+test "summary" do
+    test_summary
+end
