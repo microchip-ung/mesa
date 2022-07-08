@@ -282,30 +282,32 @@ end
 $test_summary_list = []
 
 def test_summary(all = true)
-    list = $test_summary_list
-    cnt_total = list.length
-    cnt_err = 0
-    list.each_with_index do |e, i|
-        txt = nil
-        if (e[:status] == "not-ok")
-            cnt_err += 1
-            txt = "Failed "
-        elsif (all)
-            txt = "Success"
-        end
-        if (txt != nil)
-            txt += " [#{i}]"
-            cnt = ((cnt_total - 1).to_s.length - i.to_s.length)
-            cnt.times do
-                txt += " "
+    test "summary" do
+        list = $test_summary_list
+        cnt_total = list.length
+        cnt_err = 0
+        list.each_with_index do |e, i|
+            txt = nil
+            if (e[:status] == "not-ok")
+                cnt_err += 1
+                txt = "Failed "
+            elsif (all)
+                txt = "Success"
             end
-            txt += ": "
-            t_i(txt + e[:name])
+            if (txt != nil)
+                txt += " [#{i}]"
+                cnt = ((cnt_total - 1).to_s.length - i.to_s.length)
+                cnt.times do
+                    txt += " "
+                end
+                txt += ": "
+                t_i(txt + e[:name])
+            end
         end
+        t_i("Total : #{cnt_total}")
+        t_i("Ok    : #{cnt_total - cnt_err}")
+        t_i("Errors: #{cnt_err}")
     end
-    t_i("Total : #{cnt_total}")
-    t_i("Ok    : #{cnt_total - cnt_err}")
-    t_i("Errors: #{cnt_err}")
 end
 
 def test(name, summary = true)

@@ -351,9 +351,7 @@ test "dg-sram-opc" do
     tx_dg_test("SRAM", 3, true)
 end
 
-test "summary" do
-    test_summary
-end
+test_summary
 
 test "dump" do
     break

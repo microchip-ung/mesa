@@ -647,6 +647,4 @@ $conf_table.each do |e|
     end
 end
 
-test "summary" do
-    test_summary
-end
+test_summary

@@ -256,8 +256,6 @@ test_table.each do |t|
     end
 end
 
-test "summary" do
-    test_summary
-end
+test_summary
 
 #$ts.dut.run("mesa-cmd deb api ci vx")
