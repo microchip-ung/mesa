@@ -282,7 +282,7 @@ end
 $test_summary_list = []
 
 def test_summary(all = true)
-    test "summary" do
+    test("summary", false) do
         list = $test_summary_list
         cnt_total = list.length
         cnt_err = 0
@@ -307,6 +307,7 @@ def test_summary(all = true)
         t_i("Total : #{cnt_total}")
         t_i("Ok    : #{cnt_total - cnt_err}")
         t_i("Errors: #{cnt_err}")
+        $test_summary_list = []
     end
 end
 
