@@ -40,10 +40,6 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
     uint16_t val = 0, clock_cfg = 0, pll_div = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    if (ts_init_conf->rx_ts_len != MEPA_TS_RX_TIMESTAMP_LEN_30BIT) {
-        T_E(MEPA_TRACE_GRP_TS, "Rx Timestamp Length is not supported::  Port : %d\n", data->port_no);
-        return MEPA_RC_ERROR;
-    }
     if (ts_init_conf->tx_fifo_mode != MEPA_TS_FIFO_MODE_NORMAL) {
         T_E(MEPA_TRACE_GRP_TS, "TX TS FIFO mode not supported::  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
@@ -109,8 +105,6 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
 
     data->ts_state.clk_src          = ts_init_conf->clk_src;
     data->ts_state.clk_freq         = ts_init_conf->clk_freq;
-    data->ts_state.rx_ts_len        = ts_init_conf->rx_ts_len;
-    data->ts_state.rx_ts_pos        = ts_init_conf->rx_ts_pos;
     data->ts_state.tx_fifo_mode     = ts_init_conf->tx_fifo_mode;
     data->ts_state.tx_fifo_ts_len   = ts_init_conf->tx_ts_len;
     data->ts_state.tsu_op_mode      = INDY_TS_MODE_STANDALONE;
@@ -127,6 +121,10 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
     // Reset all timestamp fifos
     EP_WR(dev, INDY_PTP_TSU_HARD_RESET, 0x1);
     MEPA_MSLEEP(2);
+
+    // port specific config
+    data->ts_state.rx_ts_len = ts_init_conf->rx_ts_len;
+    data->ts_state.rx_ts_pos = ts_init_conf->rx_ts_pos;
     if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
 		val = val | INDY_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
 		val = val | INDY_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
@@ -1756,8 +1754,9 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         val = 0x0405;
         EP_WRM(dev, INDY_PTP_RX_RSVD_BYTE_CFG, val, INDY_DEF_MASK);
         rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_EN;
-        //rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_32BIT;
-        //if(data->ts_state->rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT)
+        if(data->ts_state.rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT) {
+            rx_mod = rx_mod | INDY_PTP_RX_MOD_PTP_INSERT_TS_32BIT;
+        }
         EP_WRM(dev, INDY_PTP_RX_MOD, rx_mod, rx_mod);
     }
 
