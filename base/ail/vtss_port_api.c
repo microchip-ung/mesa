@@ -1834,8 +1834,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     u32 irq = irq_vec;
 
-//    dump_irq(port_no, irq);
-
      // To ignore IRQ failures
     if (krs->ignore_fail) {
         irq &= ~KR_DME_VIOL_0;
@@ -1879,9 +1877,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                 krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
                 krs->current_state = VTSS_TR_TRAIN_REMOTE;
                 // 'Receiver Ready' sent 3 times to LP as according to standard
-                kr_send_sts_report(vtss_state, port_no, BT(15));
-                kr_send_sts_report(vtss_state, port_no, BT(15));
-                kr_send_sts_report(vtss_state, port_no, BT(15));
+                krs->tr_res.status |= BT(15);
+                kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
                 krs->ignore_fail = TRUE;
             } else {
                 (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
@@ -1931,7 +1928,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
         kr_coef_set(vtss_state, port_no, frm.data, &krs->tr_res);
         krs->tr_res.coef = frm.data;
         if (krs->ber_training_stage == VTSS_BER_LOCAL_RX_TRAINED) {
-            krs->tr_res.status += BT(15); // Receiver Ready bit
+            krs->tr_res.status |= BT(15); // Receiver Ready bit
         }
 
         // Send Status report
@@ -1958,9 +1955,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
             } else {
                 krs->current_state = VTSS_TR_TRAIN_REMOTE;
                 krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
-                kr_send_sts_report(vtss_state, port_no, BT(15));
-                kr_send_sts_report(vtss_state, port_no, BT(15));
-                kr_send_sts_report(vtss_state, port_no, BT(15));
+                krs->tr_res.status |= BT(15);
+                kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
             }
         } else {
             if (krs->ber_training_stage != VTSS_BER_LOCAL_RX_TRAINED) {
@@ -1990,9 +1986,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
     }
 
     // KR_DME_VIOL_0
-    if (irq & KR_DME_VIOL_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
-        // Do nothing
-    }
+    // Do nothing
 
     // KR_REM_RDY_1 (LP is ready)
     if (irq & KR_REM_RDY_1) {
@@ -2016,10 +2010,9 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // WT_START (Start wait timer to ensure that the LP detects our state (72.6.10.3.2))
     if (krs->current_state == VTSS_TR_TRAIN_REMOTE && krs->remote_rx_ready) {
-        // 'Receiver Ready' sent 3 times to LP as according to standard
-        kr_send_sts_report(vtss_state, port_no, BT(15));
-        kr_send_sts_report(vtss_state, port_no, BT(15));
-        kr_send_sts_report(vtss_state, port_no, BT(15));
+        // Set the 'Receiver Ready' bit
+        krs->tr_res.status |= BT(15);
+        kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
         vtss_port_kr_fw_req_t req_msg = {0};
         req_msg.wt_start = TRUE;
         (void)kr_fw_req(vtss_state, port_no, &req_msg);

@@ -1327,7 +1327,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
            LD_ADV2 bit 0 = 2.5G-KX,
            LD_ADV2 bit 1 = 5G-KR */
         abil = kr->aneg.adv_2g5 ? VTSS_BIT(0) : 0;
-        abil += kr->aneg.adv_5g ? VTSS_BIT(1) : 0;
+        abil |= kr->aneg.adv_5g ? VTSS_BIT(1) : 0;
         REG_WRM(VTSS_IP_KRANEG_LD_ADV2(tgt), abil, VTSS_BIT(0) | VTSS_BIT(1));
 
         /* AN FEC aneg field
@@ -1424,12 +1424,20 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         /* Training is interruptet, restart serdes and kr blocks */
         vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
         vtss_state->port.kr_conf[port_no].train.enable = FALSE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        fa_port_kr_conf_set(vtss_state, port_no);
         VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.sd28_mode[indx]));
         vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
         vtss_state->port.kr_conf[port_no].train.enable = TRUE;
-        (void)fa_port_kr_conf_set(vtss_state, port_no);
+        fa_port_kr_conf_set(vtss_state, port_no);
         return VTSS_RC_OK;
+    }
+
+    if (fw_req->wt_start) {
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            REG_WR(VTSS_IP_KRANEG_WT_TMR(tgt), 5312);  /* 200 frames @ 25G */
+        } else {
+            REG_WR(VTSS_IP_KRANEG_WT_TMR(tgt), 13280); /* 200 frames @ 10G */
+        }
     }
 
     if (fw_req->ber_enable || fw_req->mw_start || fw_req->wt_start
@@ -1496,9 +1504,9 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         u32 np0, np1, np2, fec;
         vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
 
-        (void)fa_np_rx(vtss_state, port_no, &np0, &np1, &np2);
+        fa_np_rx(vtss_state, port_no, &np0, &np1, &np2);
         if (np0 == 0) {
-            fa_np_set(vtss_state, port_no, 0xe805, 0x0400, 0x001c);
+            fa_np_set(vtss_state, port_no, 0xe805, 0x03ac, 0x04bf); /* msg code #5 + OUI (DS1217) */
         } else  {
             if (kr->aneg.rs_fec_req) {
                 fec = VTSS_BIT(8) | VTSS_BIT(9); /* RFEC | RSFEC */
@@ -1507,7 +1515,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
             } else {
                 fec = 0; /* No FECx */
             }
-            fa_np_set(vtss_state, port_no, 0x4003, 0x20, fec);
+            fa_np_set(vtss_state, port_no, 0x4203, 0x0030, fec); /* 25G-KR/25G-CR/FEC cap. */
         }
     }
 

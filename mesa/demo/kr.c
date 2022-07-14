@@ -431,6 +431,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
             kr_conf_state[iport].link_break = 0;
             (void)fa_kr_reset_state(iport);
             if (req->set) {
+                kr_conf_state[iport].global_stop = 0; // for dbg
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
                 kr_conf_state[iport].aneg_enable = 1;
