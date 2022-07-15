@@ -440,7 +440,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_SPARX5)
     u32 clk_div, clk_period, pol_upd_int, val;
     switch (freq) {
     case VTSS_CORE_CLOCK_250MHZ:

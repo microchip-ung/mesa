@@ -8456,15 +8456,14 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
-
 #if defined(VTSS_ARCH_JAGUAR_2)
         mgmt = entry->mgmt;
 #endif
-
 #if defined(VTSS_FEATURE_QOS_OT)
-        pr("%-4u", entry->conf.ot);
+// Fix me        pr("%-4u", entry->conf.ot);
 #endif
-
+#if defined(VTSS_ARCH_JAGUAR_2)
+        mgmt = entry->mgmt;
         if ((entry->vsi_enable) && (entry->vsi != NULL)) {
             pr("%-6u", entry->vsi->vsi);
         } else

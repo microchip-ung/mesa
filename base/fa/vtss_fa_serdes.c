@@ -3088,13 +3088,7 @@ vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_
     /* Map API port to Serdes instance */
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type));
     sd_tgt = fa_get_lane_target(sd_type, indx);
-    if (sd_type == FA_SERDES_TYPE_6G) {
-        sd_lane_tgt = VTSS_TO_SD_LANE(indx);
-    } else if (sd_type == FA_SERDES_TYPE_10G) {
-        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
-    } else {
-        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
-    }
+
     if (conf->debug_type == VTSS_SERDES_DFE_PRM) {
 
         if (sd_type == FA_SERDES_TYPE_6G || sd_type == FA_SERDES_TYPE_10G) {

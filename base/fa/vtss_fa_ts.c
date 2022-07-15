@@ -1136,9 +1136,7 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf
 
 static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 {
-    u32 i, domain, clk_in_ps;
-    u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, nominal_tod_increment;
-    vtss_rc rc = VTSS_RC_OK;
+    u32 i, domain;
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0));
@@ -1148,6 +1146,8 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
             VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA(1) | VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52(0),
             VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA | VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52);
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    // fixme
     /* Configure the nominal TOD increment per clock cycle */
     switch (vtss_state->init_conf.core_clock.freq) {
     /* 250 MHz gives 4.0 ns */
@@ -1171,9 +1171,11 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         break;
     default: {};
     }
-
+#endif
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    // fixme
+    u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, nominal_tod_increment, clk_in_ps;
     clk_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
-
     /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
     nom_ns = ((clk_in_ps/1000) * 0x0800000000000000);   /* Nominel nanoseconds */
     residue =  (clk_in_ps%1000);
@@ -1183,7 +1185,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     residue =  (residue%10);
     nom_0001_ns =  (((residue/1) * 0x0800000000000000)/1000);   /* Nominel 0.001 nanoseconds */
     nominal_tod_increment = nom_ns + nom_01_ns + nom_001_ns + nom_0001_ns;
-
+#endif
     /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
     for (domain = 0; domain < VTSS_TS_DOMAIN_ARRAY_SIZE; domain++) {

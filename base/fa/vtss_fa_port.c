@@ -1086,6 +1086,15 @@ static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
 #define ANEG_RATE_10G    9
 static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t serdes_mode);
 
+u32 vtss_to_sd_kr(u32 p)
+{
+    if (p < 12 || p == 64) {
+        return vtss_to_sd6g_kr(p);
+    } else {
+        return vtss_to_sd10g_kr(p);
+    }
+}
+
 static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
@@ -1584,7 +1593,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
         }
 #endif
     }
-
+#endif
     // Debug
     REG_RD(VTSS_IP_KRANEG_AN_SM(tgt), &tr);
     status->aneg.sm = VTSS_X_IP_KRANEG_AN_SM_AN_SM(tr);
@@ -1755,7 +1764,7 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     // Store the cuurnet TxEq values
     vtss_port_kr_temp_storage_t *st = &vtss_state->port.kr_store[port_no];
     VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &st->tap_dly, &st->tap_adv, &st->amplitude));
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -2755,6 +2764,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
                         VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
         }
     }
+#endif
 
     REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt),
                 VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);

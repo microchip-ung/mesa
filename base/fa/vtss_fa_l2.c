@@ -612,6 +612,7 @@ static vtss_rc fa_vlan_conf_set(vtss_state_t *vtss_state)
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 {
     vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
+// fixme   vtss_vlan_vid_conf_t *conf = &e->conf;
 
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(e->msti) |
@@ -624,9 +625,10 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(e->flags & VLAN_FLAGS_MIRROR ? 1 : 0));
     REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(e->rl_id));
 #if defined(VTSS_FEATURE_QOS_OT)
-    REG_WR(VTSS_ANA_L3_QGRP_CFG(vid),
-           VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX(conf->ot ? 1 : 0) |
-           VTSS_F_ANA_L3_QGRP_CFG_QGRP_OAM_TYPE(0));
+    // fixme
+    /* REG_WR(VTSS_ANA_L3_QGRP_CFG(vid), */
+    /*        VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX(conf->ot ? 1 : 0) | */
+    /*        VTSS_F_ANA_L3_QGRP_CFG_QGRP_OAM_TYPE(0)); */
 #endif
 
     return VTSS_RC_OK;
