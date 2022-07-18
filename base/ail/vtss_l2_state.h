@@ -161,6 +161,7 @@ typedef struct {
 #define VLAN_FLAGS_FLOOD    0x10
 #define VLAN_FLAGS_MIRROR   0x20
 #define VLAN_FLAGS_FILTER   0x40
+#define VLAN_FLAGS_OT       0x80
 
 /* VLAN entry */
 typedef struct {

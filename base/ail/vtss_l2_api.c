@@ -1822,6 +1822,9 @@ vtss_rc vtss_vlan_vid_conf_get(const vtss_inst_t    inst,
         conf->flooding = (e->flags & VLAN_FLAGS_FLOOD ? 1 : 0);
         conf->mirror = (e->flags & VLAN_FLAGS_MIRROR ? 1 : 0);
         conf->ingress_filter = (e->flags & VLAN_FLAGS_FILTER ? 1 : 0);
+#if defined(VTSS_FEATURE_QOS_OT)
+        conf->ot = (e->flags & VLAN_FLAGS_OT ? 1 : 0);
+#endif
 #if defined(VTSS_FEATURE_VLAN_SVL)
         conf->fid = e->fid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
@@ -1862,6 +1865,13 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t          inst,
         } else {
             e->flags &= ~VLAN_FLAGS_FILTER;
         }
+#if defined(VTSS_FEATURE_QOS_OT)
+        if (conf->ot) {
+            e->flags |= VLAN_FLAGS_OT;
+        } else {
+            e->flags &= ~VLAN_FLAGS_OT;
+        }
+#endif
 #if defined(VTSS_FEATURE_VLAN_SVL)
         e->fid = conf->fid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
@@ -8446,21 +8456,18 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_VLAN_SVL)
             pr("FID   ");
 #endif /* VTSS_FEATURE_VLAN_SVL */
-            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
 #if defined(VTSS_FEATURE_QOS_OT)
             pr("OT  ");
 #endif
+            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
             header = 0;
         }
         pr("%-6u", vid);
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
-#if defined(VTSS_ARCH_JAGUAR_2)
-        mgmt = entry->mgmt;
-#endif
 #if defined(VTSS_FEATURE_QOS_OT)
-// Fix me        pr("%-4u", entry->conf.ot);
+        pr("%-4u", entry->flags & VLAN_FLAGS_OT ? 1 : 0);
 #endif
 #if defined(VTSS_ARCH_JAGUAR_2)
         mgmt = entry->mgmt;

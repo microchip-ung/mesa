@@ -72,7 +72,7 @@ end
 
 #---------- Configuration -----------------------------------------------------
 
-test "disable-flow-control" do
+test "disable-flow-control", false do
     $ts.dut.run("mesa-cmd port maxframe 1524")
     $ts.dut.run("mesa-cmd port flow control disable")
     sleep(1)
@@ -1560,9 +1560,6 @@ end
 
 # Run all or selected test
 sel = table_lookup(test_table, :sel)
-cnt_ok = 0
-cnt_err = 0
-fail_list = []
 $rb_table.each_with_index do |rb, rb_idx|
     #next if rb_idx != 0
     $rb = rb
@@ -1576,23 +1573,12 @@ $rb_table.each_with_index do |rb, rb_idx|
                 chip_port = $ts.port_map[port]["chip_port"]
                 t_i("Port #{name}: #{port}(#{chip_port}) - #{$ts.pc.p[idx]}")
             end
-            err = $test_stack[-1][:cnt_err]
             redbox_test(t)
-            if ($test_stack[-1][:cnt_err] == err)
-                cnt_ok += 1
-            else
-                cnt_err += 1
-                fail_list << txt
-            end
         end
     end
 end
-t_i("Total : #{cnt_ok + cnt_err}")
-t_i("Ok    : #{cnt_ok}")
-t_i("Errors: #{cnt_err}")
-fail_list.each do |txt|
-    #t_i("Failed: " + txt)
-end
+
+test_summary
 
 test "dump" do
     break
