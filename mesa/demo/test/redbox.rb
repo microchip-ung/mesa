@@ -1578,7 +1578,7 @@ $rb_table.each_with_index do |rb, rb_idx|
     end
 end
 
-test_summary
+test_summary(false)
 
 test "dump" do
     break
