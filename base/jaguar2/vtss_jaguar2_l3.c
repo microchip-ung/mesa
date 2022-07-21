@@ -416,6 +416,10 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
 
+    vtss_jr2_debug_reg_header(pr, "ANA_L3");
+    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_L3_COMMON_ROUTING_CFG, "ROUTING_CFG");
+    pr("\n");
+
     JR2_RD(VTSS_ANA_L3_COMMON_RLEG_CFG_0, &cfg0);
     JR2_RD(VTSS_ANA_L3_COMMON_RLEG_CFG_1, &cfg1);
     pr("Router MAC: %06x-%06x (Type %u)\n\n",
@@ -600,11 +604,17 @@ static vtss_rc jr2_l3_init_counter(vtss_state_t *vtss_state, u32 idx, u32 cnt_by
 
 static vtss_rc jr2_l3_init(vtss_state_t *vtss_state)
 {
+    u32 mask;
+
     VTSS_RC(jr2_l3_init_counter(vtss_state, JR2_L3_CNT_IP_UC_PACKETS, 0, 3, 1));
     VTSS_RC(jr2_l3_init_counter(vtss_state, JR2_L3_CNT_IP_UC_BYTES,   1, 3, 1));
     VTSS_RC(jr2_l3_init_counter(vtss_state, JR2_L3_CNT_IP_MC_PACKETS, 0, 4, 2));
     VTSS_RC(jr2_l3_init_counter(vtss_state, JR2_L3_CNT_IP_MC_BYTES,   1, 4, 2));
 
+    mask = (VTSS_M_ANA_L3_COMMON_ROUTING_CFG_CPU_RLEG_IP_HDR_FAIL_REDIR_ENA |
+            VTSS_M_ANA_L3_COMMON_ROUTING_CFG_CPU_IP6_HOPBYHOP_REDIR_ENA |
+            VTSS_M_ANA_L3_COMMON_ROUTING_CFG_CPU_IP4_OPTIONS_REDIR_ENA);
+    JR2_WRM(VTSS_ANA_L3_COMMON_ROUTING_CFG, mask, mask);
 #if defined(JR2_L3_INGRESS_MAC_UPDATE)
     JR2_WRM_SET(VTSS_ANA_L3_COMMON_ROUTING_CFG,
                 VTSS_M_ANA_L3_COMMON_ROUTING_CFG_RT_SMAC_UPDATE_ENA);

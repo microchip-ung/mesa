@@ -385,6 +385,11 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
 
+    vtss_fa_debug_reg_header(pr, "ANA_L3");
+    vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_L3_ROUTING_CFG, "ROUTING_CFG");
+    vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_L3_ROUTING_CFG2, "ROUTING_CFG2");
+    pr("\n");
+
     REG_RD(VTSS_ANA_L3_RLEG_CFG_0, &cfg0);
     REG_RD(VTSS_ANA_L3_RLEG_CFG_1, &cfg1);
     pr("Router MAC: %06x-%06x (Type %u)\n\n",
@@ -536,13 +541,18 @@ static vtss_rc fa_l3_init_counter(vtss_state_t *vtss_state, u32 idx, u32 cnt_byt
 
 static vtss_rc fa_l3_init(vtss_state_t *vtss_state)
 {
+    u32 mask;
+
     VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_PACKETS, 0, 3, 1));
     VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_BYTES,   1, 3, 1));
     VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_PACKETS, 0, 4, 2));
     VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_BYTES,   1, 4, 2));
 
-    REG_WRM_SET(VTSS_ANA_L3_ROUTING_CFG,
-                VTSS_M_ANA_L3_ROUTING_CFG_RT_SMAC_UPDATE_ENA);
+    mask = (VTSS_M_ANA_L3_ROUTING_CFG_RT_SMAC_UPDATE_ENA |
+            VTSS_M_ANA_L3_ROUTING_CFG_CPU_RLEG_IP_HDR_FAIL_REDIR_ENA |
+            VTSS_M_ANA_L3_ROUTING_CFG_CPU_IP6_HOPBYHOP_REDIR_ENA |
+            VTSS_M_ANA_L3_ROUTING_CFG_CPU_IP4_OPTIONS_REDIR_ENA);
+    REG_WRM(VTSS_ANA_L3_ROUTING_CFG, mask, mask);
     REG_WRM(VTSS_ANA_ACL_VCAP_S2_MISC_CTRL,
             VTSS_F_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL(1),
             VTSS_M_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL);
