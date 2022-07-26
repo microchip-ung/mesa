@@ -268,7 +268,9 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 
         FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
+//        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
+VTSS_D("*************One PPS disable*************");
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_OUT);
     }
 
     return VTSS_RC_OK;
