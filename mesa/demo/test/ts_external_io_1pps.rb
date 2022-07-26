@@ -18,6 +18,7 @@ check_capabilities do
     assert(($ts.ts_external_clock_looped == true),
            "External clock must be looped")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
+    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
 end
 
 $pcb = $ts.dut.pcb
@@ -28,7 +29,7 @@ $diff_high = 2
 $diff_low = 2
 
 if ($pcb == "6849-Sunrise")
-    $diff_high = 8
+    $diff_high = 5
     $diff_low = 5
 end
 if ($pcb == "8291-EndNode")
@@ -88,11 +89,13 @@ def tod_external_io_1pps_test
 
         sleep(1.6)
 
-        t_i("Get TOD on 1PPS input pin again to check not incremented")
-        pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
-        pin_ts2 = pin[0]
-        if (pin_ts1["seconds"] != pin_ts2["seconds"])
-            t_e("Case 1PPS is not enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
+        if (!$cap_fpga) # On the Laguna FPGA it seems that the GPIO output is unstable when 1PPS is disabled
+            t_i("Get TOD on 1PPS input pin again to check not incremented")
+            pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $external_io_in)
+            pin_ts2 = pin[0]
+            if (pin_ts1["seconds"] != pin_ts2["seconds"])
+                t_e("Case 1PPS is not enabled. TOD in domain #{domain} was not as expected.  pin_ts1[seconds] = #{pin_ts1["seconds"]}  pin_ts2[seconds] = #{pin_ts2["seconds"]}")
+            end
         end
 
         t_i("Configure 1PPS output pin to this domain")
