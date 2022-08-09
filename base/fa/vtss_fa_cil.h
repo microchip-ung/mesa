@@ -282,7 +282,7 @@ vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id);
 vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
 u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no);
 u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
+vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info, vtss_port_no_t port_no);

@@ -4220,7 +4220,7 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
 {
     u32 port;
 
-    VTSS_RC(vtss_fa_cmu_init(vtss_state));
+    VTSS_RC(vtss_fa_serdes_init(vtss_state));
 
     /* Setup ANA_AC to count local drops and policer drops per port */
     REG_WR(VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(0),

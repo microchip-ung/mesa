@@ -3679,9 +3679,36 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state)
+vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
 {
-    /* Done later */
+    u32 sd25g_tgt, sd_lane_tgt;
+
+    /* MESA-853: Disable reference clock termination on 25G Serdeses */
+    for (u32 p = 0; p < 8; p++) {
+        sd25g_tgt = VTSS_TO_SD25G_LANE(p);
+        sd_lane_tgt = VTSS_TO_SD_LANE(VTSS_SERDES_25G_START + p);
+
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(1),
+                VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+
+        REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
+                VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_31(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0(1),
+                VTSS_M_SD25G_TARGET_CMU_31_CFG_COMMON_RESERVE_7_0);
+
+        REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
+                VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
+                VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+    }
+
     return VTSS_RC_OK;
 }
 
