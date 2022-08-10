@@ -1176,7 +1176,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
     // fixme
-    u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, nominal_tod_increment, clk_in_ps;
+    u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, clk_in_ps;
     clk_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
     /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
     nom_ns = ((clk_in_ps/1000) * 0x0800000000000000);   /* Nominel nanoseconds */
