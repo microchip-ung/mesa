@@ -3578,7 +3578,7 @@
  * software should not change the MPR page in between the read operation.
  * Software should first complete the read (of 4-bytes) from one MPR page
  * before moving to the next MPR page.	In case of single x16 device, both
- * DRAM0_MPR_PAGE_DATA and DRAM1_MPR_PAGE_DATA registers hold the comon
+ * DRAM0_MPR_PAGE_DATA and DRAM1_MPR_PAGE_DATA registers hold the common
  * value.
  *
  * \details
@@ -3606,7 +3606,7 @@
  * read operation. Software should first complete the read (of 4-bytes)
  * from one MPR page before moving to the next MPR page.  In case of single
  * x16 device, both DRAM0_MPR_PAGE_DATA and DRAM1_MPR_PAGE_DATA registers
- * hold the comon value.
+ * hold the common value.
  *
  * \details
  * Field: ::VTSS_CPU_DRAM1_MPR_PAGE_STAT . DRAM1_MPR_PAGE_DATA

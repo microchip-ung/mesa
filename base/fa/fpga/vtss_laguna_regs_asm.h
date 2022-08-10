@@ -2895,6 +2895,40 @@
 #define  VTSS_M_ASM_TIME_TICK_CFG_TIME_TICK_VAL     VTSS_ENCODE_BITMASK(0,23)
 #define  VTSS_X_ASM_TIME_TICK_CFG_TIME_TICK_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,23)
 
+
+/**
+ * \brief Redbox flowcontrol configuration
+ *
+ * \details
+ * Register: \a ASM:CFG:FIFO_FULL_WM_CFG
+ */
+#define VTSS_ASM_FIFO_FULL_WM_CFG            VTSS_IOREG(VTSS_TO_ASM,0x12f0)
+
+/**
+ * \brief
+ * Stop further injections of end frames from the interlink when the fifo
+ * has less that one full cell and this number of taxi words left, and the
+ * current frame is not complete.
+ *
+ * \details
+ * Field: ::VTSS_ASM_FIFO_FULL_WM_CFG . STOP_WM_EOF
+ */
+#define  VTSS_F_ASM_FIFO_FULL_WM_CFG_STOP_WM_EOF(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_ASM_FIFO_FULL_WM_CFG_STOP_WM_EOF     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_ASM_FIFO_FULL_WM_CFG_STOP_WM_EOF(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * Stop further injections of from the interlink when the last word is
+ * being filled, and less than this number of taxi words are free.
+ *
+ * \details
+ * Field: ::VTSS_ASM_FIFO_FULL_WM_CFG . STOP_WM_ALL
+ */
+#define  VTSS_F_ASM_FIFO_FULL_WM_CFG_STOP_WM_ALL(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_ASM_FIFO_FULL_WM_CFG_STOP_WM_ALL     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_ASM_FIFO_FULL_WM_CFG_STOP_WM_ALL(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+
 /**
  * Register Group: \a ASM:DBG
  *
@@ -3525,6 +3559,21 @@
 
 /**
  * \brief
+ * Testing options for memories
+ *
+ * \details
+ * xx1: Make parity errors on all memories
+ * x1x: Make parity errors on local ring memories
+ * 1xx: Make parity errors only at writes from software
+ *
+ * Field: ::VTSS_ASM_RAM_INIT . RAM_TEST_OPT
+ */
+#define  VTSS_F_ASM_RAM_INIT_RAM_TEST_OPT(x)  VTSS_ENCODE_BITFIELD(x,2,3)
+#define  VTSS_M_ASM_RAM_INIT_RAM_TEST_OPT     VTSS_ENCODE_BITMASK(2,3)
+#define  VTSS_X_ASM_RAM_INIT_RAM_TEST_OPT(x)  VTSS_EXTRACT_BITFIELD(x,2,3)
+
+/**
+ * \brief
  * Initialize core memories. Field is automatically cleared when operation
  * is complete (approx. 40 us).
  *
@@ -3586,9 +3635,21 @@
  * \brief
  * Data register for core memory access. Wider memories are big endian
  * mapped into the 32 bit inspection space. This register provides data to
- * be written when CM_OP is set.
+ * be written when CM_OP is set.When CM_OP is set to 11 this register
+ * encodes ram checking mode:-single /double parity errors induced on
+ * writes-all chip memories or only the memories connected to this init
+ * controller-errors at any write or only by software access
  *
  * \details
+ * 000: No testing
+ * 001: Single, local, any write
+ * 010: Single, all, any write
+ * 011: Single, local, s/w write
+ * 100: Single, all, s/w write
+ * 101: Double, local. s/w write
+ * 110: Double, all, s/w write
+ * 111: Solve climate crisis
+ *
  * Field: ::VTSS_ASM_CM_DATA_WR . CM_DATA_WR
  */
 #define  VTSS_F_ASM_CM_DATA_WR_CM_DATA_WR(x)  (x)
@@ -3629,13 +3690,20 @@
  * Ask the memory debug system to read or write a specific location. If no
  * response is received from a memory, due to timeout, or selected address
  * out of range, the state machine can be reset by issuing the 11
- * command.Field will return to 00 upon completion.
+ * command.Field will return to 00 upon completion.When the 11 command is
+ * issued, cm_data_wr(2..0) enables ram test modes.000: No testing001:
+ * Single error induced on local memories010: Single error induced on all
+ * memories011: Single error induced on local memories accessed from
+ * software only100: Single error induced on all memories accessed from
+ * software only101: Double error induced on local memories from software
+ * only110: Double error induced on all memories from software only111:
+ * Solve climate crisis
  *
  * \details
  * 00: NOP
  * 01: Read from selected address into CM_DATA_RD
  * 10: Write CM_DATA_WR into selected address
- * 11: Reset debug access
+ * 11: Reset debug access and configure test mode
  *
  * Field: ::VTSS_ASM_CM_OP . CM_OP
  */

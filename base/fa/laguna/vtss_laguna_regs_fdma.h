@@ -1200,11 +1200,12 @@
 /**
  * \brief
  * Setting a bit in this field will immediately set the corresponding bit
- * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
+ * in FDMA_INTR_DCB_ENA.INTR_DCB_ENA. Reading this register always return
+ * 0.
  *
  * \details
  * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is set.
+ * '1': Corresponding bit in FDMA_INTR_DCB_ENA.INTR_DCB_ENA is set.
  *
  * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_SET . INTR_DCB_ENA_SET
  */
@@ -1222,11 +1223,12 @@
 /**
  * \brief
  * Setting a bit in this field will immediately clear the corresponding bit
- * in FDMA_INTR_DCB.INTR_DCB. Reading this register always return 0.
+ * in FDMA_INTR_DCB_ENA.INTR_DCB_ENA. Reading this register always return
+ * 0.
  *
  * \details
  * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DCB.INTR_DCB is cleared.
+ * '1': Corresponding bit in FDMA_INTR_DCB_ENA.INTR_DCB_ENA is cleared.
  *
  * Field: ::VTSS_FDMA_FDMA_INTR_DCB_ENA_CLR . INTR_DCB_ENA_CLR
  */
@@ -1244,11 +1246,11 @@
 /**
  * \brief
  * Setting a bit in this field will immediately set the corresponding bit
- * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
+ * in FDMA_INTR_DB_ENA.INTR_DB_ENA. Reading this register always return 0.
  *
  * \details
  * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is set.
+ * '1': Corresponding bit in FDMA_INTR_DB_ENA.INTR_DB_ENA is set.
  *
  * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_SET . INTR_DB_ENA_SET
  */
@@ -1266,11 +1268,11 @@
 /**
  * \brief
  * Setting a bit in this field will immediately clear the corresponding bit
- * in FDMA_INTR_DB.INTR_DB. Reading this register always return 0.
+ * in FDMA_INTR_DB_ENA.INTR_DB_ENA. Reading this register always return 0.
  *
  * \details
  * '0': No change
- * '1': Corresponding bit in FDMA_INTR_DB.INTR_DB is cleared.
+ * '1': Corresponding bit in FDMA_INTR_DB_ENA.INTR_DB_ENA is cleared.
  *
  * Field: ::VTSS_FDMA_FDMA_INTR_DB_ENA_CLR . INTR_DB_ENA_CLR
  */

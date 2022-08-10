@@ -3063,7 +3063,7 @@
  * \details
  * Register: \a DEVCPU_GCB:GPIO_CFG:GPIO_CFG
  *
- * @param ri Replicator: x_FFL_DEVCPU_GPIO_CNT (??), 0-66
+ * @param ri Register: GPIO_CFG (??), 0-41
  */
 #define VTSS_DEVCPU_GCB_GPIO_CFG(ri)         VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0xdc + (ri))
 
@@ -3150,7 +3150,7 @@
  *
  * @param ri Replicator: x_FFL_DEVCPU_QSPI_PAD_CNT (??), 0-5
  */
-#define VTSS_DEVCPU_GCB_PAD_CFG(ri)          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x11f + (ri))
+#define VTSS_DEVCPU_GCB_PAD_CFG(ri)          VTSS_IOREG(VTSS_TO_DEVCPU_GCB,0x106 + (ri))
 
 /**
  * \brief

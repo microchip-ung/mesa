@@ -801,19 +801,17 @@
 
 /**
  * \brief
- * Core clock frequency.
+ * Base length of fx_rx_clk cycle measured in fast_clk cycles (before any
+ * adjustments triggered by FIFO fill level).
  *
  * \details
- * 0: 625MHz
- * 1: 500MHz
- * 2: 250MHz
- * 3: 320MHz
+ * 0-1: Illegal values (fast_clk must be faster than 250 MHz).
  *
- * Field: ::VTSS_SD_LANE_TARGET_MISC . CORE_CLK_FREQ
+ * Field: ::VTSS_SD_LANE_TARGET_MISC . FX_RX_CLK_CYCLE_LEN
  */
-#define  VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(x)  VTSS_ENCODE_BITFIELD(x,4,2)
-#define  VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ     VTSS_ENCODE_BITMASK(4,2)
-#define  VTSS_X_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(x)  VTSS_EXTRACT_BITFIELD(x,4,2)
+#define  VTSS_F_SD_LANE_TARGET_MISC_FX_RX_CLK_CYCLE_LEN(x)  VTSS_ENCODE_BITFIELD(x,8,3)
+#define  VTSS_M_SD_LANE_TARGET_MISC_FX_RX_CLK_CYCLE_LEN     VTSS_ENCODE_BITMASK(8,3)
+#define  VTSS_X_SD_LANE_TARGET_MISC_FX_RX_CLK_CYCLE_LEN(x)  VTSS_EXTRACT_BITFIELD(x,8,3)
 
 
 /**
@@ -851,6 +849,30 @@
 #define  VTSS_F_SD_LANE_TARGET_STICKY_BITS_FIFO_UFLW_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
 #define  VTSS_M_SD_LANE_TARGET_STICKY_BITS_FIFO_UFLW_STICKY  VTSS_BIT(1)
 #define  VTSS_X_SD_LANE_TARGET_STICKY_BITS_FIFO_UFLW_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * The recovered clock (fx_rx_clk) has been shortened by one fast_clk cycle
+ * to match the speed of the incoming data.
+ *
+ * \details
+ * Field: ::VTSS_SD_LANE_TARGET_STICKY_BITS . CLK_SHORTENED_STICKY
+ */
+#define  VTSS_F_SD_LANE_TARGET_STICKY_BITS_CLK_SHORTENED_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_SD_LANE_TARGET_STICKY_BITS_CLK_SHORTENED_STICKY  VTSS_BIT(2)
+#define  VTSS_X_SD_LANE_TARGET_STICKY_BITS_CLK_SHORTENED_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * The recovered clock (fx_rx_clk) has been extended by one fast_clk cycle
+ * to match the speed of the incoming data.
+ *
+ * \details
+ * Field: ::VTSS_SD_LANE_TARGET_STICKY_BITS . CLK_EXTENDED_STICKY
+ */
+#define  VTSS_F_SD_LANE_TARGET_STICKY_BITS_CLK_EXTENDED_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_SD_LANE_TARGET_STICKY_BITS_CLK_EXTENDED_STICKY  VTSS_BIT(3)
+#define  VTSS_X_SD_LANE_TARGET_STICKY_BITS_CLK_EXTENDED_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
 
 
 /**

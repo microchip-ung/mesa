@@ -328,6 +328,17 @@
 
 /**
  * \brief
+ * If set, frames aborted by MAC are discarded in RedBox if possible.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . ABORT_DISC_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_ABORT_DISC_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_RB_RB_CFG_ABORT_DISC_ENA      VTSS_BIT(23)
+#define  VTSS_X_RB_RB_CFG_ABORT_DISC_ENA(x)   VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/**
+ * \brief
  * Port mask indicating to which egress ports forwarding is allowed. If a
  * port is cleared, frames are not sent to that port. By default, all ports
  * should be set. However, when for instance a port is down, it can be
@@ -761,8 +772,8 @@
  * PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
  *
  * \details
- * 0: Frame must be HSR-tagged
- * 1: Frame must be HSR-untagged
+ * 0: Frame must be HSR-untagged
+ * 1: Frame must be HSR-tagged.
  *
  * Field: ::VTSS_RB_PTP_FILTER_CFG . PTP_HSR_SEL
  */
@@ -812,6 +823,42 @@
 #define  VTSS_M_RB_PTP_FILTER_CFG_PTP_FILTER_SEL     VTSS_ENCODE_BITMASK(0,5)
 #define  VTSS_X_RB_PTP_FILTER_CFG_PTP_FILTER_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
+
+/**
+ * \brief PTP configurations
+ *
+ * \details
+ * Register: \a RB:COMMON:PTP_MISC_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ */
+#define VTSS_RB_PTP_MISC_CFG(target)         VTSS_IOREG(target,0x21)
+
+/**
+ * \brief
+ * If set, frames matching the PTP filter and forwarded to either of the
+ * LRE ports, are redirected to the interlink. Applies to HSR modes only.
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_MISC_CFG . PTP_REDIR_INT_ENA
+ */
+#define  VTSS_F_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA  VTSS_BIT(3)
+#define  VTSS_X_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Port mask disabling duplicate discard for PTP frames per egress port. If
+ * a bit is set, frames matching the PTP filter are not subject to
+ * duplicate discard towards the corresponding egress port.
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_MISC_CFG . PTP_DUPL_DISC_DIS
+ */
+#define  VTSS_F_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
 /**
  * Register Group: \a RB:PORT
  *
@@ -828,7 +875,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_TBL_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,0)
+#define VTSS_RB_TBL_CFG(target,gi)           VTSS_IOREG_IX(target,0x22,gi,6,0,0)
 
 /**
  * \brief
@@ -1023,7 +1070,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_BPDU_CFG(target,gi)          VTSS_IOREG_IX(target,0x21,gi,6,0,1)
+#define VTSS_RB_BPDU_CFG(target,gi)          VTSS_IOREG_IX(target,0x22,gi,6,0,1)
 
 /**
  * \brief
@@ -1115,7 +1162,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_FWD_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,2)
+#define VTSS_RB_FWD_CFG(target,gi)           VTSS_IOREG_IX(target,0x22,gi,6,0,2)
 
 /**
  * \brief
@@ -1226,7 +1273,26 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PORT_CFG(target,gi)          VTSS_IOREG_IX(target,0x21,gi,6,0,3)
+#define VTSS_RB_PORT_CFG(target,gi)          VTSS_IOREG_IX(target,0x22,gi,6,0,3)
+
+/**
+ * \brief
+ * Configures expected location of HSR-tag in combination with VLAN tags
+ * for incoming frames. If the HSR-tag is not in the right location, frame
+ * is treated as non-HSR-tagged.Related parameters:
+ * RB:PORT:PORT_CFG.HSR_FILTER_CFG.
+ *
+ * \details
+ * 0: VLAN tags ignored
+ * 1: Find HSR-tag as outer tag
+ * 2: Find HSR-tag behind one VLAN tag
+ * 3: Find HSR-tag behind two VLAN tags
+ *
+ * Field: ::VTSS_RB_PORT_CFG . HSR_VLAN_CFG
+ */
+#define  VTSS_F_RB_PORT_CFG_HSR_VLAN_CFG(x)   VTSS_ENCODE_BITFIELD(x,23,2)
+#define  VTSS_M_RB_PORT_CFG_HSR_VLAN_CFG      VTSS_ENCODE_BITMASK(23,2)
+#define  VTSS_X_RB_PORT_CFG_HSR_VLAN_CFG(x)   VTSS_EXTRACT_BITFIELD(x,23,2)
 
 /**
  * \brief
@@ -1442,19 +1508,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PTP_CFG(target,gi)           VTSS_IOREG_IX(target,0x21,gi,6,0,4)
-
-/**
- * \brief
- * If set, frames matching the PTP filter are no subject to duplicate
- * discard on any egress ports.
- *
- * \details
- * Field: ::VTSS_RB_PTP_CFG . PTP_DUPL_DISC_DIS
- */
-#define  VTSS_F_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_RB_PTP_CFG_PTP_DUPL_DISC_DIS  VTSS_BIT(1)
-#define  VTSS_X_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define VTSS_RB_PTP_CFG(target,gi)           VTSS_IOREG_IX(target,0x22,gi,6,0,4)
 
 /**
  * \brief
@@ -1484,7 +1538,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_STICKY(target,gi)            VTSS_IOREG_IX(target,0x21,gi,6,0,5)
+#define VTSS_RB_STICKY(target,gi)            VTSS_IOREG_IX(target,0x22,gi,6,0,5)
 
 /**
  * \brief
@@ -1494,9 +1548,9 @@
  * \details
  * Field: ::VTSS_RB_STICKY . RCT_MISSING_DISC_STICKY
  */
-#define  VTSS_F_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
-#define  VTSS_M_RB_STICKY_RCT_MISSING_DISC_STICKY  VTSS_BIT(23)
-#define  VTSS_X_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+#define  VTSS_F_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_DISC_STICKY  VTSS_BIT(24)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
 
 /**
  * \brief
@@ -1508,9 +1562,20 @@
  * \details
  * Field: ::VTSS_RB_STICKY . RCT_MISSING_STICKY
  */
-#define  VTSS_F_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
-#define  VTSS_M_RB_STICKY_RCT_MISSING_STICKY  VTSS_BIT(22)
-#define  VTSS_X_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+#define  VTSS_F_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_STICKY  VTSS_BIT(23)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/**
+ * \brief
+ * Set if HSR tag and VLANs mismatched expectations.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . HSR_VLAN_FAIL_STICKY
+ */
+#define  VTSS_F_RB_STICKY_HSR_VLAN_FAIL_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_RB_STICKY_HSR_VLAN_FAIL_STICKY  VTSS_BIT(22)
+#define  VTSS_X_RB_STICKY_HSR_VLAN_FAIL_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
 
 /**
  * \brief
@@ -1776,7 +1841,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_TAG(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,0)
+#define VTSS_RB_CNT_TX_TAG(target,gi)        VTSS_IOREG_IX(target,0x34,gi,11,0,0)
 
 /**
  * \brief
@@ -1802,7 +1867,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_UNT(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,1)
+#define VTSS_RB_CNT_TX_UNT(target,gi)        VTSS_IOREG_IX(target,0x34,gi,11,0,1)
 
 /**
  * \brief
@@ -1827,7 +1892,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_LL(target,gi)         VTSS_IOREG_IX(target,0x33,gi,11,0,2)
+#define VTSS_RB_CNT_TX_LL(target,gi)         VTSS_IOREG_IX(target,0x34,gi,11,0,2)
 
 /**
  * \brief
@@ -1853,7 +1918,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_TAG(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,3)
+#define VTSS_RB_CNT_RX_TAG(target,gi)        VTSS_IOREG_IX(target,0x34,gi,11,0,3)
 
 /**
  * \brief
@@ -1879,7 +1944,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_UNT(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,4)
+#define VTSS_RB_CNT_RX_UNT(target,gi)        VTSS_IOREG_IX(target,0x34,gi,11,0,4)
 
 /**
  * \brief
@@ -1904,7 +1969,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_LL(target,gi)         VTSS_IOREG_IX(target,0x33,gi,11,0,5)
+#define VTSS_RB_CNT_RX_LL(target,gi)         VTSS_IOREG_IX(target,0x34,gi,11,0,5)
 
 /**
  * \brief
@@ -1930,7 +1995,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_WRONG_LAN(target,gi)  VTSS_IOREG_IX(target,0x33,gi,11,0,6)
+#define VTSS_RB_CNT_RX_WRONG_LAN(target,gi)  VTSS_IOREG_IX(target,0x34,gi,11,0,6)
 
 /**
  * \brief
@@ -1957,7 +2022,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_OWN(target,gi)        VTSS_IOREG_IX(target,0x33,gi,11,0,7)
+#define VTSS_RB_CNT_RX_OWN(target,gi)        VTSS_IOREG_IX(target,0x34,gi,11,0,7)
 
 /**
  * \brief
@@ -1986,7 +2051,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ZERO(target,gi)     VTSS_IOREG_IX(target,0x33,gi,11,0,8)
+#define VTSS_RB_CNT_DUPL_ZERO(target,gi)     VTSS_IOREG_IX(target,0x34,gi,11,0,8)
 
 /**
  * \brief
@@ -2015,7 +2080,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ONE(target,gi)      VTSS_IOREG_IX(target,0x33,gi,11,0,9)
+#define VTSS_RB_CNT_DUPL_ONE(target,gi)      VTSS_IOREG_IX(target,0x34,gi,11,0,9)
 
 /**
  * \brief
@@ -2044,7 +2109,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_TWO(target,gi)      VTSS_IOREG_IX(target,0x33,gi,11,0,10)
+#define VTSS_RB_CNT_DUPL_TWO(target,gi)      VTSS_IOREG_IX(target,0x34,gi,11,0,10)
 
 /**
  * \brief
@@ -2074,7 +2139,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CTRL(target)     VTSS_IOREG(target,0x54)
+#define VTSS_RB_HOST_ACCESS_CTRL(target)     VTSS_IOREG(target,0x55)
 
 /**
  * \brief
@@ -2195,7 +2260,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x55)
+#define VTSS_RB_HOST_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x56)
 
 /**
  * \brief
@@ -2233,7 +2298,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x56)
+#define VTSS_RB_HOST_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x57)
 
 /**
  * \brief
@@ -2260,7 +2325,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x57)
+#define VTSS_RB_HOST_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x58)
 
 /**
  * \brief
@@ -2447,7 +2512,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_0(target)   VTSS_IOREG(target,0x58)
+#define VTSS_RB_HOST_ACCESS_STAT_0(target)   VTSS_IOREG(target,0x59)
 
 /**
  * \brief
@@ -2471,7 +2536,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_1(target)   VTSS_IOREG(target,0x59)
+#define VTSS_RB_HOST_ACCESS_STAT_1(target)   VTSS_IOREG(target,0x5a)
 
 /**
  * \brief
@@ -2495,7 +2560,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_2(target)   VTSS_IOREG(target,0x5a)
+#define VTSS_RB_HOST_ACCESS_STAT_2(target)   VTSS_IOREG(target,0x5b)
 
 /**
  * \brief
@@ -2519,7 +2584,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_3(target)   VTSS_IOREG(target,0x5b)
+#define VTSS_RB_HOST_ACCESS_STAT_3(target)   VTSS_IOREG(target,0x5c)
 
 /**
  * \brief
@@ -2574,7 +2639,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG(target,ri)  VTSS_IOREG(target,0x5c + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG(target,ri)  VTSS_IOREG(target,0x5d + (ri))
 
 /**
  * \brief
@@ -2624,7 +2689,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_1(target,ri)  VTSS_IOREG(target,0x5e + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_1(target,ri)  VTSS_IOREG(target,0x5f + (ri))
 
 /**
  * \brief
@@ -2664,7 +2729,7 @@
  * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_2(target,ri)  VTSS_IOREG(target,0x60 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_2(target,ri)  VTSS_IOREG(target,0x61 + (ri))
 
 /**
  * \brief
@@ -2693,7 +2758,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_EVENT_STICKY(target)    VTSS_IOREG(target,0x62)
+#define VTSS_RB_HOST_EVENT_STICKY(target)    VTSS_IOREG(target,0x63)
 
 /**
  * \brief
@@ -3007,7 +3072,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x63)
+#define VTSS_RB_HOST_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x64)
 
 /**
  * \brief
@@ -3060,7 +3125,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CTRL(target)     VTSS_IOREG(target,0x64)
+#define VTSS_RB_DISC_ACCESS_CTRL(target)     VTSS_IOREG(target,0x65)
 
 /**
  * \brief
@@ -3189,7 +3254,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x65)
+#define VTSS_RB_DISC_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x66)
 
 /**
  * \brief
@@ -3227,7 +3292,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x66)
+#define VTSS_RB_DISC_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x67)
 
 /**
  * \brief
@@ -3254,7 +3319,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x67)
+#define VTSS_RB_DISC_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x68)
 
 /**
  * \brief
@@ -3367,7 +3432,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG(target)     VTSS_IOREG(target,0x68)
+#define VTSS_RB_DISC_AUTOAGE_CFG(target)     VTSS_IOREG(target,0x69)
 
 /**
  * \brief
@@ -3416,7 +3481,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_1(target)   VTSS_IOREG(target,0x69)
+#define VTSS_RB_DISC_AUTOAGE_CFG_1(target)   VTSS_IOREG(target,0x6a)
 
 /**
  * \brief
@@ -3455,7 +3520,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_2(target)   VTSS_IOREG(target,0x6a)
+#define VTSS_RB_DISC_AUTOAGE_CFG_2(target)   VTSS_IOREG(target,0x6b)
 
 /**
  * \brief
@@ -3484,7 +3549,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_EVENT_STICKY(target)    VTSS_IOREG(target,0x6b)
+#define VTSS_RB_DISC_EVENT_STICKY(target)    VTSS_IOREG(target,0x6c)
 
 /**
  * \brief
@@ -3837,7 +3902,7 @@
  *
  * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x6c)
+#define VTSS_RB_DISC_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x6d)
 
 /**
  * \brief

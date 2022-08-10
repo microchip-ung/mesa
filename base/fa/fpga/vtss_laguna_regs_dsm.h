@@ -37,6 +37,21 @@
 
 /**
  * \brief
+ * Testing options for memories
+ *
+ * \details
+ * xx1: Make parity errors on all memories
+ * x1x: Make parity errors on local ring memories
+ * 1xx: Make parity errors only at writes from software
+ *
+ * Field: ::VTSS_DSM_RAM_INIT . RAM_TEST_OPT
+ */
+#define  VTSS_F_DSM_RAM_INIT_RAM_TEST_OPT(x)  VTSS_ENCODE_BITFIELD(x,2,3)
+#define  VTSS_M_DSM_RAM_INIT_RAM_TEST_OPT     VTSS_ENCODE_BITMASK(2,3)
+#define  VTSS_X_DSM_RAM_INIT_RAM_TEST_OPT(x)  VTSS_EXTRACT_BITFIELD(x,2,3)
+
+/**
+ * \brief
  * Initialize core memories. Field is automatically cleared when operation
  * is complete (approx. 40 us).
  *
@@ -98,9 +113,21 @@
  * \brief
  * Data register for core memory access. Wider memories are big endian
  * mapped into the 32 bit inspection space. This register provides data to
- * be written when CM_OP is set.
+ * be written when CM_OP is set.When CM_OP is set to 11 this register
+ * encodes ram checking mode:-single /double parity errors induced on
+ * writes-all chip memories or only the memories connected to this init
+ * controller-errors at any write or only by software access
  *
  * \details
+ * 000: No testing
+ * 001: Single, local, any write
+ * 010: Single, all, any write
+ * 011: Single, local, s/w write
+ * 100: Single, all, s/w write
+ * 101: Double, local. s/w write
+ * 110: Double, all, s/w write
+ * 111: Solve climate crisis
+ *
  * Field: ::VTSS_DSM_CM_DATA_WR . CM_DATA_WR
  */
 #define  VTSS_F_DSM_CM_DATA_WR_CM_DATA_WR(x)  (x)
@@ -141,13 +168,20 @@
  * Ask the memory debug system to read or write a specific location. If no
  * response is received from a memory, due to timeout, or selected address
  * out of range, the state machine can be reset by issuing the 11
- * command.Field will return to 00 upon completion.
+ * command.Field will return to 00 upon completion.When the 11 command is
+ * issued, cm_data_wr(2..0) enables ram test modes.000: No testing001:
+ * Single error induced on local memories010: Single error induced on all
+ * memories011: Single error induced on local memories accessed from
+ * software only100: Single error induced on all memories accessed from
+ * software only101: Double error induced on local memories from software
+ * only110: Double error induced on all memories from software only111:
+ * Solve climate crisis
  *
  * \details
  * 00: NOP
  * 01: Read from selected address into CM_DATA_RD
  * 10: Write CM_DATA_WR into selected address
- * 11: Reset debug access
+ * 11: Reset debug access and configure test mode
  *
  * Field: ::VTSS_DSM_CM_OP . CM_OP
  */
@@ -173,6 +207,31 @@
  * @param ri Replicator: x_DSM_EPORTS (??), 0-31
  */
 #define VTSS_DSM_BUF_CFG(ri)                 VTSS_IOREG(VTSS_TO_DSM,0x5 + (ri))
+
+/**
+ * \brief
+ * Status of TX_FORCE_STOP.
+ *
+ * \details
+ * Field: ::VTSS_DSM_BUF_CFG . TX_FORCE_STOPPED
+ */
+#define  VTSS_F_DSM_BUF_CFG_TX_FORCE_STOPPED(x)  VTSS_ENCODE_BITFIELD(!!(x),15,1)
+#define  VTSS_M_DSM_BUF_CFG_TX_FORCE_STOPPED  VTSS_BIT(15)
+#define  VTSS_X_DSM_BUF_CFG_TX_FORCE_STOPPED(x)  VTSS_EXTRACT_BITFIELD(x,15,1)
+
+/**
+ * \brief
+ * Stop tx on frame boundary (both express and preemptible traffic).
+ *
+ * \details
+ * 1: Stop tx
+ * 0: Release tx
+ *
+ * Field: ::VTSS_DSM_BUF_CFG . TX_FORCE_STOP
+ */
+#define  VTSS_F_DSM_BUF_CFG_TX_FORCE_STOP(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_DSM_BUF_CFG_TX_FORCE_STOP     VTSS_BIT(14)
+#define  VTSS_X_DSM_BUF_CFG_TX_FORCE_STOP(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
 
 /**
  * \brief

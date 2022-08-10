@@ -235,94 +235,6 @@
 #define  VTSS_M_UVOV_UVOV_INT_EN_UVR_INT_EN_v18  VTSS_BIT(0)
 #define  VTSS_X_UVOV_UVOV_INT_EN_UVR_INT_EN_v18(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
-
-/**
- * \brief Under and Over Voltage Interrupt Disable Register
- *
- * \details
- * Under and Over Voltage Interrupt Disable Register
- *
- * Register: \a UVOV:UVOV_REGS:UVOV_INT_DIS
- */
-#define VTSS_UVOV_UVOV_INT_DIS               VTSS_IOREG(VTSS_TO_UVOV,0x3)
-
-/**
- * \brief
- * TRIM_INT_DISWhen set the respective interrupt is disabled.
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . TRIM_INT_DIS
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_TRIM_INT_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_TRIM_INT_DIS  VTSS_BIT(24)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_TRIM_INT_DIS(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
-
-/**
- * \brief
- * OVR_INT_DISWhen set the respective interrupt is disabled.
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . OVR_INT_DIS_V09
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V09(x)  VTSS_ENCODE_BITFIELD(!!(x),20,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V09  VTSS_BIT(20)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V09(x)  VTSS_EXTRACT_BITFIELD(x,20,1)
-
-/**
- * \brief
- * UVR_INT_DISWhen set the respective interrupt is disabled
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . UVR_INT_DIS_V09
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V09(x)  VTSS_ENCODE_BITFIELD(!!(x),16,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V09  VTSS_BIT(16)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V09(x)  VTSS_EXTRACT_BITFIELD(x,16,1)
-
-/**
- * \brief
- * OVR_INT_DISWhen set the respective interrupt is disabled.
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . OVR_INT_DIS_V12
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V12(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V12  VTSS_BIT(12)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V12(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
-
-/**
- * \brief
- * UVR_INT_DISWhen set the respective interrupt is disabled
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . UVR_INT_DIS_V12
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V12(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V12  VTSS_BIT(8)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V12(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
-
-/**
- * \brief
- * OVR_INT_DISWhen set the respective interrupt is disabled.
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . OVR_INT_DIS_V18
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V18(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V18  VTSS_BIT(4)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_OVR_INT_DIS_V18(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
-
-/**
- * \brief
- * UVR_INT_DISWhen set the respective interrupt is disabled
- *
- * \details
- * Field: ::VTSS_UVOV_UVOV_INT_DIS . UVR_INT_DIS_V18
- */
-#define  VTSS_F_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V18(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V18  VTSS_BIT(0)
-#define  VTSS_X_UVOV_UVOV_INT_DIS_UVR_INT_DIS_V18(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
-
 /**
  * Register Group: \a UVOV:UVOV_CFG
  *
@@ -338,7 +250,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:TUNE
  */
-#define VTSS_UVOV_TUNE                       VTSS_IOREG(VTSS_TO_UVOV,0x4)
+#define VTSS_UVOV_TUNE                       VTSS_IOREG(VTSS_TO_UVOV,0x3)
 
 /**
  * \brief
@@ -367,11 +279,14 @@
 /**
  * \brief
  * TUNE_MAGThis register is used to report the result of the trim
- * sequence.After the trim process completes the new value is loaded into
- * this register. The TRIM_DONE bit is set and the respective interrupt
- * asserts.Note: The trim process is only ran once at ATE.Note: The value
- * in this field is stored in OTP and must be written into therespective
- * TUNE_M register before using the UVOV function.
+ * sequence.When TREM_EN is asserted the value in this register is used by
+ * the internal HM FSM as the starting point for the trim sequence. This
+ * value is decremented automatically until the UV output of this UVOV
+ * module toggles.After the trim process completes the new value is loaded
+ * into this register. The TRIM_DONE bit is set and the respective
+ * interrupt asserts.Note: The trim process is only ran once at ATE.Note:
+ * The value in this field is stored in OTP and must be written into
+ * therespective TUNE_M register before using the UVOV function.
  *
  * \details
  * Field: ::VTSS_UVOV_TUNE . TUNE_MAG
@@ -401,7 +316,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:ATP_UVOV
  */
-#define VTSS_UVOV_ATP_UVOV                   VTSS_IOREG(VTSS_TO_UVOV,0x5)
+#define VTSS_UVOV_ATP_UVOV                   VTSS_IOREG(VTSS_TO_UVOV,0x4)
 
 /**
  * \brief
@@ -425,7 +340,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG0_V09
  */
-#define VTSS_UVOV_UVOV_CFG0_V09              VTSS_IOREG(VTSS_TO_UVOV,0x6)
+#define VTSS_UVOV_UVOV_CFG0_V09              VTSS_IOREG(VTSS_TO_UVOV,0x5)
 
 /**
  * \brief
@@ -533,7 +448,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG1_V09
  */
-#define VTSS_UVOV_UVOV_CFG1_V09              VTSS_IOREG(VTSS_TO_UVOV,0x7)
+#define VTSS_UVOV_UVOV_CFG1_V09              VTSS_IOREG(VTSS_TO_UVOV,0x6)
 
 /**
  * \brief
@@ -581,7 +496,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG0_V12
  */
-#define VTSS_UVOV_UVOV_CFG0_V12              VTSS_IOREG(VTSS_TO_UVOV,0x8)
+#define VTSS_UVOV_UVOV_CFG0_V12              VTSS_IOREG(VTSS_TO_UVOV,0x7)
 
 /**
  * \brief
@@ -689,7 +604,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG1_V12
  */
-#define VTSS_UVOV_UVOV_CFG1_V12              VTSS_IOREG(VTSS_TO_UVOV,0x9)
+#define VTSS_UVOV_UVOV_CFG1_V12              VTSS_IOREG(VTSS_TO_UVOV,0x8)
 
 /**
  * \brief
@@ -737,7 +652,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG0_V18
  */
-#define VTSS_UVOV_UVOV_CFG0_V18              VTSS_IOREG(VTSS_TO_UVOV,0xa)
+#define VTSS_UVOV_UVOV_CFG0_V18              VTSS_IOREG(VTSS_TO_UVOV,0x9)
 
 /**
  * \brief
@@ -845,7 +760,7 @@
  *
  * Register: \a UVOV:UVOV_CFG:UVOV_CFG1_V18
  */
-#define VTSS_UVOV_UVOV_CFG1_V18              VTSS_IOREG(VTSS_TO_UVOV,0xb)
+#define VTSS_UVOV_UVOV_CFG1_V18              VTSS_IOREG(VTSS_TO_UVOV,0xa)
 
 /**
  * \brief

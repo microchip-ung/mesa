@@ -15,6 +15,91 @@
  ***********************************************************************/
 
 /**
+ * Register Group: \a HSIOWRAP:GPIO_CFG
+ *
+ * Registers for accessing the GPIO pad cell configuration
+ */
+
+
+/**
+ * \brief GPIO pad cell configuration
+ *
+ * \details
+ * Register: \a HSIOWRAP:GPIO_CFG:GPIO_CFG
+ *
+ * @param ri Register: GPIO_CFG (??), 0-24
+ */
+#define VTSS_HSIOWRAP_GPIO_CFG(ri)           VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x0 + (ri))
+
+/**
+ * \brief
+ * Bus hold enable
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . HE
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_HE(x)       VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_HE          VTSS_BIT(7)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_HE(x)       VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Schmitt-trigger
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . ST
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_ST(x)       VTSS_ENCODE_BITFIELD(x,5,2)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_ST          VTSS_ENCODE_BITMASK(5,2)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_ST(x)       VTSS_EXTRACT_BITFIELD(x,5,2)
+
+/**
+ * \brief
+ * Slew rate limit enable
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . SL
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_SL(x)       VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_SL          VTSS_BIT(4)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_SL(x)       VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Enable pull up resistor on GPIO inputs. Should not be set to '1' when
+ * G_PD is '1'
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . PU
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_PU(x)       VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_PU          VTSS_BIT(3)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_PU(x)       VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Enable pull down resistor on GPIO inputs. Should not be set to '1' when
+ * G_PU is '1'
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . PD
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_PD(x)       VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_PD          VTSS_BIT(2)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_PD(x)       VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Controls the drive strength of GPIO outputs
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_GPIO_CFG . DS
+ */
+#define  VTSS_F_HSIOWRAP_GPIO_CFG_DS(x)       VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_HSIOWRAP_GPIO_CFG_DS          VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_HSIOWRAP_GPIO_CFG_DS(x)       VTSS_EXTRACT_BITFIELD(x,0,2)
+
+/**
  * Register Group: \a HSIOWRAP:SYNC_ETH_CFG
  *
  * SYNC_ETH Configuration Registers
@@ -33,7 +118,7 @@
  *
  * @param ri Register: SYNC_ETH_CFG (??), 0-3
  */
-#define VTSS_HSIOWRAP_SYNC_ETH_CFG(ri)       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x0 + (ri))
+#define VTSS_HSIOWRAP_SYNC_ETH_CFG(ri)       VTSS_IOREG(VTSS_TO_HSIO_WRAP,0x19 + (ri))
 
 /**
  * \brief
@@ -104,7 +189,7 @@
  *
  * @param gi Register: XMII_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_XMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,0)
+#define VTSS_HSIOWRAP_XMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x1d,gi,5,0,0)
 
 /**
  * \details
@@ -142,7 +227,7 @@
  *
  * @param gi Register: XMII_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_RGMII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,1)
+#define VTSS_HSIOWRAP_RGMII_CFG(gi)          VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x1d,gi,5,0,1)
 
 /**
  * \brief
@@ -320,12 +405,12 @@
  *
  * @param gi Register: XMII_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_RMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,0,2)
+#define VTSS_HSIOWRAP_RMII_CFG(gi)           VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x1d,gi,5,0,2)
 
 /**
  * \details
  * 0: Use internally generated 50MHz RMII reference clock.
- * 1: Use GPIO4 or GPIO16 pin as external RMII reference clock
+ * 1: Use GPIO46 or GPIO58 pin as external RMII reference clock
  *
  * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_REF_CLK_SEL
  */
@@ -441,7 +526,7 @@
  * @param gi Register: XMII_CFG (??), 0-1
  * @param ri Register: DLL_CFG (??), 0-1
  */
-#define VTSS_HSIOWRAP_DLL_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x4,gi,5,ri,3)
+#define VTSS_HSIOWRAP_DLL_CFG(gi,ri)         VTSS_IOREG_IX(VTSS_TO_HSIO_WRAP,0x1d,gi,5,ri,3)
 
 /**
  * \brief

@@ -10,6 +10,8 @@
  *
  * Target: \a RB
  *
+ * \see vtss_target_RB_e
+ *
  * RedBox
  *
  ***********************************************************************/
@@ -26,8 +28,10 @@
  *
  * \details
  * Register: \a RB:COMMON:TAXI_IF_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_TAXI_IF_CFG                  VTSS_IOREG(VTSS_TO_RB_0,0x0)
+#define VTSS_RB_TAXI_IF_CFG(target)          VTSS_IOREG(target,0x0)
 
 /**
  * \brief
@@ -111,8 +115,10 @@
  *
  * \details
  * Register: \a RB:COMMON:QSYS_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_QSYS_CFG                     VTSS_IOREG(VTSS_TO_RB_0,0x1)
+#define VTSS_RB_QSYS_CFG(target)             VTSS_IOREG(target,0x1)
 
 /**
  * \brief
@@ -167,8 +173,10 @@
  *
  * \details
  * Register: \a RB:COMMON:CPU_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_CPU_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x2)
+#define VTSS_RB_CPU_CFG(target)              VTSS_IOREG(target,0x2)
 
 /**
  * \brief
@@ -248,8 +256,10 @@
  *
  * \details
  * Register: \a RB:COMMON:NETID_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_NETID_CFG                    VTSS_IOREG(VTSS_TO_RB_0,0x3)
+#define VTSS_RB_NETID_CFG(target)            VTSS_IOREG(target,0x3)
 
 /**
  * \brief
@@ -311,8 +321,10 @@
  *
  * \details
  * Register: \a RB:COMMON:RB_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_RB_CFG                       VTSS_IOREG(VTSS_TO_RB_0,0x4)
+#define VTSS_RB_RB_CFG(target)               VTSS_IOREG(target,0x4)
 
 /**
  * \brief
@@ -573,9 +585,10 @@
  * \details
  * Register: \a RB:COMMON:TPID_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Register: TPID_CFG (??), 0-2
  */
-#define VTSS_RB_TPID_CFG(ri)                 VTSS_IOREG(VTSS_TO_RB_0,0x5 + (ri))
+#define VTSS_RB_TPID_CFG(target,ri)          VTSS_IOREG(target,0x5 + (ri))
 
 /**
  * \brief
@@ -594,8 +607,10 @@
  *
  * \details
  * Register: \a RB:COMMON:SPV_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_SPV_CFG                      VTSS_IOREG(VTSS_TO_RB_0,0x8)
+#define VTSS_RB_SPV_CFG(target)              VTSS_IOREG(target,0x8)
 
 /**
  * \brief
@@ -700,9 +715,10 @@
  *
  * Register: \a RB:COMMON:PTP_DATA
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_PTP_DATA (??), 0-7
  */
-#define VTSS_RB_PTP_DATA(ri)                 VTSS_IOREG(VTSS_TO_RB_0,0x9 + (ri))
+#define VTSS_RB_PTP_DATA(target,ri)          VTSS_IOREG(target,0x9 + (ri))
 
 /**
  * \brief
@@ -732,9 +748,10 @@
  *
  * Register: \a RB:COMMON:PTP_FILTER_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_PTP_FILTERS (??), 0-3
  */
-#define VTSS_RB_PTP_FILTER_CFG(ri)           VTSS_IOREG(VTSS_TO_RB_0,0x11 + (ri))
+#define VTSS_RB_PTP_FILTER_CFG(target,ri)    VTSS_IOREG(target,0x11 + (ri))
 
 /**
  * \brief
@@ -744,8 +761,8 @@
  * PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
  *
  * \details
- * 0: Frame must be HSR-tagged
- * 1: Frame must be HSR-untagged
+ * 0: Frame must be HSR-untagged
+ * 1: Frame must be HSR-tagged.
  *
  * Field: ::VTSS_RB_PTP_FILTER_CFG . PTP_HSR_SEL
  */
@@ -795,6 +812,42 @@
 #define  VTSS_M_RB_PTP_FILTER_CFG_PTP_FILTER_SEL     VTSS_ENCODE_BITMASK(0,5)
 #define  VTSS_X_RB_PTP_FILTER_CFG_PTP_FILTER_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
+
+/**
+ * \brief PTP configurations
+ *
+ * \details
+ * Register: \a RB:COMMON:PTP_MISC_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
+ */
+#define VTSS_RB_PTP_MISC_CFG(target)         VTSS_IOREG(target,0x15)
+
+/**
+ * \brief
+ * If set, frames matching the PTP filter and forwarded to either of the
+ * LRE ports, are redirected to the interlink. Applies to HSR modes only.
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_MISC_CFG . PTP_REDIR_INT_ENA
+ */
+#define  VTSS_F_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA  VTSS_BIT(3)
+#define  VTSS_X_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Port mask disabling duplicate discard for PTP frames per egress port. If
+ * a bit is set, frames matching the PTP filter are not subject to
+ * duplicate discard towards the corresponding egress port.
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_MISC_CFG . PTP_DUPL_DISC_DIS
+ */
+#define  VTSS_F_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
 /**
  * Register Group: \a RB:PORT
  *
@@ -808,9 +861,10 @@
  * \details
  * Register: \a RB:PORT:TBL_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_TBL_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,0)
+#define VTSS_RB_TBL_CFG(target,gi)           VTSS_IOREG_IX(target,0x16,gi,6,0,0)
 
 /**
  * \brief
@@ -1002,9 +1056,10 @@
  * \details
  * Register: \a RB:PORT:BPDU_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_BPDU_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,1)
+#define VTSS_RB_BPDU_CFG(target,gi)          VTSS_IOREG_IX(target,0x16,gi,6,0,1)
 
 /**
  * \brief
@@ -1093,9 +1148,10 @@
  *
  * Register: \a RB:PORT:FWD_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_FWD_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,2)
+#define VTSS_RB_FWD_CFG(target,gi)           VTSS_IOREG_IX(target,0x16,gi,6,0,2)
 
 /**
  * \brief
@@ -1203,9 +1259,29 @@
  * \details
  * Register: \a RB:PORT:PORT_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PORT_CFG(gi)                 VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,3)
+#define VTSS_RB_PORT_CFG(target,gi)          VTSS_IOREG_IX(target,0x16,gi,6,0,3)
+
+/**
+ * \brief
+ * Configures expected location of HSR-tag in combination with VLAN tags
+ * for incoming frames. If the HSR-tag is not in the right location, frame
+ * is treated as non-HSR-tagged.Related parameters:
+ * RB:PORT:PORT_CFG.HSR_FILTER_CFG.
+ *
+ * \details
+ * 0: VLAN tags ignored
+ * 1: Find HSR-tag as outer tag
+ * 2: Find HSR-tag behind one VLAN tag
+ * 3: Find HSR-tag behind two VLAN tags
+ *
+ * Field: ::VTSS_RB_PORT_CFG . HSR_VLAN_CFG
+ */
+#define  VTSS_F_RB_PORT_CFG_HSR_VLAN_CFG(x)   VTSS_ENCODE_BITFIELD(x,23,2)
+#define  VTSS_M_RB_PORT_CFG_HSR_VLAN_CFG      VTSS_ENCODE_BITMASK(23,2)
+#define  VTSS_X_RB_PORT_CFG_HSR_VLAN_CFG(x)   VTSS_EXTRACT_BITFIELD(x,23,2)
 
 /**
  * \brief
@@ -1418,21 +1494,10 @@
  * \details
  * Register: \a RB:PORT:PTP_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_PTP_CFG(gi)                  VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,4)
-
-/**
- * \brief
- * If set, frames matching the PTP filter are no subject to duplicate
- * discard on any egress ports.
- *
- * \details
- * Field: ::VTSS_RB_PTP_CFG . PTP_DUPL_DISC_DIS
- */
-#define  VTSS_F_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_RB_PTP_CFG_PTP_DUPL_DISC_DIS  VTSS_BIT(1)
-#define  VTSS_X_RB_PTP_CFG_PTP_DUPL_DISC_DIS(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define VTSS_RB_PTP_CFG(target,gi)           VTSS_IOREG_IX(target,0x16,gi,6,0,4)
 
 /**
  * \brief
@@ -1459,9 +1524,10 @@
  * \details
  * Register: \a RB:PORT:STICKY
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: PORT (??), 0-2
  */
-#define VTSS_RB_STICKY(gi)                   VTSS_IOREG_IX(VTSS_TO_RB_0,0x15,gi,6,0,5)
+#define VTSS_RB_STICKY(target,gi)            VTSS_IOREG_IX(target,0x16,gi,6,0,5)
 
 /**
  * \brief
@@ -1471,9 +1537,9 @@
  * \details
  * Field: ::VTSS_RB_STICKY . RCT_MISSING_DISC_STICKY
  */
-#define  VTSS_F_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
-#define  VTSS_M_RB_STICKY_RCT_MISSING_DISC_STICKY  VTSS_BIT(23)
-#define  VTSS_X_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+#define  VTSS_F_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_DISC_STICKY  VTSS_BIT(24)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_DISC_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
 
 /**
  * \brief
@@ -1485,9 +1551,20 @@
  * \details
  * Field: ::VTSS_RB_STICKY . RCT_MISSING_STICKY
  */
-#define  VTSS_F_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
-#define  VTSS_M_RB_STICKY_RCT_MISSING_STICKY  VTSS_BIT(22)
-#define  VTSS_X_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+#define  VTSS_F_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_RB_STICKY_RCT_MISSING_STICKY  VTSS_BIT(23)
+#define  VTSS_X_RB_STICKY_RCT_MISSING_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/**
+ * \brief
+ * Set if HSR tag and VLANs mismatched expectations.
+ *
+ * \details
+ * Field: ::VTSS_RB_STICKY . HSR_VLAN_FAIL_STICKY
+ */
+#define  VTSS_F_RB_STICKY_HSR_VLAN_FAIL_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_RB_STICKY_HSR_VLAN_FAIL_STICKY  VTSS_BIT(22)
+#define  VTSS_X_RB_STICKY_HSR_VLAN_FAIL_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
 
 /**
  * \brief
@@ -1750,9 +1827,10 @@
  *
  * Register: \a RB:STAT:CNT_TX_TAG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_TAG(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,0)
+#define VTSS_RB_CNT_TX_TAG(target,gi)        VTSS_IOREG_IX(target,0x28,gi,11,0,0)
 
 /**
  * \brief
@@ -1775,9 +1853,10 @@
  *
  * Register: \a RB:STAT:CNT_TX_UNT
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_UNT(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,1)
+#define VTSS_RB_CNT_TX_UNT(target,gi)        VTSS_IOREG_IX(target,0x28,gi,11,0,1)
 
 /**
  * \brief
@@ -1799,9 +1878,10 @@
  *
  * Register: \a RB:STAT:CNT_TX_LL
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_TX_LL(gi)                VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,2)
+#define VTSS_RB_CNT_TX_LL(target,gi)         VTSS_IOREG_IX(target,0x28,gi,11,0,2)
 
 /**
  * \brief
@@ -1824,9 +1904,10 @@
  *
  * Register: \a RB:STAT:CNT_RX_TAG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_TAG(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,3)
+#define VTSS_RB_CNT_RX_TAG(target,gi)        VTSS_IOREG_IX(target,0x28,gi,11,0,3)
 
 /**
  * \brief
@@ -1849,9 +1930,10 @@
  *
  * Register: \a RB:STAT:CNT_RX_UNT
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_UNT(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,4)
+#define VTSS_RB_CNT_RX_UNT(target,gi)        VTSS_IOREG_IX(target,0x28,gi,11,0,4)
 
 /**
  * \brief
@@ -1873,9 +1955,10 @@
  *
  * Register: \a RB:STAT:CNT_RX_LL
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_LL(gi)                VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,5)
+#define VTSS_RB_CNT_RX_LL(target,gi)         VTSS_IOREG_IX(target,0x28,gi,11,0,5)
 
 /**
  * \brief
@@ -1898,9 +1981,10 @@
  *
  * Register: \a RB:STAT:CNT_RX_WRONG_LAN
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_WRONG_LAN(gi)         VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,6)
+#define VTSS_RB_CNT_RX_WRONG_LAN(target,gi)  VTSS_IOREG_IX(target,0x28,gi,11,0,6)
 
 /**
  * \brief
@@ -1924,9 +2008,10 @@
  *
  * Register: \a RB:STAT:CNT_RX_OWN
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_RX_OWN(gi)               VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,7)
+#define VTSS_RB_CNT_RX_OWN(target,gi)        VTSS_IOREG_IX(target,0x28,gi,11,0,7)
 
 /**
  * \brief
@@ -1952,9 +2037,10 @@
  *
  * Register: \a RB:STAT:CNT_DUPL_ZERO
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ZERO(gi)            VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,8)
+#define VTSS_RB_CNT_DUPL_ZERO(target,gi)     VTSS_IOREG_IX(target,0x28,gi,11,0,8)
 
 /**
  * \brief
@@ -1980,9 +2066,10 @@
  *
  * Register: \a RB:STAT:CNT_DUPL_ONE
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_ONE(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,9)
+#define VTSS_RB_CNT_DUPL_ONE(target,gi)      VTSS_IOREG_IX(target,0x28,gi,11,0,9)
 
 /**
  * \brief
@@ -2008,9 +2095,10 @@
  *
  * Register: \a RB:STAT:CNT_DUPL_TWO
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param gi Register: STAT (??), 0-2
  */
-#define VTSS_RB_CNT_DUPL_TWO(gi)             VTSS_IOREG_IX(VTSS_TO_RB_0,0x27,gi,11,0,10)
+#define VTSS_RB_CNT_DUPL_TWO(target,gi)      VTSS_IOREG_IX(target,0x28,gi,11,0,10)
 
 /**
  * \brief
@@ -2037,8 +2125,10 @@
  * Configures command and access parameters when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CTRL
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x48)
+#define VTSS_RB_HOST_ACCESS_CTRL(target)     VTSS_IOREG(target,0x49)
 
 /**
  * \brief
@@ -2156,8 +2246,10 @@
  * Configures MAC address when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_0
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x49)
+#define VTSS_RB_HOST_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x4a)
 
 /**
  * \brief
@@ -2192,8 +2284,10 @@
  * Configures MAC address when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_1
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x4a)
+#define VTSS_RB_HOST_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x4b)
 
 /**
  * \brief
@@ -2217,8 +2311,10 @@
  * Configures warious HOST_ENTRY parameters when accessing the host table
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_CFG_2
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x4b)
+#define VTSS_RB_HOST_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x4c)
 
 /**
  * \brief
@@ -2402,8 +2498,10 @@
  * Configures statistics when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_0
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_0           VTSS_IOREG(VTSS_TO_RB_0,0x4c)
+#define VTSS_RB_HOST_ACCESS_STAT_0(target)   VTSS_IOREG(target,0x4d)
 
 /**
  * \brief
@@ -2424,8 +2522,10 @@
  * Configures statistics when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_1
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_1           VTSS_IOREG(VTSS_TO_RB_0,0x4d)
+#define VTSS_RB_HOST_ACCESS_STAT_1(target)   VTSS_IOREG(target,0x4e)
 
 /**
  * \brief
@@ -2446,8 +2546,10 @@
  * Configures statistics when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_2
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_2           VTSS_IOREG(VTSS_TO_RB_0,0x4e)
+#define VTSS_RB_HOST_ACCESS_STAT_2(target)   VTSS_IOREG(target,0x4f)
 
 /**
  * \brief
@@ -2468,8 +2570,10 @@
  * Configures statistics when accessing the host table.
  *
  * Register: \a RB:HOST_TBL:HOST_ACCESS_STAT_3
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_ACCESS_STAT_3           VTSS_IOREG(VTSS_TO_RB_0,0x4f)
+#define VTSS_RB_HOST_ACCESS_STAT_3(target)   VTSS_IOREG(target,0x50)
 
 /**
  * \brief
@@ -2521,9 +2625,10 @@
  *
  * Register: \a RB:HOST_TBL:HOST_AUTOAGE_CFG
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG(ri)         VTSS_IOREG(VTSS_TO_RB_0,0x50 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG(target,ri)  VTSS_IOREG(target,0x51 + (ri))
 
 /**
  * \brief
@@ -2570,9 +2675,10 @@
  *
  * Register: \a RB:HOST_TBL:HOST_AUTOAGE_CFG_1
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_1(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x52 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_1(target,ri)  VTSS_IOREG(target,0x53 + (ri))
 
 /**
  * \brief
@@ -2609,9 +2715,10 @@
  *
  * Register: \a RB:HOST_TBL:HOST_AUTOAGE_CFG_2
  *
+ * @param target A \a ::vtss_target_RB_e target
  * @param ri Replicator: x_RB_CFG_NUM_HOST_AUTOAGE_INTERVALS (??), 0-1
  */
-#define VTSS_RB_HOST_AUTOAGE_CFG_2(ri)       VTSS_IOREG(VTSS_TO_RB_0,0x54 + (ri))
+#define VTSS_RB_HOST_AUTOAGE_CFG_2(target,ri)  VTSS_IOREG(target,0x55 + (ri))
 
 /**
  * \brief
@@ -2637,8 +2744,10 @@
  *
  * \details
  * Register: \a RB:HOST_TBL:HOST_EVENT_STICKY
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x56)
+#define VTSS_RB_HOST_EVENT_STICKY(target)    VTSS_IOREG(target,0x57)
 
 /**
  * \brief
@@ -2949,8 +3058,10 @@
  *
  * \details
  * Register: \a RB:HOST_TBL:HOST_LATEST_POS_STATUS
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_HOST_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x57)
+#define VTSS_RB_HOST_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x58)
 
 /**
  * \brief
@@ -3000,8 +3111,10 @@
  * Configures command and access parameters when accessing the host table.
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CTRL
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CTRL             VTSS_IOREG(VTSS_TO_RB_0,0x58)
+#define VTSS_RB_DISC_ACCESS_CTRL(target)     VTSS_IOREG(target,0x59)
 
 /**
  * \brief
@@ -3127,8 +3240,10 @@
  * Configures MAC address when accessing the host table.
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_0
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_0            VTSS_IOREG(VTSS_TO_RB_0,0x59)
+#define VTSS_RB_DISC_ACCESS_CFG_0(target)    VTSS_IOREG(target,0x5a)
 
 /**
  * \brief
@@ -3163,8 +3278,10 @@
  * Configures MAC address when accessing the host table.
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_1
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_1            VTSS_IOREG(VTSS_TO_RB_0,0x5a)
+#define VTSS_RB_DISC_ACCESS_CFG_1(target)    VTSS_IOREG(target,0x5b)
 
 /**
  * \brief
@@ -3188,8 +3305,10 @@
  * Configures warious DISC_ENTRY parameters when accessing the host table
  *
  * Register: \a RB:DISC_TBL:DISC_ACCESS_CFG_2
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_ACCESS_CFG_2            VTSS_IOREG(VTSS_TO_RB_0,0x5b)
+#define VTSS_RB_DISC_ACCESS_CFG_2(target)    VTSS_IOREG(target,0x5c)
 
 /**
  * \brief
@@ -3299,8 +3418,10 @@
  * Configures automated age scan of duplicate discard table.
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG             VTSS_IOREG(VTSS_TO_RB_0,0x5c)
+#define VTSS_RB_DISC_AUTOAGE_CFG(target)     VTSS_IOREG(target,0x5d)
 
 /**
  * \brief
@@ -3346,8 +3467,10 @@
  * Configures automated age scan of duplicate discard table
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG_1
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_1           VTSS_IOREG(VTSS_TO_RB_0,0x5d)
+#define VTSS_RB_DISC_AUTOAGE_CFG_1(target)   VTSS_IOREG(target,0x5e)
 
 /**
  * \brief
@@ -3383,8 +3506,10 @@
  * Configures automated age scan of host table
  *
  * Register: \a RB:DISC_TBL:DISC_AUTOAGE_CFG_2
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_AUTOAGE_CFG_2           VTSS_IOREG(VTSS_TO_RB_0,0x5e)
+#define VTSS_RB_DISC_AUTOAGE_CFG_2(target)   VTSS_IOREG(target,0x5f)
 
 /**
  * \brief
@@ -3410,8 +3535,10 @@
  *
  * \details
  * Register: \a RB:DISC_TBL:DISC_EVENT_STICKY
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_EVENT_STICKY            VTSS_IOREG(VTSS_TO_RB_0,0x5f)
+#define VTSS_RB_DISC_EVENT_STICKY(target)    VTSS_IOREG(target,0x60)
 
 /**
  * \brief
@@ -3761,8 +3888,10 @@
  *
  * \details
  * Register: \a RB:DISC_TBL:DISC_LATEST_POS_STATUS
+ *
+ * @param target A \a ::vtss_target_RB_e target
  */
-#define VTSS_RB_DISC_LATEST_POS_STATUS       VTSS_IOREG(VTSS_TO_RB_0,0x60)
+#define VTSS_RB_DISC_LATEST_POS_STATUS(target)  VTSS_IOREG(target,0x61)
 
 /**
  * \brief

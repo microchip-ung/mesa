@@ -2791,15 +2791,19 @@
 
 /**
  * \brief
- * Set to skip detection and indication of overflow conditions for frame
- * transmitted on this port
+ * Select alternative ingress delay for frames coming from a redbox port.
+ * If the rewrite command requests addition of PTP_IDLY1,  AND the frame
+ * came in on LRE-B, AND this configuration field is set, PTP_IDLY2 will be
+ * used instead.This configuration field is taken from the source port
+ * during processing. Ex  if port 17 is connected to a redbox, register
+ * replication 17 should get this configuration set.
  *
  * \details
- * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_EGR_DIS
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_DLY_SEL
  */
-#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
-#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(10)
-#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),11,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL  VTSS_BIT(11)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_DLY_SEL(x)  VTSS_EXTRACT_BITFIELD(x,11,1)
 
 /**
  * \brief
@@ -2816,9 +2820,9 @@
  *
  * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_PRP_LAN
  */
-#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_ENCODE_BITFIELD(x,8,2)
-#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN     VTSS_ENCODE_BITMASK(8,2)
-#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_EXTRACT_BITFIELD(x,8,2)
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_ENCODE_BITFIELD(x,9,2)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN     VTSS_ENCODE_BITMASK(9,2)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(x)  VTSS_EXTRACT_BITFIELD(x,9,2)
 
 /**
  * \brief
@@ -2827,9 +2831,9 @@
  * \details
  * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_TAG_DIS
  */
-#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
-#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS  VTSS_BIT(7)
-#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),8,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS  VTSS_BIT(8)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,8,1)
 
 /**
  * \brief
@@ -2841,9 +2845,21 @@
  *
  * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_ID_SEL
  */
-#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
-#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_ID_SEL  VTSS_BIT(6)
-#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_RB_ID_SEL  VTSS_BIT(7)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_RB_ID_SEL(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Set to skip detection and indication of overflow conditions for frame
+ * transmitted on this port
+ *
+ * \details
+ * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_OVFL_EGR_DIS
+ */
+#define  VTSS_F_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS  VTSS_BIT(6)
+#define  VTSS_X_REW_PTP_MISC_CFG_PTP_OVFL_EGR_DIS(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
@@ -3532,6 +3548,52 @@
 
 
 /**
+ * \brief CF field range check
+ *
+ * \details
+ * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY
+ */
+#define VTSS_REW_CF_TOO_BIG_STICKY           VTSS_IOREG(VTSS_TO_REW,0x3e1f)
+
+/**
+ * \brief
+ * The correction field update went out of range. Valid range is -2^47 to
+ * 2^48-1. The frame CF will be changed to the maximum value. This range
+ * check is bypassed if ADDS48 mode is in use on the ingress or egress
+ * port.
+ *
+ * \details
+ * Field: ::VTSS_REW_CF_TOO_BIG_STICKY . CF_TOO_BIG_STICKY
+ */
+#define  VTSS_F_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY(x)  (x)
+#define  VTSS_M_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY     0xffffffff
+#define  VTSS_X_REW_CF_TOO_BIG_STICKY_CF_TOO_BIG_STICKY(x)  (x)
+
+
+/**
+ * \brief CF field range check
+ *
+ * \details
+ * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY1
+ */
+#define VTSS_REW_CF_TOO_BIG_STICKY1          VTSS_IOREG(VTSS_TO_REW,0x3e20)
+
+/**
+ * \brief
+ * The correction field update went out of range. Valid range is -2^47 to
+ * 2^48-1. The frame CF will be changed to the maximum value. This range
+ * check is bypassed if ADDS48 mode is in use on the ingress or egress
+ * port.
+ *
+ * \details
+ * Field: ::VTSS_REW_CF_TOO_BIG_STICKY1 . CF_TOO_BIG_STICKY1
+ */
+#define  VTSS_F_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_REW_CF_TOO_BIG_STICKY1_CF_TOO_BIG_STICKY1(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
  * \brief PTP reserved field check
  *
  * \details
@@ -3601,7 +3663,7 @@
 
 /**
  * \brief
- * Value format for recidense time field, expressed as fixed point number
+ * Value format for recidence time field, expressed as fixed point number
  * of nanoseconds.
  *
  * \details
@@ -5241,6 +5303,21 @@
 
 /**
  * \brief
+ * Testing options for memories
+ *
+ * \details
+ * xx1: Make parity errors on all memories
+ * x1x: Make parity errors on local ring memories
+ * 1xx: Make parity errors only at writes from software
+ *
+ * Field: ::VTSS_REW_RAM_INIT . RAM_TEST_OPT
+ */
+#define  VTSS_F_REW_RAM_INIT_RAM_TEST_OPT(x)  VTSS_ENCODE_BITFIELD(x,2,3)
+#define  VTSS_M_REW_RAM_INIT_RAM_TEST_OPT     VTSS_ENCODE_BITMASK(2,3)
+#define  VTSS_X_REW_RAM_INIT_RAM_TEST_OPT(x)  VTSS_EXTRACT_BITFIELD(x,2,3)
+
+/**
+ * \brief
  * Initialize core memories. Field is automatically cleared when operation
  * is complete (approx. 40 us).
  *
@@ -5302,9 +5379,21 @@
  * \brief
  * Data register for core memory access. Wider memories are big endian
  * mapped into the 32 bit inspection space. This register provides data to
- * be written when CM_OP is set.
+ * be written when CM_OP is set.When CM_OP is set to 11 this register
+ * encodes ram checking mode:-single /double parity errors induced on
+ * writes-all chip memories or only the memories connected to this init
+ * controller-errors at any write or only by software access
  *
  * \details
+ * 000: No testing
+ * 001: Single, local, any write
+ * 010: Single, all, any write
+ * 011: Single, local, s/w write
+ * 100: Single, all, s/w write
+ * 101: Double, local. s/w write
+ * 110: Double, all, s/w write
+ * 111: Solve climate crisis
+ *
  * Field: ::VTSS_REW_CM_DATA_WR . CM_DATA_WR
  */
 #define  VTSS_F_REW_CM_DATA_WR_CM_DATA_WR(x)  (x)
@@ -5345,13 +5434,20 @@
  * Ask the memory debug system to read or write a specific location. If no
  * response is received from a memory, due to timeout, or selected address
  * out of range, the state machine can be reset by issuing the 11
- * command.Field will return to 00 upon completion.
+ * command.Field will return to 00 upon completion.When the 11 command is
+ * issued, cm_data_wr(2..0) enables ram test modes.000: No testing001:
+ * Single error induced on local memories010: Single error induced on all
+ * memories011: Single error induced on local memories accessed from
+ * software only100: Single error induced on all memories accessed from
+ * software only101: Double error induced on local memories from software
+ * only110: Double error induced on all memories from software only111:
+ * Solve climate crisis
  *
  * \details
  * 00: NOP
  * 01: Read from selected address into CM_DATA_RD
  * 10: Write CM_DATA_WR into selected address
- * 11: Reset debug access
+ * 11: Reset debug access and configure test mode
  *
  * Field: ::VTSS_REW_CM_OP . CM_OP
  */

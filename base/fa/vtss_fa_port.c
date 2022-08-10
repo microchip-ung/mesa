@@ -3064,13 +3064,14 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_DEV1G_PCS_FX100_CFG_SD_ENA |
                 VTSS_M_DEV1G_PCS_FX100_CFG_RXBITSEL);
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+#if 0 // !defined(VTSS_ARCH_LAN969X_FPGA) (TBD)
         // Set the Serdes to correct clock freq (not handled by UTE)
         u32 freq = vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ ? 2
             : vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_500MHZ ? 1 : 0;
         u32 sd, sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
         sd = VTSS_TO_SD_LANE(sd_indx);
+
         REG_WRM(VTSS_SD_LANE_TARGET_MISC(sd),
                 VTSS_F_SD_LANE_TARGET_MISC_CORE_CLK_FREQ(freq),
                 VTSS_M_SD_LANE_TARGET_MISC_CORE_CLK_FREQ);

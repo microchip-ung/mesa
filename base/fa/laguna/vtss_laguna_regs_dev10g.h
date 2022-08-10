@@ -5705,9 +5705,9 @@ Tx OK Bytes Counter - MSB
  * \details
  * Field: ::VTSS_DEV10G_PTP_EVENTS . PCH_SUB_PORT_ID_ERR_STICKY
  */
-#define  VTSS_F_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY  VTSS_BIT(1)
-#define  VTSS_X_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY  VTSS_BIT(2)
+#define  VTSS_X_DEV10G_PTP_EVENTS_PCH_SUB_PORT_ID_ERR_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
 
 /**
  * \brief
@@ -5772,7 +5772,7 @@ Tx OK Bytes Counter - MSB
  * Configures the inter frame gap inserted after a p-frame fragment. The
  * MAC will for such fragments extend the frames, and the gap controller
  * must therefore wait longer than the standard 12, to get standard IFG on
- * the line.
+ * the line. 4 bytes will be added to this value for fragments
  *
  * \details
  * Field: ::VTSS_DEV10G_DEV_PFRAME_CFG . DEV_FRAGMENT_IFG

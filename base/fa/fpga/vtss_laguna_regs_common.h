@@ -55,6 +55,7 @@
 #define VTSS_TO_DEV2G5_2        VTSS_IO_OFFSET1(0x01014000) /*!< Base offset for target DEV2G5_2 */
 #define VTSS_TO_DEV2G5_3        VTSS_IO_OFFSET1(0x01018000) /*!< Base offset for target DEV2G5_3 */
 #define VTSS_TO_DEV2G5_0        VTSS_IO_OFFSET1(0x01004000) /*!< Base offset for target DEV2G5_0 */
+#define VTSS_TO_DEV2G5_8        VTSS_IO_OFFSET1(0x01034000) /*!< Base offset for target DEV2G5_8 */
 #define VTSS_TO_DEVCPU_GCB      VTSS_IO_OFFSET1(0x00010000) /*!< Base offset for target DEVCPU_GCB */
 #define VTSS_TO_DEVCPU_ORG0     VTSS_IO_OFFSET1(0x00000000) /*!< Base offset for target DEVCPU_ORG0 */
 #define VTSS_TO_DEVCPU_ORG1     VTSS_IO_OFFSET1(0x01000000) /*!< Base offset for target DEVCPU_ORG1 */
@@ -72,6 +73,7 @@
 #define VTSS_TO_QSYS            VTSS_IO_OFFSET1(0x000a0000) /*!< Base offset for target QSYS */
 #define VTSS_TO_REW             VTSS_IO_OFFSET1(0x00600000) /*!< Base offset for target REW */
 #define VTSS_TO_RB_0            VTSS_IO_OFFSET1(0x010f4000) /*!< Base offset for target RB_0 */
+#define VTSS_TO_RB_1            VTSS_IO_OFFSET1(0x010f8000) /*!< Base offset for target RB_1 */
 #define VTSS_TO_VCAP_ES0        VTSS_IO_OFFSET1(0x000e0000) /*!< Base offset for target VCAP_ES0 */
 #define VTSS_TO_VCAP_ES2        VTSS_IO_OFFSET1(0x000d0000) /*!< Base offset for target VCAP_ES2 */
 #define VTSS_TO_VCAP_IP6PFX     VTSS_IO_OFFSET1(0x00090000) /*!< Base offset for target VCAP_IP6PFX */
@@ -120,6 +122,14 @@
  */
 
 /**
+  * \brief Target RB target offset(s)
+  */
+enum vtss_target_RB_e {
+    VTSS_TOE_RB_0            = VTSS_TO_RB_0,
+    VTSS_TOE_RB_1            = VTSS_TO_RB_1,
+};
+
+/**
   * \brief Target DEVCPU_ORG target offset(s)
   */
 enum vtss_target_DEVCPU_ORG_e {
@@ -136,6 +146,7 @@ enum vtss_target_DEV1G_e {
     VTSS_TOE_DEV2G5_2        = VTSS_TO_DEV2G5_2,
     VTSS_TOE_DEV2G5_3        = VTSS_TO_DEV2G5_3,
     VTSS_TOE_DEV2G5_0        = VTSS_TO_DEV2G5_0,
+    VTSS_TOE_DEV2G5_8        = VTSS_TO_DEV2G5_8,
 };
 
 #endif /* VTSS_LAGUNA_WANT_TARGET_ENUMS */

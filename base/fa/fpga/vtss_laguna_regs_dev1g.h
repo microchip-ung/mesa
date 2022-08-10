@@ -3230,20 +3230,6 @@
 
 /**
  * \brief
- * The correction field update went out of range. Valid range is -2^47 to
- * 2^48-1. The frame CF will be changed to the maximum value. This range
- * check is bypassed if ADDS48 mode is in use on the ingress or egress
- * port.
- *
- * \details
- * Field: ::VTSS_DEV1G_PTP_EVENTS . CF_TOO_BIG_STICKY
- */
-#define  VTSS_F_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY  VTSS_BIT(1)
-#define  VTSS_X_DEV1G_PTP_EVENTS_CF_TOO_BIG_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
-
-/**
- * \brief
  * An ingress PCH was processed and failed the CRC8 checksum verification
  *
  * \details
@@ -3305,7 +3291,7 @@
  * Configures the inter frame gap inserted after a p-frame fragment. The
  * MAC will for such fragments extend the frames, and the gap controller
  * must therefore wait longer than the standard 12, to get standard IFG on
- * the line.
+ * the line. 4 bytes will be added to this value for fragments
  *
  * \details
  * Field: ::VTSS_DEV1G_DEV_PFRAME_CFG . DEV_FRAGMENT_IFG

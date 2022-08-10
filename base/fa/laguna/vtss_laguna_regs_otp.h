@@ -175,6 +175,23 @@
 
 /**
  * \brief
+ * Auto Repair OTP by using  Repair row on trigger of Blankcheck
+ * command.Note: Upto 8 bytes of failng blankcheck address on Main memory
+ * can be auto repaired.Note: You must be in Byte mode programming to
+ * enable Auto Repair
+ *
+ * \details
+ * 0 - Auto Repair Disable
+ * 1 - Auto Repair Enable
+ *
+ * Field: ::VTSS_OTP_OTP_PRGM_MODE . OTP_AUTO_REPAIR_ENA
+ */
+#define  VTSS_F_OTP_OTP_PRGM_MODE_OTP_AUTO_REPAIR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_OTP_OTP_PRGM_MODE_OTP_AUTO_REPAIR_ENA  VTSS_BIT(1)
+#define  VTSS_X_OTP_OTP_PRGM_MODE_OTP_AUTO_REPAIR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
  * Program Mode Byte.This indicates the units of a programming
  * operation.Note: OTP reads are always byte wide.
  *
@@ -320,7 +337,7 @@
 
 /**
  * \brief
- * BISR WRBISR Test Mode enables mapping of Blank Check failures or
+ * BISR WR.BISR Test Mode enables mapping of Blank Check failures or
  * Programming failures to alternate locations in the BISR (Built-In Self
  * Repair) repair row. Use this to write to repair row.Note: This bit self
  * clears after the command is completed.Note: This bit clears after
@@ -335,8 +352,11 @@
 
 /**
  * \brief
- * TESTDEC is valid only for un-programmed units.If TESTDEC isperformed on
- * a programmed unit, the result is undefined.
+ * In TESTDEC Test Mode, this bit corresponds to SELTM. The SELTM input is
+ * used to select between the Main and Redundant Arrays. When SELTM=0, the
+ * Main Array is selected. When SELTM=1, the Redundant Array is
+ * selected.TESTDEC is valid only for un-programmed units.If TESTDEC is
+ * performed on a programmed unit, the result is undefined.
  *
  * \details
  * 0 - Selects main memory for TESTDEC operation
@@ -352,10 +372,10 @@
  * \brief
  * WRTEST Command (Pre-program Test).WRTEST enables an end user to screen
  * out gross defects inprogramming circuitry before programming of the
- * actual XPMmemory array is done.This is enabled by availability of two
- * spare rows for programming. Itis performed by latching test mode word
- * 0x04 into the testcommand register, programming the spare rows and
- * verifying thatspare rows can be programmed correctly.Note: This bit self
+ * actual XPMmemory array is done.This is enabled by availability of one
+ * spare row for programming. Itis performed by latching test mode word
+ * 0x01 into the testcommand register, programming the spare row and
+ * verifying thatspare row can be programmed correctly.Note: This bit self
  * clears after the command is completed.Note: This bit clears after
  * command is accepted by the OTPcontroller.
  *
@@ -372,12 +392,12 @@
  * built-in test mode. It enables an end user to verifythe integrity of
  * wordlines and bitlines as well as screen out the grossdefects in the
  * peripheral logic. It is performed on an unprogrammedunit.The Test Mode
- * Code for TESTDEC is "0x68 with DLE=1" followedby "0x21 with DLE=0."
- * After entering into the TESTDEC Test Mode,make subsequent read
- * operations to successive addresses till theentire OTP memory is read
- * out. The expected test pattern is avariation of a checkerboard
- * pattern.Note: This bit self clears after the command is completed.Note:
- * This bit clears after command is accepted by the OTPcontroller.
+ * Code for TESTDEC is "0x21" After entering into the TESTDEC Test
+ * Mode,make subsequent read operations to successive addresses till
+ * theentire OTP memory is read out. The expected test pattern is
+ * avariation of a checkerboard pattern.Note: This bit self clears after
+ * the command is completed.Note: This bit clears after command is accepted
+ * by the OTPcontroller.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_TEST_CMD . OTP_TESTDEC
@@ -392,10 +412,13 @@
  * that OTP memory is preloaded with "0" beforeactual programming. Blank
  * Check is performed by reading every bitlocation at nominal VDD and
  * nominal VDDIO before any other testsor any programming is performed on
- * the XPM memory. Thecommand is enabled by latching test mode word "0x28"
- * into the testcommand register,Note: This bit self clears after the
+ * the XPM memory. Thecommand is enabled by latching test mode word "0x24"
+ * into the testcommand register.Note: This bit self clears after the
  * command is completed.Note: This bit clears after command is accepted by
- * the OTPcontroller.
+ * the OTPcontroller.Note: To run Blankcheck with Auto Repair also set
+ * OTP_AUTO_REPAIR_ENA =1 and OTP_PGM_MODE_BYTE = 1.Note: Blankcheck runs
+ * from programmed OTP_ADDR_HI/LO to Last address of OTP.Hence to run
+ * Blankcheck from ADDR 0 to Last ADDR, set OTP_ADDR_HI/LO = 0.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_TEST_CMD . OTP_BLANKCHECK
@@ -441,9 +464,63 @@
 
 /**
  * \brief
+ * Auto Repair Pass status Bit.This bit asserts after the completion of an
+ * Blankcheck with Auto repair command toindicate that the Repair
+ * Passed.Note: This bit automatically clears when the OTP_GO bit is
+ * set.W1C : Write 1 to clear
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_AUTO_REPAIR_PASS
+ */
+#define  VTSS_F_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_PASS(x)  VTSS_ENCODE_BITFIELD(!!(x),7,1)
+#define  VTSS_M_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_PASS  VTSS_BIT(7)
+#define  VTSS_X_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_PASS(x)  VTSS_EXTRACT_BITFIELD(x,7,1)
+
+/**
+ * \brief
+ * Auto Repair Fail status Bit.This bit asserts after the completion of an
+ * Blankcheck with Auto repair command toindicate that the Repair
+ * failed.Note: This bit automatically clears when the OTP_GO bit is
+ * set.W1C : Write 1 to clear
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_AUTO_REPAIR_FAIL
+ */
+#define  VTSS_F_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_FAIL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_FAIL  VTSS_BIT(6)
+#define  VTSS_X_OTP_OTP_PASS_FAIL_OTP_AUTO_REPAIR_FAIL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
+
+/**
+ * \brief
+ * Read Secure policy Fail.This bit asserts when a read is attempted to any
+ * of the Secure regions by NS process.Note: This bit automatically clears
+ * when the OTP_GO bit is set.W1C : Write 1 to clear
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_READ_POLICY_FAIL
+ */
+#define  VTSS_F_OTP_OTP_PASS_FAIL_OTP_READ_POLICY_FAIL(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_OTP_OTP_PASS_FAIL_OTP_READ_POLICY_FAIL  VTSS_BIT(5)
+#define  VTSS_X_OTP_OTP_PASS_FAIL_OTP_READ_POLICY_FAIL(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+
+/**
+ * \brief
+ * Write Secure policy Fail.This bit asserts when a write is attempted to
+ * any of the Secure regions by NS process.Note: This bit automatically
+ * clears when the OTP_GO bit is set.W1C : Write 1 to clear
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_WRITE_POLICY_FAIL
+ */
+#define  VTSS_F_OTP_OTP_PASS_FAIL_OTP_WRITE_POLICY_FAIL(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_OTP_OTP_PASS_FAIL_OTP_WRITE_POLICY_FAIL  VTSS_BIT(4)
+#define  VTSS_X_OTP_OTP_PASS_FAIL_OTP_WRITE_POLICY_FAIL(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
  * Read skip.This bit asserts when a read is attempted from any of the
  * protectedregions [see Section "HW OTP Memory").Note: This bit
- * automatically clears when the OTP_GO bit is set.
+ * automatically clears when the OTP_GO bit is set.W1C : Write 1 to clear
  *
  * \details
  * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_READ_PROHIBITED
@@ -456,7 +533,7 @@
  * \brief
  * Write skip.This bit asserts when a write is attempted to any of the
  * protectedregions (see Section "HW OTP Memory").Note: This bit
- * automatically clears when the OTP_GO bit is set.
+ * automatically clears when the OTP_GO bit is set.W1C : Write 1 to clear
  *
  * \details
  * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_WRITE_PROHIBITED
@@ -469,7 +546,7 @@
  * \brief
  * Pass Status Bit.This bit asserts after the completion of an OTP test
  * command toindicate that the command passed.Note: This bit automatically
- * clears when the OTP_GO bit is set.
+ * clears when the OTP_GO bit is set.W1C : Write 1 to clear
  *
  * \details
  * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_PASS
@@ -482,7 +559,7 @@
  * \brief
  * Fail status Bit.This bit asserts after the completion of an OTP test
  * command toindicate that the command failed.Note: This bit automatically
- * clears when the OTP_GO bit is set.
+ * clears when the OTP_GO bit is set.W1C : Write 1 to clear
  *
  * \details
  * Field: ::VTSS_OTP_OTP_PASS_FAIL . OTP_FAIL
@@ -595,6 +672,103 @@
 
 
 /**
+ * \brief OTP_BLANK_FAIL_COUNT status register
+ *
+ * \details
+ * Register: \a OTP:OTP_REGS:OTP_BLANK_FAIL_COUNT
+ */
+#define VTSS_OTP_OTP_BLANK_FAIL_COUNT        VTSS_IOREG(VTSS_TO_OTP,0x10)
+
+/**
+ * \brief
+ * Number of addresses failing blank check. If this numer is greater than
+ * 8, then Auto repair of OTP is not possile.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_BLANK_FAIL_COUNT . OTP_BLANK_FAIL_COUNT
+ */
+#define  VTSS_F_OTP_OTP_BLANK_FAIL_COUNT_OTP_BLANK_FAIL_COUNT(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_BLANK_FAIL_COUNT_OTP_BLANK_FAIL_COUNT     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_BLANK_FAIL_COUNT_OTP_BLANK_FAIL_COUNT(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief BlankCheck fail address index
+ *
+ * \details
+ * SW can read out BlackCheck fail addresses (Total 8) by indexing in this
+ * register
+ *
+ * Register: \a OTP:OTP_REGS:OTP_BLANK_FAIL_COUNT_ADDR_IDX
+ */
+#define VTSS_OTP_OTP_BLANK_FAIL_COUNT_ADDR_IDX  VTSS_IOREG(VTSS_TO_OTP,0x11)
+
+/**
+ * \brief
+ * SW can read out BlackCheck fail addresses (Total 8). Write the index to
+ * read out the corresponding fail address.
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_BLANK_FAIL_COUNT_ADDR_IDX . OTP_BLANK_FAIL_COUNT_ADDR_IDX
+ */
+#define  VTSS_F_OTP_OTP_BLANK_FAIL_COUNT_ADDR_IDX_OTP_BLANK_FAIL_COUNT_ADDR_IDX(x)  VTSS_ENCODE_BITFIELD(x,0,3)
+#define  VTSS_M_OTP_OTP_BLANK_FAIL_COUNT_ADDR_IDX_OTP_BLANK_FAIL_COUNT_ADDR_IDX     VTSS_ENCODE_BITMASK(0,3)
+#define  VTSS_X_OTP_OTP_BLANK_FAIL_COUNT_ADDR_IDX_OTP_BLANK_FAIL_COUNT_ADDR_IDX(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+
+
+/**
+ * \brief Blank Fail address high status register
+ *
+ * \details
+ * SW can read out BlackCheck fail addresses (Total 8) by programming
+ * correct index and reading out the values through
+ * OTP_BLANK_FAIL_ADDR_HI/OTP_BLANK_FAIL_ADDR_LO
+ *
+ * Register: \a OTP:OTP_REGS:OTP_BLANK_FAIL_ADDR_HI
+ */
+#define VTSS_OTP_OTP_BLANK_FAIL_ADDR_HI      VTSS_IOREG(VTSS_TO_OTP,0x12)
+
+/**
+ * \brief
+ * SW can read out BlackCheck fail addresses (Total 8) by programming
+ * correct index and reading out the values through
+ * OTP_BLANK_FAIL_ADDR_HI/OTP_BLANK_FAIL_ADDR_LO
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_BLANK_FAIL_ADDR_HI . OTP_BLANK_FAIL_ADDR_HI
+ */
+#define  VTSS_F_OTP_OTP_BLANK_FAIL_ADDR_HI_OTP_BLANK_FAIL_ADDR_HI(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_BLANK_FAIL_ADDR_HI_OTP_BLANK_FAIL_ADDR_HI     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_BLANK_FAIL_ADDR_HI_OTP_BLANK_FAIL_ADDR_HI(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
+ * \brief Blank Fail address low status register
+ *
+ * \details
+ * SW can read out BlackCheck fail addresses (Total 8) by programming
+ * correct index and reading out the values through
+ * OTP_BLANK_FAIL_ADDR_HI/OTP_BLANK_FAIL_ADDR_LO
+ *
+ * Register: \a OTP:OTP_REGS:OTP_BLANK_FAIL_ADDR_LO
+ */
+#define VTSS_OTP_OTP_BLANK_FAIL_ADDR_LO      VTSS_IOREG(VTSS_TO_OTP,0x13)
+
+/**
+ * \brief
+ * SW can read out BlackCheck fail addresses (Total 8) by programming
+ * correct index and reading out the values through
+ * OTP_BLANK_FAIL_ADDR_HI/OTP_BLANK_FAIL_ADDR_LO
+ *
+ * \details
+ * Field: ::VTSS_OTP_OTP_BLANK_FAIL_ADDR_LO . OTP_BLANK_FAIL_ADDR_LO
+ */
+#define  VTSS_F_OTP_OTP_BLANK_FAIL_ADDR_LO_OTP_BLANK_FAIL_ADDR_LO(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_BLANK_FAIL_ADDR_LO_OTP_BLANK_FAIL_ADDR_LO     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_BLANK_FAIL_ADDR_LO_OTP_BLANK_FAIL_ADDR_LO(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+
+
+/**
  * \brief OTP_INTR_STATUS Regisgter
  *
  * \details
@@ -602,7 +776,7 @@
  *
  * Register: \a OTP:OTP_REGS:OTP_INTR_STATUS
  */
-#define VTSS_OTP_OTP_INTR_STATUS             VTSS_IOREG(VTSS_TO_OTP,0x10)
+#define VTSS_OTP_OTP_INTR_STATUS             VTSS_IOREG(VTSS_TO_OTP,0xe)
 
 /**
  * \brief
@@ -626,7 +800,7 @@
  *
  * Register: \a OTP:OTP_REGS:OTP_INTR_MASK
  */
-#define VTSS_OTP_OTP_INTR_MASK               VTSS_IOREG(VTSS_TO_OTP,0x11)
+#define VTSS_OTP_OTP_INTR_MASK               VTSS_IOREG(VTSS_TO_OTP,0xf)
 
 /**
  * \brief
@@ -1212,163 +1386,47 @@
 
 
 /**
- * \brief OTP_TPWAD_VAL Register
+ * \brief OTP_TPRYCEB_VAL register
  *
  * \details
- * OTP_TPWAD_VAL Register
+ * OTP_TPRYCEB_VAL register
  *
- * Register: \a OTP:OTP_REGS:OTP_TPWAD_VAL
+ * Register: \a OTP:OTP_REGS:OTP_TPRYCEB_VAL
  */
-#define VTSS_OTP_OTP_TPWAD_VAL               VTSS_IOREG(VTSS_TO_OTP,0x33)
+#define VTSS_OTP_OTP_TPRYCEB_VAL             VTSS_IOREG(VTSS_TO_OTP,0x33)
 
 /**
  * \brief
- * PWRRDY assertion to WAKEUP assertion DelayNote: Default value for 25 MHz
- * system clock.
+ * PWRRDY Setup Time for CEB Assertion
  *
  * \details
- * Field: ::VTSS_OTP_OTP_TPWAD_VAL . OTP_TPWAD
+ * Field: ::VTSS_OTP_OTP_TPRYCEB_VAL . OTP_TPRYCEB
  */
-#define  VTSS_F_OTP_OTP_TPWAD_VAL_OTP_TPWAD(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TPWAD_VAL_OTP_TPWAD     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TPWAD_VAL_OTP_TPWAD(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_OTP_OTP_TPRYCEB_VAL_OTP_TPRYCEB(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_TPRYCEB_VAL_OTP_TPRYCEB     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_TPRYCEB_VAL_OTP_TPRYCEB(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
- * \brief OTP_TWCAD_VAL_HI Register
+ * \brief OTP_TCEBPRY_VAL Register
  *
  * \details
- * OTP_TWCAD_VAL_HI Register
+ * OTP_TCEBPRY_VAL Register
  *
- * Register: \a OTP:OTP_REGS:OTP_TWCAD_VAL_HI
+ * Register: \a OTP:OTP_REGS:OTP_TCEBPRY_VAL
  */
-#define VTSS_OTP_OTP_TWCAD_VAL_HI            VTSS_IOREG(VTSS_TO_OTP,0x34)
-
-/**
- * \brief
- * WAKEUP setup time for CEB assertionNote: Default value for 25 MHz system
- * clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TWCAD_VAL_HI . OTP_TWCAD_15_8
- */
-#define  VTSS_F_OTP_OTP_TWCAD_VAL_HI_OTP_TWCAD_15_8(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TWCAD_VAL_HI_OTP_TWCAD_15_8     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TWCAD_VAL_HI_OTP_TWCAD_15_8(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TWCAD_VAL_LO Register
- *
- * \details
- * OTP_TWCAD_VAL_LO Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TWCAD_VAL_LO
- */
-#define VTSS_OTP_OTP_TWCAD_VAL_LO            VTSS_IOREG(VTSS_TO_OTP,0x35)
+#define VTSS_OTP_OTP_TCEBPRY_VAL             VTSS_IOREG(VTSS_TO_OTP,0x34)
 
 /**
  * \brief
- * WAKEUP setup time for CEB assertionNote: Default value for 25 MHz system
- * clock.
+ * PWRRDY Hold Time for CEB De-assertion
  *
  * \details
- * Field: ::VTSS_OTP_OTP_TWCAD_VAL_LO . OTP_TWCAD_7_0
+ * Field: ::VTSS_OTP_OTP_TCEBPRY_VAL . OTP_TCEBPRY
  */
-#define  VTSS_F_OTP_OTP_TWCAD_VAL_LO_OTP_TWCAD_7_0(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TWCAD_VAL_LO_OTP_TWCAD_7_0     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TWCAD_VAL_LO_OTP_TWCAD_7_0(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TAS_VAL Register
- *
- * \details
- * OTP_TAS_VAL Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TAS_VAL
- */
-#define VTSS_OTP_OTP_TAS_VAL                 VTSS_IOREG(VTSS_TO_OTP,0x36)
-
-/**
- * \brief
- * (Not currently used) Address Setup Time before WEBNote: Default value
- * for 25 MHz system clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TAS_VAL . OTP_TAS
- */
-#define  VTSS_F_OTP_OTP_TAS_VAL_OTP_TAS(x)    VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TAS_VAL_OTP_TAS       VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TAS_VAL_OTP_TAS(x)    VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TDS_VAL Register
- *
- * \details
- * OTP_TDS_VAL Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TDS_VAL
- */
-#define VTSS_OTP_OTP_TDS_VAL                 VTSS_IOREG(VTSS_TO_OTP,0x37)
-
-/**
- * \brief
- * (Not currently used) Data Setup Time before WEBNote: Default value for
- * 25 MHz system clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TDS_VAL . OTP_TDS
- */
-#define  VTSS_F_OTP_OTP_TDS_VAL_OTP_TDS(x)    VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TDS_VAL_OTP_TDS       VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TDS_VAL_OTP_TDS(x)    VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TPVSR_VAL Register
- *
- * \details
- * OTP_TPVSR_VAL Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TPVSR_VAL
- */
-#define VTSS_OTP_OTP_TPVSR_VAL               VTSS_IOREG(VTSS_TO_OTP,0x3a)
-
-/**
- * \brief
- * Setup Time Before READEN.Note: Default value for 25 MHz system clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TPVSR_VAL . OTP_TPVSR
- */
-#define  VTSS_F_OTP_OTP_TPVSR_VAL_OTP_TPVSR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TPVSR_VAL_OTP_TPVSR     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TPVSR_VAL_OTP_TPVSR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TVHR_VAL Register
- *
- * \details
- * OTP_TVHR_VAL Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TVHR_VAL
- */
-#define VTSS_OTP_OTP_TVHR_VAL                VTSS_IOREG(VTSS_TO_OTP,0x3b)
-
-/**
- * \brief
- * OTP PGMVFY Hold Time After READEN.Note: Default value for 25 MHz system
- * clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TVHR_VAL . OTP_TPVHR
- */
-#define  VTSS_F_OTP_OTP_TVHR_VAL_OTP_TPVHR(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TVHR_VAL_OTP_TPVHR     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TVHR_VAL_OTP_TPVHR(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
+#define  VTSS_F_OTP_OTP_TCEBPRY_VAL_OTP_TCEBPRY(x)  VTSS_ENCODE_BITFIELD(x,0,8)
+#define  VTSS_M_OTP_OTP_TCEBPRY_VAL_OTP_TCEBPRY     VTSS_ENCODE_BITMASK(0,8)
+#define  VTSS_X_OTP_OTP_TCEBPRY_VAL_OTP_TCEBPRY(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -1392,29 +1450,6 @@
 #define  VTSS_F_OTP_OTP_TPGMAS_VAL_OTP_TPGMAS(x)  VTSS_ENCODE_BITFIELD(x,0,8)
 #define  VTSS_M_OTP_OTP_TPGMAS_VAL_OTP_TPGMAS     VTSS_ENCODE_BITMASK(0,8)
 #define  VTSS_X_OTP_OTP_TPGMAS_VAL_OTP_TPGMAS(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
-
-
-/**
- * \brief OTP_TCWDD_VAL Register
- *
- * \details
- * OTP_TCWDD_VAL Register
- *
- * Register: \a OTP:OTP_REGS:OTP_TCWDD_VAL
- */
-#define VTSS_OTP_OTP_TCWDD_VAL               VTSS_IOREG(VTSS_TO_OTP,0x3d)
-
-/**
- * \brief
- * CEB Deassertion to WAKEUP deassertion DelayNote: Default value for 25
- * MHz system clock.
- *
- * \details
- * Field: ::VTSS_OTP_OTP_TCWDD_VAL . OTP_TCWDD
- */
-#define  VTSS_F_OTP_OTP_TCWDD_VAL_OTP_TCWDD(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_OTP_OTP_TCWDD_VAL_OTP_TCWDD     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_OTP_OTP_TCWDD_VAL_OTP_TCWDD(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
@@ -1529,9 +1564,7 @@
  * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
  * a bit in the OTP_READ_PROTECT[7:0] field blocksthe corresponding OTP
  * region from being read.A value of zero is returned when a protected area
- * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[7:0]
- * fieldare only valid if the corresponding bits in
- * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[7:0]field are also set.
+ * is read.Note : READ_PROTECT works independent of WRITE_PROTECT.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_READ_PROTECT0 . OTP_READ_PROTECT_7_0
@@ -1561,9 +1594,7 @@
  * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
  * a bit in the OTP_READ_PROTECT[15:8] field blocksthe corresponding OTP
  * region from being read.A value of zero is returned when a protected area
- * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[15:8]
- * fieldare only valid if the corresponding bits in
- * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[15:8]field are also set.
+ * is read.Note : READ_PROTECT works independent of WRITE_PROTECT.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_READ_PROTECT1 . OTP_READ_PROTECT_15_8
@@ -1593,9 +1624,7 @@
  * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
  * a bit in the OTP_READ_PROTECT[23:16] field blocksthe corresponding OTP
  * region from being read.A value of zero is returned when a protected area
- * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[23:16]
- * fieldare only valid if the corresponding bits in
- * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[23:16]field are also set.
+ * is read.Note : READ_PROTECT works independent of WRITE_PROTECT.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_READ_PROTECT2 . OTP_READ_PROTECT_23_16
@@ -1625,9 +1654,7 @@
  * OTP memory with bit 0 = region 0, bit 1 = region 1 etc.Writing a '1' to
  * a bit in the OTP_READ_PROTECT[31:24] field blocksthe corresponding OTP
  * region from being read.A value of zero is returned when a protected area
- * is read.Note: The bits in theOTP_READ_PROTECT.OTP_WRITE_PROTECT[31:24]
- * fieldare only valid if the corresponding bits in
- * theOTP_WRITE_PROTECT.OTP_WRITE_PROTECT[31:24]field are also set.
+ * is read.Note : READ_PROTECT works independent of WRITE_PROTECT.
  *
  * \details
  * Field: ::VTSS_OTP_OTP_READ_PROTECT3 . OTP_READ_PROTECT_31_24

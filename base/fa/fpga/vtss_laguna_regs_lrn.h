@@ -219,9 +219,10 @@
  * the last SCAN command was run.The CHANGE2SW flag is set by HW when:1) A
  * new SMAC is learned2) A SMAC has moved from one port to another3) An
  * entry has been agedThe CHANGE2SW flag is cleared when software completes
- * a SCAN_CHANGE2SW_UPDATE_ENA scan.When enabled by ANAINTR.INTR_ENA an
- * interrupt will be generated when a CHANGE2SW bit is set in the MAC
- * table.See also:SCAN_NEXT_CFG.SCAN_CHANGE2SW_UPDATE_ENA
+ * a SCAN_CHANGE2SW_UPDATE_ENA scan.When enabled by
+ * ANA_L2:COMMON:INTR_ENA.CHANGE2SW_INTR_ENA an interrupt will be generated
+ * when a CHANGE2SW bit is set in the MAC table.See
+ * also:SCAN_NEXT_CFG.SCAN_CHANGE2SW_UPDATE_ENA
  *
  * \details
  * 0: No change since last scan

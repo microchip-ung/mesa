@@ -158,9 +158,11 @@
  * \brief Time of day clock configuration
  *
  * \details
- * Each system clock cycle, the time-of-day is increased with the value set
- * in these registers, with fixed point 5.59 nanosecond value. Replication
- * 1 is the MSB part.
+ * Each system clock cycle the time-of-day is increased with the value set
+ * in these registers as a fixed point 5.59 nanosecond value. Replication 1
+ * is the MSB part.
+ * When the domain is enabled, this setting must only be changed +/- 2ps
+ * away from what value it had when PTP_ENA was set to 1.
 
  *
  * Register: \a PTP:PTP_TOD_DOMAINS:CLK_PER_CFG

@@ -1160,6 +1160,7 @@ static const vtss_symreg_reg_t regs_within_ASM_CFG[] = {
     {"PAUSE_CFG"                            , 0x000000cb, 0x00000020, 0x00000001},
     {"INJ_VLAN_CFG"                         , 0x0000010e, 0x00000001, 0x00000001},
     {"TIME_TICK_CFG"                        , 0x0000010f, 0x00000001, 0x00000001},
+    {"FIFO_FULL_WM_CFG"                     , 0x00000110, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_ASM_DBG[] = {
@@ -1219,7 +1220,7 @@ static const vtss_symreg_reg_t regs_within_ASM_COREMEM[] = {
 static const vtss_symreg_reggrp_t reggrps_within_ASM[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
     {"DEV_STATISTICS"                       , 0x00000000, 0x0000001e, 0x00000080, regs_within_ASM_DEV_STATISTICS},
-    {"CFG"                                  , 0x000011e0, 0x00000001, 0x00000110, regs_within_ASM_CFG},
+    {"CFG"                                  , 0x000011e0, 0x00000001, 0x00000111, regs_within_ASM_CFG},
 #ifndef VTSS_RELEASE
     {"DBG"                                  , 0x00000f00, 0x00000001, 0x00000014, regs_within_ASM_DBG},
 #endif
@@ -1931,6 +1932,11 @@ static const vtss_symreg_reggrp_t reggrps_within_HSCH[] = {
     {"HSCH_TAS_STATE"                       , 0x00002368, 0x00000001, 0x00000001, regs_within_HSCH_HSCH_TAS_STATE},
     {NULL, 0, 0, 0, NULL}
 };
+static const vtss_symreg_reg_t regs_within_HSIOWRAP_GPIO_CFG[] = {
+    //reg name                              , addr      , repl_cnt  , repl_width
+    {"GPIO_CFG"                             , 0x00000000, 0x00000019, 0x00000001},
+    {NULL, 0, 0, 0}
+};
 static const vtss_symreg_reg_t regs_within_HSIOWRAP_SYNC_ETH_CFG[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"SYNC_ETH_CFG"                         , 0x00000000, 0x00000004, 0x00000001},
@@ -1946,8 +1952,9 @@ static const vtss_symreg_reg_t regs_within_HSIOWRAP_XMII_CFG[] = {
 };
 static const vtss_symreg_reggrp_t reggrps_within_HSIOWRAP[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"SYNC_ETH_CFG"                         , 0x00000000, 0x00000001, 0x00000004, regs_within_HSIOWRAP_SYNC_ETH_CFG},
-    {"XMII_CFG"                             , 0x00000004, 0x00000002, 0x00000005, regs_within_HSIOWRAP_XMII_CFG},
+    {"GPIO_CFG"                             , 0x00000000, 0x00000001, 0x00000019, regs_within_HSIOWRAP_GPIO_CFG},
+    {"SYNC_ETH_CFG"                         , 0x00000019, 0x00000001, 0x00000004, regs_within_HSIOWRAP_SYNC_ETH_CFG},
+    {"XMII_CFG"                             , 0x0000001d, 0x00000002, 0x00000005, regs_within_HSIOWRAP_XMII_CFG},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_LRN_COMMON[] = {
@@ -2213,6 +2220,8 @@ static const vtss_symreg_reg_t regs_within_REW_ISDX_TBL[] = {
 };
 static const vtss_symreg_reg_t regs_within_REW_PTP_CTRL[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
+    {"CF_TOO_BIG_STICKY"                    , 0x00000000, 0x00000001, 0x00000001},
+    {"CF_TOO_BIG_STICKY1"                   , 0x00000001, 0x00000001, 0x00000001},
     {"PTP_RSRV_NOT_ZERO"                    , 0x00000003, 0x00000001, 0x00000001},
     {"PTP_RSRV_NOT_ZERO1"                   , 0x00000004, 0x00000001, 0x00000001},
     {"PTP_GEN_STAMP_FMT"                    , 0x00000006, 0x00000004, 0x00000001},
@@ -2363,6 +2372,7 @@ static const vtss_symreg_reg_t regs_within_RB_COMMON[] = {
     {"SPV_CFG"                              , 0x00000008, 0x00000001, 0x00000001},
     {"PTP_DATA"                             , 0x00000009, 0x00000008, 0x00000001},
     {"PTP_FILTER_CFG"                       , 0x00000011, 0x00000004, 0x00000001},
+    {"PTP_MISC_CFG"                         , 0x00000015, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
 static const vtss_symreg_reg_t regs_within_RB_PORT[] = {
@@ -2422,11 +2432,11 @@ static const vtss_symreg_reg_t regs_within_RB_DISC_TBL[] = {
 };
 static const vtss_symreg_reggrp_t reggrps_within_RB[] = {
     //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"COMMON"                               , 0x00000000, 0x00000001, 0x00000015, regs_within_RB_COMMON},
-    {"PORT"                                 , 0x00000015, 0x00000003, 0x00000006, regs_within_RB_PORT},
-    {"STAT"                                 , 0x00000027, 0x00000003, 0x0000000b, regs_within_RB_STAT},
-    {"HOST_TBL"                             , 0x00000048, 0x00000001, 0x00000010, regs_within_RB_HOST_TBL},
-    {"DISC_TBL"                             , 0x00000058, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
+    {"COMMON"                               , 0x00000000, 0x00000001, 0x00000016, regs_within_RB_COMMON},
+    {"PORT"                                 , 0x00000016, 0x00000003, 0x00000006, regs_within_RB_PORT},
+    {"STAT"                                 , 0x00000028, 0x00000003, 0x0000000b, regs_within_RB_STAT},
+    {"HOST_TBL"                             , 0x00000049, 0x00000001, 0x00000010, regs_within_RB_HOST_TBL},
+    {"DISC_TBL"                             , 0x00000059, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
     {NULL, 0, 0, 0, NULL}
 };
 static const vtss_symreg_reg_t regs_within_VCAP_ES0_VCAP_CORE_CFG[] = {
@@ -3318,6 +3328,7 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"DEV2G5"             ,    2, 0x00000405, VTSS_IO_OFFSET1(0x01014000), reggrps_within_DEV1G},
     {"DEV2G5"             ,    3, 0x00000406, VTSS_IO_OFFSET1(0x01018000), reggrps_within_DEV1G},
     {"DEV2G5"             ,    0, 0x00000401, VTSS_IO_OFFSET1(0x01004000), reggrps_within_DEV1G},
+    {"DEV2G5"             ,    8, 0x0000040d, VTSS_IO_OFFSET1(0x01034000), reggrps_within_DEV1G},
     {"DEVCPU_GCB"         ,   -1, 0x00000004, VTSS_IO_OFFSET1(0x00010000), reggrps_within_DEVCPU_GCB},
     {"DEVCPU_ORG0"        ,   -1, 0x00000000, VTSS_IO_OFFSET1(0x00000000), reggrps_within_DEVCPU_ORG},
     {"DEVCPU_ORG1"        ,   -1, 0x00000400, VTSS_IO_OFFSET1(0x01000000), reggrps_within_DEVCPU_ORG},
@@ -3335,6 +3346,7 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"QSYS"               ,   -1, 0x00000028, VTSS_IO_OFFSET1(0x000a0000), reggrps_within_QSYS},
     {"REW"                ,   -1, 0x00000180, VTSS_IO_OFFSET1(0x00600000), reggrps_within_REW},
     {"RB"                 ,    0, 0x0000043d, VTSS_IO_OFFSET1(0x010f4000), reggrps_within_RB},
+    {"RB"                 ,    1, 0x0000043e, VTSS_IO_OFFSET1(0x010f8000), reggrps_within_RB},
     {"VCAP_ES0"           ,   -1, 0x00000038, VTSS_IO_OFFSET1(0x000e0000), reggrps_within_VCAP_ES0},
     {"VCAP_ES2"           ,   -1, 0x00000034, VTSS_IO_OFFSET1(0x000d0000), reggrps_within_VCAP_ES2},
     {"VCAP_IP6PFX"        ,   -1, 0x00000024, VTSS_IO_OFFSET1(0x00090000), reggrps_within_VCAP_IP6PFX},
