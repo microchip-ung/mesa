@@ -1003,11 +1003,11 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
 
 #if defined(VTSS_FEATURE_REDBOX)
     if (info->rb_tag_disable) {
-        IFH_ENCODE_BITFIELD(bin_hdr, 1, 273, 1); // Disable RedBox tagging
+        IFH_ENCODE_BITFIELD(bin_hdr, 1, 272, 1); // Disable RedBox tagging
     }
-    IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 274, 2); // RedBox forwarding
+    IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 273, 2); // RedBox forwarding
     if (info->rb_dd_disable) {
-        IFH_ENCODE_BITFIELD(bin_hdr, 1, 276, 1); // Disable RedBox Duplicate Discard processing
+        IFH_ENCODE_BITFIELD(bin_hdr, 1, 275, 1); // Disable RedBox Duplicate Discard processing
     }
 #endif
 

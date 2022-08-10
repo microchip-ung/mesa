@@ -265,13 +265,8 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 #define REG_FLD_CNT(name) (VTSS_X_##name(VTSS_M_##name) + 1)
 
 // RedBox register addresses
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define RB_ADDR(addr, i)        addr
-#define RB_ADDRX(addr, i, j)    addr(j)
-#else
-#define RB_ADDR(addr, i)        addr(i)
-#define RB_ADDRX(addr, i, j)    addr(i, j)
-#endif
+#define RB_ADDR(addr, i)        addr(VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0))
+#define RB_ADDRX(addr, i, j)    addr(VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0), j)
 
 /* ================================================================= *
  *  Port masks
