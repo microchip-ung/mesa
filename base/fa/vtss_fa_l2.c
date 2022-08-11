@@ -1574,6 +1574,11 @@ static vtss_rc fa_policer_status_get(vtss_state_t *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_REDBOX)
+static u32 fa_rb_tgt(const vtss_rb_id_t rb_id)
+{
+    return RB_TGT(rb_id);
+}
+
 static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
                              const vtss_rb_id_t rb_id,
                              vtss_rb_cap_t *const cap)
@@ -1679,6 +1684,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
                                    u32 j,
                                    vtss_rb_conf_t *conf)
 {
+    u32 tgt = fa_rb_tgt(rb_id);
     u32 tag_mode = FA_RB_TAG_NONE, hsr_aware = 0, prp_aware = 0, ht = FA_HT_NONE;
     u32 lre, age, trans_netid = 0, hsr_filter = FA_RB_FLT_NONE, dupl_disc = 1;
     u32 lan_id = conf->lan_id, netid = conf->net_id;
@@ -1750,7 +1756,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     }
 
     age = (ht == FA_HT_PROXY ? FA_RB_AGE_IDX_PNT : FA_RB_AGE_IDX_NT);
-    REG_WR(RB_ADDRX(VTSS_RB_TBL_CFG, rb_id, j),
+    REG_WR(VTSS_RB_TBL_CFG(tgt, j),
            VTSS_F_RB_TBL_CFG_CLR_AGE_FLAG_DIS(1) |
            VTSS_F_RB_TBL_CFG_DUPL_DISC_ENA(dupl_disc) |
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
@@ -1760,10 +1766,10 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1) |
            VTSS_F_RB_TBL_CFG_NEW_HOST_TBL_DIS(ht == FA_HT_NONE ? 1 : 0));
 
-    REG_WR(RB_ADDRX(VTSS_RB_BPDU_CFG, rb_id, j),
+    REG_WR(VTSS_RB_BPDU_CFG(tgt, j),
            VTSS_F_RB_BPDU_CFG_BPDU_REDIR_ENA(lre ? 0xffff : 0));
 
-    REG_WR(RB_ADDRX(VTSS_RB_FWD_CFG, rb_id, j),
+    REG_WR(VTSS_RB_FWD_CFG(tgt, j),
            VTSS_F_RB_FWD_CFG_PROXY_DST_FWD_MASK(prxy_dmac_msk) |
            VTSS_F_RB_FWD_CFG_LOCAL_DST_FWD_MASK(prxy_dmac_msk) |
            VTSS_F_RB_FWD_CFG_NODE_DST_FWD_MASK(node_dmac_msk) |
@@ -1771,7 +1777,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_FWD_CFG_LOCAL_SRC_FWD_MASK(prxy_smac_msk) |
            VTSS_F_RB_FWD_CFG_NODE_SRC_FWD_MASK(node_smac_msk));
 
-    REG_WR(RB_ADDRX(VTSS_RB_PORT_CFG, rb_id, j),
+    REG_WR(VTSS_RB_PORT_CFG(tgt, j),
            VTSS_F_RB_PORT_CFG_CT_EGR_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_CT_IGR_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
@@ -1793,6 +1799,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
 {
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
+    u32            tgt = fa_rb_tgt(rb_id);
     u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
     u32            hsr_sv = FA_RB_SV_FORWARD, prp_sv = FA_RB_SV_FORWARD;
     u32            age, clk_period, val, unit, mask = 0x4;
@@ -1811,7 +1818,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
             mask |= 0x2;
         }
     }
-    REG_WR(RB_ADDR(VTSS_RB_RB_CFG, rb_id),
+    REG_WR(VTSS_RB_RB_CFG(tgt),
            VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) |
            VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
            VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
@@ -1824,7 +1831,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_a, &port_a));
         VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_b, &port_b));
     }
-    REG_WR(RB_ADDR(VTSS_RB_TAXI_IF_CFG, rb_id),
+    REG_WR(VTSS_RB_TAXI_IF_CFG(tgt),
            VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(port_a) |
            VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(port_b));
     if (old->mode != VTSS_RB_MODE_DISABLED) {
@@ -1854,10 +1861,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     default:
         break;
     }
-    REG_WR(RB_ADDR(VTSS_RB_NETID_CFG, rb_id),
+    REG_WR(VTSS_RB_NETID_CFG(tgt),
            VTSS_F_RB_NETID_CFG_NETID_FILTER_ENA(net_id == 0 ? 0 : 1) |
            VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
-    REG_WR(RB_ADDR(VTSS_RB_SPV_CFG, rb_id),
+    REG_WR(VTSS_RB_SPV_CFG(tgt),
            VTSS_F_RB_SPV_CFG_DMAC_ENA(1) |
            VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_sv) |
            VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
@@ -1877,7 +1884,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         val = 0;
         break;
     }
-    REG_WRM(RB_ADDR(VTSS_RB_QSYS_CFG, rb_id),
+    REG_WRM(VTSS_RB_QSYS_CFG(tgt),
             VTSS_F_RB_QSYS_CFG_QUE_CT_ENA(val),
             VTSS_M_RB_QSYS_CFG_QUE_CT_ENA);
 
@@ -1891,10 +1898,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         x64 *= x64;
         x64 /= (fa_rb_age_unit(unit) * FA_RB_AGE_CNT * FA_HT_ROW_CNT * clk_period);
         val = (x64 * age);
-        REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, rb_id, j),
+        REG_WR(VTSS_RB_HOST_AUTOAGE_CFG(tgt, j),
                VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(unit) |
                VTSS_F_RB_HOST_AUTOAGE_CFG_PERIOD_VAL(val));
-        REG_WR(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, rb_id, j),
+        REG_WR(VTSS_RB_HOST_AUTOAGE_CFG_1(tgt, j),
                VTSS_F_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(age ? 1 : 0));
     }
 
@@ -1904,10 +1911,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     val = 1000000000;
     val /= (fa_rb_age_unit(unit) * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
     val *= age;
-    REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, rb_id),
+    REG_WR(VTSS_RB_DISC_AUTOAGE_CFG(tgt),
            VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(unit) |
            VTSS_F_RB_DISC_AUTOAGE_CFG_PERIOD_VAL(val));
-    REG_WR(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, rb_id),
+    REG_WR(VTSS_RB_DISC_AUTOAGE_CFG_1(tgt),
            VTSS_F_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA(1));
 
     // Port configuration
@@ -1920,7 +1927,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
 #define RB_CNT(name, i, j, cnt, clear)                  \
     {                                                   \
     u32 val;                                            \
-    REG_RD(RB_ADDRX(name, i, j), &val);                 \
+    REG_RD(name(i, j), &val);                           \
     vtss_cmn_counter_32_update(val, cnt, clear);        \
     }
 
@@ -1928,23 +1935,24 @@ static vtss_rc fa_rb_counters_update(vtss_state_t *vtss_state,
                                      const vtss_rb_id_t rb_id,
                                      BOOL clear)
 {
+    u32                tgt = fa_rb_tgt(rb_id);
     vtss_rb_cnt_t      *cnt = &vtss_state->l2.rb_cnt[rb_id];
     vtss_rb_port_cnt_t *c;
     u32                j;
 
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         c = (j == 0 ? &cnt->port_a : j == 1 ? &cnt->port_b : &cnt->port_c);
-        RB_CNT(VTSS_RB_CNT_TX_TAG, rb_id, j, &c->tx_tagged, clear);
-        RB_CNT(VTSS_RB_CNT_TX_UNT, rb_id, j, &c->tx_untagged, clear);
-        RB_CNT(VTSS_RB_CNT_TX_LL, rb_id, j, &c->tx_local, clear);
-        RB_CNT(VTSS_RB_CNT_RX_TAG, rb_id, j, &c->rx_tagged, clear);
-        RB_CNT(VTSS_RB_CNT_RX_UNT, rb_id, j, &c->rx_untagged, clear);
-        RB_CNT(VTSS_RB_CNT_RX_LL, rb_id, j, &c->rx_local, clear);
-        RB_CNT(VTSS_RB_CNT_RX_WRONG_LAN, rb_id, j, &c->rx_wrong_lan, clear);
-        RB_CNT(VTSS_RB_CNT_RX_OWN, rb_id, j, &c->rx_own, clear);
-        RB_CNT(VTSS_RB_CNT_DUPL_ZERO, rb_id, j, &c->tx_dupl_zero, clear);
-        RB_CNT(VTSS_RB_CNT_DUPL_ONE, rb_id, j, &c->tx_dupl_one, clear);
-        RB_CNT(VTSS_RB_CNT_DUPL_TWO, rb_id, j, &c->tx_dupl_multi, clear);
+        RB_CNT(VTSS_RB_CNT_TX_TAG, tgt, j, &c->tx_tagged, clear);
+        RB_CNT(VTSS_RB_CNT_TX_UNT, tgt, j, &c->tx_untagged, clear);
+        RB_CNT(VTSS_RB_CNT_TX_LL, tgt, j, &c->tx_local, clear);
+        RB_CNT(VTSS_RB_CNT_RX_TAG, tgt, j, &c->rx_tagged, clear);
+        RB_CNT(VTSS_RB_CNT_RX_UNT, tgt, j, &c->rx_untagged, clear);
+        RB_CNT(VTSS_RB_CNT_RX_LL, tgt, j, &c->rx_local, clear);
+        RB_CNT(VTSS_RB_CNT_RX_WRONG_LAN, tgt, j, &c->rx_wrong_lan, clear);
+        RB_CNT(VTSS_RB_CNT_RX_OWN, tgt, j, &c->rx_own, clear);
+        RB_CNT(VTSS_RB_CNT_DUPL_ZERO, tgt, j, &c->tx_dupl_zero, clear);
+        RB_CNT(VTSS_RB_CNT_DUPL_ONE, tgt, j, &c->tx_dupl_one, clear);
+        RB_CNT(VTSS_RB_CNT_DUPL_TWO, tgt, j, &c->tx_dupl_multi, clear);
     }
     return VTSS_RC_OK;
 }
@@ -1954,15 +1962,15 @@ static vtss_rc fa_rb_host_cmd(vtss_state_t *vtss_state,
                               u32 cmd,
                               u32 idx)
 {
-    u32 val;
+    u32 val, tgt = fa_rb_tgt(rb_id);
 
-    REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CTRL, rb_id),
+    REG_WR(VTSS_RB_HOST_ACCESS_CTRL(tgt),
            VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_HT_COL_CNT) |
            VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_HT_COL_CNT) |
            VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
            VTSS_F_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(1));
     do {
-        REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CTRL, rb_id), &val);
+        REG_RD(VTSS_RB_HOST_ACCESS_CTRL(tgt), &val);
     } while VTSS_X_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(val);
     return VTSS_RC_OK;
 }
@@ -1972,16 +1980,16 @@ static vtss_rc fa_rb_disc_cmd(vtss_state_t *vtss_state,
                               u32 cmd,
                               u32 idx)
 {
-    u32 val;
+    u32 val, tgt = fa_rb_tgt(rb_id);
 
-    REG_WR(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, rb_id),
+    REG_WR(VTSS_RB_DISC_ACCESS_CTRL(tgt),
            VTSS_F_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(0xe) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_DT_COL_CNT) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_DT_COL_CNT) |
            VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
            VTSS_F_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(1));
     do {
-        REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, rb_id), &val);
+        REG_RD(VTSS_RB_DISC_ACCESS_CTRL(tgt), &val);
     } while VTSS_X_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(val);
     return VTSS_RC_OK;
 }
@@ -2010,12 +2018,12 @@ static vtss_rc fa_rb_host_table_clear(vtss_state_t *vtss_state,
                                       const vtss_rb_clear_t clear,
                                       BOOL proxy)
 {
-    u32 idx, cfg2, skip_locked;
+    u32 tgt = fa_rb_tgt(rb_id), idx, cfg2, skip_locked;
 
     skip_locked = (clear == VTSS_RB_CLEAR_ALL ? 2 : clear == VTSS_RB_CLEAR_LOCKED ? 0 : 1);
     for (idx = 0; idx < FA_HT_CNT; idx++) {
         VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_READ, idx));
-        REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id), &cfg2);
+        REG_RD(VTSS_RB_HOST_ACCESS_CFG_2(tgt), &cfg2);
         if (fa_rb_host_skip(cfg2, proxy) ||
             VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(cfg2) == skip_locked) {
             continue;
@@ -2046,12 +2054,12 @@ static vtss_rc fa_rb_host_mac_set(vtss_state_t *vtss_state,
                                   const vtss_rb_id_t rb_id,
                                   const vtss_mac_t *const mac)
 {
-    u32 mach, macl;
+    u32 tgt = fa_rb_tgt(rb_id), mach, macl;
 
     fa_mac_get(mac, &mach, &macl);
-    REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_0, rb_id),
+    REG_WR(VTSS_RB_HOST_ACCESS_CFG_0(tgt),
            VTSS_F_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_MAC_MSB(mach));
-    REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_1, rb_id),
+    REG_WR(VTSS_RB_HOST_ACCESS_CFG_1(tgt),
            VTSS_F_RB_HOST_ACCESS_CFG_1_HOST_ENTRY_MAC_LSB(macl));
     return VTSS_RC_OK;
 }
@@ -2063,8 +2071,10 @@ static vtss_rc fa_rb_host_add(vtss_state_t *vtss_state,
                               u32 mask,
                               u32 pdan)
 {
+    u32 tgt = fa_rb_tgt(rb_id);
+
     VTSS_RC(fa_rb_host_mac_set(vtss_state, rb_id, mac));
-    REG_WR(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id),
+    REG_WR(VTSS_RB_HOST_ACCESS_CFG_2(tgt),
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(pdan) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(1) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_VLD(1) |
@@ -2078,11 +2088,11 @@ static vtss_rc fa_rb_host_del(vtss_state_t *vtss_state,
                               const vtss_mac_t *const mac,
                               BOOL proxy)
 {
-    u32 cfg2;
+    u32 tgt = fa_rb_tgt(rb_id), cfg2;
 
     VTSS_RC(fa_rb_host_mac_set(vtss_state, rb_id, mac));
     VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_LOOKUP, 0));
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id), &cfg2);
+    REG_RD(VTSS_RB_HOST_ACCESS_CFG_2(tgt), &cfg2);
     return (fa_rb_host_skip(cfg2, proxy) ? VTSS_RC_OK :
             fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_UNLEARN, 0));
 }
@@ -2110,29 +2120,29 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
                                BOOL proxy,
                                fa_rb_host_t *host)
 {
-    u32               cfg0, cfg2, stat3, mask;
+    u32 tgt = fa_rb_tgt(rb_id), cfg0, cfg2, stat3, mask;
     fa_rb_host_port_t *p;
 
     // Extract fields for entry after read/lookup
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id), &cfg2);
+    REG_RD(VTSS_RB_HOST_ACCESS_CFG_2(tgt), &cfg2);
     if (fa_rb_host_skip(cfg2, proxy)) {
         return VTSS_RC_ERROR;
     }
 
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_0, rb_id), &cfg0);
+    REG_RD(VTSS_RB_HOST_ACCESS_CFG_0(tgt), &cfg0);
     host->seq_no = VTSS_X_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_SEQ_NO(cfg0);
     host->locked = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(cfg2);
     host->type = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_TYPE(cfg2);
     host->pdan = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(cfg2);
     mask = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PORTMASK(cfg2);
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_3, rb_id), &stat3);
+    REG_RD(VTSS_RB_HOST_ACCESS_STAT_3(tgt), &stat3);
 
     // Port 0
     p = &host->port[0];
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_0(cfg2);
     p->fwd = (mask & 1 ? 1 : 0);
     p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_0(cfg2);
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_0, rb_id), &p->rx);
+    REG_RD(VTSS_RB_HOST_ACCESS_STAT_0(tgt), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_0(stat3);
 
     // Port 1
@@ -2140,7 +2150,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_1(cfg2);
     p->fwd = (mask & 2 ? 1 : 0);
     p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_VALID_1(cfg2);
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_1, rb_id), &p->rx);
+    REG_RD(VTSS_RB_HOST_ACCESS_STAT_1(tgt), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_1(stat3);
 
     // Port 2
@@ -2148,7 +2158,7 @@ static vtss_rc fa_rb_host_read(vtss_state_t *vtss_state,
     p->age = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_AGE_FLAG_2(cfg2);
     p->fwd = (mask & 4 ? 1 : 0);
     p->rct = VTSS_X_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_RCT_MISSING(cfg2);
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_STAT_2, rb_id), &p->rx);
+    REG_RD(VTSS_RB_HOST_ACCESS_STAT_2(tgt), &p->rx);
     p->rx_wrong_lan = VTSS_X_RB_HOST_ACCESS_STAT_3_CNT_RX_WRONG_LAN_2(stat3);
 
     return VTSS_RC_OK;
@@ -2175,15 +2185,15 @@ static vtss_rc fa_rb_host_mac_read(vtss_state_t *vtss_state,
                                    u32 *mach,
                                    u32 *macl)
 {
-    u32 cfg2;
+    u32 tgt = fa_rb_tgt(rb_id), cfg2;
 
     VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_READ, idx));
-    REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_2, rb_id), &cfg2);
+    REG_RD(VTSS_RB_HOST_ACCESS_CFG_2(tgt), &cfg2);
     *skip = fa_rb_host_skip(cfg2, proxy);
     if (*skip == 0) {
-        REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_0, rb_id), mach);
+        REG_RD(VTSS_RB_HOST_ACCESS_CFG_0(tgt), mach);
         *mach = VTSS_X_RB_HOST_ACCESS_CFG_0_HOST_ENTRY_MAC_MSB(*mach);
-        REG_RD(RB_ADDR(VTSS_RB_HOST_ACCESS_CFG_1, rb_id), macl);
+        REG_RD(VTSS_RB_HOST_ACCESS_CFG_1(tgt), macl);
     }
     return VTSS_RC_OK;
 }
@@ -2921,17 +2931,17 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
 static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr, u32 i, u32 j, u32 *cnt)
 {
-    u32        cfg0, cfg1, cfg2, mask;
+    u32        tgt = fa_rb_tgt(i), cfg0, cfg1, cfg2, mask;
     vtss_mac_t mac;
     char       buf[16];
 
     VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_READ, j));
-    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_2, i), &cfg2);
+    REG_RD(VTSS_RB_DISC_ACCESS_CFG_2(tgt), &cfg2);
     if (VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_VLD(cfg2) == 0) {
         return VTSS_RC_OK;
     }
-    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_0, i), &cfg0);
-    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_1, i), &cfg1);
+    REG_RD(VTSS_RB_DISC_ACCESS_CFG_0(tgt), &cfg0);
+    REG_RD(VTSS_RB_DISC_ACCESS_CFG_1(tgt), &cfg1);
     if (*cnt == 0) {
         pr("RedBox %u Duplicate Discard Table\n\n", i);
         pr("IDX/Row/Col  MAC Address        SeqNo  Age  A/B/C Mask  A/B/C Discards\n");
@@ -3027,19 +3037,20 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf;
     char           buf[64], *p;
     const char     *prefix;
-    u32            i, j, val, m, x[3], port_a, port_b, clk, cfg0, cfg1, cfg2, idx_next, cnt;
+    u32            tgt, i, j, val, m, x[3], port_a, port_b, clk, cfg0, cfg1, cfg2, idx_next, cnt;
     u64            cur, new, old;
     fa_rb_host_t   host;
     vtss_rc        rc;
 
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
-        REG_RD(RB_ADDR(VTSS_RB_RB_CFG, i), &val);
+        tgt = fa_rb_tgt(i);
+        REG_RD(VTSS_RB_RB_CFG(tgt), &val);
         m = VTSS_X_RB_RB_CFG_RB_ENA(val);
         if (m == 0 && !info->full) {
             continue;
         }
         m = (m ? VTSS_X_RB_RB_CFG_RB_MODE(val) : 10);
-        REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
+        REG_RD(VTSS_RB_TAXI_IF_CFG(tgt), &val);
         conf =  &vtss_state->l2.rb_conf[i];
         port_a = VTSS_CHIP_PORT(conf->port_a);
         port_b = VTSS_CHIP_PORT(conf->port_b);
@@ -3054,7 +3065,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
            VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(val),
            VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(val));
 
-        REG_RD(RB_ADDR(VTSS_RB_RB_CFG, i), &val);
+        REG_RD(VTSS_RB_RB_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, RB_CFG_RB_ENA);
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_RB_MODE);
         pr("(%u:PRP-SAN, %u:HSR-SAN, %u:HSR-PRP, %u:HSR-HSR)\n",
@@ -3067,17 +3078,17 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD(&val, RB_CFG_IRI_ENA);
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_HSR_TAG_SEL);
         pr("(0:OUTER, 1:MIDDLE, 2:INNER, 3:RESV)\n");
-        REG_RD(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), &val);
+        REG_RD(VTSS_RB_TAXI_IF_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREA_PORT_NO);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREB_PORT_NO);
-        REG_RD(RB_ADDR(VTSS_RB_NETID_CFG, i), &val);
+        REG_RD(VTSS_RB_NETID_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_FILTER_ENA);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_MASK);
-        REG_RD(RB_ADDR(VTSS_RB_QSYS_CFG, i), &val);
+        REG_RD(VTSS_RB_QSYS_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_CT_ENA);
         FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_EXPAND_ENA);
         FA_DEBUG_RB_FLD(&val, QSYS_CFG_QUE_DROP_STICKY);
-        REG_RD(RB_ADDR(VTSS_RB_SPV_CFG, i), &val);
+        REG_RD(VTSS_RB_SPV_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
         sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
@@ -3087,7 +3098,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_PRP_MAC_LSB);
-        REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CTRL, i), &val);
+        REG_RD(VTSS_RB_DISC_ACCESS_CTRL(tgt), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA,
                         "AUTO_REPLACE_RULE_ENA", "DISC:", FALSE, 1);
         pr("(B0:DUPL, B1:SEQ, B2:AGE, B3:RANDOM)\n");
@@ -3099,7 +3110,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
         for (j = 0; j < 2; j++) {
             prefix = (j == FA_RB_AGE_IDX_NT ? "NT:" : "PNT:");
-            REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG, i, j), &val);
+            REG_RD(VTSS_RB_HOST_AUTOAGE_CFG(tgt, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_UNIT_SIZE,
                             "UNIT_SIZE", prefix, FALSE, 1);
             pr(buf);
@@ -3110,12 +3121,12 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                             VTSS_X_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(val),
                             FA_HT_ROW_CNT,
                             clk);
-            REG_RD(RB_ADDRX(VTSS_RB_HOST_AUTOAGE_CFG_1, i, j), &val);
+            REG_RD(VTSS_RB_HOST_AUTOAGE_CFG_1(tgt, j), &val);
             fa_debug_rb_fld(pr, &val, VTSS_M_RB_HOST_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
                             "INTERVAL_ENA", prefix, TRUE, 1);
         }
         prefix = "DDT:";
-        REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG, i), &val);
+        REG_RD(VTSS_RB_DISC_AUTOAGE_CFG(tgt), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_UNIT_SIZE,
                         "UNIT_SIZE", prefix, FALSE, 1);
         pr(buf);
@@ -3126,7 +3137,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
                         VTSS_X_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(val),
                         FA_DT_ROW_CNT,
                         clk);
-        REG_RD(RB_ADDR(VTSS_RB_DISC_AUTOAGE_CFG_1, i), &val);
+        REG_RD(VTSS_RB_DISC_AUTOAGE_CFG_1(tgt), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_AUTOAGE_CFG_1_AUTOAGE_INTERVAL_ENA,
                         "INTERVAL_ENA", prefix, TRUE, 1);
         pr("\n");
@@ -3137,7 +3148,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         sprintf(buf, "RedBox %u, port A/B/C:", i);
         fa_debug_rb_fld(pr, x, 0x3, buf, NULL, TRUE, 3);
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-            REG_RD(RB_ADDRX(VTSS_RB_TBL_CFG, i, j), &x[j]);
+            REG_RD(VTSS_RB_TBL_CFG(tgt, j), &x[j]);
         }
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_DUPL_DISC_ENA);
         FA_DEBUG_RB_PORT_FLD_NL(x, TBL_CFG_HOST_TYPE);
@@ -3149,7 +3160,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, TBL_CFG_NEW_HOST_TBL_DIS);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-            REG_RD(RB_ADDRX(VTSS_RB_FWD_CFG, i, j), &x[j]);
+            REG_RD(VTSS_RB_FWD_CFG(tgt, j), &x[j]);
         }
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_PROXY_DST_FWD_MASK);
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_LOCAL_DST_FWD_MASK);
@@ -3159,7 +3170,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_NODE_SRC_FWD_MASK);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-            REG_RD(RB_ADDRX(VTSS_RB_PORT_CFG, i, j), &x[j]);
+            REG_RD(VTSS_RB_PORT_CFG(tgt, j), &x[j]);
         }
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_CT_EGR_ENA);
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_CT_IGR_ENA);
@@ -3184,7 +3195,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_PRP_AWARE_ENA);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-            REG_RD(RB_ADDRX(VTSS_RB_BPDU_CFG, i, j), &x[j]);
+            REG_RD(VTSS_RB_BPDU_CFG(tgt, j), &x[j]);
         }
         FA_DEBUG_RB_PORT_FLD(x, BPDU_CFG_BPDU_REDIR_ENA);
 
@@ -3202,7 +3213,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
 
         if (info->full) {
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-                REG_RD(RB_ADDRX(VTSS_RB_STICKY, i, j), &x[j]);
+                REG_RD(VTSS_RB_STICKY(tgt, j), &x[j]);
             }
             FA_DEBUG_RB_PORT_STICKY(x, RCT_MISSING_DISC);
             FA_DEBUG_RB_PORT_STICKY(x, RCT_MISSING);
@@ -3232,35 +3243,35 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
 
             sprintf(buf, "RedBox %u", i);
             vtss_fa_debug_reg_header(pr, buf);
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_RB_CFG, i), "RB_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_TAXI_IF_CFG, i), "TAXI_IF_CFG");
-            //FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_QSYS_CFG, i), "QSYS_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_NETID_CFG, i), "NETID_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_CPU_CFG, i), "CPU_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_SPV_CFG, i), "SPV_CFG");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_HOST_EVENT_STICKY, i), "HOST_STICKY");
-            FA_DEBUG_RB_REG(RB_ADDR(VTSS_RB_DISC_EVENT_STICKY, i), "DISC_STICKY");
+            FA_DEBUG_RB_REG(VTSS_RB_RB_CFG(tgt), "RB_CFG");
+            FA_DEBUG_RB_REG(VTSS_RB_TAXI_IF_CFG(tgt), "TAXI_IF_CFG");
+            //FA_DEBUG_RB_REG(VTSS_RB_QSYS_CFG(tgt), "QSYS_CFG");
+            FA_DEBUG_RB_REG(VTSS_RB_NETID_CFG(tgt), "NETID_CFG");
+            FA_DEBUG_RB_REG(VTSS_RB_CPU_CFG(tgt), "CPU_CFG");
+            FA_DEBUG_RB_REG(VTSS_RB_SPV_CFG(tgt), "SPV_CFG");
+            FA_DEBUG_RB_REG(VTSS_RB_HOST_EVENT_STICKY(tgt), "HOST_STICKY");
+            FA_DEBUG_RB_REG(VTSS_RB_DISC_EVENT_STICKY(tgt), "DISC_STICKY");
             pr("\n");
 
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
                 sprintf(buf, "Port %s", j == 0 ? "A" : j == 1 ? "B" : "C");
                 vtss_fa_debug_reg_header(pr, buf);
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_TBL_CFG, i, j), "TBL_CFG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_BPDU_CFG, i, j), "BPDU_CFG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_FWD_CFG, i, j), "FWD_CFG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_PORT_CFG, i, j), "PORT_CFG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_STICKY, i, j), "STICKY");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_LL, i, j), "CNT_RX_LL");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_UNT, i, j), "CNT_RX_UNT");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_TAG, i, j), "CNT_RX_TAG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_WRONG_LAN, i, j), "CNT_RX_WRONG_LAN");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_RX_OWN, i, j), "CNT_RX_OWN");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_LL, i, j), "CNT_TX_LL");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_UNT, i, j), "CNT_TX_UNT");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_TX_TAG, i, j), "CNT_TX_TAG");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_ZERO, i, j), "CNT_DUPL_ZERO");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_ONE, i, j), "CNT_DUPL_ONE");
-                FA_DEBUG_RB_REG(RB_ADDRX(VTSS_RB_CNT_DUPL_TWO, i, j), "CNT_DUPL_TWO");
+                FA_DEBUG_RB_REG(VTSS_RB_TBL_CFG(tgt, j), "TBL_CFG");
+                FA_DEBUG_RB_REG(VTSS_RB_BPDU_CFG(tgt, j), "BPDU_CFG");
+                FA_DEBUG_RB_REG(VTSS_RB_FWD_CFG(tgt, j), "FWD_CFG");
+                FA_DEBUG_RB_REG(VTSS_RB_PORT_CFG(tgt, j), "PORT_CFG");
+                FA_DEBUG_RB_REG(VTSS_RB_STICKY(tgt, j), "STICKY");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_RX_LL(tgt, j), "CNT_RX_LL");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_RX_UNT(tgt, j), "CNT_RX_UNT");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_RX_TAG(tgt, j), "CNT_RX_TAG");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_RX_WRONG_LAN(tgt, j), "CNT_RX_WRONG_LAN");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_RX_OWN(tgt, j), "CNT_RX_OWN");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_TX_LL(tgt, j), "CNT_TX_LL");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_TX_UNT(tgt, j), "CNT_TX_UNT");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_TX_TAG(tgt, j), "CNT_TX_TAG");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_DUPL_ZERO(tgt, j), "CNT_DUPL_ZERO");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_DUPL_ONE(tgt, j), "CNT_DUPL_ONE");
+                FA_DEBUG_RB_REG(VTSS_RB_CNT_DUPL_TWO(tgt, j), "CNT_DUPL_TWO");
                 pr("\n");
             }
         } else {
@@ -3302,10 +3313,10 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             j = 0;
             while (1) {
                 VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_READ, j));
-                REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_2, i), &cfg2);
+                REG_RD(VTSS_RB_DISC_ACCESS_CFG_2(tgt), &cfg2);
                 if (VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_VLD(cfg2)) {
-                    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_0, i), &cfg0);
-                    REG_RD(RB_ADDR(VTSS_RB_DISC_ACCESS_CFG_1, i), &cfg1);
+                    REG_RD(VTSS_RB_DISC_ACCESS_CFG_0(tgt), &cfg0);
+                    REG_RD(VTSS_RB_DISC_ACCESS_CFG_1(tgt), &cfg1);
                     cur = VTSS_X_RB_DISC_ACCESS_CFG_0_DISC_ENTRY_SMAC_MSB(cfg0);
                     cur <<= 32;
                     cur += VTSS_X_RB_DISC_ACCESS_CFG_1_DISC_ENTRY_SMAC_LSB(cfg1);

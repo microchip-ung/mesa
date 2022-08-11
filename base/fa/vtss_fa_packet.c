@@ -325,7 +325,8 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_REDBOX)
     // RedBox CPU queues
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
-        REG_WR(RB_ADDR(VTSS_RB_CPU_CFG, i),
+        j = RB_TGT(i);
+        REG_WR(VTSS_RB_CPU_CFG(j),
                VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
                VTSS_F_RB_CPU_CFG_HSR_CPUQ(map->non_hsr_queue) |
                VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));

@@ -264,9 +264,8 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 // Determine instance count based on register field
 #define REG_FLD_CNT(name) (VTSS_X_##name(VTSS_M_##name) + 1)
 
-// RedBox register addresses
-#define RB_ADDR(addr, i)        addr(VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0))
-#define RB_ADDRX(addr, i, j)    addr(VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0), j)
+// RedBox target offset
+#define RB_TGT(i) (VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0))
 
 /* ================================================================= *
  *  Port masks
