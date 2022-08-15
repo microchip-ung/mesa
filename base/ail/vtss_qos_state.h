@@ -524,6 +524,9 @@ typedef struct {
     vtss_rc (* fp_port_status_get)(struct vtss_state_s       *vtss_state,
                                    const vtss_port_no_t      port_no,
                                    vtss_qos_fp_port_status_t *const status);
+
+    vtss_rc (* fp_port_conf_set)(struct vtss_state_s *vtss_state,
+                                 const vtss_port_no_t port_no);
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
     /* Configuration/state */

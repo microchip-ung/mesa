@@ -1123,7 +1123,6 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
     vtss_state_t            *vtss_state;
     vtss_rc                 rc;
     vtss_qos_fp_port_conf_t *fp_conf, fp_conf_old;
-    vtss_port_conf_t        port_conf;
 
     VTSS_D("Enter - port_no: %u", port_no);
     VTSS_ENTER();
@@ -1131,8 +1130,7 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t             inst,
         fp_conf = &vtss_state->qos.fp.port_conf[port_no];
         fp_conf_old = *fp_conf;
         *fp_conf = *conf;
-        port_conf = vtss_state->port.conf[port_no];
-        if ((rc = vtss_port_conf_set_private(vtss_state, port_no, &port_conf)) != VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) != VTSS_RC_OK) {
             *fp_conf = fp_conf_old;
         }
     }

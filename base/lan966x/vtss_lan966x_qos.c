@@ -1604,27 +1604,22 @@ static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t              *vtss_s
 }
 #endif // VTSS_FEATURE_QOS_TAS
 
-static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_reset)
+static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     BOOL                    enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, mask = 0, port = VTSS_CHIP_PORT(port_no);
 
-    // Setup before/after reset depending on Tx enable
-    if (enable_tx == is_reset) {
-        return VTSS_RC_OK;
+    if (enable_tx) {
+        for (i = 0; i < 8; i++) {
+            if (vtss_state->qos.port_conf[port_no].cut_through_enable[i]) {
+                VTSS_E("frame preemption and cut through cannot both be enabled");
+                return VTSS_RC_ERROR;
+            }
+        }
     }
 
-    // Disable preemptable queues
-    REG_WR(QSYS_PREEMPT_CFG(port),
-           QSYS_PREEMPT_CFG_P_QUEUES(0) |
-           QSYS_PREEMPT_CFG_STRICT_IPG(2));
-
     // Setup preemption
-    REG_WR(DEV_ENABLE_CONFIG(port),
-           DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
-           DEV_ENABLE_CONFIG_MM_TX_ENA(enable_tx) |
-           DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
     REG_WR(DEV_VERIF_CONFIG(port),
            DEV_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
            DEV_VERIF_CONFIG_PRM_VERIFY_TIME(conf->verify_time) |
@@ -1663,7 +1658,6 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
 vtss_rc vtss_lan966x_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL in_reset)
 {
     /* Setup depending on port speed */
-    VTSS_RC(lan966x_qos_fp_port_conf_set(vtss_state, port_no, in_reset));
     VTSS_RC(lan966x_qos_queue_cut_through_set(vtss_state, port_no));
 #if defined(VTSS_FEATURE_QOS_TAS)
     VTSS_RC(lan966x_qos_tas_frag_size_update(vtss_state, port_no));
@@ -2398,8 +2392,12 @@ static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
-        // Always enable Rx frame preemption
-        REG_WR(DEV_ENABLE_CONFIG(port), DEV_ENABLE_CONFIG_MM_RX_ENA(1));
+        // Always enable port frame preemption
+        // The queue config controls if FP is active or not
+        REG_WR(DEV_ENABLE_CONFIG(port),
+               DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
+               DEV_ENABLE_CONFIG_MM_TX_ENA(1) |
+               DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
     }
     return VTSS_RC_OK;
 }
@@ -2435,6 +2433,7 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->tas_port_status_get = lan966x_qos_tas_port_status_get;
 #endif
         state->fp_port_status_get = lan966x_qos_fp_port_status_get;
+        state->fp_port_conf_set = lan966x_qos_fp_port_conf_set;
 #if defined(VTSS_FEATURE_EVC_POLICERS)
         state->evc_policer_max = 1022;
 #endif
