@@ -482,6 +482,9 @@ static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
     EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6777);
     EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6777);
 
+    // EEE wake TX timer max value
+    EP_WR(dev, INDY_EEE_WAKE_TX_TIMER, 0x1f);
+
     return MEPA_RC_OK;
 }
 
