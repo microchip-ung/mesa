@@ -275,6 +275,13 @@
 #define INDY_POWER_MGMT_MODE_13 INDY_EXT_PAGE_28, 29
 #define INDY_POWER_MGMT_MODE_14 INDY_EXT_PAGE_28, 30
 #define INDY_POWER_MGMT_MODE_15 INDY_EXT_PAGE_28, 31
+
+// Register 4
+#define INDY_ANALOG_CONTROL_4   INDY_EXT_PAGE_28, 4
+
+// Register 9
+#define INDY_AFED_CONTROL       INDY_EXT_PAGE_28, 9
+
 //====================================================================================
 //      Extended Page 29
 //====================================================================================
