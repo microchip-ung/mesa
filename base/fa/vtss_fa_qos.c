@@ -3249,13 +3249,26 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_reset)
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     u32                     enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, unit, port = VTSS_CHIP_PORT(port_no);
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
 
+    if (is_reset) {
+        if (enable_tx) {
+            // In reset, only setup if Tx disabled
+            return VTSS_RC_OK;
+        }
+    } else {
+        if (!enable_tx) {
+            // Out of reset, only setup if Tx enabled
+            return VTSS_RC_OK;
+        }
+    }
+
+    /* Check if frame preemption is supported for port speed */
     if (enable_tx) {
         if (speed > VTSS_SPEED_10G) {
             VTSS_E("frame preemption is not supported for port speeds above 10G");
@@ -3269,13 +3282,19 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
             VTSS_E("frame preemption does not support add_frag_size 3");
             return VTSS_RC_ERROR;
         }
-        for (i = 0; i < 8; i++) {
-            if (vtss_state->qos.port_conf[port_no].cut_through_enable[i]) {
-                VTSS_E("frame preemption and cut through cannot both be enabled");
-                return VTSS_RC_ERROR;
-            }
-        }
     }
+
+    /* Disable preemptable queues */
+    for (i = 0; i < 8; i++) {
+        REG_WRM(VTSS_HSCH_HSCH_L0_CFG(FA_HSCH_L0_SE(port, i)),
+                VTSS_F_HSCH_HSCH_L0_CFG_P_QUEUES(0),
+                VTSS_M_HSCH_HSCH_L0_CFG_P_QUEUES);
+    }
+
+    DEV_WR(ENABLE_CONFIG, port,
+           VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
+           VTSS_F_DEV1G_ENABLE_CONFIG_MM_TX_ENA(enable_tx) |
+           VTSS_F_DEV1G_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
 
     /* Unit depends on speed */
     switch (speed) {
@@ -3299,16 +3318,11 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     REG_WR(VTSS_DSM_IPG_SHRINK_CFG(port),
            VTSS_F_DSM_IPG_SHRINK_CFG_IPG_SHRINK_ENA(enable_tx));
 
+    /* Enable/disable preemptable queues */
     for (i = 0; i < 8; i++) {
-        /* Enable/disable preemptable queues */
         REG_WRM(VTSS_HSCH_HSCH_L0_CFG(FA_HSCH_L0_SE(port, i)),
                 VTSS_F_HSCH_HSCH_L0_CFG_P_QUEUES(enable_tx && conf->admin_status[i] ? 0xff : 0),
                 VTSS_M_HSCH_HSCH_L0_CFG_P_QUEUES);
-        /* Force queue update */
-        REG_WR(VTSS_HSCH_HSCH_FORCE_CTRL,
-               VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_LAYER(0) |
-               VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_SE_IDX(FA_HSCH_L0_SE(port, i)) |
-               VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_1SHOT(1));
     }
 
     if (vtss_state->misc.chip_id.revision == 0) {
@@ -3325,7 +3339,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     }
     (void)fa_qos_tas_update(vtss_state, port_no);
 
-    return VTSS_RC_OK;
+    return fa_qos_queue_cut_through_set(vtss_state, port_no);
 }
 
 static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
@@ -3350,8 +3364,12 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
 
 vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset)
 {
-    /* Setup depending on port reset status */
+    /* Setup depending on port speed */
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    return fa_qos_fp_port_conf_set(vtss_state, port_no, is_reset);
+#else
     return (is_reset ? fa_qos_queue_cut_through_set(vtss_state, port_no) : VTSS_RC_OK);
+#endif
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -4678,7 +4696,6 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
         // Always enable Rx frame preemption
         DEV_WR(ENABLE_CONFIG, port,
                VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
-               VTSS_F_DEV1G_ENABLE_CONFIG_MM_TX_ENA(1) |
                VTSS_F_DEV1G_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
         if (!VTSS_PORT_IS_2G5(port)) {
             REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
@@ -4729,7 +4746,6 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        state->fp_port_conf_set = fa_qos_fp_port_conf_set;
         state->fp_port_status_get = fa_qos_fp_port_status_get;
 #endif
         break;
