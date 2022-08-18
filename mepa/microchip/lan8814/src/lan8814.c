@@ -412,6 +412,7 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
     } while (0);
     // work-around for model 0x27 only
     if (data->dev.model == 0x27 && data->dev.rev <= 2) {
+        EP_WR(dev, INDY_1000BT_FIX_LATENCY_ENABLE, 1);
         // In Indy internal phy clock generation stops when link goes down.
         EP_WR(dev, INDY_CLOCK_MANAGEMENT_MODE_5, 0x27e);
         EP_RD(dev, INDY_LINK_QUALITY_MONITOR_SETTING, &val);
