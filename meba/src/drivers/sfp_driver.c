@@ -954,8 +954,8 @@ static tr_func_t tr_func_get(uint8_t *rom)
         return tr_25g_sr_get;
     }
 
-    if (eth & SFP_MSA_1000BASE_SX) return tr_1000_sx_get;
-    if (eth & SFP_MSA_1000BASE_CX) return tr_1000_cx_get;
+    if (eth & SFP_MSA_1000BASE_SX) return (speed >= 0x19) ? tr_2g5_get : tr_1000_sx_get;
+    if (eth & SFP_MSA_1000BASE_CX) return (speed >= 0x19) ? tr_2g5_get : tr_1000_cx_get;
     if (eth & SFP_MSA_1000BASE_T)  return tr_1000_t_get;
     if (eth & SFP_MSA_1000BASE_LX) {
         if ((speed == 0xd && rom[14] == 0x50 && rom[15] == 0xFF) ||
