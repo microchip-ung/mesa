@@ -975,6 +975,32 @@ static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_port_kr_rsfec_radapt_set(vtss_state_t *vtss_state,
+                                           const vtss_port_no_t port_no, bool ena)
+{
+    u32 val, tgt = VTSS_TO_HIGH_DEV(VTSS_CHIP_PORT(port_no));
+
+    REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt), 0);
+
+    REG_WRM(VTSS_DEV10G_PCS25G_RSFEC_CFG(tgt),
+            VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA(ena),
+            VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA);
+
+    REG_RD(VTSS_DEV10G_DEV_STICKY(tgt), &val);
+    if (VTSS_X_DEV10G_DEV_STICKY_TX_RADAPT_FIFO_UFLOW_STICKY(val) ||
+        VTSS_X_DEV10G_DEV_STICKY_TX_RADAPT_FIFO_OFLOW_STICKY(val)) {
+        REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_FIFO_FLUSH(1),
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_FIFO_FLUSH);
+    }
+
+    REG_WR(VTSS_DEV10G_MAC_ENA_CFG(tgt),
+           VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA |
+           VTSS_M_DEV10G_MAC_ENA_CFG_TX_ENA);
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no)
 {
@@ -985,6 +1011,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
 
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_kr_fec_t *kr = &vtss_state->port.kr_fec[port_no];
+    vtss_port_kr_conf_t *kr_conf = &vtss_state->port.kr_conf[port_no];
     u32 pcs = VTSS_TO_PCS_TGT(port);
     u32 tgt = VTSS_TO_HIGH_DEV(port);
     u32 val;
@@ -1010,6 +1037,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
         // 25G PCS must be disabled when enabling FEC
         REG_RD(VTSS_DEV10G_PCS25G_CFG(tgt), &val);
         pcs_ena = VTSS_X_DEV10G_PCS25G_CFG_PCS25G_ENA(val);
+
         if (pcs_ena) {
             REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(tgt),
                         VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
@@ -1023,15 +1051,26 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                 VTSS_M_DEV10G_PCS25G_FEC74_CFG_FEC74_ENA_TX);
 
         // RS-FEC: 25G in 25G mode
-        REG_WRM(VTSS_DEV10G_PCS25G_RSFEC_CFG(tgt),
-                VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA(0) | /* MESA-723 */
-                VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA(kr->rs_fec),
-                VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_RADAPT_ENA |
-                VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA);
-
         REG_WRM(VTSS_PCS25G_RSFEC_VENDOR_PCS_MODE(rs_fec),
                 VTSS_F_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25(kr->rs_fec),
                 VTSS_M_PCS25G_RSFEC_VENDOR_PCS_MODE_HI_BER25);
+
+        REG_WRM(VTSS_DEV10G_PCS25G_RSFEC_CFG(tgt),
+                VTSS_F_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA(kr->rs_fec),
+                VTSS_M_DEV10G_PCS25G_RSFEC_CFG_FEC91_ENA);
+
+        REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(2) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL(10) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG(1) |
+                VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS(1),
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_DROP_LVL |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_MIN_IFG |
+                VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS);
+
+        // RS-FEC/RADAPT: If train, disable for now, enable later (MESA-723)
+        fa_port_kr_rsfec_radapt_set(vtss_state, port_no, kr_conf->train.enable ? FALSE : TRUE);
 
         vtss_state->port.kr_store[port_no].rs_fec_cc = 0;
         vtss_state->port.kr_store[port_no].rs_fec_uc = 0;
@@ -1483,6 +1522,11 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
             // Change back to 40bit mode
             VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
+
+            if (vtss_state->port.kr_fec[port_no].rs_fec) {
+                // Enable RSFEC/RADAPT
+                VTSS_RC(fa_port_kr_rsfec_radapt_set(vtss_state, port_no, TRUE))
+            }
         }
     }
 
