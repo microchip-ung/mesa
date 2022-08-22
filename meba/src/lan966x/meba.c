@@ -541,17 +541,51 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
+// Read the lines of the GPIO_IRQ and GPIO_PUSH_BUTTON. If the line is low, it
+// means that, that GPIO is still active. In that case it is required to redo
+// the handler of the gpio so the line will become inactive.
+// Change the logic of the phy and button variables, so if the physical line is
+// low(active) then phy will have a value of true, if the physical line is
+// high(not active), then phy will have a value of false. Do this because the
+// function mesa_gpio_event_poll, will set a value of true if there was an
+// event. In this way it is possible the OR the result from
+// here(gpio_handler_active) with the result from mesa_gpio_event_poll.
+// The reason of doing all this is because GPIO controller can detect only if
+// there are any changes in the GPIO line and not if line is low or high. So in
+// case while we extract the timestamps from PHY3, PHY0 will get some timestamp
+// in the FIFO so it would also active GPIO line. So in this case we will never
+// an interrupt. But we can read that the line is still active so in that case
+// call again the procedure to clear the interrupt lines.
+static mesa_rc gpio_handler_active(mesa_bool_t *button, mesa_bool_t *phy)
+{
+	mesa_gpio_read(NULL, 0, GPIO_IRQ, phy);
+	mesa_gpio_read(NULL, 0, GPIO_PUSH_BUTTON, button);
+
+	*phy = !(*phy);
+	*button = !(*button);
+
+	return *phy == true || *button == true ? MESA_RC_OK : MESA_RC_ERROR;
+}
+
 static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
     int            handled = 0;
     mesa_bool_t    gpio_events[100];
     mesa_port_no_t port_no;
+    mesa_bool_t    button = 0;
+    mesa_bool_t    phy = 0;
 
     if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE) {
         return MESA_RC_ERROR;
     }
 
+repeat_handler:
     if (mesa_gpio_event_poll(NULL, 0, gpio_events) == MESA_RC_OK) {
+        // Merge the value from event_poll with the value from handler_active,
+        // If any of this is active, it means that the line is active
+        gpio_events[GPIO_PUSH_BUTTON] |= button;
+        gpio_events[GPIO_IRQ] |= phy;
+
         if (gpio_events[GPIO_PUSH_BUTTON]) {
             (void)mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, false);
             signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
@@ -563,15 +597,21 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
             }
             handled = 1;
         }
-    }
-    // Check the timestamp events.
-    if (board->type == BOARD_TYPE_8PORT) {
-        for (port_no = 0; port_no < board->port_cnt; port_no++) {
-            if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
-                handled++;
+        // Check the timestamp events.
+        if (board->type == BOARD_TYPE_8PORT && gpio_events[GPIO_IRQ]) {
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                    handled = 1;
+                }
             }
         }
     }
+
+    // If the GPIO line is still active at this point, it is required to
+    // reiterate over all the devices and see why they are polling the line.
+    if (gpio_handler_active(&button, &phy) == MESA_RC_OK)
+        goto repeat_handler;
+
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
