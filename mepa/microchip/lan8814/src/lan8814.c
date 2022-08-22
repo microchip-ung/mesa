@@ -1352,6 +1352,36 @@ static mepa_rc indy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info
     return MEPA_RC_OK;
 }
 
+// Open Alliance TC1 / TC12 DCQ Signal Quality Index(SQI) method.
+// Default values of MSE(mean square error) in SQI Table registers(1.232 - 1.238) is used for mapping signal quality indices 0-7.
+// SQI for pair A is returned from this function.
+static mepa_rc indy_sqi_read(mepa_device_t *dev, uint32_t *const value)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    uint16_t val;
+
+    MEPA_ENTER(dev);
+
+    // SQI is supported only for 100Mbps and 1Gbps
+    // SQI values should not be available if link is down
+    if ((data->conf.speed ==  MEPA_SPEED_10M) || !data->link_status || !data->conf.admin.enable) {
+        MEPA_EXIT(dev);
+        return MEPA_RC_ERROR;
+    }
+
+    EP_RD(dev, INDY_DCQ_CTRL, &val);
+    val &= ~INDY_M_DCQ_CTRL_CHANNEL_MASK; // Getting SQI value for channel 0;
+    val |= INDY_F_DCQ_CTRL_READ_CAPTURE; // Enable this bit for capturing SQI values
+    EP_WR(dev, INDY_DCQ_CTRL, val);
+
+    EP_RD(dev, INDY_DCQ_SQI, &val);
+
+    *value = INDY_X_DCQ_SQI_VALUE(val);
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
     static const int nr_indy_drivers = 2;
@@ -1388,6 +1418,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_phy_info_get = indy_info_get,
             .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
             .mepa_debug_info_dump = indy_debug_info_dump,
+            .mepa_driver_sqi_read = indy_sqi_read,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1419,6 +1450,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_phy_info_get = indy_info_get,
             .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
             .mepa_debug_info_dump = indy_debug_info_dump,
+            .mepa_driver_sqi_read = indy_sqi_read,
         },
     };
 

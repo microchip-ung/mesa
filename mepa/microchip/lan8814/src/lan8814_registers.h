@@ -160,6 +160,12 @@
 #define INDY_PD_CONTROLS                  INDY_EXT_PAGE_1, 157
 #define INDY_LINK_QUALITY_MONITOR_SETTING INDY_EXT_PAGE_1, 142
 
+#define INDY_DCQ_CTRL                     INDY_EXT_PAGE_1, 230
+#define INDY_F_DCQ_CTRL_READ_CAPTURE      INDY_BIT(15)
+#define INDY_M_DCQ_CTRL_CHANNEL_MASK      INDY_ENCODE_BITMASK(0, 2)
+#define INDY_DCQ_SQI                      INDY_EXT_PAGE_1, 228
+#define INDY_X_DCQ_SQI_VALUE(x)           INDY_EXTRACT_BITFIELD(x, 1, 3)
+
 //====================================================================================
 //      Extended Page 2
 //====================================================================================

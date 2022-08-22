@@ -485,3 +485,12 @@ mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no,        
     }
     return mepa_isolate_mode_conf(inst->phy_devices[port_no], iso_en);
 }
+
+// Get the SQI value
+mepa_rc meba_phy_sqi_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_sqi_read(inst->phy_devices[port_no], value);
+}
