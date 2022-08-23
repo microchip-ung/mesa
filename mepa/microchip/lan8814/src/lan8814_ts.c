@@ -117,12 +117,20 @@ static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, uint8_t const en
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t val;
+    uint8_t tsu_enable;
 
     //if change in value
     if (data->ts_state.framepreempt_en != enable) {
+        //Read TSU setting
+        EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
+
+        tsu_enable = (val & INDY_PTP_TSU_GEN_CONF_EN) ? TRUE : FALSE;
+
         //Disable TSU
-        val = 0;
-        EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+        if (tsu_enable) {
+            val = 0;
+            EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+        }
 
         //Set Frame Preemption
         val = 0;
@@ -134,9 +142,11 @@ static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, uint8_t const en
         EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
 
         //Enable TSU
-        val = 0;
-        val = val | INDY_PTP_TSU_GEN_CONF_EN;
-        EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+        if (tsu_enable) {
+            val = 0;
+            val = val | INDY_PTP_TSU_GEN_CONF_EN;
+            EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+        }
 
         //Update local cache
         data->ts_state.framepreempt_en = enable;
