@@ -123,6 +123,11 @@
 // Register - 27
 #define INDY_GPHY_INTR_STATUS 27
 
+// Register - 28
+#define INDY_GPHY_DBG_CTL1 28
+#define INDY_F_MDI_SET INDY_BIT(7)
+#define INDY_F_SWAPOFF INDY_BIT(6)
+
 // Register - 30 .... Reserved register for applying connector loopback
 #define INDY_RESV_CON_LOOP 30
 

@@ -619,6 +619,50 @@ end:
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t mode)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_media_mode_t old_mode = data->conf.mdi_mode;
+    uint16_t val;
+
+    if (old_mode == mode) return MEPA_RC_OK;
+
+    /*
+      BIT(7) = mdi_set
+        mdi_set has no function when swapoff (reg28.6) is de-asserted.
+        When swapoff is asserted, if mdi_set is asserted, chip will operate at MDI mode.
+        When swapoff is asserted, if mdi_set is de-asserted, chip will operate at MDI-X
+        mode.
+      BIT(6) = swapoff
+        1 = disable auto crossover function.
+        0 = enable auto crossover function.
+     */
+
+    // Read current MDI settings
+    RD(dev, INDY_GPHY_DBG_CTL1, &val);
+    switch (mode) {
+      case MEPA_MEDIA_MODE_MDI:
+        val |= (INDY_F_MDI_SET | INDY_F_SWAPOFF);
+      break;
+      case MEPA_MEDIA_MODE_MDIX:
+        val |= INDY_F_SWAPOFF;
+      break;
+      default:
+        val &= ~INDY_F_SWAPOFF;
+      break;
+    }
+    // Set the current MDI
+    WR(dev, INDY_GPHY_DBG_CTL1, val);
+
+    // Update local cache
+    data->conf.mdi_mode = mode;
+
+    T_D(MEPA_TRACE_GRP_GEN, "port %d old mdi_mode %d, new mdi_mode %d",
+        data->port_no, old_mode, data->conf.mdi_mode);
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -628,6 +672,9 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 
     MEPA_ENTER(dev);
     if (config->admin.enable) {
+        // Check & configure MDI mode as needed
+        indy_conf_mdi_mode(dev, config->mdi_mode);
+
         if (qsgmii_aneg != data->conf.mac_if_aneg_ena) {
             indy_qsgmii_aneg(dev, qsgmii_aneg);
         }

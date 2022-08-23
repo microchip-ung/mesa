@@ -159,6 +159,13 @@ typedef enum {
     MEPA_MANUAL_NEG_CLIENT        /**< slave  state used in IEEE registers 9,10 for 1G speed */
 } mepa_manual_neg_t;
 
+/** \brief preferred Media Mode MDI/MDIX/AUTO */
+typedef enum {
+    MEPA_MEDIA_MODE_AUTO = 0, /**< AMDIX */
+    MEPA_MEDIA_MODE_MDI,      /**< MDI */
+    MEPA_MEDIA_MODE_MDIX,     /**< MDIX */
+} mepa_media_mode_t;
+
 /** \brief Represents the configuration that is applied to PHY. */
 typedef struct {
     mepa_port_speed_t speed;       /**< Forced port speed */
@@ -169,6 +176,7 @@ typedef struct {
     mepa_aneg_adv_t aneg;          /**< Auto-negitiation advertisement */
     mepa_bool_t mac_if_aneg_ena;   /**< Enable auto-negotiation on host mac interface */
     mepa_manual_neg_t man_neg;     /**< manual negotiation control in 1G instead of using auto-negotiation */
+    mepa_media_mode_t mdi_mode;    /**< Preferred media mode */
 } mepa_conf_t;
 
 /** \brief  MEPA event mask */

@@ -251,7 +251,13 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     vtss_phy_conf_t phy_config = {};
     vtss_phy_conf_1g_t cfg_neg = {};
 
+    // Translate MDI mode
     phy_config.mdi = VTSS_PHY_MDIX_AUTO;
+    if (config->mdi_mode == MEPA_MEDIA_MODE_MDI)
+        phy_config.mdi = VTSS_PHY_MDI;
+    else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX)
+        phy_config.mdi = VTSS_PHY_MDIX;
+
     if (vtss_phy_conf_get(NULL, data->port_no,&phy_config) == MESA_RC_OK) {
         if (config->admin.enable) {
             if (config->speed == MESA_SPEED_AUTO ||
@@ -315,6 +321,12 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     conf->aneg.speed_100m_fdx = phy_conf.aneg.speed_100m_fdx;
     conf->aneg.speed_1g_fdx = phy_conf.aneg.speed_1g_fdx;
     conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
+    // Translate MDI Mode
+    conf->mdi_mode = MEPA_MEDIA_MODE_AUTO;
+    if (phy_conf.mdi == VTSS_PHY_MDI)
+        conf->mdi_mode = MEPA_MEDIA_MODE_MDI;
+    else if (phy_conf.mdi == VTSS_PHY_MDIX)
+        conf->mdi_mode = MEPA_MEDIA_MODE_MDIX;
 
     if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
         conf->speed = MEPA_SPEED_AUTO;
