@@ -1157,3 +1157,21 @@ mepa_rc mepa_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const 
 
     return dev->drv->mepa_driver_selftest_read(dev, inf);
 }
+
+mepa_rc mepa_ts_framepreempt_get(struct mepa_device *dev, uint8_t *const value)
+{
+    if (!dev->drv->mepa_ts->mepa_ts_framepreempt_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_framepreempt_get(dev, value);
+}
+
+mepa_rc mepa_ts_framepreempt_set(struct mepa_device *dev, uint8_t const value)
+{
+    if (!dev->drv->mepa_ts->mepa_ts_framepreempt_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_framepreempt_set(dev, value);
+}

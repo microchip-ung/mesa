@@ -250,6 +250,10 @@
 #define INDY_PTP_OPERATING_MODE                         INDY_EXT_PAGE_4, 577
 #define INDY_PTP_OPERATING_MODE_VAL_F(x)                INDY_ENCODE_BITFIELD(x, 0, 2)
 #define INDY_PTP_OPERATING_MODE_VAL                     INDY_ENCODE_BITMASK(0, 2)
+#define INDY_F_PTP_OPER_MODE_DIS          (0x0)
+#define INDY_F_PTP_OPER_MODE_STAND_ALONE  (0x1)
+#define INDY_F_PTP_OPER_MODE_PCH_ONLY     (0x2)
+#define INDY_F_PTP_OPER_MODE_PCH_MCH      (0x3)
 
 // PTP Revision Register
 #define INDY_PTP_REVISION                               INDY_EXT_PAGE_4, 578

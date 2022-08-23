@@ -113,6 +113,38 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
 
 }
 
+static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, uint8_t const enable)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t val;
+
+    //if change in value
+    if (data->ts_state.framepreempt_en != enable) {
+        //Disable TSU
+        val = 0;
+        EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
+        //Set Frame Preemption
+        val = 0;
+        EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
+        if (enable)
+          val |= INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+        else
+          val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+        EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
+        //Enable TSU
+        val = 0;
+        val = val | INDY_PTP_TSU_GEN_CONF_EN;
+        EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
+        //Update local cache
+        data->ts_state.framepreempt_en = enable;
+    }
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
     uint16_t val = 0;
@@ -179,7 +211,7 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 
 #endif
 
-    return MEPA_RC_OK;
+    return indy_ts_framepreempt_int_set(dev, ts_init_conf->framepreempt_en);
 }
 
 static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf_t *const ts_init_conf)
@@ -226,6 +258,7 @@ static mepa_rc indy_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
     ts_init_conf->tx_fifo_spi_conf  = data->ts_state.tx_spi_en;
     ts_init_conf->tx_ts_len         = data->ts_state.tx_fifo_ts_len;
     ts_init_conf->auto_clear_ls     = FALSE;
+    ts_init_conf->framepreempt_en   = data->ts_state.framepreempt_en;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -2300,6 +2333,32 @@ mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
     return rc;
 }
 
+static mepa_rc indy_ts_framepreempt_get(mepa_device_t *dev, uint8_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    MEPA_ASSERT(value == NULL);
+    MEPA_ENTER(dev);
+
+    *value = data->ts_state.framepreempt_en;
+
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_ts_framepreempt_set(mepa_device_t *dev, uint8_t const enable)
+{
+    mepa_rc rc;
+
+    MEPA_ENTER(dev);
+    rc = indy_ts_framepreempt_int_set(dev, enable);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+
 mepa_ts_driver_t indy_ts_drivers = {
     .mepa_ts_init_conf_get              = indy_ts_init_conf_get,
     .mepa_ts_init_conf_set              = indy_ts_init_conf_set,
@@ -2337,5 +2396,7 @@ mepa_ts_driver_t indy_ts_drivers = {
     .mepa_ts_fifo_read_install          = indy_ts_fifo_read_install,
     .mepa_ts_fifo_empty                 = indy_ts_tx_ts_get,
     .mepa_ts_test_config                = indy_ts_test_config,
+    .mepa_ts_framepreempt_get           = indy_ts_framepreempt_get,
+    .mepa_ts_framepreempt_set           = indy_ts_framepreempt_set,
 };
 

@@ -416,6 +416,23 @@ of a given PHY, provided event mask.
 The API `mepa_ts_event_poll()` helps to poll and see if a interrupt/event
 is generated or not.
 
+=== Frame Preemption
+If Frame Preemption is not in use, the Start of Frame Delimiter (SFD) appears
+ahead of every Ethernet frame on the PHY port.
+
+If Frame Preemption is in use, one of several possible Start of mPacket Delimiters
+(SMDs) may appear in place of the SFD on the PHY ports.
+
+Frame Preemption support over QSGMII: The SMD and SFD characters are
+passed transparently across QSGMII (no PCH/MCH header).
+
+Frame Preemption support over Q-USGMII: The SMD and SFD characters are
+passed across Q-USGMII using the PCH or MCH header.
+
+The API `mepa_ts_framepreempt_get()` helps to get the current configuration of Frame Preemption
+
+The API `mepa_ts_framepreempt_set()` helps to enable/disable Frame Preemption
+
 === MEPA TS functions.
 `mepa_ts_init_conf_set()` +
 `mepa_ts_init_conf_get()` +
@@ -445,4 +462,7 @@ is generated or not.
 `mepa_ts_fifo_read_install()` +
 `mepa_ts_fifo_read()` +
 `mepa_ts_fifo_empty()` +
-`mepa_ts_test_config()`
+`mepa_ts_test_config()` +
+`mepa_ts_test_config()` +
+`mepa_ts_framepreempt_get()` +
+`mepa_ts_framepreempt_set()`
