@@ -248,6 +248,11 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 
     VTSS_D("one_pps_mode: %u, enable: %u, freq: %u", ext_clock_mode->one_pps_mode, ext_clock_mode->enable, ext_clock_mode->freq);
     FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+	/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled,
+	/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(2), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(2), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+#endif
     if (ext_clock_mode->enable) {
         u32 dividers = HW_NS_PR_SEC/ext_clock_mode->freq;
         u32 high_div = dividers/2;
@@ -268,9 +273,12 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 
         FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
-//        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
-VTSS_D("*************One PPS disable*************");
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_OUT);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+		/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled,
+		/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(2), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(3), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+#endif
     }
 
     return VTSS_RC_OK;
