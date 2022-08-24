@@ -113,7 +113,7 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
 
 }
 
-static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, uint8_t const enable)
+static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, mepa_bool_t const enable)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t val;
@@ -2343,7 +2343,7 @@ mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
     return rc;
 }
 
-static mepa_rc indy_ts_framepreempt_get(mepa_device_t *dev, uint8_t *const value)
+static mepa_rc indy_ts_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const value)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -2357,7 +2357,7 @@ static mepa_rc indy_ts_framepreempt_get(mepa_device_t *dev, uint8_t *const value
     return MEPA_RC_OK;
 }
 
-static mepa_rc indy_ts_framepreempt_set(mepa_device_t *dev, uint8_t const enable)
+static mepa_rc indy_ts_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enable)
 {
     mepa_rc rc;
 

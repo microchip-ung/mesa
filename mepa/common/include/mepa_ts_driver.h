@@ -436,7 +436,7 @@ typedef mepa_rc (*mepa_ts_test_config_t) (struct mepa_device *dev, uint16_t test
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_ts_framepreempt_get_t)(struct mepa_device *dev, uint8_t *const value);
+typedef mepa_rc (*mepa_ts_framepreempt_get_t)(struct mepa_device *dev, mepa_bool_t *const value);
 
 /**
  * \brief PHY set Frame Preemption
@@ -448,7 +448,7 @@ typedef mepa_rc (*mepa_ts_framepreempt_get_t)(struct mepa_device *dev, uint8_t *
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_ts_framepreempt_set_t)(struct mepa_device *dev, uint8_t const value);
+typedef mepa_rc (*mepa_ts_framepreempt_set_t)(struct mepa_device *dev, mepa_bool_t const value);
 
 /** \brief PHY Timestamp Driver */
 typedef struct mepa_ts_driver {

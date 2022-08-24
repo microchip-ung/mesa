@@ -878,7 +878,7 @@ mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_ts_framepreempt_get(struct mepa_device *dev, uint8_t *const value);
+mepa_rc mepa_ts_framepreempt_get(struct mepa_device *dev, mepa_bool_t *const value);
 
 /**
  * \brief PHY set Frame Preemption
@@ -890,7 +890,7 @@ mepa_rc mepa_ts_framepreempt_get(struct mepa_device *dev, uint8_t *const value);
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_ts_framepreempt_set(struct mepa_device *dev, uint8_t const value);
+mepa_rc mepa_ts_framepreempt_set(struct mepa_device *dev, mepa_bool_t const value);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
