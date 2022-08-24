@@ -60,6 +60,12 @@ static const meba_aux_rawio_t rawio = {
     }
 };
 
+// GPIO for interrupts from external PHYs
+#define GPIO_IRQ         4
+
+// GPIO for push button
+#define GPIO_PUSH_BUTTON 5
+
 static const meba_ptp_rs422_conf_t pcb123_rs422_conf = {
     .gpio_rs422_1588_mstoen = (15<<8)+1,
     .gpio_rs422_1588_slvoen = (15<<8)+0,
@@ -1439,6 +1445,11 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
                 }
             }
             break;
+        case MEBA_EVENT_PUSH_BUTTON:
+            if (board->type == BOARD_TYPE_OCELOT_PCB123_LAN8814) {
+                rc = mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, enable);
+            }
+            break;
 
         case MEBA_EVENT_INGR_ENGINE_ERR:
         case MEBA_EVENT_INGR_RW_PREAM_ERR:
@@ -1504,92 +1515,67 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-static mesa_rc meba_phy_event_check(meba_inst_t inst,
-                                    mesa_port_no_t port_no,
-                                    mepa_event_t *const in_events)
+// Implemented using gpio handler of lan9668 as reference.
+static mesa_rc gpio_handler_active(mesa_bool_t *button, mesa_bool_t *phy)
 {
-    mepa_event_t events;
-    mesa_rc      rc;
+	mesa_gpio_read(NULL, 0, GPIO_IRQ, phy);
+	mesa_gpio_read(NULL, 0, GPIO_PUSH_BUTTON, button);
 
-    if ((rc = meba_phy_event_poll(inst, port_no, &events)) != MESA_RC_OK) {
-        T_E(inst, "meba_phy_event_poll = %d", rc);
-    } else {
-        if (events) {
-            T_I(inst, "Port %u, event: 0x%x", port_no, events);
+	*phy = !(*phy);
+	*button = !(*button);
 
-            if ((rc = meba_phy_event_enable_set(inst, port_no, events, false)) != MESA_RC_OK) {
-                T_E(inst, "meba_phy_event_enable_set = %d", rc);
-            }
-        }
-    }
-    if (rc == MEPA_RC_OK) {
-        *in_events |= events;
-    }
-    return rc;
+	return *phy == true || *button == true ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-//VTSS_DEVCPU_GCB_GPIO_GPIO_INTR
-#define SRVL_DEVCPU_GCB_GPIO_INTR       0x41c012
-//VTSS_DEVCPU_GCB_GPIO_GPIO_INTR_IDENT
-#define SRVL_DEVCPU_GCB_GPIO_INTR_IDENT 0x41c014
-
-// INDY_CHIP_LVL_INTR_STATUS - 4.51
-#define INDY_CHIP_INTR_STATUS           0x40033
 static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
-    int            handled = 0, polled = 0;
-    mesa_port_no_t port_no;
-    mepa_event_t events = 0;
-    uint32_t val=0;
-    uint16_t phy_intr;
-    uint32_t cnt = 0;
+    int                  handled = 0;
+    mesa_bool_t          gpio_events[100];
+    mesa_port_no_t       port_no;
+    mesa_bool_t          button = 0;
+    mesa_bool_t          phy = 0;
+    const mesa_port_no_t base_port = 4; // first port of lan-8814 phy.
 
     if (board->type != BOARD_TYPE_OCELOT_PCB123_LAN8814) {
         return MESA_RC_ERROR;
     }
 
-    // read chip level interrupt status using port 4 to avoid polling on every phy port for all types of events.
-    meba_phy_clause45_read(inst, 4, INDY_CHIP_INTR_STATUS, &phy_intr);
 
-    do {
-        if (phy_intr >> 4) { //general phy interrupts start from 4th bit onwards
-            // On ocelot + lan8814 platform, port number starts with port 4
-            for (port_no = 4; port_no < board->port_cnt; port_no++) {
-                if (meba_phy_event_check(inst, port_no, &events) == MESA_RC_OK) {
-                    polled++;
-                }
+repeat_handler:
+    if (mesa_gpio_event_poll(NULL, 0, gpio_events) == MESA_RC_OK) {
+        // Merge the value from event_poll with the value from handler_active,
+        // If any of this is active, it means that the line is active
+        gpio_events[GPIO_PUSH_BUTTON] |= button;
+        gpio_events[GPIO_IRQ] |= phy;
+
+        if (gpio_events[GPIO_PUSH_BUTTON]) {
+            (void)mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, false);
+            signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+            handled = 1;
+        }
+        // Check general phy events.
+        if (gpio_events[GPIO_IRQ]) {
+            for (port_no = base_port; port_no < board->port_cnt; port_no++) {
+                (void)meba_generic_phy_event_check(inst, port_no, signal_notifier);
             }
-            if (polled) {
-                port_no = 4;
-                if (events & VTSS_PHY_LINK_FFAIL_EV) {
-                    signal_notifier(MEBA_EVENT_FLNK, port_no);
-                    handled++;
-                }
-
-                if (events & VTSS_PHY_LINK_LOS_EV) {
-                    signal_notifier(MEBA_EVENT_LOS, port_no);
-                    handled++;
+            handled = 1;
+        }
+        // Check the timestamp events.
+        if (gpio_events[GPIO_IRQ]) {
+            for (port_no = base_port; port_no < board->port_cnt; port_no++) {
+                if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                    handled = 1;
                 }
             }
         }
-        if (phy_intr & 0xF) {// first 4 bits represent timestamp events from correponding port.
-            // Check the timestamp events.
-            for (port_no = 4; port_no < board->port_cnt; port_no++) {
-                if (board->port[port_no].ts_phy && (phy_intr & (1 << (port_no - 4)))) {
-                    if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
-                        handled++;
-                }
-            }
-        }
-        // Before enabling interrupt again, check if there are pending interrupts.
-        meba_phy_clause45_read(inst, 4, INDY_CHIP_INTR_STATUS, &phy_intr);
-    } while (phy_intr && (cnt++ < 5)); //repeat this for utmost 5 iterations
+    }
 
-    // poll gpio intr on switch to clear them
-    mesa_reg_read(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR_IDENT, &val);
-    mesa_reg_write(NULL, 0, SRVL_DEVCPU_GCB_GPIO_INTR, val); // Clear gpio interrupt. set 4th bit to clear sticky.
+    // If the GPIO line is still active at this point, it is required to
+    // reiterate over all the devices and see why they are polling the line.
+    if (gpio_handler_active(&button, &phy) == MESA_RC_OK) {
+        goto repeat_handler;
+    }
 
-    T_I(inst, "events %x handled %d", events, handled);
     return (handled ? MESA_RC_OK : MESA_RC_ERROR);
 }
 
@@ -1662,6 +1648,9 @@ static mesa_rc ocelot_irq_handler(meba_inst_t inst,
             return sgpio_handler(inst, board, signal_notifier);
         case MESA_IRQ_GPIO:
             return gpio_handler(inst, board, signal_notifier);
+        case MESA_IRQ_PUSH_BUTTON:
+            signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
+            return MESA_RC_OK;
         case MESA_IRQ_EXT0:
             return ext0_handler(inst, board, signal_notifier);
         case MESA_IRQ_DEV_ALL:
