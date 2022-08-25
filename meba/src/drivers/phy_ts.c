@@ -448,7 +448,7 @@ mepa_rc meba_phy_ts_fifo_empty(meba_inst_t inst, mepa_port_no_t port_no)
     return mepa_ts_fifo_empty(inst->phy_devices[port_no]);
 }
 
-mepa_rc meba_ts_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t *const value)
+mepa_rc meba_ts_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const value)
 {
     mepa_rc rc = MESA_RC_ERROR;
 
@@ -459,7 +459,7 @@ mepa_rc meba_ts_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, uint8
     return mepa_ts_framepreempt_get(inst->phy_devices[port_no], value);
 }
 
-mepa_rc meba_ts_framepreempt_set(meba_inst_t inst, mepa_port_no_t port_no, uint8_t const value)
+mepa_rc meba_ts_framepreempt_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t const value)
 {
     mepa_rc rc = MESA_RC_ERROR;
 

@@ -136,16 +136,14 @@ static mepa_rc indy_ts_framepreempt_int_set(mepa_device_t *dev, mepa_bool_t cons
         val = 0;
         EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
         if (enable)
-          val |= INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+            val |= INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
         else
-          val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+            val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
         EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
 
         //Enable TSU
         if (tsu_enable) {
-            val = 0;
-            val = val | INDY_PTP_TSU_GEN_CONF_EN;
-            EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+            EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, INDY_PTP_TSU_GEN_CONF_EN, INDY_PTP_TSU_GEN_CONF_EN);
         }
 
         //Update local cache

@@ -80,10 +80,10 @@ mepa_rc meba_phy_ts_fifo_empty(meba_inst_t inst, mepa_port_no_t port_no);
 mepa_rc meba_ts_test_config(meba_inst_t inst, mepa_port_no_t port_no, uint16_t test_id, mepa_bool_t reg_dump);
 
 // PHY get Frame Preemption
-mepa_rc meba_ts_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t *const value);
+mepa_rc meba_ts_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const value);
 
 // PHY set Frame Preemption
-mepa_rc meba_ts_framepreempt_set(meba_inst_t inst, mepa_port_no_t port_no, uint8_t const value);
+mepa_rc meba_ts_framepreempt_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t const value);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_BOARD_PHY_TS_DRIVER_H_
