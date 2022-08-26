@@ -640,10 +640,10 @@ static mepa_rc indy_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t mo
 
     // Read current MDI settings
     RD(dev, INDY_GPHY_DBG_CTL1, &val);
+    val &= ~INDY_F_MDI_SET;
     switch (mode) {
       case MEPA_MEDIA_MODE_MDI:
-        val |= (INDY_F_MDI_SET | INDY_F_SWAPOFF);
-      break;
+        val |= INDY_F_MDI_SET;
       case MEPA_MEDIA_MODE_MDIX:
         val |= INDY_F_SWAPOFF;
       break;
@@ -652,7 +652,7 @@ static mepa_rc indy_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t mo
       break;
     }
     // Set the current MDI
-    WR(dev, INDY_GPHY_DBG_CTL1, val);
+    WRM(dev, INDY_GPHY_DBG_CTL1, val, INDY_DEF_MASK);
 
     // Update local cache
     data->conf.mdi_mode = mode;
