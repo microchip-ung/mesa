@@ -961,10 +961,8 @@ static tr_func_t tr_func_get(uint8_t *rom)
         if ((speed == 0xd && rom[14] == 0x50 && rom[15] == 0xFF) ||
             (speed == 0xc && rom[14] == 0x58 && rom[15] == 0xFF)) {
             return tr_1000_zx_get;
-        } else if (speed == 0x19) {
-            return tr_2g5_get;
         } else {
-            return tr_1000_lx_get;
+            return (speed >= 0x19) ? tr_2g5_get : tr_1000_lx_get;
         }
     }
 
