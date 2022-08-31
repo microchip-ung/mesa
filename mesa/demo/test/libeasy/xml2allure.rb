@@ -541,5 +541,5 @@ end
 puts "Calling #{allurecmd}"
 system(allurecmd) #generating the allure Final report
 
-puts ">>Report Link => \e[42m#{options[:reports_url]}#{foldername}\e[0m"
+puts ">>Report Link => \e[42m #{options[:reports_url]}#{foldername} \e[0m"
 
