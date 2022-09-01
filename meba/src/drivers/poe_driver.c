@@ -1139,7 +1139,7 @@ static mesa_rc meba_poe_pd69200_set_power_banks(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET POWER BANKS] bank=%d, power_limit=%lu, max_shutdown_voltage=%lu, min_shutdown_voltage=%lu, guard_band=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET POWER BANKS] bank=%d, power_limit=%u, max_shutdown_voltage=%u, min_shutdown_voltage=%u, guard_band=%d",
          bank,
          power_limit,
          max_shutdown_voltage,
@@ -1186,7 +1186,7 @@ static mesa_rc pd69200_get_power_supply_parameters(
     *bank                 = buf[9];
     *power_limit          = (buf[10] << 8) + buf[11];
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET POWER SUPPLY PARAMETERS] pwr_consumption=%lu, max_shutdown_voltage=%lu, min_shutdown_voltage=%lu, guard_band=%d, bank=%d, power_limit=%lu",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET POWER SUPPLY PARAMETERS] pwr_consumption=%u, max_shutdown_voltage=%u, min_shutdown_voltage=%u, guard_band=%d, bank=%d, power_limit=%u",
          *power_consumption,
          *max_shutdown_voltage,
          *min_shutdown_voltage,
@@ -1230,7 +1230,7 @@ static mesa_rc meba_poe_pd69200_ctrl_get_port_power_limit(
     *ppl = (buf[2] << 8) + buf[3];
     *tppl  = (buf[4] << 8) + buf[5];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET PORT POWER LIMIT] CH=%d, ppl=%lu, tppl=%lu",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET PORT POWER LIMIT] CH=%d, ppl=%u, tppl=%u",
          channel,
          *ppl,
          *tppl);
@@ -1421,7 +1421,7 @@ mesa_rc meba_poe_pd69200_ctrl_set_port_layer2_lldp_pd_data(
 
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET PORT LAYER2 LLDP PD DATA] CH=%d,layer2_pd_type=%d, requested_power=%lu, allocated_power=%lu, cable_len=%d, execute_lldp=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET PORT LAYER2 LLDP PD DATA] CH=%d,layer2_pd_type=%d, requested_power=%u, allocated_power=%u, cable_len=%d, execute_lldp=%d",
        channel,
        layer2_pd_type,
        requested_power,
@@ -1479,7 +1479,7 @@ mesa_rc meba_poe_pd69200_ctrl_get_port_layer2_lldp_pse_data(
     *power_indicator     =  (buf[11] << 8) + buf[12];
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
-           "[GET PORT LAYER2 LLDP PSE DATA] CH=%d, pse_allocated_power=%lu, pd_requested_power=%lu, pse_power_type=%d, power_class=%d, pse_power_pair=%d, mdi_power_status=%d, cable_len=%d, power_indicator=%lu",
+           "[GET PORT LAYER2 LLDP PSE DATA] CH=%d, pse_allocated_power=%u, pd_requested_power=%u, pse_power_type=%d, power_class=%d, pse_power_pair=%d, mdi_power_status=%d, cable_len=%d, power_indicator=%u",
            channel,
            *pse_allocated_power,
            *pd_requested_power,
@@ -1585,7 +1585,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_measurements_get(
     *port_voltage = (buf[9] << 8) + buf[10];
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
-       "[GET PORT MEASUREMENTS] CH=%d, main_voltage=%lu, calculated_current=%lu, port_power_consumption=%lu, port_voltage=%lu",
+       "[GET PORT MEASUREMENTS] CH=%d, main_voltage=%u, calculated_current=%u, port_power_consumption=%u, port_voltage=%u",
        channel,
        *main_voltage,
        *calculated_current,
@@ -2114,7 +2114,7 @@ mesa_rc meba_poe_pd69200_ctrl_get_software_version(
     *internal_sw_version = (buf[9] << 8) + buf[10];
     *asic_patch_number   = (buf[11] << 8) + buf[12];
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET SOFTWARE VERSION] hw_version=%d, prod_number=%d, sw_version=%lu, param_number=%d, build_number=%d, internal_sw_version=%lu, asic_patch_number=%lu",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[GET SOFTWARE VERSION] hw_version=%d, prod_number=%d, sw_version=%u, param_number=%d, build_number=%d, internal_sw_version=%u, asic_patch_number=%u",
           *hw_version,
           *prod_number,
           *sw_version,
@@ -5109,7 +5109,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_status(
     *last_shutdown_error_status = buf[9];
     *port_event                 = buf[10];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT STATUS] CH=%d, port_status=%d, enable=%d, assigned_class=%d, measured_port_power=%lu, last_shutdown_error_status=%d, port_event=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT STATUS] CH=%d, port_status=%d, enable=%d, assigned_class=%d, measured_port_power=%u, last_shutdown_error_status=%d, port_event=%d",
                channel,
               *port_status,
               *enable,
@@ -5169,7 +5169,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_BT_port_class(
     uint16_t AutoClass_Measurement = (*auto_class_measurement & 0xFFF);
     uint8_t AutoClass_Support      = ((*auto_class_measurement >> 12) & 0xF);
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT CLASS] CH=%d, port_status=0x%X, port_phy_info=0x%X, measured_class=0x%X, requested_class=0x%X, requested_power_dW=%lu, assigned_class=0x%X, assigned_power_dW=%lu, AutoClass measurement=%lu, AutoClass Support=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT CLASS] CH=%d, port_status=0x%X, port_phy_info=0x%X, measured_class=0x%X, requested_class=0x%X, requested_power_dW=%u, assigned_class=0x%X, assigned_power_dW=%u, AutoClass measurement=%u, AutoClass Support=%d",
                channel,
                *port_status,
                *port_phy_info,
@@ -5220,7 +5220,7 @@ mesa_rc meba_poe_pd69200bt_get_BT_port_measurements(
     *port_power_consumption = (buf[6] << 8) + buf[7];
     *port_voltage           = (buf[9] << 8) + buf[10];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT MEASUREMENTS] CH=%d, main_voltage=%lu, calculated_current=%lu, port_power_consumption=%lu, port_voltage=%lu",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT MEASUREMENTS] CH=%d, main_voltage=%u, calculated_current=%u, port_power_consumption=%u, port_voltage=%u",
                channel,
                *main_voltage,
                *calculated_current,
@@ -5533,7 +5533,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
     };
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf));
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET BT PORT LAYER2 LLDP PD REQUEST] CH=%d,requested_power_single=%lu,requested_power_dual_a=%lu,requested_power_dual_b=%lu,cable_len=%d,autoclass=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[SET BT PORT LAYER2 LLDP PD REQUEST] CH=%d,requested_power_single=%u,requested_power_dual_a=%u,requested_power_dual_b=%u,cable_len=%d,autoclass=%d",
            channel,
            requested_power_single,
            requested_power_dual_a,
@@ -5585,7 +5585,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_get_port_layer2_lldp_pse_data(
     *cable_length_in_use             =  buf[11];
     *l2_cfg                          =  buf[12];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT LAYER2 LLDP PSE DATA] CH=%d, pse_alloc_pwr_a_or_single=%lu, pse_alloc_pwr_b=%lu, pse_max_pwr=%lu, assigned_class=%d, status=%d, power_bits=%d, cable_len_in_use=%d, l2_cfg=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[GET BT PORT LAYER2 LLDP PSE DATA] CH=%d, pse_alloc_pwr_a_or_single=%u, pse_alloc_pwr_b=%u, pse_max_pwr=%u, assigned_class=%d, status=%d, power_bits=%d, cable_len_in_use=%d, l2_cfg=%d",
        channel,
        *pse_allocated_power_a_or_single,
        *pse_allocated_power_b,
@@ -6240,8 +6240,8 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_data_set(
         inst,
         handle,
         pd_data->pd_requested_power / 100, // convert from milliwatt to deciwatt
-        0,
-        0,
+        pd_data->pd_requested_power / 100, // convert from milliwatt to deciwatt
+        pd_data->pd_requested_power / 100, // convert from milliwatt to deciwatt
         10, // corresponds to 100m
         0);
 }
