@@ -446,6 +446,11 @@ class MesaDut
         return pid
     end
 
+    def bg_exitstatus pid
+        poll_cmd_output(pid)
+        @background_jobs[pid[:pid]][:res]
+    end
+
     def bg_sink pid
         raise "not implemented"
     end
@@ -718,6 +723,11 @@ class TestPCRemote
         @background_jobs[pid[:pid]] = {:ts_begin => ts_begin, :out => "", :err => "", :in => "", :on => "dut"}
 
         return pid[:pid]
+    end
+
+    def bg_exitstatus pid
+        poll_cmd_output(pid)
+        @background_jobs[pid][:res]
     end
 
     def get name
