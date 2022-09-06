@@ -3289,6 +3289,11 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
         unit = 2;
         break;
     }
+
+    DEV_WRM(VERIF_CONFIG, port,
+            VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(1),
+            VTSS_M_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS);
+
     DEV_WR(VERIF_CONFIG, port,
            VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
            VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_TIME(conf->verify_time) |
@@ -3340,6 +3345,18 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
         v = VTSS_MM_STATUS_VERIFY_DISABLED;
     } else {
         v = VTSS_X_DEV1G_MM_STATUS_PRMPT_VERIFY_STATE(value);
+
+        if (v == 3) {
+            /* Verification failed, restart it */
+            DEV_WRM(VERIF_CONFIG, port,
+                    VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(1),
+                    VTSS_M_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS);
+
+            DEV_WRM(VERIF_CONFIG, port,
+                    VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(0),
+                    VTSS_M_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS);
+        }
+
         // DEV2G5 does not support full state
         v = (vtss_fa_port_is_high_speed(vtss_state, port) || v == 0 ? v : (v + 2));
     }
