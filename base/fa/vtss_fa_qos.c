@@ -3257,10 +3257,6 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
 
     if (enable_tx) {
-        if (speed > VTSS_SPEED_10G) {
-            VTSS_E("frame preemption is not supported for port speeds above 10G");
-            return VTSS_RC_ERROR;
-        }
         if (speed == VTSS_SPEED_10G && vtss_state->init_conf.core_clock.freq < VTSS_CORE_CLOCK_500MHZ) {
             VTSS_E("frame preemption requires at least 500 MHz core clock for 10G ports");
             return VTSS_RC_ERROR;
@@ -3338,7 +3334,13 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
                                          vtss_qos_fp_port_status_t *const status)
 {
     u32 value, v, port = VTSS_CHIP_PORT(port_no);
+    vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
 
+    if (speed > VTSS_SPEED_10G) {
+        status->preemption_active = 0;
+        status->status_verify = VTSS_MM_STATUS_VERIFY_DISABLED;
+        return VTSS_RC_OK;
+    }
     DEV_RD(MM_STATUS, port, &value);
     status->preemption_active = VTSS_X_DEV1G_MM_STATUS_PRMPT_ACTIVE_STATUS(value);
     if (vtss_state->qos.fp.port_conf[port_no].verify_disable_tx) {
