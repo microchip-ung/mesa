@@ -1285,7 +1285,7 @@ static mepa_rc indy_ts_classifier_mac_conf_set_priv(mepa_device_t *dev,  mepa_bo
 
 static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bool_t ing, const mepa_ts_vlan_conf_t *const vlan_conf)
 {
-    uint16_t vlan_parse = 0, eth_type = 0, range_up = 0, range_lo = 0, vid = 0, mask = 0;
+    uint16_t vlan_parse = 0, range_up = 0, range_lo = 0, vid = 0, mask = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
     if (ing) {
@@ -1295,7 +1295,6 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
             /* fall-through */
         case 1:
             vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_VLAN1_CHECK_EN;
-            vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_CHECK_EN;
             vlan_parse = vlan_parse | INDY_PTP_RX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
             EP_WRM(dev, INDY_PTP_RX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
             break;
@@ -1311,7 +1310,6 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
             /* fall-through */
         case 1:
             vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_VLAN1_CHECK_EN;
-            vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_CHECK_EN;
             vlan_parse = vlan_parse | INDY_PTP_TX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
             EP_WRM(dev, INDY_PTP_TX_PARSE_VLAN_CONFIG, vlan_parse, INDY_DEF_MASK);
             break;
@@ -1323,10 +1321,6 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
     }
 
     // common configuration for both ingress and egress, reconfigures
-    if (vlan_conf->etype > 0 ) {
-        eth_type = vlan_conf->etype;
-        EP_WRM(dev, INDY_PTP_VLAN_ETH_TYPE_ID, eth_type, INDY_DEF_MASK);
-    }
     switch (vlan_conf->num_tag) {
     case 2:
         if (vlan_conf->outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
@@ -1354,8 +1348,8 @@ static mepa_rc indy_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa_bo
         } else {
             mask = 0, vid = 0;
             vid = vid | INDY_VLAN1_TYPE_SELECT_F(0);
-            vid = vid | INDY_VLAN1_TYPE_ID_VAL_F(vlan_conf->outer_tag.match.value.val);
-            mask = mask | INDY_VLAN1_ID_MASK_VAL_F(vlan_conf->outer_tag.match.value.mask);
+            vid = vid | INDY_VLAN1_TYPE_ID_VAL_F(vlan_conf->inner_tag.match.value.val);
+            mask = mask | INDY_VLAN1_ID_MASK_VAL_F(vlan_conf->inner_tag.match.value.mask);
             EP_WRM(dev, INDY_VLAN1_TYPE_ID, vid, INDY_DEF_MASK);
             EP_WRM(dev, INDY_VLAN1_ID_MASK, mask, INDY_DEF_MASK);
         }
