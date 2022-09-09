@@ -68,6 +68,7 @@ end
   next if /mepa.docs.resources.font/ =~ f
   next if /mepa.docs.resources.jquery/ =~ f
   next if /mepa.docs.resources.bootstrap/ =~ f
+  next if /.cmake\/docker\/SimpleGridClient/ =~ f
 
   next if [".vsd", ".svg", ".png", ".graphml", ".xls", ".txt"].include? ext
   next if [".gitattributes", ".gitignore", "Gemfile.lock", "catch.hpp", "TODO"].include? base
