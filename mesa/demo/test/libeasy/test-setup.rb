@@ -248,6 +248,11 @@ class MesaDut
         execute cmd, "run_err"
     end
 
+    # ignore errors
+    def run_ignore cmd, *args
+        execute cmd, "try_ignore", *args
+    end
+
     # Run cli command wrapped with json. Stop test if error.
     def call cmd, *args
         call_execute cmd, "run", *args
