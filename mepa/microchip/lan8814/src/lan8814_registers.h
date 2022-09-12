@@ -270,6 +270,20 @@
 #define INDY_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK INDY_BIT(0)
 #define INDY_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK INDY_BIT(1)
 
+// Register - 5.32,33,34
+#define INDY_RX_RA_FIFO_THRESHOLDS_1 INDY_EXT_PAGE_5, 32
+#define INDY_RX_RA_FIFO_THRESHOLDS_2 INDY_EXT_PAGE_5, 33
+#define INDY_RX_RA_FIFO_THRESHOLDS_3 INDY_EXT_PAGE_5, 34
+
+// Register - 5.38,39,40
+#define INDY_TX_RA_FIFO_THRESHOLDS_1 INDY_EXT_PAGE_5, 38
+#define INDY_TX_RA_FIFO_THRESHOLDS_2 INDY_EXT_PAGE_5, 39
+#define INDY_TX_RA_FIFO_THRESHOLDS_3 INDY_EXT_PAGE_5, 40
+
+//Register - 5.44,45
+#define INDY_TX_RA_FIFO_RESET INDY_EXT_PAGE_5, 44
+#define INDY_RX_RA_FIFO_RESET INDY_EXT_PAGE_5, 45
+
 //====================================================================================
 //      Extended Page 28
 //====================================================================================
