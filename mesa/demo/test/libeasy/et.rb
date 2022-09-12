@@ -447,6 +447,10 @@ def trace level, msg
     xml_tag "trace", msg.to_s, {"level" => level, "ts" => xml_ts(Time.now)}
 end
 
+def t_backtrace e
+    xml_tag "backtrace", e.backtrace.join("\n\t").sub("\n\t", ": #{e}#{e.class ? " (#{e.class})" : ''}\n\t")
+end
+
 def t_n msg
     trace "noice", msg
 end
