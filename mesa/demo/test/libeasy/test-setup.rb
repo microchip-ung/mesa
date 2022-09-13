@@ -893,7 +893,7 @@ end
 
 $easyframes_sha = "ce45ec85871ad2f1412a964868f8ad11bf581bfc"
 
-UBOOT_PROMPTS = ["m => ", "ocelot # ", "luton # ", "jr2 # ", "=> "]
+UBOOT_PROMPTS = ["m => ", "ocelot # ", "luton # ", "jr2 # ", "servalt # ", "=> "]
 
 class Mesa_Pc_b2b
     attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin, :port_map
