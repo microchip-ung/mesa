@@ -119,6 +119,27 @@ class CliIO
           yield l
         end
 
+        t_i "Compare agains >#{@input_buf}<"
+        if @input_buf.match pattern
+          @input_buf = ""
+          return true
+        end
+
+        if !poll_stdin
+          raise "pattern not found"
+        end
+      end
+    end
+
+    def read_line_expect_out_end pattern
+      while true
+        while l = pop_line
+          yield l
+          if l.match pattern
+            return true
+          end
+        end
+
         if @input_buf.match pattern
           @input_buf = ""
           return true
@@ -138,7 +159,7 @@ class CliIO
       start = Time.now
       while Time.now - start < total_timeout
         begin
-          match = read_line_expect_end pattern do |l|
+          match = read_line_expect_out_end pattern do |l|
             if block_given?
               yield l
             else
@@ -1017,8 +1038,8 @@ class Mesa_Pc_b2b
     def uboot_break
       begin
         t_i "try to reach uboot prompt"
-        @dut.io.read_line_expect_retry /Hit any key to stop autoboot/, 30, 1
-        @dut.io.send ""
+        @dut.io.read_line_expect_retry /(Hit any key to stop autoboot|Press SPACE to abort autoboot)/, 30, 1
+        @dut.io.send " "
         sleep 0.1
         cur  = @dut.io.get_cursor
         if not UBOOT_PROMPTS.include? cur
@@ -1034,45 +1055,105 @@ class Mesa_Pc_b2b
       end
     end
 
-    def reboot_dut conf
+    def trigger_reboot_dut conf
       again = 10
-
       while again > 0
         t_i "Detect environment and trigger a reboot"
-        if l = @dut.io.get_cursor
-          t_i "Got: #{l}"
+        l = @dut.io.get_cursor
+        t_i "Got: #{l}"
 
-          if UBOOT_PROMPTS.include? l
-            t_i "Looks like uboot"
-            @dut.io.send "reset"
-            again = 0
-          elsif l =~ /#/
-            t_i "Looks linux shell - try reboot cmd"
-            @dut.io.sysrq("b")
-            @dut.io.send ""
-            @dut.io.send "reboot"
-            again = 0
-          elsif l =~ /login:/
-            t_i "Looks login shell"
-            @dut.io.send "root"
-            again -= 1
-            sleep 1
-          elsif l =~ /Password:/
-            t_i "Looks linux login prompt"
-            # root does not use any password - maybe some garbage was entered
-            @dut.io.send ""
-            sleep 5
+        if UBOOT_PROMPTS.include? l
+          t_i "Looks like uboot"
+          @dut.io.send "reset"
+          again = 0
+        elsif l =~ /#/
+          t_i "Looks linux shell - try reboot cmd"
+          @dut.io.sysrq("b")
+          @dut.io.send ""
+          @dut.io.send "reboot"
+          again = 0
+
+        elsif l =~ /login:/
+          t_i "Looks login shell"
+          @dut.io.send "root"
+          again -= 1
+          sleep 1
+        elsif l =~ /Password:/
+          t_i "Looks linux login prompt"
+          # root does not use any password - maybe some garbage was entered
+          @dut.io.send ""
+          sleep 5
+          again -= 1
+        else
+          if again > 8
+            t_i "Unexpected prompt: #{l} - try reset tty"
+            @dut.io.send("stty echo")
+            sleep(0.1)
+            @dut.io.send("export PS1=\"# \"")
+            sleep(0.1)
+            @dut.io.send("export PS2=\"> \"")
+            sleep(0.1)
+            @dut.io.send("")
             again -= 1
           else
             t_i "Unexpected prompt: #{l} - do power-cycle"
             @pc.run conf["power_control"]
             again = 0
+            t_i "Unexpected prompt: #{l} - do power-cycle"
           end
-        else
-          t_i "Did not get any prompt - do power-cycle"
-          @pc.run conf["power_control"]
-          again = 0
         end
+      end
+    end
+
+    def trigger_laguna_reboot_dut conf
+      again = 10
+      while again > 0
+        t_i "Detect environment and trigger a reboot"
+        l = @dut.io.get_cursor
+        t_i "Got: #{l}"
+
+        if l =~ /#/
+          t_i "Do not attempt to SW-reset Laguna"
+          @dut.io.send("echo 16 >/sys/class/gpio/export")
+          sleep 0.1
+          @dut.io.send("echo out >/sys/class/gpio/gpio16/direction")
+          sleep 0.1
+          @dut.io.send("echo 0 >/sys/class/gpio/gpio16/value")
+          sleep 0.1
+          @dut.io.send("echo 1 >/sys/class/gpio/gpio16/value")
+          t_i "Do not attempt to SW-reset Laguna - DONE"
+          return
+
+        elsif l =~ /login:/
+          t_i "Looks login shell"
+          @dut.io.send "root"
+          again -= 1
+          sleep 1
+        elsif l =~ /Password:/
+          t_i "Looks linux login prompt"
+          # root does not use any password - maybe some garbage was entered
+          @dut.io.send ""
+          sleep 5
+          again -= 1
+        else
+          t_i "Unexpected prompt: #{l} - do power-cycle"
+          @dut.io.send("stty echo")
+          sleep(0.1)
+          @dut.io.send("export PS1=\"# \"")
+          sleep(0.1)
+          @dut.io.send("export PS2=\"> \"")
+          sleep(0.1)
+          @dut.io.send("")
+          again -= 1
+        end
+      end
+    end
+
+    def reboot_dut conf
+      if ((conf["dut"]["pcb"] == "6849-Sunrise") && (conf["dut"]["family"] == "laguna"))
+        trigger_laguna_reboot_dut conf
+      else
+        trigger_reboot_dut conf
       end
 
       if not uboot_break()
