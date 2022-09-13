@@ -56,6 +56,18 @@ static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
 };
 
 /* --------------------------- Board specific ------------------------------- */
+// PTP IO Events used for virtual port.
+static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_LAST, MEBA_EVENT_LAST, MEBA_EVENT_LAST};
+
+static const uint32_t pin_conf_lan9668[MESA_CAP_TS_IO_CNT] = {
+(MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_PIN_OUT),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED),
+};
 
 // NB: No SFP support!
 static port_map_t port_table_adaro[] = {
@@ -240,6 +252,21 @@ static mesa_rc lan966x_ptp_rs422_conf_get(meba_inst_t inst,
     T_I(inst, "IMPLEMENTATION OF rs422_conf requires check/update to actual MASERATI hardware properties.");
     *conf = lan966x_rs422_conf;
     return rc;
+}
+
+static mesa_rc lan966x_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+        return MESA_RC_ERROR;
+    }
+    if (board->type == BOARD_TYPE_8PORT)
+    {
+        *board_assignment = pin_conf_lan9668[io_pin];
+    }
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
 }
 
 /* ---------------------------   Exposed API  ------------------------------- */
@@ -861,6 +888,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_ptp_rs422_conf_get         = lan966x_ptp_rs422_conf_get;
     inst->api_synce                           = meba_synce_get();
     inst->api_tod                             = meba_tod_get();
+    inst->api.meba_ptp_external_io_conf_get   = lan966x_ptp_external_io_conf_get;
 
     return inst;
 
