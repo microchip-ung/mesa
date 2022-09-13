@@ -119,7 +119,6 @@ class CliIO
           yield l
         end
 
-        t_i "Compare agains >#{@input_buf}<"
         if @input_buf.match pattern
           @input_buf = ""
           return true
