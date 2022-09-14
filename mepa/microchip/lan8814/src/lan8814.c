@@ -1461,6 +1461,111 @@ static mepa_rc indy_sqi_read(mepa_device_t *dev, uint32_t *const value)
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_port_flow_mapping_get(uint8_t packet_idx, mepa_bool_t ingress, int *map_val)
+{
+    switch (packet_idx % 4) {
+    case 0:
+        *map_val = ingress ? 1 : 0;
+    break;
+    case 1:
+        *map_val = ingress ? 3 : 2;
+    break;
+    case 2:
+        *map_val = ingress ? 5 : 4;
+    break;
+    case 3:
+        *map_val = ingress ? 7 : 6;
+    break;
+    default:
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_start_of_frame_conf_set(mepa_device_t *dev, mepa_start_of_frame_conf_t *const sof_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_gpio_conf_t gpio_conf;
+    int rc = MEPA_RC_OK;
+    uint16_t val;
+    int map_val;
+
+    MEPA_ENTER(dev);
+
+    rc = indy_port_flow_mapping_get(data->packet_idx, sof_conf->ingress, &map_val);
+    if (rc < 0) {
+       MEPA_EXIT(dev);
+       return rc;
+    }
+
+    EP_RD(dev, INDY_GPIO_SOF_SEL, &val);
+    switch (sof_conf->sof_no) {
+    case 0:
+        val &= ~INDY_M_GPIO_SOF_SEL_SOF0;
+        val |= map_val;
+        gpio_conf.gpio_no = 15;
+        break;
+    case 1:
+        val &= ~INDY_M_GPIO_SOF_SEL_SOF1;
+        val |= (map_val << 3);
+        gpio_conf.gpio_no = 21;
+        break;
+    case 2:
+        val &= ~INDY_M_GPIO_SOF_SEL_SOF2;
+        val |= (map_val << 6);
+        gpio_conf.gpio_no = 16;
+        break;
+    case 3:
+        val &= ~INDY_M_GPIO_SOF_SEL_SOF3;
+        val |= (map_val << 9);
+        gpio_conf.gpio_no = 23;
+        break;
+    default:
+        MEPA_EXIT(dev);
+        return MEPA_RC_ERROR;
+    }
+
+    if (sof_conf->sof_preemption_mode > 3) {
+        MEPA_EXIT(dev);
+        return MEPA_RC_ERROR;
+    }
+
+    // Enabling SOF for corresponding port, direction and GPIO
+    EP_WR(dev, INDY_GPIO_SOF_SEL, val);
+
+    // Enabling SOF preemption
+    EP_RD(dev, INDY_SOF, &val);
+    val &= ~INDY_M_SOF_PREEMPTION_ENABLE;
+    val |= sof_conf->sof_preemption_mode << 8;
+    EP_WR(dev, INDY_SOF, val);
+
+    gpio_conf.mode = MEPA_GPIO_MODE_OUT;
+    rc = indy_gpio_mode_private(dev, &gpio_conf);
+    if (rc < 0) {
+       MEPA_EXIT(dev);
+       return rc;
+    }
+
+    data->sof_conf = *sof_conf;
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_start_of_frame_conf_get(mepa_device_t *dev, mepa_start_of_frame_conf_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    MEPA_ENTER(dev);
+
+    *value = data->sof_conf;
+
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+}
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
     static const int nr_indy_drivers = 2;
@@ -1498,6 +1603,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
             .mepa_debug_info_dump = indy_debug_info_dump,
             .mepa_driver_sqi_read = indy_sqi_read,
+            .mepa_driver_start_of_frame_conf_set = indy_start_of_frame_conf_set,
+            .mepa_driver_start_of_frame_conf_get = indy_start_of_frame_conf_get,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1530,6 +1637,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_isolate_mode_conf = indy_isolate_mode_conf,
             .mepa_debug_info_dump = indy_debug_info_dump,
             .mepa_driver_sqi_read = indy_sqi_read,
+            .mepa_driver_start_of_frame_conf_set = indy_start_of_frame_conf_set,
+            .mepa_driver_start_of_frame_conf_get = indy_start_of_frame_conf_get,
         },
     };
 

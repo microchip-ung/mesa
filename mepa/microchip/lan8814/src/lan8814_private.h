@@ -145,6 +145,7 @@ typedef struct {
     mepa_device_t            *base_dev; // Pointer to the device of base port on the phy chip
     mepa_bool_t              link_status;
     mepa_cable_diag_result_t cable_diag;
+    mepa_start_of_frame_conf_t sof_conf;
     indy_ts_data_t          ts_state;
 } phy_data_t;
 

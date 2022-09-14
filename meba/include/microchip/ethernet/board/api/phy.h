@@ -112,7 +112,13 @@ mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_inf
 mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no,            const mepa_bool_t iso_en);
 
 // Get the SQI value
-mepa_rc meba_phy_sqi_read( meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value);
+mepa_rc meba_phy_sqi_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value);
+
+// Set the SOF value
+mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_start_of_frame_conf_t *const value);
+
+// Get the SOF value
+mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_start_of_frame_conf_t *const value);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

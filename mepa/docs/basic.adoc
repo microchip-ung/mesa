@@ -110,6 +110,33 @@ PHY. It clears up the data allocated in `mepa_create()` function.
 == PHY SQI(Signal Quality Indicator) value
 The API `mepa_sqi_read()` is used to get the signal quality indication
 
+== PHY SOF(Start Of Frame) Pulse
+The API `mepa_start_of_frame_conf_set` is used to set the start of frame
+configuration for generation of an SOF pulse in receive and transmit paths
+using structure `mepa_start_of_frame_conf_t`.
+
+The above structure has below fields:
+
+. `mepa_start_of_frame_conf_t::sof_no`: Four SOF outputs, each of which is
+configurable to be any of the eight available SOF pulses (Tx SOF and Rx SOF on
+each port).
+. `mepa_start_of_frame_conf_t::ingress`: If true SOF pulse is detected for
+ingress packet else it is detected for egress packet.  Direction of frame
+transmission.
+. `mepa_start_of_frame_conf_t::sof_preemption_mode`: This is an enum of type
+`mepa_preemption_mode_t` which can be set to:
+.. `MEPA_PREEMPTION_NORMAL_SFD` or `MEPA_PREEMPTION_SMD_E`: The SOF pulse is
+generated for SMD-E (0xD5 / normal SFD).
+.. `MEPA_PREEMPTION_SMD_EXCEPT_CONTINUOUS`: The SOF pulse is generated for any
+of the SMD values listed in 802.3br-2016 except for the continuation frame:
+SMD-V (0x07), SMD-R (0x19), SMD-E (0xD5) and SMD-S[0,1,2,3] (0xE6. 0x4C, 0x7F or
+0xB3).
+.. `MEPA_PREEMPTION_SMD_ALL`: The SOF pulse is also generated for the
+continuation SMD values SMD-C[0,1,2,3] (0x61, 0x52, 0x9E or 0x2A).
+
+The API `mepa_start_of_frame_conf_get` is used to get the start of frame
+configuration
+
 == API References
 
 `mepa_clause22_read()` +
@@ -130,4 +157,6 @@ The API `mepa_sqi_read()` is used to get the signal quality indication
 `mepa_isolate_mode_conf()` +
 `mepa_debug_info_dump()` +
 `mepa_delete()` +
-`mepa_sqi_read()`
+`mepa_sqi_read()` +
+`mepa_start_of_frame_conf_set()` +
+`mepa_start_of_frame_conf_get()`

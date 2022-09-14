@@ -640,5 +640,29 @@ mepa_rc mepa_i2c_write(mepa_device_t *dev,
  **/
 mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value);
 
+/**
+ * \brief PHY write SOF value
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param conf [IN]   SOF value to be Configured
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, mepa_start_of_frame_conf_t *const conf);
+
+/**
+ * \brief PHY get SOF value
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param value [OUT]   SOF value to return
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_start_of_frame_conf_get(struct mepa_device *dev, mepa_start_of_frame_conf_t *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

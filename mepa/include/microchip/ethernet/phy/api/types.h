@@ -264,6 +264,21 @@ typedef struct {
     mepa_gpio_mode_t mode;
 } mepa_gpio_conf_t;
 
+/** \brief SOF Preemption mode */
+typedef enum {
+    MEPA_PREEMPTION_NORMAL_SFD = 0,
+    MEPA_PREEMPTION_SMD_E,
+    MEPA_PREEMPTION_SMD_EXCEPT_CONTINUOUS,
+    MEPA_PREEMPTION_SMD_ALL,
+} mepa_preemption_mode_t;
+
+/** \brief SOF data */
+typedef struct {
+    uint8_t sof_no;
+    mepa_bool_t ingress;
+    mepa_preemption_mode_t sof_preemption_mode;
+} mepa_start_of_frame_conf_t;
+
 /**< Loopback types */
 typedef struct {
     mepa_bool_t far_end_ena;    /**< far end loopback where traffic is looped back towards link partner from pcs. */
