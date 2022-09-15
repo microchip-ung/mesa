@@ -670,10 +670,9 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         if (data->events) {
             indy_event_enable_set(dev, data->events, TRUE);
         }
-    } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST_MAC) {
-	//Configure frame preemption
-	indy_framepreempt_int_set(dev, rst_conf->framepreempt_en);
     }
+    //Configure frame preemption
+    indy_framepreempt_int_set(dev, rst_conf->framepreempt_en);
 
     //Configure frame preemption
     indy_framepreempt_set(dev, rst_conf->framepreempt_en);
