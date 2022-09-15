@@ -506,15 +506,10 @@ static mepa_rc indy_workaround_half_duplex(mepa_device_t *dev)
 }
 
 // If earlier speed,duplex are 10M,100M with half duplex config, work-around applied earlier needs to be cleaned up.
-static mepa_rc indy_workaround_half_duplex_cleanup(mepa_device_t *dev, const mepa_conf_t *config)
+static mepa_rc indy_workaround_half_duplex_cleanup(mepa_device_t *dev)
 {
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
-        !data->conf.fdx) {
-        EP_WR(dev, INDY_TX_RA_FIFO_RESET, 1);
-        EP_WR(dev, INDY_RX_RA_FIFO_RESET, 1);
-    }
+    EP_WR(dev, INDY_TX_RA_FIFO_RESET, 1);
+    EP_WR(dev, INDY_RX_RA_FIFO_RESET, 1);
     return MEPA_RC_OK;
 }
 
@@ -631,14 +626,28 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
     }
 
 end:
-    if (data->dev.model == 0x26 && data->conf.speed == MEPA_SPEED_AUTO &&
-        data->conf.mac_if_aneg_ena) {
-        if (status->link && status->link != data->link_status) {
-            // copy the capabilities on host side
-            indy_qsgmii_tx_abilities(dev, status->speed, status->fdx);
+    if (data->dev.model == 0x26 && data->conf.speed == MEPA_SPEED_AUTO) {
+        if (status->link != data->link_status) {
+            if (status->link) { //link up event
+                if (data->conf.mac_if_aneg_ena) {
+                    // copy the capabilities on host side
+                    indy_qsgmii_tx_abilities(dev, status->speed, status->fdx);
+                }
+                if ((status->speed == MEPA_SPEED_10M || status->speed == MEPA_SPEED_100M) &&
+                    (status->fdx == FALSE)) {
+                    indy_workaround_half_duplex(dev);
+                }
+            } else {// link down event.
+                if ((data->speed_status == MEPA_SPEED_100M || data->speed_status == MEPA_SPEED_10M) &&
+                    (data->fdx_status == FALSE)) {
+                    indy_workaround_half_duplex_cleanup(dev);
+                }
+            }
         }
     }
     data->link_status = status->link;
+    data->speed_status = status->speed;
+    data->fdx_status   = status->fdx;
     MEPA_EXIT(dev);
     T_D(MEPA_TRACE_GRP_GEN, "port %d status link %d, speed %d, fdx %d", data->port_no, status->link, status->speed, status->fdx);
     return MEPA_RC_OK;
@@ -704,7 +713,10 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             indy_qsgmii_aneg(dev, qsgmii_aneg);
         }
         if (config->speed == MEPA_SPEED_AUTO || config->speed == MEPA_SPEED_1G) {
-            indy_workaround_half_duplex_cleanup(dev, config);
+            if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
+                !data->conf.fdx) {
+                indy_workaround_half_duplex_cleanup(dev);
+            }
             if (data->conf.admin.enable != config->admin.enable) {
                 restart_aneg = TRUE;
             }
@@ -745,7 +757,10 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
                 WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
             }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
-            indy_workaround_half_duplex_cleanup(dev, config);
+            if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
+                !data->conf.fdx) {
+                indy_workaround_half_duplex_cleanup(dev);
+            }
             T_I(MEPA_TRACE_GRP_GEN, "forced speed %d configured\n", config->speed);
             new_value = ((config->speed == MEPA_SPEED_100M ? 1 : 0) << 13) | (0 << 12) |
                         ((config->fdx ? 1 : 0) << 8) |
