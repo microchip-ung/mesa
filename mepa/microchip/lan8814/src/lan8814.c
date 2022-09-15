@@ -614,7 +614,7 @@ static mepa_rc indy_framepreempt_int_set(mepa_device_t *dev, mepa_bool_t const e
 		//Set Frame Preemption
 		val = 0;
 		EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
-		if (enable)
+		if (base_data->framepreempt_en)
 			val |= INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
 		else
 			val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
