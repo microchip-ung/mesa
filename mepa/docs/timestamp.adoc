@@ -416,36 +416,6 @@ of a given PHY, provided event mask.
 The API `mepa_ts_event_poll()` helps to poll and see if a interrupt/event
 is generated or not.
 
-=== Frame Preemption
-
-==== Definition (Ref. IEEE 802.3Qbu-2016_A26_Framepreemption)
-The suspension of the transmission of a preemptable frame to allow one or
-more express frames to be transmitted before transmission of the preemptable
-frame is resumed
-
-The default value of frame preemption status is express
-
-==== MAC Merge Packet (mPacket) (Ref. 8023br-2016)
-This mPacket format starts with the normal preamble but supplements the normal
-Start of Frame Delimiter (SFD = 0xD5) with newly defined Start mPacket
-Delimiters (SMDs) of various values. Also added for certain mPackets is a
-fragment count octet.
-
-==== 1588 FRAME PARSING
-1588 processing is supported with Frame Preemption but only for Express frames.
-The frame parser will ignore any packet that does not contain the standard SFD.
-
-* Standalone Mode - The SMD and SFD characters are passed transparently across
-QSGMII (no PCH/MCH header).
-
-* PCH/MCH Mode - The SMD and SFD characters are passed across Q-USGMII using
-the PCH or MCH header.
-
-
-The API `mepa_ts_framepreempt_get()` helps to get the current configuration of Frame Preemption
-
-The API `mepa_ts_framepreempt_set()` helps to enable/disable Frame Preemption
-
 === MEPA TS functions.
 `mepa_ts_init_conf_set()` +
 `mepa_ts_init_conf_get()` +
@@ -475,7 +445,4 @@ The API `mepa_ts_framepreempt_set()` helps to enable/disable Frame Preemption
 `mepa_ts_fifo_read_install()` +
 `mepa_ts_fifo_read()` +
 `mepa_ts_fifo_empty()` +
-`mepa_ts_test_config()` +
-`mepa_ts_test_config()` +
-`mepa_ts_framepreempt_get()` +
-`mepa_ts_framepreempt_set()`
+`mepa_ts_test_config()`

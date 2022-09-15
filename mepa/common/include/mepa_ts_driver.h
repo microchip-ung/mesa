@@ -426,30 +426,6 @@ typedef mepa_rc (*mepa_ts_fifo_empty_t)(struct mepa_device *dev);
 /** \brief Sample Test configurations */
 typedef mepa_rc (*mepa_ts_test_config_t) (struct mepa_device *dev, uint16_t test_id, mepa_bool_t reg_dump);
 
-/**
- * \brief PHY get Frame Preemption
- *
- * \param dev   [IN]   Driver instance.
- * \param value [OUT]  Frame Preemption value to return
- *
- * \return
- *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
- *   MEPA_RC_OK on success.
- **/
-typedef mepa_rc (*mepa_ts_framepreempt_get_t)(struct mepa_device *dev, mepa_bool_t *const value);
-
-/**
- * \brief PHY set Frame Preemption
- *
- * \param dev   [IN]  Driver instance.
- * \param value [IN]  Frame Preemption value to set
- *
- * \return
- *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
- *   MEPA_RC_OK on success.
- **/
-typedef mepa_rc (*mepa_ts_framepreempt_set_t)(struct mepa_device *dev, mepa_bool_t const value);
-
 /** \brief PHY Timestamp Driver */
 typedef struct mepa_ts_driver {
     mepa_ts_init_conf_get_t                 mepa_ts_init_conf_get;
@@ -488,8 +464,6 @@ typedef struct mepa_ts_driver {
     mepa_ts_test_config_t                   mepa_ts_test_config;
     mepa_ts_fifo_read_install_t             mepa_ts_fifo_read_install;
     mepa_ts_fifo_empty_t                    mepa_ts_fifo_empty;
-    mepa_ts_framepreempt_get_t              mepa_ts_framepreempt_get;
-    mepa_ts_framepreempt_set_t              mepa_ts_framepreempt_set;
 } mepa_ts_driver_t;
 
 #endif

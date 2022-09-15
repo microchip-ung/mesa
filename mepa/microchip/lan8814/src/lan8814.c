@@ -581,6 +581,26 @@ static mepa_rc indy_selftest_stop(struct mepa_device *dev)
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_framepreempt_int_set(mepa_device_t *dev, mepa_bool_t const enable)
+{
+	phy_data_t *data = (phy_data_t *)dev->data;
+	uint16_t val;
+
+	//Set Frame Preemption
+	val = 0;
+	EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
+	if (enable)
+		val |= INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+	else
+		val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+	EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
+	//Update local cache
+	data->framepreempt_en = enable;
+
+	return MEPA_RC_OK;
+}
+
 static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -615,6 +635,9 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
     // Reconfigure the phy after reset
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
+	//Configure frame preemption
+	indy_framepreempt_int_set(dev, rst_conf->framepreempt_en);
+
         indy_conf_set(dev, &data->conf);
         if (data->events) {
             indy_event_enable_set(dev, data->events, TRUE);

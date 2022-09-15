@@ -125,7 +125,7 @@ mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
 
 // Start Self-Test
 mepa_rc meba_selftest_start(meba_inst_t inst, mepa_port_no_t port_no,
-			    const mepa_selftest_info_t *inf);
+                            const mepa_selftest_info_t *inf);
 
 // Read Self-Test Checking counters
 mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
