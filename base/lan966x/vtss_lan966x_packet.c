@@ -85,6 +85,7 @@ static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
     _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
     if (ts.nanoseconds < frame_ns) {
         tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns from the frame. TOD nanoseconds has wrapped */
+        tc += ((u64)VTSS_ONE_MIA) << 16;
     } else {
         tod_ns = ts.nanoseconds;
     }
