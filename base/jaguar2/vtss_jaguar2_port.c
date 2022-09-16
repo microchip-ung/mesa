@@ -1414,6 +1414,26 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     // FEC status
     status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
 
+    if (an_sm == 2) {
+        JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &val);
+        if (val == 0) {
+            // Aneg SM has not changed since last clear and might be stuck in ability detect
+            // Restart aneg
+            JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
+                    VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
+                    VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
+            return VTSS_RC_OK;
+        } else {
+            // Clear aneg history
+            JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
+                    VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
+                    VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
+            JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
+                    VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
+                    VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
+        }
+    }
+
     if (status->aneg.active) {
         // Aneg is still running, return now.
         status->aneg.speed_req = VTSS_SPEED_UNDEFINED;
