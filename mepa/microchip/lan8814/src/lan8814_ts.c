@@ -180,7 +180,6 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 #endif
 
     return MEPA_RC_OK;
-
 }
 
 static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf_t *const ts_init_conf)

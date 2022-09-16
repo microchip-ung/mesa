@@ -140,6 +140,7 @@ typedef enum {
 typedef struct {
     mepa_media_interface_t media_intf;
     mepa_reset_point_t     reset_point;
+    mepa_bool_t            framepreempt_en;      // default is disable(0)
 } mepa_reset_param_t;
 
 /** \brief Represents the status of the PHY. */

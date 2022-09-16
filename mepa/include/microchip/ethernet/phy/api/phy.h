@@ -664,5 +664,17 @@ mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, mepa_start_of_fram
  **/
 mepa_rc mepa_start_of_frame_conf_get(struct mepa_device *dev, mepa_start_of_frame_conf_t *const value);
 
+/**
+ * \brief PHY get Frame Preemption
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param value [OUT]  Frame Preemption value to return
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_framepreempt_get(struct mepa_device *dev, mepa_bool_t *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

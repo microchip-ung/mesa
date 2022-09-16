@@ -120,5 +120,8 @@ mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t inst, mepa_port_no_t port_n
 // Get the SOF value
 mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_start_of_frame_conf_t *const value);
 
+// PHY get Frame Preemption
+mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H
