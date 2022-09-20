@@ -499,6 +499,7 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 if (mesa_port_kr_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                     cli_printf("KR set failed for port %u\n", uport);
                 }
+                kr_conf_state[iport].mesa_kr_an_good = 0;
             }
         }
     }
@@ -1267,6 +1268,10 @@ static void kr_poll_v2(meba_inst_t inst, mesa_port_no_t iport)
     }
     // 10G KR surveilance
     (void)(mesa_port_kr_status_get(NULL, iport, &status));
+    if (!kr_conf_state[iport].mesa_kr_an_good && status.aneg.complete) {
+        printf("Port:%d - Aneg completed, %s\n",iport2uport(iport), status.train.complete ? "Training completed" : "without training");
+    }
+    kr_conf_state[iport].mesa_kr_an_good = status.aneg.complete;
 
 }
 
@@ -1593,8 +1598,16 @@ void mscc_appl_kr_init(mscc_appl_init_t *init)
         kr_init(init->board_inst);
         break;
 
+      case MSCC_INIT_CMD_POLL_FAST:
+        if (BASE_KR_V2) {
+            kr_poll(init->board_inst);
+        }
+        break;
+
     case MSCC_INIT_CMD_POLL_FASTEST:
-        kr_poll(init->board_inst);
+        if (BASE_KR_V3) {
+            kr_poll(init->board_inst);
+        }
         break;
 
     default:
