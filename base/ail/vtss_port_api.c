@@ -1571,20 +1571,34 @@ static u16 kr_analyze_ber(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
 
 static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
 {
-    u32 max = krs->eye_height[tap][0];
-    u32 indx = 0;
+    u32 max_height = 0;
+    u32 indx = 0, repl=0, max_repl=0;
+
     for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
-        if (krs->eye_height[tap][i] >= max ) {
-            max = krs->eye_height[tap][i];
-            indx = i;
+        if (krs->eye_height[tap][i] > max_height ) {
+            max_height = krs->eye_height[tap][i];
         }
     }
-    if (indx > 0) {
-        return indx + 1;
-    } else {
-        return 0;
+    // Find the midfield of the identcial max height posistions (if more than one)
+    for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
+        if (krs->eye_height[tap][i] == max_height ) {
+            for (u32 a = i; a <= krs->lp_tap_max_cnt[tap]; a++) {
+                if (krs->eye_height[tap][a] == max_height && (a < krs->lp_tap_max_cnt[tap])) {
+                    repl++;
+                } else {
+                    if (repl > max_repl) {
+                        max_repl = repl;
+                        indx = i;
+                        i = a;
+                        repl = 0;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
+    return indx + (max_repl / 2);
 }
 
 static u16 kr_eye_height_get(vtss_state_t *state, vtss_port_no_t p)
@@ -1759,7 +1773,7 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                     mid_mark = kr_get_best_eye(krs, krs->current_tap);
                 }
                 krs->lp_tap_end_cnt[krs->current_tap] = mid_mark;
-                krs->decr_cnt = krs->tap_idx - mid_mark;
+                krs->decr_cnt = krs->tap_idx - mid_mark - 1;
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
                 krs->ber_training_stage = VTSS_BER_MOVE_TO_MID_MARK;
             } else {
