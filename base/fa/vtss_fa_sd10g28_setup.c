@@ -30,6 +30,10 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
     u32 spd10g = 1;
     u32 cmu_num = 0;
 
+    if ((vtss_state->port.cmu_enable_mask | cmu_mask) == vtss_state->port.cmu_enable_mask) {
+        return VTSS_RC_OK; // already enabled
+    }
+
     for (cmu_num = 0; cmu_num < FA_SERDES_CMU; cmu_num++) {
         if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
             continue;
@@ -146,6 +150,7 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
         if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
             continue;
         }
+
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 
         REG_RD(VTSS_SD10G_CMU_TARGET_CMU_E0(cmu_tgt), &value);
@@ -163,7 +168,7 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
                 VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_PMA_TX_CK_PD);
 
     }
-    vtss_state->port.cmu_enable_mask |= VTSS_BIT(cmu_num);
+    vtss_state->port.cmu_enable_mask |= cmu_mask;
 
   return rc;
 }
@@ -554,17 +559,19 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
     vtss_sd10g28_setup_struct_t calc_results = {};
     vtss_rc rc = 0;
-    u32 cmu_num;
+    u32 cmu_mask = 0, p;
 
     VTSS_D("This function is generated with UTE based on TAG: temp");
 
-    rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
-
-    cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no);
-    if (!(vtss_state->port.cmu_enable_mask & (VTSS_BIT(cmu_num)))) {
-        vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, VTSS_BIT(cmu_num));
-        vtss_state->port.cmu_enable_mask |= VTSS_BIT(cmu_num);
+    vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+    for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+            continue;
+        }
+        rc |= vtss_calc_sd10g28_setup_lane(config, &calc_results);
+        cmu_mask |= VTSS_BIT(vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], p));
     }
+    vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu_mask);
 
     if(rc == VTSS_RC_OK) {
         rc |= vtss_ant_sd10g28_reg_cfg(vtss_state, &calc_results, port_no);
