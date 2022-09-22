@@ -598,6 +598,7 @@ mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
     return mepa_framepreempt_get(inst->phy_devices[port_no], value);
+}
 
 // Delete the PHY
 mepa_rc meba_phy_delete(meba_inst_t inst, mepa_port_no_t port_no)

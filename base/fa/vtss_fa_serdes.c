@@ -3985,7 +3985,7 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
                 VTSS_F_SD10G_CMU_TARGET_CMU_06_CFG_CTRL_LOGIC_PD(1),
                 VTSS_M_SD10G_CMU_TARGET_CMU_06_CFG_CTRL_LOGIC_PD);
     }
-
+#endif
     return VTSS_RC_OK;
 }
 

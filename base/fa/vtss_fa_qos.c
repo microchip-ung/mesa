@@ -5337,6 +5337,7 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
             }
 #endif
         }
+#endif // VTSS_FEATURE_QOS_FRAME_PREEMPTION
     }
     return VTSS_RC_OK;
 }
