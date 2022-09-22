@@ -1361,7 +1361,7 @@ static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                 VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS);
 
         // RS-FEC/RADAPT: If train, disable for now, enable later (MESA-723)
-        fa_port_kr_rsfec_radapt_set(vtss_state, port_no, vtss_state->port.kr_conf[port_no]->train.enable ? FALSE : TRUE);
+        fa_port_kr_rsfec_radapt_set(vtss_state, port_no, vtss_state->port.kr_conf[port_no].train.enable ? FALSE : TRUE);
 
         vtss_state->port.kr_store[port_no].rs_fec_cc = 0;
         vtss_state->port.kr_store[port_no].rs_fec_uc = 0;
