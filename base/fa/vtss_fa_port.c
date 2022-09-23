@@ -5031,9 +5031,9 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
 static vtss_rc fa_port_init(vtss_state_t *vtss_state)
 {
     u32 port;
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     VTSS_RC(vtss_fa_serdes_init(vtss_state));
-
+#endif
     /* Setup ANA_AC to count local drops and policer drops per port */
     REG_WR(VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(0),
            VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ZERO_DST_STICKY_MASK);
