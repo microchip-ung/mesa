@@ -150,6 +150,7 @@ typedef struct {
     mepa_start_of_frame_conf_t sof_conf;
     mepa_bool_t		     framepreempt_en;      // Frame Preemption
     indy_ts_data_t          ts_state;
+    mepa_media_mode_t        mdi_mode;
 } phy_data_t;
 
 #endif

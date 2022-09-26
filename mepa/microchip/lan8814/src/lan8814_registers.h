@@ -130,6 +130,7 @@
 
 // Register - 30 .... Reserved register for applying connector loopback
 #define INDY_RESV_CON_LOOP 30
+#define INDY_F_EXT_LPBK INDY_BIT(3)
 
 //====================================================================================
 //      Extended Page 0
@@ -177,8 +178,44 @@
 // Register 2
 #define INDY_OPERATION_MODE_STRAP_LOW INDY_EXT_PAGE_2, 2
 
+// Register 9
+#define INDY_SELFTEST_PKT_CNT_LO INDY_EXT_PAGE_2, 9
+
+// Register 10
+#define INDY_SELFTEST_PKT_CNT_HI INDY_EXT_PAGE_2, 10
+
+// Register 11
+#define INDY_SELFTEST_STATUS INDY_EXT_PAGE_2, 11
+#define INDY_F_SELFTEST_DONE      INDY_BIT(0)
+
+// Register 12
+#define INDY_SELFTEST_FRAME_CNT INDY_EXT_PAGE_2, 12
+#define INDY_F_SELFTEST_FRAME_CNT_EN      INDY_BIT(0)
+
+// Register 13
+#define INDY_SELFTEST_PGEN_EN INDY_EXT_PAGE_2, 13
+#define INDY_F_SELFTEST_PGEN_EN      INDY_BIT(0)
+
+// Register 14
+#define INDY_SELFTEST_EN_REG INDY_EXT_PAGE_2, 14
+#define INDY_F_SELFTEST_RX_CRC_CHK_EN		INDY_BIT(8)
+#define INDY_F_SELFTEST_TX_CRC_CHK_EN		INDY_BIT(4)
+#define INDY_F_SELFTEST_EN			INDY_BIT(0)
+
 // Register 15
 #define INDY_1000BT_FIX_LATENCY_ENABLE INDY_EXT_PAGE_2, 15
+
+// Register 60
+#define INDY_SELFTEST_GOOD_CNT_LO INDY_EXT_PAGE_2, 60
+
+// Register 61
+#define INDY_SELFTEST_GOOD_CNT_HI INDY_EXT_PAGE_2, 61
+
+// Register 62
+#define INDY_SELFTEST_ERR_CNT_LO INDY_EXT_PAGE_2, 62
+
+// Register 63
+#define INDY_SELFTEST_ERR_CNT_HI INDY_EXT_PAGE_2, 63
 
 // Register 74
 #define INDY_ALIGN_SWAP INDY_EXT_PAGE_2, 74

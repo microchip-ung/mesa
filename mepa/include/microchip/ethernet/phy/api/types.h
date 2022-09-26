@@ -395,5 +395,14 @@ typedef struct {
     mepa_bool_t        vml_format;  /**< VML format register dump */
 } mepa_debug_info_t;
 
+/** \brief self-test information structure */
+typedef struct {
+    mepa_port_speed_t	speed;
+    mepa_media_mode_t	mdi;
+    uint32_t		frames;
+    uint32_t		good_cnt;
+    uint32_t		err_cnt;
+} mepa_selftest_info_t;
+
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_TYPES_H_ */

@@ -521,3 +521,23 @@ mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa
     }
     return mepa_framepreempt_get(inst->phy_devices[port_no], value);
 }
+
+// Start PHY Self-Test
+mepa_rc meba_selftest_start(meba_inst_t inst, mepa_port_no_t port_no,
+                            const mepa_selftest_info_t *inf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_selftest_start(inst->phy_devices[port_no], inf);
+}
+
+// Read PHY Self-Test Checking counters
+mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
+                            mepa_selftest_info_t *const inf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_selftest_read(inst->phy_devices[port_no], inf);
+}

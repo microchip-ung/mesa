@@ -676,5 +676,29 @@ mepa_rc mepa_start_of_frame_conf_get(struct mepa_device *dev, mepa_start_of_fram
  **/
 mepa_rc mepa_framepreempt_get(struct mepa_device *dev, mepa_bool_t *const value);
 
+/**
+ * \brief Start PHY Self-Test Frame
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param inf     [IN]  selftest information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_selftest_start(struct mepa_device *dev, const mepa_selftest_info_t *inf);
+
+/**
+ * \brief Read PHY Self-Test Checking counters
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param inf     [OUT] selftest information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const selftest_inf);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

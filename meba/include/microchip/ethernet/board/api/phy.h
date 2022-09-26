@@ -123,5 +123,13 @@ mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t inst, mepa_port_no_t port_n
 // PHY get Frame Preemption
 mepa_rc meba_phy_framepreempt_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const value);
 
+// Start Self-Test
+mepa_rc meba_selftest_start(meba_inst_t inst, mepa_port_no_t port_no,
+			    const mepa_selftest_info_t *inf);
+
+// Read Self-Test Checking counters
+mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
+                            mepa_selftest_info_t *const inf);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

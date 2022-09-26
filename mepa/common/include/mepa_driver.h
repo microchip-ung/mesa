@@ -547,6 +547,30 @@ typedef mepa_rc (*mepa_driver_start_of_frame_read_t)(struct mepa_device *dev, me
  **/
 typedef mepa_rc (*mepa_driver_framepreempt_get_t)(struct mepa_device *dev, mepa_bool_t *const value);
 
+/**
+ * \brief Start PHY Self-Test Frame Generation
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param inf     [IN]  selftest information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_selftest_start_t)(struct mepa_device *dev, const mepa_selftest_info_t *inf);
+
+/**
+ * \brief Read PHY Self-Test Checking counters
+ *
+ * \param dev     [IN]  Driver instance.
+ * \param inf     [OUT] selftest information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_selftest_read_t)(struct mepa_device *dev, mepa_selftest_info_t *const inf);
+
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
     mepa_driver_reset_t                mepa_driver_reset;
@@ -585,6 +609,8 @@ typedef struct mepa_driver {
     mepa_driver_start_of_frame_write_t mepa_driver_start_of_frame_conf_set;
     mepa_driver_start_of_frame_read_t  mepa_driver_start_of_frame_conf_get;
     mepa_driver_framepreempt_get_t     mepa_driver_framepreempt_get;
+    mepa_driver_selftest_start_t       mepa_driver_selftest_start;
+    mepa_driver_selftest_read_t        mepa_driver_selftest_read;
 
     mepa_ts_driver_t                   *mepa_ts;
 

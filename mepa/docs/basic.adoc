@@ -164,6 +164,10 @@ and signales timestamp request in extension bit 31, then
 
 The configured value can be read back using `mepa_framepreempt_get()`.
 
+== PHY Self-Test Frame Generation and Checking
+The API `mepa_selftest_start()` is used to start PHY self-test Frame generation in connector loopback mode.
+The API `mepa_selftest_read()` is used to read PHY correct and error frames in 10/100/1000M speed
+Use `mepa_reset()`, to disable self-test on PHY
 
 == API References
 
@@ -188,4 +192,6 @@ The configured value can be read back using `mepa_framepreempt_get()`.
 `mepa_sqi_read()` +
 `mepa_start_of_frame_conf_set()` +
 `mepa_start_of_frame_conf_get()` +
-`mepa_framepreempt_get()`
+`mepa_framepreempt_get()` +
+`mepa_selftest_start()` +
+`mepa_selftest_read()`

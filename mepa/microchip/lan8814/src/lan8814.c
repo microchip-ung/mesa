@@ -565,6 +565,22 @@ static mepa_rc indy_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enabl
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_selftest_stop(struct mepa_device *dev)
+{
+    uint16_t val;
+
+    EP_RD(dev, INDY_SELFTEST_PGEN_EN, &val);
+
+    if (val & INDY_F_SELFTEST_PGEN_EN) {
+        // stop self-test
+        EP_WR(dev, INDY_SELFTEST_PGEN_EN, 0);
+        // Disable Ext_lpbk bit in the Reserved Register
+        WR(dev, INDY_RESV_CON_LOOP, 0xfc00);
+    }
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -575,6 +591,10 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         indy_qsgmii_aneg(dev, FALSE);
         data->init_done = TRUE;
     }
+
+    //Clear self-test if enabled before reset
+    indy_selftest_stop(dev);
+
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
     } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST_MAC) {
@@ -590,6 +610,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     // Some of the work-around registers get cleared after reset. So, they are called here
     // after every reset.
     indy_workaround_after_reset(dev);
+
     MEPA_EXIT(dev);
     T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
     // Reconfigure the phy after reset
@@ -917,13 +938,13 @@ static mepa_rc indy_cab_diag_enter_config(mepa_device_t *dev)
     MEPA_MSLEEP(50);
     return MEPA_RC_OK;
 }
-// After exiting cable diagnostics, restore phy configuration.
-static mepa_rc indy_cab_diag_exit_config(mepa_device_t *dev)
+// After exiting cable diagnostics/self-test , restore phy configuration.
+static mepa_rc indy_restore_config(mepa_device_t *dev)
 {
     mepa_reset_param_t rst_cfg = {};
 
     rst_cfg.reset_point = MEPA_RESET_POINT_DEFAULT;
-    // Restore configuration after cable diagnostics.
+    // Restore configuration after cable diagnostics/self-test.
     indy_reset(dev, &rst_cfg);
     return MEPA_RC_OK;
 }
@@ -978,7 +999,7 @@ static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int32_t mode)
         }
     }
     MEPA_EXIT(dev);
-    indy_cab_diag_exit_config(dev);
+    indy_restore_config(dev);
     return MEPA_RC_OK;
 }
 static mepa_rc indy_cab_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
@@ -1651,6 +1672,196 @@ static mepa_rc indy_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const valu
     return MEPA_RC_OK;
 }
 
+static mepa_rc indy_selftest_start(struct mepa_device *dev, const mepa_selftest_info_t *inf)
+{
+    uint16_t val;
+    uint8_t retry = 0;
+    mepa_bool_t link_up = FALSE;
+
+    if (inf == NULL)
+	return MEPA_RC_ERROR;
+
+    if ((inf->speed != MEPA_SPEED_1G) && (inf->mdi == MEPA_MEDIA_MODE_AUTO))
+	return MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+
+    EP_RD(dev, INDY_SELFTEST_PGEN_EN, &val);
+    if (val & INDY_F_SELFTEST_PGEN_EN) {
+        T_W(MEPA_TRACE_GRP_GEN, "Self-Test already enabled!\n");
+        goto en_err;
+    }
+
+    //Reset PHY
+    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
+    //wait for reset complete
+    MEPA_MSLEEP(1);
+
+    /* 1. Setup basic configuration */
+    // Set AN
+    val = INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1 |
+	  INDY_F_BASIC_CTRL_DUP_MODE |
+	  INDY_F_BASIC_CTRL_RESTART_ANEG |
+	  INDY_F_BASIC_CTRL_ANEG_ENA;
+    WR(dev, INDY_BASIC_CONTROL, val);
+    MEPA_MSLEEP(10);
+
+    if (inf->speed == MEPA_SPEED_1G) {
+      // Enable Ext_lpbk bit in the Reserved Register
+      WR(dev, INDY_RESV_CON_LOOP, 0xfc08);
+
+      // Set Master-Slave configuration to master
+      val = INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP |
+	    INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL |
+	    INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA;
+      WR(dev, INDY_ANEG_MSTR_SLV_CTRL, val);
+
+    } else /*< 10BASE-T and 100BASE-TX */ {
+        // Disable Auto-MDIX and set the desired configuration (MDI vs. MDIX)
+        RD(dev, INDY_GPHY_DBG_CTL1, &val);
+        val &= ~INDY_F_MDI_SET;
+        switch (inf->mdi) {
+          case MEPA_MEDIA_MODE_MDI:
+            val |= INDY_F_MDI_SET;
+          default:
+            val |= INDY_F_SWAPOFF;
+          break;
+        }
+        // Set the current MDI
+        WRM(dev, INDY_GPHY_DBG_CTL1, val, INDY_DEF_MASK);
+    }
+
+    // Set force speed
+    val = INDY_F_BASIC_CTRL_DUP_MODE;
+    if (inf->speed == MEPA_SPEED_1G)
+        val |= INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1;
+    else if (inf->speed == MESA_SPEED_100M)
+        val |= INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0;
+    WR(dev, INDY_BASIC_CONTROL, val);
+
+    // Wait for link-up
+    while(retry++ < 100) {
+        RD(dev, INDY_BASIC_STATUS, &val);
+        if (val & INDY_F_BASIC_STATUS_LINK_STATUS) {
+	    link_up = TRUE;
+            break;
+        }
+        MEPA_MSLEEP(10);
+    }
+
+    if (!link_up) {
+        T_W(MEPA_TRACE_GRP_GEN, "Link Down!\n");
+	    goto ret_err;
+    }
+
+    // 0.5secs delay before starting self-test
+    MEPA_MSLEEP(500);
+
+    // 2. setup number of packet gen. will run forever if not set
+    EP_WR(dev, INDY_SELFTEST_FRAME_CNT, 0);
+    EP_WR(dev, INDY_SELFTEST_PKT_CNT_LO, (inf->frames & 0xFFFF));
+    EP_WR(dev, INDY_SELFTEST_PKT_CNT_HI, ((inf->frames & 0xFFFF0000) >> 16));
+    EP_WR(dev, INDY_SELFTEST_FRAME_CNT, INDY_F_SELFTEST_FRAME_CNT_EN);
+
+    // 3. enable the checking counter
+    EP_WR(dev, INDY_SELFTEST_EN_REG, 0); //disble checker to clear counter
+    val = INDY_F_SELFTEST_RX_CRC_CHK_EN |
+	  INDY_F_SELFTEST_TX_CRC_CHK_EN |
+	  INDY_F_SELFTEST_EN;
+    EP_WR(dev, INDY_SELFTEST_EN_REG, val); //enable checker
+
+    // 4. Start self-test
+    EP_WR(dev, INDY_SELFTEST_PGEN_EN, INDY_F_SELFTEST_PGEN_EN);
+
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+
+ret_err:
+    MEPA_EXIT(dev);
+
+    //Restore PHY Config
+    indy_restore_config(dev);
+
+    return MEPA_RC_ERROR;
+
+en_err:
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_ERROR;
+}
+
+static mepa_rc indy_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const inf)
+{
+    uint16_t val;
+    uint16_t lo, hi;
+
+    if (inf == NULL)
+	return MEPA_RC_ERROR;
+
+    inf->frames = 0;
+    inf->good_cnt = 0;
+    inf->err_cnt = 0;
+
+    MEPA_ENTER(dev);
+
+    EP_RD(dev, INDY_SELFTEST_PGEN_EN, &val);
+    if (!(val & INDY_F_SELFTEST_PGEN_EN)) {
+        T_W(MEPA_TRACE_GRP_GEN, "Self-Test is not Enabled!\n");
+        goto ret_err;
+    }
+
+    inf->mdi = MEPA_MEDIA_MODE_AUTO;
+    RD(dev, INDY_GPHY_DBG_CTL1, &val);
+    if (val & INDY_F_MDI_SET)
+        inf->mdi = MEPA_MEDIA_MODE_MDI;
+    else if (val & INDY_F_SWAPOFF)
+        inf->mdi = MEPA_MEDIA_MODE_MDIX;
+
+    inf->speed = MESA_SPEED_10M;
+    RD(dev, INDY_BASIC_CONTROL, &val);
+    if (val & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0)
+        inf->speed = MESA_SPEED_100M;
+    else if (val & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1)
+        inf->speed = MESA_SPEED_1G;
+
+    EP_RD(dev, INDY_SELFTEST_PKT_CNT_HI, &val);
+    inf->frames = val;
+    inf->frames = (inf->frames)<< 16;
+    EP_RD(dev, INDY_SELFTEST_PKT_CNT_LO, &val);
+    inf->frames |= val;
+
+    // 5. check counter value
+    lo = hi = 0;
+    //Self-Test Correct Count HI Register / Self-Test Correct Count LO Register
+    EP_RD(dev, INDY_SELFTEST_GOOD_CNT_LO, &lo);
+    EP_RD(dev, INDY_SELFTEST_GOOD_CNT_HI, &hi);
+    inf->good_cnt = hi;
+    inf->good_cnt = ((inf->good_cnt) << 16) | lo;
+
+    lo = hi = 0;
+    //Self-Test Error Count HI Register / Self-Test Error Count LO Register
+    EP_RD(dev, INDY_SELFTEST_ERR_CNT_LO, &lo);
+    EP_RD(dev, INDY_SELFTEST_ERR_CNT_HI, &hi);
+    inf->err_cnt = hi;
+    inf->err_cnt = ((inf->err_cnt) << 16) | lo;
+
+    T_D(MEPA_TRACE_GRP_GEN, "speed=%d mdi=%d frames=0x%x good=0x%x err=0x%x\n",
+	inf->speed, inf->mdi, inf->frames, inf->good_cnt, inf->err_cnt);
+
+    if (inf->frames && (inf->frames == (inf->good_cnt + inf->err_cnt)))
+	indy_selftest_stop(dev);
+
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+
+ret_err:
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_ERROR;
+}
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
     static const int nr_indy_drivers = 2;
@@ -1691,6 +1902,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_start_of_frame_conf_set = indy_start_of_frame_conf_set,
             .mepa_driver_start_of_frame_conf_get = indy_start_of_frame_conf_get,
             .mepa_driver_framepreempt_get = indy_framepreempt_get,
+            .mepa_driver_selftest_start = indy_selftest_start,
+            .mepa_driver_selftest_read = indy_selftest_read,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1726,6 +1939,8 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_start_of_frame_conf_set = indy_start_of_frame_conf_set,
             .mepa_driver_start_of_frame_conf_get = indy_start_of_frame_conf_get,
             .mepa_driver_framepreempt_get = indy_framepreempt_get,
+            .mepa_driver_selftest_start = indy_selftest_start,
+            .mepa_driver_selftest_read = indy_selftest_read,
         },
     };
 
