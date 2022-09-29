@@ -491,8 +491,8 @@ static void cli_cmd_port_kr(cli_req_t *req)
                 continue;
             }
             if (req->set) {
-                kr_conf_state[iport].aneg_enable = 1;
-                conf.aneg.enable = 1;
+                conf.aneg.enable = mreq->dis ? 0 : 1;
+                kr_conf_state[iport].aneg_enable = conf.aneg.enable;
                 conf.train.enable = mreq->train || mreq->all;
                 conf.aneg.adv_10g = mreq->adv10g || mreq->all;
                 conf.aneg.r_fec_req = mreq->fec || mreq->all;

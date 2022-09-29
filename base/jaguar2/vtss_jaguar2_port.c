@@ -1414,14 +1414,16 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     // FEC status
     status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
 
-    if (an_sm == 2) {
+    // Verify that the aneg state machine is not stuck
+    if (an_sm == 2 || (an_sm == 7 && !status->aneg.complete)) {
         JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &val);
-        if (val == 0) {
-            // Aneg SM has not changed since last clear and might be stuck in ability detect
+        if ((val & 0xFF7B) == 0) { // mask out parallel detect and ability check
             // Restart aneg
             JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
                     VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
                     VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
+            // Clear stickys
+            JR2_WR(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), 0x3FF);
             return VTSS_RC_OK;
         } else {
             // Clear aneg history
@@ -1527,7 +1529,9 @@ static vtss_rc jr2_port_kr_conf_set(vtss_state_t *vtss_state,
     u32 dev1 = VTSS_TO_10G_KR_DEV1_TGT(port);  // Training
     u32 xfi  = VTSS_TO_10G_XFI_TGT(port);      // KR-Control/Stickies
     u32 abil = 0;
-
+    // Re-configure the serdes
+    VTSS_RC(jr2_sd10g_cfg(vtss_state, vtss_state->port.serdes_mode[port_no],
+                          vtss_state->port.current_mt[port_no], port));
     // Adjust the timers for JR2 core clock (frequency of 250Mhz)
     JR2_WR(VTSS_KR_DEV7_LFLONG_TMR_LFLONG_MSW(dev7), 322);
     JR2_WR(VTSS_KR_DEV7_TR_TMR_TR_MSW(dev7), 322);
@@ -1674,8 +1678,10 @@ static vtss_rc jr2_port_kr_conf_set(vtss_state_t *vtss_state,
 
     if (aneg->aneg.enable) {
         JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
-                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(1),
-                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE);
+                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(1) |
+                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
+                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE |
+                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
     }
 
     // Release the break link timer
@@ -2217,6 +2223,11 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
         /* Enable flowcontrol - must be done after the port is enabled */
         if (conf->flow_control.generate) {
             JR2_WRM_SET(VTSS_QSYS_PAUSE_CFG_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA);
+        }
+
+        /* Restart KR-Aneg after port is enabled */
+        if (vtss_state->port.kr_conf[port_no].aneg.enable) {
+            jr2_port_kr_conf_set(vtss_state, port_no);
         }
     } else {
         /* Disable the power hungry serdes */
@@ -3508,6 +3519,172 @@ vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_prin
     return VTSS_RC_OK;
 }
 
+static char *fa_kr_aneg_sm(u32 reg)
+{
+    switch (reg) {
+    case 0:  return "AN_ENABLE(0)";
+    case 1:  return "XMI_DISABLE(1)";
+    case 2:  return "ABILITY_DET(2)";
+    case 3:  return "ACK_DET(3)";
+    case 4:  return "COMPLETE_ACK(4)";
+    case 5:  return "TRAIN(5)";
+    case 6:  return "AN_GOOD_CHK(6)";
+    case 7:  return "AN_GOOD(7)";
+    case 8:  return "RATE_DET(8)";
+    case 11: return "LINK_STAT_CHK(11)";
+    case 12: return "PARLL_DET_FAULT(12)";
+    case 13: return "WAIT_RATE_DONE(13)";
+    case 14: return "NXTPG_WAIT(14)";
+    default: return "?";
+    }
+}
+
+static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
+{
+    if (bt) {
+        pr("%s ",name);
+    }
+}
+
+static vtss_rc jr2_debug_chip_kr(vtss_state_t *vtss_state,
+                                 const vtss_debug_printf_t pr,
+                                 const vtss_debug_info_t   *const info,
+                                 vtss_port_no_t port_no)
+{
+    u32 port = VTSS_CHIP_PORT(port_no);
+    u32 dev7 = VTSS_TO_10G_KR_DEV7_TGT(port);  // ANEG
+    u32 dev1 = VTSS_TO_10G_KR_DEV1_TGT(port);  // Training
+    u32 xfi  = VTSS_TO_10G_XFI_TGT(port);      // KR-Control/Stickies
+    u32 an_sm, aneg, pcs, tr, xfis, hist, krc, value, sd;
+
+    if (info->has_action && info->action == 2) {
+        // Restart aneg
+        JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
+                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
+                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
+        pr("Aneg restarted\n");
+        return VTSS_RC_OK;
+    }
+
+    if (info->has_action && info->action == 3) {
+        // Restart serdes
+        VTSS_RC(jr2_sd10g_cfg(vtss_state, vtss_state->port.serdes_mode[port_no],
+                              vtss_state->port.current_mt[port_no], port));
+        pr("Serdes reconfigured\n");
+        return VTSS_RC_OK;
+    }
+
+    if (info->has_action && info->action == 4) {
+        // Restart serdes
+        VTSS_RC(jr2_sd10g_cfg(vtss_state, VTSS_SERDES_MODE_SGMII,
+                              vtss_state->port.current_mt[port_no], port));
+
+        VTSS_RC(jr2_sd10g_cfg(vtss_state, vtss_state->port.serdes_mode[port_no],
+                              vtss_state->port.current_mt[port_no], port));
+        pr("Serdes reconfigured 1G->10G\n");
+        return VTSS_RC_OK;
+    }
+    if (info->has_action && info->action == 5) {
+        JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1),
+                VTSS_BIT(6),
+                VTSS_BIT(6));
+        pr("Parallel detect disabled\n");
+    }
+
+    JR2_RD(VTSS_KR_DEV7_AN_SM_AN_SM(dev7), &an_sm);
+    JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &hist);
+    JR2_RD(VTSS_KR_DEV7_KR_7X0001_KR_7X0001(dev7), &aneg);
+    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
+    JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_XFI_STATUS(xfi), &xfis);
+    JR2_RD(VTSS_KR_DEV1_KR_1X0097_KR_1X0097(dev1), &tr);
+    JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), &krc);
+
+    pr("an_sm              :%s\n", fa_kr_aneg_sm(VTSS_X_KR_DEV7_AN_SM_AN_SM_AN_SM(an_sm)));
+    pr("an_complete        :%d\n", VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg));
+    pr("aneg_active:       :%d\n", VTSS_X_XFI_SHELL_XFI_CONTROL_XFI_STATUS_ANEG_ACTIVE_STATUS(xfis));
+    pr("an_hist            :0x%x  ", VTSS_X_KR_DEV7_AN_HIST_AN_HIST_AN_SM_HIST(hist));
+    if (hist > 0) {
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,0,1), "AN_ENA(0)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,1,1), "XMI_DIS(1)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,2,1), "ABI_DET(2)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,3,1), "ACK_DET(3)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,4,1), "LNK_CHK(4)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,5,1), "COMPL_ACK(5)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,6,1), "AN_GOOD_CHK(6)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,7,1), "PRL_DET_FAUL(7)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,8,1), "AN_GOOD(8)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,9,1), "NXT_PG_WAIT(9)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,10,1),"RATE_DET(10)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,11,1),"TRAIN(11)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,12,1),"RSRV(12)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,13,1),"RSRV(13)");
+        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist,14,1),"NPRX(14)");
+    }
+    pr("\n");
+    pr("tr_rcvr_rdy:       :%d\n", VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(tr));
+    pr("tr_fail:           :%d\n", VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(tr));
+    pr("kr_control:        :0x%x\n", krc);
+
+
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
+            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
+            VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
+            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
+            VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
+
+
+    JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(VTSS_TO_DEV(port)), &value);
+    pr("\nLink status: %d:\n", (value == 2));
+    pr("port          local_fault   remote_fault  idle_state    SD            rx_blk_lock   rx_hi_ber\n");
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(VTSS_TO_10G_SRD_TGT(port)), &sd);
+    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
+    pr("%-13d %-13d %-13d %-13d %-13d %-13d %-13d\n",
+       port,
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
+       VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_IA_SDET(sd),
+       VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs),
+       VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_HI_BER(pcs));
+    // Clear the stickies
+    JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), 0xFFFFFFFF);
+
+
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc jr2_debug_kr(vtss_state_t *vtss_state,
+                            const vtss_debug_printf_t pr,
+                            const vtss_debug_info_t   *const info)
+
+{
+    vtss_port_no_t port_no;
+
+    if (info->has_action && info->action == 0) {
+        pr("Serdes actions:\n");
+        pr("0: Show actions\n");
+        pr("1: Dump kr\n");
+        pr("2: Restart aneg\n");
+        pr("3: Reconfigure serdes\n");
+        pr("4: Reconfigure serdes to 1G then to 10G\n");
+        pr("5: Disable parallel detect\n");
+        return VTSS_RC_OK;
+    }
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        if (info->port_list[port_no] == 0)
+            continue;
+        if (!vtss_state->port.kr_conf[port_no].aneg.enable)
+            continue;
+
+        VTSS_RC(jr2_debug_chip_kr(vtss_state, pr, info, port_no));
+    } /* Port loop */
+
+
+    return VTSS_RC_OK;
+}
+
 static void jr2_debug_wm_dump(const vtss_debug_printf_t pr, const char *reg_name, u32 *value, u32 i, u32 multiplier)
 {
     u32 q;
@@ -3744,6 +3921,7 @@ vtss_rc vtss_jr2_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, jr2_debug_port, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, jr2_debug_port_cnt, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, jr2_debug_wm, vtss_state, pr, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, jr2_debug_kr, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
 
