@@ -792,9 +792,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         /* Single-Lane SerDes at 4 Gbps (QSGMII) */
-        /* Approximated without using 1-PPS error and taking result from only 1 port. */
-        rx_delay += 230 * 1000;
-        tx_delay += 230 * 1000;
+        /* Approximated by port calibration and taking 1-PPS error into account*/
+        rx_delay += 230 * 1000 + 63999;
+        tx_delay += 230 * 1000 - 63999;
         break;
 
     default:
