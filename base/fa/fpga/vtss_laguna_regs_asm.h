@@ -2897,7 +2897,7 @@
 
 
 /**
- * \brief Redbox flowcontrol configuration
+ * \brief Redbox flow control configuration
  *
  * \details
  * Register: \a ASM:CFG:FIFO_FULL_WM_CFG

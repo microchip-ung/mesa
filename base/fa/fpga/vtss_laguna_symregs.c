@@ -2218,7 +2218,7 @@ static const vtss_symreg_reg_t regs_within_REW_ISDX_TBL[] = {
     {"COS_CTRL"                             , 0x00000000, 0x00000003, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_REW_PTP_CTRL[] = {
+static const vtss_symreg_reg_t regs_within_REW_PTP_MISC[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"CF_TOO_BIG_STICKY"                    , 0x00000000, 0x00000001, 0x00000001},
     {"CF_TOO_BIG_STICKY1"                   , 0x00000001, 0x00000001, 0x00000001},
@@ -2342,7 +2342,7 @@ static const vtss_symreg_reggrp_t reggrps_within_REW[] = {
     {"MIP_TBL"                              , 0x000028c0, 0x00000008, 0x00000008, regs_within_REW_MIP_TBL},
     {"MAC_TBL"                              , 0x00002900, 0x00000020, 0x00000004, regs_within_REW_MAC_TBL},
     {"ISDX_TBL"                             , 0x00002980, 0x00000020, 0x00000004, regs_within_REW_ISDX_TBL},
-    {"PTP_CTRL"                             , 0x00003e1f, 0x00000001, 0x0000000a, regs_within_REW_PTP_CTRL},
+    {"PTP_MISC"                             , 0x00003e1f, 0x00000001, 0x0000000a, regs_within_REW_PTP_MISC},
     {"ENCAP"                                , 0x00000000, 0x00000100, 0x00000020, regs_within_REW_ENCAP},
     {"ENCAP_IP4"                            , 0x00003000, 0x00000100, 0x00000008, regs_within_REW_ENCAP_IP4},
     {"VMID"                                 , 0x00003e10, 0x0000000f, 0x00000001, regs_within_REW_VMID},

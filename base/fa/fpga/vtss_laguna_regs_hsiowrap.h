@@ -209,8 +209,11 @@
  * Enable the MAC-MERGE Layer Receive block.
  *
  * \details
- * Must reflect the value of
- * DEVRGMII[0-1]:MM_CONFIG:ENABLE_CONFIG.MM_RX_ENA
+ * 0: MAC Merge Receive block is not enabled. The input of MAC Merge RX is
+ * directly given to its output.
+ * 1: MAC Merge receive block is enabled, and the incoming frame is
+ * processed as per 802.3br
+
  *
  * Field: ::VTSS_HSIOWRAP_XMII_CFG . MM_RX_ENA
  */
@@ -530,18 +533,51 @@
 
 /**
  * \brief
+ * Enable delay by starting the delay tune FSM
+ *
+ * \details
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_ENA
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),19,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA      VTSS_BIT(19)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_EXTRACT_BITFIELD(x,19,1)
+
+/**
+ * \brief
  * When enabled the DLL is used in RGMII clock paths. When '0' the DLL is
  * bypassed
  *
  * \details
- * 0: Bypass DLL
- * 1: Use DLL
+ * 0: Bypass DLL1: Use DLL
  *
  * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_CLK_ENA
  */
-#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),17,1)
-#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA  VTSS_BIT(17)
-#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,17,1)
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),18,1)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA  VTSS_BIT(18)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(x)  VTSS_EXTRACT_BITFIELD(x,18,1)
+
+/**
+ * \brief
+ * Select delay line clock mux in signal path
+ *
+ * \details
+ *
+ *	   0: RXC uses DLL reference clock (same as ATPG mode) - TXC uses
+ * source clk (bypass)
+ *	   1: RXC uses source clk feedthrough (bypass) - TXC uses 50MHz
+ * RMII reference clock
+ *	   2: DLL phase shift 45deg.
+ *	   3: DLL phase shift 77deg.
+ *	   4: DLL phase shift 90deg. (2 ns @ 125MHz)
+ *	   5: DLL phase shift 112deg.
+ *	   6: DLL phase shift 135deg.
+
+ *
+ * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_CLK_SEL
+ */
+#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(x,15,3)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL     VTSS_ENCODE_BITMASK(15,3)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,15,3)
 
 /**
  * \brief
@@ -551,9 +587,9 @@
  * \details
  * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_SEL
  */
-#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_ENCODE_BITFIELD(x,10,7)
-#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_SEL      VTSS_ENCODE_BITMASK(10,7)
-#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_EXTRACT_BITFIELD(x,10,7)
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_ENCODE_BITFIELD(x,8,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_SEL      VTSS_ENCODE_BITMASK(8,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_SEL(x)   VTSS_EXTRACT_BITFIELD(x,8,7)
 
 /**
  * \brief
@@ -563,35 +599,9 @@
  * \details
  * Field: ::VTSS_HSIOWRAP_DLL_CFG . TAP_ADJ
  */
-#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_ENCODE_BITFIELD(x,3,7)
-#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_ADJ      VTSS_ENCODE_BITMASK(3,7)
-#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,3,7)
-
-/**
- * \brief
- * Enable or disable delay line in signal path
- *
- * \details
- * 1: clk_2ns_delay -> clk_source_out
- * 0: clk_source_in -> clk_source_out
-
- *
- * Field: ::VTSS_HSIOWRAP_DLL_CFG . DELAY_ENA
- */
-#define  VTSS_F_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_HSIOWRAP_DLL_CFG_DELAY_ENA    VTSS_BIT(2)
-#define  VTSS_X_HSIOWRAP_DLL_CFG_DELAY_ENA(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
-
-/**
- * \brief
- * Enable delay by starting the delay tune FSM
- *
- * \details
- * Field: ::VTSS_HSIOWRAP_DLL_CFG . DLL_ENA
- */
-#define  VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA      VTSS_BIT(1)
-#define  VTSS_X_HSIOWRAP_DLL_CFG_DLL_ENA(x)   VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_ENCODE_BITFIELD(x,1,7)
+#define  VTSS_M_HSIOWRAP_DLL_CFG_TAP_ADJ      VTSS_ENCODE_BITMASK(1,7)
+#define  VTSS_X_HSIOWRAP_DLL_CFG_TAP_ADJ(x)   VTSS_EXTRACT_BITFIELD(x,1,7)
 
 /**
  * \brief

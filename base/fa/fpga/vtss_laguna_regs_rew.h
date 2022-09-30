@@ -3541,7 +3541,7 @@
 #define  VTSS_X_REW_COS_CTRL_COS_NXT(x)       VTSS_EXTRACT_BITFIELD(x,0,3)
 
 /**
- * Register Group: \a REW:PTP_CTRL
+ * Register Group: \a REW:PTP_MISC
  *
  * PTP Control
  */
@@ -3551,7 +3551,7 @@
  * \brief CF field range check
  *
  * \details
- * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY
+ * Register: \a REW:PTP_MISC:CF_TOO_BIG_STICKY
  */
 #define VTSS_REW_CF_TOO_BIG_STICKY           VTSS_IOREG(VTSS_TO_REW,0x3e1f)
 
@@ -3574,7 +3574,7 @@
  * \brief CF field range check
  *
  * \details
- * Register: \a REW:PTP_CTRL:CF_TOO_BIG_STICKY1
+ * Register: \a REW:PTP_MISC:CF_TOO_BIG_STICKY1
  */
 #define VTSS_REW_CF_TOO_BIG_STICKY1          VTSS_IOREG(VTSS_TO_REW,0x3e20)
 
@@ -3597,7 +3597,7 @@
  * \brief PTP reserved field check
  *
  * \details
- * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO
+ * Register: \a REW:PTP_MISC:PTP_RSRV_NOT_ZERO
  */
 #define VTSS_REW_PTP_RSRV_NOT_ZERO           VTSS_IOREG(VTSS_TO_REW,0x3e22)
 
@@ -3618,7 +3618,7 @@
  * \brief PTP reserved field check
  *
  * \details
- * Register: \a REW:PTP_CTRL:PTP_RSRV_NOT_ZERO1
+ * Register: \a REW:PTP_MISC:PTP_RSRV_NOT_ZERO1
  */
 #define VTSS_REW_PTP_RSRV_NOT_ZERO1          VTSS_IOREG(VTSS_TO_REW,0x3e23)
 
@@ -3639,7 +3639,7 @@
  * \brief Ingress time stamp
  *
  * \details
- * Register: \a REW:PTP_CTRL:PTP_GEN_STAMP_FMT
+ * Register: \a REW:PTP_MISC:PTP_GEN_STAMP_FMT
  *
  * @param ri Register: PTP_GEN_STAMP_FMT (??), 0-3
  */

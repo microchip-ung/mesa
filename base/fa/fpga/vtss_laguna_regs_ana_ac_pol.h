@@ -536,9 +536,10 @@
 
 /**
  * \brief
- * Police on EoF for all frames.When set, the following information is not
- * updated until it is known - at EoF - whether frame has been dropped by
- * Stream Gates or TSN_MAX_SDU:- LB state.- Policing sticky bits.- Policing
+ * Determine whether policers shall update LB state, statistics and sticky
+ * bits on SoF or EoF.When set, the following information is not updated
+ * until it is known - at EoF - whether frame has been dropped by Stream
+ * Gates or TSN_MAX_SDU:- LB state.- Policing sticky bits.- Policing
  * statistics.Related
  * parameters:ANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_POL_ON_EOF
  *

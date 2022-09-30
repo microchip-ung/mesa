@@ -582,6 +582,8 @@
 
 
 /**
+ * \brief Status of strapped PADs.
+ *
  * \details
  * Register: \a CHIP_TOP:HW_STAT:HW_STAT
  */

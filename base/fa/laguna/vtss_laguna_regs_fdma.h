@@ -1190,7 +1190,7 @@
 
 
 /**
- * \brief FDMA
+ * \brief Atomic setting of FDMA_INTR_DCB_ENA individual bits.
  *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_SET
@@ -1215,6 +1215,8 @@
 
 
 /**
+ * \brief Atomic clearing of FDMA_INTR_DCB_ENA individual bits.
+ *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DCB_ENA_CLR
  */
@@ -1238,6 +1240,8 @@
 
 
 /**
+ * \brief Atomic setting of FDMA_INTR_DB_ENA individual bits.
+ *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_SET
  */
@@ -1260,6 +1264,8 @@
 
 
 /**
+ * \brief Atomic clearing of FDMA_INTR_DB_ENA individual bits.
+ *
  * \details
  * Register: \a FDMA:FDMA:FDMA_INTR_DB_ENA_CLR
  */

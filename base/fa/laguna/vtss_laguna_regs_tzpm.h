@@ -512,9 +512,9 @@
 
 /**
  * \brief
- * GIC400 CFGSDISABLE:Secure software has to configure this bit for extra
+ * GIC400_CFGSDISABLE : Secure software has to configure this bit for extra
  * security and this will prevent modifications to certain security
- * registers in GIC400, PLease refer GIC400 doc for more info..
+ * registers in GIC400, refer GIC400 doc for more info..
  *
  * \details
  *  1: Extra security enabled for GIC400

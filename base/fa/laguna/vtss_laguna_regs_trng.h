@@ -583,10 +583,10 @@
  * \brief
  * NSFHT: Noise Source Failure for Health Test0 (NONE): No effect.1
  * (FAIL_ONCE): Injects a fault on the noise source (if TRNG_CR.ENABLE=1,
- * TRNG_ISR.RCHT=0 andTRNG_ISR.APHT=0) for a period that will automatically
- * end as soon as TRNG_ISR.APHT=1 and TRNG_ISR.RCHT=1.For security reasons,
- * any further command (NSFHT=1) will not be processed (no effect) until
- * the next system reset.
+ * TRNG_ISR.RCHT_ISR=0 andTRNG_ISR.APHT_ISR=0) for a period that will
+ * automatically end as soon as TRNG_ISR.APHT_ISR=1 and
+ * TRNG_ISR.RCHT_ISR=1.For security reasons, any further command (NSFHT=1)
+ * will not be processed (no effect) until the next system reset.
  *
  * \details
  * Field: ::VTSS_TRNG_TRNG_FIR . NSFHT
@@ -600,8 +600,8 @@
  * FSEQE: Single Fault for TRNG_MR0 (NO_EFFECT): No effect.1
  * (INJECT_CLEAR): Injects a single fault on TRNG_MR if the TRNG is
  * disabled (for security reasons). As a consequence,the flag
- * TRNG_WPSR.SEQE raises and the flag TRNG_ISR.SECE=1. Clears the fault if
- * it has been previously injected.
+ * TRNG_WPSR.SEQE raises and the flag TRNG_ISR.SECE_ISR=1. Clears the fault
+ * if it has been previously injected.
  *
  * \details
  * Field: ::VTSS_TRNG_TRNG_FIR . FSEQE
@@ -615,9 +615,9 @@
  * F4: Single Fault for TRNG Interrupt Mask Bit (TRNG_IMR.DATRDY)0: Clears
  * the fault. The flag TRNG_WPSR.SDEE is automatically cleared.1: Injects a
  * single fault on the reinforced safety memory cell for the
- * TRNG_IMR.WPCREN bit if 0x544649 ( "TFI" in ASCII) iswritten in the FIKEY
- * field at the same time. The TRNG remains in the same state, the flag
- * TRNG_ISR.SECE=1 and the flagTRNG_WPSR.SDEE=1.
+ * TRNG_IMR.DATRDY_IMR bit if 0x544649 ( "TFI" in ASCII) iswritten in the
+ * FIKEY field at the same time. The TRNG remains in the same state, the
+ * flag TRNG_ISR.SECE_ISR=1 and the flagTRNG_WPSR.SDEE=1.
  *
  * \details
  * Field: ::VTSS_TRNG_TRNG_FIR . F4
@@ -633,7 +633,7 @@
  * other fault exists.1: Injects a single fault on the reinforced safety
  * memory cell for the TRNG_WPMR.WPEN bit if 0x544649 ("TFI" in ASCII)
  * iswritten in the FIKEY field at the same time. The TRNG Control register
- * remains protected, the flag TRNG_ISR.SECE=1and the flag
+ * remains protected, the flag TRNG_ISR.SECE_ISR=1and the flag
  * TRNG_WPSR.SDEE=1.
  *
  * \details
@@ -651,7 +651,7 @@
  * memory cell for the TRNG_WPMR.WPITEN bit if 0x544649  ( "TFI" in
  * ASCII)is written in the FIKEY field at the same time. The TRNG
  * protection remains active for interrupt registers, the
- * flagTRNG_ISR.SECE=1 and the flag TRNG_WPSR.SDEE=1.
+ * flagTRNG_ISR.SECE_ISR=1 and the flag TRNG_WPSR.SDEE=1.
  *
  * \details
  * Field: ::VTSS_TRNG_TRNG_FIR . F2
@@ -667,7 +667,7 @@
  * fault exists.1: Injects a single fault on the reinforced safety memory
  * cell for the TRNG_WPMR.WPEN bit if 0x544649 ("TFI" in ASCII) iswritten
  * in the FIKEY field at the same time. The TRNG protection remains active
- * for Mode registers, the flagTRNG_ISR.SECE=1 and the flag
+ * for Mode registers, the flagTRNG_ISR.SECE_ISR=1 and the flag
  * TRNG_WPSR.SDEE=1.
  *
  * \details
@@ -683,8 +683,8 @@
  * fault. The flag TRNG_WPSR.SDEE is automatically cleared.1: Injects a
  * single fault on the reinforced safety memory cell for the TRNG_CR.ENABLE
  * bit if 0x544649 ("TFI" in ASCII) iswritten in the FIKEY field at the
- * same time. The TRNG remains in the same state, the flag TRNG_ISR.SECE=1
- * and the flagTRNG_WPSR.SDEE=1.
+ * same time. The TRNG remains in the same state, the flag
+ * TRNG_ISR.SECE_ISR=1 and the flagTRNG_WPSR.SDEE=1.
  *
  * \details
  * Field: ::VTSS_TRNG_TRNG_FIR . F0

@@ -3042,6 +3042,22 @@
 
 /**
  * \brief
+ * Set action for frames with errors in PCH. Sticky bits in PTP_EVENTS set
+ * independently of this configuration.
+ *
+ * \details
+ * x1: Discard frames with mismatching sub port id
+ * 1x: Discard frames with mismatching PCH CRC-8
+ * 00: PCH contents only used for timestamping and not for frame validity
+ *
+ * Field: ::VTSS_DEV1G_PTP_CFG . PCH_ERR_MODE
+ */
+#define  VTSS_F_DEV1G_PTP_CFG_PCH_ERR_MODE(x)  VTSS_ENCODE_BITFIELD(x,13,2)
+#define  VTSS_M_DEV1G_PTP_CFG_PCH_ERR_MODE     VTSS_ENCODE_BITMASK(13,2)
+#define  VTSS_X_DEV1G_PTP_CFG_PCH_ERR_MODE(x)  VTSS_EXTRACT_BITFIELD(x,13,2)
+
+/**
+ * \brief
  * PCH Header Sub-portID. Inserted Tx direction. Checked in Rx direction.
  *
  * \details
@@ -3109,22 +3125,6 @@
 #define  VTSS_F_DEV1G_PTP_CFG_PTP_PCH_RX_MODE(x)  VTSS_ENCODE_BITFIELD(x,0,3)
 #define  VTSS_M_DEV1G_PTP_CFG_PTP_PCH_RX_MODE     VTSS_ENCODE_BITMASK(0,3)
 #define  VTSS_X_DEV1G_PTP_CFG_PTP_PCH_RX_MODE(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
-
-/**
- * \brief
- * Set action for frames with errors in PCH. Sticky bits in PTP_EVENTS set
- * independently of this configuration.
- *
- * \details
- * x1: Discard frames with mismatching sub port id
- * 1x: Discard frames with mismatching PCH CRC-8
- * 00: PCH contents only used for timestamping and not for frame validity
- *
- * Field: ::VTSS_DEV1G_PTP_CFG . PCH_ERR_MODE
- */
-#define  VTSS_F_DEV1G_PTP_CFG_PCH_ERR_MODE(x)  VTSS_ENCODE_BITFIELD(x,12,2)
-#define  VTSS_M_DEV1G_PTP_CFG_PCH_ERR_MODE     VTSS_ENCODE_BITMASK(12,2)
-#define  VTSS_X_DEV1G_PTP_CFG_PCH_ERR_MODE(x)  VTSS_EXTRACT_BITFIELD(x,12,2)
 
 
 /**

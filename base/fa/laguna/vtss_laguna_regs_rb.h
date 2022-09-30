@@ -328,6 +328,31 @@
 
 /**
  * \brief
+ * If set, hardware does not auto-learn entries in the host table
+ * (RB:HOST_TBL) for frames subject to filtering (discarded or redirected
+ * to CPU) by settings in RB:PORT:PORT_CFG.HSR_FILTER_CFG.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . FILTER_HOST_TBL_DIS
+ */
+#define  VTSS_F_RB_RB_CFG_FILTER_HOST_TBL_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),25,1)
+#define  VTSS_M_RB_RB_CFG_FILTER_HOST_TBL_DIS  VTSS_BIT(25)
+#define  VTSS_X_RB_RB_CFG_FILTER_HOST_TBL_DIS(x)  VTSS_EXTRACT_BITFIELD(x,25,1)
+
+/**
+ * \brief
+ * If set, frames redirected to the CPU are subject to normal rewrite
+ * following the interlink's settings.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . REWRITE_REDIR_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_REWRITE_REDIR_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),24,1)
+#define  VTSS_M_RB_RB_CFG_REWRITE_REDIR_ENA   VTSS_BIT(24)
+#define  VTSS_X_RB_RB_CFG_REWRITE_REDIR_ENA(x)  VTSS_EXTRACT_BITFIELD(x,24,1)
+
+/**
+ * \brief
  * If set, frames aborted by MAC are discarded in RedBox if possible.
  *
  * \details
@@ -339,8 +364,9 @@
 
 /**
  * \brief
- * Port mask indicating to which egress ports forwarding is allowed. If a
- * port is cleared, frames are not sent to that port. By default, all ports
+ * Deprecated - use superior RB:PORT:FWD_CFG.SRC_FWD_MASK instead. Port
+ * mask indicating to which egress ports forwarding is allowed. If a port
+ * is cleared, frames are not sent to that port. By default, all ports
  * should be set. However, when for instance a port is down, it can be
  * cleared in the port mask so that Tx counters stop incrementing.
  *
@@ -353,8 +379,13 @@
 
 /**
  * \brief
- * If set, frames missing an RCT are discarded.Only applicable to HSR-PRP
- * mode.
+ * If set, frames missing an RCT are discarded. See
+ * RB::RB_CFG.RCT_VALIDATE_ENA for details.Only applicable to HSR-PRP
+ * mode.Related
+ * parameters:RB::RB_CFG.RCT_VALIDATE_ENARB:HOST_TBL:HOST_ACCESS_CFG_2.HOST
+ * _ENTRY_RCT_MISSINGRB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_PROXY_DANRB:H
+ * OST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_TYPERB:PORT:STICKY.RCT_MISSING_STIC
+ * KYRB:PORT:STICKY.RCT_MISSING_DISC_STICKY
  *
  * \details
  * Field: ::VTSS_RB_RB_CFG . RCT_MISSING_DISC_ENA
@@ -424,7 +455,7 @@
  * Configuration of overall PTP encapsulation awareness. Also controls
  * latency through RedBox.Related
  * parameters:RB::PTP_FILTER_CFG.PTP_FILTER_SELRB::PTP_FILTER_CFG.PTP_VID_S
- * ELRB::PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
+ * ELRB::PTP_FILTER_CFG.PTP_HSR_SELRB::PTP_DATARB:PORT:PTP_CFG.PTP_ENA
  *
  * \details
  * 0: PTP not recognized.
@@ -503,7 +534,9 @@
  * Enables PRP-SAN transparent reception mode for frames to a local hosts
  * (HOST_ENTRY_TYPE == 3) when RedBox operates in PRP-SAN mode
  * (RB_CFG.RB_MODE). In transparent reception mode, the PRP trailer is not
- * popped in an inbound frame destined to a local host.
+ * popped in an inbound frame destined to a local host.This field is
+ * obsolete as LOCAL_DST_REDIR_ENA and REWRITE_REDIR_ENA controls the same
+ * functionality.
  *
  * \details
  * 0: Normal reception
@@ -537,8 +570,9 @@
  * \brief
  * Enables RedBox forwarding mode T. If cleared, RedBox can be configured
  * to operate in either default mode H, U, or mode X.In Mode T, frames are
- * untagged and always forwarded. No duplicate discard actions.Related
- * parameters:RB:PORT:TBL_CFG.UPD_DISC_TBL_SRC_ENA
+ * untagged and always forwarded. No duplicate discard actions.In order to
+ * untag frames, TAG_MODE must be set to 0.Related
+ * parameters:RB::CPU_CFG.MODE_T_CPUQRB:PORT:PORT_CFG.TAG_MODE
  *
  * \details
  * 0: Default mode.
@@ -833,6 +867,18 @@
  * @param target A \a ::vtss_target_RB_e target
  */
 #define VTSS_RB_PTP_MISC_CFG(target)         VTSS_IOREG(target,0x21)
+
+/**
+ * \brief
+ * If set, frames matching the PTP filter signals to egress port not to
+ * push an RCT (Requires that RB:PORT:PORT_CFG.TAG_MODE is set to 1).
+ *
+ * \details
+ * Field: ::VTSS_RB_PTP_MISC_CFG . PTP_RCT_DIS
+ */
+#define  VTSS_F_RB_PTP_MISC_CFG_PTP_RCT_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_RB_PTP_MISC_CFG_PTP_RCT_DIS   VTSS_BIT(4)
+#define  VTSS_X_RB_PTP_MISC_CFG_PTP_RCT_DIS(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
 
 /**
  * \brief
@@ -1166,6 +1212,38 @@
 
 /**
  * \brief
+ * Port mask indicating to which egress ports forwarding is allowed for
+ * unknown destinations.
+ *
+ * \details
+ * Bit 0: If cleared, LRE port 0 is removed.
+ * Bit 1: If cleared, LRE port 1 is removed.
+ * Bit 2: If cleared, interlink is removed.
+ *
+ * Field: ::VTSS_RB_FWD_CFG . FLD_DST_FWD_MASK
+ */
+#define  VTSS_F_RB_FWD_CFG_FLD_DST_FWD_MASK(x)  VTSS_ENCODE_BITFIELD(x,21,3)
+#define  VTSS_M_RB_FWD_CFG_FLD_DST_FWD_MASK     VTSS_ENCODE_BITMASK(21,3)
+#define  VTSS_X_RB_FWD_CFG_FLD_DST_FWD_MASK(x)  VTSS_EXTRACT_BITFIELD(x,21,3)
+
+/**
+ * \brief
+ * Port mask indicating to which egress ports forwarding is allowed from
+ * the source port.
+ *
+ * \details
+ * Bit 0: If cleared, LRE port 0 is removed.
+ * Bit 1: If cleared, LRE port 1 is removed.
+ * Bit 2: If cleared, interlink is removed.
+ *
+ * Field: ::VTSS_RB_FWD_CFG . SRC_FWD_MASK
+ */
+#define  VTSS_F_RB_FWD_CFG_SRC_FWD_MASK(x)    VTSS_ENCODE_BITFIELD(x,18,3)
+#define  VTSS_M_RB_FWD_CFG_SRC_FWD_MASK       VTSS_ENCODE_BITMASK(18,3)
+#define  VTSS_X_RB_FWD_CFG_SRC_FWD_MASK(x)    VTSS_EXTRACT_BITFIELD(x,18,3)
+
+/**
+ * \brief
  * Port mask indicating to which egress ports forwarding is applicable when
  * the destination is listed as a proxy in the host table.
  *
@@ -1328,7 +1406,9 @@
  * (either detected at ingress or pushed by the egress port) and any PRP
  * trailer detected at ingress is popped.Proposed
  * settings:PRP-SAN:Interlink: 0LRE ports: 1HSR-SANInterlink: 0LRE port:
- * 2HSR-PRPInterlink: 3LRE port: 2HSR-HSRInterlink: 2LRE port: 2
+ * 2HSR-PRPInterlink: 3 (all frames have RCT) or 1 (all frames but PTP
+ * frames have RCT) LRE port: 2HSR-HSRInterlink: 2LRE port: 2Related
+ * parameters: RB::PTP_MISC_CFG.PTP_RCT_DIS.
  *
  * \details
  * 0: All frames are untagged. Any HSR tags and PRP trailers in incoming
@@ -1512,16 +1592,14 @@
 
 /**
  * \brief
- * Handling of frames matching the PTP filter.HSR-xxx:Frames received on an
- * LRE port:- Frames matching PTP filter and forwarded to the other LRE
- * port are redirected to the interlink. Frames received on Interlink:- No
- * specific actions
+ * Enabling of PTP filter for frames received on ingress port. If set,
+ * frames are matched against the PTP filters. Frames matching a PTP filter
+ * are applicable to actions defined in RB::PTP_MISC_CFG.Related
+ * parameters:RB::PTP_DATARB::PTP_FILTER_CFGRB::PTP_MISC_CFGRB:PORT:STICKY.
+ * PTP_INT_STICKYRB:PORT:STICKY.PTP_ETH_STICKYRB:PORT:STICKY.PTP_IP4_STICKY
+ * RB:PORT:STICKY.PTP_IP6_STICKY
  *
  * \details
- * 0: No action
- * 1: Redirect to Interlink
- * 2: ?
- *
  * Field: ::VTSS_RB_PTP_CFG . PTP_ENA
  */
 #define  VTSS_F_RB_PTP_CFG_PTP_ENA(x)         VTSS_ENCODE_BITFIELD(!!(x),0,1)
@@ -2275,8 +2353,7 @@
 
 /**
  * \brief
- * Configures 16 MSB bits of the MAC address for the HOST_ENTRY.Used as
- * starting MAC address value during FIND SMALLEST Command.
+ * Configures 16 MSB bits of the MAC address for the HOST_ENTRY.
  *
  * \details
  * Upper 16 bits of MAC address.
@@ -2302,8 +2379,7 @@
 
 /**
  * \brief
- * Configures 32 LSB bits of the MAC address for the HOST_ENTRY.Used as
- * starting MAC address value during FIND SMALLEST Command.
+ * Configures 32 LSB bits of the MAC address for the HOST_ENTRY.
  *
  * \details
  * 0xXXXXXXXX: Lower 32 bits of MAC address.
@@ -2474,8 +2550,7 @@
 
 /**
  * \brief
- * Configures HOST_ENTRY type. Can be used as filter value during SCAN or
- * FIND SMALLEST Command.
+ * Configures HOST_ENTRY type.
  *
  * \details
  * 0: Proxy
@@ -2588,7 +2663,7 @@
 
 /**
  * \brief
- * Number of frames with from LAN identifier from host on port 2.
+ * Number of frames with wrong LAN identifier from host on port 2.
  *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_STAT_3 . CNT_RX_WRONG_LAN_2
@@ -2599,7 +2674,7 @@
 
 /**
  * \brief
- * Number of frames with from LAN identifier from host on port 1.
+ * Number of frames with wrong LAN identifier from host on port 1.
  *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_STAT_3 . CNT_RX_WRONG_LAN_1
@@ -2610,7 +2685,7 @@
 
 /**
  * \brief
- * Number of frames with from LAN identifier from host on port 0.
+ * Number of frames with wrong LAN identifier from host on port 0.
  *
  * \details
  * Field: ::VTSS_RB_HOST_ACCESS_STAT_3 . CNT_RX_WRONG_LAN_0
@@ -3141,9 +3216,9 @@
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . CPU_ACCESS_DIRECT_COL
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_ENCODE_BITFIELD(x,18,3)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL     VTSS_ENCODE_BITMASK(18,3)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_EXTRACT_BITFIELD(x,18,3)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_ENCODE_BITFIELD(x,19,3)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL     VTSS_ENCODE_BITMASK(19,3)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(x)  VTSS_EXTRACT_BITFIELD(x,19,3)
 
 /**
  * \brief
@@ -3161,9 +3236,9 @@
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . CPU_ACCESS_DIRECT_ROW
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_ENCODE_BITFIELD(x,10,8)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW     VTSS_ENCODE_BITMASK(10,8)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_EXTRACT_BITFIELD(x,10,8)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_ENCODE_BITFIELD(x,11,8)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW     VTSS_ENCODE_BITMASK(11,8)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(x)  VTSS_EXTRACT_BITFIELD(x,11,8)
 
 /**
  * \brief
@@ -3185,9 +3260,9 @@
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . CPU_ACCESS_CMD
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(x)  VTSS_ENCODE_BITFIELD(x,6,4)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD     VTSS_ENCODE_BITMASK(6,4)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(x)  VTSS_EXTRACT_BITFIELD(x,6,4)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(x)  VTSS_ENCODE_BITFIELD(x,7,4)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD     VTSS_ENCODE_BITMASK(7,4)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_CMD(x)  VTSS_EXTRACT_BITFIELD(x,7,4)
 
 /**
  * \brief
@@ -3199,9 +3274,9 @@
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . CPU_ACCESS_LEARN_SEQNO
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO  VTSS_BIT(5)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO  VTSS_BIT(6)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_CPU_ACCESS_LEARN_SEQNO(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief
@@ -3216,9 +3291,9 @@
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . DISC_TABLE_ACCESS_SHOT
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT  VTSS_BIT(4)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT  VTSS_BIT(5)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_DISC_TABLE_ACCESS_SHOT(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
 
 /**
  * \brief
@@ -3227,21 +3302,23 @@
  *
  * \details
  *
- *	     Bit:1 - Enables find and replace entries that have seen more
- * than one duplicate.
- *	     Bit:2 - Enables find and replace the max. seqno entry with the
- * same SMAC.
- *	     Bit:4 - Enables find and replace the oldest entry over half
- * the age limit.
- *	     Bit:8 - Enables find and replace a random entry if all else
- * fails.
+ *	     Bit:0 - DUPLICATES: Enables find and replace entries that have
+ * seen more than one duplicate.
+ *	     Bit:1 - SAME_SMAC : Enables find and replace the entry with
+ * the mininum sequence number from the same SMAC.
+ *	     Bit:2 - AGING     : Enables find and replace the oldest entry
+ * in the row.
+ *	     Bit:3 - RANDOM    : Enables find and replace a random entry if
+ * all other methods fail.
+ *	     Bit:4 - Enables that the DUPLICATES rule includes entries that
+ * have seen one duplicate.
 
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . AUTOLRN_REPLACE_RULE_ENA
  */
-#define  VTSS_F_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA     VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
+#define  VTSS_F_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(x)  VTSS_ENCODE_BITFIELD(x,0,5)
+#define  VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA     VTSS_ENCODE_BITMASK(0,5)
+#define  VTSS_X_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
 
 /**
@@ -3269,8 +3346,7 @@
 
 /**
  * \brief
- * Configures 16 MSB bits of the MAC address for the DISC_ENTRY.Used as
- * starting MAC address value during FIND SMALLEST Command.
+ * Configures 16 MSB bits of the MAC address for the DISC_ENTRY.
  *
  * \details
  * Upper 16 bits of MAC address.
@@ -3296,8 +3372,7 @@
 
 /**
  * \brief
- * Configures 32 LSB bits of the MAC address for the DISC_ENTRY.Used as
- * starting MAC address value during FIND SMALLEST Command.
+ * Configures 32 LSB bits of the MAC address for the DISC_ENTRY.
  *
  * \details
  * 0xXXXXXXXX: Lower 32 bits of MAC address.
