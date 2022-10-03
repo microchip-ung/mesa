@@ -1770,6 +1770,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_BPDU_CFG_BPDU_REDIR_ENA(lre ? 0xffff : 0));
 
     REG_WR(VTSS_RB_FWD_CFG(tgt, j),
+           VTSS_F_RB_FWD_CFG_FLD_DST_FWD_MASK(FA_RB_MSK_ALL) |
+           VTSS_F_RB_FWD_CFG_SRC_FWD_MASK(FA_RB_MSK_ALL) |
            VTSS_F_RB_FWD_CFG_PROXY_DST_FWD_MASK(prxy_dmac_msk) |
            VTSS_F_RB_FWD_CFG_LOCAL_DST_FWD_MASK(prxy_dmac_msk) |
            VTSS_F_RB_FWD_CFG_NODE_DST_FWD_MASK(node_dmac_msk) |
@@ -3101,7 +3103,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(VTSS_RB_DISC_ACCESS_CTRL(tgt), &val);
         fa_debug_rb_fld(pr, &val, VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA,
                         "AUTO_REPLACE_RULE_ENA", "DISC:", FALSE, 1);
-        pr("(B0:DUPL, B1:SEQ, B2:AGE, B3:RANDOM)\n");
+        pr("(B0:DUPL_MULTI, B1:SEQ, B2:AGE, B3:RANDOM, B4: DUPL_ONE)\n");
         p = buf;
         for (j = 0; j < 4; j++) {
             p += sprintf(p, "%s%u:%u%s",
@@ -3162,6 +3164,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(VTSS_RB_FWD_CFG(tgt, j), &x[j]);
         }
+        FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_FLD_DST_FWD_MASK);
+        FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_SRC_FWD_MASK);
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_PROXY_DST_FWD_MASK);
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_LOCAL_DST_FWD_MASK);
         FA_DEBUG_RB_PORT_FLD(x, FWD_CFG_NODE_DST_FWD_MASK);
