@@ -13,23 +13,23 @@
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,10 speeds
     {  000, 0000, 00000 },
-    {  417, 1441, 8380 },
-    {  415, 1447, 8377 }, // 415 1447
+    {  438, 567, 8380 },
+    {  436, 573, 8377 }, // 436 573
 };
 
 static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     {  000, 0000, 00000 }, // 1000,100,100 speeds
     {  000, 0000, 00000 },
-    {  189,  300, 11355 },
-    {  186,  296, 11353 }, // 186 296
+    {  208,  1266, 11355 },
+    {  208,  1262, 11353 }, // 208 1262
 };
 
 static uint16_t indy_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
   //     10M,100M, 1G
     {0,    0,   0,  0},
     {0,    0,   0,  0},
-    {0,11197,1125,120}, //200Mhz
-    {0,11198,1120,115}, //250Mhz : 100mbps cannot be compensated due to defailt value less than compensated value.
+    {0,11197,1125,125}, //200Mhz
+    {0,11198,1120,120}, //250Mhz : 100mbps cannot be compensated due to defailt value less than compensated value.
     {0,    0,   0,  0},
 };
 
