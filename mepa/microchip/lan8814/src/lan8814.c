@@ -506,7 +506,7 @@ static mepa_rc indy_workaround_half_duplex(mepa_device_t *dev)
 }
 
 // If earlier speed,duplex are 10M,100M with half duplex config, work-around applied earlier needs to be cleaned up.
-static mepa_rc indy_workaround_half_duplex_cleanup(mepa_device_t *dev)
+static mepa_rc indy_workaround_fifo_reset(mepa_device_t *dev)
 {
     EP_WR(dev, INDY_TX_RA_FIFO_RESET, 1);
     EP_WR(dev, INDY_RX_RA_FIFO_RESET, 1);
@@ -603,6 +603,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         if (data->dev.model == 0x26) {
             EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+            data->post_mac_rst = TRUE;
         }
     }
 
@@ -665,8 +666,24 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         // 1G half duplex is not supported. Refer direct register - 9
         if ((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
             data->conf.aneg.speed_1g_fdx) {
-            status->speed = MEPA_SPEED_1G;
-            status->fdx = 1;
+            // Work-around for CRC errors begin.
+            if (!((val2 & INDY_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
+                 (val2 & INDY_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
+                 !data->post_mac_rst) {
+                //link not completely up
+                status->link = 0;
+            } else if (data->link_up_cnt > 2 && !data->aneg_after_boot) {// poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
+                WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+                data->aneg_after_boot = TRUE;
+            } else if (data->link_up_cnt++ > 2 && data->aneg_after_boot) {// After auto-negotation restarted, poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                status->speed = MEPA_SPEED_1G;
+                status->fdx = 1;
+            } else { // link up time <= 2 seconds assuming polling interval is 1 second.
+                T_I(MEPA_TRACE_GRP_GEN, "link up cnt %d", data->link_up_cnt);
+                status->link = 0;
+            }
+            // Work-around for CRC errors end.
         } else if ((val & INDY_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
                    data->conf.aneg.speed_100m_fdx) {
             status->speed = MEPA_SPEED_100M;
@@ -718,10 +735,8 @@ end:
                     indy_workaround_half_duplex(dev);
                 }
             } else {// link down event.
-                if ((data->speed_status == MEPA_SPEED_100M || data->speed_status == MEPA_SPEED_10M) &&
-                    (data->fdx_status == FALSE)) {
-                    indy_workaround_half_duplex_cleanup(dev);
-                }
+                indy_workaround_fifo_reset(dev);
+                data->link_up_cnt = 0;
             }
         }
     }
@@ -795,7 +810,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (config->speed == MEPA_SPEED_AUTO || config->speed == MEPA_SPEED_1G) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
                 !data->conf.fdx) {
-                indy_workaround_half_duplex_cleanup(dev);
+                indy_workaround_fifo_reset(dev);
             }
             if (data->conf.admin.enable != config->admin.enable) {
                 restart_aneg = TRUE;
@@ -839,7 +854,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
                 !data->conf.fdx) {
-                indy_workaround_half_duplex_cleanup(dev);
+                indy_workaround_fifo_reset(dev);
             }
             T_I(MEPA_TRACE_GRP_GEN, "forced speed %d configured\n", config->speed);
             new_value = ((config->speed == MEPA_SPEED_100M ? 1 : 0) << 13) | (0 << 12) |

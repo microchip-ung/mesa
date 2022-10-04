@@ -148,9 +148,12 @@ typedef struct {
     mepa_bool_t              fdx_status;
     mepa_cable_diag_result_t cable_diag;
     mepa_start_of_frame_conf_t sof_conf;
-    mepa_bool_t		     framepreempt_en;      // Frame Preemption
-    indy_ts_data_t          ts_state;
+    mepa_bool_t              framepreempt_en;      // Frame Preemption
     mepa_media_mode_t        mdi_mode;
+    uint16_t                 link_up_cnt;
+    mepa_bool_t              post_mac_rst;
+    mepa_bool_t              aneg_after_boot;
+    indy_ts_data_t           ts_state;
 } phy_data_t;
 
 #endif
