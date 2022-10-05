@@ -1335,6 +1335,18 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
 
 #if defined(VTSS_FEATURE_PORT_KR)
 
+// Defines for the current an state in KR_DEV7_AN_SM
+#define AN_ENABLE 0
+#define AN_XMT_DISABLE 1
+#define AN_ABIL_DET 2
+#define AN_ACK_DET 3
+#define AN_CMPL_ACK 4
+#define AN_TRAIN 5
+#define AN_GOOD_CHK 6
+#define AN_GOOD 7
+#define AN_RATE_DET 8
+#define AN_WAIT_RATE_DONE 13
+
 static vtss_rc jr2_port_kr_fec_set(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no)
 {
@@ -1373,8 +1385,14 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     u32 dev1 = VTSS_TO_10G_KR_DEV1_TGT(port);  // Training
     u32 xfi  = VTSS_TO_10G_XFI_TGT(port);      // KR-Control/Stickies
     u32 br   = VTSS_TO_10G_PCS10G_BR(port);
-    u32 val, an_sm, aneg, pcs, fec, sticky = 0;
+    u32 val, an_sm, aneg, pcs, fec, hist, sticky = 0;
     BOOL aneg_is_restarted = 0;
+
+    if (vtss_state->port.conf[port_no].power_down) {
+        status->aneg.complete = 0;
+        status->train.complete = 0;
+        return VTSS_RC_OK;
+    }
 
     JR2_RD(VTSS_KR_DEV7_AN_SM_AN_SM(dev7), &an_sm);
     an_sm = VTSS_X_KR_DEV7_AN_SM_AN_SM_AN_SM(an_sm);
@@ -1382,9 +1400,9 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
     JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_XFI_STATUS(xfi), &val);
 
-    if (an_sm == 7 ||  // State: AN_GOOD
-        an_sm == 1 ||  // State: Transmit Disable
-        an_sm == 13) { // State: Wait Rom
+    if (an_sm == AN_GOOD ||  // State: AN_GOOD
+        an_sm == AN_XMT_DISABLE ||  // State: Transmit Disable
+        an_sm == AN_WAIT_RATE_DONE) { // State: Wait Rom
         // Aneg state machine is waiting, store and clear the speed requests to let aneg finish
         JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), &sticky);
         JR2_WR(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi),
@@ -1397,7 +1415,7 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     }
 
     // Aneg status
-    status->aneg.complete = (an_sm == 7) &&
+    status->aneg.complete = (an_sm == AN_GOOD) &&
         VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg) &&
         VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
     status->aneg.block_lock = VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
@@ -1410,15 +1428,36 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
     status->train.complete = VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(val) &&
                                !VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(val) &&
                                VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
+    u32 tr_fail = VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(val) &&
+        VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
+
+    if (an_sm == AN_ACK_DET && tr_fail && !status->aneg.active) {
+        VTSS_I("Port:%d. Stuck in AN_ACK_DET.  Restart Aneg",port_no);
+        JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
+                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
+                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
+        return VTSS_RC_OK;
+    } else if (an_sm == AN_ACK_DET && tr_fail && status->aneg.active) {
+        VTSS_I("Port:%d. Stuck in AN_ACK_DET.  Restart Training",port_no);
+        JR2_WRM(VTSS_KR_DEV1_KR_1X0096_KR_1X0096(dev1),
+                VTSS_F_KR_DEV1_KR_1X0096_KR_1X0096_TR_RESTART(1),
+                VTSS_M_KR_DEV1_KR_1X0096_KR_1X0096_TR_RESTART);
+        return VTSS_RC_OK;
+    } else if (an_sm == AN_ACK_DET && !tr_fail && (sticky == 0)) {
+        VTSS_I("Port:%d. Stuck in AN_ACK_DET.  Restart KR block",port_no);
+        vtss_state->port.kr_conf_set(vtss_state, port_no);
+        return VTSS_RC_OK;
+    }
 
     // FEC status
     status->fec.r_fec_enable = vtss_state->port.kr_fec[port_no].r_fec;
 
     // Verify that the aneg state machine is not stuck
-    if (an_sm == 2 || (an_sm == 7 && !status->aneg.complete)) {
-        JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &val);
-        if ((val & 0xFF7B) == 0) { // mask out parallel detect and ability check
+    if (an_sm == AN_ABIL_DET || (an_sm == AN_GOOD && !status->aneg.complete)) {
+        JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &hist);
+        if ((hist & 0xFF7B) == 0) { // mask out parallel detect and ability check
             // Restart aneg
+            VTSS_I("Port:%d. Stuck in %s.  Restart Aneg",port_no, an_sm == AN_ABIL_DET ? "ABIL_DET" : "AN_GOOD");
             JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
                     VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
                     VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
@@ -1435,6 +1474,7 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
                     VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
         }
     }
+
 
     if (status->aneg.active) {
         // Aneg is still running, return now.
@@ -1477,7 +1517,7 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
         }
     }
 
-    if (status->train.complete || (an_sm == 5)) {
+    if (status->train.complete || (an_sm == AN_TRAIN)) {
         // ob tap values
         JR2_RD(VTSS_KR_DEV1_TR_TAPVAL_TR_C0VAL(dev1), &val);
         status->train.c0_ob_tap_result = (u8)val;
@@ -1486,7 +1526,7 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
         JR2_RD(VTSS_KR_DEV1_TR_TAPVAL_TR_CPVAL(dev1), &val);
         status->train.cp_ob_tap_result = (u8)val;
 
-        if (an_sm == 5) {
+        if (an_sm == AN_TRAIN) {
             VTSS_I("Port:%d. Stuck in training  Restart Aneg. AN sm:%d",port_no,an_sm);
             if (vtss_state->port.kr_conf[port_no].aneg.enable) {
                 JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
@@ -1504,11 +1544,9 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
         !VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs) &&
         status->aneg.lp_aneg_able) {
         // Workaround for FEC enable request
-        VTSS_I("Port:%d. Lost block lock.  LP kr-fec is possibly enabled, restart Aneg. AN sm:%d",port_no,an_sm);
+        VTSS_I("Port:%d. Lost block lock. Restart Aneg. AN sm:%d",port_no,an_sm);
         JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
-                VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(1) |
                 VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
-                VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE |
                 VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
     }
 
@@ -3625,14 +3663,12 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t *vtss_state,
     pr("tr_fail:           :%d\n", VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(tr));
     pr("kr_control:        :0x%x\n", krc);
 
-
     JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
             VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
     JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
             VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
-
 
     JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(VTSS_TO_DEV(port)), &value);
     pr("\nLink status: %d:\n", (value == 2));
@@ -3649,8 +3685,6 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t *vtss_state,
        VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_HI_BER(pcs));
     // Clear the stickies
     JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), 0xFFFFFFFF);
-
-
 
     return VTSS_RC_OK;
 }
