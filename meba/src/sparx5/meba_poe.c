@@ -72,9 +72,9 @@ mesa_rc meba_poe_sparx5_system_get(
 
 
 mesa_rc meba_poe_sparx5_system_initialize(
-    meba_inst_t   inst,
-    int ctrl1_i2c_address,
-    int ctrl2_i2c_address);
+    meba_inst_t inst,
+    int         poe_i2c0,
+    int         poe_i2c1)
 {
     // Do poe chip detection and fill
     /* sparx5_ctrl.api = ....; */
@@ -83,25 +83,23 @@ mesa_rc meba_poe_sparx5_system_initialize(
     sparx5_pd69200_system.controller_count = 2;
     sparx5_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * sparx5_pd69200_system.controller_count);
 
-    uint8_t poe_12c0 = sparx5_i2c_config[0].i2c_address;
-    if (inst->poe_i2c_tags.poe_12c0 != 0)
+    if (poe_i2c0 == 0)
     {
-        poe_12c0 = inst->poe_i2c_tags.poe_12c0;
+        poe_i2c0 = sparx5_i2c_config[0].i2c_address;
         //T_I("%s=%d", "poe_12c0", poe_12c0);
     }
 
-    uint8_t poe_12c1 = sparx5_i2c_config[1].i2c_address;
-    if (inst->poe_i2c_tags.poe_12c1 != 0)
+    if (poe_i2c1 == 0)
     {
-        poe_12c1 = inst->poe_i2c_tags.poe_12c1;
-        //T_I("%s=%d", "poe_12c1", poe_12c1);
+        poe_i2c1 = sparx5_i2c_config[1].i2c_address;
+        //T_I("%s=%d", "poe_12c0", poe_12c0);
     }
 
     if(POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_BT)
     {
         meba_pd69200bt_driver_init(&sparx5_pd69200_system.controllers[0],
                                    "pd69x00",
-                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device ,poe_12c0),
+                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device, poe_i2c0),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -115,7 +113,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
 
         meba_pd69200bt_driver_init(&sparx5_pd69200_system.controllers[1],
                                    "pd69x00-2",
-                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device ,poe_12c1),
+                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device, poe_i2c1),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -131,7 +129,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
     {
         meba_pd69200_driver_init(&sparx5_pd69200_system.controllers[0],
                                    "pd69x00",
-                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device ,poe_12c0),
+                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device, poe_i2c0),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
                                    sparx5_pd69200AT_port_map_1,
@@ -143,7 +141,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
 
         meba_pd69200_driver_init(&sparx5_pd69200_system.controllers[1],
                                    "pd69x00-2",
-                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device ,poe_12c1),
+                                   meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device, poe_i2c1),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
                                    sparx5_pd69200AT_port_map_2,
