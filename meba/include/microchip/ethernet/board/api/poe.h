@@ -88,8 +88,13 @@ typedef mesa_rc (*meba_poe_system_get_t)(
 
 // Initialize the MEBA PoE subsystem.
 // may only be called once.
+// inst              [IN]  Reference to the meba instance
+// ctrl1_i2c_address [IN]  I2C address of first controller. If zero, default address is used.
+// ctrl2_i2c_address [IN]  I2C address of second controller. If zero, default address is used.
 typedef mesa_rc (*meba_poe_system_initialize_t)(
-        struct meba_inst               *inst);
+    struct meba_inst   *inst,
+    int                 ctrl1_i2c_address,
+    int                 ctrl2_i2c_address);
 
 
 // Perform chip detection.
@@ -142,7 +147,12 @@ typedef mesa_rc (*meba_poe_debug_t)(
         struct meba_inst               *inst,
         mesa_port_no_t                  port_no,
         char                            *var,
-        uint32_t                        str_len);
+        uint32_t                        str_len,
+        char                            *title ,
+        char                            *tx_str ,
+        char                            *rx_str ,
+        char                            *msg,
+        int                             max_msg_len);
 
 // Perform the Firmware upgrade.
 // This function upgrades the PoE controller firmware.  The poe_firmware_upgrade

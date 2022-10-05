@@ -46,7 +46,7 @@ mesa_rc meba_poe_generic_port_cfg_set(
 mesa_rc meba_poe_generic_port_prio_set(
     const meba_inst_t               inst,
     mesa_port_no_t                  port_no,
-    meba_poe_port_prio_t            prio);
+    meba_poe_pd_power_priority_t    prio);
 
 mesa_rc meba_poe_generic_port_max_power_set(
     const meba_inst_t               inst,
@@ -68,7 +68,12 @@ mesa_rc meba_poe_generic_debug(
     const meba_inst_t               inst,
     mesa_port_no_t                  port_no,
     char                            *var,
-    uint32_t                        str_len);
+    uint32_t                        str_len,
+    char                            *title ,
+    char                            *tx_str ,
+    char                            *rx_str ,
+    char                            *msg,
+    int                             max_msg_len);
 
 mesa_rc meba_poe_generic_supply_limits_get(
     const meba_inst_t          inst,

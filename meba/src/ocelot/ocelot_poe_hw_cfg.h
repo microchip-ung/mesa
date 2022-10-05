@@ -28,12 +28,12 @@
 // Set system mode BT or AT firmware:
 // ePoE_System_Mode_AT - AT mode
 // ePoE_System_Mode_BT - BT mode
-#define POE_SYSTEM_MODE_DEFAULT                        ePoE_System_Mode_AT
+#define POE_SYSTEM_MODE_DEFAULT                        ePoE_System_Mode_BT
 
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT         0
+#define POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT         1
 
 
 // Power Suply maximum Power (W)
@@ -103,10 +103,10 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy detection, port power, classification fingers, and 4-pair operation.
 // see Microchip PD692x0 BT Serial Communication Protocol Table 3-5. 4-Pair/2-Pair Non-Compliant Modes
-#define BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_15W_DEFAULT   0x13
-#define BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_30W_DEFAULT   0x12
-#define BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_60W_DEFAULT   0x24
-#define BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_90W_DEFAULT   0x26
+
+#define BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT              0x25  // Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
+#define BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT  0x21  // Lagacy + IGNORE_PD_CLASS 60W
+#define BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT  0x26  // Lagacy + IGNORE_PD_CLASS 90W
 
 
 // '0' The allocation logic before classification sums the delivering power ports with
@@ -115,7 +115,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 //     power for the higher priority port.
 // '1' If power is not available for powering-up any port, any new connected port
 //     power-up is denied, regardless of its priority.
-#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
+#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
@@ -146,6 +146,39 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 //   1 package for 2P and 4P LED operation.
 //   Another package for SYS OK pin.
 #define INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT            2
+
+
+// HOCPP - High Over Current Pulse Protection
+// 0 = Internal port startup check duration is 500 ms and HOCPP is enabled immediately (0 ms) after port power-up.
+// 1 = Internal port startup check duration is 500 ms and HOCPP is enabled at the end of this time duration.
+// 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
+// 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
+// 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
+#define INDV_MASK_BT_HOCPP_DEFAULT                 2
+
+
+//PSE powering PSE checking
+// 0 = PSE powering PSE condition does not deny powering new valid ports.
+// 1 = In case PSE powering PSE condition occurs, no additional ports are poweredup, until this problem is resolved.
+#define INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT          1
+
+
+// Layer2 Power Allocation Limit
+// 0 = Power allocation limit up to requested class (non-BT compliant).
+// 1 = Power allocation limit up to minimum between the requested class and the operation mode (BT compliant).
+#define INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT      1
+
+
+// Port LED Blinks at invalid signature or connection-check error
+// 0 = When port detects invalid signature or connection-check error, LED stays off.
+// 1 = When port detects invalid signature or connection-check error, LED blinks.
+#define INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT 0
+
+
+// Support_adding lldp_half_priority
+// 0 = Port at LLDP does not have additional half priority.
+// 1 = Port at LLDP has additional half priority compared to non LLDP port at the same priority settings.
+#define INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT   1
 
 
 //--------------------------------------------------------------------------------------//

@@ -317,8 +317,8 @@ static mesa_rc caracal_port_entry_get(meba_inst_t inst, mesa_port_no_t port_no, 
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
             entry->mac_if              = MESA_PORT_INTERFACE_SERDES;
             entry->cap                 = MEBA_PORT_CAP_SFP_1G;
-            entry->cap                |= MEBA_PORT_CAP_SFP_SD_HIGH; // EZRA ?????
-            entry->cap                |= MEBA_PORT_CAP_DUAL_SFP_DETECT; // Yoram ?????
+            entry->cap                |= MEBA_PORT_CAP_SFP_SD_HIGH;
+            entry->cap                |= MEBA_PORT_CAP_DUAL_SFP_DETECT;
         } else {
             /* Copper ports (0..9) with internal PHY */
             entry->map.chip_port       = port_no;

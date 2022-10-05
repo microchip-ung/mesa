@@ -450,8 +450,7 @@ enum
     MESA_RC_ERR_POE_RX_BUF_EMPTY                = -401, // poe rx buffer empty - data 0x00
     MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED          = -402, // poe firmware update error
     MESA_RC_ERR_POE_COMM_PROT_ERR               = -403, // poe rx communication protocol error
-    MESA_RC_ERR_NOT_POE_PORT_ERR                = -404, // poe rx communication protocol error
-
+    MESA_RC_ERR_NOT_POE_PORT_ERR                = -404, // not a poe port
 }; // Leave it anonymous.
 
 // Event type.

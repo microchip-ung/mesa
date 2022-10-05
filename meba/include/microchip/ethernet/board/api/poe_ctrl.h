@@ -62,6 +62,9 @@ typedef enum {
 
     // Signals if the controller is in auto class mode
     MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST = 0X10,
+
+    // Signals if the controller supports legacy
+    MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE = 0X20,
 } meba_poe_ctrl_cap_t;
 
 // PoE Controller Port capabilities (bitmask).
@@ -136,7 +139,7 @@ typedef enum {
     MEBA_POE_NOT_SUPPORTED,           // PoE feature is not supported.
     MEBA_POE_DISABLED,                // PoE feature is disabled on PSE.
     MEBA_POE_DISABLED_INTERFACE_SHUTDOWN, // PoE disabled due to interface shutdown
-    MEBA_POE_FAULT,                   // PoE PD fault
+    MEBA_POE_PD_FAULT,                // PoE PD fault
     MEBA_POE_PSE_FAULT                // PoE pse fault
 } meba_poe_port_state_t;
 
@@ -171,10 +174,49 @@ typedef enum {
 // Ports with low priority is shutdown first, starting with the ports with
 // highest logical-port ID.
 typedef enum {
-    MEBA_POE_PORT_PRIO_CRITICAL = 1,
-    MEBA_POE_PORT_PRIO_HIGH = 2,
-    MEBA_POE_PORT_PRIO_LOW = 3,
-} meba_poe_port_prio_t;
+    /** limit to type 3 15W . */
+    MEBA_POE_PSE_PORT_TYPE3_15W = 0,
+    /** limit to type 3 30W . */
+    MEBA_POE_PSE_PORT_TYPE3_30W,
+    /** limit to type 3 60W. */
+    MEBA_POE_PSE_PORT_TYPE3_60W,
+    /** limit to type 4 90W. */
+    MEBA_POE_PSE_PORT_TYPE4_90W
+} meba_poe_port_type_t;
+
+
+/**
+ * \brief Types of port power priority.
+ * \details The port power priority, which determines the order in which the port will receive power.
+ *          Ports with a higher priority will receive power before ports with a lower priority.
+ */
+typedef enum {
+    /** cable length till 10 meters. */
+    MEBA_POE_PORT_CABLE_LENGTH_10 = 1,
+    /** cable length till 30 meters. */
+    MEBA_POE_PORT_CABLE_LENGTH_30 = 3,
+    /** cable length till 60 meters. */
+    MEBA_POE_PORT_CABLE_LENGTH_60 = 6,
+    /** cable length till 100 meters. */
+    MEBA_POE_PORT_CABLE_LENGTH_100 = 10
+} meba_poe_port_cable_length_t;
+
+
+// PoE bt Port PM mode.
+// If the PoE controller (and/or power supply) can not deliver the
+// needed power, then the port priority is used to identify what ports to
+// shutdown first (and power-up last when power become available).
+// Ports with low priority is shutdown first, starting with the ports with
+// highest logical-port ID.
+typedef enum {
+    /** The port power that is used for power management purposes is dynamic (Iport x Vmain). */
+    MEBA_POE_BT_PORT_POWER_MANAGEMENT_DYNAMIC = 0,
+    /** The port power that is used for power management purposes is port TPPL_BT. */
+    MEBA_POE_BT_PORT_POWER_MANAGEMENT_STATIC,
+    /** The port power that is used for power management purposes is dynamic for non LLDP/CDP/Autoclass ports and TPPL_BT for LLDP/CDP/Autoclass ports. */
+    MEBA_POE_BT_PORT_POWER_MANAGEMENT_HYBRID
+} meba_poe_bt_port_pm_mode_t;
+
 
 // Power supply ID.
 // Used to identity a given power-supply. A given system does not need to
@@ -207,6 +249,48 @@ typedef enum {
     MEBA_POE_PORT_PSE_POWER_SPARE_PAIR = 2,
     MEBA_POE_PORT_PSE_POWER_BOTH       = 3,
 } meba_poe_port_pse_power_pair_t;
+
+
+
+typedef enum  //[7..4] return the detected result value of the connection check function.
+{
+    eCC_Result_Not_yet_performed   = 0,
+    eCC_Result_Open                ,      //0x1
+    eCC_Result_Other               ,      //0x2
+    eCC_Result_Single_signature_PD ,      //0x3
+    eCC_Result_Dual_signature_PD   ,      //0x4
+    eCC_Result_Unexpected                 //0x5
+    //0x6 to 0xF Reserved
+} CC_Result_e;
+
+
+
+typedef enum
+{
+ eDecided_PD_Structure_Not_performed                = 0,
+ eDecided_PD_Structure_Open                         , //0x1
+ eDecided_PD_Structure_Invalid_Signature            , // 0x2
+ eDecided_PD_Structure_4P_SSPD_IEEE                 , // 0x3
+ eDecided_PD_Structure_4P_SSPD_Legacy               , // 0x4
+ eDecided_PD_Structure_4P_DSPD_IEEE                 , // 0x5
+ eDecided_PD_Structure_2P_DSPD_4P_CANDIDATE_FALSE   , // 0x6
+ eDecided_PD_Structure_2P_IEEE                      , // 0x7
+ eDecided_PD_Structure_2P_Legacy                      // 0x8
+//0x9 to 0xF Reserved Reserved for future use and must be ignored.
+} Decided_PD_Structure_e;
+
+
+typedef enum
+{
+  eAutoClass_Support_Auto_class_check_was_not_performed         = 0x0,
+  eAutoClass_Support_The_PD_does_not_support_physical_auto_class, // 1
+  eAutoClass_Support_The_PD_supports_physical_auto_class          // 2
+} autoclass_support_e;
+
+
+
+
+
 
 
 // ID/handle used by the PoE controller to identify a given port. The
@@ -267,7 +351,7 @@ typedef enum {
 // PoE PD power priority
 // IEEE Std 802.3-2015. Table 79-4. Power priority field
 typedef enum {
-    MEBA_POE_PORT_PD_POWER_PRIORITY_UNKNOWN,
+    MEBA_POE_PORT_PD_POWER_PRIORITY_UNKNOWN = 0,
     MEBA_POE_PORT_PD_POWER_PRIORITY_CRITICAL,
     MEBA_POE_PORT_PD_POWER_PRIORITY_HIGH,
     MEBA_POE_PORT_PD_POWER_PRIORITY_LOW,
@@ -275,7 +359,7 @@ typedef enum {
 
 
 typedef enum {
-    ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION,
+    ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION = 0,
     ePD69200_CONTROLLER_TYPE ,
     ePD69210_CONTROLLER_TYPE ,
     ePD69220_CONTROLLER_TYPE ,
@@ -289,21 +373,42 @@ typedef enum {
 } meba_poe_system_mode_t;
 
 
+/**
+ * \brief Types of port PoE mode
+ */
+typedef enum {
+    /** PoE functionality is disabled. */
+    MEBA_POE_MODE_DISABLED = 0,
+    /** Enables PoE based on IEEE 802.3af standard,
+        and provides power up to 15.4W(or 154 deciwatt) of DC power to powered device.
+     */
+    MEBA_POE_MODE_POE,
+    /** Enabled PoE based on IEEE 802.3at standard,
+        and provides power up to 30W(or 300 deciwatt) of DC power to powered device.
+     */
+    MEBA_POE_MODE_POE_PLUS
+} meba_poe_port_mode_t;
+
+
 // The maximum length of buffer used to hold the PoE firmware version string.
 #define MEBA_POE_VERSION_STRING_SIZE 256
 
 // PoE global configuration
 typedef struct {
-    // PoE primary power in milliwatt
-    mesa_poe_milliwatt_t        primary_max_power;
+    // PoE primary power in watt
+    uint32_t        primary_max_power_w;
 
-    // PoE backup power in milliwatt
-    mesa_poe_milliwatt_t        backup_max_power;
+    // PoE backup power in watt
+    uint32_t        backup_max_power_w;
 
     // If true, legacy detect is supported
     mesa_poe_legacy_detect_t    legacy_detect;
 
-    uint8_t                     ignore_pd_auto_class_request;  // applicable only for BT
+    // applicable only for BT sw
+    uint8_t                     global_ignore_pd_auto_class_request;
+
+    // applicable only for BT sw
+    uint8_t                     global_legacy_pd_class_mode;
 
 } meba_poe_global_cfg_t;
 
@@ -319,17 +424,23 @@ typedef struct {
     meba_poe_port_pse_power_pair_t  power_pairs;
 
     // PoE Port configured priority.
-    meba_poe_port_prio_t        priority;
+    meba_poe_pd_power_priority_t priority;
+
+    // PoE port type3 15W 30W 60W or type4 90W
+    meba_poe_port_type_t         pse_port_type;
 
     // PoE port is in lldp mode
-    mesa_bool_t                 lldp_mode;
+    mesa_bool_t                  lldp_mode;
+
+    // PoE lldp port cablr length
+    meba_poe_port_cable_length_t  cable_length;
 
     uint8_t   bt_en;
-    uint8_t   ignored_inrush_check; // Inrush ignored CFG1[0..3] -  BT: 0x1  Legacy: 0x2     - set by legacy_support
+    uint8_t   ignored_inrush_check;  // Inrush ignored CFG1[0..3] -  BT: 0x1  Legacy: 0x2     - set by Port Operation Mode AT/BT
     uint8_t   ignore_pd_auto_class_request;                                                 //- set by AutoClass global var
-    uint8_t   bt_port_pm_mode;                                                              //- set by legacy_support
-    uint8_t   class_error_selection;                                                        //- set by legacy_support
-    uint8_t   port_operation_mode;                                                          //- set by legacy_support
+    uint8_t   bt_port_pm_mode;                                                              //- meba_poe_bt_port_pm_mode_t
+    uint8_t   class_error_selection;                                                        //- set by Port Operation Mode AT/BT
+    uint8_t   bt_port_operation_mode;                                                       //- set by Port Operation Mode AT/BT
     uint8_t   add_power_for_port_mode_dW;
 
 } meba_poe_port_cfg_t;
@@ -357,11 +468,22 @@ typedef struct {
     // adc value
     uint16_t                    adc_value;
 
+    // is PoE MCU has BT or AT firmware
+    mesa_bool_t                 isBT;
+
     // controller type PD69200,PD69210,PD69220
     meba_poe_controller_type_t  ePoE_Controller_Type;
 
     // detected poe mode - ports mode BT or AT
     meba_poe_system_mode_t     eDetected_PoE_System_Mode;
+
+    // telemetry info from PoE MCU
+    uint16_t power_consumption_w;
+    uint16_t calculated_power_w;
+    uint16_t available_power_w;
+    uint16_t power_limit_w;
+    uint8_t  power_bank;
+    uint16_t vmain_voltage_dv;
 
     // poe firmware info
     uint8_t                     prod_number_detected;
@@ -385,10 +507,10 @@ typedef struct {
     meba_poe_pd_power_priority_t prio;
 
     // PoE port requested power.
-    mesa_poe_milliwatt_t        pd_requested_power;
+    mesa_poe_milliwatt_t        pd_requested_power_mw;
 
     // PoE port allocated power.
-    mesa_poe_milliwatt_t        pse_allocated_power;
+    mesa_poe_milliwatt_t        pse_allocated_power_mw;
 
 } meba_poe_pd_data_t;
 
@@ -397,22 +519,21 @@ typedef struct {
     meba_poe_pd_power_type_t       type;
     meba_poe_pd_power_source_t     source;
     meba_poe_pd_power_priority_t   prio;
-    mesa_poe_milliwatt_t           pd_requested_power_single;
-    mesa_poe_milliwatt_t           pse_allocated_power_single;
-    mesa_poe_milliwatt_t           pd_requested_power_alt_a;
-    mesa_poe_milliwatt_t           pse_allocated_power_alt_a;
-    mesa_poe_milliwatt_t           pd_requested_power_alt_b;
-    mesa_poe_milliwatt_t           pse_allocated_power_alt_b;
-
+    mesa_poe_milliwatt_t           pd_requested_power_single_mw;
+    mesa_poe_milliwatt_t           pse_allocated_power_single_mw;
+    mesa_poe_milliwatt_t           pd_requested_power_alt_a_mw;
+    mesa_poe_milliwatt_t           pse_allocated_power_alt_a_mw;
+    mesa_poe_milliwatt_t           pd_requested_power_alt_b_mw;
+    mesa_poe_milliwatt_t           pse_allocated_power_alt_b_mw;
 } meba_poe_pd_bt_data_t;
 
 // PoE port pse data.
 typedef struct {
     // PoE port allocated power.
-    mesa_poe_milliwatt_t        pse_allocated_power;
+    mesa_poe_milliwatt_t        pse_allocated_power_mw;
 
     // PoE port requested power.
-    mesa_poe_milliwatt_t        pd_requested_power;
+    mesa_poe_milliwatt_t        pd_requested_power_mw;
 
     // PoE port pse type.
     meba_poe_port_pse_type_t    pse_power_type;
@@ -434,17 +555,17 @@ typedef struct {
     meba_poe_ctrl_psu_t         id;
 
     // Minimum power supply capacity.
-    mesa_poe_milliwatt_t        min_mW;
+    uint32_t        min_w;
 
     // Maximum effect the controller can handle.
-    mesa_poe_milliwatt_t        max_mW;
+    uint32_t        max_w;
 
     // Default power supply capacity.
-    mesa_poe_milliwatt_t        def_mW;
+    uint32_t        def_w;
 
     // If the system (switch) is powered by the same PSU as is used for PoE,
     // then we need to reserve the power consumed by the system.
-    mesa_poe_milliwatt_t        system_consumed;
+    uint32_t        system_consumed_w;
 
     // Signal if the end user is allowed to configure the PSU capacity. If set
     // to false, then the 'def - system_consumed' will be used, and the user can
@@ -524,7 +645,15 @@ typedef struct {
 
     meba_poe_port_state_t       meba_poe_port_state;
 
-    uint8_t                     poe_port_status;
+    uint8_t                     pd_type_sspd_dspd;        // 0 - not valid , 1 - sspd , 2 - dspd.
+
+    uint8_t                     poe_internal_port_status;
+
+    uint8_t                     bt_port_operation_mode;   // read configured port operation mode from 'get bt port parameters' // bt std = 0,1,2,3 legacy 0x10,0x11,0x12,0x13
+
+    meba_poe_port_type_t        pse_port_type ;           // pse type as set in port configuration
+
+    meba_poe_bt_port_pm_mode_t  bt_port_pm_mode;          // read configured bt_port_pm_mode from 'get bt port parameters'
 
     char                        poe_port_status_description[100];
 
@@ -551,19 +680,19 @@ typedef struct {
     meba_poe_port_pd_class_t    requested_pd_class_b;
 
     // PoE port PD class.
-    mesa_poe_milliwatt_t        requested_power_mode_a;
+    mesa_poe_milliwatt_t        requested_power_mode_a_mw;
 
     // PoE port PD class, second pair (used for poe-bt)
-    mesa_poe_milliwatt_t        requested_power_mode_b;
+    mesa_poe_milliwatt_t        requested_power_mode_b_mw;
 
     // PoE port PD class.
-    mesa_poe_milliwatt_t        pse_alloc_power_alt_a;
+    mesa_poe_milliwatt_t        pse_alloc_power_alt_a_mw;
 
     // PoE port PD class, second pair (used for poe-bt)
-    mesa_poe_milliwatt_t        pse_alloc_power_alt_b;
+    mesa_poe_milliwatt_t        pse_alloc_power_alt_b_mw;
 
     // PoE port PSE
-    mesa_poe_milliwatt_t        pse_max_avail_power;
+    mesa_poe_milliwatt_t        pse_max_avail_power_mw;
 
     // PoE port power status. Holds the value to go into PoE lldp element: Power
     // Status
@@ -577,37 +706,33 @@ typedef struct {
     meba_poe_port_pd_structure_t pd_structure;
 
     // PoE port requested power.
-    mesa_poe_milliwatt_t        requested_power;
+    mesa_poe_milliwatt_t        power_requested_mw;
 
-    mesa_poe_milliwatt_t        assigned_power;
+    mesa_poe_milliwatt_t        power_assigned_mw;
 
     // The power reserved for the PD. When power is allocated on basis of PD
     // class, this number will be equal to the consumed power. When LLDP is used
     // to allocated power, this will be the amount of power reserved through
     // LLDP. The value is only meaningful when the PD is on.
-    mesa_poe_milliwatt_t        reserved_power;
+    mesa_poe_milliwatt_t        reserved_power_mw;
 
     // PoE port consumed power.
-    mesa_poe_milliwatt_t        power;
-
-    // True if PD is detected to support autoclass
-    mesa_bool_t                 autoclass_support;
+    mesa_poe_milliwatt_t        power_mw;
 
     // Max power measured by Autoclass Measurement.
-    mesa_poe_milliwatt_t        measured_autoclass_power;
+    mesa_poe_milliwatt_t        measured_autoclass_power_mw;
 
     // IEEE Std 802.3-2018. Table 79-6h. Autoclass field.
     mesa_poe_auto_class_t       auto_class;
 
     // PoE port consumed current.
-    mesa_poe_milliampere_t      current;
+    mesa_poe_milliampere_t      current_ma;
 
     // PoE port measured voltage.
-    mesa_poe_millivolt_t        voltage;
+    mesa_poe_millivolt_t        voltage_mv;
 
     // PoE port PSE data.
     meba_poe_pse_data_t         pse_data;
-
 } meba_poe_port_status_t;
 
 // Get PoE controller firmware version.
@@ -729,7 +854,12 @@ typedef mesa_rc (*meba_poe_ctrl_chipset_get_t)(
 typedef mesa_rc (*meba_poe_ctrl_debug_t)(
         const meba_poe_ctrl_inst_t     *const inst,
         char                            *var,
-        uint32_t                        str_len);
+        uint32_t                        str_len,
+        char                            *title ,
+        char                            *tx_str ,
+        char                            *rx_str ,
+        char                            *msg,
+        int                             max_msg_len);
 
 // Get PoE port capabilities
 // handle        [IN]  Port handle

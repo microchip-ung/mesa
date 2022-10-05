@@ -38,10 +38,9 @@ typedef struct {
     POE_PORT_MAX_POWER_e   ePoE_port_max_power_default;
 
     // BT Port Operation Mode for legacy
-    uint8_t bt_port_type_operation_mode_for_legacy_15W_default;
-    uint8_t bt_port_type_operation_mode_for_legacy_30W_default;
-    uint8_t bt_port_type_operation_mode_for_legacy_60W_default;
-    uint8_t bt_port_type_operation_mode_for_legacy_90W_default;
+    uint8_t bt_operation_mode_legacy_90W_poh_default;
+    uint8_t bt_operation_mode_legacy_60W_ignore_pd_class_default;
+    uint8_t bt_operation_mode_legacy_90W_ignore_pd_class_default;
 
     // pointer to poe reset io function
     pointer_to_meba_poe_io_reset_t pointer_to_meba_poe_io_reset;
@@ -75,6 +74,21 @@ typedef struct {
 
     // led stream type
     uint8_t indv_mask_BT_led_stream_type_default;
+
+    // HOCPP - high_over Current Pulse Protection
+    uint8_t indv_mask_HOCPP_default;
+
+    // PSE powering PSE checking
+    uint8_t indv_mask_PSE_powering_PSE_checking_default;
+
+    // Layer2 Power Allocation Limit
+    uint8_t indv_mask_layer2_power_allocation_limit_default;
+
+    // Port LED Blinks at invalid signature or connection-check error
+    uint8_t indv_mask_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
+
+    // Support adding lldp half priority
+    uint8_t indv_mask_support_adding_lldp_half_priority_default;
 
 
     // -----------  AT Power Management mode of operation  ----------------------//

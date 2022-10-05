@@ -12,23 +12,27 @@ meba_poe_parameters_t tPoE_parameters =
     .ePoE_port_max_power_default  = BT_PORT_MAX_POWER_DEFAULT,           // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
 
     // Port Operation Mode for legacy
-    .bt_port_type_operation_mode_for_legacy_15W_default = BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_15W_DEFAULT,
-    .bt_port_type_operation_mode_for_legacy_30W_default = BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_30W_DEFAULT,
-    .bt_port_type_operation_mode_for_legacy_60W_default = BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_60W_DEFAULT,
-    .bt_port_type_operation_mode_for_legacy_90W_default = BT_PORT_TYPE_OPERATION_MODE_FOR_LEGACY_90W_DEFAULT,
+    .bt_operation_mode_legacy_90W_poh_default             = BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT,
+    .bt_operation_mode_legacy_60W_ignore_pd_class_default = BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT,
+    .bt_operation_mode_legacy_90W_ignore_pd_class_default = BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT,
 
     .pointer_to_meba_poe_io_reset = poe_io_reset,
 
-    .indv_mask_AT_ignore_higher_priority_default = INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT,         // power higher priority port.
-    .indv_mask_AT_supports_legact_detection_default = INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT,   // En/Dis support of legacy detection.
-    .indv_mask_AT_message_ready_notify_default = INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT,             // en/Dis MESSAGE_READY pin notification.
-    .indv_mask_AT_layer2_lldp_enable_default = INDV_MASK_AT_LAYER2_LLDP_ENABLE_DEFAULT,                 // En/Dis Layer 2 PD commands.
-    .indv_mask_AT_layer2_priority_by_PD_default = INDV_MASK_AT_LAYER2_PRIORITY_BY_PD_DEFAULT,           // accept/ignored Port Priority recived from the PD
-    .indv_mask_AT_matrix_support_4P_default = INDV_MASK_AT_MATRIX_SUPPORT_4P_DEFAULT,                   // use 4-pair matrix commands.
-    .indv_mask_BT_ignore_higher_priority_default = INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT,         // power higher priority port.
+    .indv_mask_AT_ignore_higher_priority_default     = INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
+    .indv_mask_AT_supports_legact_detection_default  = INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
+    .indv_mask_AT_message_ready_notify_default       = INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT,       // en/Dis MESSAGE_READY pin notification.
+    .indv_mask_AT_layer2_lldp_enable_default         = INDV_MASK_AT_LAYER2_LLDP_ENABLE_DEFAULT,         // En/Dis Layer 2 PD commands.
+    .indv_mask_AT_layer2_priority_by_PD_default      = INDV_MASK_AT_LAYER2_PRIORITY_BY_PD_DEFAULT,      // accept/ignored Port Priority recived from the PD
+    .indv_mask_AT_matrix_support_4P_default          = INDV_MASK_AT_MATRIX_SUPPORT_4P_DEFAULT,          // use 4-pair matrix commands.
+    .indv_mask_BT_ignore_higher_priority_default     = INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
     .indv_mask_BT_support_high_res_detection_default = INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT, // expand Resistor detection range up to range to 55 K.
-    .indv_mask_BT_i2c_restart_enable_default = INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,                 // Initialization of the I2C module system after 10 seconds of inactivity.
-    .indv_mask_BT_led_stream_type_default = INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,                       // led stream type
+    .indv_mask_BT_i2c_restart_enable_default         = INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,         // Initialization of the I2C module system after 10 seconds of inactivity.
+    .indv_mask_BT_led_stream_type_default            = INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,            // led stream type
+    .indv_mask_HOCPP_default                         = INDV_MASK_BT_HOCPP_DEFAULT,                      // HOCPP - high_over Current Pulse Protection
+    .indv_mask_PSE_powering_PSE_checking_default     = INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT,               // PSE powering PSE checking
+    .indv_mask_layer2_power_allocation_limit_default = INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT,           // Layer2 Power Allocation Limit
+    .indv_mask_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default = INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT,  // Port LED Blinks at invalid signature or connection-check error
+    .indv_mask_support_adding_lldp_half_priority_default = INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,   // Support adding lldp half priority
 
     // -----------  AT Power Management mode of operation  ----------------------//
     .AT_pm1_default = PM1_AT_DEFAULT,     // Selects the method of calculating total power consumption.
@@ -40,11 +44,11 @@ meba_poe_parameters_t tPoE_parameters =
 meba_poe_psu_input_prob_t jr2_power_supplies[] =
 {
     {
-        .id = MEBA_POE_CTRL_PSU_ALL,                          // PowerSupply-ID
-        .min_mW = 0,                                          // PwrSuply Min-Pwr
-        .max_mW = (POE_UNIT_MAX_POWER_W_DEFAULT * 1000),      // PwrSuply Max-Pwr
-        .def_mW = (POE_UNIT_DEF_POWER_W_DEFAULT * 1000),      // PwrSuply Def-Capab
-        .system_consumed = 0 ,                                // System PwrUsage
+        .id = MEBA_POE_CTRL_PSU_ALL,                // PowerSupply-ID
+        .min_w = 0,                                 // PwrSuply Min-Pwr
+        .max_w = POE_UNIT_MAX_POWER_W_DEFAULT,      // PwrSuply Max-Pwr
+        .def_w = POE_UNIT_DEF_POWER_W_DEFAULT,      // PwrSuply Def-Capab
+        .system_consumed_w = 0,                     // System PwrUsage
         .user_configurable = POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     // User Conig 1=Yes,0=No
     }
 };
@@ -67,18 +71,32 @@ mesa_rc meba_poe_jr2_system_get(
 }
 
 mesa_rc meba_poe_jr2_system_initialize(
-        meba_inst_t                     inst)
+    meba_inst_t inst,
+    int         poe_i2c0,
+    int         poe_i2c1)
 {
     // Do poe chip detection and fill
     /* jr2_ctrl.api = ....; */
     /* jr2_ctrl.private_data = ....; */
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
+
+    if (poe_i2c0 == 0)
+    {
+        poe_i2c0 = jr2_i2c_config[0].i2c_address;
+        //T_D("%s=%d", "poe_i2c0", poe_i2c0);
+    }
+
+    if (poe_i2c1 == 0)
+    {
+        poe_i2c1 = jr2_i2c_config[1].i2c_address;
+        //T_D("%s=%d", "poe_i2c1", poe_i2c1);
+    }
+
     jr2_pd69200_system.controller_count = 2;
     jr2_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * jr2_pd69200_system.controller_count);
     meba_pd69200_driver_init(&jr2_pd69200_system.controllers[0],
                              "pd69x00",
-                             meba_pd69200_i2c_adapter_open(jr2_i2c_config[0].i2c_device,
-                                                           jr2_i2c_config[0].i2c_address),
+                             meba_pd69200_i2c_adapter_open(jr2_i2c_config[0].i2c_device, poe_i2c0),
                              MEBA_POE_CTRL_CAP_POWER_MANAGEMENT | MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
                              jr2_pd69200AT_port_map_1,
                              sizeof(jr2_pd69200AT_port_map_1)/sizeof(meba_poe_port_properties_t),
@@ -89,8 +107,7 @@ mesa_rc meba_poe_jr2_system_initialize(
 
     meba_pd69200_driver_init(&jr2_pd69200_system.controllers[1],
                              "pd69x00-2",
-                             meba_pd69200_i2c_adapter_open(jr2_i2c_config[1].i2c_device,
-                                                           jr2_i2c_config[1].i2c_address),
+                             meba_pd69200_i2c_adapter_open(jr2_i2c_config[1].i2c_device, poe_i2c1),
                              MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                              MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                              MEBA_POE_CTRL_INTERRUPTIBLE_POWER,

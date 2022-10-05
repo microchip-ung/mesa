@@ -329,13 +329,18 @@ mesa_rc meba_poe_generic_debug(
     const meba_inst_t               inst,
     mesa_port_no_t                  port_no,
     char                            *var,
-    uint32_t                        str_len)
+    uint32_t                        str_len,
+    char                            *title ,
+    char                            *tx_str ,
+    char                            *rx_str ,
+    char                            *msg,
+    int                             max_msg_len)
 {
     meba_poe_ctrl_inst_t *controller;
     meba_poe_port_handle_t handle;
     if ( inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle ) {
         if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) == MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_debug(controller, var, str_len) == MESA_RC_OK) {
+            if (controller->api->meba_poe_ctrl_debug(controller ,var ,str_len ,title ,tx_str ,rx_str ,msg ,max_msg_len) == MESA_RC_OK) {
                 return MESA_RC_OK;
             }
         }
