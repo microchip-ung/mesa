@@ -723,9 +723,9 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
     }
 
 end:
-    if (data->dev.model == 0x26 && data->conf.speed == MEPA_SPEED_AUTO) {
+    if (data->dev.model == 0x26) {
         if (status->link != data->link_status) {
-            if (status->link) { //link up event
+            if (status->link && data->conf.speed == MEPA_SPEED_AUTO) { //link up event
                 if (data->conf.mac_if_aneg_ena) {
                     // copy the capabilities on host side
                     indy_qsgmii_tx_abilities(dev, status->speed, status->fdx);
