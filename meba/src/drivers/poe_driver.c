@@ -3458,7 +3458,7 @@ mesa_rc meba_poe_pd69200_do_detection(
     }
 
     // check for error in case of missing poe chipset
-    if (rc == MESA_RC_ERROR)
+    if (rc == MESA_RC_ERROR || rc == MESA_RC_ERR_POE_RX_BUF_EMPTY)
     {
         // This is where we end if there are no PoE board detected.
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "PD69200 No PoE chipset detected. Reason: rc: %d", rc);
