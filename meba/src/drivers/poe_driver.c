@@ -2797,7 +2797,8 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
         pd69200_sendEnter(inst);
     }
 
-    VTSS_MSLEEP(100); // read TPE\r\n - Section 5.1 - step 2 - response may take 100 ms
+    //VTSS_MSLEEP(100); // read TPE\r\n - Section 5.1 - step 2 - response may take 100 ms
+    VTSS_MSLEEP(2000); // Take a good long nap, otherwise the PoE module can cause the entire system to reset
     pd69200_firm_update_rd(inst, buf, 5); // read TPE\r\n - Section 5.1 - step 2
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_WARNING, "No TPE!");
@@ -2958,7 +2959,8 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     }
 
     // Wait 400ms - Section 5.1 - step 8
-    VTSS_MSLEEP(400);
+    //    VTSS_MSLEEP(400);
+    VTSS_MSLEEP(2000); // Take a good long nap, otherwise the PoE module can cause the entire system to reset
 
     // Reset - Section 5.1 - step 9
     buf[0] = 'R';
