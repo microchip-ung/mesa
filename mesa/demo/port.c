@@ -1454,6 +1454,14 @@ static void port_init(meba_inst_t inst)
 
         port_setup(port_no, FALSE, TRUE);
 
+        // Post Mac configuration phy reset in case of Lan8814.
+        if (entry->media_type == MSCC_PORT_TYPE_CU) {
+            mepa_reset_param_t phy_reset = {};
+            phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
+            phy_reset.reset_point = MEPA_RESET_POINT_POST_MAC;
+            rc = (meba_phy_reset(inst, port_no, &phy_reset));
+        }
+
         if (port_no == loop_port) { // This port is the active loop port
             cli_printf("Using port %u as loop-port\n", loop_port + 1);
 
