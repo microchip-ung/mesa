@@ -359,6 +359,10 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
             entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
             entry->poe_support         = true;
+            if (board->gpy241_present) {
+                // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
+                entry->phy_base_port = (port_no / 4)*4;
+            }
         } else if (port_no < 52) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-59
         } else if (port_no == 52) {
@@ -370,6 +374,10 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_4x10G_4x25G_NPI:
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
+            if (board->gpy241_present) {
+                // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
+                entry->phy_base_port = (port_no / 4)*4;
+            }
             if (board->gpy241_present && board->gpy241_usxgmii_mode && (port_no % 16 == 8)) {
                 // QXGMII Test mode, this will disable QSGMII ports
                 if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
