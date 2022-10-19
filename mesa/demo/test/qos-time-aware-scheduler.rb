@@ -471,6 +471,116 @@ def jira_appl_3396_test
     end
 end
 
+def jira_appl_4898_test
+    ig = 0
+    eg = $loop_port0
+    eg_measure = 1
+
+    test "Time aware scheduling JIRA APPL-4898" do
+
+    # Port-to-port forwarding via loop ports
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$ts.dut.port_list[0]},#{$loop_port0},#{$loop_port1}")
+    pvlan = $ts.dut.call("mesa_pvlan_port_members_get", 0)
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{$ts.dut.port_list[0]},#{$loop_port0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$loop_port1}")
+
+    t_i ("Enable Frame preemption")
+    fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $loop_port0)
+    fp["admin_status"].each_index {|i| fp["admin_status"][i] = false}
+    fp["admin_status"][0] = true
+    fp["admin_status"][7] = true
+    fp["enable_tx"] = true
+    fp["verify_disable_tx"] = false
+    fp["verify_time"] = 10
+    fp["add_frag_size"] = 0
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
+    sleep 1
+
+    #Check the preemptable queue 0 is transmitting before TAS is enabled
+    measure([ig], eg_measure, 500,  2,     false,            false,           [990000000],         [1],            true,              [0])
+    $ts.dut.run("mesa-cmd deb sym read XQS:QLIMIT_SHR[0-3]:QLIMIT_SHR_FILL_STAT")
+
+    t_i ("Create GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $loop_port0, 256)
+    gcl = conf[0]
+    gce_cnt = conf[1]
+    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
+#    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC"
+    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
+    gcl[0]["gate_open"][7] = true
+    gcl[0]["time_interval"] = 125000
+    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
+    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
+    gcl[1]["gate_open"][0] = true
+    gcl[1]["gate_open"][1] = true
+    gcl[1]["gate_open"][2] = true
+    gcl[1]["gate_open"][3] = true
+    gcl[1]["gate_open"][4] = true
+    gcl[1]["gate_open"][5] = true
+    gcl[1]["gate_open"][6] = true
+    gcl[1]["time_interval"] = 875000
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $loop_port0, 2, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 0
+    tod[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    t_i ("Start GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $loop_port0)
+    conf["gate_enabled"] = true
+    conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+    conf["cycle_time"] = 100000000
+#    conf["cycle_time"] = 1000000
+    conf["cycle_time_ext"] = 256
+    conf["base_time"]["nanoseconds"] = 303697500
+    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["sec_msb"] = 0
+    conf["gate_enabled"] = true
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
+
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
+
+    t_i ("Check GCL is pending")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Wait for GCL to start")
+    sleep 4
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    #Check the preemptable queue 0 is NOT transmitting after TAS is enabled
+    # This is because both entries in the GCL is mac-hold so preemptable queues are never transmitting
+    t_i ("Measure")
+   #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, 500,  2,     false,            false,           [990000000],         [1],            true,              [0])
+
+#    t_i ("Stop GCL")
+#    conf["gate_enabled"] = false
+#    conf["config_change"] = false
+#    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+#
+#    t_i ("Wait for GCL to stop")
+#    sleep 2
+#
+#    t_i ("Check GCL is stopped")
+#    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+#    if (status["config_pending"] == true)
+#        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+#    end
+    end
+end
+
 def jira_appl_3433_test
     ig = 0
     eg = $loop_port0
@@ -767,6 +877,7 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
+#     jira_appl_4898_test
     jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
         jira_appl_3433_test
