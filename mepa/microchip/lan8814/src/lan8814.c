@@ -676,6 +676,7 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
                 T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                 WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
                 data->aneg_after_boot = TRUE;
+                status->link = 0;
             } else if (data->link_up_cnt++ > 2 && data->aneg_after_boot) {// After auto-negotation restarted, poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
                 status->speed = MEPA_SPEED_1G;
                 status->fdx = 1;
