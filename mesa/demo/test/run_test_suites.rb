@@ -18,7 +18,7 @@ $systems = [
     # dk-t34, starting with Fireant systems
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-4", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
-    { name: "dk-t34-5", image: "arm64_vsc7558TSN.itb",       branch:"master.laguna-15-merge", parallel: "no", server: "34", started: "no" },
+    { name: "dk-t34-5", image: "arm64_vsc7558TSN.itb",       branch:"master.laguna-15", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-0", image: "mipsel_vsc7468_pcb110.mfi",  branch:"master", parallel: "no", server: "34", started: "no" },
     { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master", parallel: "no", server: "34", started: "no" },
 
