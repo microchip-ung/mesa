@@ -603,8 +603,8 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         if (data->dev.model == 0x26) {
             EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
-            data->post_mac_rst = TRUE;
         }
+        data->post_mac_rst = TRUE;
     }
 
     MEPA_MSLEEP(1);
