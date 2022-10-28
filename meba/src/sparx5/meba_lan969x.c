@@ -114,11 +114,25 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_BOARD_PORT_COUNT:
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             return board->port_cnt;
+
         case MEBA_CAP_LED_MODES:
-            return 0;
         case MEBA_CAP_DYING_GASP:
-            return 0;
         case MEBA_CAP_FAN_SUPPORT:
+        case MEBA_CAP_LED_DIM_SUPPORT:
+        case MEBA_CAP_BOARD_HAS_PCB107_CPLD:
+        case MEBA_CAP_PCB107_CPLD_CS_VIA_MUX:
+        case MEBA_CAP_BOARD_HAS_PCB135_CPLD:
+        case MEBA_CAP_SYNCE_CLOCK_DPLL:
+        case MEBA_CAP_SYNCE_CLOCK_OUTPUT_CNT:
+        case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:
+        case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:
+        case MEBA_CAP_SYNCE_CLOCK_EEC_OPTION_CNT:
+        case MEBA_CAP_ONE_PPS_INT_ID:
+        case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
+        case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
+        case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
+        case MEBA_CAP_POE_BT:
+        case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
         default:
             T_E(inst, "Unknown capability %d", cap);
@@ -340,7 +354,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     }
 
     board->type = (board_type_t)pcb;
-    inst->props.board_type = type;
+    inst->props.board_type = board->type;
     inst->props.target = target;
     board->port = (fa_port_info_t*) calloc(30, sizeof(fa_port_info_t));
     if (board->port == NULL) {
