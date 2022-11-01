@@ -152,7 +152,8 @@ typedef struct {
     mepa_media_mode_t        mdi_mode;
     uint16_t                 link_up_cnt;
     mepa_bool_t              post_mac_rst;
-    mepa_bool_t              aneg_after_boot;
+    mepa_bool_t              aneg_after_link_up;
+    mepa_bool_t              crc_workaround;
     indy_ts_data_t           ts_state;
 } phy_data_t;
 

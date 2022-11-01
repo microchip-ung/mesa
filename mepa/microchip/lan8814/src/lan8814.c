@@ -603,8 +603,8 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         if (data->dev.model == 0x26) {
             EP_WR(dev, INDY_QSGMII_SOFT_RESET, 0x1);
             WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+            data->post_mac_rst = TRUE;
         }
-        data->post_mac_rst = TRUE;
     }
 
     MEPA_MSLEEP(1);
@@ -667,24 +667,31 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         if ((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
             data->conf.aneg.speed_1g_fdx) {
             // Work-around for CRC errors begin.
-            if (!((val2 & INDY_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
-                 (val2 & INDY_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
-                 !data->post_mac_rst) {
-                //link not completely up
-                status->link = 0;
-            } else if (data->link_up_cnt > 2 && !data->aneg_after_boot) {// poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
-                T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
-                WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
-                data->aneg_after_boot = TRUE;
-                status->link = 0;
-            } else if (data->link_up_cnt++ > 2 && data->aneg_after_boot) {// After auto-negotation restarted, poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+            if (data->crc_workaround) {
+                if (!((val2 & INDY_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
+                     (val2 & INDY_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
+                     !data->post_mac_rst) {
+                    //link not completely up
+                    status->link = 0;
+                } else if (data->link_up_cnt > 2 && !data->aneg_after_link_up) {// poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                    T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
+                    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+                    data->aneg_after_link_up = TRUE;
+                    status->link = 0;
+                } else if (data->link_up_cnt++ > 2 && data->aneg_after_link_up) {// After auto-negotation restarted, poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                    status->speed = MEPA_SPEED_1G;
+                    status->fdx = 1;
+                    data->crc_workaround = FALSE;
+                    data->aneg_after_link_up = FALSE;
+                } else { // link up time <= 2 seconds assuming polling interval is 1 second.
+                    T_I(MEPA_TRACE_GRP_GEN, "link up cnt %d", data->link_up_cnt);
+                    status->link = 0;
+                }
+            // Work-around for CRC errors end.
+            } else {
                 status->speed = MEPA_SPEED_1G;
                 status->fdx = 1;
-            } else { // link up time <= 2 seconds assuming polling interval is 1 second.
-                T_I(MEPA_TRACE_GRP_GEN, "link up cnt %d", data->link_up_cnt);
-                status->link = 0;
             }
-            // Work-around for CRC errors end.
         } else if ((val & INDY_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
                    data->conf.aneg.speed_100m_fdx) {
             status->speed = MEPA_SPEED_100M;
@@ -853,6 +860,9 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             if (restart_aneg) {
                 T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                 WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+            }
+            if (data->dev.model == 0x26) {
+                data->crc_workaround = TRUE;
             }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
