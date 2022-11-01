@@ -3609,7 +3609,16 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
     }
 #endif
     vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    if (!conf->power_down) {
+        // current_if_type[] == NO_CONNECTION is used to force-reset the serdes,
+        // so leave it at that value if we are called with power_down == true in
+        // which case fa_port_conf_2g5_set() will not be called.
+        vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
+    }
+#else
     vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
+#endif
     vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
 #if defined(VTSS_FEATURE_QOS_TAS)
     /* Time Aware Scheduling setup depends on link speed */
