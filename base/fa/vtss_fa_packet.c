@@ -645,6 +645,7 @@ static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
+        meta.etype = (data[12] << 8) | data[13];
         rc = fa_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
