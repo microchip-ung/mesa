@@ -497,6 +497,7 @@ static vtss_rc l26_rx_frame(struct vtss_state_s   *vtss_state,
         VTSS_RC(l26_rx_frame_rd(vtss_state, 0, data, buflen, &len));
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (len - 4);
+        meta.etype = (data[12] << 8) | data[13];
         rc = l26_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
     }
     return rc;
