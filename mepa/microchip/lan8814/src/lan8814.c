@@ -863,6 +863,7 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             }
             if (data->dev.model == 0x26) {
                 data->crc_workaround = TRUE;
+                data->aneg_after_link_up = FALSE;
             }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
