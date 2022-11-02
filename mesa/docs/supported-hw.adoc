@@ -51,6 +51,7 @@ The following tables lists the supported HW in this release.
 | SparX-5i | VSC7556TSN | SparX-5i-160
 | SparX-5i | VSC7558TSN | SparX-5i-200
 | LAN966x  | LAN9662    | LAN9662
+| LAN966x  | LAN9668    | LAN9668
 |===
 
 === Supported PHYs
