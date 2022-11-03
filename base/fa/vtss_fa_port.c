@@ -3560,28 +3560,37 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
                                    vtss_port_no_t port_no)
 {
     u32  port = VTSS_CHIP_PORT(port_no);
-    u32  value, pcs_st, sd_indx, sd_type, sd;
+    u32  value, pcs_st, sd_indx, sd_type, sd, val2;
     u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
+    BOOL lock, hi_ber;
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
         u32 pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
+        BOOL spd25g = vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G;
         vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_DEV_RST_CTRL(tgt), port, "DEV_RST_CTRL");
         FA_DEBUG_10G_MAC(pr, TX_MONITOR_STICKY(tgt), port, "TX_MONITOR_STICKY");
         FA_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
         FA_DEBUG_10G_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
 
         pr("\nLink status (MAC/PCS):\n");
-        pr("port          local_fault   remote_fault  idle_state    rx_blk_lock   rx_hi_ber\n");
+        pr("port          local_fault   remote_fault  idle_state    rx_blk_lock   rx_hi_ber     rs-fec-ena\n");
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
+        REG_RD(VTSS_DEV10G_PCS25G_STATUS(tgt), &val2);
         REG_RD(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), &pcs_st);
-        pr("%-13d %-13d %-13d %-13d %-13d %-13d\n",
+        if (spd25g) {
+            lock = VTSS_X_DEV10G_PCS25G_STATUS_BLOCK_LOCK(val2);
+            hi_ber = VTSS_X_DEV10G_PCS25G_STATUS_HI_BER(val2);
+        } else {
+            lock = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st);
+            hi_ber = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_HI_BER(pcs_st);
+        }
+        pr("%-13d %-13d %-13d %-13d %-13d %-13d %-13d\n",
            port,
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
-           VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st),
-           VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_HI_BER(pcs_st));
+           lock, hi_ber, vtss_state->port.kr_fec[port_no].rs_fec);
         // Clear the stickies
         REG_WR(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), 0xFFFFFFFF);
 
