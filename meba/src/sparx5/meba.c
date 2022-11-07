@@ -377,6 +377,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             if (board->gpy241_present) {
                 // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
                 entry->phy_base_port = (port_no / 4)*4;
+                board->port[port_no].ts_phy = true;
             }
             if (board->gpy241_present && board->gpy241_usxgmii_mode && (port_no % 16 == 8)) {
                 // QXGMII Test mode, this will disable QSGMII ports
@@ -1723,6 +1724,24 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
         if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
+        }
+        break;
+
+    case MEBA_EVENT_INGR_ENGINE_ERR:
+    case MEBA_EVENT_INGR_RW_PREAM_ERR:
+    case MEBA_EVENT_INGR_RW_FCS_ERR:
+    case MEBA_EVENT_EGR_ENGINE_ERR:
+    case MEBA_EVENT_EGR_RW_FCS_ERR:
+    case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
+    case MEBA_EVENT_EGR_FIFO_OVERFLOW:
+        if (board->type == BOARD_TYPE_SPARX5_PCB135) {
+            mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (board->port[port_no].ts_phy &&
+                    (rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
+                    T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
+                }
+            }
         }
         break;
 

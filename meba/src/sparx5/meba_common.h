@@ -9,6 +9,7 @@ typedef struct {
     uint32_t           sgpio_bit;
     mesa_port_status_t status;
     mesa_bool_t        activity;
+    mesa_bool_t        ts_phy;
 } fa_port_info_t;
 
 // The PCB type
