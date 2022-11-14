@@ -12,19 +12,26 @@
  *
  * \see vtss_target_RB_e
  *
- * RedBox
+ * The RedBox implements a PRP/HSR RedBox with three ports - two ring ports
+ * (LREA and LREB)and one interlink port. The LREA port is designated port
+ * 0 of the RedBox, the LREB port is designated port 1 of the RedBox, and
+ * the interlink is designated port 2 of the RedBox.
+ *
+ * The LREs connect to front port devices or another RedBox through an
+ * internal connection. The interlink connects to the switchcore.
+
  *
  ***********************************************************************/
 
 /**
  * Register Group: \a RB:COMMON
  *
- * Miscellaneous configuration parameters
+ * Common configuration parameters
  */
 
 
 /**
- * \brief Configures how the RB is connected to the TAXI bus
+ * \brief Configures RedBox connections to the TAXI bus
  *
  * \details
  * Register: \a RB:COMMON:TAXI_IF_CFG
@@ -35,10 +42,10 @@
 
 /**
  * \brief
- * Control how the right RB port (LREB) is connected:0: The LREB is
+ * Control how the right RedBox port (LREB) is connected:0: The LREB is
  * connected to a TAXI bus port. See LREB_PORT_NO1: The LREB is connected
- * to LREA of the RB located to the right of this RBMust be 0 for the right
- * most RB
+ * to LREA of the RedBox located to the right of this RedBoxMust be 0 for
+ * the right most RedBox
  *
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREB_NEXT
@@ -49,10 +56,10 @@
 
 /**
  * \brief
- * Control how the left RB port (LREA) is connected:0: The LREA is
+ * Control how the left RedBox port (LREA) is connected:0: The LREA is
  * connected to a TAXI bus port. See LREA_PORT_NO1: The LREA is connected
- * to LREB of the RB located to the left of this RBMust be 0 for the left
- * most RB
+ * to LREB of the RedBox located to the left of this RedBoxMust be 0 for
+ * the left most RedBox
  *
  * \details
  * Field: ::VTSS_RB_TAXI_IF_CFG . LREA_NEXT
@@ -111,9 +118,24 @@
 
 
 /**
- * \brief Configuration and status for redbox queues. Egress port D have queues 2D and 2D+1, whereas the first contains frame from the first LRE not being the port itself. Ie - queue 2 is frames from port 0 to port 1, queue 5 contains frames from port 1 to port 2.
+ * \brief Configuration and status per RedBox queue
  *
  * \details
+ * Each egress port sees two egress queues - one from each of the other two
+ * ports. In total, the RedBox supports six queues.
+ *
+ * LREA, port 0:
+ * Queue 0 contains traffic from port 1 (LREB).
+ * Queue 1 contains traffic from port 2 (Interlink)
+ *
+ * LREB, port 1:
+ * Queue 2 contains traffic from port 0 (LREA).
+ * Queue 3 contains traffic from port 2 (Interlink)
+ *
+ * Interlink, port 2:
+ * Queue 4 contains traffic from port 0 (LREA).
+ * Queue 5 contains traffic from port 1 (LREB)
+ *
  * Register: \a RB:COMMON:QSYS_CFG
  *
  * @param target A \a ::vtss_target_RB_e target
@@ -122,50 +144,85 @@
 
 /**
  * \brief
- * Enable queue cut-through
+ * Enables queue cut-through.
  *
  * \details
+ * Bit n: Enable bit for queue n
+ *
  * Field: ::VTSS_RB_QSYS_CFG . QUE_CT_ENA
  */
-#define  VTSS_F_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_ENCODE_BITFIELD(x,18,6)
-#define  VTSS_M_RB_QSYS_CFG_QUE_CT_ENA        VTSS_ENCODE_BITMASK(18,6)
-#define  VTSS_X_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_EXTRACT_BITFIELD(x,18,6)
+#define  VTSS_F_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_ENCODE_BITFIELD(x,26,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_CT_ENA        VTSS_ENCODE_BITMASK(26,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_CT_ENA(x)     VTSS_EXTRACT_BITFIELD(x,26,6)
 
 /**
  * \brief
- * Enable expansion slot. This is needed for queues that produce more data
- * in the rewriter than what is enqueued
+ * Enables expansion slot. This is needed for queues that produce more data
+ * in the rewriter than what is enqueued.
  *
  * \details
+ * Bit n: Enable bit for queue n
+ *
  * Field: ::VTSS_RB_QSYS_CFG . QUE_EXPAND_ENA
  */
-#define  VTSS_F_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_ENCODE_BITFIELD(x,12,6)
-#define  VTSS_M_RB_QSYS_CFG_QUE_EXPAND_ENA     VTSS_ENCODE_BITMASK(12,6)
-#define  VTSS_X_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_EXTRACT_BITFIELD(x,12,6)
+#define  VTSS_F_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_ENCODE_BITFIELD(x,20,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_EXPAND_ENA     VTSS_ENCODE_BITMASK(20,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_EXPAND_ENA(x)  VTSS_EXTRACT_BITFIELD(x,20,6)
 
 /**
  * \brief
- * Enable passage of preamble through queue. This is needed for frames
+ * Enables passage of preamble through queue. This is needed for frames
  * going towards the interlink port, and should be disabled for ports
- * facing ethernet devices.
+ * facing Ethernet devices.
  *
  * \details
+ * Bit n: Enable bit for queue n
+ *
  * Field: ::VTSS_RB_QSYS_CFG . QUE_PREAMBLE_PASS_ENA
  */
-#define  VTSS_F_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_ENCODE_BITFIELD(x,6,6)
-#define  VTSS_M_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA     VTSS_ENCODE_BITMASK(6,6)
-#define  VTSS_X_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,6,6)
+#define  VTSS_F_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_ENCODE_BITFIELD(x,14,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA     VTSS_ENCODE_BITMASK(14,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_PREAMBLE_PASS_ENA(x)  VTSS_EXTRACT_BITFIELD(x,14,6)
 
 /**
  * \brief
- * One or more frames have been discarded due to queue overflow
+ * One or more frames have been discarded due to queue overflow.
  *
  * \details
+ * Bit n: Sticky bit for queue n
+ *
  * Field: ::VTSS_RB_QSYS_CFG . QUE_DROP_STICKY
  */
-#define  VTSS_F_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_ENCODE_BITFIELD(x,0,6)
-#define  VTSS_M_RB_QSYS_CFG_QUE_DROP_STICKY     VTSS_ENCODE_BITMASK(0,6)
-#define  VTSS_X_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+#define  VTSS_F_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_ENCODE_BITFIELD(x,8,6)
+#define  VTSS_M_RB_QSYS_CFG_QUE_DROP_STICKY     VTSS_ENCODE_BITMASK(8,6)
+#define  VTSS_X_RB_QSYS_CFG_QUE_DROP_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,8,6)
+
+/**
+ * \brief
+ * When an interlink source queue has less than this amount left it will
+ * block cut through initiation from the partner queue. That in order to
+ * guarantee that the cut through data stream isn't suspended during
+ * transmission. Unit is 256 bytes.
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . IL_CT_SUSP_WM
+ */
+#define  VTSS_F_RB_QSYS_CFG_IL_CT_SUSP_WM(x)  VTSS_ENCODE_BITFIELD(x,4,4)
+#define  VTSS_M_RB_QSYS_CFG_IL_CT_SUSP_WM     VTSS_ENCODE_BITMASK(4,4)
+#define  VTSS_X_RB_QSYS_CFG_IL_CT_SUSP_WM(x)  VTSS_EXTRACT_BITFIELD(x,4,4)
+
+/**
+ * \brief
+ * When an interlink source queue has less than this amount left it will
+ * start the internal flow control mechanism towards the DSM. Unit is 4
+ * data words.
+ *
+ * \details
+ * Field: ::VTSS_RB_QSYS_CFG . IL_DSM_STOP_WM
+ */
+#define  VTSS_F_RB_QSYS_CFG_IL_DSM_STOP_WM(x)  VTSS_ENCODE_BITFIELD(x,0,4)
+#define  VTSS_M_RB_QSYS_CFG_IL_DSM_STOP_WM     VTSS_ENCODE_BITMASK(0,4)
+#define  VTSS_X_RB_QSYS_CFG_IL_DSM_STOP_WM(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
 
 
 /**
@@ -205,8 +262,8 @@
 /**
  * \brief
  * CPU extraction queue used for HSR and PRP supervion frames.Related
- * parameters:RB:PORT:PORT_CFG.HSR_SPV_FWD_SELRB:PORT:PORT_CFG.PRP_SPV_FWD_
- * SEL
+ * parameters:RB::SPV_CFG.HSR_SPV_INT_FWD_SELRB::SPV_CFG.PRP_SPV_INT_FWD_SE
+ * L
  *
  * \details
  * Field: ::VTSS_RB_CPU_CFG . SPV_CPUQ
@@ -328,6 +385,35 @@
 
 /**
  * \brief
+ * If set, HSR-tagged frames from local host received on the interlink get
+ * hsr.pathid updated with the egress port's settings in
+ * RB:PORT:PORT_CFG.NETID and RB:PORT:PORT_CFG.LANID.
+ *
+ * \details
+ * Field: ::VTSS_RB_RB_CFG . LOCAL_SRC_PATHID_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_LOCAL_SRC_PATHID_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_RB_RB_CFG_LOCAL_SRC_PATHID_ENA  VTSS_BIT(27)
+#define  VTSS_X_RB_RB_CFG_LOCAL_SRC_PATHID_ENA(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
+
+/**
+ * \brief
+ * Includes all frames in PRP-SAN transparent reception mode when RedBox
+ * operates in PRP-SAN mode (RB_CFG.RB_MODE).Related
+ * parameters:RB::RB_CFG.KEEP_PRP_ENA
+ *
+ * \details
+ * 0: Only frames destined for local hosts are included
+ * 1: All frames are included
+ *
+ * Field: ::VTSS_RB_RB_CFG . KEEP_PRP_ALL_ENA
+ */
+#define  VTSS_F_RB_RB_CFG_KEEP_PRP_ALL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),26,1)
+#define  VTSS_M_RB_RB_CFG_KEEP_PRP_ALL_ENA    VTSS_BIT(26)
+#define  VTSS_X_RB_RB_CFG_KEEP_PRP_ALL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,26,1)
+
+/**
+ * \brief
  * If set, hardware does not auto-learn entries in the host table
  * (RB:HOST_TBL) for frames subject to filtering (discarded or redirected
  * to CPU) by settings in RB:PORT:PORT_CFG.HSR_FILTER_CFG.
@@ -341,8 +427,8 @@
 
 /**
  * \brief
- * If set, frames redirected to the CPU are subject to normal rewrite
- * following the interlink's settings.
+ * If set, any HSR tags or RCT trailers are removed from frames redirected
+ * to the CPU.
  *
  * \details
  * Field: ::VTSS_RB_RB_CFG . REWRITE_REDIR_ENA
@@ -417,7 +503,7 @@
 /**
  * \brief
  * If set, Node-DAN sources are detected when a valid RCT is received from
- * both LRE A and LRE B. Associated host table entry is then changed from
+ * both LREA and LREB. Associated host table entry is then changed from
  * Node-SAN to Node-DAN.Only applicable to PRP-SAN mode.
  *
  * \details
@@ -485,7 +571,7 @@
 /**
  * \brief
  * Controls the location of a pushed HSR tag with respect to existing VLAN
- * tags.
+ * tags.Related parameters:RB::TPID_CFG.TPID_VAL.
  *
  * \details
  * 0: Push HSR tag as outer tag.
@@ -520,7 +606,7 @@
  * If set, frames destined for destinations listed as local in the host
  * table are redirected to the CPU using CPU queue CPU_CFG.LOCAL_CPUQ.
  * Applies only to frames received on LRE ports.Related parameters:
- * RB::STICKY.LOCAL_DST_REDIR_STICKY.
+ * RB::RB_CFG.REWRITE_REDIR_ENARB::STICKY.LOCAL_DST_REDIR_STICKY
  *
  * \details
  * Field: ::VTSS_RB_RB_CFG . LOCAL_DST_REDIR_ENA
@@ -531,12 +617,13 @@
 
 /**
  * \brief
- * Enables PRP-SAN transparent reception mode for frames to a local hosts
- * (HOST_ENTRY_TYPE == 3) when RedBox operates in PRP-SAN mode
- * (RB_CFG.RB_MODE). In transparent reception mode, the PRP trailer is not
- * popped in an inbound frame destined to a local host.This field is
- * obsolete as LOCAL_DST_REDIR_ENA and REWRITE_REDIR_ENA controls the same
- * functionality.
+ * Enables PRP-SAN transparent reception mode for frames to local hosts
+ * (HOST_ENTRY_TYPE=3) when RedBox operates in PRP-SAN mode
+ * (RB_CFG.RB_MODE) and LOCAL_DST_REDIR_ENA is disabled. In transparent
+ * reception mode, the PRP trailer is not popped in an inbound frame
+ * destined to a local host.When LOCAL_DST_REDIR_ENA is set,
+ * REWRITE_REDIR_ENA controls transparent reception.Related
+ * parameters:RB::RB_CFG.KEEP_PRP_ALL_ENA
  *
  * \details
  * 0: Normal reception
@@ -603,18 +690,20 @@
 
 /**
  * \brief
- * This field must be set to 1 to enable the RB.
+ * This field must be set to 1 to enable the RedBox.
  *
- * This field should be written to 1 before accessing any other RB
+ * This field should be written to 1 before accessing any other RedBox
  * registers.
  * The reason is that some registers are connected to logic that is not
  * running
  * when RB_ENA is 0 and accessing them will cause timeout on the CSR bus.
  *
- * Normally this field should not be set to 0 again after enabling the RB,
- * since there is no protection against stopping the RB in an incomplete
- * state.
- * Only if the RB is completely idle is it safe to disable the RB again.
+ * Normally this field should not be set to 0 again after enabling the
+ * RedBox,
+ * since there is no protection against stopping the RedBox in an
+ * incomplete state.
+ * Only if the RedBox is completely idle is it safe to disable the RedBox
+ * again.
  *
  * \details
  * Field: ::VTSS_RB_RB_CFG . RB_ENA
@@ -625,7 +714,7 @@
 
 
 /**
- * \brief Custom TPID value
+ * \brief VLAN TPID values
  *
  * \details
  * Register: \a RB:COMMON:TPID_CFG
@@ -637,7 +726,11 @@
 
 /**
  * \brief
- * VLAN TPIDs.
+ * VLAN TPID EtherType. An incoming frame is identified as carrying a VLAN
+ * tag when an EtherType is found matching this value. A VLAN stack of up
+ * to two VLAN tags is searched.By default, only EtherType 0x8100 is
+ * recognized as a VLAN. Other TPIDs, such as S-tag TPID 0x88A8, must be
+ * programmed.Related parameters:RB:PORT:PORT_CFG.HSR_VLAN_CFG
  *
  * \details
  * Field: ::VTSS_RB_TPID_CFG . TPID_VAL
@@ -660,7 +753,12 @@
 /**
  * \brief
  * If set, DMAC is used in supervision frame criteria. If cleared, only
- * EtherType is used.
+ * EtherType is used.HSR supervision frames are identified with DMAC =
+ * 01-15-4E-00-01-<HSR_MAC_LSB> and EtherType = 0x88FB.PRP supervision
+ * frames are identified with DMAC = 01-15-4E-00-01-<PRP_MAC_LSB> and
+ * EtherType = 0x88FB.Related parameters:
+ * RB::CPU_CFG.SPV_CPUQRB::SPV_CFG.HSR_MAC_LSBRB::SPV_CFG.PRP_MAC_LSBRB::SP
+ * V_CFG.HSR_SPV_INT_FWD_SELRB::SPV_CFG.PRP_SPV_INT_FWD_SEL
  *
  * \details
  * Field: ::VTSS_RB_SPV_CFG . DMAC_ENA
@@ -671,8 +769,10 @@
 
 /**
  * \brief
- * Decision for HSR supervision frames forwarded to interlink. LRE ports
- * are not affected.Related parameters: RB::CPU_CFG.SPV_CPUQ
+ * Forwarding selection for HSR supervision frames detected inbound on
+ * interlink. Forwarding of the supervision frame to LRE ports is not
+ * affected by this.Related parameters:
+ * RB::CPU_CFG.SPV_CPUQRB::SPV_CFG.DMAC_ENARB::SPV_CFG.HSR_MAC_LSB
  *
  * \details
  * 0: No change to forwarding
@@ -688,9 +788,10 @@
 
 /**
  * \brief
- * HSR supervision frames are identified with DMAC =
- * 01-15-4E-00-01-<HSR_MAC-LSB> and EtherType = 0x88FB.Related
- * parameters:RB::SPV_CFG.DMAC_ENARB::SPV_CFG.HSR_SPV_INT_FWD_SEL
+ * Least significant byte in destestination MAC address for HSR supervision
+ * frames. Used when DMAC_ENA is set identifying HSR supervision frames as
+ * DMAC = 01-15-4E-00-01-<HSR_MAC_LSB> and EtherType = 0x88FB.Related
+ * parameters:RB::SPV_CFG.DMAC_ENA
  *
  * \details
  * Field: ::VTSS_RB_SPV_CFG . HSR_MAC_LSB
@@ -701,8 +802,10 @@
 
 /**
  * \brief
- * Decision for PRP supervision frames forwarded to interlink. LRE ports
- * are not affected.Related parameters: RB::CPU_CFG.SPV_CPUQ
+ * Forwarding selection for PRP supervision frames detected inbound on
+ * interlink. Forwarding of the supervision frame to LRE ports is not
+ * affected by this.Related parameters:
+ * RB::CPU_CFG.SPV_CPUQRB::SPV_CFG.DMAC_ENARB::SPV_CFG.PRP_MAC_LSB
  *
  * \details
  * 0: No change to forwarding
@@ -718,9 +821,10 @@
 
 /**
  * \brief
- * PRP supervision frames are identified with DMAC =
- * 01-15-4E-00-01-<PRP_MAC-LSB> and EtherType = 0x88FB.Related
- * parameters:RB::SPV_CFG.DMAC_ENARB::SPV_CFG.PRP_SPV_INT_FWD_SEL
+ * Least significant byte in destestination MAC address for PRP supervision
+ * frames. Used when DMAC_ENA is set identifying PRP supervision frames as
+ * DMAC = 01-15-4E-00-01-<PRP_MAC_LSB> and EtherType = 0x88FB.Related
+ * parameters:RB::SPV_CFG.DMAC_ENA
  *
  * \details
  * Field: ::VTSS_RB_SPV_CFG . PRP_MAC_LSB
@@ -1124,7 +1228,9 @@
  * range 01-80-C2-00-00-00 to 01-80-C2-00-00-0F. Each bit this fields
  * control a DMAC address: Bit 0 controls address 01-80-C2-00-00-00, bit 1
  * controls address 01-80-C2-00-00-01, and so on. Frames are extracted to
- * the CPU extraction queue defined in CPU_CFG.BPDU_CPUQ.
+ * the CPU extraction queue defined in CPU_CFG.BPDU_CPUQ.Only applicable to
+ * LRE ports. For the interlink, there is no forwarding of frames back to
+ * the interlink.
  *
  * \details
  * 0: No change to forwarding
@@ -1143,18 +1249,18 @@
  * \details
  * Forwarding masks per ingress port. Applies to both HSR and PRP, except
  * for frames received on interlink in PRP-SAN mode of operation - such
- * frames are forwarded based on PRP-SAN fowarding rules (port where known
- * Node-SAN recides or both LRE ports).
+ * frames are forwarded based on PRP-SAN fowarding rules (to port where
+ * known Node-SAN recides or both LRE ports).
  *
- * By default, a frame is forwarded to the other two ports in the RedBox.
- * The forwarding masks are used to limit this forwarding by filtering one
- * or more of the ports.
+ * By default, a frame is forwarded to the ports defined by SRC_FWD_MASK.
+ * Other forwarding masks are used to limit this forwarding by filtering
+ * one or more of the ports.
  * For each frame, a source mask and a destination mask are selected based
  * on the entry types retrieved from the lookups in the host table. If
- * there is no match in the host table, a default mask with all ports
- * except the frame's ingress port is used.
- * The forwarding decision is made by AND'ing the forwarding masks with the
- * default forwarding mask.
+ * there is no match in the host table, a default flood mask
+ * (FLD_DST_FWD_MASK) is used.
+ * The final forwarding decision is made by AND'ing the selected forwarding
+ * masks together.
  *
  * Example: HSR-SAN mode H.
  *
@@ -1162,12 +1268,15 @@
  * - By default, frames are fowarded to LRE port 1 and interlink.
  * - Frames from proxy or local are discarded.
  * - Frames from node are allowed on LRE and interlink.
+ * - Frames to unknown destinations are allowed on LRE and interlink
  * - Frames to proxy or local are allowed on interlink.
  * - Frames to node are allowed on LRE only.
  *
+ * SRC_FWD_MASK = 0x6
  * PROXY_SRC_FWD_MASK = 0x0
  * LOCAL_SRC_FWD_MASK = 0x0
  * NODE_SRC_FWD_MASK = 0x6
+ * FLD_DST_FWD_MASK = 0x6
  * PROXY_DST_FWD_MASK = 0x4
  * LOCAL_DST_FWD_MASK = 0x4
  * NODE_DST_FWD_MASK = 0x2
@@ -1176,12 +1285,15 @@
  * - By default, frames are fowarded to LRE port 0 and interlink.
  * - Frames from proxy or local are discarded.
  * - Frames from node are allowed on LRE and interlink.
+ * - Frames to unknown destinations are allowed on LRE and interlink
  * - Frames to proxy or local are allowed on interlink only.
  * - Frames to node are allowed on LRE only.
  *
+ * SRC_FWD_MASK = 0x5
  * PROXY_SRC_FWD_MASK = 0x0
  * LOCAL_SRC_FWD_MASK = 0x0
  * NODE_SRC_FWD_MASK = 0x5
+ * FLD_DST_FWD_MASK = 0x5
  * PROXY_DST_FWD_MASK = 0x4
  * LOCAL_DST_FWD_MASK = 0x4
  * NODE_DST_FWD_MASK = 0x1
@@ -1190,17 +1302,21 @@
  * - By default, frames are fowarded to LRE port 0 and 1.
  * - Frames from proxy or local are allowed on LREs.
  * - Frames from node are discarded.
+ * - Frames to unknown destinations are allowed on LREs
  * - Frames to proxy or local are discarded.
  * - Frames to node are allowed on LREs.
  *
+ * SRC_FWD_MASK = 0x3
  * PROXY_SRC_FWD_MASK = 0x3
  * LOCAL_SRC_FWD_MASK = 0x3
  * NODE_SRC_FWD_MASK = 0x0
+ * FLD_DST_FWD_MASK = 0x3
  * PROXY_DST_FWD_MASK = 0x0
  * LOCAL_DST_FWD_MASK = 0x0
  * NODE_DST_FWD_MASK = 0x3
  *
- * Related parameters: RB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_TYPE.
+ * Related parameters:
+ * RB:HOST_TBL:HOST_ACCESS_CFG_2.HOST_ENTRY_TYPE
 
  *
  * Register: \a RB:PORT:FWD_CFG
@@ -1357,14 +1473,16 @@
  * \brief
  * Configures expected location of HSR-tag in combination with VLAN tags
  * for incoming frames. If the HSR-tag is not in the right location, frame
- * is treated as non-HSR-tagged.Related parameters:
- * RB:PORT:PORT_CFG.HSR_FILTER_CFG.
+ * is treated as non-HSR-tagged. Not applicable to frames with no VLAN
+ * tags.Related parameters:
+ * RB::TPID_CFG.TPID_VALRB:PORT:PORT_CFG.HSR_FILTER_CFG.RB:PORT:STICKY.HSR_
+ * VLAN_FAIL_STICKY
  *
  * \details
- * 0: VLAN tags ignored
- * 1: Find HSR-tag as outer tag
- * 2: Find HSR-tag behind one VLAN tag
- * 3: Find HSR-tag behind two VLAN tags
+ * 0: All locations of HSR tags are accepted.
+ * 1: Find HSR tag as outer tag
+ * 2: Find HSR tag behind one VLAN tag
+ * 3: Find HSR tag behind two VLAN tags
  *
  * Field: ::VTSS_RB_PORT_CFG . HSR_VLAN_CFG
  */
@@ -1375,8 +1493,9 @@
 /**
  * \brief
  * Cut-through egress enabling. Cut-through is enabled if source port has
- * cut-through enabled and egress port has cut-through enabled.Related
- * parameters: RB:PORT:PORT_CFG.CT_IGR_ENA.
+ * cut-through enabled and egress port has cut-through enabled.OBSOLETE -
+ * not used in HW. Use RB::QSYS_CFG.QUE_CT_ENA.Related parameters:
+ * RB::QSYS_CFG.QUE_CT_ENARB:PORT:PORT_CFG.CT_IGR_ENA
  *
  * \details
  * Field: ::VTSS_RB_PORT_CFG . CT_EGR_ENA
@@ -1388,8 +1507,9 @@
 /**
  * \brief
  * Cut-through ingress enabling. Cut-through is enabled if source port has
- * cut-through enabled and egress port has cut-through enabled.Related
- * parameters: RB:PORT:PORT_CFG.CT_EGR_ENA.
+ * cut-through enabled and egress port has cut-through enabled.OBSOLETE -
+ * not used in HW. Use RB::QSYS_CFG.QUE_CT_ENA.Related parameters:
+ * RB::QSYS_CFG.QUE_CT_ENARB:PORT:PORT_CFG.CT_EGR_ENA
  *
  * \details
  * Field: ::VTSS_RB_PORT_CFG . CT_IGR_ENA
@@ -1646,7 +1766,8 @@
 
 /**
  * \brief
- * Set if HSR tag and VLANs mismatched expectations.
+ * Set if HSR tag and VLANs mismatched expectations. Related
+ * parameters:RB:PORT:PORT_CFG.HSR_VLAN_CFG
  *
  * \details
  * Field: ::VTSS_RB_STICKY . HSR_VLAN_FAIL_STICKY
@@ -2121,8 +2242,8 @@
  * lreCntUnique counter. Counts number of entries in the duplicate discard
  * table for port for which zero duplicates were received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_ZERO for port x is increment
- * when removed entries DISC_CNT_x equals 1.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_ZERO for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 0.
  *
  * Register: \a RB:STAT:CNT_DUPL_ZERO
  *
@@ -2150,8 +2271,8 @@
  * lreCntDuplicate counter. Counts number of entries in the duplicate
  * discard table for port for which a single duplicate was received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_ONE for port x is increment
- * when removed entries DISC_CNT_x equals 2.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_ONE for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 1.
  *
  * Register: \a RB:STAT:CNT_DUPL_ONE
  *
@@ -2179,8 +2300,8 @@
  * lreCntMulti counter. Counts number of entries in the duplicate discard
  * table for port for which two or more duplicates were received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_TWO for port x is increment
- * when removed entries DISC_CNT_x equals 3.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_TWO for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 2 or 3.
  *
  * Register: \a RB:STAT:CNT_DUPL_TWO
  *
@@ -2283,10 +2404,12 @@
 
 /**
  * \brief
- * Overwrite sequence number entry when CPU_ACCESS_CMD==LEARN.
+ * Overwrite sequence number in existing entry (HOST_ENTRY_SEQ_NO) when
+ * CPU_ACCESS_CMD command is LEARN.
  *
  * \details
- * 0: Keep old values1: Overwrite with CPU provided values
+ * 0: Keep old values
+ * 1: Overwrite with CPU provided values
 
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_LEARN_SEQNO
@@ -2297,11 +2420,12 @@
 
 /**
  * \brief
- * Overwrite cnt_rx[2:0] and cnt_rx_wrong_lan[2:0] when
- * CPU_ACCESS_CMD==LEARN.
+ * Overwrite statistics in existing entry (HOST_ACCESS_STAT_[0|1|2|3]) when
+ * CPU_ACCESS_CMD command is LEARN.
  *
  * \details
- * 0: Keep old values1: Overwrite with CPU provided values
+ * 0: Keep old values
+ * 1: Overwrite with CPU provided values
 
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_LEARN_STATS
@@ -2442,7 +2566,7 @@
 
 /**
  * \brief
- * Flag indicates whether a frame was received with a valid RCT on LRE B
+ * Flag indicates whether a frame was received with a valid RCT on LREB
  * port.
  *
  * \details
@@ -2457,7 +2581,7 @@
 
 /**
  * \brief
- * Flag indicates whether a frame was received with a valid RCT on LRE A
+ * Flag indicates whether a frame was received with a valid RCT on LREA
  * port.
  *
  * \details
@@ -2701,13 +2825,13 @@
  * \details
  * Configures automated age scan of host table.
  *
- * This register is replicated for the two age intervals supported.
+ * This register is replicated for the 2 age intervals supported.
  *
  * Age interval are configured for auto learned entries through:
- * RB:PORT:TBL_CFG.HOST_AGE_INTERVAL
+ * RB:PORT:TBL_CFG.HOST_AGE_INTERVAL.
  *
  * Age intervals are configured for CPU learned entries through:
- * RB::HOST_ACCESS_CFG_2.HOST_ENTRY_AGE_INTERVAL
+ * RB::HOST_ACCESS_CFG_2.HOST_ENTRY_AGE_INTERVAL.
  *
  * Register: \a RB:HOST_TBL:HOST_AUTOAGE_CFG
  *
@@ -2718,12 +2842,11 @@
 
 /**
  * \brief
- * Sets the unit time of PERIOD_VAL. Internally the auto aging
- * state-machine computes the aging period by shifting
- * RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
+ * Sets the unit time for PERIOD_VAL.
  *
  * \details
- * 0: 161: 2562: 40963: 65536
+ * 0: 32 clock cycles1: 256 clock cycles2: 4,096 clock cycles3: 65,536
+ * clock cycles
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -2733,18 +2856,14 @@
 
 /**
  * \brief
- * Time between automatic ageing of a row in
- * RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
+ * Time in units between automatic aging of two consecutive
+ * rows.Example:The host table has 1,024 rows. The clock frequency is
+ * 328.125 MHz giving a clock period of 3.048 ns.To achieve a 10 seconds
+ * aging period per row, then each row must be aged every ~10ms. We can
+ * choose UNIT_SIZE = 3 (65,536*3.048ns = 199.75us) and PERIOD_VAL = 50.
  *
  * \details
- * n: Age period in RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE amount of clock
- * cycles, i.e. for an RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL = 1 the
- * hardware will age an row every RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE
- * clock cycles.
- *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
- * then every row should age every ~234375 us. At 1 GHz frequency we can
- * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
- * 1000MHz)/(32768)) = 7153
+ * n: Age period = n * unit defined in UNIT_SIZE
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . PERIOD_VAL
  */
@@ -2768,7 +2887,7 @@
 
 /**
  * \brief
- * Enable autoage scan per interval.
+ * Enable automated age scan per interval.
  *
  * \details
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG_1 . AUTOAGE_INTERVAL_ENA
@@ -2779,12 +2898,12 @@
 
 /**
  * \brief
- * Triggers an instant hardware autoage scan (once current scan
- * completes).The bit is cleared by HW when a full scan completes.
+ * Triggers an instant hardware age scan (once current scan completes).The
+ * bit is cleared by HW when a full scan completes.
  *
  * \details
  * 0: No force
- * 1: Force start of autoage scan
+ * 1: Force start of age scan
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG_1 . FORCE_HW_SCAN_SHOT
  */
@@ -2809,7 +2928,7 @@
 /**
  * \brief
  * Current autoage row. Changed on every autoage period. Indicate the host
- * table row to be autoaged aged next.Incremented by hardware during auto
+ * table row to be autoaged next.Incremented by hardware during auto
  * ageing.
  *
  * \details
@@ -3301,17 +3420,14 @@
  * row. The rules are in order and priority based.
  *
  * \details
- *
- *	     Bit:0 - DUPLICATES: Enables find and replace entries that have
- * seen more than one duplicate.
- *	     Bit:1 - SAME_SMAC : Enables find and replace the entry with
- * the mininum sequence number from the same SMAC.
- *	     Bit:2 - AGING     : Enables find and replace the oldest entry
- * in the row.
- *	     Bit:3 - RANDOM    : Enables find and replace a random entry if
- * all other methods fail.
- *	     Bit:4 - Enables that the DUPLICATES rule includes entries that
- * have seen one duplicate.
+ * Bit 0 - DUPLICATES: Enables find and replace entries that have seen more
+ * than one duplicate.
+ * Bit 1 - RESERVED
+ * Bit 2 - AGING: Enables find and replace the oldest entry in the row.
+ * Bit 3 - RANDOM: Enables find and replace a random entry if all other
+ * methods fail.
+ * Bit 4 - Enables that the DUPLICATES rule includes entries that have seen
+ * one duplicate.
 
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . AUTOLRN_REPLACE_RULE_ENA
@@ -3399,7 +3515,8 @@
 /**
  * \brief
  * Duplicate counter for egress port 2. Incremented each time the entry is
- * used by a duplicate frame on port 2. Counter saturates at 3.
+ * used by a duplicate frame on port 2. Counter saturates at 3.Related
+ * parameters:RB::CNT_DUPL_ZERORB::CNT_DUPL_ONERB::CNT_DUPL_TWO
  *
  * \details
  * 0: No duplicates seen. If DISC_ENTRY_PORT_MASK[2] is set, the first copy
@@ -3511,12 +3628,11 @@
 
 /**
  * \brief
- * Sets the unit time of PERIOD_VAL. Internally the auto aging
- * state-machine computes the aging period by shifting
- * RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL by 3, 7, 11, 15 respectively.
+ * Sets the unit time for PERIOD_VAL.
  *
  * \details
- * 0: 161: 2562: 40963: 65536
+ * 0: 32 clock cycles1: 256 clock cycles2: 4,096 clock cycles3: 65,536
+ * clock cycles
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -3526,18 +3642,14 @@
 
 /**
  * \brief
- * Time between automatic ageing of a row in
- * RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
+ * Time in units between automatic aging of two consecutive
+ * rows.Example:The duplicate discard table has 256 rows. The clock
+ * frequency is 328.125 MHz giving a clock period of 3.048 ns.To achieve a
+ * 100ms aging period per row, then each row must be aged every ~391us. We
+ * can choose UNIT_SIZE = 1 (256*3.048ns = 780.3ns) and PERIOD_VAL = 501.
  *
  * \details
- * n: Age period in RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE amount of clock
- * cycles, i.e. for an RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL = 1 the
- * hardware will age an row every RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE
- * clock cycles.
- *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
- * then every row should age every ~234375 us. At 1 GHz frequency we can
- * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
- * 1000MHz)/(32768)) = 7153
+ * n: Age period = n * unit defined in UNIT_SIZE
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . PERIOD_VAL
  */
@@ -3789,8 +3901,8 @@
  * AUTO_LRN_INSERT_STICKY).
  *		      2: Replaced an entry with two or more seen
  * duplicates.
- *		      3: Replaced an entry with the same mac and the max.
- * sequence number.
+ *
+ *		      3: RESERVED.
  *		      4: Replaced an entry with the older age_flag.
  *		      5: Replaced a random entry.
 

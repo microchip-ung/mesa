@@ -2479,7 +2479,8 @@
  * \brief QSPI DLL Offset Selection Registe
  *
  * \details
- * QSPI DLL Offset Selection Registe
+ *  Bits [31:24] value should be 8'hC5 for configiration update of SELOFF
+ * filed
  *
  * Register: \a QSPI:QSPI_REGS:QSPI_DLL_OS
  *
@@ -2523,9 +2524,9 @@
  * \details
  * Field: ::VTSS_QSPI_QSPI_DLL_SO0 . S1OFF
  */
-#define  VTSS_F_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_ENCODE_BITFIELD(x,4,4)
-#define  VTSS_M_QSPI_QSPI_DLL_SO0_S1OFF       VTSS_ENCODE_BITMASK(4,4)
-#define  VTSS_X_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_EXTRACT_BITFIELD(x,4,4)
+#define  VTSS_F_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_ENCODE_BITFIELD(x,6,6)
+#define  VTSS_M_QSPI_QSPI_DLL_SO0_S1OFF       VTSS_ENCODE_BITMASK(6,6)
+#define  VTSS_X_QSPI_QSPI_DLL_SO0_S1OFF(x)    VTSS_EXTRACT_BITFIELD(x,6,6)
 
 /**
  * \brief
@@ -2538,9 +2539,35 @@
  * \details
  * Field: ::VTSS_QSPI_QSPI_DLL_SO0 . S0OFF
  */
-#define  VTSS_F_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_ENCODE_BITFIELD(x,0,4)
-#define  VTSS_M_QSPI_QSPI_DLL_SO0_S0OFF       VTSS_ENCODE_BITMASK(0,4)
-#define  VTSS_X_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_EXTRACT_BITFIELD(x,0,4)
+#define  VTSS_F_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_ENCODE_BITFIELD(x,0,6)
+#define  VTSS_M_QSPI_QSPI_DLL_SO0_S0OFF       VTSS_ENCODE_BITMASK(0,6)
+#define  VTSS_X_QSPI_QSPI_DLL_SO0_S0OFF(x)    VTSS_EXTRACT_BITFIELD(x,0,6)
+
+
+/**
+ * \brief QSPI DLL Synchro Registe
+ *
+ * \details
+ * QSPI DLL Synchro Registe
+ *
+ * Register: \a QSPI:QSPI_REGS:QSPI_DLL_SYNCR
+ *
+ * @param target A \a ::vtss_target_QSPI_e target
+ */
+#define VTSS_QSPI_QSPI_DLL_SYNCR(target)     VTSS_IOREG(target,0xf8)
+
+/**
+ * \brief
+ * UPDT : Update configuration.Write Access :0: No effect.   1: Initiates
+ * the configuration update.Read Access :0: Configuration is up to date.
+ * 1: Configuration being updated.
+ *
+ * \details
+ * Field: ::VTSS_QSPI_QSPI_DLL_SYNCR . UPDT
+ */
+#define  VTSS_F_QSPI_QSPI_DLL_SYNCR_UPDT(x)   VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_QSPI_QSPI_DLL_SYNCR_UPDT      VTSS_BIT(0)
+#define  VTSS_X_QSPI_QSPI_DLL_SYNCR_UPDT(x)   VTSS_EXTRACT_BITFIELD(x,0,1)
 
 
 /**

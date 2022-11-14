@@ -2807,16 +2807,24 @@
 
 /**
  * \brief
- * Specified whether the redbox connected to this SwC port operates as a
- * HSR-PRP-A or HSR-PRP-B.
+ * Towards a RedBox:Specifies whether the RedBox connected to this port
+ * operates as HSR-PRP-A or HSR-PRP-B. This is used when rewriting the
+ * sourcePortIdentity in the PTP header. Towards a non-RedBox
+ * port:Specifies an option to discard a timing flow based on the source
+ * RedBox port.
  *
  * \details
+ * Towards RedBox:
+ * 0: Not in HSR-PRP mode
+ * 1: Undefined
+ * 2: Port operates as HSR-PRP-A
+ * 3: Port operates as HSR-PRP-B
  *
- *	     00:Not in HSR-PRP mode
- *	     01:Undefined
- *	     10:Port operates as HSR-PRP-A
- *	     11:Port operates as HSR-PRP-B
-
+ * Towards non-RedBox port:
+ * 0: Forward both timing flows
+ * 1: Undefined
+ * 2: Discard timing flow from LREA
+ * 3: Discard timing flow from LREB
  *
  * Field: ::VTSS_REW_PTP_MISC_CFG . PTP_RB_PRP_LAN
  */

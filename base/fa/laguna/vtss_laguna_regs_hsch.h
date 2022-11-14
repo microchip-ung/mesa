@@ -2221,8 +2221,7 @@
  * Points to the next GCL entry in the list after
  *	   this entry. The end of a list is marked by a GCL entry pointing
  * back
- *	   to the start of the list (as given by
- *	   TAS_LIST_CFG:TAS_LIST_CFG.LIST_BASE_ADDR).
+ *	   to the start of the list (as given by LIST_BASE_ADDR).
  *
  *	   The sequence of entries must not contain loops (other than the
  * last

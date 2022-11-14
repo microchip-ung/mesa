@@ -99,7 +99,7 @@
  *
  * \details
  * 0: Disable frame aging.
- * >=1: Era length in unit of 4us.
+ * >=1: Era length in unit of 1000 core cycles.
  *
  * Field: ::VTSS_QSYS_FRM_AGING . MAX_AGE
  */
