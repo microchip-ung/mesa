@@ -170,6 +170,9 @@ typedef enum
     VTSS_PORT_INTERFACE_MII,           /**< MII (RMII does not exist) */
     VTSS_PORT_INTERFACE_GMII,          /**< GMII */
     VTSS_PORT_INTERFACE_RGMII,         /**< RGMII */
+    VTSS_PORT_INTERFACE_RGMII_ID,      /**< RGMII */
+    VTSS_PORT_INTERFACE_RGMII_RXID,    /**< RGMII */
+    VTSS_PORT_INTERFACE_RGMII_TXID,    /**< RGMII */
     VTSS_PORT_INTERFACE_TBI,           /**< TBI */
     VTSS_PORT_INTERFACE_RTBI,          /**< RTBI */
     VTSS_PORT_INTERFACE_SGMII,         /**< SGMII */

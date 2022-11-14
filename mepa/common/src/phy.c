@@ -213,10 +213,12 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #if defined(MEPA_HAS_LAN8770)
         MEPA_phy_lib[7] = mepa_lan8770_driver_init();
 #endif
-
+#if defined(MEPA_HAS_LAN884x)
+        MEPA_phy_lib[8] = mepa_lan884x_driver_init();
+#endif
         // Shall be last
 #if defined(MEPA_HAS_VTSS)
-        MEPA_phy_lib[8] = mepa_default_phy_driver_init();
+        MEPA_phy_lib[9] = mepa_default_phy_driver_init();
 #endif
     }
 

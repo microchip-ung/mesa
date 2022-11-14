@@ -565,6 +565,9 @@ const char *vtss_port_if_txt(vtss_port_interface_t if_type)
     case VTSS_PORT_INTERFACE_MII:           return "MII";
     case VTSS_PORT_INTERFACE_GMII:          return "GMII";
     case VTSS_PORT_INTERFACE_RGMII:         return "RGMII";
+    case VTSS_PORT_INTERFACE_RGMII_ID:      return "RGMII_ID";
+    case VTSS_PORT_INTERFACE_RGMII_RXID:    return "RGMII_RXID";
+    case VTSS_PORT_INTERFACE_RGMII_TXID:    return "RGMII_TXID";
     case VTSS_PORT_INTERFACE_TBI:           return "TBI";
     case VTSS_PORT_INTERFACE_RTBI:          return "RTBI";
     case VTSS_PORT_INTERFACE_SGMII:         return "SGMII";

@@ -158,7 +158,10 @@ typedef enum
     MESA_PORT_INTERFACE_INTERNAL,      // Internal interface
     MESA_PORT_INTERFACE_MII,           // MII (RMII does not exist)
     MESA_PORT_INTERFACE_GMII,          // GMII
-    MESA_PORT_INTERFACE_RGMII,         // RGMII
+    MESA_PORT_INTERFACE_RGMII,         // RGMII with no internal delay
+    MESA_PORT_INTERFACE_RGMII_ID,      // RGMII with 2ns internal RX+TX delay
+    MESA_PORT_INTERFACE_RGMII_RXID,    // RGMII with 2ns internal RX delay
+    MESA_PORT_INTERFACE_RGMII_TXID,    // RGMII with 2ns internal TX delay
     MESA_PORT_INTERFACE_TBI,           // TBI
     MESA_PORT_INTERFACE_RTBI,          // RTBI
     MESA_PORT_INTERFACE_SGMII,         // SGMII

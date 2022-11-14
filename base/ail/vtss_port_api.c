@@ -385,6 +385,9 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         switch (vtss_state->port.conf[port_no].if_type) {
             case VTSS_PORT_INTERFACE_RGMII:
+            case VTSS_PORT_INTERFACE_RGMII_ID:
+            case VTSS_PORT_INTERFACE_RGMII_RXID:
+            case VTSS_PORT_INTERFACE_RGMII_TXID:
             case VTSS_PORT_INTERFACE_SGMII:
             case VTSS_PORT_INTERFACE_SGMII_2G5:
             case VTSS_PORT_INTERFACE_QSGMII:

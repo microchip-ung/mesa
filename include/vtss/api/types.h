@@ -389,7 +389,10 @@ typedef enum
     VTSS_PORT_INTERFACE_INTERNAL,      /**< Internal interface */
     VTSS_PORT_INTERFACE_MII,           /**< MII (RMII does not exist) */
     VTSS_PORT_INTERFACE_GMII,          /**< GMII */
-    VTSS_PORT_INTERFACE_RGMII,         /**< RGMII */
+    VTSS_PORT_INTERFACE_RGMII,         /**< RGMII with no internal delay */
+    VTSS_PORT_INTERFACE_RGMII_ID,      /**< RGMII with 2ns internal RX+TX delay */
+    VTSS_PORT_INTERFACE_RGMII_RXID,    /**< RGMII with 2ns internal RX delay */
+    VTSS_PORT_INTERFACE_RGMII_TXID,    /**< RGMII with 2ns internal TX delay */
     VTSS_PORT_INTERFACE_TBI,           /**< TBI */
     VTSS_PORT_INTERFACE_RTBI,          /**< RTBI */
     VTSS_PORT_INTERFACE_SGMII,         /**< SGMII */

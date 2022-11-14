@@ -57,6 +57,9 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_MII:           return "MII";
     case MESA_PORT_INTERFACE_GMII:          return "GMII";
     case MESA_PORT_INTERFACE_RGMII:         return "RGMII";
+    case MESA_PORT_INTERFACE_RGMII_ID:      return "RGMII_ID";
+    case MESA_PORT_INTERFACE_RGMII_RXID:    return "RGMII_RXID";
+    case MESA_PORT_INTERFACE_RGMII_TXID:    return "RGMII_TXID";
     case MESA_PORT_INTERFACE_TBI:           return "TBI";
     case MESA_PORT_INTERFACE_RTBI:          return "RTBI";
     case MESA_PORT_INTERFACE_SGMII:         return "SGMII";
@@ -1398,6 +1401,9 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_SGMII:
         case MESA_PORT_INTERFACE_SGMII_2G5:
         case MESA_PORT_INTERFACE_RGMII:
+        case MESA_PORT_INTERFACE_RGMII_ID:
+        case MESA_PORT_INTERFACE_RGMII_RXID:
+        case MESA_PORT_INTERFACE_RGMII_TXID:
         case MESA_PORT_INTERFACE_QSGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
             pc->speed = (cap & MEBA_PORT_CAP_2_5G_FDX) ? MESA_SPEED_2500M : MESA_SPEED_1G;

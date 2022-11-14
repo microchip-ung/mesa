@@ -5,7 +5,7 @@
 #include <mepa_driver.h>
 #include <mepa_ts_driver.h>
 
-#include "lan8814_registers.h"
+#include "../../common/include/lan8814_registers.h"
 #include "lan8814_ts_registers.h"
 #include "lan8814_private.h"
 #include <string.h>
