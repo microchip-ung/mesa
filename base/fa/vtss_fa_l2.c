@@ -1676,7 +1676,7 @@ static u32 fa_rb_sv(vtss_rb_sv_t sv)
 
 static u32 fa_rb_age_unit(u32 unit)
 {
-    return (unit == 0 ? 16 : unit == 1 ? 256 : unit == 2 ? 4096 : 65536);
+    return (unit == 0 ? 32 : unit == 1 ? 256 : unit == 2 ? 4096 : 65536);
 }
 
 static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
