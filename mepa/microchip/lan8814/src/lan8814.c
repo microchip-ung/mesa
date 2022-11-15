@@ -12,6 +12,8 @@
 
 extern mepa_ts_driver_t indy_ts_drivers;
 
+static mepa_rc indy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info);
+static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed, mepa_port_interface_t *mac_if);
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config);
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
 static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable);
@@ -275,10 +277,21 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
                                     const mepa_debug_info_t   *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
+    mepa_phy_info_t phy_info;
+    mepa_port_interface_t mac_if;
 
-    //PHY Debugging
-    switch(info->group)
-    {
+    (void)indy_info_get(dev, &phy_info);
+    (void)indy_if_get(dev, 1000,  &mac_if);
+
+    if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
+        pr("Port:%d   Family:Indy   Type:%d   Rev:%d   MacIf:%s\n",dev->numeric_handle,
+           phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
+    }
+
+    if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
+        //PHY Debugging
+        switch(info->group)
+        {
         case MEPA_DEBUG_GROUP_ALL:
         case MEPA_DEBUG_GROUP_PHY:
         {
@@ -289,6 +302,7 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
         break;
         default:
             rc = MEPA_RC_OK;
+        }
     }
 
     //PHY_TS Debugging

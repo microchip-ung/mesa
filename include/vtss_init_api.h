@@ -363,6 +363,9 @@ typedef enum {
 #if defined(VTSS_ARCH_LAN966X)
     VTSS_PORT_MUX_MODE_0, /**< 2xQSGMII (LAN9668) */
     VTSS_PORT_MUX_MODE_1, /**< 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668) */
+    VTSS_PORT_MUX_MODE_2, /**< 2xCu + 1x2.5G + 2xRGMII */
+    VTSS_PORT_MUX_MODE_3, /**< Not currently used */
+    VTSS_PORT_MUX_MODE_4, /**< Not currently used */
     VTSS_PORT_MUX_MODE_5, /**< 2xCu + 3x1G (LAN9668) */
 #endif
 } vtss_port_mux_mode_t;

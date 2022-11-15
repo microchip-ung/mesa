@@ -271,6 +271,19 @@ static void mem_free(struct mepa_callout_ctx *ctx, void *ptr)
     free(ptr);
 }
 
+// The meba_port_entry_get returns the MAC if-type
+// The RGMII Internal Delay cannot be identical between MAC and Phy
+static mepa_port_interface_t rgmii_id_convert(mepa_port_interface_t interface)
+{
+    switch (interface) {
+    case MESA_PORT_INTERFACE_RGMII:      return MESA_PORT_INTERFACE_RGMII_ID;
+    case MESA_PORT_INTERFACE_RGMII_ID:   return MESA_PORT_INTERFACE_RGMII;
+    case MESA_PORT_INTERFACE_RGMII_RXID: return MESA_PORT_INTERFACE_RGMII_TXID;
+    case MESA_PORT_INTERFACE_RGMII_TXID: return MESA_PORT_INTERFACE_RGMII_RXID;
+    default: return interface;
+    }
+}
+
 void meba_phy_driver_init(meba_inst_t inst)
 {
     mepa_rc             rc;
@@ -302,6 +315,7 @@ void meba_phy_driver_init(meba_inst_t inst)
         // activity on the MAC interface as it interferes with
         // the calibration.
         inst->api.meba_port_entry_get(inst, port_no, &entry);
+        mepa_port_interface_t mac_if = rgmii_id_convert(entry.mac_if);
         meba_port_cap_t port_cap = entry.cap;
 
         if ((port_cap & (MEBA_PORT_CAP_COPPER | MEBA_PORT_CAP_DUAL_COPPER)) ||
@@ -323,10 +337,10 @@ void meba_phy_driver_init(meba_inst_t inst)
                                                      &board_conf);
 
             if (inst->phy_devices[port_no]) {
-                T_I(inst, "Phy has been probed on port %d, MAC I/F = %d", port_no, entry.mac_if);
-                rc = mepa_if_set(inst->phy_devices[port_no], entry.mac_if);
+                T_I(inst, "Phy has been probed on port %d, MAC I/F = %d", port_no, mac_if);
+                rc = mepa_if_set(inst->phy_devices[port_no], mac_if);
                 if (rc != MESA_RC_OK && rc != MESA_RC_NOT_IMPLEMENTED) {
-                    T_E(inst, "Failed to set MAC interface on PHY: %d (MAC I/F = %d), rc = %d = 0x%x", port_no, entry.mac_if, rc, rc);
+                    T_E(inst, "Failed to set MAC interface on PHY: %d (MAC I/F = %d), rc = %d = 0x%x", port_no, mac_if, rc, rc);
                 }
 
             } else {

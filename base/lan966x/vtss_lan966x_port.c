@@ -299,6 +299,22 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t *vtss_state,
             *idx = 2;
         }
         break;
+
+    case VTSS_PORT_MUX_MODE_2:
+        // 2xCu + 1x2,5G + 2xRGMII
+        *port_type = PORT_TYPE_SD;
+        *idx = 2;
+        if (port < 2) {
+            // Port 0/1: Cu
+            *port_type = PORT_TYPE_CUPHY;
+            *idx = port;
+        } else if (port < 4) {
+            // Port 2/3: RGMII
+            *port_type = PORT_TYPE_RGMII;
+            *idx = (port == 2) ? 0 : 1;
+        }
+        break;
+
     case VTSS_PORT_MUX_MODE_5:
         // 2xCu + 3x1G
         *port_type = PORT_TYPE_SD;
@@ -545,6 +561,73 @@ static vtss_rc lan966x_mmd_read_inc(vtss_state_t *vtss_state,
         buf++;
         count--;
     }
+    return VTSS_RC_OK;
+}
+
+vtss_rc lan966x_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_port_interface_t mode, int speed)
+{
+    bool tx_delay = FALSE;
+    bool rx_delay = FALSE;
+    int inst;
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (port == 2 || port == 5) {
+        inst = 0;
+    } else if (port == 3 || port == 6) {
+        inst = 1;
+    } else {
+        VTSS_E("illegal rgmii port %d", port);
+        return VTSS_RC_ERROR;
+    }
+
+    REG_WRM(HSIO_RGMII_CFG(inst),
+            HSIO_RGMII_CFG_RGMII_RX_RST(0) |
+            HSIO_RGMII_CFG_RGMII_TX_RST(0) |
+            HSIO_RGMII_CFG_TX_CLK_CFG(speed),
+            HSIO_RGMII_CFG_RGMII_RX_RST_M |
+            HSIO_RGMII_CFG_RGMII_TX_RST_M |
+            HSIO_RGMII_CFG_TX_CLK_CFG_M);
+
+    if (vtss_state->port.current_if_type[port_no] == mode) {
+        return VTSS_RC_OK; // Delay already set
+    }
+
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+        mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
+        tx_delay = TRUE;
+    }
+
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+        mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
+        rx_delay = TRUE;
+    }
+
+    // Setup DLL configuration
+    // HSIO_DLL_CFG 0: RGMII0_RXC (RX clock)
+    // HSIO_DLL_CFG 1: RGMII0_TXC (TX clock)
+    // HSIO_DLL_CFG 2: RGMII1_RXC (RX clock)
+    // HSIO_DLL_CFG 3: RGMII1_TXC (TX clock)
+
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x0 : 0x2),
+            HSIO_DLL_CFG_DLL_RST(!rx_delay) |
+            HSIO_DLL_CFG_DLL_ENA(rx_delay),
+            HSIO_DLL_CFG_DLL_RST_M |
+            HSIO_DLL_CFG_DLL_ENA_M);
+
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x0 : 0x2),
+            HSIO_DLL_CFG_DELAY_ENA(rx_delay),
+            HSIO_DLL_CFG_DELAY_ENA_M);
+
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3),
+            HSIO_DLL_CFG_DLL_RST(!tx_delay) |
+            HSIO_DLL_CFG_DLL_ENA(tx_delay),
+            HSIO_DLL_CFG_DLL_RST_M |
+            HSIO_DLL_CFG_DLL_ENA_M);
+
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3),
+            HSIO_DLL_CFG_DELAY_ENA(tx_delay),
+            HSIO_DLL_CFG_DELAY_ENA_M);
+
     return VTSS_RC_OK;
 }
 
@@ -933,7 +1016,7 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no), i, p;
     u32                    value, link_speed = 1, pfc_mask;
-    BOOL                   disable = conf->power_down, disable_serdes = 0, giga = 1;
+    BOOL                   disable = conf->power_down, disable_serdes = 0, giga = 1, rgmii = 0;
     BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST), skip_port_flush = 0;
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
@@ -975,6 +1058,16 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
 #endif
     case VTSS_PORT_INTERFACE_SGMII:
         sgmii = 1;
+        break;
+    case VTSS_PORT_INTERFACE_RGMII:
+    case VTSS_PORT_INTERFACE_RGMII_RXID:
+    case VTSS_PORT_INTERFACE_RGMII_TXID:
+    case VTSS_PORT_INTERFACE_RGMII_ID:
+        if (port != 2 && port != 3 && port != 5 && port != 6) {
+            VTSS_E("Port %u does not support RGMII", port);
+            return VTSS_RC_ERROR;
+        }
+        rgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         disable_serdes = 1;
@@ -1146,8 +1239,22 @@ static vtss_rc lan966x_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
                DEV_MAC_ENA_CFG_RX_ENA_M |
                DEV_MAC_ENA_CFG_TX_ENA_M);
 
-        /* Take MAC, Port, Phy (intern) and PCS (SGMII/Serdes) clock out of reset */
-        REG_WR(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_LINK_SPEED(link_speed));
+        if (rgmii) {
+            VTSS_RC(lan966x_rgmii_setup(vtss_state, port_no, conf->if_type, link_speed));
+
+            REG_WRM(DEV_CLOCK_CFG(port),
+                    DEV_CLOCK_CFG_LINK_SPEED(link_speed) |
+                    DEV_CLOCK_CFG_PORT_RST(0) |
+                    DEV_CLOCK_CFG_MAC_RX_RST(0) |
+                    DEV_CLOCK_CFG_MAC_TX_RST(0),
+                    DEV_CLOCK_CFG_LINK_SPEED_M |
+                    DEV_CLOCK_CFG_PORT_RST_M |
+                    DEV_CLOCK_CFG_MAC_RX_RST_M |
+                    DEV_CLOCK_CFG_MAC_TX_RST_M);
+        } else {
+            /* Take MAC, Port, Phy (intern) and PCS (SGMII/Serdes) clock out of reset */
+            REG_WR(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_LINK_SPEED(link_speed));
+        }
 
         /* Configure flow control */
         VTSS_RC(lan966x_port_fc_setup(vtss_state, port, conf));
