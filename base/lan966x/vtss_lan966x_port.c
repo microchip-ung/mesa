@@ -566,6 +566,7 @@ static vtss_rc lan966x_mmd_read_inc(vtss_state_t *vtss_state,
 
 vtss_rc lan966x_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_port_interface_t mode, int speed)
 {
+#if !defined(VTSS_OPT_FPGA)
     bool tx_delay = FALSE;
     bool rx_delay = FALSE;
     int inst;
@@ -628,6 +629,7 @@ vtss_rc lan966x_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
             HSIO_DLL_CFG_DELAY_ENA(tx_delay),
             HSIO_DLL_CFG_DELAY_ENA_M);
 
+#endif // !defined(VTSS_OPT_FPGA)
     return VTSS_RC_OK;
 }
 
