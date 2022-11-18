@@ -294,6 +294,22 @@ static mesa_rc sfi_if_get(meba_sfp_device_t *dev, mesa_port_speed_t speed,
     }
 }
 
+static mesa_rc tr_2g5_if_get(meba_sfp_device_t *dev, mesa_port_speed_t speed,
+                             mesa_port_interface_t *mac_if) {
+    switch (speed) {
+        case MESA_SPEED_AUTO:
+        case MESA_SPEED_1G:
+            *mac_if = MESA_PORT_INTERFACE_SERDES;
+            return MESA_RC_OK;
+        case MESA_SPEED_100M:
+            *mac_if = MESA_PORT_INTERFACE_100FX;
+            return MESA_RC_OK;
+        default:
+            *mac_if = MESA_PORT_INTERFACE_VAUI;
+            return MESA_RC_ERROR;
+    }
+}
+
 static mesa_rc sfi_mt_none_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
 {
     *mt = MESA_SD10G_MEDIA_PR_NONE;
@@ -1025,6 +1041,8 @@ static if_func_t if_func_get(meba_sfp_transreceiver_t tr)
             return serdes_if_get;
 
         case MEBA_SFP_TRANSRECEIVER_2G5:
+            return tr_2g5_if_get;
+
         case MEBA_SFP_TRANSRECEIVER_5G:
         case MEBA_SFP_TRANSRECEIVER_10G:
         case MEBA_SFP_TRANSRECEIVER_10G_SR:
