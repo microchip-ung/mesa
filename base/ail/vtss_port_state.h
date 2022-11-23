@@ -378,6 +378,7 @@ typedef struct {
 #define KR_GEN1_DONE       (1 << 4)
 #define KR_AN_RATE         (0xF)
 #define KR_ANEG_RATE_25G    7
+#define KR_ANEG_RATE_25G_S  8
 #define KR_ANEG_RATE_10G    9
 #define KR_ANEG_RATE_5G     11
 #define KR_ANEG_RATE_2G5    12

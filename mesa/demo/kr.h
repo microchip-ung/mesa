@@ -88,6 +88,9 @@ typedef struct {
     uint16_t irq_hist_index;
     kr_irq_t irq_glb_hist[KR_HIST_NUM];
     uint16_t irq_glb_hist_index;
+    mesa_port_speed_t speed;
+    mesa_bool_t rfec;
+    mesa_bool_t rsfec;
 } kr_appl_train_t;
 
 typedef struct {

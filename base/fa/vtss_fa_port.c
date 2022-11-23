@@ -817,7 +817,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
 {
-    u32 tgt, spd = 0;
+    u32 tgt, sts, spd = 0;
 
     if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
         return VTSS_RC_OK;
@@ -827,7 +827,12 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
     if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
         spd = KR_ANEG_RATE_10G;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
-        spd = KR_ANEG_RATE_25G;
+        REG_RD(VTSS_IP_KRANEG_AN_STS1(tgt), &sts);
+        if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts) == KR_ANEG_RATE_25G_S) {
+            spd = KR_ANEG_RATE_25G_S;
+        } else {
+            spd = KR_ANEG_RATE_25G;
+        }
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_5G) {
         spd = KR_ANEG_RATE_5G;
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_2500M) {
@@ -1194,7 +1199,8 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     status->aneg.complete    = VTSS_X_IP_KRANEG_AN_STS0_AN_COMPLETE(sts0);
 
     if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) > 0) {
-        if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_25G) {
+        if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_25G ||
+            VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_25G_S) {
             status->aneg.speed_req = VTSS_SPEED_25G;
         } else if (VTSS_X_IP_KRANEG_AN_STS1_LINK_HCD(sts1) == KR_ANEG_RATE_10G) {
             status->aneg.speed_req = VTSS_SPEED_10G;
@@ -1457,6 +1463,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
+    u32 pcs = VTSS_TO_HIGH_DEV(VTSS_CHIP_PORT(port_no));
 
     if (fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
         u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -1520,8 +1527,16 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            // Change back to 40bit mode
+            // Force link down to avoid link flaps
+            REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(pcs),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
+            VTSS_MSLEEP(5);
+            // Change back to 25G 40bit data mode
             VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
+
+            // Enable the PCS again
+            REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(pcs),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
 
             if (vtss_state->port.kr_fec[port_no].rs_fec) {
                 // Enable RSFEC/RADAPT

@@ -696,6 +696,7 @@ mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
 #define MESA_KR_GEN0_DONE       (1 << 5)
 #define MESA_KR_GEN1_DONE       (1 << 4)
 #define MESA_KR_ANEG_RATE_25G    7
+#define MESA_KR_ANEG_RATE_25G_S  8
 #define MESA_KR_ANEG_RATE_10G    9
 #define MESA_KR_ANEG_RATE_5G     11
 #define MESA_KR_ANEG_RATE_2G5    12

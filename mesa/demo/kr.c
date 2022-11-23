@@ -431,7 +431,6 @@ static void cli_cmd_port_kr(cli_req_t *req)
             kr_conf_state[iport].link_break = 0;
             (void)fa_kr_reset_state(iport);
             if (req->set) {
-                kr_conf_state[iport].global_stop = 0; // for dbg
                 kr_conf_state[iport].compl_ack_done = FALSE;
                 kr_conf_state[iport].stop_train = 0;
                 kr_conf_state[iport].aneg_enable = 1;
@@ -755,7 +754,7 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
 {
     mesa_port_no_t          uport, iport;
     mesa_port_kr_conf_t     kr;
-    kr_appl_train_t              *krs;
+    kr_appl_train_t         *krs;
     uint32_t                dt = 0, delta = 0;
     mesa_bool_t             first = TRUE;
     char                    buf[200] = {0}, *b;
@@ -787,8 +786,8 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
             }
             dt = krs->irq_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-10s%-10s%-30s%-20s%-15s%-15s%-15s\n","","us","delta","KR IRQs","SM","LP_BP0/1/2","LP_NP0/1/2","LP Ability");
-                cli_printf("    --------------------------------------------------------------------------------------------------------------\n");
+                cli_printf("%-4s%-10s%-10s%-30s%-22s%-16s%-16s\n","","us","delta","KR IRQs","SM","LP BP ability","LP NP ability");
+                cli_printf("    -------------------------------------------------------------------------------------------------------\n");
                 first = FALSE;
             }
             memset(buf, 0, sizeof(buf));
@@ -803,28 +802,43 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
             } else if ((krs->irq_hist[indx].irq == 0)) {
                 sprintf(b, "-");
             }
-
-            if (krs->irq_hist[indx].sm != 5) {
+            buf2[0] = '\0';
+            if (krs->irq_hist[indx].irq & MESA_KR_CMPL_ACK || krs->irq_hist[indx].irq & MESA_KR_NP_RX) {
                 b2 = &buf2[0];
-                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(5) ? "1/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(5) ? "1G/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(0) ? "2G5/" : "");
-                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(1) ? "5/" : "");
-                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(7) ? "10/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(1) ? "5G/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(7) ? "10G/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(14) ? "25S/" : "");
-                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(14) ? "25KR/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp1 & BT(15) ? "25KR/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp0 & BT(10) ? "FC_ASYM/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp0 & BT(11) ? "FC_SYM/" : "");
+                b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp0 & BT(13) ? "RF/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(14) ? "FECA/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(15) ? "FECR/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(13) ? "RFEC/" : "");
                 b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_bp2 & BT(12) ? "RSFEC" : "");
-                cli_printf("%-4d%-10d%-10d%-30s%-20s%04x/%04x/%-5x%04x/%04x/%-5x %-5s\n",
-                           indx, dt, delta, buf, kr_aneg_sm_2_txt(krs->irq_hist[indx].sm),
-                           krs->irq_hist[indx].lp_bp0, krs->irq_hist[indx].lp_bp1 ,krs->irq_hist[indx].lp_bp2,
-                           krs->irq_hist[indx].lp_np0, krs->irq_hist[indx].lp_np1 ,krs->irq_hist[indx].lp_np2, buf2);
-            } else {
-
-                cli_printf("%-4d%-10d%-10d%-30s%-20s\n",
-                           indx, dt, delta, buf, kr_aneg_sm_2_txt(krs->irq_hist[indx].sm));
+                b2 += sprintf(b2, "  ");
+                if ((krs->irq_hist[indx].lp_np0 & 0x3) == 0x3) { // code for ablilities
+                    b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_np1 & BT(5) ? "25KR/" : "");
+                    b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_np1 & BT(6) ? "25CR/" : "");
+                    b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_np2 & BT(8) ? "F1/" : "");
+                    b2 += sprintf(b2, "%s",krs->irq_hist[indx].lp_np2 & BT(9) ? "F2" : "");
+                } else {
+                    b2 += sprintf(b2, "-");
+                }
             }
+
+            if (krs->irq_hist[indx].irq & MESA_KR_AN_GOOD) {
+                b2 = &buf2[0];
+                mesa_port_kr_status_t sts;
+                mesa_port_kr_status_get(NULL, iport, &sts);
+                b2 += sprintf(b2, "Aneg results: %s / %s",mesa_port_spd2txt(krs->speed),krs->rfec ? "RFEC" : krs->rsfec ? "RSFEC" : "No FEC");
+            }
+
+            cli_printf("%-4d%-10d%-10d%-30s%-22s%-32s\n",
+                       indx, dt, delta, buf, kr_aneg_sm_2_txt(krs->irq_hist[indx].sm), buf2);
+
         }
 
     }
@@ -1053,6 +1067,7 @@ static void kr_add_to_ber_history(mesa_port_no_t p, uint32_t irq)
 static mesa_port_speed_t kr_irq2spd(uint32_t irq)
 {
     switch (irq) {
+    case MESA_KR_ANEG_RATE_25G_S: return MESA_SPEED_25G;
     case MESA_KR_ANEG_RATE_25G: return MESA_SPEED_25G;
     case MESA_KR_ANEG_RATE_10G: return MESA_SPEED_10G;
     case MESA_KR_ANEG_RATE_5G:  return MESA_SPEED_5G;
@@ -1250,6 +1265,9 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
             (void)mesa_port_kr_eye_get(NULL, iport, &eye);
             printf("Port:%d - Training (eye:%d) and Aneg (%s) completed in %d ms\n",uport, eye.height, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
             kr_conf_state[iport].mesa_kr_an_good = 1;
+            kr->speed = pconf.speed;
+            kr->rfec = status.aneg.r_fec_enable;
+            kr->rsfec = status.aneg.rs_fec_enable;
         } else {
             printf("Port:%d - Aneg completed (%s) in %d ms\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
