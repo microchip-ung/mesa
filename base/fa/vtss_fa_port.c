@@ -2352,7 +2352,10 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
         return VTSS_RC_OK;
     }
 #if defined(VTSS_ARCH_LAN969X_FPGA)
-    return VTSS_RC_OK;
+    if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
+        vtss_state->port.sd28_mode[indx] = serdes_mode;
+        return VTSS_RC_OK;
+    }
 #endif
     vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
     VTSS_RC(vtss_fa_sd_cfg(vtss_state, port_no, serdes_mode));
