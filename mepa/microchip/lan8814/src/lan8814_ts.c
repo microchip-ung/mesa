@@ -99,6 +99,10 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
     EP_WRM(dev, INDY_PTP_REF_CLK_CFG, clock_cfg, INDY_DEF_MASK);
     val = val | INDY_PTP_OPERATING_MODE_VAL_F(1); // 1 for PTP in normal operating mode
     EP_WRM(dev, INDY_PTP_OPERATING_MODE, val, INDY_PTP_OPERATING_MODE_VAL);
+    // Enable command control.
+    val = INDY_PTP_CMD_CTL_ENABLE | INDY_PTP_CMD_CTL_LTC_TEMP_RATE_SEL;
+    EP_WRM(dev, INDY_PTP_CMD_CTL, val, val);
+
     T_I(MEPA_TRACE_GRP_TS, "Port : %d  Clock Src : %d  Freq : %d Rx TS Len :%d Rx TS Pos : %d Tx FIFO Mode : %d Tx TS Len %d\n",
         data->port_no, ts_init_conf->clk_src, ts_init_conf->clk_freq, ts_init_conf->rx_ts_len,
         ts_init_conf->rx_ts_pos, ts_init_conf->tx_fifo_mode, ts_init_conf->tx_ts_len);
@@ -237,15 +241,9 @@ static mepa_rc indy_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
     phy_data_t *data = (phy_data_t *)dev->data;
 
     MEPA_ENTER(dev);
-    EP_RD(dev, INDY_PTP_CMD_CTL, &val);
-    if (enable) {
-        val = val | INDY_PTP_CMD_CTL_ENABLE;
-    } else {
-        val = val | INDY_PTP_CMD_CTL_DISABLE;
-    }
 
-    val = val | INDY_PTP_CMD_CTL_LTC_TEMP_RATE_SEL;
-    EP_WRM(dev, INDY_PTP_CMD_CTL, val, INDY_DEF_MASK);
+    val = enable ? INDY_PTP_TSU_GEN_CONF_EN : 0;
+    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_PTP_TSU_GEN_CONF_EN);
 
     data->ts_state.ptp_en = enable;
     MEPA_EXIT(dev);
@@ -1571,21 +1569,16 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
 
 static mepa_rc indy_ts_rx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_index, const mepa_ts_classifier_t *const pkt_conf)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
     MEPA_ASSERT(pkt_conf == NULL);
     MEPA_ENTER(dev);
-    val = 0;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
     if ((rc = indy_ts_rx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
-    val = 0;
-    val = val | INDY_PTP_TSU_GEN_CONF_EN;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     memcpy(&data->ts_state.ts_port_conf.rx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
 
     MEPA_EXIT(dev);
@@ -1606,21 +1599,17 @@ static mepa_rc indy_ts_tx_classifier_conf_get(mepa_device_t *dev, uint16_t flow_
 
 static mepa_rc indy_ts_tx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_index, const mepa_ts_classifier_t *const pkt_conf)
 {
-    uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
     MEPA_ASSERT(pkt_conf == NULL);
     MEPA_ENTER(dev);
-    val = 0;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
     if ((rc = indy_ts_tx_classifier_conf_set_priv(dev, flow_index, pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
         return rc;
     }
-    val = 0;
-    val = val | INDY_PTP_TSU_GEN_CONF_EN;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
     memcpy(&data->ts_state.ts_port_conf.rx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
     MEPA_EXIT(dev);
     return rc;
@@ -1686,8 +1675,6 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     } else {
         memcpy(&data->ts_state.ts_port_conf.rx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
-    val = 0;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     if (!ptpclock_conf->enable) {
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
     } else {
@@ -1753,10 +1740,6 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         EP_WRM(dev, INDY_PTP_RX_MOD, rx_mod, rx_mod);
     }
 
-    val = 0;
-    val = val | INDY_PTP_TSU_GEN_CONF_EN;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-
     data->ts_state.ts_port_conf.rx_clock_conf.enable = ptpclock_conf->enable;
     data->ts_state.ts_port_conf.rx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
     data->ts_state.ts_port_conf.rx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
@@ -1766,7 +1749,7 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
 
 static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
-    uint16_t ts_insert = 0, cf_update = 0, val = 0, tx_mod = 0, ts_config = 0, cf_config = 0;
+    uint16_t ts_insert = 0, cf_update = 0, tx_mod = 0, ts_config = 0, cf_config = 0;
     mepa_rc rc;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_bool_t two_step_lat = FALSE;
@@ -1784,8 +1767,6 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     } else {
         memcpy(&data->ts_state.ts_port_conf.tx_clock_conf.ptp_class_conf, &ptpclock_conf->ptp_class_conf, sizeof(ptpclock_conf->ptp_class_conf));
     }
-    val = 0;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
     if (!ptpclock_conf->enable) {
         EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, 0, INDY_DEF_MASK);
     } else {
@@ -1844,9 +1825,7 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
     data->ts_state.ts_port_conf.tx_clock_conf.enable = ptpclock_conf->enable;
     data->ts_state.ts_port_conf.tx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
     data->ts_state.ts_port_conf.tx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
-    val = 1;
-    val = val | INDY_PTP_TSU_GEN_CONF_EN;
-    EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
+
     #if 0
     indy_ts_classifier_conf_reg_dump(dev, NULL);
     indy_ts_clock_conf_reg_dump(dev, NULL);
