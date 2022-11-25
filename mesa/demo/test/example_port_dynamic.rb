@@ -89,8 +89,9 @@ test "4 ports per Serdes in QSGMII mode" do
     $ts.dut.run("mesa-cmd deb api ail port")
 end
 
-test "test_run" do
-    sleep 5
-    t_i("Verify with frame forwarding")
-    test_frame_fwd()
-end
+# Skipping for now as the xilinx FPGA serdes needs a reset before forwarding is possible
+# test "test_run" do
+#     sleep 5
+#     t_i("Verify with frame forwarding")
+#     test_frame_fwd()
+# end
