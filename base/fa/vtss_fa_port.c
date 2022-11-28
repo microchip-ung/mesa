@@ -2925,6 +2925,76 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t *vtss_state, const vtss_port_no_t 
     return VTSS_RC_OK;
 }
 
+static vtss_rc fa_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no,
+                              vtss_port_interface_t mode, int speed)
+{
+#if defined(VTSS_ARCH_LAN969X)
+    bool tx_delay = FALSE;
+    bool rx_delay = FALSE;
+    int inst, spd;
+    u32 port = VTSS_CHIP_PORT(port_no);
+
+    if (port == 28) {
+        inst = 0;
+    } else if (port == 29) {
+        inst = 1;
+    } else {
+        VTSS_E("illegal rgmii port %d", port);
+        return VTSS_RC_ERROR;
+    }
+
+    spd = (speed == VTSS_SPEED_10M ? 3 : speed == VTSS_SPEED_100M ? 2 : 1);
+
+    REG_WRM(VTSS_HSIOWRAP_RGMII_CFG(inst),
+            VTSS_F_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(spd) |
+            VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(0) |
+            VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(0),
+            VTSS_M_HSIOWRAP_RGMII_CFG_TX_CLK_CFG |
+            VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST |
+            VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST);
+
+    if (vtss_state->port.current_if_type[port_no] == mode) {
+        return VTSS_RC_OK; // Delay already set
+    }
+
+    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst),
+            VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1),
+            VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
+
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+        mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
+        tx_delay = TRUE;
+    }
+
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+        mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
+        rx_delay = TRUE;
+    }
+
+    // Setup DLL configuration, RX=0 TX=1
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(0, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(rx_delay) |
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(!rx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA |
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST);
+
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(0, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(rx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA);
+
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(1, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(tx_delay) |
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(!tx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA |
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST);
+
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(1, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(tx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA);
+#endif //defined(VTSS_ARCH_LAN969X)
+    return VTSS_RC_OK;
+}
+
 /* Configuration of the 2G5 device (dev1G architecture) */
 static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -2934,7 +3004,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     vtss_port_speed_t      speed = conf->speed;
     u32                    value;
     BOOL                   fdx = conf->fdx;
-    BOOL                   sgmii = FALSE, pcs_100fx = FALSE, pcs_usx = FALSE;
+    BOOL                   sgmii = FALSE, pcs_100fx = FALSE, pcs_usx = FALSE, rgmii = FALSE;
     u32                    tgt = VTSS_TO_DEV2G5(port), clk_spd = 0;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SGMII;
     u32                    sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -2948,6 +3018,16 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     case VTSS_PORT_INTERFACE_SGMII_2G5:
         serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = TRUE;
+        break;
+    case VTSS_PORT_INTERFACE_RGMII:
+    case VTSS_PORT_INTERFACE_RGMII_RXID:
+    case VTSS_PORT_INTERFACE_RGMII_TXID:
+    case VTSS_PORT_INTERFACE_RGMII_ID:
+        if (port != 28 && port != 29) {
+            VTSS_E("Port %u does not support RGMII", port);
+            return VTSS_RC_ERROR;
+        }
+        rgmii = TRUE;
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
@@ -2991,7 +3071,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
     /* Enable the Serdes if disabled */
-    if (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE) {
+    if (!rgmii && (vtss_state->port.sd28_mode[sd_indx] == VTSS_SERDES_MODE_DISABLE)) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
@@ -2999,7 +3079,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_RC(fa_port_flush(vtss_state, port_no, FALSE));
 
     /* Configure the Serdes Macro to 'serdes_mode' */
-    if (serdes_mode != vtss_state->port.sd28_mode[sd_indx]) {
+    if (!rgmii && (serdes_mode != vtss_state->port.sd28_mode[sd_indx])) {
         VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
     }
 
@@ -3083,6 +3163,8 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 #endif
     } else if (pcs_usx) {
         /* USX PCS enable comes later */
+    } else if (rgmii) {
+        /* do nothing */
     } else {
         /* 1000BaseX PCS in SGMII or Serdes mode */
 
@@ -3179,13 +3261,18 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
            VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA |
            VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
 
+    if (rgmii) {
+        /* Enable RGMII mode */
+        VTSS_RC(fa_rgmii_setup(vtss_state, port_no, conf->if_type, speed));
+    }
+
     /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
     REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
             VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
             VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
             VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
-            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx) |
-            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx || rgmii) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx || rgmii) |
             VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
             VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
             VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
