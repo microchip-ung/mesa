@@ -1463,7 +1463,6 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
 {
     u32 tgt = vtss_to_sd_kr(VTSS_CHIP_PORT(port_no));
-    u32 pcs = VTSS_TO_HIGH_DEV(VTSS_CHIP_PORT(port_no));
 
     if (fw_req->transmit_disable && (fw_req->stop_training || fw_req->start_training)) {
         u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -1527,16 +1526,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            // Force link down to avoid link flaps
-            REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(pcs),
-                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
-            VTSS_MSLEEP(5);
             // Change back to 25G 40bit data mode
             VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
-
-            // Enable the PCS again
-            REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(pcs),
-                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
 
             if (vtss_state->port.kr_fec[port_no].rs_fec) {
                 // Enable RSFEC/RADAPT
