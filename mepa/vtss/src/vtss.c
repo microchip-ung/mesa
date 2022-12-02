@@ -3,6 +3,7 @@
 
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
+#include <mepa_macsec_driver.h>
 #include <mepa_ts_driver.h>
 #include <vtss_phy_api.h>
 #include "vtss_private.h"
@@ -12,7 +13,7 @@
 #include "common/vtss_phy_common.h"
 
 extern mepa_ts_driver_t vtss_ts_drivers;
-
+extern mepa_macsec_driver_t vtss_macsec_drivers;
 static vtss_inst_t vtss_inst;
 static int vtss_inst_cnt;
 
@@ -1131,6 +1132,7 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_aneg_status_get = NULL,
             .mepa_driver_phy_info_get = phy_10g_info_get,
             .mepa_ts = &vtss_ts_drivers,
+            .mepa_macsec = &vtss_macsec_drivers,
         }
     };
 

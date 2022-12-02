@@ -1,11 +1,11 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
-#include <vtss_phy_api.h>
-
 #ifndef _VTSS_MACSEC_API_H_
 #define _VTSS_MACSEC_API_H_
+
+#include <vtss_phy_api.h>
+#include <microchip/ethernet/phy/api/phy_macsec.h>
 
 #define VTSS_MACSEC_10G_MAX_SA 64     /**< 10G PHY Max SAs : 64 */
 #define VTSS_MACSEC_1G_MAX_SA  16     /**< 1G PHY Max SAs : 16 */
@@ -287,40 +287,22 @@ typedef struct {
     u32 confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
 } vtss_macsec_tx_sc_conf_t;
 
-/** \brief PHY Line MAC block configuration  */
-typedef struct {
-    BOOL dis_length_validate;         /**< Length field (Ether Type) validation is enabled by default, if set length field validation will be disabled. */
-} vtss_macsec_lmac_conf_t;
 
-/** \brief PHY Host MAC block configuration  */
-typedef struct {
-    BOOL dis_length_validate;         /**< Length field (Ether Type) validation is enabled by default, if set length field validation will be disabled. */
-} vtss_macsec_hmac_conf_t;
+typedef mepa_macsec_lmac_conf_t vtss_macsec_lmac_conf_t;
+typedef mepa_macsec_hmac_conf_t vtss_macsec_hmac_conf_t;
+typedef mepa_macsec_mac_conf_t vtss_macsec_mac_conf_t;
+typedef mepa_macsec_init_bypass_t vtss_macsec_init_bypass_t;
+typedef mepa_macsec_init_t vtss_macsec_init_t;
 
-/** \brief PHY MAC block configuration  */
-typedef struct {
-    vtss_macsec_lmac_conf_t lmac; /**< Line MAC conf. */
-    vtss_macsec_hmac_conf_t hmac; /**< Host MAC conf. */
-} vtss_macsec_mac_conf_t;
-
-/** \brief PHY MACSEC block Bypass configuration  */
-typedef enum {
-    VTSS_MACSEC_INIT_BYPASS_NONE, /**< MACSEC block bypass mode None  */
-    VTSS_MACSEC_INIT_BYPASS_ENABLE, /**< Enable MACSEC block bypass mode  */
-    VTSS_MACSEC_INIT_BYPASS_DISABLE, /**< Disable Macsec block bypass mode. */
-} vtss_macsec_init_bypass_t;
 
 #define MACSEC_INIT_BYPASS_NONE    VTSS_MACSEC_INIT_BYPASS_NONE    /**< Backward compatibility */
 #define MACSEC_INIT_BYPASS_ENABLE  VTSS_MACSEC_INIT_BYPASS_ENABLE  /**< Backward compatibility */
 #define MACSEC_INIT_BYPASS_DISABLE VTSS_MACSEC_INIT_BYPASS_DISABLE /**< Backward compatibility */
 
-/** \brief MACsec init structure */
-typedef struct {
-    BOOL enable;                     /**< Enable the MACsec block  */
-    BOOL dis_ing_nm_macsec_en;       /**< Disable Non Matching MACsec ingress packets processing  */
-    vtss_macsec_mac_conf_t mac_conf; /**< MAC block configuration */
-    vtss_macsec_init_bypass_t bypass; /**< MACSEC block Bypass configuration */
-} vtss_macsec_init_t;
+#define VTSS_MACSEC_INIT_BYPASS_NONE MEPA_MACSEC_INIT_BYPASS_NONE
+#define VTSS_MACSEC_INIT_BYPASS_ENABLE MEPA_MACSEC_INIT_BYPASS_ENABLE
+#define VTSS_MACSEC_INIT_BYPASS_DISABLE MEPA_MACSEC_INIT_BYPASS_DISABLE
+
 
 /** \brief MACsec configuration of MTU for ingress and egress packets  
  *

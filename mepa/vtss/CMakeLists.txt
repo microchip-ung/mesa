@@ -4,6 +4,7 @@ set(inc_mepa ../../me/include ../include)
 
 set(src_vtss src/vtss.c
              src/vtss_ts.c
+             src/vtss_macsec.c
              src/vtss_stubs.c
              src/common/vtss_phy_common.c
              src/phy_1g/vtss_phy_init_scripts.c
