@@ -527,10 +527,11 @@ static mepa_rc indy_workaround_fifo_reset(mepa_device_t *dev)
     return MEPA_RC_OK;
 }
 
+// Frame pre-emption bit must be set before setting TSU_ENABLE bit in TSU_GENERAL_CONFIG register.
+// It also implies that it must be called before indy_ts_mode_set API.
 static mepa_rc indy_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enable)
 {
     uint16_t val;
-    mepa_bool_t ptp_enable;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_device_t *base_dev = data->base_dev;
     phy_data_t *base_data = base_dev ? ((phy_data_t *)(base_dev->data)) : NULL;
@@ -544,19 +545,6 @@ static mepa_rc indy_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enabl
     if (base_dev == dev)
         base_data->framepreempt_en = enable;
 
-    //Read PTP setting
-    EP_RD(dev, INDY_PTP_CMD_CTL, &val);
-
-    ptp_enable = (val & INDY_PTP_CMD_CTL_DISABLE) ? FALSE : TRUE;
-    if (!ptp_enable)
-        ptp_enable = (val & INDY_PTP_CMD_CTL_ENABLE) ? TRUE : FALSE;
-
-    //Disable PTP
-    if (ptp_enable) {
-        val |= INDY_PTP_CMD_CTL_DISABLE;
-        EP_WRM(dev, INDY_PTP_CMD_CTL, val, INDY_DEF_MASK);
-    }
-
     //Set Frame Preemption
     val = 0;
     EP_RD(dev, INDY_PTP_TSU_GEN_CONF, &val);
@@ -565,14 +553,6 @@ static mepa_rc indy_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enabl
     else
         val &= ~INDY_PTP_TSU_GEN_CONF_PREEMPTION_EN;
     EP_WRM(dev, INDY_PTP_TSU_GEN_CONF, val, INDY_DEF_MASK);
-
-    //Enable PTP
-    if (ptp_enable) {
-        val = 0;
-        EP_RD(dev, INDY_PTP_CMD_CTL, &val);
-        val |= (INDY_PTP_CMD_CTL_ENABLE | ~INDY_PTP_CMD_CTL_DISABLE);
-        EP_WRM(dev, INDY_PTP_CMD_CTL, val, INDY_DEF_MASK);
-    }
 
     MEPA_EXIT(dev);
 
