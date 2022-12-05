@@ -4,6 +4,7 @@
 #ifndef _VTSS_API_H_
 #define _VTSS_API_H_
 
+#include <microchip/ethernet/phy/api.h>
 #include <vtss_phy_options.h>
 #include <vtss_phy_types.h>
 #include <vtss_phy_1g_api.h>

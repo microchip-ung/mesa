@@ -1187,3 +1187,18 @@ mepa_rc mepa_macsec_init_get(struct mepa_device *dev,
 
     return dev->drv->mepa_macsec->mepa_macsec_init_get(dev, macsec_init);
 }
+
+mepa_rc mepa_macsec_secy_conf_add(struct mepa_device *dev,
+                             const mepa_macsec_port_t port,
+                             const mepa_macsec_secy_conf_t *const conf)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_secy_conf_add) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_secy_conf_add(dev, port, conf);
+}

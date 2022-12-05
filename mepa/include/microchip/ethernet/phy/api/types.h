@@ -122,6 +122,12 @@ typedef struct {
     mepa_bool_t no_restart_aneg;  /**< Do not restart aneg */
 } mepa_aneg_adv_t;
 
+/** \brief MAC Address */
+typedef struct
+{
+    uint8_t addr[6];   /**< Network byte order */
+} mepa_mac_t;
+
 /** \brief Cable diagnostics result */
 typedef struct {
     mesa_bool_t               link;      /**< Link status */

@@ -126,25 +126,25 @@ extern "C" {
 /*--------------------------------------------------------------------*/
 
 /** \brief Values of the CipherSuite control */
-typedef enum {
-    VTSS_MACSEC_CIPHER_SUITE_GCM_AES_128,     /**< GCM-AES-128 cipher suite */
-    VTSS_MACSEC_CIPHER_SUITE_GCM_AES_256,     /**< GCM-AES-256 cipher suite. */
-    VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128, /**< GCM-AES-XPN_128 cipher suite for XPN mode. */
-    VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256  /**< GCM-AES-XPN_256 cipher suite for XPN mode. */
-} vtss_macsec_ciphersuite_t;
-
+#define VTSS_MACSEC_CIPHER_SUITE_GCM_AES_128 MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128 /**< GCM-AES-128 cipher suite */
+#define VTSS_MACSEC_CIPHER_SUITE_GCM_AES_256  MEPA_MACSEC_CIPHER_SUITE_GCM_AES_256 /**< GCM-AES-256 cipher suite. */
+#define VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128 MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128 /**< GCM-AES-XPN_128 cipher suite for XPN mode. */
+#define VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256 MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256 /**< GCM-AES-XPN_256 cipher suite for XPN mode. */
 
 #define VTSS_MACSEC_CP_RULES   (8 + 16 + 2) /**< DMAC + ETYPE + DMAC/ETYPE */
 
 /** \brief TBD */
-typedef enum {
-    VTSS_MACSEC_VALIDATE_FRAMES_DISABLED, /**< Do not perform integrity check */
-    VTSS_MACSEC_VALIDATE_FRAMES_CHECK,    /**< Perform integrity check do not drop failed frames */
-    VTSS_MACSEC_VALIDATE_FRAMES_STRICT    /**< Perform integrity check and drop failed frames */
-} vtss_validate_frames_t;
+#define VTSS_MACSEC_VALIDATE_FRAMES_DISABLED MEPA_MACSEC_VALIDATE_FRAMES_DISABLED /**< Do not perform integrity check */
+#define VTSS_MACSEC_VALIDATE_FRAMES_CHECK MEPA_MACSEC_VALIDATE_FRAMES_CHECK /**< Perform integrity check do not drop failed frames */
+#define VTSS_MACSEC_VALIDATE_FRAMES_STRICT MEPA_MACSEC_VALIDATE_FRAMES_STRICT /**< Perform integrity check and drop failed frames */
 
-typedef u16 vtss_macsec_vport_id_t;   /**< Virtual port Id. Corresponds to a SecY.  */
-typedef u32 vtss_macsec_service_id_t; /**< Encapsulation service id */
+typedef mepa_port_no_t vtss_mepa_port_no_t;
+typedef mepa_macsec_vport_id_t vtss_macsec_vport_id_t;   /**< Virtual port Id. Corresponds to a SecY.  */
+typedef mepa_macsec_service_id_t vtss_macsec_service_id_t; /**< Encapsulation service id */
+typedef mepa_macsec_port_t vtss_macsec_port_t;
+typedef mepa_validate_frames_t vtss_validate_frames_t;
+typedef mepa_macsec_ciphersuite_t vtss_macsec_ciphersuite_t;
+typedef mepa_macsec_secy_conf_t vtss_macsec_secy_conf_t;
 
 /** \brief packet number of 32-bit or 64-bit size. */
 typedef union {
@@ -175,35 +175,6 @@ typedef struct {
 typedef struct {
     u8 buf[4];   /**< Buffer containing the 4-byte SSCI for XPN. */
 } vtss_macsec_ssci_t;
-
-/** \brief The vtss_macsec_port_t is a unique identifier to a SecY.
- * This identifier is defined by three properties:
- *  - port_no:    A reference the physical port
- *  - service_id: A reference to a given encapsulation service. The user of the
- *                API may choose any number, this is not used in hardware, but
- *                in cases where external-virtual ports are used this is
- *                required to have a unique identifier to a given SecY.
- *  - port_id:    The port ID which used in the SCI tag.
- * */
-typedef struct {
-    vtss_port_no_t           port_no;    /**< Physical port no */
-    vtss_macsec_service_id_t service_id; /**< Service id */
-    vtss_macsec_vport_id_t   port_id;    /**< Virtual port id, the port number used in the optional SCI tag */
-} vtss_macsec_port_t;
-
-/** \brief SecY control information (802.1AE section 10.7) */
-typedef struct {
-    vtss_mac_t mac_addr;                    /**< Mac address of the Tx SecY */
-    vtss_validate_frames_t validate_frames; /**< The validateFrames control (802.1AE section 10.7.8) */
-    BOOL replay_protect;                    /**< The replayProtect control (802.1AE section 10.7.8) */
-    u32 replay_window;                      /**< The replayWindow control (802.1AE section 10.7.8) */
-    BOOL protect_frames;                    /**< The protectFrames control (802.1AE section 10.7.17) */
-    BOOL always_include_sci;                /**< The alwaysIncludeSCI control (802.1AE section 10.7.17) */
-    BOOL use_es;                            /**< The useES control (802.1AE section 10.7.17) */
-    BOOL use_scb;                           /**< The useSCB control (802.1AE section 10.7.17) */
-    vtss_macsec_ciphersuite_t current_cipher_suite; /**< The currentCipherSuite control (802.1AE section 10.7.25) */
-    u32 confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
-} vtss_macsec_secy_conf_t;
 
 /** \brief SecY port status as defined by 802.1AE */
 typedef struct {

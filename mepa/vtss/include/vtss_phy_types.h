@@ -7,6 +7,7 @@
 #ifndef _VTSS_PHY_TYPES_H_
 #define _VTSS_PHY_TYPES_H_
 
+#include <vtss_phy_api.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -145,11 +146,7 @@ typedef u32 vtss_port_no_t;
 /** \brief VLAN Identifier */
 typedef u16 vtss_vid_t; /* 0-4095 */
 
-/** \brief MAC Address */
-typedef struct
-{
-    u8 addr[6];   /**< Network byte order */
-} vtss_mac_t;
+typedef mepa_mac_t vtss_mac_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_MAC_ADDR_SZ_BYTES    6                 /**< Number of bytes for representing MAC address (SMAC/DMAC) type */
