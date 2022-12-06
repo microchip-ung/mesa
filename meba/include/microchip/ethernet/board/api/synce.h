@@ -247,7 +247,12 @@ typedef enum {
     MEBA_SYNCE_CLOCK_HW_OMEGA,     // OMEGA (ServalT) clock present
     MEBA_SYNCE_CLOCK_HW_ZL_30771,  // Zarlink ZL 30771 clock present
     MEBA_SYNCE_CLOCK_HW_ZL_30772,  // Zarlink ZL 30772 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30773   // Zarlink ZL 30773 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30773,  // Zarlink ZL 30773 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30731,  // Zarlink ZL 30731 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30732,  // Zarlink ZL 30732 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30733,  // Zarlink ZL 30733 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30734,  // Zarlink ZL 30734clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30735,  // Zarlink ZL 30735 clock present
 } meba_synce_clock_hw_id_t;
 
 typedef uint32_t meba_synce_clock_fw_ver_t;
@@ -277,6 +282,24 @@ typedef mesa_rc (*meba_synce_spi_if_spi_transfer_t)(struct meba_inst *inst,
                                                     const uint8_t    *tx_data,
                                                     uint8_t          *rx_data);
 
+// Write data to DPLL
+// addr         [IN] address of first register to write
+// buflen       [IN] Number of bytes to transfer
+// tx_data      [IN] Pointer to TX buffer
+typedef mesa_rc (*meba_synce_write_t)(struct meba_inst *inst,
+                                      uint8_t           addr,
+                                      uint32_t          buflen,
+                                      const uint8_t    *tx_data);
+
+// Read data from DPLL
+// addr         [IN] address of first register to read
+// buflen       [IN] Number of bytes to transfer
+// tx_data      [IN] Pointer to RX buffer
+typedef mesa_rc (*meba_synce_read_t)(struct meba_inst *inst,
+                                      uint8_t          addr,
+                                      uint32_t         buflen,
+                                      uint8_t         *rx_data);
+
 // Detect the type of DPLL present in the system (if any)
 // dpll_type    [IN] Pointer to variable used for returning DPLL type
 typedef mesa_rc (*meba_synce_spi_if_get_dpll_type_t)(
@@ -303,6 +326,8 @@ typedef mesa_rc (*meba_synce_spi_if_dpll_fw_ver_get_t)(meba_inst_t inst,
     X(meba_synce_graph_get)            \
     X(meba_synce_mux_set)              \
     X(meba_synce_spi_if_spi_transfer)  \
+    X(meba_synce_write)                \
+    X(meba_synce_read)                 \
     X(meba_synce_spi_if_get_dpll_type) \
     X(meba_synce_spi_if_find_spidev)   \
     X(meba_synce_spi_if_dpll_fw_ver_get)  \
@@ -311,6 +336,8 @@ typedef struct {
     meba_synce_graph_get_t             meba_synce_graph_get;
     meba_synce_mux_set_t               meba_synce_mux_set;
     meba_synce_spi_if_spi_transfer_t   meba_synce_spi_if_spi_transfer;
+    meba_synce_write_t                 meba_synce_write;
+    meba_synce_read_t                  meba_synce_read;
     meba_synce_spi_if_get_dpll_type_t  meba_synce_spi_if_get_dpll_type;
     meba_synce_spi_if_find_spidev_t    meba_synce_spi_if_find_spidev;
     meba_synce_spi_if_dpll_fw_ver_get_t meba_synce_spi_if_dpll_fw_ver_get;

@@ -17,7 +17,8 @@ typedef enum {
     BOARD_TYPE_SVB = VTSS_BOARD_LAN9668_SVB_REF,
     BOARD_TYPE_8PORT = VTSS_BOARD_LAN9668_8PORT_REF,
     BOARD_TYPE_ENDNODE = VTSS_BOARD_LAN9668_ENDNODE_REF,
-    BOARD_TYPE_ENDNODE_CARRIER = VTSS_BOARD_LAN9668_ENDNODE_CARRIER_REF
+    BOARD_TYPE_ENDNODE_CARRIER = VTSS_BOARD_LAN9668_ENDNODE_CARRIER_REF,
+    BOARD_TYPE_EDS2 = VTSS_BOARD_LAN9668_EDS2_REF
 } board_type_t;
 
 /* Local mapping table */
@@ -213,6 +214,56 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         gpio_no = 39;
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
         break;
+    case BOARD_TYPE_EDS2:
+        for (gpio_no = 32; gpio_no < 36; gpio_no++) {
+            // SGPIO signals
+            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
+        }
+        if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
+            // Mode 0 is 5 Hz, two bits per port are used
+            conf.bmode[0] = MESA_SGPIO_BMODE_5;
+            conf.bit_count = 2;
+
+            for (port = 0; port < 12; port++) {
+                pc = &conf.port_conf[port];
+                pc->enabled = (port < 4 || port > 7); // Port 4-7 unused
+
+                // Input port 1: SFP0_TXFAULT, SFP1_TXFAULT (Tx fault)
+                // Input port 2: SFP0_LOS, SFP0_MODDET (Module detect)
+                // Input port 3: SFP1_LOS, SFP1_MODDET (Module detect)
+                if (port > 0 && port < 4) {
+                    pc->int_pol_high[0] = 1;
+                    pc->int_pol_high[1] = 1;
+                }
+
+                // Output port  0: P0_GRN, P0_YEL (LED control)
+                // Output port  1: P1_GRN, P1_YEL (LED control)
+                // Output port  2: SFP0_GR, SFP0_RD (LED control), S0_BLU/S0_GRN (Endnode)
+                // Output port  3: SFP1_GR, SFP1_RD (LED control), S1_BLU/S1_GRN (Endnode)
+                // Output port  8: SFP0_RS0, SFP0_RS1 (Rate select)
+                // Output port  9: SFP1_RS0, SFP1_RS1 (Rate select)
+                // Output port 10: SFP0_TXEN, SFP1_TXEN (Tx enable)
+                // Output port 11: SFP0_SCKEN, SFP1_SCKEN (I2C clock select)
+                if (port < 2) {
+                    // Port 0/1 LED control, turn green on and yellow off while booting
+                    pc->mode[0] = MESA_SGPIO_MODE_OFF;
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
+                } else if (port < 4) {
+                    // Port 2/3 LED control, turn green on and red off while booting
+                    // Endnode: Turn blue/green off (Carrier SFP ports not present)
+                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE ?
+                                   MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
+                } else if (port == 8 || port == 9) {
+                    // Rate select
+                    pc->mode[0] = MESA_SGPIO_MODE_ON;
+                    pc->mode[1] = MESA_SGPIO_MODE_ON;
+                }
+            }
+            (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        }
+        break;
+
     default:
         break;
     }
@@ -316,7 +367,7 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
             return 0;
         case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
-            if (board->type == BOARD_TYPE_8PORT) {
+            if (board->type == BOARD_TYPE_8PORT || board->type == BOARD_TYPE_EDS2) {
                 meba_synce_clock_hw_id_t dpll_type;
 
                 if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) && (dpll_type != MEBA_SYNCE_CLOCK_HW_NONE)) {
@@ -363,7 +414,6 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
-
     T_I(inst, "Called - %d", reset);
     switch (reset) {
     case MEBA_BOARD_INITIALIZE:
@@ -806,7 +856,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
     meba_inst_t        inst;
     meba_board_state_t *board;
     int                pcb;
-
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
                 sizeof(*callouts), callouts_size);
@@ -862,6 +911,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
     case BOARD_TYPE_ENDNODE_CARRIER:
         lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
         break;
+    case BOARD_TYPE_EDS2:
+        lan966x_init_port_table(inst, 2, port_table_endnode);
     default:
         break;
     }

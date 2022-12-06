@@ -241,6 +241,8 @@ static inline void meba_deinitialize(meba_inst_t inst)
 }
 
 mesa_rc meba_synce_spi_if_spi_transfer(meba_inst_t inst, uint32_t buflen, const uint8_t *tx_data, uint8_t *rx_data);
+mesa_rc meba_synce_write(struct meba_inst *inst, uint8_t addr, uint32_t buflen, const uint8_t *tx_data);
+mesa_rc meba_synce_read(struct meba_inst *inst, uint8_t addr, uint32_t buflen, uint8_t *rx_data);
 mesa_rc meba_synce_spi_if_get_dpll_type(meba_inst_t inst, meba_synce_clock_hw_id_t *dpll_type);
 mesa_rc meba_synce_spi_if_dpll_fw_ver_get(meba_inst_t inst, meba_synce_clock_fw_ver_t *dpll_ver);
 mesa_rc meba_synce_spi_if_find_spidev(meba_inst_t inst, const char *id, char *spi_file, size_t max_size);

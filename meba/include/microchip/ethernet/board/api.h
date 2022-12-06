@@ -31,6 +31,7 @@ struct meba_inst {
     meba_api_tod_t           *api_tod;               /**< TOD board API entrypoints */
     meba_api_poe_t           *api_poe;               /**< PoE board API entrypoints */
     int                      synce_spi_if_fd;        /**< File descriptor of SyncE SPI interface.  */
+    int                      synce_i2c_if_fd;        /**< File descriptor of SyncE I2C interface.  */
     meba_api_cpu_port_t      *api_cpu_port;          /**< CPU Port API entrypoints */
     int                      phy_device_cnt;         /**< Total number of phy devices/ports available in board (needed for phy API) */
     mepa_device_t            **phy_devices;          /**< Entry point to phy driver devices. */

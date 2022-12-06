@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
+#include <linux/i2c-dev.h>  /* I2C support */
 
 #include "meba_aux.h"
 
@@ -51,6 +52,60 @@ mesa_rc meba_synce_spi_if_spi_transfer(meba_inst_t inst, uint32_t buflen, const 
     return MESA_RC_OK;
 }
 
+mesa_rc meba_synce_write(meba_inst_t inst, uint8_t addr, uint32_t size, const uint8_t *data)
+{
+    uint8_t tx_data[size+1];
+    tx_data[0] = addr & 0x7F; /* Clear first bit to indicate write */
+    memcpy(tx_data+1, data, size);
+    if (inst->synce_spi_if_fd > 0) {
+        uint8_t rx_data[size+1];
+        return meba_synce_spi_if_spi_transfer(inst, size+1, tx_data, rx_data);
+    }
+
+    if (inst->synce_i2c_if_fd > 0) {
+        int sz = write(inst->synce_i2c_if_fd, tx_data, sizeof(tx_data));
+        if (sz != sizeof(tx_data)) {
+            T_E(inst, "Failed writing to i2c: %s", strerror(errno));
+            return VTSS_RC_ERROR;
+        }
+        return VTSS_RC_OK;
+    }
+    return VTSS_RC_ERROR;
+
+}
+
+mesa_rc meba_synce_read(meba_inst_t inst, uint8_t addr, uint32_t size, uint8_t *data)
+{
+    if (inst->synce_spi_if_fd > 0) {
+        uint8_t tx_data[size+1];
+        uint8_t rx_data[size+1];
+        tx_data[0] = addr | 0x80; // set read bit
+        mesa_rc rc = meba_synce_spi_if_spi_transfer(inst, size+1, tx_data, rx_data);
+        if (VTSS_RC_OK != rc) {
+            return rc;
+        }
+        memcpy(data, rx_data+1, size);
+        return VTSS_RC_OK;
+    }
+
+    if (inst->synce_i2c_if_fd > 0) {
+        int sz = write(inst->synce_i2c_if_fd, &addr, 1);
+        if (sz != 1) {
+            T_E(inst, "Failed writing address %d to i2c: %s", addr, strerror(errno));
+            return VTSS_RC_ERROR;
+        }
+        sz = read(inst->synce_i2c_if_fd, data, size);
+        if (sz != size) {
+            T_E(inst, "Failed reading %d bytes from i2c: %s", size, strerror(errno));
+            return VTSS_RC_ERROR;
+        }
+        return VTSS_RC_OK;
+    }
+
+    return VTSS_RC_ERROR;
+
+}
+
 static meba_synce_clock_hw_id_t known_dpll_type;
 
 /* Do DPLL type detection*/
@@ -58,21 +113,29 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
 {
     mesa_rc rc = MESA_RC_OK;
     char synce_spi_file[32];
+    int file;
 
     uint8_t partnum[3];
 
-    if (meba_synce_spi_if_find_spidev(inst, dpll_id, synce_spi_file, MEBA_ARRSZ(synce_spi_file)) != MESA_RC_OK) {
+    if (strcmp(dpll_id, "i2c") == 0) {
+        char i2c_dev[] = "/dev/i2c-0";
+        if ((file = open(i2c_dev, O_RDWR)) < 0 || ioctl(file, I2C_SLAVE, 0x70) < 0) {
+            T_E(inst, "cannot specify i2c slave at 0x%02x! [%s]\n", 0x70, strerror(errno));
+            return MESA_RC_ERROR;
+        }
+        inst->synce_i2c_if_fd = file;
+    } else  if (meba_synce_spi_if_find_spidev(inst, dpll_id, synce_spi_file, MEBA_ARRSZ(synce_spi_file)) == MESA_RC_OK) {
+        inst->synce_spi_if_fd = open(synce_spi_file, O_RDWR);
+        if (inst->synce_spi_if_fd < 0) {
+            inst->synce_spi_if_fd = -1;
+            T_D(inst, "Could not open SPI device file %s", synce_spi_file);
+            return MESA_RC_ERROR;
+        }
+        T_D(inst, "Opened SPI device file %s.", synce_spi_file);
+    } else {
         return MESA_RC_ERROR;
     }
 
-    inst->synce_spi_if_fd = open(synce_spi_file, O_RDWR);
-    if (inst->synce_spi_if_fd < 0) {
-        inst->synce_spi_if_fd = -1;
-        T_D(inst, "Could not open SPI device file %s", synce_spi_file);
-        return MESA_RC_ERROR;
-    }
-
-    T_D(inst, "Opened SPI device file %s.", synce_spi_file);
 
     // Initially assume that no DPLL is present
     known_dpll_type = MEBA_SYNCE_CLOCK_HW_NONE;
@@ -81,9 +144,8 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
     // We do this in all cases, also when support for this DPLL is not compiled in. This is to make sure that a
     // 30363 device cannot be mistaken for a 30343 or for a Silabs 5326/5328
     {
-        uint8_t tx_data[2] = {0x7F, 0};
-        uint8_t rx_data[2];
-        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+        uint8_t tx_data[1] = {0};
+        if (meba_synce_write(inst, 0x7F, 1, tx_data) != MESA_RC_OK) {
             T_I(inst, "Could not do SPI transfer to DPLL. Most likely the board does not support a SyncE DPLL.");
             return MESA_RC_ERROR;
         }
@@ -97,47 +159,30 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
 
     // Assuming DPLL is a Silabs 5326/5328, set the address to 134
     {
-        uint8_t tx_data[2] = {SPI_SET_ADDRESS, 134};
-        uint8_t rx_data[2];
-        meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);
-        tx_data[0] = SPI_READ;
-        tx_data[1] = 0;
-        meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);  /* Try if Silabs 5326 is on SPI */
-        partnum[0] = rx_data[1];
+        uint8_t tx_data[1] = {134};
+        meba_synce_write(inst, SPI_SET_ADDRESS, 1, tx_data);
+        meba_synce_read(inst, SPI_READ, 1, &partnum[0]);  /* Try if Silabs 5326 is on SPI */
     }
 
     // Assuming DPLL is a Silabs 5326/5328, set the address to 135
     {
-        uint8_t tx_data[2] = {SPI_SET_ADDRESS, 135};
-        uint8_t rx_data[2];
-        meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);
-        tx_data[0] = SPI_READ;
-        tx_data[1] = 0;
-        meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);  /* Read part number to detect if this is a Silabs 5326 or 5328 */
-        partnum[1] = rx_data[1];
+        uint8_t tx_data[1] = {135};
+        meba_synce_write(inst, SPI_SET_ADDRESS, 1, tx_data);
+        meba_synce_read(inst, SPI_READ, 1, &partnum[1]);  /* Try if Silabs 5326 is on SPI */
     }
     mesa_bool_t si5326 = ((partnum[0] == 0x01) && (((partnum[1] & 0xF0) == 0xA0) || ((partnum[1] & 0xF0) == 0xC0)));
     mesa_bool_t si5328 = ((partnum[0] == 0x01) && ((partnum[1] & 0xF0) == 0xC0));
 
     // If the DPLL chip was not detected as a Silabs 5326/5328 then test if it is a Zarlink 30343 or 30363.
-    if (!si5326) {
+    if (!si5326 && !si5328) {
         // We need to wait 25 ms to be sure that we can read the chip ID from the 30363. This is because the probe for the si5326 above has written to address 0x01 and if the
         // device indeed is a 30363 then it will take up to 25 ms before this address again contains the correct chip ID.
         usleep(25000);
         // Assuming DPLL is a zls30343 or zls30363, read address 0
-        {
-            uint8_t tx_data[2] = {0x80, 0};
-            uint8_t rx_data[2];
-            meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);
-            partnum[0] = rx_data[1];
-        }
+        meba_synce_read(inst, 0x80, 1, &partnum[0]);
         // Assuming DPLL is a zls30343 or zls30363, read address 1
-        {
-            uint8_t tx_data[2] = {0x81, 0};
-            uint8_t rx_data[2];
-            meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);
-            partnum[1] = rx_data[1];
-        }
+        meba_synce_read(inst, 0x81, 1, &partnum[1]);
+
         if ((partnum[0] & 0x1F) == 0x0C || (partnum[0] & 0x1F) == 0x0D) {
             // Device is a 30343
             T_I(inst, "Zarlink 30343 detected.");
@@ -153,16 +198,23 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
             T_I(inst, "Zarlink 30363 detected.");
             known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30363;
         } else if (partnum[1] == 0x0E) {
-            uint8_t tx_data[2] = {0x82, 0};
-            uint8_t rx_data[2];
-            meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data);
-            partnum[2] = rx_data[1];
+            meba_synce_read(inst, 0x82, 1, &partnum[2]);
             if (partnum[2] == 0xBB) {
                 known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30771;
             } else if (partnum[2] == 0xBC) {
                 known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30772;
             } else if (partnum[2] == 0xBD) {
                 known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30773;
+            } else if (partnum[2] == 0x93) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30731;
+            } else if (partnum[2] == 0x94) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30732;
+            } else if (partnum[2] == 0x95) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30733;
+            } else if (partnum[2] == 0x96) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30734;
+            } else if (partnum[2] == 0x97) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30735;
             } else {
                 T_I(inst, "No SyncE DPLL detected. with partnum 0X%x%x", partnum[1], partnum[2]);
                 rc = MESA_RC_ERROR;
@@ -182,7 +234,6 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
             known_dpll_type = MEBA_SYNCE_CLOCK_HW_SI_5326;
         }
     }
-
     return rc;
 }
 
@@ -213,6 +264,14 @@ mesa_rc meba_synce_spi_if_get_dpll_type(meba_inst_t inst, meba_synce_clock_hw_id
                 return rc;
             }
             close(inst->synce_spi_if_fd);
+
+            // Check for presence of builtin dpll over i2c
+            if ((rc = meba_synce_spi_if_do_dpll_type_detection(inst, "i2c")) == MESA_RC_OK) {
+                already_known = true;
+                *dpll_type = known_dpll_type;
+                return rc;
+            }
+            close(inst->synce_spi_if_fd);
             known_dpll_type = MEBA_SYNCE_CLOCK_HW_NONE;
             rc = MESA_RC_OK;
         }
@@ -235,25 +294,23 @@ static mesa_rc meba_synce_spi_if_do_read_dpll_fw_ver(meba_inst_t inst, meba_sync
         known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
         known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773) {
         // select page 0
-        uint8_t tx_data[2] = {0x7F, 0};
+        uint8_t tx_data[2] = {0};
         uint8_t rx_data[2];
-        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+        if (meba_synce_write(inst, 0x7F, 1, tx_data) != MESA_RC_OK) {
             T_E(inst, "Could not do SPI transfer to DPLL. Most likely the board does not support a SyncE DPLL.");
             return MESA_RC_ERROR;
         }
         // read 2 byte SW version
         *detected_dpll_ver = 0;
-        tx_data[0] = 0x85; tx_data[1] = 0;
-        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+        if (meba_synce_read(inst, 0x85, 1, rx_data) != MESA_RC_OK) {
             return MESA_RC_ERROR;
         }
-        *detected_dpll_ver |= rx_data[1];
+        *detected_dpll_ver |= rx_data[0];
         *detected_dpll_ver <<= 8;
-        tx_data[0] = 0x86; tx_data[1] = 0;
-        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data, rx_data) != MESA_RC_OK) {
+        if (meba_synce_read(inst, 0x86, 1, rx_data) != MESA_RC_OK) {
             return MESA_RC_ERROR;
         }
-        *detected_dpll_ver |= rx_data[1];
+        *detected_dpll_ver |= rx_data[0];
         return rc;
      } else {
         T_I(inst, "Fetch of SW version not supported on this DPLL");

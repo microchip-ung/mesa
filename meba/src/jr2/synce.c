@@ -1116,10 +1116,10 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
     if ((dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30363 || dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
          dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 || dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773) && (board_type == VTSS_BOARD_SERVAL2_NID_REF)) {
         // If board is a serval2, ref. 4+5 need to be configured as differential.
-        const uint8_t tx_data_pg_reg[2] = {0x7F, 0};
-        const uint8_t tx_data_cfg_reg[2] = {0x7A, 0x30};
-        uint8_t rx_data[2];
-        if (meba_synce_spi_if_spi_transfer(inst, 2, tx_data_pg_reg, rx_data) != MESA_RC_OK || meba_synce_spi_if_spi_transfer(inst, 2, tx_data_cfg_reg, rx_data) != MESA_RC_OK) {
+        const uint8_t tx_data_pg_reg[1] = {0};
+        const uint8_t tx_data_cfg_reg[1] = {0x30};
+        if (meba_synce_write(inst, 0x7F, 1, tx_data_pg_reg) != MESA_RC_OK ||
+            meba_synce_write(inst, 0x7A, 1, tx_data_cfg_reg) != MESA_RC_OK) {
             T_W(inst, "Could not configure ref. 4 and 5 as differential.");
         }
     }
