@@ -190,9 +190,9 @@ static mepa_rc reset_phy(phy_data_t *data, vtss_phy_reset_conf_t *conf)
 {
     mepa_event_t events;
 
-    MEPA_RC(vtss_phy_event_enable_get(NULL, data->port_no, &events));
-    MEPA_RC(vtss_phy_reset(NULL, data->port_no, conf));
-    return vtss_phy_event_enable_set(NULL, data->port_no, events, 1);
+    MEPA_RC(vtss_phy_event_enable_get(data->vtss_instance, data->port_no, &events));
+    MEPA_RC(vtss_phy_reset(data->vtss_instance, data->port_no, conf));
+    return vtss_phy_event_enable_set(data->vtss_instance, data->port_no, events, 1);
 }
 
 static mepa_rc mscc_1g_reset(mepa_device_t *dev,
@@ -204,12 +204,12 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
 
     if (rst_conf->reset_point == MEPA_RESET_POINT_PRE) {
         // pre reset api should be called on base port
-        rc = vtss_phy_pre_reset(NULL, data->port_no);
+        rc = vtss_phy_pre_reset(data->vtss_instance, data->port_no);
     } else if (rst_conf->reset_point == MEPA_RESET_POINT_POST) {
         // post reset api should be called on base port
-        rc = vtss_phy_post_reset(NULL, data->port_no);
+        rc = vtss_phy_post_reset(data->vtss_instance, data->port_no);
     } else if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
-        vtss_phy_reset_get(NULL, data->port_no, &conf);
+        vtss_phy_reset_get(data->vtss_instance, data->port_no, &conf);
         conf.force = VTSS_PHY_FORCE_RESET;
         conf.mac_if = data->mac_if;
         conf.media_if = rst_conf->media_intf;
@@ -226,7 +226,7 @@ static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
     vtss_phy_reset_conf_t conf = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
 
-    vtss_phy_reset_get(NULL, data->port_no, &conf);
+    vtss_phy_reset_get(data->vtss_instance, data->port_no, &conf);
     conf.force = VTSS_PHY_FORCE_RESET;
     conf.mac_if = data->mac_if;
     conf.media_if = rst_conf->media_intf;
@@ -241,7 +241,7 @@ static mepa_rc mscc_1g_poll(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_port_status_t mesa_status = {};
 
-    mepa_rc rc = vtss_phy_status_get(NULL, data->port_no, &mesa_status);
+    mepa_rc rc = vtss_phy_status_get(data->vtss_instance, data->port_no, &mesa_status);
     if (rc != MEPA_RC_OK) {
         return rc;
     }
@@ -271,7 +271,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX)
         phy_config.mdi = VTSS_PHY_MDIX;
 
-    if (vtss_phy_conf_get(NULL, data->port_no,&phy_config) == MESA_RC_OK) {
+    if (vtss_phy_conf_get(data->vtss_instance, data->port_no,&phy_config) == MESA_RC_OK) {
         if (config->admin.enable) {
             if (config->speed == MESA_SPEED_AUTO ||
                     config->speed == MESA_SPEED_1G) {
@@ -297,7 +297,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
                     cfg_neg.master.cfg = true;
                     cfg_neg.master.val = config->man_neg == MEPA_MANUAL_NEG_REF ? true : false;
                 }
-                (void)vtss_phy_conf_1g_set(NULL, data->port_no, &cfg_neg);
+                (void)vtss_phy_conf_1g_set(data->vtss_instance, data->port_no, &cfg_neg);
             } else {
                 phy_config.mode = VTSS_PHY_MODE_FORCED;
                 phy_config.forced.speed = config->speed;
@@ -311,7 +311,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         }
         phy_config.mac_if_pcs.serdes_aneg_ena = config->mac_if_aneg_ena;
     }
-    return vtss_phy_conf_set(NULL, data->port_no, &phy_config);
+    return vtss_phy_conf_set(data->vtss_instance, data->port_no, &phy_config);
 }
 
 static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
@@ -321,7 +321,7 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     phy_data_t *data = (phy_data_t *)dev->data;
     *conf = (const mepa_conf_t) {};
 
-    if (vtss_phy_conf_get(NULL, data->port_no, &phy_conf) != MESA_RC_OK) {
+    if (vtss_phy_conf_get(data->vtss_instance, data->port_no, &phy_conf) != MESA_RC_OK) {
         return (MEPA_RC_ERROR);
     }
     conf->flow_control = phy_conf.aneg.symmetric_pause;
@@ -345,7 +345,7 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
         conf->speed = MEPA_SPEED_AUTO;
 
         // Get manual negotiation options
-        if (vtss_phy_conf_1g_get(NULL, data->port_no, &cfg_neg) == MESA_RC_OK) {
+        if (vtss_phy_conf_1g_get(data->vtss_instance, data->port_no, &cfg_neg) == MESA_RC_OK) {
             conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
                 cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
         }
@@ -383,13 +383,13 @@ static mepa_rc mscc_1g_power_set(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)(dev->data);
     vtss_phy_power_conf_t power_conf = {};
     power_conf.mode = power;
-    return vtss_phy_power_conf_set(NULL, data->port_no, &power_conf);
+    return vtss_phy_power_conf_set(data->vtss_instance, data->port_no, &power_conf);
 }
 
 static mepa_rc mscc_1g_veriphy_start(mepa_device_t *dev, int mode)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_veriphy_start(NULL, data->port_no, mode);
+    return vtss_phy_veriphy_start(data->vtss_instance, data->port_no, mode);
 }
 
 static mepa_rc mscc_1g_veriphy_get(mepa_device_t *dev,
@@ -399,7 +399,7 @@ static mepa_rc mscc_1g_veriphy_get(mepa_device_t *dev,
     vtss_phy_veriphy_result_t result;
     mepa_rc rc;
 
-    if ((rc = vtss_phy_veriphy_get(NULL, data->port_no, &result)) != MEPA_RC_ERROR) {
+    if ((rc = vtss_phy_veriphy_get(data->vtss_instance, data->port_no, &result)) != MEPA_RC_ERROR) {
         res->link = result.link;
         memcpy(&res->status, &result.status, sizeof(res->status));
         memcpy(&res->length, &result.length, sizeof(res->length));
@@ -412,12 +412,12 @@ static mepa_rc mscc_1g_media_set(mepa_device_t *dev,
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
     vtss_phy_reset_conf_t conf = {};
-    vtss_phy_reset_get(NULL, data->port_no, &conf);
+    vtss_phy_reset_get(data->vtss_instance, data->port_no, &conf);
 
     conf.mac_if = data->mac_if;
     conf.media_if = phy_media_if;
 
-    return vtss_phy_reset(NULL, data->port_no, &conf);
+    return vtss_phy_reset(data->vtss_instance, data->port_no, &conf);
 }
 
 static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
@@ -460,7 +460,7 @@ static mepa_rc mscc_1g_status_1g_get(mepa_device_t    *dev,
     mepa_rc rc;
     vtss_phy_status_1g_t vtss_status;
 
-    rc = vtss_phy_status_1g_get(NULL, data->port_no, &vtss_status);
+    rc = vtss_phy_status_1g_get(data->vtss_instance, data->port_no, &vtss_status);
     status->master_cfg_fault = vtss_status.master_cfg_fault;
     status->master = vtss_status.master;
     return rc;
@@ -470,19 +470,19 @@ static mepa_rc phy_1g_event_enable_set(mepa_device_t *dev, mepa_event_t event,
                                        mesa_bool_t enable)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_event_enable_set(NULL, data->port_no, event, enable);
+    return vtss_phy_event_enable_set(data->vtss_instance, data->port_no, event, enable);
 }
 
 static mepa_rc phy_1g_event_enable_get(mepa_device_t *dev, mepa_event_t *ev_mask)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_event_enable_get(NULL, data->port_no, ev_mask);
+    return vtss_phy_event_enable_get(data->vtss_instance, data->port_no, ev_mask);
 }
 
 static mepa_rc phy_1g_event_poll(mepa_device_t *dev, mepa_event_t *status)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_event_poll(NULL, data->port_no, status);
+    return vtss_phy_event_poll(data->vtss_instance, data->port_no, status);
 }
 
 static mepa_rc phy_1g_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loopback)
@@ -503,14 +503,14 @@ static mepa_rc phy_1g_loopback_set(mepa_device_t *dev, const mepa_loopback_t *lo
     phy_loop.media_serdes_input_enable = loopback->media_serdes_input_ena;
     phy_loop.media_serdes_facility_enable = loopback->media_serdes_facility_ena;
     phy_loop.media_serdes_equipment_enable = loopback->media_serdes_equip_ena;
-    return vtss_phy_loopback_set(NULL, data->port_no, phy_loop);
+    return vtss_phy_loopback_set(data->vtss_instance, data->port_no, phy_loop);
 }
 
 static mepa_rc phy_1g_loopback_get(mepa_device_t *dev, mepa_loopback_t *const loopback)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
     vtss_phy_loopback_t loop = {};
-    if (vtss_phy_loopback_get(NULL, data->port_no, &loop) == MESA_RC_OK) {
+    if (vtss_phy_loopback_get(data->vtss_instance, data->port_no, &loop) == MESA_RC_OK) {
         loopback->far_end_ena = loop.far_end_enable;
         loopback->near_end_ena = loop.near_end_enable;
         loopback->connector_ena = loop.connector_enable;
@@ -527,13 +527,13 @@ static mepa_rc phy_1g_loopback_get(mepa_device_t *dev, mepa_loopback_t *const lo
 static mepa_rc phy_1g_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_read(NULL, data->port_no, address, value);
+    return vtss_phy_read(data->vtss_instance, data->port_no, address, value);
 }
 
 static mepa_rc phy_1g_write(mepa_device_t *dev, uint32_t address, uint16_t value)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
-    return vtss_phy_write(NULL, data->port_no, address, value);
+    return vtss_phy_write(data->vtss_instance, data->port_no, address, value);
 }
 
 static mepa_rc phy_1g_gpio_mode(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
@@ -563,9 +563,9 @@ static mepa_rc phy_1g_gpio_mode(mepa_device_t *dev, const mepa_gpio_conf_t *gpio
         vtss_phy_led_mode_select_t mode_select;
         mode_select.number = gpio_conf->led_num == MEPA_LED0 ? VTSS_PHY_LED0 : VTSS_PHY_LED1;
         mode_select.mode = VTSS_PHY_LED_MODE_LINK_ACTIVITY + (gpio_conf->mode - MEPA_GPIO_MODE_LED_LINK_ACTIVITY);
-        vtss_phy_led_mode_set(NULL, data->port_no, mode_select);
+        vtss_phy_led_mode_set(data->vtss_instance, data->port_no, mode_select);
     }
-    return vtss_phy_gpio_mode(NULL, data->port_no, gpio_conf->gpio_no, gpio_mode);
+    return vtss_phy_gpio_mode(data->vtss_instance, data->port_no, gpio_conf->gpio_no, gpio_mode);
 }
 
 static mepa_rc phy_1g_gpio_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t enable)
@@ -575,14 +575,14 @@ static mepa_rc phy_1g_gpio_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     if (gpio_no > 13) {
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    return vtss_phy_gpio_set(NULL, data->port_no, gpio_no, enable);
+    return vtss_phy_gpio_set(data->vtss_instance, data->port_no, gpio_no, enable);
 }
 // Enable/Disable Isolate mode
 static mepa_rc phy_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
-    return vtss_phy_isolate_mode_conf(NULL, data->port_no, iso_en);
+    return vtss_phy_isolate_mode_conf(data->vtss_instance, data->port_no, iso_en);
 }
 
 static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t *const enable)
@@ -592,7 +592,7 @@ static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     if (gpio_no > 13) {
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    return vtss_phy_gpio_get(NULL, data->port_no, gpio_no, enable);
+    return vtss_phy_gpio_get(data->vtss_instance, data->port_no, gpio_no, enable);
 }
 static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
 {
@@ -606,7 +606,7 @@ static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_cl
     phy_conf.freq = conf->freq == MEPA_FREQ_25M ? VTSS_PHY_FREQ_25M :
                     conf->freq == MEPA_FREQ_31_25M ? VTSS_PHY_FREQ_3125M : VTSS_PHY_FREQ_125M;
 
-    return vtss_phy_clock_conf_set(NULL, data->port_no, clk_port, &phy_conf);
+    return vtss_phy_clock_conf_set(data->vtss_instance, data->port_no, clk_port, &phy_conf);
 }
 // store base_dev info in dev and store dev info in base_dev.
 static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
@@ -632,7 +632,7 @@ static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev
             T_D(data, MEPA_TRACE_GRP_GEN, "base linked i %d port %d\n", i, base_data->all_phy_ports[i]);
         }
     }
-    rc = vtss_phy_id_get(NULL, base_data->port_no, &base_id);
+    rc = vtss_phy_id_get(data->vtss_instance, base_data->port_no, &base_id);
     if (rc == MESA_RC_OK && base_id.channel_id) {
         T_W(data, MEPA_TRACE_GRP_GEN, "base port channel id is not 0");
         return MEPA_RC_ERROR;
@@ -647,7 +647,7 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
     mesa_rc rc = MESA_RC_OK;
 
     phy_info->cap = 0;
-    rc = vtss_phy_id_get(NULL, data->port_no, &phy_id);
+    rc = vtss_phy_id_get(data->vtss_instance, data->port_no, &phy_id);
     if (rc == MESA_RC_OK) {
         phy_info->part_number = phy_id.part_number;
         phy_info->revision = phy_id.revision;
@@ -699,7 +699,7 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
         oper_mode.polarity.line_tx = true;
     }
 
-    return vtss_phy_10g_mode_set(NULL, data->port_no, &oper_mode);
+    return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
 }
 
 static mepa_rc venice_10g_reset(mepa_device_t *dev,
@@ -710,7 +710,7 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)(dev->data);
 
     oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
-    if (vtss_phy_10g_id_get(0, data->port_no, &phy_10g_id) == MEPA_RC_OK) {
+    if (vtss_phy_10g_id_get(data->vtss_instance, data->port_no, &phy_10g_id) == MEPA_RC_OK) {
         if ((phy_10g_id.part_number == 0x8487) || (phy_10g_id.part_number == 0x8488)) {
             oper_mode.xfi_pol_invert = 0;
         } else {
@@ -719,7 +719,7 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
     }
     oper_mode.l_clk_src.is_high_amp = true;
     oper_mode.l_media = VTSS_MEDIA_TYPE_SR;
-    return vtss_phy_10g_mode_set(NULL, data->port_no, &oper_mode);
+    return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
 }
 
 
@@ -729,7 +729,7 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_status_t status_10g;
 
-    if (vtss_phy_10g_status_get(NULL, data->port_no, &status_10g) != VTSS_RC_OK) {
+    if (vtss_phy_10g_status_get(data->vtss_instance, data->port_no, &status_10g) != VTSS_RC_OK) {
         return MEPA_RC_ERROR;
     }
     memset(status, 0, sizeof(*status));
@@ -742,7 +742,7 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_mode_t mode = {};
 
-    if (vtss_phy_10g_mode_get(NULL, data->port_no, &mode) != MEPA_RC_OK) {
+    if (vtss_phy_10g_mode_get(data->vtss_instance, data->port_no, &mode) != MEPA_RC_OK) {
         return MEPA_RC_ERROR;
     }
 
@@ -757,7 +757,7 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         mode.xaui_lane_flip = true;
         if (mode.oper_mode != VTSS_PHY_1G_MODE) {
             mode.oper_mode = VTSS_PHY_1G_MODE;
-            if (vtss_phy_10g_mode_set(NULL, data->port_no, &mode) !=
+            if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &mode) !=
                 MEPA_RC_OK) {
                 return MEPA_RC_ERROR;
             }
@@ -772,14 +772,14 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             (config->admin.enable ? VTSS_PHY_10G_CLAUSE_37_RF_LINK_OK
              : VTSS_PHY_10G_CLAUSE_37_RF_OFFLINE);
         ctrl.l_h = true;
-        if (vtss_phy_10g_clause_37_control_set(NULL, data->port_no,
+        if (vtss_phy_10g_clause_37_control_set(data->vtss_instance, data->port_no,
                                                &ctrl) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
     } else {
         mode.xaui_lane_flip = false;
         mode.oper_mode = VTSS_PHY_LAN_MODE;
-        if (vtss_phy_10g_mode_set(NULL, data->port_no, &mode) !=
+        if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &mode) !=
             MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
@@ -828,7 +828,7 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
     mesa_rc rc = MESA_RC_OK;
 
     phy_info->cap = 0;
-    rc = vtss_phy_10g_id_get(NULL, data->port_no, &phy_id);
+    rc = vtss_phy_10g_id_get(data->vtss_instance, data->port_no, &phy_id);
     if (rc == MESA_RC_OK) {
         phy_info->part_number = phy_id.part_number;
         phy_info->revision = phy_id.revision;
@@ -882,7 +882,7 @@ static mepa_rc phy_1g_i2c_read(mepa_device_t *dev,
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
-    return vtss_phy_i2c_read(NULL, data->port_no, i2c_mux,
+    return vtss_phy_i2c_read(data->vtss_instance, data->port_no, i2c_mux,
                             i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
@@ -896,7 +896,7 @@ static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
-    return vtss_phy_i2c_write(NULL, data->port_no, i2c_mux,
+    return vtss_phy_i2c_write(data->vtss_instance, data->port_no, i2c_mux,
                              i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
@@ -930,7 +930,7 @@ mepa_rc phy_debug_info_dump(struct mepa_device *dev,
     phy_info.clear = info->clear;
     phy_info.vml_format = info->vml_format;
 
-    return vtss_phy_debug_info_print(NULL, pr, &phy_info);
+    return vtss_phy_debug_info_print(data->vtss_instance, pr, &phy_info);
 }
 
 mepa_drivers_t mepa_mscc_driver_init()
