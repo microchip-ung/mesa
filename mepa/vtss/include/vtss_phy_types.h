@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <vtss_phy_api.h>
+#include <microchip/ethernet/phy/api/phy.h>
 
 #ifndef _VTSS_PHY_TYPES_H_
 #define _VTSS_PHY_TYPES_H_
@@ -122,7 +123,6 @@ enum
 typedef u32 vtss_chip_no_t;
 
 /** \brief Instance identifier */
-typedef struct vtss_phy_state_s *vtss_phy_inst_t;
 typedef struct vtss_state_s *vtss_inst_t;
 
 /**
@@ -547,15 +547,9 @@ typedef struct {
 } vtss_serdes_macro_conf_t;
 #endif /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
 
-/** \brief API lock structure */
-typedef struct {
-    const char *function; /**< Function name */
-    const char *file;     /**< File name */
-    int        line;      /**< Line number */
-} vtss_phy_lock_t;
-
 // API lock/unlock callback passed by application
-typedef void (*vtss_phy_lock_func_t)(const vtss_phy_lock_t *const lock);
+typedef mepa_lock_t vtss_phy_lock_t;
+typedef mepa_lock_func_t vtss_phy_lock_func_t;
 
 /** \brief Trace groups */
 typedef enum

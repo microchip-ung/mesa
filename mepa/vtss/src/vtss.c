@@ -15,76 +15,51 @@ extern mepa_ts_driver_t vtss_ts_drivers;
 
 static vtss_inst_t vtss_inst;
 static int vtss_inst_cnt;
-static const mepa_callout_t *CALLOUT;
 
 // MIIM/MMD wrapper functions
-static vtss_rc miim_read(const vtss_inst_t    inst,
+static vtss_rc miim_read(vtss_state_t        *inst,
                          const vtss_port_no_t port_no,
                          const u8             addr,
                          u16                  *const value)
 {
-    return CALLOUT->miim_read(inst->callout_ctx[port_no], addr, value);
+    return inst->callout[port_no]->miim_read(inst->callout_ctx[port_no], addr, value);
 }
 
-static vtss_rc miim_write(const vtss_inst_t    inst,
+static vtss_rc miim_write(vtss_state_t        *inst,
                           const vtss_port_no_t port_no,
                           const u8             addr,
                           const u16            value)
 {
-    return CALLOUT->miim_write(inst->callout_ctx[port_no], addr, value);
+    return inst->callout[port_no]->miim_write(inst->callout_ctx[port_no], addr, value);
 }
 
-static vtss_rc mmd_read(const vtss_inst_t    inst,
+static vtss_rc mmd_read(vtss_state_t        *inst,
                         const vtss_port_no_t port_no,
                         const u8             mmd,
                         const u16            addr,
                         u16                  *const value)
 {
-    return CALLOUT->mmd_read(inst->callout_ctx[port_no], mmd, addr, value);
+    return inst->callout[port_no]->mmd_read(inst->callout_ctx[port_no], mmd, addr, value);
 }
 
-static vtss_rc mmd_read_inc(const vtss_inst_t    inst,
+static vtss_rc mmd_read_inc(vtss_state_t        *inst,
                             const vtss_port_no_t port_no,
                             const u8             mmd,
                             const u16            addr,
                             u16                  *const buf,
                             u8                   cnt)
 {
-    return CALLOUT->mmd_read_inc(inst->callout_ctx[port_no], mmd, addr, buf,
+    return inst->callout[port_no]->mmd_read_inc(inst->callout_ctx[port_no], mmd, addr, buf,
                                  cnt);
 }
 
-static vtss_rc mmd_write(const vtss_inst_t    inst,
+static vtss_rc mmd_write(vtss_state_t        *inst,
                          const vtss_port_no_t port_no,
                          const u8             mmd,
                          const u16            addr,
                          const u16            value)
 {
-    return CALLOUT->mmd_write(inst->callout_ctx[port_no], mmd, addr, value);
-}
-
-static void lock_enter(const vtss_phy_lock_t *const lock)
-{
-    mepa_lock_t mepa_lock;
-
-    if (CALLOUT->lock_enter) {
-        mepa_lock.function = lock->function;
-        mepa_lock.file = lock->file;
-        mepa_lock.line = lock->line;
-        CALLOUT->lock_enter(&mepa_lock);
-    }
-}
-
-static void lock_exit(const vtss_phy_lock_t *const lock)
-{
-    mepa_lock_t mepa_lock;
-
-    if (CALLOUT->lock_exit) {
-        mepa_lock.function = lock->function;
-        mepa_lock.file = lock->file;
-        mepa_lock.line = lock->line;
-        CALLOUT->lock_exit(&mepa_lock);
-    }
+    return inst->callout[port_no]->mmd_write(inst->callout_ctx[port_no], mmd, addr, value);
 }
 
 static void trace_func(const vtss_phy_trace_group_t group,
@@ -121,6 +96,8 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
                                 struct mepa_board_conf              *board_conf)
 {
+    vtss_rc              rc;
+    vtss_inst_t          inst;
     vtss_phy_init_conf_t conf;
 
     // Check that port does not exceed PHY instance maximum
@@ -128,30 +105,66 @@ static mepa_rc mscc_vtss_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         return MEPA_RC_ERROR;
     }
 
-    // Check that PHY instance can be created
-    if (vtss_inst_cnt == 0) {
-        if (vtss_phy_inst_create(callout, callout_ctx, &vtss_inst) != VTSS_RC_OK ||
-            vtss_phy_init_conf_get(NULL, &conf) != VTSS_RC_OK) {
+    // Using and creating instance are mutual exclusive.
+    if (board_conf->vtss_instance_create && board_conf->vtss_instance_use) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (board_conf->vtss_instance_use) {
+        // Notice - NULL is a valid instance!
+        inst = board_conf->vtss_instance_ptr;
+    } else if (vtss_inst_cnt == 0 || board_conf->vtss_instance_create) {
+        // Check that PHY instance can be created
+        if (board_conf->vtss_instance_create) {
+            // Instances are externally managed - we need to create it on their
+            // behalf
+            rc = vtss_phy_inst_create(callout, callout_ctx,
+                                      &board_conf->vtss_instance_ptr);
+            inst = board_conf->vtss_instance_ptr;
+        } else {
+            rc = vtss_phy_inst_create(callout, callout_ctx, &vtss_inst);
+            inst = vtss_inst;
+        }
+
+        if (rc != VTSS_RC_OK) {
+            // Failed to create instance!
             return MEPA_RC_ERROR;
         }
-        CALLOUT = callout;
+
+        // Get default config
+        if (vtss_phy_init_conf_get(inst, &conf) != VTSS_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+
+        // Use the pre-cooked handler functions which just delegate to the
+        // callout outs.
         conf.miim_read = miim_read;
         conf.miim_write = miim_write;
         conf.mmd_read = mmd_read;
         conf.mmd_read_inc = mmd_read_inc;
         conf.mmd_write = mmd_write;
-        conf.lock_enter = lock_enter;
-        conf.lock_exit = lock_exit;
         conf.trace_func = trace_func;
-        (void)vtss_phy_init_conf_set(NULL, &conf);
+
+        // No need for delegate as the callouts are binary compatible
+        conf.lock_enter = callout->lock_enter;
+        conf.lock_exit = callout->lock_exit;
+
+        // Apply the callouts
+        (void)vtss_phy_init_conf_set(inst, &conf);
+    } else {
+        // Both vtss_instance_use and vtss_instance_create are null, and we have
+        // created the instance already.
+        inst = vtss_inst;
     }
 
-    if (vtss_phy_callout_set(NULL, board_conf->numeric_handle, callout_ctx) == MEPA_RC_OK) {
+    if (vtss_phy_callout_set(inst, board_conf->numeric_handle, callout, callout_ctx) == MEPA_RC_OK) {
         vtss_inst_cnt++;
     } else {
         return MEPA_RC_ERROR;
     }
 
+    // Always ensure that the used instance is returned
+    board_conf->vtss_instance_ptr = inst;
 
     return MEPA_RC_OK;
 }
@@ -426,6 +439,7 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
     }
 
     data = dev->data;
+    data->vtss_instance = board_conf->vtss_instance_ptr;
     data->port_no = board_conf->numeric_handle;
     data->cap = PHY_CAP_1G;
 
@@ -433,7 +447,8 @@ static mepa_device_t *mscc_1g_probe(mepa_driver_t *drv,
         data->other_dev[i] = NULL;
     }
 
-    T_I(data, MEPA_TRACE_GRP_GEN, "probed port %d", data->port_no);
+    T_I(data, MEPA_TRACE_GRP_GEN, "probed port %d, instance: %p",
+        data->port_no, data->vtss_instance);
 
     return dev;
 }
@@ -850,6 +865,7 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
     }
 
     data = dev->data;
+    data->vtss_instance = board_conf->vtss_instance_ptr;
     data->port_no = board_conf->numeric_handle;
     data->cap = PHY_CAP_10G;
 

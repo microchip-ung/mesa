@@ -1836,17 +1836,19 @@ vtss_rc vtss_statistics_get(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_phy_callout_set(const vtss_inst_t inst,
-                             const vtss_port_no_t  port_no,
+vtss_rc vtss_phy_callout_set(const vtss_inst_t        inst,
+                             const vtss_port_no_t     port_no,
+                             const mepa_callout_t    *co,
                              struct mepa_callout_ctx *c) {
     vtss_state_t *vtss_state;
     vtss_rc rc = VTSS_RC_OK;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->callout_ctx[port_no]) {
+        if (vtss_state->callout_ctx[port_no] || vtss_state->callout[port_no]) {
             rc = VTSS_RC_ERROR;
         } else {
+            vtss_state->callout[port_no] = co;
             vtss_state->callout_ctx[port_no] = c;
         }
     }

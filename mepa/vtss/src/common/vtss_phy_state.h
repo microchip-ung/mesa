@@ -427,6 +427,7 @@ typedef struct vtss_state_s {
     BOOL                  restart_updated; /* Restart has been detected */
     BOOL                  warm_start_cur;  /* Current warm start status */
     BOOL                  warm_start_prev; /* Previous warm start status */
+    const mepa_callout_t    *callout[VTSS_PORT_ARRAY_SIZE];
     struct mepa_callout_ctx *callout_ctx[VTSS_PORT_ARRAY_SIZE];
 #if defined(VTSS_FEATURE_WARM_START)
     vtss_restart_t        restart_cur;     /* Current restart configuration */

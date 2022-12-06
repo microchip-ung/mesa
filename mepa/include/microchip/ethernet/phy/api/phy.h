@@ -130,9 +130,24 @@ typedef struct mepa_callout {
     mepa_mem_free_t        mem_free;
 } mepa_callout_t;
 
+struct vtss_state_s;
+typedef struct vtss_state_s *vtss_inst_t;
 
 typedef struct mepa_board_conf {
     uint32_t                 numeric_handle;
+
+    // By default all PHYs in the VTSS library will use default instance located
+    // in mepa/vtss/src/vtss.c (as a static variable).
+    // This makes it easy for simple usage, but sometime it is desirable to
+    // control what PHYs belong to what instance. This can be controlled using
+    // the below attributes:
+    // - If vtss_instance_create is set to 1, then a new instance is created and
+    //   pointer to the instance is avialable in the vtss_instance_ptr field.
+    // - If vtss_instance_use is set to 1, then the pointer from
+    //   'vtss_instance_ptr' is used for the given MEPA device.
+    uint32_t                 vtss_instance_create;
+    uint32_t                 vtss_instance_use;
+    vtss_inst_t              vtss_instance_ptr;
 } mepa_board_conf_t;
 
 /** \brief Create a new MEPA instance.

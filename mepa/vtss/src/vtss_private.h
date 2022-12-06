@@ -81,4 +81,6 @@ typedef struct {
     mepa_port_no_t all_phy_ports[MAX_PORTS_PER_PHY];
     mepa_device_t *ts_base_dev;
     mepa_device_t *ts_alt_dev;
+    vtss_inst_t    vtss_instance;
 } phy_data_t;
+
