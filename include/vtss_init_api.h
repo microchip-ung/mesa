@@ -61,7 +61,8 @@ typedef enum {
     VTSS_TARGET_7552TSN            = 0x47552, /**< SparX-5-128i Industrial Switch */
     VTSS_TARGET_7556TSN            = 0x47556, /**< SparX-5-160i Industrial Switch */
     VTSS_TARGET_7558TSN            = 0x47558, /**< SparX-5-200i Industrial Switch */
-
+    VTSS_TARGET_LAN9662            = 0x9662,  /**< LAN9662 switch */
+    VTSS_TARGET_LAN9668            = 0x9668,  /**< LAN9668 switch */
     VTSS_TARGET_LAN9694HSR         = 0x96949,  /**< Laguna-40-HSR: +40G TSN Ethernet switch with PRP/HSR */
     VTSS_TARGET_LAN9694TSN         = 0x96947,  /**< Laguna-40-TSN: +40G TSN Ethernet switch */
     VTSS_TARGET_LAN9694VAO         = 0x96942,  /**< Laguna-40-VAO: +40G Automotive TSN Ethernet switch */
