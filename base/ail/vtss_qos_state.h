@@ -93,10 +93,6 @@ typedef struct {
 #define VTSS_JR_SDX_CNT   31
 #define VTSS_EVC_POL_CNT  32    /* EVC policers */
 #define VTSS_EVC_STAT_CNT 32    /* EVC statistics */
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_JR_SDX_CNT   1023
-#define VTSS_EVC_POL_CNT  1024 /* EVC policers */
-#define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
 #else
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_EVC_POL_CNT  4096 /* EVC policers */
@@ -307,18 +303,12 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       57 /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#elif defined(VTSS_ARCH_SPARX5)
+#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
 #define VTSS_HSCH_L0_SES                     5040 /**< Number of scheduler elements in layer 0 */
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       70 /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
-#define VTSS_HSCH_L0_SES                     1120 /**< Number of scheduler elements in layer 0 */
-#define VTSS_HSCH_L1_SES                       32 /**< Number of scheduler elements in layer 1 */
-#define VTSS_HSCH_L2_SES                       35 /**< Number of scheduler elements in layer 2 */
-#define VTSS_HSCH_L3_QSHPS                   1120 /**< Number of queue shapers in layer 3 */
 #endif /* defined(VTSS_ARCH_SERVAL_T) */
 
 #define VTSS_HSCH_LEAK_LISTS                    4 /**< Number of leak list groups per layer */
@@ -342,20 +332,8 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #   define VTSS_HSCH_MAX_RATE_GROUP_2     6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
 #   define VTSS_HSCH_MAX_RATE_GROUP_3    26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
 #   endif /* defined(VTSS_CHIP_7538) */
-#elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_HSCH_MAX_RATE_GROUP_0        1048568 /**< Maximum bit rate for group 0 in kbps ( 1.049 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_1        2621420 /**< Maximum bit rate for group 1 in kbps ( 2.621 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_2       10485680 /**< Maximum bit rate for group 2 in kbps (10.486 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_3       26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_HSCH_MAX_RATE_GROUP_0         655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_1        1048568 /**< Maximum bit rate for group 1 in kbps ( 1.049 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_2        6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_3       10485680 /**< Maximum bit rate for group 3 in kbps (10.486 Gbps) */
-#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_0   1048568 /**< Maximum bit rate for QSHP group 0 in kbps ( 1.049 Gbps) */
-#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_1   2621420 /**< Maximum bit rate for QSHP group 1 in kbps ( 2.621 Gbps) */
-#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_2   6553550 /**< Maximum bit rate for QSHP group 2 in kbps ( 6.554 Gbps) */
-#define VTSS_HSCH_MAX_RATE_QSHP_GROUP_3  10485680 /**< Maximum bit rate for QSHP group 3 in kbps (10.486 Gbps) */
+#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+
 #endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) */
 
 /** \brief Leak Chain entry */
@@ -398,7 +376,7 @@ typedef struct {
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x7F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           100
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0x3FFF+1)
@@ -412,12 +390,6 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x1F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           16
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0xFFF+1)
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
-#define VTSS_TAS_NUMBER_OF_LISTS              (0x3F+1)
-#define VTSS_TAS_NUMBER_OF_PROFILES           60
-#define VTSS_TAS_NUMBER_OF_ENTRIES            (0x1FFF+1)
 #endif
 
 typedef struct {
@@ -464,8 +436,13 @@ typedef struct {
     vtss_tas_entry_block_t   tas_entry_blocks[VTSS_TAS_NUMBER_OF_ROWS][VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW];
     vtss_tas_entry_row_t     tas_entry_rows[VTSS_TAS_NUMBER_OF_ROWS];
 #endif
-    vtss_tas_gcl_state_t     tas_gcl_state[VTSS_PORT_ARRAY_SIZE];
 
+#if (defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)) && defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
+    vtss_tas_entry_block_t   tas_entry_blocks[VTSS_TAS_NUMBER_OF_ROWS][VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW];
+    vtss_tas_entry_row_t     tas_entry_rows[VTSS_TAS_NUMBER_OF_ROWS];
+#endif
+
+    vtss_tas_gcl_state_t     tas_gcl_state[VTSS_PORT_ARRAY_SIZE];
     vtss_qos_tas_conf_t      global_conf;
     vtss_qos_tas_port_conf_t port_conf[VTSS_PORT_ARRAY_SIZE];
 } vtss_qos_tas_state_t;
@@ -484,15 +461,9 @@ typedef struct {
     u32 frame_size;         /* Configures ANA_AC_SDLB:LBGRP_TBL[0-9]:FRM_RATE_TOKENS.FRM_RATE_TOKENS */
     u32 lb_set_count;       /* Number of LB set added to the group */
 } vtss_qos_lb_group_t;
-#if defined(VTSS_ARCH_SPARX5)
 #define LB_GROUP_CNT   10   /* The number of LB groups */
 #define LB_SET_CNT   4615   /* The number of LB sets */
-#endif
-#if defined(VTSS_ARCH_LAN969X)
-#define LB_GROUP_CNT    5   /* The number of LB groups */
-#define LB_SET_CNT    272   /* The number of LB sets */
-#endif
-#endif
+#endif /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */
 
 typedef struct {
     /* CIL function pointers */

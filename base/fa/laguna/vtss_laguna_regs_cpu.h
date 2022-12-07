@@ -1447,7 +1447,7 @@
  * \details
  * Register: \a CPU:MIIM_TARGET:MIIM_TARGET_CFG
  */
-#define VTSS_CPU_MIIM_TARGET_CFG             VTSS_IOREG(VTSS_TO_CPU,0x46)
+#define VTSS_CPU_MIIM_TARGET_CFG             VTSS_IOREG(VTSS_TO_CPU,0x45)
 
 /**
  * \brief
@@ -1488,7 +1488,7 @@
  * \details
  * Register: \a CPU:VCORE_ACC:VCORE_ACC_CFG
  */
-#define VTSS_CPU_VCORE_ACC_CFG               VTSS_IOREG(VTSS_TO_CPU,0x47)
+#define VTSS_CPU_VCORE_ACC_CFG               VTSS_IOREG(VTSS_TO_CPU,0x46)
 
 /**
  * \brief
@@ -1517,7 +1517,7 @@
  * \details
  * Register: \a CPU:MSIX_ACC:MSIX_ACC_CFG
  */
-#define VTSS_CPU_MSIX_ACC_CFG                VTSS_IOREG(VTSS_TO_CPU,0x48)
+#define VTSS_CPU_MSIX_ACC_CFG                VTSS_IOREG(VTSS_TO_CPU,0x47)
 
 /**
  * \brief
@@ -1546,7 +1546,7 @@
  * \details
  * Register: \a CPU:EXT_IF_ACC_STAT:EXT_IF_ACC_STAT
  */
-#define VTSS_CPU_EXT_IF_ACC_STAT             VTSS_IOREG(VTSS_TO_CPU,0x49)
+#define VTSS_CPU_EXT_IF_ACC_STAT             VTSS_IOREG(VTSS_TO_CPU,0x48)
 
 /**
  * \brief
@@ -1661,7 +1661,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW
  */
-#define VTSS_CPU_INTR_RAW                    VTSS_IOREG(VTSS_TO_CPU,0x4a)
+#define VTSS_CPU_INTR_RAW                    VTSS_IOREG(VTSS_TO_CPU,0x49)
 
 /**
  * \brief
@@ -1683,7 +1683,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW1
  */
-#define VTSS_CPU_INTR_RAW1                   VTSS_IOREG(VTSS_TO_CPU,0x4b)
+#define VTSS_CPU_INTR_RAW1                   VTSS_IOREG(VTSS_TO_CPU,0x4a)
 
 /**
  * \brief
@@ -1703,7 +1703,7 @@
  * \details
  * Register: \a CPU:INTR:INTR_RAW2
  */
-#define VTSS_CPU_INTR_RAW2                   VTSS_IOREG(VTSS_TO_CPU,0x4c)
+#define VTSS_CPU_INTR_RAW2                   VTSS_IOREG(VTSS_TO_CPU,0x4b)
 
 /**
  * \brief
@@ -1745,7 +1745,7 @@
  *
  * @param ri Register: INTR_TRIGGER (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x4e + (ri))
+#define VTSS_CPU_INTR_TRIGGER(ri)            VTSS_IOREG(VTSS_TO_CPU,0x4d + (ri))
 
 /**
  * \brief
@@ -1785,7 +1785,7 @@
  *
  * @param ri Register: INTR_TRIGGER1 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x50 + (ri))
+#define VTSS_CPU_INTR_TRIGGER1(ri)           VTSS_IOREG(VTSS_TO_CPU,0x4f + (ri))
 
 /**
  * \brief
@@ -1812,7 +1812,7 @@
  *
  * @param ri Register: INTR_TRIGGER2 (??), 0-1
  */
-#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x52 + (ri))
+#define VTSS_CPU_INTR_TRIGGER2(ri)           VTSS_IOREG(VTSS_TO_CPU,0x51 + (ri))
 
 /**
  * \brief

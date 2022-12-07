@@ -29,6 +29,7 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
     u32 cmu_tgt;
     u32 spd10g = 1;
     u32 cmu_num = 0;
+    u32 cmu_cfg_tgt;
 
     if ((vtss_state->port.cmu_enable_mask | cmu_mask) == vtss_state->port.cmu_enable_mask) {
         return VTSS_RC_OK; // already enabled
@@ -39,26 +40,27 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
             continue;
         }
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
-#if defined(VTSS_ARCH_SPARX5)
-        u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
-        u32 CMU_CFG = VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt);
-#else
-        u32 CMU_CFG = VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG;
-#endif
+
+        if (FA_TGT) {
+            cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
+        } else {
+            cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(0);
+        }
+
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
         if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
             spd10g = 0;
         }
 
-        REG_WRM(CMU_CFG,
+        REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST(1),
                 VTSS_M_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST);
 
-        REG_WRM(CMU_CFG,
+        REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST(0),
                 VTSS_M_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST);
 
-        REG_WRM(CMU_CFG,
+        REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST(1),
                 VTSS_M_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST);
 
@@ -106,7 +108,7 @@ vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
                 VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_SW_10G(spd10g),
                 VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_SW_10G);
 
-        REG_WRM(CMU_CFG,
+        REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST(0),
                 VTSS_M_SD_CMU_TERM_TARGET_SD_CMU_CFG_CMU_RST);
 
@@ -191,7 +193,7 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
             sd_tgt = VTSS_TO_SD10G_LANE(indx);
-            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_10G_START);
         }
 
         if (sd_lane_tgt == 0 || sd_tgt == 0) {
@@ -217,7 +219,7 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
             sd_tgt = VTSS_TO_SD10G_LANE(indx);
-            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_10G_START);
         }
 
 
@@ -532,7 +534,7 @@ static vtss_rc  vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g28_
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
             sd_tgt = VTSS_TO_SD10G_LANE(indx);
-            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_10G_START);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_10G_START);
         }
 
         REG_RD(VTSS_SD_LANE_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
@@ -579,5 +581,5 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
     return rc;
 }
 #endif /* !defined(VTSS_ARCH_LAN969X_FPGA) */
-#endif /* defined(VTSS_ARCH_FA) */
 #endif /* _VTSS_ANT__API_SD10G28_UTE */
+#endif /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */

@@ -2292,12 +2292,14 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
            vtss_bool_txt(vtss_state->l2.tx_forward[port_no]),
            vtss_bool_txt(vtss_state->l2.tx_forward_aggr[port_no]));
 #if defined(VTSS_FEATURE_REDBOX)
-        for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
-            vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
-            if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
-                (rb_conf->port_a == port_no || rb_conf->port_b == port_no)) {
-                pr(" (RedBox %u, port %s)", id, rb_conf->port_a == port_no ? "A" : "B");
-                break;
+        if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+            for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
+                vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
+                if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
+                    (rb_conf->port_a == port_no || rb_conf->port_b == port_no)) {
+                    pr(" (RedBox %u, port %s)", id, rb_conf->port_a == port_no ? "A" : "B");
+                    break;
+                }
             }
         }
 #endif

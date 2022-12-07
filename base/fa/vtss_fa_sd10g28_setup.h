@@ -20,7 +20,6 @@
 
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-
 #include "vtss_fa_inc.h"
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no);
 

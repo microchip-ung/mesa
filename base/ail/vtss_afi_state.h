@@ -487,6 +487,10 @@ typedef struct {
 
     // Switch core's clock period in picoseconds
     u64 clk_period_ps;
+
+    u32 slow_inj_cnt;
+    u64 fast_inj_bps_min;
+    u64 fast_inj_bps_max;
 } vtss_afi_state_t;
 
 vtss_rc vtss_afi_inst_create(struct vtss_state_s *vtss_state);

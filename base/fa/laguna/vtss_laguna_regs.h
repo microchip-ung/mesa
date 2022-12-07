@@ -3,7 +3,11 @@
 
 #ifndef _VTSS_LAGUNA_REGS_H_
 #define _VTSS_LAGUNA_REGS_H_
+#include "vtss_laguna_regs_common.h"
+#include "../la_diff_regs.h"
+#include "../main_regs.h"
 
+#if 0
 #include "vtss_laguna_regs_aes.h"
 #include "vtss_laguna_regs_aesb_asc.h"
 #include "vtss_laguna_regs_cpu.h"
@@ -86,4 +90,5 @@
 #include "vtss_laguna_regs_vop_mpls.h"
 #include "vtss_laguna_regs_xqs.h"
 
+#endif
 #endif /* _VTSS_LAGUNA_REGS_H_ */

@@ -51,7 +51,7 @@ vtss_rc vtss_voe_alloc(const vtss_inst_t            inst,
     vtss_rc      rc;
 
     vtss_state = (inst == NULL ? vtss_default_inst : inst);     /* This is required as VTSS_CHIP_PORT is using vtss_state */
-    if (VTSS_CHIP_PORT(param->port) >= VTSS_PORT_VOE_CNT) {
+    if (VTSS_CHIP_PORT(param->port) >= vtss_state->oam.port_voe_cnt) {
         VTSS_E("Invalid port %u", param->port);
         return VTSS_RC_ERROR;
     }
@@ -621,13 +621,13 @@ vtss_rc vtss_voe_event_active_get(const vtss_inst_t   inst,
 
     VTSS_D("Enter  active_size %u  active %p", active_size, active);
 
-    if (active_size != VTSS_EVENT_MASK_ARRAY_SIZE) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(oam.voe_event_active_get, active_size, active);
+        if (active_size != vtss_state->oam.event_mask_array_size) {
+            rc = VTSS_RC_ERROR;
+        } else {
+            rc = VTSS_FUNC(oam.voe_event_active_get, active_size, active);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -795,6 +795,14 @@ vtss_rc vtss_voi_conf_get(const vtss_inst_t      inst,
 
 vtss_rc vtss_oam_inst_create(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_FEATURE_VOP)
+    vtss_state->oam.path_service_voe_cnt = VTSS_PATH_SERVICE_VOE_CNT;
+    vtss_state->oam.port_voe_base_idx = VTSS_PORT_VOE_BASE_IDX;
+    vtss_state->oam.port_voe_cnt = VTSS_PORT_VOE_CNT;
+    vtss_state->oam.voe_cnt = VTSS_VOE_CNT;
+    vtss_state->oam.voi_cnt = VTSS_VOI_CNT;
+    vtss_state->oam.event_mask_array_size = VTSS_EVENT_MASK_ARRAY_SIZE;
+#endif
     return VTSS_RC_OK;
 }
 
@@ -1006,7 +1014,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
     if (!info->has_action || voe) { /* VOE configuration must be printed */
         pr("VOE Config:\n\n");
     
-        for (i=0; i<VTSS_VOE_CNT; ++i) {
+        for (i=0; i<vtss_state->oam.voe_cnt; ++i) {
             if (voe && (div > 1) && (vo_idx != i)) {   /* A specific VOE must be printed - this is not the one */
                 continue;
             }
@@ -1150,7 +1158,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
     if (!info->has_action || status) { /* VOE status must be printed */
         pr("VOE Status:\n\n");
     
-        for (i=0; i<VTSS_VOE_CNT; ++i) {
+        for (i=0; i<vtss_state->oam.voe_cnt; ++i) {
             if (status && (div > 1) && (vo_idx != i)) {   /* A specific VOE must be printed - this is not the one */
                 continue;
             }
@@ -1311,7 +1319,7 @@ void vtss_oam_debug_print(vtss_state_t *vtss_state,
     if (!info->has_action || voi) { /* VOI configuration must be printed */
         pr("VOI Config:\n\n");
     
-        for (i=0; i<VTSS_VOI_CNT; ++i) {
+        for (i=0; i<vtss_state->oam.voi_cnt; ++i) {
             if (voi && (div > 1) && (vo_idx != i)) {   /* A specific VOI must be printed - this is not the one */
                 continue;
             }

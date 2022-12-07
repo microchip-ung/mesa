@@ -1639,6 +1639,17 @@
 
 /**
  * \brief
+ * Set if ACL requested no CPU destinations.Write 1 to clear this field.
+ *
+ * \details
+ * Field: ::VTSS_ANA_AC_PS_STICKY_STICKY . ACL_CPU_DIS_STICKY
+ */
+#define  VTSS_F_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY  VTSS_BIT(27)
+#define  VTSS_X_ANA_AC_PS_STICKY_STICKY_ACL_CPU_DIS_STICKY(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
+
+/**
+ * \brief
  * Set if a forwarder virtual LAG profile from PGID table has been
  * used.Write 1 to clear this field.
  *
@@ -1902,6 +1913,17 @@
  * @param gi Replicator: x_ANA_NUM_CONCURRENT_CNT (??), 0-3
  */
 #define VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(gi)  VTSS_IOREG_IX(VTSS_TO_ANA_AC,0xc690,gi,16,0,0)
+
+/**
+ * \brief
+ * Mask to enable counting of sticky event.
+ *
+ * \details
+ * Field: ::VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK . ACL_CPU_DIS_STICKY_MASK
+ */
+#define  VTSS_F_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK(x)  VTSS_ENCODE_BITFIELD(!!(x),27,1)
+#define  VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK  VTSS_BIT(27)
+#define  VTSS_X_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ACL_CPU_DIS_STICKY_MASK(x)  VTSS_EXTRACT_BITFIELD(x,27,1)
 
 /**
  * \brief
@@ -2230,6 +2252,32 @@
  * Register: \a ANA_AC:TSN_SF:TSN_SF
  */
 #define VTSS_ANA_AC_TSN_SF_TSN_SF            VTSS_IOREG(VTSS_TO_ANA_AC,0xc54b)
+
+/**
+ * \brief
+ * Control whether frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 are included in bit 9
+ * ofANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_EVENT_MASK.GLOBAL_EVENT_MASKIn
+ * stead of including frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 in event# 9, it is also possible to
+ * generate a separate counter for frames passing TSN_MAX_SDU filter, but
+ * discarded due to StreamBlockedDueToOversizeFrame=1. Such frames are
+ * signaled using event# 10.Related
+ * parameters:ANA_AC:STAT_GLOBAL_CFG_ISDX:STAT_GLOBAL_EVENT_MASK.GLOBAL_EVE
+ * NT_MASKANA_AC:TSN_SF_CFG:TSN_SF_CFG.TSN_MAX_SDUANA_AC:TSN_SF_CFG:TSN_SF_
+ * CFG.TSN_STREAM_BLOCK_OVERSIZE_ENA
+ *
+ * \details
+ * 0: Do not include frames discarded due to
+ * StreamBlockedDueToOversizeFrame=1 in GLOBAL_EVENT_MASK[9].
+ * 1: Include frames discarded due to StreamBlockedDueToOversizeFrame=1 in
+ * GLOBAL_EVENT_MASK[9].
+ *
+ * Field: ::VTSS_ANA_AC_TSN_SF_TSN_SF . MAX_SDU_CNT_INCL_BLOCKED
+ */
+#define  VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED  VTSS_BIT(10)
+#define  VTSS_X_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
 
 /**
  * \brief

@@ -4,7 +4,7 @@
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_MRP
 #include "vtss_fa_cil.h"
 
-#if defined(VTSS_ARCH_LAN969X) && defined(VTSS_FEATURE_MRP)
+#if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_MRP)
 
 #define FWD_NOP          0
 #define FWD_COPY_CPU     1
@@ -724,16 +724,12 @@ static vtss_rc loc_period_configure(vtss_state_t *vtss_state, u32 loc_idx, u64 i
 
     VTSS_D("loc_idx %u  interval_in_us %" PRIu64 "", loc_idx, interval_in_us);
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-        /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */
-    base_tick_ps = 593750; /* ps */
-#else
     // Calculate the LOC period base tick count and LOC interval in picoseconds
     REG_RD(VTSS_VOP_LOC_CTRL_2, &value);
     value = VTSS_X_VOP_LOC_CTRL_2_LOC_BASE_TICK_CNT(value);    /* This is the LOC base tick in clock cycles */
     u32 clk_period_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);  /* Get the clock period in picoseconds */
     base_tick_ps = clk_period_in_ps * value;
-#endif
+
     // Configure LOC period
     interval_in_ps = interval_in_us * 1000000;
     value = (interval_in_ps / base_tick_ps) + ((interval_in_ps % base_tick_ps) ? 1 : 0);
@@ -1132,7 +1128,7 @@ static vtss_rc lan969x_mrp_add(vtss_state_t          *vtss_state,
         voe_idx = p == 0 ? &mrp_data->p_voe_idx : p == 1 ? &mrp_data->s_voe_idx : &mrp_data->i_voe_idx;
         *voe_idx = vtss_fa_service_voe_alloc(vtss_state, VTSS_VOE_FUNCTION_MRP);
 
-        if (*voe_idx >= VTSS_PATH_SERVICE_VOE_CNT) {
+        if (*voe_idx >= RT_PATH_SERVICE_VOE_CNT) {
             VTSS_E("No free Service VOE was allocate");
             rc = VTSS_RC_ERROR;
             goto do_exit;
@@ -1912,7 +1908,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || mrp) { /* MRP configuration must be printed */
         pr("MRP Config:\n\n");
 
-        for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT; ++i) {
+        for (i = 0; i < RT_PATH_SERVICE_VOE_CNT; ++i) {
             if (mrp && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1921,35 +1917,35 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
             if (info->full  ||  VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
                 sprintf(buf, "MRP %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_CTRL(i), i, "MEP_MRP_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_FWD_CTRL(i), i, "MEP_MRP_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_RING_MASK_CFG(i), i, "MEP_RING_MASK_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ICON_MASK_CFG(i), i, "MEP_ICON_MASK_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_FWD_CTRL(i), i, "MEP_TST_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_CFG(i), i, "MEP_TST_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_PRIO_CFG(i), i, "MEP_TST_PRIO_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_FWD_CTRL(i), i, "MEP_ITST_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_CFG(i), i, "MEP_ITST_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_MAC_LSB(i), i, "MEP_MRP_MAC_LSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_MAC_MSB(i), i, "MEP_MRP_MAC_MSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_BEST_MAC_LSB(i), i, "BEST_MRP_MAC_LSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_BEST_MAC_MSB(i), i, "BEST_MRP_MAC_MSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_INTR_ENA(i), i, "MEP_MRP_INTR_ENA");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_TX_CFG(i, 0), i, "MRP_MRP_TX_CFG[0]");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_TX_CFG(i, 1), i, "MRP_MRP_TX_CFG[1]");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_STAT(i), i, "MRP_TST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_STAT(i), i, "MRP_ITST_STAT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_CTRL(i)), i, "MEP_MRP_CTRL");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_FWD_CTRL(i)), i, "MEP_MRP_FWD_CTRL");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_RING_MASK_CFG(i)), i, "MEP_RING_MASK_CFG");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ICON_MASK_CFG(i)), i, "MEP_ICON_MASK_CFG");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_FWD_CTRL(i)), i, "MEP_TST_FWD_CTRL");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_CFG(i)), i, "MEP_TST_CFG");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_PRIO_CFG(i)), i, "MEP_TST_PRIO_CFG");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_FWD_CTRL(i)), i, "MEP_ITST_FWD_CTRL");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_CFG(i)), i, "MEP_ITST_CFG");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_MAC_LSB(i)), i, "MEP_MRP_MAC_LSB");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_MAC_MSB(i)), i, "MEP_MRP_MAC_MSB");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_BEST_MAC_LSB(i)), i, "BEST_MRP_MAC_LSB");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_BEST_MAC_MSB(i)), i, "BEST_MRP_MAC_MSB");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_INTR_ENA(i)), i, "MEP_MRP_INTR_ENA");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_TX_CFG(i, 0)), i, "MRP_MRP_TX_CFG[0]");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_TX_CFG(i, 1)), i, "MRP_MRP_TX_CFG[1]");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_STAT(i)), i, "MRP_TST_STAT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_STAT(i)), i, "MRP_ITST_STAT");
                 pr("\n");
             }
         }
 
         sprintf(buf, "Relevant VOP configuration %u", 0);
         vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_TICK_CFG, 0, "VOP_TICK_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TS_CFG, 0, "VOP_MRP_TS_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_LOC_CTRL, 0, "VOP_LOC_CTRL");
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_VOP_CTRL, 0, "VOP_VOP_CTRL");
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_CPU_EXTR_MRP, 0, "VOP_CPU_EXTR_MRP");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_TICK_CFG), 0, "VOP_TICK_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TS_CFG), 0, "VOP_MRP_TS_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_LOC_CTRL), 0, "VOP_LOC_CTRL");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_VOP_CTRL), 0, "VOP_VOP_CTRL");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_CPU_EXTR_MRP), 0, "VOP_CPU_EXTR_MRP");
         pr("\n");
     }
     pr("\n");
@@ -1957,7 +1953,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || status) { /* MRP status must be printed */
         pr("MRP Status:\n\n");
 
-        for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT; ++i) {
+        for (i = 0; i < RT_PATH_SERVICE_VOE_CNT; ++i) {
             if (status && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1966,17 +1962,17 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
             if (info->full  ||  VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
                 sprintf(buf, "MRP %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_STICKY(i), i, "MEP_MRP_STICKY");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_RX_CNT(i), i, "VTSS_VOP_MRP_TST_RX_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_RX_LOC_CNT(i), i, "MEP_TST_RX_LOC_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_RX_CNT(i), i, "VTSS_VOP_MRP_ITST_RX_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_RX_LOC_CNT(i), i, "MEP_ITST_RX_LOC_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_STAT(i), i, "MRP_TST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_STAT(i), i, "MRP_ITST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_TST_TX_TS(i), i, "MRP_TST_TX_TS");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_ITST_TX_TS(i), i, "MRP_ITST_TX_TS");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_TX_SEQ(i, 0), i, "MRP_MRP_TX_SEQ");
-                vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_MRP_MRP_TX_SEQ(i, 1), i, "MRP_MRP_TX_SEQ");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_STICKY(i)), i, "MEP_MRP_STICKY");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_RX_CNT(i)), i, "VTSS_VOP_MRP_TST_RX_CNT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_RX_LOC_CNT(i)), i, "MEP_TST_RX_LOC_CNT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_RX_CNT(i)), i, "VTSS_VOP_MRP_ITST_RX_CNT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_RX_LOC_CNT(i)), i, "MEP_ITST_RX_LOC_CNT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_STAT(i)), i, "MRP_TST_STAT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_STAT(i)), i, "MRP_ITST_STAT");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_TX_TS(i)), i, "MRP_TST_TX_TS");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_ITST_TX_TS(i)), i, "MRP_ITST_TX_TS");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_TX_SEQ(i, 0)), i, "MRP_MRP_TX_SEQ");
+                vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_TX_SEQ(i, 1)), i, "MRP_MRP_TX_SEQ");
                 pr("\n");
             }
         }
@@ -2001,11 +1997,11 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
                 pr("in_ring_transitions: %u\n", mrp_data->in_ring_transitions);
 
                 if (mrp_data->tst_loc_idx != LOC_PERIOD_CNT) {
-                    vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_LOC_PERIOD_CFG(mrp_data->tst_loc_idx), mrp_data->tst_loc_idx, "VOP_LOC_PERIOD_CFG");
+                    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_LOC_PERIOD_CFG(mrp_data->tst_loc_idx)), mrp_data->tst_loc_idx, "VOP_LOC_PERIOD_CFG");
                 }
 
                 if (mrp_data->itst_loc_idx != LOC_PERIOD_CNT) {
-                    vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_LOC_PERIOD_CFG(mrp_data->itst_loc_idx), mrp_data->itst_loc_idx, "VOP_LOC_PERIOD_CFG");
+                    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_LOC_PERIOD_CFG(mrp_data->itst_loc_idx)), mrp_data->itst_loc_idx, "VOP_LOC_PERIOD_CFG");
                 }
 
                 pr("\n");
@@ -2084,4 +2080,4 @@ vtss_rc vtss_lan969x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     }
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_LAN969X */
+#endif /* VTSS_FEATURE_MRP */

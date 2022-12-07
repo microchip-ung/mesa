@@ -397,6 +397,16 @@
 #define  VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST  VTSS_BIT(0)
 #define  VTSS_X_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
 
+/**
+ * \details
+ * 0: Use internally generated 50MHz RMII reference clock.
+ * 1: Use GPIO4 or GPIO16 pin as external RMII reference clock
+ *
+ * Field: ::VTSS_HSIOWRAP_RMII_CFG . RMII_REF_CLK_SEL
+ */
+#define  VTSS_F_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),6,1)
+#define  VTSS_M_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL  VTSS_BIT(6)
+#define  VTSS_X_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,6,1)
 
 /**
  * \brief Configuration of RMII mode

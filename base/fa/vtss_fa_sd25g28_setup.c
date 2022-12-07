@@ -19,7 +19,8 @@
 #define _VTSS_ANT__API_SD25G28_UTE
 
 #include <vtss/api/options.h>  // To get the ARCH define
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #include "vtss_fa_inc.h"
 
 
@@ -37,7 +38,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
             }
 
             indx = vtss_fa_port2sd_indx(vtss_state, p);
-            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_25G_START);
             if (sd_lane_tgt == 0) {
                 return VTSS_RC_ERROR;
             }
@@ -54,7 +55,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
                 continue;
             }
             indx = vtss_fa_port2sd_indx(vtss_state, p);
-            sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+            sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_25G_START);
 
             REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
                     VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
@@ -67,7 +68,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
             continue;
         }
         indx = vtss_fa_port2sd_indx(vtss_state, p);
-        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+        sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_25G_START);
         sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
 
         if (sd_lane_tgt == 0 || sd25g_tgt == 0) {
@@ -466,7 +467,7 @@ static vtss_rc vtss_ant_sd25g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd25g28_s
             continue;
         }
         indx = vtss_fa_port2sd_indx(vtss_state, p);
-        sd_lane_tgt = VTSS_TO_SD_LANE(indx+VTSS_SERDES_25G_START);
+        sd_lane_tgt = VTSS_TO_SD_LANE(indx+RT_SERDES_25G_START);
         sd25g_tgt = VTSS_TO_SD25G_LANE(indx);
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xff),
@@ -536,6 +537,6 @@ vtss_rc vtss_ant_sd25g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd25g28
     return rc;
 }
 
-
+#endif /* !defined(VTSS_ARCH_LAN969X_FPGA) */
 #endif
-#endif
+#endif // defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)

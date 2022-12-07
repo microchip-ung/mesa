@@ -20,6 +20,22 @@
 #define VTSS_BITOPS_DEFINED
 #endif /* VTSS_BITOPS_DEFINED */
 
+/* IO indexed register access macro - may be changed for platform */
+#if !defined(VTSS_IOREG_IX)
+/**
+ * @param t  - target base offset
+ * @param o  - subtarget offset
+ * @param g  - group instance,
+ * @param gw - group width
+ * @param ro - register offset,
+ * @param r  - register (instance) number
+ */
+#define VTSS_IOREG_IX(t,o,g,gw,r,ro)   VTSS_IOREG(t,(o) + ((g) * (gw)) + (ro) + (r))
+#endif
+
+
+#if 0
+
 /* Main target address offsets */
 #ifndef VTSS_IO_ORIGIN1_OFFSET
 #define VTSS_IO_ORIGIN1_OFFSET 0x0e2000000 /*! default region*/
@@ -252,19 +268,6 @@
 #define VTSS_IOREG(t,o)      (*((volatile uint32_t*)(VTSS_IOADDR(t,o))))
 #endif
 
-/* IO indexed register access macro - may be changed for platform */
-#if !defined(VTSS_IOREG_IX)
-/**
- * @param t  - target base offset
- * @param o  - subtarget offset
- * @param g  - group instance,
- * @param gw - group width
- * @param ro - register offset,
- * @param r  - register (instance) number
- */
-#define VTSS_IOREG_IX(t,o,g,gw,r,ro)   VTSS_IOREG(t,(o) + ((g) * (gw)) + (ro) + (r))
-#endif
-
 #ifdef VTSS_LAGUNA_WANT_TARGET_ENUMS
 /*
  * This section is primarily for documentation purposes.
@@ -481,5 +484,6 @@ enum vtss_target_DEVCPU_ORG_e {
 
 #endif /* VTSS_LAGUNA_WANT_TARGET_ENUMS */
 
+#endif // 0
 
 #endif /* _VTSS_LAGUNA_REGS_COMMON_H_ */

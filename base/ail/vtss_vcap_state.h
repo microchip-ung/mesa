@@ -1195,18 +1195,14 @@ typedef struct {
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 4096
-#elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
-#define VTSS_ACL_CNT_SIZE 4096 /* IS2_A/IS2_B */
-#define VTSS_ES2_CNT_SIZE 2048 /* ES2 */
 #elif defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 32 /* IS2_A/IS2_B */
 #define VTSS_ES2_CNT_SIZE 32 /* ES2 */
-#elif defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
-#define VTSS_ACL_CNT_SIZE 1024 /* IS2_A/IS2_B */
-#define VTSS_ES2_CNT_SIZE 1024 /* ES2 */
+#define VTSS_ACL_CNT_SIZE 4096 /* IS2_A/IS2_B */
+#define VTSS_ES2_CNT_SIZE 2048 /* ES2 */
 #endif /* VTSS_ARCH_OCELOT */
 
 /* IS2 information */
@@ -1244,8 +1240,6 @@ typedef struct {
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_FA_ES0_CNT 8
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_FA_ES0_CNT 1536
 #else
 #define VTSS_FA_ES0_CNT 4096
 #endif
@@ -1267,8 +1261,6 @@ typedef struct {
 #if defined(VTSS_FEATURE_ES2)
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_FA_ES2_CNT 8    /* 4 rows allowing 8 half rules */
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_FA_ES2_CNT 1024 /* 512 rows allowing 1024 half rules */
 #else
 #define VTSS_FA_ES2_CNT 2048 /* 1024 rows allowing 2048 half rules */
 #endif

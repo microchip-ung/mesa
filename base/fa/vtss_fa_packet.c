@@ -234,17 +234,13 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 
     // Each CPU queue gets reserved extraction buffer space. No sharing at port or buffer level
     offs = 2048; // Egress/destination memory
-    port = VTSS_CHIP_PORT_CPU_1;
+    port = RT_CHIP_PORT_CPU_1;
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-        i = 15;
-#else
         i =  conf->queue[queue].size / FA_BUFFER_CELL_SZ;
-#endif
         REG_WR(VTSS_QRES_RES_CFG(offs + port * VTSS_PRIOS + queue), i);
     }
     // Per-port reservation, no extra shared space
-    REG_WR(VTSS_QRES_RES_CFG(offs + FA_RES_CFG_MAX_PORT_IDX + port), 0);
+    REG_WR(VTSS_QRES_RES_CFG(offs + RT_RES_CFG_MAX_PORT_IDX + port), 0);
 
     // Setup Rx registrations that we only have per-switch API support for (not per-port)
     cap_cfg = VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA  (reg->mld_cpu_only)       |
@@ -323,13 +319,15 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_IP_TTL_FAIL_QU     (map->l3_other_queue));
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
-    // RedBox CPU queues
-    for (i = 0; i < VTSS_REDBOX_CNT; i++) {
-        j = RB_TGT(i);
-        REG_WR(VTSS_RB_CPU_CFG(j),
-               VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
-               VTSS_F_RB_CPU_CFG_HSR_CPUQ(map->non_hsr_queue) |
-               VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        // RedBox CPU queues
+        for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+            j = RB_TGT(i);
+            REG_WR(VTSS_RB_CPU_CFG(j),
+                   VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
+                   VTSS_F_RB_CPU_CFG_HSR_CPUQ(map->non_hsr_queue) |
+                   VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
+        }
     }
 #endif
     // Configure Rx Queue #i to map to an Rx group.
@@ -346,7 +344,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 {
-    u32 queue, byte_swap, port = VTSS_CHIP_PORT_CPU_1, grp = 1;
+    u32 queue, byte_swap, port = RT_CHIP_PORT_CPU_1, grp = 1;
 #ifdef VTSS_OS_BIG_ENDIAN
     byte_swap = 0;
 #else
@@ -547,30 +545,16 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 }
 
 #define VSTAX 73 /* The IFH bit position of the first VSTAX bit. This is because the VSTAX bit positions in Data sheet is starting from zero. */
-#ifdef VTSS_ARCH_SPARX5
-#define FWD_UPDATE_FCS       67
-#define FWD_AFI_INJ          72
-#define FWD_MIRROR_PROBE     53
-#define FWD_ESO_ISDX_KEY_ENA 70
-#define FWD_SFLOW_ID         57
-#define DST_PDU_W16_OFFSET  195
-#define DST_PDU_TYPE        191
-#define DST_XVID_EXT        202
-#define SRC_PORT_WID          7
-#define FWD_SFLOW_ID_POS     12
-#endif
-#ifdef VTSS_ARCH_LAN969X
-#define FWD_UPDATE_FCS       66
-#define FWD_AFI_INJ          71
-#define FWD_MIRROR_PROBE     52
-#define FWD_ESO_ISDX_KEY_ENA 69
-#define FWD_SFLOW_ID         56
-#define DST_PDU_W16_OFFSET  194
-#define DST_PDU_TYPE        190
-#define DST_XVID_EXT        201
-#define SRC_PORT_WID          6
-#define FWD_SFLOW_ID_POS     11
-#endif
+#define FWD_UPDATE_FCS       FA_TGT ? 67 : 66
+#define FWD_AFI_INJ          FA_TGT ? 72 : 71
+#define FWD_MIRROR_PROBE     FA_TGT ? 53 : 52
+#define FWD_ESO_ISDX_KEY_ENA FA_TGT ? 70 : 69
+#define FWD_SFLOW_ID         FA_TGT ? 57 : 56
+#define DST_PDU_W16_OFFSET   FA_TGT ? 195 : 194
+#define DST_PDU_TYPE         FA_TGT ? 191 : 190
+#define DST_XVID_EXT         FA_TGT ? 202 : 201
+#define SRC_PORT_WID         FA_TGT ? 7 : 6
+#define FWD_SFLOW_ID_POS     FA_TGT ? 12 : 11
 
 static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
                                 const vtss_packet_rx_meta_t *const meta,
@@ -583,6 +567,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
     vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
+    const vtss_state_t  *const vtss_state = state; // For VTSS_CHIP_PORT_CPU_0/1
 
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
@@ -632,7 +617,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 
     chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, SRC_PORT_WID); // FWD:SRC_PORT
     info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
-    if (chip_port == VTSS_CHIP_PORT_CPU_0 || chip_port == VTSS_CHIP_PORT_CPU_1) {
+    if (chip_port == RT_CHIP_PORT_CPU_0 || chip_port == RT_CHIP_PORT_CPU_1) {
         VTSS_IG(trc_grp, "This frame is transmitted by the CPU itself and should be discarded.");
     }
 
@@ -640,7 +625,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 
     // TBD_PACKET: Check if bugzilla#17780 is valid for this architecture
     sflow_id = VTSS_EXTRACT_BITFIELD(fwd, FWD_SFLOW_ID_POS, 7); // FWD:SFLOW_ID
-    if (sflow_id < VTSS_CHIP_PORTS) {
+    if (sflow_id < RT_CHIP_PORTS) {
         info->sflow_type = VTSS_SFLOW_TYPE_TX;
         info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
     } else if (sflow_id == 125 || sflow_id == 126) {
@@ -700,77 +685,72 @@ static vtss_rc fa_rx_frame(vtss_state_t          *vtss_state,
     return rc;
 }
 
-#if defined(VTSS_ARCH_SPARX5)
-static u32 fa_plpt_to_ifh(vtss_packet_pipeline_pt_t plpt)
+static u32 fa_plpt_to_ifh(vtss_state_t *vtss_state, vtss_packet_pipeline_pt_t plpt)
 {
-    switch (plpt) {
-    case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(2);
-    case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(3);
-    case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(4);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(6);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(7);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(9);
-    case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(11);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(13);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(14);
-    case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(16);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(17);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(18);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(19);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(20);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(21);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(22);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(0);
-    case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(24);
-    case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(0);
+    if (FA_TGT) {
+        switch (plpt) {
+        case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(2);
+        case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(3);
+        case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(4);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(6);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(7);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(9);
+        case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(11);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(13);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(14);
+        case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(16);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(17);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(18);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(19);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(20);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(21);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(22);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(0);
+        case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(24);
+        case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(0);
+        }
+    } else {
+        switch (plpt) {
+        case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
+        case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(1);
+        case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(2);
+        case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(3);
+        case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(4);
+        case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(5);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(6);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(7);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(8);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(9);
+        case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(10);
+        case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(11);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(12);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(13);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(14);
+        case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(15);
+        case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(16);
+        case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(17);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(18);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(19);
+        case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(20);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(21);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(22);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(23);
+        case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(24);
+        case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(25);
+        case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(26);
+        }
     }
-    return(0);
-}
-#endif
 
-#if defined(VTSS_ARCH_LAN969X)
-static u32 fa_plpt_to_ifh(vtss_packet_pipeline_pt_t plpt)
-{
-    switch (plpt) {
-    case VTSS_PACKET_PIPELINE_PT_NONE: return(0);
-    case VTSS_PACKET_PIPELINE_PT_ANA_RB: return(1);
-    case VTSS_PACKET_PIPELINE_PT_ANA_VRAP: return(2);
-    case VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE: return(3);
-    case VTSS_PACKET_PIPELINE_PT_ANA_CL: return(4);
-    case VTSS_PACKET_PIPELINE_PT_ANA_CLM: return(5);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT: return(6);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI: return(7);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_SW: return(8);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT: return(9);
-    case VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE: return(10);
-    case VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT: return(11);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE: return(12);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT: return(13);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_SW: return(14);
-    case VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI: return(15);
-    case VTSS_PACKET_PIPELINE_PT_ANA_VLAN: return(16);
-    case VTSS_PACKET_PIPELINE_PT_ANA_DONE: return(17);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOI: return(18);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_SW: return(19);
-    case VTSS_PACKET_PIPELINE_PT_REW_IN_VOE: return(20);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOE: return(21);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_SW: return(22);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_VOI: return(23);
-    case VTSS_PACKET_PIPELINE_PT_REW_OU_SAT: return(24);
-    case VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE: return(25);
-    case VTSS_PACKET_PIPELINE_PT_REW_VCAP: return(26);
-    }
     return(0);
 }
-#endif
 
 static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u8 ptp_domain, BOOL afi, u32 *result)  /* TBD_henrikb */
 {
@@ -848,7 +828,7 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
     return 0;
 }
 
-static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
+static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
                                 const vtss_packet_tx_info_t *const info,
                                 u8                          *const bin_hdr,
                                 u32                         *const bin_hdr_len)
@@ -892,7 +872,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             // OAM Injection in an Up-MEP/MIP - The following will be according to TN1258 (EVC Baseline)
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Masqueraded OAM/Y1564 Injecting");
 
-            chip_port = VTSS_CHIP_PORT_FROM_STATE(state, info->masquerade_port);
+            chip_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->masquerade_port);
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port % 32,    VSTAX+0,  5); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port / 32,    VSTAX+5,  5); // VSTAX.SRC.SRC_UPSID = masquerade chip port
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port,         46,       SRC_PORT_WID); // FWD.SRC_PORT = masquerade port
@@ -902,14 +882,14 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
                 pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
             }
         } else {
-            IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
+            IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
         }
     } else {
         // Not a switched frame.
-        IFH_ENCODE_BITFIELD(bin_hdr, VTSS_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
+        IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
 
         // Add mirror port if enabled.
-        if (state->l2.mirror_conf.port_no != VTSS_PORT_NO_NONE && state->l2.mirror_cpu_ingress) {
+        if (vtss_state->l2.mirror_conf.port_no != VTSS_PORT_NO_NONE && vtss_state->l2.mirror_cpu_ingress) {
             IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE, 2);  /* FWD.MIRROR_PROBE = Ingress mirror probe. 1-based in this field */
         }
 
@@ -943,7 +923,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
             pl_pt = (info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_NONE ? VTSS_PACKET_PIPELINE_PT_ANA_DONE : info->pipeline_pt);
         }
 
-        chip_port = VTSS_CHIP_PORT_FROM_STATE(state, info->dst_port);
+        chip_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->dst_port);
         if (info->afi_id == VTSS_AFI_ID_NONE) {
             // Must be 0 for AFI-injected frames, or the REW will see this as a
             // CPU queue mask and not work as expected. The destination port is
@@ -971,7 +951,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     } /* switched frame */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 124,    FWD_SFLOW_ID, 7); // FWD.SFLOW_ID (disable SFlow sampling)
-    IFH_ENCODE_BITFIELD(bin_hdr, fa_plpt_to_ifh(pl_pt),  37, 5); // MISC.PIPELINE_PT
+    IFH_ENCODE_BITFIELD(bin_hdr, fa_plpt_to_ifh(vtss_state, pl_pt),  37, 5); // MISC.PIPELINE_PT
     IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42, 3); // MISC.PIPELINE_ACT
 
     if (pdu_type) {
@@ -1003,12 +983,14 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const state,
     IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp>>8) & 0xFFFFFFFFFF), 232, 40); // TS = 40 bits PTP time stamp
 
 #if defined(VTSS_FEATURE_REDBOX)
-    if (info->rb_tag_disable) {
-        IFH_ENCODE_BITFIELD(bin_hdr, 1, 272, 1); // Disable RedBox tagging
-    }
-    IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 273, 2); // RedBox forwarding
-    if (info->rb_dd_disable) {
-        IFH_ENCODE_BITFIELD(bin_hdr, 1, 275, 1); // Disable RedBox Duplicate Discard processing
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        if (info->rb_tag_disable) {
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 272, 1); // Disable RedBox tagging
+        }
+        IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 273, 2); // RedBox forwarding
+        if (info->rb_dd_disable) {
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 275, 1); // Disable RedBox Duplicate Discard processing
+        }
     }
 #endif
 
@@ -1111,11 +1093,11 @@ static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
     vtss_fa_debug_reg_header(pr, "FRAME_COPY_CFG");
     for (qu = 0; qu < 12; qu++) {
         if (qu < 8)
-            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_CPU_QU");
+            vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu, "CFG_CPU_QU");
         else if (qu == 8)
-            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_LRN_ALL");
+            vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu, "CFG_LRN_ALL");
         else
-            vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_FRAME_COPY_CFG(qu), qu, "CFG_MIRROR_PROBE");
+            vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu, "CFG_MIRROR_PROBE");
     }
     pr("\n");
 
@@ -1123,50 +1105,50 @@ static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
 
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_REW_IFH_CTRL(port), port, "KEEP_IFH_SEL");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_REW_IFH_CTRL(port)), port, "KEEP_IFH_SEL");
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(pr, "PORT_CFG");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ASM_PORT_CFG(port), port, "PORT_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_ASM_PORT_CFG(port)), port, "PORT_CFG");
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(pr, "PORT_STATUS");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ASM_PORT_STICKY(port), port, "PORT_STATUS");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_ASM_PORT_STICKY(port)), port, "PORT_STATUS");
         REG_WR(VTSS_ASM_PORT_STICKY(port), 0xFFFFFFFF);
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(pr, "DEVCPU_QS");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_CFG, "XTR_CFG");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_VTSS_DBG, "INJ_FRM_CNT");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_DATA_PRESENT, "XTR_DATA_PRESENT");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG), "XTR_CFG");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG), "INJ_FRM_CNT");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_XTR_DATA_PRESENT), "XTR_DATA_PRESENT");
     for (i = 0; i < 2; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_XTR_GRP_CFG(i), i, "XTR_GRP_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_INJ_GRP_CFG(i), i, "INJ_GRP_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i)), i, "XTR_GRP_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i)), i, "INJ_GRP_CFG");
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(pr, "QFWD");
-    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_QFWD_SWITCH_PORT_MODE(i), i, "PORT_MODE");
+    for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
+        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_QFWD_SWITCH_PORT_MODE(i)), i, "PORT_MODE");
     }
     pr("\n");
 
     pr("IDX   Port/Queue    CFG   CUR   MAX\n");
-    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
+    for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
         for (qu = 0; qu < VTSS_PRIOS; qu++) {
             j = (2048 + i * VTSS_PRIOS + qu);
             REG_RD(VTSS_QRES_RES_CFG(j), &cfg);
             REG_RD(VTSS_QRES_RES_STAT_CUR(j), &cur);
             REG_RD(VTSS_QRES_RES_STAT(j), &max);
             pr("%-6u%u (CPU_%u_%u)  %-6u%-6u%-6u\n",
-               j, i, i - VTSS_CHIP_PORT_CPU, qu, cfg, cur, max);
+               j, i, i - RT_CHIP_PORT_CPU, qu, cfg, cur, max);
         }
     }
     pr("\n");
@@ -1212,19 +1194,19 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // of the VLAN tag (which is always inserted to get it switched on a given
     // VID), then controls the priority.
     // Enable looking into PCP and DEI bits
-    REG_WRM(VTSS_ANA_CL_QOS_CFG(VTSS_CHIP_PORT_CPU),
+    REG_WRM(VTSS_ANA_CL_QOS_CFG(RT_CHIP_PORT_CPU),
             VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA(1) | VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA(1),
             VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA    | VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA);
 
     // Set-up the one-to-one PCP->QoS mapping
     for (pcp = 0; pcp < VTSS_PCP_END - VTSS_PCP_START; pcp++) {
         for (dei = 0; dei < VTSS_DEI_END - VTSS_DEI_START; dei++) {
-            REG_WR(VTSS_ANA_CL_PCP_DEI_MAP_CFG(VTSS_CHIP_PORT_CPU, (8 * dei + pcp)),
+            REG_WR(VTSS_ANA_CL_PCP_DEI_MAP_CFG(RT_CHIP_PORT_CPU, (8 * dei + pcp)),
                    VTSS_F_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_QOS_VAL(pcp));
         }
     }
 
-    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
+    for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
         // Disable aging of Rx CPU queues to allow the frames to stay there longer than
         // on normal front ports.
         REG_WRM(VTSS_HSCH_PORT_MODE(i), VTSS_F_HSCH_PORT_MODE_AGE_DIS(1), VTSS_M_HSCH_PORT_MODE_AGE_DIS);
@@ -1258,7 +1240,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // Make sure the ports are not VStaX aware, because that will cause the
     // switch to move a possible VStaX header from the frame into the IFH.
     // This is not NPI-port compatible.
-    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+    for (port = 0; port < RT_CHIP_PORTS; port++) {
         REG_WRM(VTSS_ASM_PORT_CFG(port),
                 VTSS_F_ASM_PORT_CFG_VSTAX2_AWR_ENA(0),
                 VTSS_M_ASM_PORT_CFG_VSTAX2_AWR_ENA);

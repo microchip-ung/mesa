@@ -8,7 +8,7 @@
 
 #if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
 
-#define FA_AFI_CHIP_PORT(port_no) ((port_no) == VTSS_PORT_NO_NONE ? VTSS_CHIP_PORT_VD1 : VTSS_CHIP_PORT(port_no))
+#define FA_AFI_CHIP_PORT(port_no) ((port_no) == VTSS_PORT_NO_NONE ? RT_CHIP_PORT_VD1 : VTSS_CHIP_PORT(port_no))
 
 /******************************************************************************/
 //
@@ -173,15 +173,9 @@ typedef struct {
      FA: (8 * port + prio) * LARGE_CFG_RATIO + SE_HIGH * 8 + src - 8 * LARGE_CFG_RATIO = port * 64 + prio * 8 + 4480 * 8 + src - 64
 */
 
-#if defined(VTSS_ARCH_SPARX5)
-#define FA_QUEUE_SP0  40320
-#define FA_QUEUE_SP1  40390
-#define FA_SE_INT_DEF 5031
-#else
-#define FA_QUEUE_SP0  8960
-#define FA_QUEUE_SP1  8995
-#define FA_SE_INT_DEF 960
-#endif
+#define FA_QUEUE_SP0  FA_TGT ? 40320 : 8960
+#define FA_QUEUE_SP1  FA_TGT ? 40390 : 8995
+#define FA_SE_INT_DEF FA_TGT ? 5031  : 960
 
 static vtss_rc fa_afi_port_prio_2_qu_ref(vtss_state_t *vtss_state, vtss_port_no_t port_no,
                                          vtss_prio_t prio, fa_afi_qu_ref_t *qu_ref)
@@ -194,16 +188,17 @@ static vtss_rc fa_afi_port_prio_2_qu_ref(vtss_state_t *vtss_state, vtss_port_no_
     } else if (prio > VTSS_PRIO_SUPER) {
         // Super priority after shaper
         qu_ref->qu_num = (FA_QUEUE_SP1 + qu_ref->chip_port);
-    } else if (qu_ref->chip_port == VTSS_CHIP_PORT_VD1) {
+    } else if (qu_ref->chip_port == RT_CHIP_PORT_VD1) {
         // Internal VD0 port
-        qu_ref->qu_num = (FA_SE_INT_DEF * 8 + VTSS_CHIP_PORT_VD0 - VTSS_CHIP_PORTS + prio);
+        qu_ref->qu_num = (FA_SE_INT_DEF * 8 + RT_CHIP_PORT_VD0 - RT_CHIP_PORTS + prio);
     } else {
         // Front port, CPU_0 is used as source
-#if defined(VTSS_ARCH_SPARX5)
-        qu_ref->qu_num = (qu_ref->chip_port * 64 + prio * 8 + VTSS_CHIP_PORT_CPU_0 - 64 + 35840);
-#else
-        qu_ref->qu_num = (qu_ref->chip_port * 256 + prio * 32 + VTSS_CHIP_PORT_CPU_0);
-#endif
+        if (FA_TGT) {
+            qu_ref->qu_num = (qu_ref->chip_port * 64 + prio * 8 + RT_CHIP_PORT_CPU_0 - 64 + 35840);
+        } else {
+            qu_ref->qu_num = (qu_ref->chip_port * 256 + prio * 32 + RT_CHIP_PORT_CPU_0);
+        }
+
     }
 
     VTSS_I("(port_no = %d, prio = %u) => (chip_port = %u, qu_num = %u)", port_no, prio, qu_ref->chip_port, qu_ref->qu_num);
@@ -347,15 +342,15 @@ static vtss_rc fa_afi_hijack_error_print(vtss_state_t *vtss_state)
     u32  cnt, val, idx;
     char buf1[300], buf2[300];
 
-    cnt = VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", VTSS_CHIP_PORT_VD1);
+    cnt = VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", RT_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
-        REG_RD(VTSS_QRES_RES_STAT(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
+        REG_RD(VTSS_QRES_RES_STAT(3 * 1024 + RT_CHIP_PORT_VD1 * 8 + idx), &val);
         cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2), "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", VTSS_CHIP_PORT_VD1);
+    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2), "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", RT_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
-        REG_RD(VTSS_QRES_RES_STAT_CUR(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
+        REG_RD(VTSS_QRES_RES_STAT_CUR(3 * 1024 + RT_CHIP_PORT_VD1 * 8 + idx), &val);
         cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
     }
 
@@ -608,7 +603,7 @@ static vtss_rc fa_afi_frm_gone_wait(vtss_state_t *vtss_state, u32 idx, vtss_port
         // Assumption:
         // Each poll takes at least 50 clk cycles.
         // One TTI is processed every 4 clk cycles.
-        poll_cnt_max = (VTSS_AFI_SLOW_INJ_CNT * 4) / 50;
+        poll_cnt_max = (vtss_state->afi.slow_inj_cnt * 4) / 50;
     }
 
     // We're now ready for removal injection. A removal injection from the AFI
@@ -1312,7 +1307,7 @@ static vtss_rc fa_afi_init(vtss_state_t *vtss_state)
 
     // Stop injection on all ports, corresponding to link == 0.
     // Will be started upon link up.
-    for (port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
+    for (port = 0; port < RT_CHIP_PORTS_ALL; port++) {
         VTSS_RC(fa_afi_chip_port_stop(vtss_state, port));
     }
 
@@ -1346,6 +1341,10 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         state->link_state_change = fa_afi_link_state_change;
         state->qu_ref_update     = fa_afi_qu_ref_update;
 
+        state->slow_inj_cnt      = RT_AFI_SLOW_INJ_CNT;
+        state->fast_inj_bps_min  = RT_AFI_FAST_INJ_BPS_MIN;
+        state->fast_inj_bps_max  = RT_AFI_FAST_INJ_BPS_MAX;
+
         // Initialize ports to started = 1. This corresponds to
         // calling fa_afi_port_admin_start() during boot.
         for (port_no = 0; port_no < VTSS_ARRSZ(vtss_state->afi.port_tbl); port_no++) {
@@ -1374,4 +1373,3 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
 }
 
 #endif /* defined(VTSS_AFI_V2) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_ARCH_FA) */
-

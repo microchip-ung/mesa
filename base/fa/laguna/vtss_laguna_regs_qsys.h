@@ -872,6 +872,20 @@
 
 /**
  * \brief
+ * Whenever no ports needs a grant, the slot will be marked as available to
+ * internal ports. Every 256 times this value cycles, the next idle slot
+ * will be marked as forced idle, assuring processing time for background
+ * processes in the involved pipelines.
+ *
+ * \details
+ * Field: ::VTSS_QSYS_CAL_CTRL . CAL_IDLE_RATE
+ */
+#define  VTSS_F_QSYS_CAL_CTRL_CAL_IDLE_RATE(x)  VTSS_ENCODE_BITFIELD(x,15,6)
+#define  VTSS_M_QSYS_CAL_CTRL_CAL_IDLE_RATE     VTSS_ENCODE_BITMASK(15,6)
+#define  VTSS_X_QSYS_CAL_CTRL_CAL_IDLE_RATE(x)  VTSS_EXTRACT_BITFIELD(x,15,6)
+
+/**
+ * \brief
  * The internal bus calendars can be set to an automatic sequence generated
  * by the CAL_AUTO registers, or to a specific sequence programmed through
  * the CAL_SEQ fields.

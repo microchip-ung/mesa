@@ -4,8 +4,7 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_fa_cil.h"
-
-#if defined(VTSS_ARCH_LAN969X) && defined(VTSS_FEATURE_QOS_TAS)
+#if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_QOS_TAS)
 #include "vtss_fa_lan969x_tas.h"
 
 static u32 tas_op_type_calc(vtss_qos_tas_gco_t  gate_operation)
@@ -37,7 +36,7 @@ static void tas_next_unused_entry_get(vtss_state_t *vtss_state,  u32 *entry_idx)
     u32                  i;
     vtss_tas_list_entry  *entries = vtss_state->qos.tas.tas_entries;
 
-    for (i = *entry_idx + 1; i < VTSS_TAS_NUMBER_OF_ENTRIES; ++i) {
+    for (i = *entry_idx + 1; i < RT_TAS_NUMBER_OF_ENTRIES; ++i) {
         if (!entries[i].in_use) {
             *entry_idx = i;
             entries[i].in_use = TRUE;
@@ -67,7 +66,7 @@ u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state,  u32 length)
     }
 
     /* Check that there are unused list entries for the complete list */
-    for (i = 0, found = 0, first = TRUE; ((found < length) && (i < VTSS_TAS_NUMBER_OF_ENTRIES)); ++i) {
+    for (i = 0, found = 0, first = TRUE; ((found < length) && (i < RT_TAS_NUMBER_OF_ENTRIES)); ++i) {
         if (!entries[i].in_use) {
             if (first) {
                 first = FALSE;
@@ -105,7 +104,7 @@ vtss_rc lan969x_tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
 
     VTSS_D("list_idx %u  entry_idx %u", list_idx, tas_lists[list_idx].entry_idx);
 
-    if (tas_lists[list_idx].entry_idx < VTSS_TAS_NUMBER_OF_ENTRIES) { /* Check if the list has entries */
+    if (tas_lists[list_idx].entry_idx < RT_TAS_NUMBER_OF_ENTRIES) { /* Check if the list has entries */
         /* Mark all entries as unused */
         entry_idx = tas_lists[list_idx].entry_idx;
         /* Select the list */
@@ -150,7 +149,7 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_n
     REG_RD(VTSS_HSCH_TAS_LIST_CFG, &value);
     entry_idx = entry_first = VTSS_X_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(value);
     se = VTSS_X_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(value);
-    current_port_conf->ot = ((se >= FA_HSCH_L0_OT_SE(0)) && (se < VTSS_HSCH_L0_SES)) ? TRUE : FALSE;
+    current_port_conf->ot = ((se >= FA_HSCH_L0_OT_SE(0)) && (se < RT_HSCH_L0_SES)) ? TRUE : FALSE;
 
     /* Read the list elements */
     gcl_idx = 0;

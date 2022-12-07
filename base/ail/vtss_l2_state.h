@@ -42,8 +42,6 @@ typedef struct {
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_PGID_FA (512 + 30)
-#elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_PGID_FA (1024 + 30)
 #else
 #define VTSS_PGID_FA (2048 + 65)
 #endif
@@ -94,7 +92,7 @@ void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
 #define VTSS_MAC_INDEX_VID_CNT 4
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_MAC_INDEX_CNT     16
-#elif defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_MAC_INDEX_CNT     4096
 #elif defined(VTSS_ARCH_LAN966X_FPGA)
 #define VTSS_MAC_INDEX_CNT     512
@@ -841,8 +839,10 @@ typedef struct {
     vtss_mac_entry_t              mac_table[VTSS_MAC_ADDRS]; /* Sorted MAC address table */
     u32                           mac_ptr_count;   /* Number of valid pointers */
     vtss_mac_entry_t              *mac_list_ptr[VTSS_MAC_PTR_SIZE]; /* Pointer array */
+    u32                           mac_ptr_size;
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
     vtss_mac_index_table_t        mac_index_table;
+    u32                           mac_index_cnt;
 #endif
     u32                           ac_count;
     vtss_aggr_mode_t              aggr_mode;
@@ -901,6 +901,8 @@ typedef struct {
     vtss_frer_chip_counters_t ms_counters[VTSS_MSTREAM_CNT];
     vtss_frer_chip_counters_t cs_counters[VTSS_CSTREAM_CNT];
     u32                       poll_idx; /* Counter polling index */
+    u32                       max_cstream_cnt;
+    u32                       max_mstream_cnt;
 #endif
 #if defined(VTSS_FEATURE_PSFP)
     vtss_psfp_state_t psfp;

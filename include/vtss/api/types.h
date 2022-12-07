@@ -349,18 +349,11 @@ typedef enum {
 #endif /* VTSS_PORT_COUNT < 9 */
 #endif /* VTSS_CHIP_SERVAL_TE10 */
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if (VTSS_PORT_COUNT < 65)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 65 /**< Number of ports */
 #endif /* VTSS_PORT_COUNT < 65 */
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
-#if (VTSS_PORT_COUNT < 31)
-#undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 30 /**< Number of ports */
-#endif /* VTSS_PORT_COUNT */
 #endif
 
 #if defined(VTSS_CHIP_966X)

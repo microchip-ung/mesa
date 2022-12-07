@@ -1572,6 +1572,9 @@
 #define  VTSS_X_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
+
+
+
 /**
  * \brief TAS parameters installer configuration register.
  *
@@ -1595,14 +1598,19 @@
 #define  VTSS_X_HSCH_TAS_CFG_CTRL2_MINIMUM_GB_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
 
 /**
- * Register Group: \a HSCH:TAS_PROFILE_CFG
+ * \brief TAS parameters installer configuration register.
  *
- * TAS Port configuration
+ * \details
+ * Register: \a HSCH:TAS_CONFIG:TAS_CFG_CTRL2
  */
-
+#define VTSS_HSCH_TAS_CFG_CTRL2              VTSS_IOREG(VTSS_TO_HSCH,0x24d3)
 
 /**
- * \brief MAX SDU for traffic classes
+ * \brief
+ * If guardbanding is activated as a result of TAS operation, values less
+ * than this configuration will use MINIMUM_GB_VAL setting instead. This is
+ * for taking internal transmit fifo data into account. Default value
+ * corresponds to 320 bytes of data pending in transmit fifos.
  *
  * \details
  * Register: \a HSCH:TAS_PROFILE_CFG:TAS_QMAXSDU_CFG
@@ -1626,21 +1634,18 @@
  * This setting can also be used for enqueue discards if QMAXSDU_DISC_ENA
  * is set
  *
- * \details
- * Field: ::VTSS_HSCH_TAS_QMAXSDU_CFG . QMAXSDU_VAL
+ * TAS Port configuration
  */
-#define  VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_ENCODE_BITFIELD(x,0,8)
-#define  VTSS_M_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL     VTSS_ENCODE_BITMASK(0,8)
-#define  VTSS_X_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(x)  VTSS_EXTRACT_BITFIELD(x,0,8)
 
 
 /**
- * \brief Time aware gate configuration register
+ * \brief MAX SDU for traffic classes
  *
  * \details
- * Register: \a HSCH:TAS_PROFILE_CFG:TAS_PROFILE_CONFIG
+ * Register: \a HSCH:TAS_PROFILE_CFG:TAS_QMAXSDU_CFG
  *
  * @param gi Replicator: x_GAZ_CORE_TAS_PORT_CNT (??), 0-29
+ * @param ri Register: TAS_QMAXSDU_CFG (??), 0-7
  */
 #define VTSS_HSCH_TAS_PROFILE_CONFIG(gi)     VTSS_IOREG_IX(VTSS_TO_HSCH,0x24d4,gi,17,0,8)
 

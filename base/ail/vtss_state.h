@@ -206,6 +206,12 @@ typedef enum {
     FEATURE_SYNCE,
     FEATURE_FRER,
     FEATURE_PSFP,
+    FEATURE_REDBOX,
+    FEATURE_QOS_OT,
+    FEATURE_MRP,
+    FEATURE_MRP_V1,
+    FEATURE_PORT_DYNAMIC,
+    FEATURE_MAC_INDEX_TABLE,
     FEATURE_LAST
 } vtss_feature_t;
 #endif
@@ -345,6 +351,16 @@ typedef struct vtss_state_s {
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     BOOL vtss_features[FEATURE_LAST];
+    u32 *reg_group_offset;
+    u32 *reg_group_sz_offset;
+    u32 *reg_target_offset;
+    u32 *reg_unstable_addr;
+    u32 *reg_unstable_flds;
+    u32 *reg_group_cnt;
+    u32 *reg_cnt;
+    u32 *chip_const;
+    u8 chip_design; /* FA=1, LA=2 */
+
 #endif
 } vtss_state_t;
 

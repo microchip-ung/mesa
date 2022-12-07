@@ -55,11 +55,19 @@ typedef enum {
     MESA_TARGET_7552TSN       = 0x47552, // SparX-5-128i Industrial Switch
     MESA_TARGET_7556TSN       = 0x47556, // SparX-5-160i Industrial Switch
     MESA_TARGET_7558TSN       = 0x47558, // SparX-5-200i Industrial Switch
-    MESA_TARGET_LAN9662       = 0x9662,  // LAN9662 switch
-    MESA_TARGET_LAN9668       = 0x9668,  // LAN9668 switch
-    MESA_TARGET_LAN9698       = 0x96980, // LAN9698 switch (Laguna 80G)
-    MESA_TARGET_LAN9698TSN    = 0x96987, // LAN9698TSN switch (Laguna 80G + TSN)
-    MESA_TARGET_LAN9698HSN    = 0x96989, // LAN9698HSN switch (Laguna 80G + TSN + HSR/PRP)
+    MESA_TARGET_LAN9694HSR    = 0x96949, // Laguna-40-HSR: +40G TSN Ethernet switch with PRP/HSR
+    MESA_TARGET_LAN9694TSN    = 0x96947, // Laguna-40-TSN: +40G TSN Ethernet switch
+    MESA_TARGET_LAN9694VAO    = 0x96942, // Laguna-40-VAO: +40G Automotive TSN Ethernet switch
+    MESA_TARGET_LAN9694       = 0x96940, // Laguna-40:     +40G Ethernet switch
+    MESA_TARGET_LAN9696HSR    = 0x96969, // Laguna-60-HSR: +60G TSN Ethernet switch with PRP/HSR
+    MESA_TARGET_LAN9696TSN    = 0x96967, // Laguna-60-TSN: +60G TSN Ethernet switch
+    MESA_TARGET_LAN9696VAO    = 0x96962, // Laguna-65-VAO: +65G Automotive TSN Ethernet switch
+    MESA_TARGET_LAN9696       = 0x96960, // Laguna-60:     +60G Ethernet switch
+    MESA_TARGET_LAN9698HSR    = 0x96989, // Laguna-80-HSR: +80G TSN Ethernet switch with PRP/HSR
+    MESA_TARGET_LAN9698TSN    = 0x96987, // Laguna-80-TSN: +80G TSN Ethernet switch
+    MESA_TARGET_LAN9698VAO    = 0x96982, // Laguna-90-VAO: +90G Automotive TSN Ethernet switch
+    MESA_TARGET_LAN9698       = 0x96980, // Laguna-80:     +80G Ethernet switch
+
 } mesa_target_type_t;
 
 // Create structure

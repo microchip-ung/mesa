@@ -623,6 +623,17 @@
 
 /**
  * \brief
+ * Per QoS level forced disabling of cut-through
+ *
+ * \details
+ * Field: ::VTSS_XQS_QMAP_CT_ESP . QMAP_CT_DIS
+ */
+#define  VTSS_F_XQS_QMAP_CT_ESP_QMAP_CT_DIS(x)  VTSS_ENCODE_BITFIELD(x,3,8)
+#define  VTSS_M_XQS_QMAP_CT_ESP_QMAP_CT_DIS     VTSS_ENCODE_BITMASK(3,8)
+#define  VTSS_X_XQS_QMAP_CT_ESP_QMAP_CT_DIS(x)  VTSS_EXTRACT_BITFIELD(x,3,8)
+
+/**
+ * \brief
  * Speed of destination port in the mapping.  The highest value of this
  * field and the port default value found in QMAP_CT_ESP will be chosen.
  *
@@ -920,6 +931,75 @@
 #define  VTSS_F_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT(x)  VTSS_ENCODE_BITFIELD(x,0,6)
 #define  VTSS_M_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT     VTSS_ENCODE_BITMASK(0,6)
 #define  VTSS_X_XQS_QLIMIT_CONG_CNT_QLIMIT_CONG_CNT(x)  VTSS_EXTRACT_BITFIELD(x,0,6)
+
+
+/**
+ * \brief Which memory share does this SE belong to
+ *
+ * \details
+ * Register: \a XQS:QLIMIT_SE:QLIMIT_SE_SHR
+ *
+ * @param gi Register: QLIMIT_SE (??), 0-3
+ * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
+ */
+#define VTSS_XQS_QLIMIT_CONG_CNT(gi,ri)      VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,10)
+
+/**
+ * \brief
+ * Shared memory pool this se belongs to
+ *
+ * \details
+ * Field: ::VTSS_XQS_QLIMIT_SE_SHR . QLIMIT_SE_SHR
+ */
+#define  VTSS_F_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief Which memory share does this SE belong to
+ *
+ * \details
+ * Register: \a XQS:QLIMIT_SE:QLIMIT_SE_SHR
+ *
+ * @param gi Register: QLIMIT_SE (??), 0-3
+ * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
+ */
+#define VTSS_XQS_QLIMIT_CONG_CNT(gi,ri)      VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,10)
+
+/**
+ * \brief
+ * Shared memory pool this se belongs to
+ *
+ * \details
+ * Field: ::VTSS_XQS_QLIMIT_SE_SHR . QLIMIT_SE_SHR
+ */
+#define  VTSS_F_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
+
+
+/**
+ * \brief Which memory share does this SE belong to
+ *
+ * \details
+ * Register: \a XQS:QLIMIT_SE:QLIMIT_SE_SHR
+ *
+ * @param gi Register: QLIMIT_SE (??), 0-3
+ * @param ri Replicator: x_GAZ_HSCH_LARGE_RATIO (??), 0-3
+ */
+#define VTSS_XQS_QLIMIT_CONG_CNT(gi,ri)      VTSS_IOREG_IX(VTSS_TO_XQS,0x500,gi,32,ri,10)
+
+/**
+ * \brief
+ * Shared memory pool this se belongs to
+ *
+ * \details
+ * Field: ::VTSS_XQS_QLIMIT_SE_SHR . QLIMIT_SE_SHR
+ */
+#define  VTSS_F_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_ENCODE_BITFIELD(x,0,2)
+#define  VTSS_M_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR     VTSS_ENCODE_BITMASK(0,2)
+#define  VTSS_X_XQS_QLIMIT_SE_SHR_QLIMIT_SE_SHR(x)  VTSS_EXTRACT_BITFIELD(x,0,2)
 
 
 /**

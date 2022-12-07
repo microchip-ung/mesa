@@ -145,7 +145,7 @@ static void vtss_mac_pages_update(vtss_state_t *vtss_state)
     u32              i,count;
     vtss_mac_entry_t *cur;
 
-    for (i = 0, cur = vtss_state->l2.mac_list_used; i < VTSS_MAC_PTR_SIZE && cur!=NULL ; i++) {
+    for (i = 0, cur = vtss_state->l2.mac_list_used; i < vtss_state->l2.mac_ptr_size && cur!=NULL ; i++) {
         vtss_state->l2.mac_list_ptr[i] = cur;
 
         /* Move one page forward */
@@ -458,14 +458,16 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     }
 
 #if defined(VTSS_FEATURE_REDBOX)
-    // Tx forwarding also depends on RedBox configuration
-    for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
-        vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
-        if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
-            vtss_state->l2.port_state[rb_conf->port_b]) {
-            // Port A is forwarding, port B is discarding
-            tx_forward[rb_conf->port_a] = 1;
-            tx_forward[rb_conf->port_b] = 0;
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        // Tx forwarding also depends on RedBox configuration
+        for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
+            vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
+            if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
+                vtss_state->l2.port_state[rb_conf->port_b]) {
+                // Port A is forwarding, port B is discarding
+                tx_forward[rb_conf->port_a] = 1;
+                tx_forward[rb_conf->port_b] = 0;
+            }
         }
     }
 #endif
@@ -695,7 +697,7 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
             // Find next byte, then bit indicating a valid address
             n = (k % 8);
             m = (1 << n);
-            while (k < VTSS_MAC_INDEX_CNT) {
+            while (k < vtss_state->l2.mac_index_cnt) {
                 if (m && e->valid[k / 8] < m) {
                     // Next byte
                     k += (8 - n);
@@ -718,7 +720,7 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
                 }
             }
         }
-    } else if (oi.oui == t->oui && oi.idx < VTSS_MAC_INDEX_CNT) {
+    } else if (oi.oui == t->oui && oi.idx < vtss_state->l2.mac_index_cnt) {
         // Get specific entry
         for (i = 0; i < t->cnt; i++) {
             j = t->vidx[i];
@@ -779,8 +781,8 @@ static vtss_rc vtss_mac_index_add(vtss_state_t *vtss_state,
         VTSS_E("new OUI 0x%06x does not match old OUI 0x%06x", oi.oui, t->oui);
         return VTSS_RC_ERROR;
     }
-    if (oi.idx >= VTSS_MAC_INDEX_CNT) {
-        VTSS_E("MAC/idx 0x%06x/%u exceeds block size %u", oi.idx, oi.idx, VTSS_MAC_INDEX_CNT);
+    if (oi.idx >= vtss_state->l2.mac_index_cnt) {
+        VTSS_E("MAC/idx 0x%06x/%u exceeds block size %u", oi.idx, oi.idx, vtss_state->l2.mac_index_cnt);
         return VTSS_RC_ERROR;
     }
 
@@ -1408,17 +1410,19 @@ vtss_rc vtss_port_state_set(const vtss_inst_t     inst,
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 #if defined(VTSS_FEATURE_REDBOX)
-        if (rc == VTSS_RC_OK) {
-            vtss_rb_id_t   id;
-            vtss_rb_conf_t *conf;
+        if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+            if (rc == VTSS_RC_OK) {
+                vtss_rb_id_t   id;
+                vtss_rb_conf_t *conf;
 
-            // RedBox port mask may need update
-            for (id = 0; id < VTSS_REDBOX_CNT; id++) {
-                conf = &vtss_state->l2.rb_conf[id];
-                if (conf->mode != VTSS_RB_MODE_DISABLED &&
-                    (conf->port_a == port_no || conf->port_b == port_no)) {
-                    rc = VTSS_FUNC(l2.rb_conf_set, id);
-                    break;
+                // RedBox port mask may need update
+                for (id = 0; id < VTSS_REDBOX_CNT; id++) {
+                    conf = &vtss_state->l2.rb_conf[id];
+                    if (conf->mode != VTSS_RB_MODE_DISABLED &&
+                        (conf->port_a == port_no || conf->port_b == port_no)) {
+                        rc = VTSS_FUNC(l2.rb_conf_set, id);
+                        break;
+                    }
                 }
             }
         }
@@ -3488,6 +3492,8 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     hdr = &state->ms_table.hdr;
     hdr->name = "mstream";
     hdr->max_count = VTSS_MSTREAM_CNT;
+    state->max_cstream_cnt = VTSS_CSTREAM_CNT;
+    state->max_mstream_cnt = VTSS_MSTREAM_CNT;
     hdr->row = state->ms_table.row;
     dummy = VTSS_POL_STAT_NONE;
     VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
@@ -3805,9 +3811,9 @@ vtss_rc vtss_dlb_policer_status_get(const vtss_inst_t           inst,
 #endif /* VTSS_FEATURE_XDLB */
 
 #if defined(VTSS_FEATURE_FRER)
-static vtss_rc vtss_frer_cstream_id_check(const vtss_frer_cstream_id_t id)
+static vtss_rc vtss_frer_cstream_id_check(vtss_state_t *vtss_state, const vtss_frer_cstream_id_t id)
 {
-    if (id < VTSS_CSTREAM_CNT) {
+    if (id < vtss_state->l2.max_cstream_cnt) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal cstream id: %u", id);
@@ -3821,10 +3827,11 @@ vtss_rc vtss_frer_cstream_conf_get(const vtss_inst_t            inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_frer_cstream_id_check(id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        *conf = vtss_state->l2.cstream_conf[id];
+        if ((rc = vtss_frer_cstream_id_check(vtss_state, id)) == VTSS_RC_OK) {
+            *conf = vtss_state->l2.cstream_conf[id];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -3837,11 +3844,12 @@ vtss_rc vtss_frer_cstream_conf_set(const vtss_inst_t             inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_frer_cstream_id_check(id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_state->l2.cstream_conf[id] = *conf;
-        rc = VTSS_FUNC(l2.cstream_conf_set, id);
+        if ((rc = vtss_frer_cstream_id_check(vtss_state, id)) == VTSS_RC_OK) {
+            vtss_state->l2.cstream_conf[id] = *conf;
+            rc = VTSS_FUNC(l2.cstream_conf_set, id);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -3854,10 +3862,11 @@ vtss_rc vtss_frer_cstream_cnt_get(const vtss_inst_t            inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_frer_cstream_id_check(id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.cstream_cnt_get, id, counters);
+        if ((rc = vtss_frer_cstream_id_check(vtss_state, id)) == VTSS_RC_OK) {
+            rc = VTSS_FUNC(l2.cstream_cnt_get, id, counters);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -3869,10 +3878,11 @@ vtss_rc vtss_frer_cstream_cnt_clear(const vtss_inst_t            inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_frer_cstream_id_check(id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l2.cstream_cnt_get, id, NULL);
+        if ((rc = vtss_frer_cstream_id_check(vtss_state, id)) == VTSS_RC_OK) {
+            rc = VTSS_FUNC(l2.cstream_cnt_get, id, NULL);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -3898,7 +3908,7 @@ vtss_rc vtss_frer_mstream_alloc(const vtss_inst_t      inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_RC_ERROR;
-        for (i = 0; i < VTSS_MSTREAM_CNT; i++) {
+        for (i = 0; i < vtss_state->l2.ms_table.hdr.max_count; i++) {
             ms = &vtss_state->l2.ms.table[i];
             if (ms->cnt == 0) {
                 VTSS_PORT_BF_CLR(ms->port_list);
@@ -3927,7 +3937,7 @@ static vtss_xms_entry_t *vtss_ms_lookup(vtss_state_t *vtss_state,
 {
     vtss_xms_entry_t *ms;
 
-    if (id >= VTSS_MSTREAM_CNT) {
+    if (id >= vtss_state->l2.ms_table.hdr.max_count) {
         VTSS_E("illegal id: %u", id);
         return NULL;
     }
@@ -4460,7 +4470,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-        if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
+        if (eflow->conf.voe_idx < vtss_state->oam.port_voe_base_idx) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;
         }
@@ -5263,20 +5273,23 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
             mstp_entry->state[port_no] = VTSS_STP_STATE_FORWARDING;
     }
 #endif
-
+    vtss_state->l2.mac_ptr_size = VTSS_MAC_PTR_SIZE;
     vtss_state->l2.aggr_mode.smac_enable = 1;
 
     vtss_state->l2.mirror_conf.port_no = VTSS_PORT_NO_NONE;
 
     /* Initialize MAC address table */
     vtss_state->l2.mac_table_max = VTSS_MAC_ADDRS;
-    for (i = 0; i < VTSS_MAC_ADDRS; i++) {
+    for (i = 0; i < vtss_state->l2.mac_table_max; i++) {
         /* Insert first in free list */
         vtss_state->l2.mac_table[i].next = vtss_state->l2.mac_list_free;
         vtss_state->l2.mac_list_free = &vtss_state->l2.mac_table[i];
     }
     vtss_state->l2.mac_age_time = 300;
 
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_state->l2.mac_index_cnt = VTSS_MAC_INDEX_CNT;
+#endif
 #if defined(VTSS_FEATURE_VCAP)
     {
         vtss_vlan_trans_grp2vlan_entry_t *grp_entry;
@@ -6707,7 +6720,7 @@ static void vtss_debug_print_frer(vtss_state_t *vtss_state,
     vtss_debug_print_xrow(vtss_state, pr, info, &vtss_state->l2.ms_table.hdr);
     for (i = 0; i < 2; i++) {
         first = TRUE;
-        for (j = 0; j < VTSS_MSTREAM_CNT; j++) {
+        for (j = 0; j < vtss_state->l2.ms_table.hdr.max_count; j++) {
             ms = &vtss_state->l2.ms.table[j];
             if (ms->cnt == 0) {
                 continue;
@@ -6741,7 +6754,7 @@ static void vtss_debug_print_frer(vtss_state_t *vtss_state,
     }
 
     for (i = 0; i < 2; i++) {
-        for (j = 0; j < VTSS_CSTREAM_CNT; j++) {
+        for (j = 0; j < vtss_state->l2.max_cstream_cnt; j++) {
             conf = &vtss_state->l2.cstream_conf[j];
             if (conf->recovery == 0) {
                 continue;
@@ -8460,12 +8473,22 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
             pr("OT  ");
 #endif
             vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
+#if defined(VTSS_FEATURE_QOS_OT)
+            pr("OT  ");
+#endif
+            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
             header = 0;
         }
         pr("%-6u", vid);
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_FEATURE_QOS_OT)
+        pr("%-4u", entry->flags & VLAN_FLAGS_OT ? 1 : 0);
+#endif
+#if defined(VTSS_ARCH_JAGUAR_2)
+        mgmt = entry->mgmt;
+#endif
 #if defined(VTSS_FEATURE_QOS_OT)
         pr("%-4u", entry->flags & VLAN_FLAGS_OT ? 1 : 0);
 #endif
@@ -8607,7 +8630,7 @@ static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
     u32                    pgid;
 
     vtss_debug_print_value(pr, "Age time", vtss_state->l2.mac_age_time);
-    vtss_debug_print_value(pr, "MAC table size", sizeof(vtss_mac_entry_t)*VTSS_MAC_ADDRS);
+    vtss_debug_print_value(pr, "MAC table size", sizeof(vtss_mac_entry_t)*vtss_state->l2.mac_table_max);
     vtss_debug_print_value(pr, "MAC table maximum", vtss_state->l2.mac_table_max);
     vtss_debug_print_value(pr, "MAC table count", vtss_state->l2.mac_table_count);
     pr("\n");
@@ -9159,8 +9182,10 @@ void vtss_l2_debug_print(vtss_state_t *vtss_state,
     vtss_debug_print_ipmc(vtss_state, pr, info);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_REDBOX))
-        vtss_debug_print_redbox(vtss_state, pr, info);
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_REDBOX))
+            vtss_debug_print_redbox(vtss_state, pr, info);
+    }
 #endif
 }
 #endif // VTSS_OPT_DEBUG_PRINT

@@ -194,6 +194,26 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define MESA_EVENT_EXT_SYNC 5 /* Local definition of external synchronisation event ID */
 #define MESA_BIT(x) (1 << (x))
 
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)    {
+    vtss_state_t *vtss_state;
+    if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+        VTSS_E("Unable to get state from inst = %p", inst);
+        MESA_ASSERT(0);
+    }
+    return (vtss_state->vtss_features[f] ? 1 : 0);
+}
+#endif
+
+inline static uint32_t mesa_state(mesa_inst_t inst, vtss_state_t **vtss_state) {
+    if ((*vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+        VTSS_E("Unable to get state from inst = %p", inst);
+        MESA_ASSERT(0);
+        return 0;
+    }
+    return 1;
+}
+
 uint32_t mesa_capability(mesa_inst_t inst, int cap)
 {
     uint32_t c = 0;
@@ -619,15 +639,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_L2_VLAN_COUNTERS:
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-        {
-            vtss_state_t *vtss_state;
-
-            if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-                VTSS_E("Unable to get state from inst = %p", inst);
-                MESA_ASSERT(0);
-            }
-            c = vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] ? 1 : 0;
-        }
+        c = mesa_feature(inst, FEATURE_VLAN_COUNTERS);
 #else
         c = 1;
 #endif
@@ -708,46 +720,38 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_L2_FRER:
 #if defined(VTSS_FEATURE_FRER)
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-    {
-        vtss_state_t *vtss_state;
-
-        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-            VTSS_E("Unable to get state from inst = %p", inst);
-            MESA_ASSERT(0);
-        }
-        c = vtss_state->vtss_features[FEATURE_FRER] ? 1 : 0;
-    }
+        c = mesa_feature(inst, FEATURE_FRER);
 #else
-    c = 1;
+        c = 1;
 #endif
 #endif
         break;
 
-    case MESA_CAP_L2_FRER_MSTREAM_CNT:
+    case MESA_CAP_L2_FRER_MSTREAM_CNT: {
 #if defined(VTSS_FEATURE_FRER)
-        c = VTSS_MSTREAM_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l2.max_mstream_cnt;
+        }
 #endif
+    }
         break;
-    case MESA_CAP_L2_FRER_CSTREAM_CNT:
+    case MESA_CAP_L2_FRER_CSTREAM_CNT:{
 #if defined(VTSS_FEATURE_FRER)
-        c = VTSS_CSTREAM_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l2.max_cstream_cnt;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_L2_PSFP:
 #if defined(VTSS_FEATURE_PSFP)
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-    {
-        vtss_state_t *vtss_state;
-
-        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-            VTSS_E("Unable to get state from inst = %p", inst);
-            MESA_ASSERT(0);
-        }
-        c = vtss_state->vtss_features[FEATURE_PSFP] ? 1 : 0;
-    }
+        c = mesa_feature(inst, FEATURE_PSFP);
 #else
-    c = 1;
+        c = 1;
 #endif
 #endif
         break;
@@ -789,12 +793,20 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_MAC_INDEX_TABLE:
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_MAC_INDEX_TABLE);
+#else
         c = 1;
+#endif
 #endif
         break;
     case MESA_CAP_L2_REDBOX_CNT:
 #if defined(VTSS_FEATURE_REDBOX)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_REDBOX) ?  VTSS_REDBOX_CNT : 0;
+#else
         c = VTSS_REDBOX_CNT;
+#endif
 #endif
         break;
 
@@ -1025,15 +1037,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_QOS_FRAME_PREEMPTION:
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-    {
-        vtss_state_t *vtss_state;
-
-        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-            VTSS_E("Unable to get state from inst = %p", inst);
-            MESA_ASSERT(0);
-        }
-        c = vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] ? 1 : 0;
-    }
+        c = mesa_feature(inst, FEATURE_QOS_FRAME_PREEMPTION);
 #else
         c = 1;
 #endif
@@ -1201,7 +1205,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_OT:
 #if defined(VTSS_FEATURE_QOS_OT)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_QOS_OT);
+#else
         c = 1;
+#endif
 #endif
         break;
 
@@ -1505,46 +1513,74 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_VOP_PATH_SERVICE_VOE_CNT:
+    case MESA_CAP_VOP_PATH_SERVICE_VOE_CNT: {
 #if defined(VTSS_PATH_SERVICE_VOE_CNT)
-        c = VTSS_PATH_SERVICE_VOE_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.path_service_voe_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_PORT_VOE_CNT:
+    case MESA_CAP_VOP_PORT_VOE_CNT: {
 #if defined(VTSS_PORT_VOE_CNT)
-        c = VTSS_PORT_VOE_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.port_voe_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_VOE_CNT:
+    case MESA_CAP_VOP_VOE_CNT: {
 #if defined(VTSS_VOE_CNT)
-        c = VTSS_VOE_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.voe_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_DOWN_VOI_CNT:
+    case MESA_CAP_VOP_DOWN_VOI_CNT: {
 #if defined(VTSS_DOWN_VOI_CNT)
-        c = VTSS_DOWN_VOI_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.down_voi_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_UP_VOI_CNT:
+    case MESA_CAP_VOP_UP_VOI_CNT: {
 #if defined(VTSS_UP_VOI_CNT)
-        c = VTSS_UP_VOI_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.up_voi_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_VOI_CNT:
+    case MESA_CAP_VOP_VOI_CNT: {
 #if defined(VTSS_VOI_CNT)
-        c = VTSS_VOI_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.voi_cnt;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_VOP_EVENT_ARRAY_SIZE:
+    case MESA_CAP_VOP_EVENT_ARRAY_SIZE: {
 #if defined(VTSS_EVENT_MASK_ARRAY_SIZE)
-        c = VTSS_EVENT_MASK_ARRAY_SIZE;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->oam.event_mask_array_size;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_VOP_EVENT_SUPPORTED:
@@ -1988,13 +2024,21 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // MRP
     case MESA_CAP_MRP:
 #if defined(VTSS_FEATURE_MRP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_MRP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_MRP_CNT:
 #if defined(VTSS_FEATURE_MRP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_MRP) ? VTSS_MRP_CNT : 0;
+#else
         c = VTSS_MRP_CNT;
+#endif
 #endif
         break;
 
@@ -2026,7 +2070,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_DYNAMIC:
 #if defined(VTSS_FEATURE_PORT_DYNAMIC)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_PORT_DYNAMIC);
+#else
         c = 1;
+#endif
 #endif
         break;
 

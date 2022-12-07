@@ -94,11 +94,14 @@ static vtss_rc fa_l3_rleg_hw_stat_poll(vtss_state_t *vtss_state,
     /* IPv6 counters */
 #if defined(VTSS_ARCH_LAN969X_FPGA)
     rleg += 16;
-#elif defined(VTSS_ARCH_LAN969X)
-    rleg += 128;
 #else
-    rleg += 512;
+    if (FA_TGT) {
+        rleg += 512;
+    } else {
+        rleg += 128;
+    }
 #endif
+
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv6uc_received_frames, &counter->ipv6uc_received_frames));
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_BYTES,
@@ -208,7 +211,7 @@ static vtss_rc fa_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *g
             VTSS_F_ANA_L3_L3MC_CTRL_RPF_CHK_ENA(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0 : 1),
             VTSS_M_ANA_L3_L3MC_CTRL_EVMID_MASK_MODE |
             VTSS_M_ANA_L3_L3MC_CTRL_RPF_VMID |
-            VTSS_M_ANA_L3_L3MC_CTRL_RPF_CHK_ENA)
+            VTSS_M_ANA_L3_L3MC_CTRL_RPF_CHK_ENA);
 
     return VTSS_RC_OK;
 }
@@ -392,8 +395,8 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
     }
 
     vtss_fa_debug_reg_header(pr, "ANA_L3");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_L3_ROUTING_CFG, "ROUTING_CFG");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_L3_ROUTING_CFG2, "ROUTING_CFG2");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_L3_ROUTING_CFG), "ROUTING_CFG");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_L3_ROUTING_CFG2), "ROUTING_CFG2");
     pr("\n");
 
     REG_RD(VTSS_ANA_L3_RLEG_CFG_0, &cfg0);
@@ -511,9 +514,9 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
     if (info->clear || info->full) {
         /* Read and clear sticky bits */
         vtss_fa_debug_reg_header(pr, "ANA_L3:STICKY");
-        vtss_fa_debug_sticky(vtss_state, pr, VTSS_ANA_L3_L3_LPM_REMAP_STICKY, "LPM_REMAP_STICKY");
-        vtss_fa_debug_sticky(vtss_state, pr, VTSS_ANA_L3_VLAN_STICKY, "VLAN_STICKY");
-        vtss_fa_debug_sticky(vtss_state, pr, VTSS_ANA_L3_L3_ARP_IPMC_STICKY, "ARP_IPMC_STICKY");
+        vtss_fa_debug_sticky(vtss_state, pr, REG_ADDR(VTSS_ANA_L3_L3_LPM_REMAP_STICKY), "LPM_REMAP_STICKY");
+        vtss_fa_debug_sticky(vtss_state, pr, REG_ADDR(VTSS_ANA_L3_VLAN_STICKY), "VLAN_STICKY");
+        vtss_fa_debug_sticky(vtss_state, pr, REG_ADDR(VTSS_ANA_L3_L3_ARP_IPMC_STICKY), "ARP_IPMC_STICKY");
     }
 
     return VTSS_RC_OK;

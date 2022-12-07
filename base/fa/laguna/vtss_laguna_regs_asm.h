@@ -2577,6 +2577,18 @@
 
 /**
  * \brief
+ * If this field is set the ASM transfers Redbox information fields from
+ * the preamble to the IFH.
+ *
+ * \details
+ * Field: ::VTSS_ASM_PORT_CFG . RB_ENA
+ */
+#define  VTSS_F_ASM_PORT_CFG_RB_ENA(x)        VTSS_ENCODE_BITFIELD(!!(x),13,1)
+#define  VTSS_M_ASM_PORT_CFG_RB_ENA           VTSS_BIT(13)
+#define  VTSS_X_ASM_PORT_CFG_RB_ENA(x)        VTSS_EXTRACT_BITFIELD(x,13,1)
+
+/**
+ * \brief
  * Disables updates of the ASM related counters for the common statistics
  * counter system that is used for DEV1G/DEV2G5 devices
  * (ASM:DEV_STATISTICS:RX_PAUSE_CNT and

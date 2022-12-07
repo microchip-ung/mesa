@@ -478,7 +478,7 @@ static vtss_rc afi_tti_alloc(vtss_state_t *const vtss_state,
 {
     vtss_rc rc;
 
-    if ((rc = afi_res_alloc(vtss_state, vtss_state->afi.ttis_alloced, VTSS_AFI_SLOW_INJ_CNT, tti_idx, min_tti_idx, max_tti_idx, TRUE)) != VTSS_RC_OK) {
+    if ((rc = afi_res_alloc(vtss_state, vtss_state->afi.ttis_alloced, vtss_state->afi.slow_inj_cnt, tti_idx, min_tti_idx, max_tti_idx, TRUE)) != VTSS_RC_OK) {
         VTSS_E("Out of TTIs");
         return rc;
     }
@@ -493,8 +493,8 @@ static vtss_rc afi_tti_alloc(vtss_state_t *const vtss_state,
  */
 static vtss_rc afi_tti_free(vtss_state_t *const vtss_state, const u32 tti_idx)
 {
-    if (tti_idx >= VTSS_AFI_SLOW_INJ_CNT) {
-        VTSS_E("tti_idx=%u > %u", tti_idx, VTSS_AFI_SLOW_INJ_CNT);
+    if (tti_idx >= vtss_state->afi.slow_inj_cnt) {
+        VTSS_E("tti_idx=%u > %u", tti_idx, vtss_state->afi.slow_inj_cnt);
         return VTSS_RC_ERROR;
     }
 
@@ -551,7 +551,7 @@ static vtss_rc afi_dti_idx_chk(struct vtss_state_s *const vtss_state, u32 dti_id
  */
 static vtss_rc afi_tti_idx_chk(struct vtss_state_s *const vtss_state, u32 tti_idx)
 {
-    if (tti_idx >= VTSS_AFI_SLOW_INJ_CNT) {
+    if (tti_idx >= vtss_state->afi.slow_inj_cnt) {
         VTSS_E("tti_idx == %u illegal", tti_idx)
         return VTSS_RC_ERROR;
     }
@@ -1543,7 +1543,7 @@ vtss_rc vtss_afi_slow_inj_alloc(const vtss_inst_t                          inst,
     }
 
     // Allocate a TTI
-    if ((rc = afi_tti_alloc(vtss_state, &tti_idx, 0 /* min_tti_idx */, VTSS_AFI_SLOW_INJ_CNT - 1 /* max_tti_idx */)) != VTSS_RC_OK) {
+    if ((rc = afi_tti_alloc(vtss_state, &tti_idx, 0 /* min_tti_idx */, vtss_state->afi.slow_inj_cnt - 1 /* max_tti_idx */)) != VTSS_RC_OK) {
         goto do_exit;
     }
 
@@ -1976,6 +1976,9 @@ vtss_rc vtss_afi_inst_create(vtss_state_t *vtss_state)
     for (port_no = 0; port_no < VTSS_ARRSZ(state->port_tbl); port_no++) {
         state->port_tbl[port_no].frm_out_max = VTSS_AFI_FRM_OUT_MAX_DEF;
     }
+    state->slow_inj_cnt = VTSS_AFI_SLOW_INJ_CNT;
+    state->fast_inj_bps_min = VTSS_AFI_FAST_INJ_BPS_MIN;
+    state->fast_inj_bps_max = VTSS_AFI_FAST_INJ_BPS_MAX;
 
     return VTSS_RC_OK;
 }

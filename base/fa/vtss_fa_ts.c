@@ -6,7 +6,6 @@
 #if defined(VTSS_ARCH_FA)
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
-#include "vtss_fa_ts.h"
 /* - CIL functions ------------------------------------------------- */
 
 /* GPIO configuration */
@@ -279,6 +278,7 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 		/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(2), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(3), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
 #endif
+
     }
 
     return VTSS_RC_OK;
@@ -455,13 +455,12 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     }
     VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32                   port;
+    u32 port;
     port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_TXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY(tx_delay),
             VTSS_M_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY);
 #endif
-
     return VTSS_RC_OK;
 }
 
@@ -560,8 +559,8 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
     u32 port_no;
     int found = 0;
     /* Map from chip port to API port */
-    if (chip_port == VTSS_CHIP_PORT_CPU) {
-        port_no = VTSS_CHIP_PORT_CPU;
+    if (chip_port == RT_CHIP_PORT_CPU) {
+        port_no = RT_CHIP_PORT_CPU;
     } else {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_CHIP_PORT(port_no) == chip_port) {
@@ -584,32 +583,31 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
     u32  mess_id;
     BOOL overflow = FALSE;
     u32  sub_ns;
-
-    REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
-    while (VTSS_X_REW_PTP_TWOSTEP_CTRL_PTP_VLD(value)) {
+    REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, &value);
+    while (VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_VLD(value)) {
         /* Read TX timestamp */
-        if (!VTSS_X_REW_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+        if (!VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
             VTSS_E("TX timestamp expected but RX timestamp found");
-            REG_WR(VTSS_REW_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_TWOSTEP_CTRL_PTP_NXT(1));
-            REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
+            REG_WR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+            REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, &value);
             continue;
         }
-        overflow |= VTSS_X_REW_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
-        REG_RD(VTSS_REW_PTP_TWOSTEP_STAMP, &delay);
-        tx_port = api_port(vtss_state, VTSS_X_REW_PTP_TWOSTEP_CTRL_STAMP_PORT(value));
-        REG_RD(VTSS_REW_PTP_TWOSTEP_STAMP_SUBNS, &sub_ns);
+        overflow |= VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP, &delay);
+        tx_port = api_port(vtss_state, VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_STAMP_PORT(value));
+        REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS, &sub_ns);
         /* Read RX timestamp */
-        REG_WR(VTSS_REW_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_TWOSTEP_CTRL_PTP_NXT(1));
-        REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
-        if (!VTSS_X_REW_PTP_TWOSTEP_CTRL_PTP_VLD(value) ||
-            VTSS_X_REW_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+        REG_WR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+        REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, &value);
+        if (!VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_VLD(value) ||
+            VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
             VTSS_E("RX timestamp not found");
-            REG_WR(VTSS_REW_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_TWOSTEP_CTRL_PTP_NXT(1));
-            REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
+            REG_WR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+            REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, &value);
             continue;
         }
-        overflow |= VTSS_X_REW_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
-        REG_RD(VTSS_REW_PTP_TWOSTEP_STAMP, &mess_id);
+        overflow |= VTSS_X_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP, &mess_id);
 
         if (mess_id >= VTSS_TS_ID_SIZE) {
             VTSS_D("skip mess_id %u", mess_id);
@@ -622,8 +620,8 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
         }
 
         VTSS_I("value %x, delay %u, tx_port %u, mess_id %u", value, delay, tx_port, mess_id);
-        REG_WR(VTSS_REW_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_TWOSTEP_CTRL_PTP_NXT(1));
-        REG_RD(VTSS_REW_PTP_TWOSTEP_CTRL, &value);
+        REG_WR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, VTSS_F_REW_PTP_CTRL_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+        REG_RD(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL, &value);
     }
     if (overflow) {
         VTSS_E("Timestamp fifo overflow occurred");
@@ -658,7 +656,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
     io_delay_t            *dv_factor;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
+#endif
 
 
     VTSS_D("Enter  port_no %d", port_no);
@@ -676,9 +676,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     /* Calculate the lane information based on the port */
     (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
     if (sd_type == FA_SERDES_TYPE_10G) {
-        sd_indx = sd_indx + VTSS_SERDES_10G_START;
+        sd_indx = sd_indx + RT_SERDES_10G_START;
     } else if (sd_type == FA_SERDES_TYPE_25G) {
-        sd_indx = sd_indx + VTSS_SERDES_25G_START;
+        sd_indx = sd_indx + RT_SERDES_25G_START;
     } else if (sd_type == FA_SERDES_TYPE_6G) {
         sd_indx = sd_indx;
     } else {
@@ -689,16 +689,14 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
     VTSS_D("chip_port %u  interface %u  speed %u  sd_type %u  sd_lane_tgt %u  sd_indx %u", port, interface, speed, sd_type, sd_lane_tgt, sd_indx);
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
     if (sd_type == FA_SERDES_TYPE_25G) {
-#if defined(VTSS_ARCH_SPARX5)
         REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
         sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-#endif
         dv_factor = delay_var_factor_25G;
     } else {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
         sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
@@ -707,10 +705,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             delay_var_factor[2].tx = 49600;
         }
         dv_factor = delay_var_factor;
-#endif
     }
     VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
-
+#endif
     switch (interface) {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     case VTSS_PORT_INTERFACE_SGMII:
@@ -1035,63 +1032,63 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
     int            idx;
 
     /* REW:PORT */
-    for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
+    for (port = 0; port <= RT_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
         vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_MODE_CFG(port, 0), "PTP_MODE_CFG[0]");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_MODE_CFG(port, 1), "PTP_MODE_CFG[1]");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_MISC_CFG(port), "PTP_MISC_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_EDLY_CFG(port), "PTP_EDLY_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_EDLY_CFG1(port), "PTP_EDLY_CFG1");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_IDLY1_CFG(port), "PTP_IDLY1_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_IDLY1_CFG1(port), "PTP_IDLY1_CFG1");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_IDLY2_CFG(port), "PTP_IDLY2_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_IDLY2_CFG1(port), "PTP_IDLY2_CFG1");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 0)), "PTP_MODE_CFG[0]");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 1)), "PTP_MODE_CFG[1]");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_MISC_CFG(port)), "PTP_MISC_CFG");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_EDLY_CFG(port)), "PTP_EDLY_CFG");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_EDLY_CFG1(port)), "PTP_EDLY_CFG1");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_IDLY1_CFG(port)), "PTP_IDLY1_CFG");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_IDLY1_CFG1(port)), "PTP_IDLY1_CFG1");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_IDLY2_CFG(port)), "PTP_IDLY2_CFG");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_IDLY2_CFG1(port)), "PTP_IDLY2_CFG1");
     }
 
     /* REW:PTP_CTRL */
     vtss_fa_debug_reg_header(pr, "REW:PTP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_TWOSTEP_CTRL, "PTP_TWOSTEP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_TWOSTEP_STAMP, "PTP_TWOSTEP_STAMP");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_PTP_TWOSTEP_STAMP_SUBNS, "PTP_TWOSTEP_STAMP_SUBNS");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
 
     /* DEVCPU_PTP:PTP_CFG */
     vtss_fa_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PIN_INTR, "PTP_PIN_INTR");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, "PTP_PIN_INTR_ENA");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_INTR_IDENT, "PTP_PIN_INTR_IDENT");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_DOM_CFG, "PTP_DOM_CFG");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_INTR), "PTP_PIN_INTR");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA), "PTP_PIN_INTR_ENA");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_INTR_IDENT), "PTP_PIN_INTR_IDENT");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_DOM_CFG), "PTP_DOM_CFG");
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
         VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
         vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx), "PTP_PIN_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(idx), "PTP_TOD_SEC_MSB");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(idx), "PTP_TOD_SEC_LSB");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_TOD_NSEC(idx), "PTP_TOD_NSEC");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(idx), "PTP_TOD_NSEC_FRAC");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_NTP_NSEC(idx), "NTP_NSEC");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(idx), "PIN_WF_HIGH_PERIOD");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(idx), "PIN_WF_LOW_PERIOD");
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PIN_IOBOUNCH_DELAY(idx), "PIN_IOBOUNCH_DELAY");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx)), "PTP_PIN_CFG");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(idx)), "PTP_TOD_SEC_MSB");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(idx)), "PTP_TOD_SEC_LSB");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(idx)), "PTP_TOD_NSEC");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(idx)), "PTP_TOD_NSEC_FRAC");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_NTP_NSEC(idx)), "NTP_NSEC");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(idx)), "PIN_WF_HIGH_PERIOD");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(idx)), "PIN_WF_LOW_PERIOD");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PIN_IOBOUNCH_DELAY(idx)), "PIN_IOBOUNCH_DELAY");
     }
 
     /* ANA_ACL::PTP_MISC_CTRL */
     vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MISC_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_MISC_CTRL, "PTP_MISC_CTRL");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CTRL), "PTP_MISC_CTRL");
 
     /* ANA_ACL::PTP_MASTER */
     vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MASTER_CFG");
     for (idx = 0; idx <= VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx), buf);
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx), buf);
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_SRC_PORT_CFG[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx), buf);
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_ACL_PTP_MISC_CFG(idx), buf);
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CFG(idx)), buf);
     }
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     vtss_port_no_t port_no;
@@ -1108,24 +1105,24 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         case VTSS_PORT_INTERFACE_QSGMII:
             VTSS_SPRINTF(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
             vtss_fa_debug_reg_header(pr, buf);
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port)), "PTP_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV2G5(port)), "PTP_RXDLY_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV2G5(port)), "PTP_TXDLY_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV2G5(port)), "PTP_PREDICT_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV2G5(port)), "DEV_TX_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV2G5(port)), "DEV_PFRAME_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port))), "PTP_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV2G5(port))), "PTP_RXDLY_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV2G5(port))), "PTP_TXDLY_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV2G5(port))), "PTP_PREDICT_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV2G5(port))), "DEV_TX_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV2G5(port))), "DEV_PFRAME_CFG");
             break;
         case VTSS_PORT_INTERFACE_SFI:
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
             VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
             vtss_fa_debug_reg_header(pr, buf);
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV10G(port)), "PTP_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV10G(port)), "PTP_RXDLY_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV10G(port)), "PTP_TXDLY_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV10G(port)), "PTP_PREDICT_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV10G(port)), "DEV_TX_CFG");
-            vtss_fa_debug_reg(vtss_state, pr, VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV10G(port)), "DEV_PFRAME_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV10G(port))), "PTP_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV10G(port))), "PTP_RXDLY_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV10G(port))), "PTP_TXDLY_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV10G(port))), "PTP_PREDICT_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV10G(port))), "DEV_TX_CFG");
+            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV10G(port))), "DEV_PFRAME_CFG");
             break;
         default:
             break;
@@ -1155,7 +1152,6 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     REG_WRM(VTSS_ANA_ACL_PTP_MISC_CTRL,
             VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA(1) | VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52(0),
             VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA | VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52);
-
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Configure the nominal TOD increment per clock cycle */
     switch (vtss_state->init_conf.core_clock.freq) {

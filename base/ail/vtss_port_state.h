@@ -446,11 +446,8 @@ typedef struct {
 
 #define VTSS_SD6G_40_CNT 3
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_SD28_CNT 33
-#endif
-#if defined(VTSS_ARCH_LAN969X)
-#define VTSS_SD28_CNT 10
 #endif
 
 typedef struct {

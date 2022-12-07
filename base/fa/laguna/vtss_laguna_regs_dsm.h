@@ -857,6 +857,47 @@
 
 /**
  * \brief
+ * Indicates which calendar is currently active.
+ *
+ * \details
+ * 0: Calendar A
+ * 1: Calendar B
+ *
+ * Field: ::VTSS_DSM_TAXI_CAL_CFG . CAL_SEL_STAT
+ */
+#define  VTSS_F_DSM_TAXI_CAL_CFG_CAL_SEL_STAT(x)  VTSS_ENCODE_BITFIELD(!!(x),23,1)
+#define  VTSS_M_DSM_TAXI_CAL_CFG_CAL_SEL_STAT  VTSS_BIT(23)
+#define  VTSS_X_DSM_TAXI_CAL_CFG_CAL_SEL_STAT(x)  VTSS_EXTRACT_BITFIELD(x,23,1)
+
+/**
+ * \brief
+ * Triggers a calendar switch. If calendar A was active, then calendar B
+ * becomes active. If calendar B was active, calendar A becomes active.
+ *
+ * \details
+ * Field: ::VTSS_DSM_TAXI_CAL_CFG . CAL_SWITCH
+ */
+#define  VTSS_F_DSM_TAXI_CAL_CFG_CAL_SWITCH(x)  VTSS_ENCODE_BITFIELD(!!(x),22,1)
+#define  VTSS_M_DSM_TAXI_CAL_CFG_CAL_SWITCH   VTSS_BIT(22)
+#define  VTSS_X_DSM_TAXI_CAL_CFG_CAL_SWITCH(x)  VTSS_EXTRACT_BITFIELD(x,22,1)
+
+/**
+ * \brief
+ * The DSM supports 2 calendars for each taxi. This field controls which
+ * calendar is getting programmed when CAL_PGM_ENA is set.
+ *
+ * \details
+ * 0: Calendar A
+ * 1: Calendar B
+ *
+ * Field: ::VTSS_DSM_TAXI_CAL_CFG . CAL_PGM_SEL
+ */
+#define  VTSS_F_DSM_TAXI_CAL_CFG_CAL_PGM_SEL(x)  VTSS_ENCODE_BITFIELD(!!(x),21,1)
+#define  VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_SEL  VTSS_BIT(21)
+#define  VTSS_X_DSM_TAXI_CAL_CFG_CAL_PGM_SEL(x)  VTSS_EXTRACT_BITFIELD(x,21,1)
+
+/**
+ * \brief
  * Calendar index.
  *
  * \details

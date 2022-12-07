@@ -635,7 +635,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_CFG
  */
-#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x18)
+#define VTSS_CHIP_TOP_OTP_CFG                VTSS_IOREG(VTSS_TO_CHIP_TOP,0x17)
 
 /**
  * \brief
@@ -657,7 +657,7 @@
  *
  * @param ri Register: OTP_RCR (??), 0-2
  */
-#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x19 + (ri))
+#define VTSS_CHIP_TOP_OTP_RCR(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x18 + (ri))
 
 /**
  * \details
@@ -686,7 +686,7 @@
  *
  * @param ri Register: OTP_MSC (??), 0-3
  */
-#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1c + (ri))
+#define VTSS_CHIP_TOP_OTP_MSC(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1b + (ri))
 
 /**
  * \details
@@ -703,7 +703,7 @@
  * \details
  * Register: \a CHIP_TOP:OTP_MEM:OTP_ID
  */
-#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x20)
+#define VTSS_CHIP_TOP_OTP_ID                 VTSS_IOREG(VTSS_TO_CHIP_TOP,0x1f)
 
 /**
  * \details
@@ -722,7 +722,7 @@
  *
  * @param ri Register: OTP_PRD (??), 0-7
  */
-#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x29 + (ri))
+#define VTSS_CHIP_TOP_OTP_PRD(ri)            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x28 + (ri))
 
 /**
  * \details
@@ -745,7 +745,7 @@
  * \details
  * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_CFG
  */
-#define VTSS_CHIP_TOP_CPU_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x31)
+#define VTSS_CHIP_TOP_CPU_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x30)
 
 /**
  * \brief
@@ -889,7 +889,7 @@
  *
  * Register: \a CHIP_TOP:CPU_PLL_CFG:CPU_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x32)
+#define VTSS_CHIP_TOP_CPU_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x31)
 
 /**
  * \brief
@@ -949,7 +949,7 @@
  * \details
  * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_CFG
  */
-#define VTSS_CHIP_TOP_DDR_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x33)
+#define VTSS_CHIP_TOP_DDR_PLL_CFG            VTSS_IOREG(VTSS_TO_CHIP_TOP,0x32)
 
 /**
  * \brief
@@ -1078,7 +1078,7 @@
  *
  * Register: \a CHIP_TOP:DDR_PLL_CFG:DDR_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x34)
+#define VTSS_CHIP_TOP_DDR_PLL_FREQ_CFG       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x33)
 
 /**
  * \brief
@@ -1138,7 +1138,7 @@
  * \details
  * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_CFG
  */
-#define VTSS_CHIP_TOP_CORE_PLL_CFG           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x35)
+#define VTSS_CHIP_TOP_CORE_PLL_CFG           VTSS_IOREG(VTSS_TO_CHIP_TOP,0x34)
 
 /**
  * \brief
@@ -1290,7 +1290,7 @@
  *
  * Register: \a CHIP_TOP:CORE_PLL_CFG:CORE_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x36)
+#define VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG      VTSS_IOREG(VTSS_TO_CHIP_TOP,0x35)
 
 /**
  * \brief
@@ -1352,7 +1352,7 @@
  * \details
  * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_CFG
  */
-#define VTSS_CHIP_TOP_RGMII_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x37)
+#define VTSS_CHIP_TOP_RGMII_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x36)
 
 /**
  * \brief
@@ -1482,7 +1482,7 @@
  *
  * Register: \a CHIP_TOP:RGMII_PLL_CFG:RGMII_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x38)
+#define VTSS_CHIP_TOP_RGMII_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x37)
 
 /**
  * \brief
@@ -1544,7 +1544,7 @@
  * \details
  * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_CFG
  */
-#define VTSS_CHIP_TOP_FX100_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x39)
+#define VTSS_CHIP_TOP_FX100_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x38)
 
 /**
  * \brief
@@ -1674,7 +1674,7 @@
  *
  * Register: \a CHIP_TOP:FX100_PLL_CFG:FX100_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3a)
+#define VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x39)
 
 /**
  * \brief
@@ -1736,7 +1736,7 @@
  * \details
  * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_CFG
  */
-#define VTSS_CHIP_TOP_SPARE_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3b)
+#define VTSS_CHIP_TOP_SPARE_PLL_CFG          VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3a)
 
 /**
  * \brief
@@ -1912,7 +1912,7 @@
  *
  * Register: \a CHIP_TOP:SPARE_PLL_CFG:SPARE_PLL_FREQ_CFG
  */
-#define VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3c)
+#define VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG     VTSS_IOREG(VTSS_TO_CHIP_TOP,0x3b)
 
 /**
  * \brief
@@ -2025,6 +2025,18 @@
 #define  VTSS_M_CHIP_TOP_PLL_CHK_CFG_PLL_CHK_SEL     VTSS_ENCODE_BITMASK(0,3)
 #define  VTSS_X_CHIP_TOP_PLL_CHK_CFG_PLL_CHK_SEL(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
 
+/**
+ * \brief
+ * This setting is ignored while SPARE_PLL_CFG.ENA_CFG is 0.Feedback
+ * divider integer value.The NEWDIV bit must be '0' when changing this
+ * register
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_FX100_PLL_FREQ_CFG . FRACR
+ */
+#define  VTSS_F_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR(x)  VTSS_ENCODE_BITFIELD(x,16,12)
+#define  VTSS_M_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR     VTSS_ENCODE_BITMASK(16,12)
+#define  VTSS_X_CHIP_TOP_FX100_PLL_FREQ_CFG_FRACR(x)  VTSS_EXTRACT_BITFIELD(x,16,12)
 
 /**
  * \brief PLL_CHK frequency counter
@@ -2113,6 +2125,233 @@
 #define  VTSS_F_CHIP_TOP_PLL_MONITOR_ENABLE(x)  VTSS_ENCODE_BITFIELD(x,0,5)
 #define  VTSS_M_CHIP_TOP_PLL_MONITOR_ENABLE     VTSS_ENCODE_BITMASK(0,5)
 #define  VTSS_X_CHIP_TOP_PLL_MONITOR_ENABLE(x)  VTSS_EXTRACT_BITFIELD(x,0,5)
+
+/**
+ * Register Group: \a CHIP_TOP:TEMP_SENSOR
+ *
+ * Temperature sensor control
+ */
+
+
+/**
+ * \brief Temperature Sensor Control
+ *
+ * \details
+ * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_CTRL
+ */
+#define VTSS_CHIP_TOP_TEMP_SENSOR_CTRL       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x40)
+
+/**
+ * \brief
+ * Set to force reading of temperature. This field only works when
+ * SAMPLE_ENA is cleared. The read will either instantaneously or
+ * synchronized to the RDY output of the temperature sensor if the sensor
+ * is enabled.	The temperature sensor can be configured to run
+ * continuously by using these settings:FORCE_POWER_UP = 1Wait 50
+ * usFORCE_CLK = 1Wait 5 usFORCE_NO_RST = 1Wait 5 usFORCE_RUN =
+ * 1FORCE_TEMP_RD= 1This will cause the temperature sensor to sample
+ * continuously and provide the result in TEMP_SENSOR_STAT.TEMP.  The
+ * status TEMP_SENSOR_STAT.TEMP_VALID will be 1 after the first sample.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CTRL . FORCE_TEMP_RD
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD  VTSS_BIT(4)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_TEMP_RD(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+
+/**
+ * \brief
+ * Set to force RUN signal towards temperature sensor. This field only
+ * works when SAMPLE_ENA is cleared.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CTRL . FORCE_RUN
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_RUN(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_RUN  VTSS_BIT(3)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_RUN(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+
+/**
+ * \brief
+ * Set to force the RSTN signal towards temperature sensor (release of
+ * reset). This field only works when SAMPLE_ENA is cleared.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CTRL . FORCE_NO_RST
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_NO_RST(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_NO_RST  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_NO_RST(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Set to force the PD signal towards temperature sensor. This field only
+ * works when SAMPLE_ENA is cleared.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CTRL . FORCE_POWER_UP
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_POWER_UP(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_POWER_UP  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_POWER_UP(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Set to force a clock signal towards the temperature sensor. The clock
+ * frequency will be controlled by the TEMP_SENSOR_CFG.CLK_CYCLES_1US
+ * setting. This field only works when SAMPLE_ENA is cleared.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CTRL . FORCE_CLK
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_CLK(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_CLK  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CTRL_FORCE_CLK(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Temperature Sensor Configuration
+ *
+ * \details
+ * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_CFG
+ */
+#define VTSS_CHIP_TOP_TEMP_SENSOR_CFG        VTSS_IOREG(VTSS_TO_CHIP_TOP,0x41)
+
+/**
+ * \brief
+ * The number of system clock cycles in one 1us. This is used to generated
+ * the temperature sensor clock signal (CLK.)  The frequency of CLK must be
+ * higher than 0.75Mhz and lower than 2Mhz.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . CLK_CYCLES_1US
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_ENCODE_BITFIELD(x,15,9)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US     VTSS_ENCODE_BITMASK(15,9)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(x)  VTSS_EXTRACT_BITFIELD(x,15,9)
+
+/**
+ * \brief
+ * Trim value. This value should only be modified as a result of a sensor
+ * calibration
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . TRIM_VAL
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_TRIM_VAL(x)  VTSS_ENCODE_BITFIELD(x,11,4)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_TRIM_VAL     VTSS_ENCODE_BITMASK(11,4)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_TRIM_VAL(x)  VTSS_EXTRACT_BITFIELD(x,11,4)
+
+/**
+ * \brief
+ * Set this field to enable calibration of the sensor. A 0.7V signal must
+ * be applied to the calibration input.The calibration procedure is as
+ * follows:Set SAMPLE_ENA to 0Apply 0.7V +/- 10% to the calibration input
+ * pinMeasure actual voltage on calibration input with highest possible
+ * precisionSet CAL_ENA to 1Set SAMPLE_ENA to 1Read TEMP_SENSOR_STAT.TEMP
+ * and use this value and the calibration voltage to calculate the
+ * calibration temperature.Find TRIM_VAL:Set SAMPLE_ENA to 0Set CAL_ENA to
+ * 0Set SAMPLE_ENA to 1Change TRIM_VAL until TEMP_SENSOR_STAT.TEMP results
+ * in a temperature as close as possible to the calibration
+ * temperatureNormal mode:Set SAMPLE_ENA to 1Use TRIM_VAL obtained from
+ * calibration
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . CAL_ENA
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CAL_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),10,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CAL_ENA  VTSS_BIT(10)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_CAL_ENA(x)  VTSS_EXTRACT_BITFIELD(x,10,1)
+
+/**
+ * \brief
+ * Power up delay. The unit is number of sensor CLK cycles. See:
+ * CLK_CYCLES_1USDefault value corresponds to a 50us delay, which is the
+ * minimum required value.
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . PWR_UP_DELAY
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_PWR_UP_DELAY(x)  VTSS_ENCODE_BITFIELD(x,3,7)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_PWR_UP_DELAY     VTSS_ENCODE_BITMASK(3,7)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_PWR_UP_DELAY(x)  VTSS_EXTRACT_BITFIELD(x,3,7)
+
+/**
+ * \brief
+ * Set this bit to start a temperature sample cycle. This is only used if
+ * continuous sampling is disabled.Procedure:Set START_CAPTURE to 1Wait
+ * until hardware clears START_CAPTURE Read temperature from
+ * TEMP_SENSOR_STAT.TEMP
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . START_CAPTURE
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_START_CAPTURE(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_START_CAPTURE  VTSS_BIT(2)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_START_CAPTURE(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+
+/**
+ * \brief
+ * Set this field to enable continuous sampling of temperature. The latest
+ * sample value will be available in TEMP_SENSOR_STAT.TEMP
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . CONTINUOUS_MODE
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CONTINUOUS_MODE(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CONTINUOUS_MODE  VTSS_BIT(1)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_CONTINUOUS_MODE(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+
+/**
+ * \brief
+ * Set this field to enable sampling of temperature. The sensor will be
+ * taken out of power down mode and the temperature sampling is stared when
+ * SAMPLE_ENA is set to 1
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_CFG . SAMPLE_ENA
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA  VTSS_BIT(0)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+
+
+/**
+ * \brief Temperature Sensor Status
+ *
+ * \details
+ * Register: \a CHIP_TOP:TEMP_SENSOR:TEMP_SENSOR_STAT
+ */
+#define VTSS_CHIP_TOP_TEMP_SENSOR_STAT       VTSS_IOREG(VTSS_TO_CHIP_TOP,0x42)
+
+/**
+ * \brief
+ * This field is set when valid temperature data is available in
+ * TEMP_SENSOR_STAT.TEMP
+ *
+ * \details
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_STAT . TEMP_VALID
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(x)  VTSS_ENCODE_BITFIELD(!!(x),12,1)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID  VTSS_BIT(12)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(x)  VTSS_EXTRACT_BITFIELD(x,12,1)
+
+/**
+ * \brief
+ * Temperature data readout This field is valid when
+ * TEMP_SENSOR_STAT.TEMP_VALID is set. This field is continually updated
+ * while the temperature sensor is enabled. See TEMP_SENSOR_CFG.SAMPLE_ENA
+ * for more information.
+ *
+ * \details
+ * Temp(C) = TEMP_SENSOR_STAT.TEMP / 4096 * 352.2 - 109.4
+ *
+ * Field: ::VTSS_CHIP_TOP_TEMP_SENSOR_STAT . TEMP
+ */
+#define  VTSS_F_CHIP_TOP_TEMP_SENSOR_STAT_TEMP(x)  VTSS_ENCODE_BITFIELD(x,0,12)
+#define  VTSS_M_CHIP_TOP_TEMP_SENSOR_STAT_TEMP     VTSS_ENCODE_BITMASK(0,12)
+#define  VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP(x)  VTSS_EXTRACT_BITFIELD(x,0,12)
 
 /**
  * Register Group: \a CHIP_TOP:TEMP_SENSOR

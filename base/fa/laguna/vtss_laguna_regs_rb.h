@@ -1042,6 +1042,19 @@
 
 /**
  * \brief
+ * Disable clearing of age_flag when host table entry mismatches
+ * expectations for source port. For instance, when PROXY entry is found
+ * for frame on LRE port.
+ *
+ * \details
+ * Field: ::VTSS_RB_TBL_CFG . CLR_AGE_FLAG_DIS
+ */
+#define  VTSS_F_RB_TBL_CFG_CLR_AGE_FLAG_DIS(x)  VTSS_ENCODE_BITFIELD(!!(x),14,1)
+#define  VTSS_M_RB_TBL_CFG_CLR_AGE_FLAG_DIS   VTSS_BIT(14)
+#define  VTSS_X_RB_TBL_CFG_CLR_AGE_FLAG_DIS(x)  VTSS_EXTRACT_BITFIELD(x,14,1)
+
+/**
+ * \brief
  * If set, the host table entry's port mask is used for forwarding. Applies
  * to the destination MAC address lookup. If cleared, the port mask is not
  * used.Related parameters:

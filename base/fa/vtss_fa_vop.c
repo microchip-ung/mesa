@@ -119,12 +119,12 @@ static u32 raps_handling_value(vtss_oam_raps_handling_t handling)
     return 0;
 }
 
-u32 vtss_fa_voi_idx_to_mip_idx(vtss_voi_idx_t  voi_idx)
+u32 vtss_fa_voi_idx_to_mip_idx(vtss_state_t *vtss_state, vtss_voi_idx_t  voi_idx)
 {
-    if (voi_idx < VTSS_DOWN_VOI_CNT) {
+    if (voi_idx < RT_DOWN_VOI_CNT) {
         return (voi_idx);
     } else {
-        return ((voi_idx - VTSS_DOWN_VOI_CNT) + 1); /* Up MIP instance 0 is not used as it cannot be addressed by ES0 action. */
+        return ((voi_idx - RT_DOWN_VOI_CNT) + 1); /* Up MIP instance 0 is not used as it cannot be addressed by ES0 action. */
     }
 }
 
@@ -192,7 +192,7 @@ static vtss_rc oam_vop_int_update(vtss_state_t *vtss_state)
     u32 i;
     u32 must_enable;
 
-    for (i = 0, must_enable = 0; !must_enable && i < VTSS_VOE_CNT; ++i) {
+    for (i = 0, must_enable = 0; !must_enable && i < RT_VOE_CNT; ++i) {
         if (vtss_state->oam.voe_alloc_data[i].allocated) {
             REG_RD(VTSS_VOP_INTR_ENA(i), &must_enable);
             must_enable &= 0x7ff;  /* Only bits 0-10 are valid */
@@ -248,7 +248,7 @@ static vtss_rc fa_vop_conf_set(vtss_state_t            *vtss_state,
     REG_WR(VTSS_VOP_CPU_EXTR_MRP, value);
 #endif
 
-    for (i = 0; i < VTSS_DOWN_VOI_CNT; ++i) {   /* The number of Down and Up MIPs are the same in HW */
+    for (i = 0; i < RT_DOWN_VOI_CNT; ++i) {   /* The number of Down and Up MIPs are the same in HW */
         REG_WRM(VTSS_ANA_CL_MIP_CFG(i), VTSS_F_ANA_CL_MIP_CFG_CPU_MIP_QU(conf->voi_queue), VTSS_M_ANA_CL_MIP_CFG_CPU_MIP_QU);
         REG_WRM(VTSS_REW_MIP_CFG(i), VTSS_F_REW_MIP_CFG_CPU_MIP_QU(conf->voi_queue), VTSS_M_REW_MIP_CFG_CPU_MIP_QU);
     }
@@ -293,7 +293,7 @@ static vtss_rc fa_voe_event_active_get(vtss_state_t   *vtss_state,
     }
 
     /* just scan all VOEs: */
-    for (i = 0; (i < active_size) && (i < VTSS_EVENT_MASK_ARRAY_SIZE); ++i) {
+    for (i = 0; (i < active_size) && (i < RT_EVENT_MASK_ARRAY_SIZE); ++i) {
         REG_RD(VTSS_VOP_INTR(i), &active[i]);
     }
 
@@ -306,6 +306,10 @@ static vtss_rc fa_voe_event_mask_set(vtss_state_t          *vtss_state,
                                      const BOOL            enable)
 {
     u32 enable_mask, reg_mask;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u  mask %u  enable %u", voe_idx, mask, enable);
 
@@ -340,6 +344,10 @@ static vtss_rc fa_voe_event_get(vtss_state_t          *vtss_state,
 {
     u32 enable_mask, sticky_mask;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Read the interrupt enable mask */
@@ -347,7 +355,7 @@ static vtss_rc fa_voe_event_get(vtss_state_t          *vtss_state,
 VTSS_D("enable_mask %X", enable_mask);
 
     /* Translate enable mask to sticky bit positions (yes, sticky bit position is not the same as enable bit position) */
-    enable_mask = 
+    enable_mask =
     (VTSS_F_VOP_INTR_STICKY_CCM_RX_SRC_PORT_DETECT_STICKY((enable_mask & VTSS_M_VOP_INTR_ENA_CCM_RX_SRC_PORT_DETECT_INTR_ENA)   ? 1 : 0) |
      VTSS_F_VOP_INTR_STICKY_TLV_PORT_STATUS_STICKY((enable_mask        & VTSS_M_VOP_INTR_ENA_TLV_PORT_STATUS_INTR_ENA)          ? 1 : 0) |
      VTSS_F_VOP_INTR_STICKY_TLV_INTERFACE_STATUS_STICKY((enable_mask   & VTSS_M_VOP_INTR_ENA_TLV_INTERFACE_STATUS_INTR_ENA)     ? 1 : 0) |
@@ -392,12 +400,12 @@ vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t         *vtss_state,
 {
     u32 i;
 
-    for (i = 0; (i < VTSS_PATH_SERVICE_VOE_CNT) && vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated; ++i) {
-        service_voe_alloc_idx = (service_voe_alloc_idx + 1) % VTSS_PATH_SERVICE_VOE_CNT;
+    for (i = 0; (i < RT_PATH_SERVICE_VOE_CNT) && vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated; ++i) {
+        service_voe_alloc_idx = (service_voe_alloc_idx + 1) % RT_PATH_SERVICE_VOE_CNT;
     }
-    if (i >= VTSS_PATH_SERVICE_VOE_CNT) {
+    if (i >= RT_PATH_SERVICE_VOE_CNT) {
         VTSS_E("No free Service VOE to allocate");
-        return VTSS_PATH_SERVICE_VOE_CNT;
+        return RT_PATH_SERVICE_VOE_CNT;
     }
     vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated = TRUE;
     vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].function = function;
@@ -410,11 +418,11 @@ vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
 {
     vtss_voe_alloc_t  *alloc_data;
 
-    if (voe_idx >= VTSS_VOE_CNT) {
+    if (voe_idx >= RT_VOE_CNT) {
         VTSS_D("VOE index is invalid  voe_idx %u", voe_idx);
         return (VTSS_RC_OK);
     }
-    if (voe_idx >= VTSS_PATH_SERVICE_VOE_CNT) {
+    if (voe_idx >= RT_PATH_SERVICE_VOE_CNT) {
         VTSS_D("VOE index is not a service VOE  voe_idx %u", voe_idx);
         return (VTSS_RC_OK);
     }
@@ -445,7 +453,7 @@ static vtss_rc fa_voe_alloc(vtss_state_t                 *vtss_state,
 
     if (type == VTSS_VOE_TYPE_SERVICE) {
         i = vtss_fa_service_voe_alloc(vtss_state, VTSS_VOE_FUNCTION_OAM);
-        if (i >= VTSS_PATH_SERVICE_VOE_CNT) {
+        if (i >= RT_PATH_SERVICE_VOE_CNT) {
             VTSS_E("No free Service VOE to allocate");
             return VTSS_RC_ERROR;
         }
@@ -454,8 +462,8 @@ static vtss_rc fa_voe_alloc(vtss_state_t                 *vtss_state,
             VTSS_E("Port VOE cannot be up");
             return VTSS_RC_ERROR;
         }
-        i = VTSS_CHIP_PORT(port) + VTSS_PORT_VOE_BASE_IDX;
-        if ((i >= VTSS_VOE_CNT)  ||  vtss_state->oam.voe_alloc_data[i].allocated) {
+        i = VTSS_CHIP_PORT(port) + RT_PORT_VOE_BASE_IDX;
+        if ((i >= RT_VOE_CNT)  ||  vtss_state->oam.voe_alloc_data[i].allocated) {
             VTSS_E("No free Port VOE to allocate");
             return VTSS_RC_ERROR;
         }
@@ -528,18 +536,18 @@ static vtss_rc fa_voe_alloc(vtss_state_t                 *vtss_state,
         REG_WR(VTSS_VOP_COSID_MAP_CFG_REW(*voe_idx), v);
         break;
     case VTSS_VOE_TYPE_PORT:
-        offset = (*voe_idx - VTSS_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE;
+        offset = (*voe_idx - RT_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE;
         for (i = 0; i < VTSS_PRIO_ARRAY_SIZE; ++i) {
             REG_WR(VTSS_ANA_AC_OAM_MOD_PORT_LM_CNT_LSB(offset + i), 0);
             REG_WR(VTSS_REW_PORT_LM_CNT_LSB(offset + i), 0);
             /* TBD - the port count-all Rx/Tx counters have been left out */
         }
         /* Default PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=0: */
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(*voe_idx - RT_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(*voe_idx - RT_PORT_VOE_BASE_IDX), 0);
         /* Default PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=1: */
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(*voe_idx - RT_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(*voe_idx - RT_PORT_VOE_BASE_IDX), 0);
         break;
     }
 
@@ -558,9 +566,13 @@ static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t  *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    if (voe_idx < VTSS_PATH_SERVICE_VOE_CNT) {
+    if (voe_idx < RT_PATH_SERVICE_VOE_CNT) {
         rc = vtss_fa_service_voe_free(vtss_state, VTSS_VOE_FUNCTION_OAM, voe_idx);
     } else {
         if (!alloc_data->allocated) {
@@ -587,10 +599,14 @@ static vtss_rc fa_voe_conf_set(vtss_state_t           *vtss_state,
     u32                i, value, mask;
     vtss_voe_alloc_t   *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    if (((voe_idx < VTSS_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_PORT)) ||
-        ((voe_idx >= VTSS_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_SERVICE))) {
+    if (((voe_idx < RT_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_PORT)) ||
+        ((voe_idx >= RT_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_SERVICE))) {
         VTSS_E("voe_idx %u  type %u.  VOE index and type mismatch", voe_idx, alloc_data->type);
         return VTSS_RC_ERROR;
     }
@@ -639,14 +655,14 @@ static vtss_rc fa_voe_conf_set(vtss_state_t           *vtss_state,
         for (i = 0, value = 0x88888888; i < 8; ++i) { /* set all "CountEnable=1" */
             value |= (i & 7) << (4 * i);
         }
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(voe_idx - RT_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(voe_idx - RT_PORT_VOE_BASE_IDX), value);
         /* PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=1: */
         for (i = 0, value = 0x88888888; i < 8; ++i) { /* set all "CountEnable=1" */
             value |= (i & 7) << (4 * i);
         }
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(voe_idx - RT_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(voe_idx - RT_PORT_VOE_BASE_IDX), value);
     }
 
     /*
@@ -689,6 +705,10 @@ static vtss_rc fa_voe_cc_conf_set(vtss_state_t              *vtss_state,
 {
     u32                 i, value, mask;
     const u8            *p;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -760,6 +780,10 @@ static vtss_rc fa_voe_cc_rdi_set(vtss_state_t          *vtss_state,
 {
     u32 value, mask;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u  rdi %u", voe_idx, rdi);
 
     REG_WRM(VTSS_VOP_CCM_STAT(voe_idx), VTSS_F_VOP_CCM_STAT_CCM_TX_RDI(rdi), VTSS_M_VOP_CCM_STAT_CCM_TX_RDI);
@@ -776,6 +800,10 @@ static vtss_rc fa_voe_cc_cpu_copy_next_set(vtss_state_t          *vtss_state,
                                             const vtss_voe_idx_t  voe_idx)
 {
     u32 value;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -801,6 +829,10 @@ static vtss_rc fa_voe_lt_conf_set(vtss_state_t               *vtss_state,
 {
     u32  value, mask;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure copy to CPU */
@@ -824,6 +856,10 @@ static vtss_rc fa_voe_lb_conf_set(vtss_state_t               *vtss_state,
 {
     u32  value, mask, transaction_id;
     BOOL doing_lb = 0, doing_tst;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -853,7 +889,7 @@ static vtss_rc fa_voe_lb_conf_set(vtss_state_t               *vtss_state,
 
     /* Enable/Disable LBM/LBR handling */
     REG_WR(VTSS_VOP_LOOPBACK_ENA(voe_idx), VTSS_F_VOP_LOOPBACK_ENA_LB_LBM_ENA(conf->enable ? 1 : 0));
-    value = VTSS_F_VOP_OAM_HW_CTRL_LBM_ENA(conf->enable ? 1 : 0) | 
+    value = VTSS_F_VOP_OAM_HW_CTRL_LBM_ENA(conf->enable ? 1 : 0) |
             VTSS_F_VOP_OAM_HW_CTRL_LBR_ENA(conf->enable ? 1 : 0) |
             VTSS_F_VOP_OAM_HW_CTRL_LBR_TLV_CRC_VERIFY_ENA(conf->enable ? 1 : 0);
     mask = VTSS_M_VOP_OAM_HW_CTRL_LBM_ENA | VTSS_M_VOP_OAM_HW_CTRL_LBR_ENA | VTSS_M_VOP_OAM_HW_CTRL_LBR_TLV_CRC_VERIFY_ENA;
@@ -871,6 +907,10 @@ static vtss_rc fa_voe_laps_conf_set(vtss_state_t                 *vtss_state,
                                      const vtss_voe_laps_conf_t   *const conf)
 {
     u32  value, mask;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -894,6 +934,10 @@ static vtss_rc fa_voe_status_get(vtss_state_t          *vtss_state,
                                   vtss_voe_status_t     *const status)
 {
     u32 value;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -931,6 +975,10 @@ static vtss_rc fa_voe_cc_status_get(vtss_state_t          *vtss_state,
                                      vtss_voe_cc_status_t  *status)
 {
     u32 value;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -970,6 +1018,10 @@ static vtss_rc fa_voe_lt_status_get(vtss_state_t           *vtss_state,
 {
     u32  value;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
@@ -992,6 +1044,10 @@ static vtss_rc fa_voe_lb_status_get(vtss_state_t           *vtss_state,
 {
     u32  value;
     BOOL doing_lb = 0, doing_tst = 0;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1024,6 +1080,10 @@ static vtss_rc fa_voe_laps_status_get(vtss_state_t             *vtss_state,
 {
     u32  value;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
@@ -1045,6 +1105,10 @@ static vtss_rc fa_voe_counters_get(vtss_state_t         *vtss_state,
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t  *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1069,6 +1133,10 @@ static vtss_rc fa_voe_cc_counters_get(vtss_state_t           *vtss_state,
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t  *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Poll so we get the most recent counter values */
@@ -1090,6 +1158,10 @@ static vtss_rc fa_voe_lb_counters_get(vtss_state_t           *vtss_state,
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t  *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Poll so we get the most recent counter values */
@@ -1110,6 +1182,10 @@ static vtss_rc fa_voe_counters_clear(vtss_state_t          *vtss_state,
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_VOE | VTSS_OAM_CNT_DIR_BOTH));
 
     return (VTSS_RC_OK);
@@ -1120,6 +1196,10 @@ static vtss_rc fa_voe_cc_counters_clear(vtss_state_t          *vtss_state,
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
 
     return (VTSS_RC_OK);
@@ -1129,6 +1209,10 @@ static vtss_rc fa_voe_lb_counters_clear(vtss_state_t          *vtss_state,
                                          const vtss_voe_idx_t  voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_LB | VTSS_OAM_CNT_DIR_BOTH));
 
@@ -1147,11 +1231,11 @@ static vtss_rc fa_voi_alloc(vtss_state_t                *vtss_state,
 
     if (direction == VTSS_OAM_DIRECTION_DOWN) {
         start = 0;                      /* voi_idx == 0 is the first Down-VOI */
-        count = VTSS_DOWN_VOI_CNT;
+        count = RT_DOWN_VOI_CNT;
         alloc_offset = &down_voi_alloc_offset;
     } else {
-        start = VTSS_DOWN_VOI_CNT;      /* voi_idx == VTSS_DOWN_VOI_CNT is the first Up-VOI */
-        count = VTSS_UP_VOI_CNT;
+        start = RT_DOWN_VOI_CNT;      /* voi_idx == RT_DOWN_VOI_CNT is the first Up-VOI */
+        count = RT_UP_VOI_CNT;
         alloc_offset = &up_voi_alloc_offset;
     }
 
@@ -1181,7 +1265,7 @@ static vtss_rc fa_voi_free(vtss_state_t            *vtss_state,
 
     VTSS_D("Enter  voi_idx %u", voi_idx);
 
-    if (voi_idx >= VTSS_VOI_CNT) {
+    if (voi_idx >= RT_VOI_CNT) {
         VTSS_E("Invalid  voi_idx %u", voi_idx);
         return (VTSS_RC_ERROR);
     }
@@ -1206,13 +1290,13 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
 
     VTSS_D("Enter  voi_idx %u", voi_idx);
 
-    if (voi_idx >= VTSS_VOI_CNT) {
+    if (voi_idx >= RT_VOI_CNT) {
         VTSS_E("Invalid  voi_idx %u", voi_idx);
         return (VTSS_RC_ERROR);
     }
 
     alloc_data = &vtss_state->oam.voi_alloc_data[voi_idx];
-    mip_idx = vtss_fa_voi_idx_to_mip_idx(voi_idx);
+    mip_idx = vtss_fa_voi_idx_to_mip_idx(vtss_state, voi_idx);
 
     if (alloc_data->direction == VTSS_OAM_DIRECTION_DOWN) {
         value = conf->enable ? (VTSS_F_ANA_CL_MIP_CFG_MEL_VAL(conf->meg_level)                           |
@@ -1245,7 +1329,6 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
                VTSS_M_REW_MIP_CFG_RAPS_CFG       |
                VTSS_M_REW_MIP_CFG_PIPELINE_PT;
         REG_WRM(VTSS_REW_MIP_CFG(mip_idx), value, mask);
-
         value = VTSS_F_REW_LBM_MAC_HIGH_LBM_MAC_HIGH((conf->unicast_mac.addr[0] << 8) | conf->unicast_mac.addr[1]);
         REG_WR(VTSS_REW_LBM_MAC_HIGH(mip_idx), value);
         value = (conf->unicast_mac.addr[2] << 24) | (conf->unicast_mac.addr[3] << 16) | (conf->unicast_mac.addr[4] << 8) | conf->unicast_mac.addr[5];
@@ -1257,30 +1340,33 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
     return (VTSS_RC_OK);
 }
 
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_COM(pr, name)            vtss_fa_debug_reg(vtss_state, pr, VTSS_VOP_##name,                    "COMMON:"#name)
-#define D_COM_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_##name(i),      (i),  "COMMON:"#name)
-#define D_VOE_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_##name(i),         (i),  "VOE:"#name)
-#define D_VOE_II(pr, name, i1, i2) vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_VOP_##name((i1),(i2)), (i2), "VOE:"#name)
+#define D_COM(pr, name)            vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_VOP_##name),                    "COMMON:"#name)
+#define D_COM_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_##name(i)),      (i),  "COMMON:"#name)
+#define D_VOE_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_##name(i)),         (i),  "VOE:"#name)
+#define D_VOE_II(pr, name, i1, i2) vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_##name((i1),(i2))), (i2), "VOE:"#name)
 #define DR_COM(name, v)            { REG_RD(VTSS_VOP_##name, &v); }
 #define DR_COM_I(name, i, v)       { REG_RD(VTSS_VOP_##name(i), &v); }
 #define DR_VOE_I(name, i, v)       { REG_RD(VTSS_VOP_##name(i), &v); }
 #define DR_VOE_II(name, i1, i2, v) { REG_RD(VTSS_VOP_##name((i1),(i2)), &v); }
-#define D_D_MIP_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_##name(i),         (i),  "DOWN_MIP:"#name)
-#define D_U_MIP_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, VTSS_REW_##name(i),         (i),  "UP_MIP:"#name)
-#define D_D_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, VTSS_ANA_CL_##name,  "DOWN_MIP:"#name)
-#define D_U_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, VTSS_REW_##name,  "UP_MIP:"#name)
+#define D_D_MIP_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_ANA_CL_##name(i)),         (i),  "DOWN_MIP:"#name)
+#define D_U_MIP_I(pr, name, i)       vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_REW_##name(i)),         (i),  "UP_MIP:"#name)
+#define D_D_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_CL_##name),  "DOWN_MIP:"#name)
+#define D_U_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_##name),  "UP_MIP:"#name)
+
+#endif
 
 static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
                              const vtss_debug_printf_t  pr,
                              const vtss_debug_info_t    *const info)
 {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32               i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt, dmip_cnt;
     char              buf[32];
     BOOL              show, vop, voe, status, clm, es0, isdx, lm_counters, d_mip, u_mip, mip_status, resources;
@@ -1364,13 +1450,9 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         D_COM(pr, HMO_TIMER_CFG);
         D_COM(pr, LOC_SCAN_STICKY);
         D_COM(pr, MASTER_INTR_CTRL);
-#if defined(VTSS_ARCH_LAN969X)
-        D_COM(pr, VOE32_INTR);
-#else
-        for (i = 0; i < 2; ++i) {
+        for (i = 0; i < (FA_TGT ? 2 : 1); ++i) {
             D_COM_I(pr, VOE32_INTR, i);
         }
-#endif
         for (i = 0; i < 7; ++i) {
             D_COM_I(pr, INTR, i);
         }
@@ -1380,7 +1462,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
     } /* Print VOP configurations */
 
     if (!info->has_action || voe) { /* VOE configuration must be printed */
-        for (i = 0; i < VTSS_VOE_CNT; ++i) {
+        for (i = 0; i < RT_VOE_CNT; ++i) {
             if (voe && (div > 1) && (voe_idx != i)) {   /* A specific VOE must be printed - this is not the one */
                 continue;
             }
@@ -1430,7 +1512,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
     } /* Print VOE configurations */
 
     if (!info->has_action || status) { /* VOE status must be printed */
-        for (i = 0; i < VTSS_VOE_CNT; ++i) {
+        for (i = 0; i < RT_VOE_CNT; ++i) {
             if (status && (div > 1) && (voe_idx != i)) {   /* A specific VOE must be printed - this is not the one */
                 continue;
             }
@@ -1480,7 +1562,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
     } /* Print VOE status */
 
     if (!info->has_action || lm_counters) { /* VOE LM counters must be printed */
-        for (i = 0; i < VTSS_VOE_CNT; ++i) {
+        for (i = 0; i < RT_VOE_CNT; ++i) {
             if (lm_counters && (div > 1) && (voe_idx != i)) {   /* A specific VOE must be printed - this is not the one */
                 continue;
             }
@@ -1493,20 +1575,20 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) { /* Print RX and TX count for each COS */
                     pr("%3u     ", k);
                     if ((w & VTSS_M_VOP_VOE_COMMON_CFG_UPMEP_ENA) != 0) { /* This an Up-MEP (Service instance) */
-                        tx_counter = VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k);
-                        rx_counter = VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k);
+                        tx_counter = REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
+                        rx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
                     } else {    /* This is Down-MEP */
-                        if (i >= VTSS_PORT_VOE_BASE_IDX) {  /* This is port Down-MEP */
-                            tx_counter = VTSS_REW_PORT_LM_CNT_LSB(((i - VTSS_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE) + k);
-                            rx_counter = VTSS_ANA_AC_OAM_MOD_PORT_LM_CNT_LSB(((i - VTSS_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE) + k);
+                        if (i >= RT_PORT_VOE_BASE_IDX) {  /* This is port Down-MEP */
+                            tx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB(((i - RT_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE) + k));
+                            rx_counter = REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(((i - RT_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE) + k));
                         } else {    /* This is a Service Down-MEP */
-                            tx_counter = VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k);
-                            rx_counter = VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k);
+                            tx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
+                            rx_counter = REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
                         }
                     }
-                    REG_RD(tx_counter, &v);
+                    vtss_fa_rd(vtss_state, tx_counter, &v);
                     pr("%10u      ", v);
-                    REG_RD(rx_counter, &v);
+                    vtss_fa_rd(vtss_state, rx_counter, &v);
                     pr("%10u\n", v);
                 }
             }
@@ -1516,20 +1598,20 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
 
     if (!info->has_action || resources) { /* Used resources must be printed */
         /* Print resource consumption */
-        for (i = 0; i < VTSS_VOE_CNT; ++i) {
+        for (i = 0; i < RT_VOE_CNT; ++i) {
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
             if ((v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) {
                 voe_cnt++;
             }
         }
-        for (i = 0; i < VTSS_DOWN_VOI_CNT; ++i) {
-            REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v)
+        for (i = 0; i < RT_DOWN_VOI_CNT; ++i) {
+            REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v);
             if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) != 0) {
                 dmip_cnt++;
             }
         }
-        for (i = 1; i < (VTSS_UP_VOI_CNT + 1); ++i) {   /* Up VOI instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB */
-            REG_RD(VTSS_REW_MIP_CFG(i), &v)
+        for (i = 1; i < (RT_UP_VOI_CNT + 1); ++i) {   /* Up VOI instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB */
+            REG_RD(VTSS_REW_MIP_CFG(i), &v);
             if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) != 0) {
                 umip_cnt++;
             }
@@ -1541,19 +1623,19 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         pr("DMIP: %u\n", dmip_cnt);
         pr("\n");
         pr("Maximum values:\n");
-        pr("SERVICE-VOE-MAX: %u\n", VTSS_PATH_SERVICE_VOE_CNT);
-        pr("PORT-VOE-MAX: %u\n", VTSS_PORT_VOE_CNT);
-        pr("UP-MIP-MAX: %u\n", VTSS_UP_VOI_CNT);
-        pr("DOWN-MIP-MAX: %u\n", VTSS_DOWN_VOI_CNT);
+        pr("SERVICE-VOE-MAX: %u\n", RT_PATH_SERVICE_VOE_CNT);
+        pr("PORT-VOE-MAX: %u\n", RT_PORT_VOE_CNT);
+        pr("UP-MIP-MAX: %u\n", RT_UP_VOI_CNT);
+        pr("DOWN-MIP-MAX: %u\n", RT_DOWN_VOI_CNT);
         pr("\n");
     } /* Print resource consumption */
 
     if (!info->has_action || d_mip) { /* Down-MIP must be printed */
-        for (i = 0; i < VTSS_DOWN_VOI_CNT; ++i) {
+        for (i = 0; i < RT_DOWN_VOI_CNT; ++i) {
             if (d_mip && (div > 1) && (voe_idx != i)) {   /* A specific Down-MIP must be printed - this is not the one */
                 continue;
             }
-            REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v)
+            REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v);
             if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
@@ -1567,12 +1649,12 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
     }
 
     if (!info->has_action || u_mip) { /* Up-MIP must be printed */
-        for (i = 1; i < (VTSS_UP_VOI_CNT + 1); ++i) {   /* Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB */
+        for (i = 1; i < (RT_UP_VOI_CNT + 1); ++i) {   /* Up MIP instance 0 is not used as it cannot be addressed by ES0 action - 0 has the meaning of no MIB */
             if (u_mip && (div > 1) && (voe_idx != i)) {   /* A specific Up-MIP must be printed - this is not the one */
                 continue;
             }
 
-            REG_RD(VTSS_REW_MIP_CFG(i), &v)
+            REG_RD(VTSS_REW_MIP_CFG(i), &v);
             if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) != 0) {  /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
@@ -1595,7 +1677,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         vtss_fa_debug_reg_header(pr, buf);
         D_U_MIP_S(pr, MIP_STICKY_EVENT);
     }
-
+#endif //!defined(VTSS_ARCH_LAN969X_FPGA)
     return VTSS_RC_OK;
 }
 
@@ -1606,6 +1688,7 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, fa_debug_vop, vtss_state, pr, info);
 }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #undef D_COM
 #undef D_COM_I
 #undef D_VOE_I
@@ -1615,16 +1698,21 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
 #undef DR_VOE_I
 #undef DR_VOE_II
 
-/* - Initialization ------------------------------------------------ */
-/* - Initialization ------------------------------------------------ */
-/* - Initialization ------------------------------------------------ */
-/* - Initialization ------------------------------------------------ */
 
+/* - Initialization ------------------------------------------------ */
+/* - Initialization ------------------------------------------------ */
+/* - Initialization ------------------------------------------------ */
+/* - Initialization ------------------------------------------------ */
+#endif
 
 static vtss_rc voe_default_set(vtss_state_t          *vtss_state,
                                const vtss_voe_idx_t  voe_idx)
 {
     vtss_rc  rc, ret_rc = VTSS_RC_OK;
+
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx]));
     VTSS_MEMSET(&vtss_state->oam.voe_cc_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_cc_conf[voe_idx]));
@@ -1673,6 +1761,10 @@ static vtss_rc voi_default_set(vtss_state_t          *vtss_state,
 {
     vtss_rc  rc;
 
+    if (voe_idx >= RT_VOE_CNT) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_MEMSET(&vtss_state->oam.voi_conf[voe_idx], 0, sizeof(vtss_state->oam.voi_conf[voe_idx]));
 
     rc = fa_voi_conf_set(vtss_state, voe_idx, &vtss_state->oam.voi_conf[voe_idx]);
@@ -1700,14 +1792,14 @@ static vtss_rc fa_oam_voe_poll_1sec(vtss_state_t *vtss_state)
      * that is polled every second by setting the target "full circle" period
      * to 20 seconds instead of 25.
      */
-    const u32 N = 1 + VTSS_VOE_CNT / 20;
+    const u32 N = 1 + RT_VOE_CNT / 20;
 
     vtss_voe_idx_t *idx = &(vtss_state->oam.voe_poll_idx);  /* For readability */
     u32 i;
 
     for (i = 0; i < N; ++i) {
         VTSS_RC(voe_counter_update(vtss_state, *idx, 0));
-        *idx = (*idx == VTSS_VOE_CNT - 1) ? 0 : *idx + 1;
+        *idx = (*idx == RT_VOE_CNT - 1) ? 0 : *idx + 1;
     }
 
     return VTSS_RC_OK;
@@ -1719,7 +1811,6 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     REG_WR(VTSS_VOP_VOP_CTRL, 0);
 
     service_voe_alloc_idx = 0;
-
 #if defined(VTSS_ARCH_LAN969X_FPGA)
         /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */
     loc_base = 594; /* ns */
@@ -1757,6 +1848,15 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
 
     /* This is to make down VOE looping (ex. LBM->LBR) possible without port being member of the classified VLAN */
     REG_WR(VTSS_ANA_ACL_VOE_LOOPBACK_CFG, 0);
+
+    vtss_state->oam.path_service_voe_cnt = RT_PATH_SERVICE_VOE_CNT;
+    vtss_state->oam.port_voe_base_idx = RT_PORT_VOE_BASE_IDX;
+    vtss_state->oam.port_voe_cnt = RT_PORT_VOE_CNT;
+    vtss_state->oam.down_voi_cnt = RT_DOWN_VOI_CNT;
+    vtss_state->oam.up_voi_cnt = RT_UP_VOI_CNT;
+    vtss_state->oam.voe_cnt = RT_VOE_CNT;
+    vtss_state->oam.voi_cnt = RT_VOI_CNT;
+    vtss_state->oam.event_mask_array_size = RT_EVENT_MASK_ARRAY_SIZE;
 
     return VTSS_RC_OK;
 }

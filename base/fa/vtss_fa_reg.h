@@ -7,24 +7,6 @@
 
 #if defined(VTSS_ARCH_FA)
 
-#if defined(VTSS_ARCH_SPARX5)
-#include "vtss_fa_regs.h"
-#include "vtss_fa_kernel_regs.h"
-#include "vtss_fa_vcap.h"
-#endif
-
-#if defined(VTSS_ARCH_LAN969X)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#include "fpga/vtss_laguna_regs.h"
-#include "fpga/vtss_laguna_vcap.h"
-#include "fpga/vtss_laguna_buildid.h"
-#else
-#include "laguna/vtss_laguna_regs.h"
-#include "laguna/vtss_laguna_vcap.h"
-#endif
-#endif
-
-
 /* Commands for Mac Table Command register */
 #define MAC_CMD_LEARN         0 /* Insert (Learn) 1 entry */
 #define MAC_CMD_UNLEARN       1 /* Unlearn (Forget) 1 entry */

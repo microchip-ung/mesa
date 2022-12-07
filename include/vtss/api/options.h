@@ -235,8 +235,23 @@
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
+
+// VTSS_ARCH_LAN969X and VTSS_ARCH_S5I specific features
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
+#define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
+#define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */
+#define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
+#define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
+#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
+#define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
+#define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
+#define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
+#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
+#if 0 // All feature are included and availble runtime based on target skew.
 #if defined(VTSS_ARCH_LAN969X)
 /* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
@@ -261,6 +276,7 @@
 #elif defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #endif /* VTSS_ARCH_SPARX5_CE */
+#endif
 
 #if defined(VTSS_CHIP_SPARX_IV_44) || defined(VTSS_CHIP_SPARX_IV_52) || defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)
 #define VTSS_ARCH_JAGUAR_2                     /**< Jaguar-2 architecture */
