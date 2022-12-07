@@ -19,6 +19,16 @@ typedef mepa_rc (*mepa_macsec_port_get_next_t)(struct mepa_device *dev, const me
 typedef mepa_rc (*mepa_macsec_rx_sc_add_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci);
 typedef mepa_rc (*mepa_macsec_rx_sc_update_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const mepa_macsec_rx_sc_conf_t *const conf);
 typedef mepa_rc (*mepa_macsec_rx_sc_get_conf_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, mepa_macsec_rx_sc_conf_t *const conf);
+typedef mepa_rc (*mepa_macsec_rx_sc_get_next_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const search_sci, mepa_macsec_sci_t *const found_sci);
+typedef mepa_rc (*mepa_macsec_rx_sc_del_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci);
+typedef mepa_rc (*mepa_macsec_rx_sc_status_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, mepa_macsec_rx_sc_status_t *const status);
+typedef mepa_rc (*mepa_macsec_tx_sc_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port);
+typedef mepa_rc (*mepa_macsec_tx_sc_update_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_tx_sc_conf_t *const conf);
+typedef mepa_rc (*mepa_macsec_tx_sc_get_conf_t)(struct mepa_device *dev, const mepa_macsec_port_t port, mepa_macsec_tx_sc_conf_t *const conf);
+typedef mepa_rc (*mepa_macsec_tx_sc_del_t)(struct mepa_device *dev, const mepa_macsec_port_t port);
+typedef mepa_rc (*mepa_macsec_tx_sc_status_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, mepa_macsec_tx_sc_status_t *const status);
+
+
 
 /** \brief PHY MACsec Driver */
 typedef struct mepa_macsec_driver {
@@ -35,6 +45,14 @@ typedef struct mepa_macsec_driver {
     mepa_macsec_rx_sc_add_t mepa_macsec_rx_sc_add;
     mepa_macsec_rx_sc_update_t mepa_macsec_rx_sc_update;
     mepa_macsec_rx_sc_get_conf_t mepa_macsec_rx_sc_get_conf;
+    mepa_macsec_rx_sc_get_next_t mepa_macsec_rx_sc_get_next;
+    mepa_macsec_rx_sc_del_t mepa_macsec_rx_sc_del;
+    mepa_macsec_rx_sc_status_get_t mepa_macsec_rx_sc_status_get;
+    mepa_macsec_tx_sc_set_t mepa_macsec_tx_sc_set;
+    mepa_macsec_tx_sc_update_t mepa_macsec_tx_sc_update;
+    mepa_macsec_tx_sc_get_conf_t mepa_macsec_tx_sc_get_conf;
+    mepa_macsec_tx_sc_del_t mepa_macsec_tx_sc_del;
+    mepa_macsec_tx_sc_status_get_t mepa_macsec_tx_sc_status_get;
 
 } mepa_macsec_driver_t;
 

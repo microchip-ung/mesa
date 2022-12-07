@@ -163,3 +163,91 @@ mepa_rc meba_phy_macsec_rx_sc_get_conf(meba_inst_t inst, mepa_port_no_t port_no,
 
     return mepa_macsec_rx_sc_get_conf(inst->phy_devices[port_no], port, sci, conf);
 }
+
+mepa_rc meba_phy_macsec_rx_sc_get_next(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const search_sci, mepa_macsec_sci_t *const found_sci)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_rx_sc_get_next(inst->phy_devices[port_no], port, search_sci, found_sci);
+}
+
+mepa_rc meba_phy_macsec_rx_sc_del(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_rx_sc_del(inst->phy_devices[port_no], port, sci);
+}
+
+mepa_rc meba_phy_macsec_rx_sc_status_get(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, mepa_macsec_rx_sc_status_t *const status)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_rx_sc_status_get(inst->phy_devices[port_no], port, sci, status);
+}
+
+mepa_rc meba_phy_macsec_tx_sc_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sc_set(inst->phy_devices[port_no], port);
+}
+
+mepa_rc meba_phy_macsec_tx_sc_update(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_tx_sc_conf_t *const conf)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sc_update(inst->phy_devices[port_no], port, conf);
+}
+
+mepa_rc meba_phy_macsec_tx_sc_get_conf(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, mepa_macsec_tx_sc_conf_t *const conf)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sc_get_conf(inst->phy_devices[port_no], port, conf);
+}
+
+mepa_rc meba_phy_macsec_tx_sc_del(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sc_del(inst->phy_devices[port_no], port);
+}
+
+mepa_rc meba_phy_macsec_tx_sc_status_get(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, mepa_macsec_tx_sc_status_t *const status)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sc_status_get(inst->phy_devices[port_no], port, status);
+}

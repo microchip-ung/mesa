@@ -174,25 +174,8 @@ typedef struct {
 
 typedef mepa_macsec_port_status_t vtss_macsec_port_status_t;
 typedef mepa_macsec_secy_port_status_t vtss_macsec_secy_port_status_t;
-
-/** \brief Tx SC status as defined by 802.1AE */
-typedef struct {
-    vtss_macsec_sci_t sci; /**< SCI id (802.1AE) */
-    BOOL transmitting;     /**< Transmitting status (802.1AE) */
-    u16 encoding_sa;       /**< Encoding (802.1AE) */
-    u16 enciphering_sa;    /**< Enciphering (802.1AE)  */
-    u32 created_time;      /**< Created time (802.1AE) */
-    u32 started_time;      /**< Started time (802.1AE) */
-    u32 stopped_time;      /**< Stopped time (802.1AE) */
-} vtss_macsec_tx_sc_status_t;
-
-/** \brief Rx SC status as defined by 802.1AE section 10.7 */
-typedef struct {
-    BOOL receiving;        /**< Receiving status (802.1AE) */
-    u32 created_time;      /**< Created time (802.1AE) */
-    u32 started_time;      /**< Started time (802.1AE) */
-    u32 stopped_time;      /**< Stopped time (802.1AE) */
-} vtss_macsec_rx_sc_status_t;
+typedef mepa_macsec_tx_sc_status_t vtss_macsec_tx_sc_status_t;
+typedef mepa_macsec_rx_sc_status_t vtss_macsec_rx_sc_status_t;
 
 /** \brief Tx SecA XPN status as defined by 802.1AE */
 typedef struct {
@@ -227,17 +210,7 @@ typedef struct {
 } vtss_macsec_rx_sa_status_t;
 
 typedef mepa_macsec_rx_sc_conf_t vtss_macsec_rx_sc_conf_t;
-
-/** \brief Tx SC parameters (optional) */
-typedef struct {
-    BOOL protect_frames;                    /**< The protectFrames control (802.1AE section 10.7.17) */
-    BOOL always_include_sci;                /**< The alwaysIncludeSCI control (802.1AE section 10.7.17) */
-    BOOL use_es;                            /**< The useES control (802.1AE section 10.7.17) */
-    BOOL use_scb;                           /**< The useSCB control (802.1AE section 10.7.17) */
-    u32 confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
-} vtss_macsec_tx_sc_conf_t;
-
-
+typedef mepa_macsec_tx_sc_conf_t vtss_macsec_tx_sc_conf_t;
 typedef mepa_macsec_lmac_conf_t vtss_macsec_lmac_conf_t;
 typedef mepa_macsec_hmac_conf_t vtss_macsec_hmac_conf_t;
 typedef mepa_macsec_mac_conf_t vtss_macsec_mac_conf_t;

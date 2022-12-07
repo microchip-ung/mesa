@@ -98,6 +98,62 @@ static mepa_rc vtss_phy_macsec_rx_sc_get_conf(struct mepa_device *dev,
     return vtss_macsec_rx_sc_get_conf(NULL, port, sci, conf);
 }
 
+static mepa_rc vtss_phy_macsec_rx_sc_get_next(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port,
+                                              const mepa_macsec_sci_t *const search_sci,
+                                              mepa_macsec_sci_t *const found_sci)
+{
+    return vtss_macsec_rx_sc_get_next(NULL, port, search_sci, found_sci);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sc_del(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port,
+                                         const mepa_macsec_sci_t *const sci)
+{
+    return vtss_macsec_rx_sc_del(NULL, port, sci);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sc_status_get(struct mepa_device *dev,
+                                                const mepa_macsec_port_t port,
+                                                const mepa_macsec_sci_t *const sci,
+                                                mepa_macsec_rx_sc_status_t *const status)
+{
+    return vtss_macsec_rx_sc_status_get(NULL, port, sci, status);
+}
+
+static mepa_rc vtss_phy_macsec_tx_sc_set(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port)
+{
+    return vtss_macsec_tx_sc_set(NULL, port);
+}
+
+static mepa_rc vtss_phy_macsec_tx_sc_update(struct mepa_device *dev,
+                                            const mepa_macsec_port_t port,
+                                            const mepa_macsec_tx_sc_conf_t *const conf)
+{
+    return vtss_macsec_tx_sc_update(NULL, port, conf);
+}
+
+static mepa_rc vtss_phy_macsec_tx_sc_get_conf(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port,
+                                              mepa_macsec_tx_sc_conf_t *const conf)
+{
+    return vtss_macsec_tx_sc_get_conf(NULL, port, conf);
+}
+
+static mepa_rc vtss_phy_macsec_tx_sc_del(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port)
+{
+    return vtss_macsec_tx_sc_del(NULL, port);
+}
+
+static mepa_rc vtss_phy_macsec_tx_sc_status_get(struct mepa_device *dev,
+                                                const mepa_macsec_port_t port,
+                                                mepa_macsec_tx_sc_status_t *const status)
+{
+    return vtss_macsec_tx_sc_status_get(NULL, port, status);
+}
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -112,5 +168,13 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_rx_sc_add = vtss_phy_macsec_rx_sc_add,
     .mepa_macsec_rx_sc_update = vtss_phy_macsec_rx_sc_update,
     .mepa_macsec_rx_sc_get_conf = vtss_phy_macsec_rx_sc_get_conf,
+    .mepa_macsec_rx_sc_get_next = vtss_phy_macsec_rx_sc_get_next,
+    .mepa_macsec_rx_sc_del = vtss_phy_macsec_rx_sc_del,
+    .mepa_macsec_rx_sc_status_get = vtss_phy_macsec_rx_sc_status_get,
+    .mepa_macsec_tx_sc_set = vtss_phy_macsec_tx_sc_set,
+    .mepa_macsec_tx_sc_update = vtss_phy_macsec_tx_sc_update,
+    .mepa_macsec_tx_sc_get_conf = vtss_phy_macsec_tx_sc_get_conf,
+    .mepa_macsec_tx_sc_del = vtss_phy_macsec_tx_sc_del,
+    .mepa_macsec_tx_sc_status_get = vtss_phy_macsec_tx_sc_status_get,
 
 };

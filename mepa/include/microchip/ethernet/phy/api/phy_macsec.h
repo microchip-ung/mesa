@@ -9,34 +9,34 @@
 
 /** \brief SecY port status as defined by 802.1AE */
 typedef struct {
-    mepa_bool_t mac_enabled;             /**< MAC is enabled (802.1AE) */
-    mepa_bool_t mac_operational;         /**< MAC is operational (802.1AE) */
-    mepa_bool_t oper_point_to_point_mac; /**< Point to point oper status (802.1AE) */
+    mepa_bool_t mac_enabled;                                  /**< MAC is enabled (802.1AE) */
+    mepa_bool_t mac_operational;                              /**< MAC is operational (802.1AE) */
+    mepa_bool_t oper_point_to_point_mac;                      /**< Point to point oper status (802.1AE) */
 } mepa_macsec_port_status_t;
 
 typedef struct {
-    mepa_macsec_port_status_t controlled;   /**< 802.1AE Controlled port status */
-    mepa_macsec_port_status_t uncontrolled; /**< 802.1AE Uncontrolled port status */
-    mepa_macsec_port_status_t common;       /**< 802.1AE Common port status */
+    mepa_macsec_port_status_t controlled;                     /**< 802.1AE Controlled port status */
+    mepa_macsec_port_status_t uncontrolled;                   /**< 802.1AE Uncontrolled port status */
+    mepa_macsec_port_status_t common;                         /**< 802.1AE Common port status */
 } mepa_macsec_secy_port_status_t;
 
 /** \brief Port Number */
 typedef uint32_t mepa_port_no_t;
-typedef uint16_t mepa_macsec_vport_id_t;   /**< Virtual port Id. Corresponds to a SecY.  */
-typedef uint32_t mepa_macsec_service_id_t; /**< Encapsulation service id */
+typedef uint16_t mepa_macsec_vport_id_t;                      /**< Virtual port Id. Corresponds to a SecY.  */
+typedef uint32_t mepa_macsec_service_id_t;                    /**< Encapsulation service id */
 
 typedef enum {
-    MEPA_MACSEC_VALIDATE_FRAMES_DISABLED, /**< Do not perform integrity check */
-    MEPA_MACSEC_VALIDATE_FRAMES_CHECK,    /**< Perform integrity check do not drop failed frames */
-    MEPA_MACSEC_VALIDATE_FRAMES_STRICT    /**< Perform integrity check and drop failed frames */
+    MEPA_MACSEC_VALIDATE_FRAMES_DISABLED,                     /**< Do not perform integrity check */
+    MEPA_MACSEC_VALIDATE_FRAMES_CHECK,                        /**< Perform integrity check do not drop failed frames */
+    MEPA_MACSEC_VALIDATE_FRAMES_STRICT                        /**< Perform integrity check and drop failed frames */
 } mepa_validate_frames_t;
 
 /** \brief Values of the CipherSuite control */
 typedef enum {
-    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128,     /**< GCM-AES-128 cipher suite */
-    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_256,     /**< GCM-AES-256 cipher suite. */
-    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128, /**< GCM-AES-XPN_128 cipher suite for XPN mode. */
-    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256  /**< GCM-AES-XPN_256 cipher suite for XPN mode. */
+    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128,                     /**< GCM-AES-128 cipher suite */
+    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_256,                     /**< GCM-AES-256 cipher suite. */
+    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128,                 /**< GCM-AES-XPN_128 cipher suite for XPN mode. */
+    MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256                  /**< GCM-AES-XPN_256 cipher suite for XPN mode. */
 } mepa_macsec_ciphersuite_t;
 
 /** \brief The mepa_macsec_port_t is a unique identifier to a SecY.
@@ -49,46 +49,67 @@ typedef enum {
  *  - port_id:    The port ID which used in the SCI tag.
  * */
 typedef struct {
-    mepa_port_no_t           port_no;    /**< Physical port no */
-    mepa_macsec_service_id_t service_id; /**< Service id */
-    mepa_macsec_vport_id_t   port_id;    /**< Virtual port id, the port number used in the optional SCI tag */
+    mepa_port_no_t           port_no;                         /**< Physical port no */
+    mepa_macsec_service_id_t service_id;                      /**< Service id */
+    mepa_macsec_vport_id_t   port_id;                         /**< Virtual port id, the port number used in the optional SCI tag */
 } mepa_macsec_port_t;
 
 /** \brief SecY control information (802.1AE section 10.7) */
 typedef struct {
-    mepa_mac_t mac_addr;                    /**< Mac address of the Tx SecY */
-    mepa_validate_frames_t validate_frames; /**< The validateFrames control (802.1AE section 10.7.8) */
-    mepa_bool_t replay_protect;                    /**< The replayProtect control (802.1AE section 10.7.8) */
-    uint32_t replay_window;                      /**< The replayWindow control (802.1AE section 10.7.8) */
-    mepa_bool_t protect_frames;                    /**< The protectFrames control (802.1AE section 10.7.17) */
-    mepa_bool_t always_include_sci;                /**< The alwaysIncludeSCI control (802.1AE section 10.7.17) */
-    mepa_bool_t use_es;                            /**< The useES control (802.1AE section 10.7.17) */
-    mepa_bool_t use_scb;                           /**< The useSCB control (802.1AE section 10.7.17) */
-    mepa_macsec_ciphersuite_t current_cipher_suite; /**< The currentCipherSuite control (802.1AE section 10.7.25) */
-    uint32_t confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
+    mepa_mac_t mac_addr;                                      /**< Mac address of the Tx SecY */
+    mepa_validate_frames_t validate_frames;                   /**< The validateFrames control (802.1AE section 10.7.8) */
+    mepa_bool_t replay_protect;                               /**< The replayProtect control (802.1AE section 10.7.8) */
+    uint32_t replay_window;                                   /**< The replayWindow control (802.1AE section 10.7.8) */
+    mepa_bool_t protect_frames;                               /**< The protectFrames control (802.1AE section 10.7.17) */
+    mepa_bool_t always_include_sci;                           /**< The alwaysIncludeSCI control (802.1AE section 10.7.17) */
+    mepa_bool_t use_es;                                       /**< The useES control (802.1AE section 10.7.17) */
+    mepa_bool_t use_scb;                                      /**< The useSCB control (802.1AE section 10.7.17) */
+    mepa_macsec_ciphersuite_t current_cipher_suite;           /**< The currentCipherSuite control (802.1AE section 10.7.25) */
+    uint32_t confidentiality_offset;                          /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
 } mepa_macsec_secy_conf_t;
 
 /** 8 byte Secure Channel Identifier (SCI)  */
 typedef struct {
-    mepa_mac_t              mac_addr; /**< 6 byte MAC address */
-    mepa_macsec_vport_id_t  port_id;  /**< 2 byte Port Id */
+    mepa_mac_t              mac_addr;                         /**< 6 byte MAC address */
+    mepa_macsec_vport_id_t  port_id;                          /**< 2 byte Port Id */
 } mepa_macsec_sci_t;
 
 /** \brief Rx SC parameters (optional) */
 typedef struct {
-    mepa_validate_frames_t validate_frames; /**< The validateFrames control (802.1AE section 10.7.8) */
-    mepa_bool_t replay_protect;                    /**< The replayProtect control (802.1AE section 10.7.8) */
-    uint32_t replay_window;                      /**< The replayWindow control (802.1AE section 10.7.8) */
-    uint32_t confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
+    mepa_validate_frames_t validate_frames;                   /**< The validateFrames control (802.1AE section 10.7.8) */
+    mepa_bool_t replay_protect;                               /**< The replayProtect control (802.1AE section 10.7.8) */
+    uint32_t replay_window;                                   /**< The replayWindow control (802.1AE section 10.7.8) */
+    uint32_t confidentiality_offset;                          /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
 } mepa_macsec_rx_sc_conf_t;
 
 /** \brief Rx SC status as defined by 802.1AE section 10.7 */
 typedef struct {
-    mepa_bool_t receiving;        /**< Receiving status (802.1AE) */
-    uint32_t created_time;      /**< Created time (802.1AE) */
-    uint32_t started_time;      /**< Started time (802.1AE) */
-    uint32_t stopped_time;      /**< Stopped time (802.1AE) */
+    mepa_bool_t receiving;                                    /**< Receiving status (802.1AE) */
+    uint32_t created_time;                                    /**< Created time (802.1AE) */
+    uint32_t started_time;                                    /**< Started time (802.1AE) */
+    uint32_t stopped_time;                                    /**< Stopped time (802.1AE) */
 } mepa_macsec_rx_sc_status_t;
+
+/** \brief Tx SC parameters (optional) */
+typedef struct {
+    mepa_bool_t protect_frames;                               /**< The protectFrames control (802.1AE section 10.7.17) */
+    mepa_bool_t always_include_sci;                           /**< The alwaysIncludeSCI control (802.1AE section 10.7.17) */
+    mepa_bool_t use_es;                                       /**< The useES control (802.1AE section 10.7.17) */
+    mepa_bool_t use_scb;                                      /**< The useSCB control (802.1AE section 10.7.17) */
+    uint32_t confidentiality_offset;                          /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
+} mepa_macsec_tx_sc_conf_t;
+
+/** \brief Tx SC status as defined by 802.1AE */
+typedef struct {
+    mepa_macsec_sci_t sci;                                    /**< SCI id (802.1AE) */
+    mepa_bool_t transmitting;                                 /**< Transmitting status (802.1AE) */
+    uint16_t encoding_sa;                                     /**< Encoding (802.1AE) */
+    uint16_t enciphering_sa;                                  /**< Enciphering (802.1AE)  */
+    uint32_t created_time;                                    /**< Created time (802.1AE) */
+    uint32_t started_time;                                    /**< Started time (802.1AE) */
+    uint32_t stopped_time;                                    /**< Stopped time (802.1AE) */
+} mepa_macsec_tx_sc_status_t;
+
 
 // PHY Line MAC block configuration
 typedef struct {
@@ -241,6 +262,59 @@ mepa_rc mepa_macsec_rx_sc_get_conf(struct mepa_device *dev,
                                    const mepa_macsec_port_t port,
                                    const mepa_macsec_sci_t *const sci,
                                    mepa_macsec_rx_sc_conf_t *const conf);
+
+/* Browse through the Rx SCs inside of the SecY. */
+mepa_rc mepa_macsec_rx_sc_get_next(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   const mepa_macsec_sci_t *const search_sci,
+                                   mepa_macsec_sci_t *const found_sci);
+
+
+/* Delete the Rx SC and the associated SAs */
+mepa_rc mepa_macsec_rx_sc_del(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const mepa_macsec_sci_t *const sci);
+
+/* Rx SC status info */
+mepa_rc mepa_macsec_rx_sc_status_get(struct mepa_device *dev,
+                                     const mepa_macsec_port_t port,
+                                     const mepa_macsec_sci_t *const sci,
+                                     mepa_macsec_rx_sc_status_t *const status);
+
+/*--------------------------------------------------------------------*/
+/* Transmit Secure Channel (SC) management                            */
+/*--------------------------------------------------------------------*/
+
+/** Create an Tx SC object inside of the SecY.  One TxSC is supported for each SecY.  */
+mepa_rc mepa_macsec_tx_sc_set(struct mepa_device *dev,
+                              const mepa_macsec_port_t port);
+
+/** \brief Instead of inheriting the configuration from the SecY the Tx SC can use its own configuration.
+ * TxSC update with new parameters i.e. Replay Window size etc, it will
+ * update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+ * will not change. Tx SA Status Next PN and Lowest PN shows different
+ * as compare with existing Tx SA Status.
+ *
+ */
+mepa_rc mepa_macsec_tx_sc_update(struct mepa_device *dev,
+                                 const mepa_macsec_port_t port,
+                                 const mepa_macsec_tx_sc_conf_t *const conf);
+
+
+/** Get the SC configuration */
+mepa_rc mepa_macsec_tx_sc_get_conf(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   mepa_macsec_tx_sc_conf_t *const conf);
+
+/** \brief Delete the Tx SC object and the associated SAs */
+mepa_rc mepa_macsec_tx_sc_del(struct mepa_device *dev,
+                              const mepa_macsec_port_t port);
+
+
+/** \brief Tx SC status */
+mepa_rc mepa_macsec_tx_sc_status_get(struct mepa_device *dev,
+                                     const mepa_macsec_port_t port,
+                                     mepa_macsec_tx_sc_status_t *const status);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
