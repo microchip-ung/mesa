@@ -7,6 +7,19 @@
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
+/** \brief SecY port status as defined by 802.1AE */
+typedef struct {
+    mepa_bool_t mac_enabled;             /**< MAC is enabled (802.1AE) */
+    mepa_bool_t mac_operational;         /**< MAC is operational (802.1AE) */
+    mepa_bool_t oper_point_to_point_mac; /**< Point to point oper status (802.1AE) */
+} mepa_macsec_port_status_t;
+
+typedef struct {
+    mepa_macsec_port_status_t controlled;   /**< 802.1AE Controlled port status */
+    mepa_macsec_port_status_t uncontrolled; /**< 802.1AE Uncontrolled port status */
+    mepa_macsec_port_status_t common;       /**< 802.1AE Common port status */
+} mepa_macsec_secy_port_status_t;
+
 /** \brief Port Number */
 typedef uint32_t mepa_port_no_t;
 typedef uint16_t mepa_macsec_vport_id_t;   /**< Virtual port Id. Corresponds to a SecY.  */
@@ -54,6 +67,28 @@ typedef struct {
     mepa_macsec_ciphersuite_t current_cipher_suite; /**< The currentCipherSuite control (802.1AE section 10.7.25) */
     uint32_t confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
 } mepa_macsec_secy_conf_t;
+
+/** 8 byte Secure Channel Identifier (SCI)  */
+typedef struct {
+    mepa_mac_t              mac_addr; /**< 6 byte MAC address */
+    mepa_macsec_vport_id_t  port_id;  /**< 2 byte Port Id */
+} mepa_macsec_sci_t;
+
+/** \brief Rx SC parameters (optional) */
+typedef struct {
+    mepa_validate_frames_t validate_frames; /**< The validateFrames control (802.1AE section 10.7.8) */
+    mepa_bool_t replay_protect;                    /**< The replayProtect control (802.1AE section 10.7.8) */
+    uint32_t replay_window;                      /**< The replayWindow control (802.1AE section 10.7.8) */
+    uint32_t confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
+} mepa_macsec_rx_sc_conf_t;
+
+/** \brief Rx SC status as defined by 802.1AE section 10.7 */
+typedef struct {
+    mepa_bool_t receiving;        /**< Receiving status (802.1AE) */
+    uint32_t created_time;      /**< Created time (802.1AE) */
+    uint32_t started_time;      /**< Started time (802.1AE) */
+    uint32_t stopped_time;      /**< Stopped time (802.1AE) */
+} mepa_macsec_rx_sc_status_t;
 
 // PHY Line MAC block configuration
 typedef struct {
@@ -132,5 +167,80 @@ mepa_rc mepa_macsec_init_get(struct mepa_device *dev,
 mepa_rc mepa_macsec_secy_conf_add(struct mepa_device *dev,
                                   const mepa_macsec_port_t port,
                                   const mepa_macsec_secy_conf_t *const conf);
+
+/** Create a SecY entity of a MACsec port
+ * The SecY is updated with given parameters.
+ * Note that the SecY must exist
+ * SecY update with new parameters i.e. Replay Window size etc, it will
+ * update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+ * will not change. Tx/Rx SA Status Next PN and Lowest PN shows different
+ * as compare with existing Tx/Rx SA Status.
+ *
+ */
+mepa_rc mepa_macsec_secy_conf_update(struct mepa_device *dev,
+                                     const mepa_macsec_port_t port,
+                                     const mepa_macsec_secy_conf_t *const conf);
+
+/** Get the SecY entry. */
+mepa_rc mepa_macsec_secy_conf_get(struct mepa_device *dev,
+                                  const mepa_macsec_port_t port,
+                                  mepa_macsec_secy_conf_t *const conf);
+
+/** \brief Delete the SecY and the associated SCs/SAs */
+mepa_rc mepa_macsec_secy_conf_del(struct mepa_device *dev,
+                                  const mepa_macsec_port_t port);
+
+/** \brief Enable/Disable the SecY's controlled (secure) port.
+* The controlled port is disabled by default.
+*/
+mepa_rc mepa_macsec_secy_controlled_set(struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        const mepa_bool_t enable);
+
+/** Get the state config of the controlled (secure) port. */
+mepa_rc mepa_macsec_secy_controlled_get(struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        mepa_bool_t *const enable);
+
+/** Get status from a SecY port, controlled, uncontrolled or common. */
+mepa_rc mepa_macsec_secy_port_status_get(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port,
+                                         mepa_macsec_secy_port_status_t *const status);
+
+/** Browse through available macsec ports (secy's) on a physical port
+ *  Use NULL pointer to get the first port and use found ports as a search port in the next round.
+*/
+mepa_rc mepa_macsec_port_get_next(struct mepa_device *dev,
+                                  const mepa_port_no_t port_no,
+                                  const mepa_macsec_port_t *const search_macsec_port,
+                                  mepa_macsec_port_t *const found_macsec_port);
+
+
+/*--------------------------------------------------------------------*/
+/* Receive Secure Channel (SC) management                             */
+/*--------------------------------------------------------------------*/
+
+/** Create an Rx SC object inside of the SecY. */
+mepa_rc mepa_macsec_rx_sc_add(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const mepa_macsec_sci_t *const sci);
+
+/** Instead of inheriting the configuration from the SecY the Rx SC can use its own configuration.
+* RxSC update with new parameters i.e. Replay Window size etc, it will
+* update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+* will not change. Rx SA Status Next PN and Lowest PN shows different
+* as compare with existing Rx SA Status.
+*/
+mepa_rc mepa_macsec_rx_sc_update(struct mepa_device *dev,
+                                 const mepa_macsec_port_t port,
+                                 const mepa_macsec_sci_t  *const sci,
+                                 const mepa_macsec_rx_sc_conf_t *const conf);
+
+/*Get the configuration of the SC. */
+mepa_rc mepa_macsec_rx_sc_get_conf(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   const mepa_macsec_sci_t *const sci,
+                                   mepa_macsec_rx_sc_conf_t *const conf);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

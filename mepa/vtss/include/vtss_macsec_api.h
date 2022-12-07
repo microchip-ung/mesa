@@ -165,30 +165,15 @@ typedef struct {
     vtss_macsec_salt_t salt; /**< salt used for XPN */
 } vtss_macsec_sak_t;
 
-/** \brief 8 byte Secure Channel Identifier (SCI)  */
-typedef struct {
-    vtss_mac_t              mac_addr; /**< 6 byte MAC address */
-    vtss_macsec_vport_id_t  port_id;  /**< 2 byte Port Id */
-} vtss_macsec_sci_t;
+typedef mepa_macsec_sci_t vtss_macsec_sci_t;
 
 /** \brief Short SCI (SSCI). Used for XPN. */
 typedef struct {
     u8 buf[4];   /**< Buffer containing the 4-byte SSCI for XPN. */
 } vtss_macsec_ssci_t;
 
-/** \brief SecY port status as defined by 802.1AE */
-typedef struct {
-    BOOL mac_enabled;             /**< MAC is enabled (802.1AE) */
-    BOOL mac_operational;         /**< MAC is operational (802.1AE) */
-    BOOL oper_point_to_point_mac; /**< Point to point oper status (802.1AE) */
-} vtss_macsec_port_status_t;
-
-/** \brief Status for SecY ports */
-typedef struct {
-    vtss_macsec_port_status_t controlled;   /**< 802.1AE Controlled port status */
-    vtss_macsec_port_status_t uncontrolled; /**< 802.1AE Uncontrolled port status */
-    vtss_macsec_port_status_t common;       /**< 802.1AE Common port status */
-} vtss_macsec_secy_port_status_t;
+typedef mepa_macsec_port_status_t vtss_macsec_port_status_t;
+typedef mepa_macsec_secy_port_status_t vtss_macsec_secy_port_status_t;
 
 /** \brief Tx SC status as defined by 802.1AE */
 typedef struct {
@@ -241,13 +226,7 @@ typedef struct {
     vtss_macsec_rx_sa_pn_status_t pn_status; /**< Rx SecA XPN status */
 } vtss_macsec_rx_sa_status_t;
 
-/** \brief Rx SC parameters (optional) */
-typedef struct {
-    vtss_validate_frames_t validate_frames; /**< The validateFrames control (802.1AE section 10.7.8) */
-    BOOL replay_protect;                    /**< The replayProtect control (802.1AE section 10.7.8) */
-    u32 replay_window;                      /**< The replayWindow control (802.1AE section 10.7.8) */
-    u32 confidentiality_offset;             /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
-} vtss_macsec_rx_sc_conf_t;
+typedef mepa_macsec_rx_sc_conf_t vtss_macsec_rx_sc_conf_t;
 
 /** \brief Tx SC parameters (optional) */
 typedef struct {
