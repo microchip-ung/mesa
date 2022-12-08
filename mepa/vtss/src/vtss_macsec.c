@@ -154,6 +154,101 @@ static mepa_rc vtss_phy_macsec_tx_sc_status_get(struct mepa_device *dev,
     return vtss_macsec_tx_sc_status_get(NULL, port, status);
 }
 
+static mepa_rc vtss_phy_macsec_rx_sa_set(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port,
+                                         const mepa_macsec_sci_t *const sci,
+                                         const uint16_t an, const uint32_t lowest_pn,
+                                         const mepa_macsec_sak_t *const sak)
+{
+    return vtss_macsec_rx_sa_set(NULL, port, sci, an, lowest_pn, sak);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_get(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port,
+                                         const mepa_macsec_sci_t *const sci,
+                                         const uint16_t an,
+                                         uint32_t *const lowest_pn,
+                                         mepa_macsec_sak_t *const sak,
+                                         mepa_bool_t *const active)
+{
+    return vtss_macsec_rx_sa_get(NULL, port, sci, an, lowest_pn, sak, active);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_activate(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port,
+                                              const mepa_macsec_sci_t *const sci,
+                                              const uint16_t an)
+{
+    return vtss_macsec_rx_sa_activate(NULL, port, sci, an);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_disable(struct mepa_device  *dev,
+                                             const mepa_macsec_port_t port,
+                                             const mepa_macsec_sci_t *const sci,
+                                             const uint16_t an)
+{
+    return vtss_macsec_rx_sa_disable(NULL, port, sci, an);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_del(struct mepa_device *dev,
+                                         const mepa_macsec_port_t port,
+                                         const mepa_macsec_sci_t *const sci,
+                                         const uint16_t an)
+{
+    return vtss_macsec_rx_sa_del(NULL, port, sci, an);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_lowest_pn_update(struct mepa_device *dev,
+                                                      const mepa_macsec_port_t port,
+                                                      const mepa_macsec_sci_t *const sci,
+                                                      const uint16_t an,
+                                                      const uint32_t lowest_pn)
+{
+    return vtss_macsec_rx_sa_lowest_pn_update(NULL, port, sci, an, lowest_pn);
+}
+
+static mepa_rc vtss_phy_macsec_rx_sa_status_get(struct mepa_device *dev,
+                                                const mepa_macsec_port_t port,
+                                                const mepa_macsec_sci_t *const sci,
+                                                const uint16_t an,
+                                                mepa_macsec_rx_sa_status_t *const status)
+{
+    return vtss_macsec_rx_sa_status_get(NULL, port, sci, an, status);
+}
+
+static mepa_rc vtss_phy_macsec_rx_seca_set(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_sci_t *const sci,
+                                           const uint16_t an,
+                                           const mepa_macsec_pkt_num_t lowest_pn,
+                                           const mepa_macsec_sak_t *const sak,
+                                           const mepa_macsec_ssci_t *const ssci)
+{
+    return vtss_macsec_rx_seca_set(NULL, port, sci, an, lowest_pn, sak, ssci);
+}
+
+static mepa_rc vtss_phy_macsec_rx_seca_get(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_sci_t *const sci,
+                                           const uint16_t an,
+                                           mepa_macsec_pkt_num_t *const lowest_pn,
+                                           mepa_macsec_sak_t *const sak,
+                                           mepa_bool_t *const active,
+                                           mepa_macsec_ssci_t *const ssci)
+{
+    return vtss_macsec_rx_seca_get(NULL, port, sci, an, lowest_pn, sak, active, ssci);
+}
+
+static mepa_rc vtss_phy_macsec_rx_seca_lowest_pn_update(struct mepa_device *dev,
+                                                        const mepa_macsec_port_t port,
+                                                        const mepa_macsec_sci_t *const sci,
+                                                        const uint16_t an,
+                                                        const mepa_macsec_pkt_num_t lowest_pn)
+{
+    return vtss_macsec_rx_seca_lowest_pn_update(NULL, port, sci, an, lowest_pn);
+}
+
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -176,5 +271,15 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_tx_sc_get_conf = vtss_phy_macsec_tx_sc_get_conf,
     .mepa_macsec_tx_sc_del = vtss_phy_macsec_tx_sc_del,
     .mepa_macsec_tx_sc_status_get = vtss_phy_macsec_tx_sc_status_get,
+    .mepa_macsec_rx_sa_set = vtss_phy_macsec_rx_sa_set,
+    .mepa_macsec_rx_sa_get =  vtss_phy_macsec_rx_sa_get,
+    .mepa_macsec_rx_sa_activate = vtss_phy_macsec_rx_sa_activate,
+    .mepa_macsec_rx_sa_disable = vtss_phy_macsec_rx_sa_disable,
+    .mepa_macsec_rx_sa_del = vtss_phy_macsec_rx_sa_del,
+    .mepa_macsec_rx_sa_lowest_pn_update = vtss_phy_macsec_rx_sa_lowest_pn_update,
+    .mepa_macsec_rx_sa_status_get = vtss_phy_macsec_rx_sa_status_get,
+    .mepa_macsec_rx_seca_set = vtss_phy_macsec_rx_seca_set,
+    .mepa_macsec_rx_seca_get = vtss_phy_macsec_rx_seca_get,
+    .mepa_macsec_rx_seca_lowest_pn_update = vtss_phy_macsec_rx_seca_lowest_pn_update,
 
 };

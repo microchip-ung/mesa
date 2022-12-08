@@ -145,33 +145,11 @@ typedef mepa_macsec_port_t vtss_macsec_port_t;
 typedef mepa_validate_frames_t vtss_validate_frames_t;
 typedef mepa_macsec_ciphersuite_t vtss_macsec_ciphersuite_t;
 typedef mepa_macsec_secy_conf_t vtss_macsec_secy_conf_t;
-
-/** \brief packet number of 32-bit or 64-bit size. */
-typedef union {
-    u32 pn;  /**< packet number of 32 bit size. */
-    u64 xpn; /**< extended packet number of 64 bit size. */
-} vtss_macsec_pkt_num_t;
-
-/** \brief Salt for cryptographic operations */
-typedef struct {
-    u8 buf[12]; /**< Buffer containing 12 byte Salt for XPN. */
-} vtss_macsec_salt_t;
-
-/** \brief An 128-bit or 256-bit AES key */
-typedef struct {
-    u8 buf[32];              /**< Buffer containing the key */
-    u32 len;                 /**< Length of key in bytes (16 or 32) */
-    u8 h_buf[16];            /**< Buffer containing the 128-bit AES key hash */
-    vtss_macsec_salt_t salt; /**< salt used for XPN */
-} vtss_macsec_sak_t;
-
+typedef mepa_macsec_pkt_num_t vtss_macsec_pkt_num_t;
+typedef mepa_macsec_salt_t vtss_macsec_salt_t;
+typedef mepa_macsec_sak_t vtss_macsec_sak_t;
 typedef mepa_macsec_sci_t vtss_macsec_sci_t;
-
-/** \brief Short SCI (SSCI). Used for XPN. */
-typedef struct {
-    u8 buf[4];   /**< Buffer containing the 4-byte SSCI for XPN. */
-} vtss_macsec_ssci_t;
-
+typedef mepa_macsec_ssci_t vtss_macsec_ssci_t;
 typedef mepa_macsec_port_status_t vtss_macsec_port_status_t;
 typedef mepa_macsec_secy_port_status_t vtss_macsec_secy_port_status_t;
 typedef mepa_macsec_tx_sc_status_t vtss_macsec_tx_sc_status_t;
@@ -192,23 +170,8 @@ typedef struct {
     vtss_macsec_tx_sa_pn_status_t pn_status; /**< Rev B Tx SecA XPN status */
 } vtss_macsec_tx_sa_status_t;
 
-/** \brief Rx SecA XPN status as defined by 802.1AE */
-typedef struct {
-    vtss_macsec_pkt_num_t next_pn; /**< Rev B Next XPN (802.1AEW) */
-    vtss_macsec_pkt_num_t lowest_pn; /**< Rev B Lowest XPN */
-} vtss_macsec_rx_sa_pn_status_t;
-
-/** \brief Rx SA status as defined by 802.1AE */
-typedef struct {
-    BOOL in_use;      /**< In use (802.1AE)  */
-    u32 next_pn;      /**< Next pn (802.1AE) */
-    u32 lowest_pn;    /**< Lowest_pn (802.1AE) */
-    u32 created_time; /**< Created time (802.1AE) */
-    u32 started_time; /**< Started time (802.1AE) */
-    u32 stopped_time; /**< Stopped time (802.1AE) */
-    vtss_macsec_rx_sa_pn_status_t pn_status; /**< Rx SecA XPN status */
-} vtss_macsec_rx_sa_status_t;
-
+typedef mepa_macsec_rx_sa_pn_status_t vtss_macsec_rx_sa_pn_status_t;
+typedef mepa_macsec_rx_sa_status_t vtss_macsec_rx_sa_status_t;
 typedef mepa_macsec_rx_sc_conf_t vtss_macsec_rx_sc_conf_t;
 typedef mepa_macsec_tx_sc_conf_t vtss_macsec_tx_sc_conf_t;
 typedef mepa_macsec_lmac_conf_t vtss_macsec_lmac_conf_t;

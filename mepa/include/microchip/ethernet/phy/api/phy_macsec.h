@@ -25,6 +25,12 @@ typedef uint32_t mepa_port_no_t;
 typedef uint16_t mepa_macsec_vport_id_t;                      /**< Virtual port Id. Corresponds to a SecY.  */
 typedef uint32_t mepa_macsec_service_id_t;                    /**< Encapsulation service id */
 
+/** \brief packet number of 32-bit or 64-bit size. */
+typedef union {
+    uint32_t pn;                                              /**< packet number of 32 bit size. */
+    uint64_t xpn;                                             /**< extended packet number of 64 bit size. */
+} mepa_macsec_pkt_num_t;
+
 typedef enum {
     MEPA_MACSEC_VALIDATE_FRAMES_DISABLED,                     /**< Do not perform integrity check */
     MEPA_MACSEC_VALIDATE_FRAMES_CHECK,                        /**< Perform integrity check do not drop failed frames */
@@ -68,11 +74,46 @@ typedef struct {
     uint32_t confidentiality_offset;                          /**< The confidentiality Offset control (802.1AE section 10.7.25), 0-64 bytes supported */
 } mepa_macsec_secy_conf_t;
 
+/** \brief Salt for cryptographic operations */
+typedef struct {
+    uint8_t buf[12];                                          /**< Buffer containing 12 byte Salt for XPN. */
+} mepa_macsec_salt_t;
+
+/** \brief An 128-bit or 256-bit AES key */
+typedef struct {
+    uint8_t buf[32];                                          /**< Buffer containing the key */
+    uint32_t len;                                             /**< Length of key in bytes (16 or 32) */
+    uint8_t h_buf[16];                                        /**< Buffer containing the 128-bit AES key hash */
+    mepa_macsec_salt_t salt;                                  /**< salt used for XPN */
+} mepa_macsec_sak_t;
+
 /** 8 byte Secure Channel Identifier (SCI)  */
 typedef struct {
     mepa_mac_t              mac_addr;                         /**< 6 byte MAC address */
     mepa_macsec_vport_id_t  port_id;                          /**< 2 byte Port Id */
 } mepa_macsec_sci_t;
+
+/** \brief Short SCI (SSCI). Used for XPN. */
+typedef struct {
+    uint8_t buf[4];                                           /**< Buffer containing the 4-byte SSCI for XPN. */
+} mepa_macsec_ssci_t;
+
+/** \brief Rx SecA XPN status as defined by 802.1AE */
+typedef struct {
+    mepa_macsec_pkt_num_t next_pn;                            /**< Rev B Next XPN (802.1AEW) */
+    mepa_macsec_pkt_num_t lowest_pn;                          /**< Rev B Lowest XPN */
+} mepa_macsec_rx_sa_pn_status_t;
+
+/** \brief Rx SA status as defined by 802.1AE */
+typedef struct {
+    mepa_bool_t in_use;                                       /**< In use (802.1AE)  */
+    uint32_t next_pn;                                         /**< Next pn (802.1AE) */
+    uint32_t lowest_pn;                                       /**< Lowest_pn (802.1AE) */
+    uint32_t created_time;                                    /**< Created time (802.1AE) */
+    uint32_t started_time;                                    /**< Started time (802.1AE) */
+    uint32_t stopped_time;                                    /**< Stopped time (802.1AE) */
+    mepa_macsec_rx_sa_pn_status_t pn_status;                  /**< Rx SecA XPN status */
+} mepa_macsec_rx_sa_status_t;
 
 /** \brief Rx SC parameters (optional) */
 typedef struct {
@@ -315,6 +356,107 @@ mepa_rc mepa_macsec_tx_sc_del(struct mepa_device *dev,
 mepa_rc mepa_macsec_tx_sc_status_get(struct mepa_device *dev,
                                      const mepa_macsec_port_t port,
                                      mepa_macsec_tx_sc_status_t *const status);
+
+/*--------------------------------------------------------------------*/
+/* Receive Secure Association (SA) management                         */
+/*--------------------------------------------------------------------*/
+
+/** Create an Rx SA which is associated with an SC within the SecY.
+ *  This SA is not enabled until mepa_macsec_rx_sa_activate() is performed. */
+mepa_rc mepa_macsec_rx_sa_set(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const mepa_macsec_sci_t *const sci,
+                              const uint16_t an,
+                              const uint32_t lowest_pn,
+                              const mepa_macsec_sak_t *const sak);
+
+/** Get the Rx SA configuration of the active SA.
+
+ * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+ * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+ */
+mepa_rc mepa_macsec_rx_sa_get(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const mepa_macsec_sci_t *const sci,
+                              const uint16_t an,
+                              uint32_t *const lowest_pn,
+                              mepa_macsec_sak_t *const sak,
+                              mepa_bool_t *const active);
+
+
+/** Activate the SA associated with the AN.
+    The reception switches from a previous SA to the SA identified by the AN.
+    Note that the reception using the new SA does not necessarily begin immediately. **/
+mepa_rc mepa_macsec_rx_sa_activate(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   const mepa_macsec_sci_t *const sci,
+                                   const uint16_t an);
+
+/** This function disables Rx SA identified by an. Frames still in the pipeline are not discarded. */
+mepa_rc mepa_macsec_rx_sa_disable(struct mepa_device *dev,
+                                  const mepa_macsec_port_t port,
+                                  const mepa_macsec_sci_t *const sci,
+                                  const uint16_t an);
+
+
+/** This function deletes Rx SA object identified by an. The Rx SA must be disabled before deleted. */
+mepa_rc mepa_macsec_rx_sa_del(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const mepa_macsec_sci_t *const sci,
+                              const uint16_t an);
+
+
+/** Set (update) the packet number (pn) value to value in lowest_pn */
+mepa_rc mepa_macsec_rx_sa_lowest_pn_update(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_sci_t *const sci,
+                                           const uint16_t an,
+                                           const uint32_t lowest_pn);
+
+/** Rx SA status get
+ * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+ * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+ */
+mepa_rc mepa_macsec_rx_sa_status_get(struct mepa_device *dev,
+                                     const mepa_macsec_port_t port,
+                                     const mepa_macsec_sci_t *const sci,
+                                     const uint16_t an,
+                                     mepa_macsec_rx_sa_status_t *const status);
+
+/*--------------------------------------------------------------------*/
+/* For XPN supported devices                                          */
+/* Receive Secure Association (SA) management                         */
+/*--------------------------------------------------------------------*/
+
+/** Create an Rx SA which is associated with an SC within the SecY. */
+mepa_rc mepa_macsec_rx_seca_set(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const mepa_macsec_sci_t *const sci,
+                                const uint16_t an,
+                                const mepa_macsec_pkt_num_t lowest_pn,
+                                const mepa_macsec_sak_t *const sak,
+                                const mepa_macsec_ssci_t *const ssci);
+
+/** Get the Rx SA configuration of the active SA. */
+mepa_rc mepa_macsec_rx_seca_get(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const mepa_macsec_sci_t *const sci,
+                                const uint16_t an,
+                                mepa_macsec_pkt_num_t *const lowest_pn,
+                                mepa_macsec_sak_t *const sak,
+                                mepa_bool_t *const active,
+                                mepa_macsec_ssci_t *const ssci);
+
+
+
+/** Update the lowest_pn packet number in 64-bit or 32-bit for Rx SA. */
+mepa_rc mepa_macsec_rx_seca_lowest_pn_update(struct mepa_device *dev,
+                                             const mepa_macsec_port_t port,
+                                             const mepa_macsec_sci_t *const sci,
+                                             const uint16_t an,
+                                             const mepa_macsec_pkt_num_t lowest_pn);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
