@@ -486,13 +486,15 @@ typedef struct {
     uint16_t vmain_voltage_dv;
 
     // poe firmware info
-    uint8_t                     prod_number_detected;
-    uint16_t                    sw_version_detected;
-    uint8_t                     param_number_detected;
-    uint8_t                     prod_number_from_file;
-    uint16_t                    sw_version_from_file;
-    uint8_t                     param_number_from_file;
-
+    uint8_t          prod_number_detected;
+    uint16_t         sw_version_detected;
+    uint8_t          param_number_detected;
+    uint8_t          prod_number_from_file;
+    uint16_t         sw_version_from_file;
+    uint8_t          param_number_from_file;
+    uint8_t          build_number;
+    uint16_t         internal_sw_version;
+    uint16_t         asic_patch_number;
 } meba_poe_status_t;
 
 // PoE port pd data.

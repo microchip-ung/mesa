@@ -556,7 +556,7 @@ mesa_rc pd69200_firm_update_rd(const meba_poe_ctrl_inst_t* const inst, uint8_t* 
 
         if (rc == MESA_RC_ERROR)
         {
-            printf("return error1:%d\n\r", rc);
+            DEBUG(inst, MEBA_TRACE_LVL_NOISE, "return error1:%d", rc);
             return rc;
         }
 
@@ -576,7 +576,7 @@ mesa_rc pd69200_firm_update_rd(const meba_poe_ctrl_inst_t* const inst, uint8_t* 
 
     if (rc == MESA_RC_ERROR)
     {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "error2:%d", rc);
+        DEBUG(inst, MEBA_TRACE_LVL_NOISE, "error2:%d", rc);
     }
 
     return rc;
@@ -622,7 +622,7 @@ static mesa_rc meba_poe_pd69200_sync(const meba_poe_ctrl_inst_t* const inst)
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Driver instance %s not found", inst->adapter_name);
         return MESA_RC_OK;
     }
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Syncing driver instance: %s", inst->adapter_name);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "Syncing driver instance: %s", inst->adapter_name);
 
     VTSS_MSLEEP(10000); // Wait at least 10 sec in order to reset i2c system. See Section 8.2 MASK Registers list in "PD69200 Serial Communication Protocol User Guide"
 
@@ -2150,11 +2150,11 @@ mesa_rc meba_poe_pd69200_ctrl_get_software_version(
     *internal_sw_version = 0;
     *asic_patch_number = 0;
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s called line %d\n\r",  __FUNCTION__, __LINE__);
+    DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s called line %d",  __FUNCTION__, __LINE__);
     mesa_rc rc = pd69200_tx(inst, __FUNCTION__, __LINE__, buf);
     if(rc != MESA_RC_OK)
     {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "\n\r%s called line %d ,rc=%d\n\r", __FUNCTION__ ,__LINE__ ,rc);
+        DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s called line %d ,rc=%d", __FUNCTION__ ,__LINE__ ,rc);
         return rc;
     }
 
@@ -2389,6 +2389,10 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
     private_data->status.global.sw_version_from_file = 0;
     private_data->status.global.param_number_from_file = 0;
 
+    private_data->status.global.build_number        = 0;
+    private_data->status.global.internal_sw_version = 0;
+    private_data->status.global.asic_patch_number   = 0;
+
     VTSS_MSLEEP(500);
 
     //mesa_bool_t bIs_system_status = false;
@@ -2496,9 +2500,12 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             return false;
         }
 
-        private_data->status.global.prod_number_detected = prod_number;
-        private_data->status.global.sw_version_detected = sw_version;
+        private_data->status.global.prod_number_detected  = prod_number;
+        private_data->status.global.sw_version_detected   = sw_version;
         private_data->status.global.param_number_detected = param_number;
+        private_data->status.global.build_number          = build_number;
+        private_data->status.global.internal_sw_version   = internal_sw_version;
+        private_data->status.global.asic_patch_number     = asic_patch_number;
 
         // extract the assembled PoE Controller from product number - 4 PoE controllers: PD69200, PD69210, PD69220 (, PD69200M)
         switch(prod_number)
@@ -2569,9 +2576,12 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
         {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Controller product number error: %d.\n", prod_number);
 //          S_E("SYS-BOOTING: Controller product number error: %d.\n", prod_number);
-            private_data->status.global.prod_number_detected = prod_number;
-            private_data->status.global.sw_version_detected = sw_version;
+            private_data->status.global.prod_number_detected  = prod_number;
+            private_data->status.global.sw_version_detected   = sw_version;
             private_data->status.global.param_number_detected = param_number;
+            private_data->status.global.build_number          = build_number;
+            private_data->status.global.internal_sw_version   = internal_sw_version;
+            private_data->status.global.asic_patch_number     = asic_patch_number;
             return false;
         }
     }
@@ -2771,7 +2781,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
     if (MEBA_POE_FIRMWARE_UPGRADE != meba_poe_pd69200_get_chipset(inst))
     {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "No PoE chip was found, %s(): val: %d\n\r",__func__, meba_poe_pd69200_get_chipset(inst));
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "No PoE chip was found, %s(): val: %d",__func__, meba_poe_pd69200_get_chipset(inst));
         return MESA_RC_OK; // No PD69200 chip found, don't do anything
     }
 
@@ -2797,7 +2807,6 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
         pd69200_sendEnter(inst);
     }
 
-    //VTSS_MSLEEP(100); // read TPE\r\n - Section 5.1 - step 2 - response may take 100 ms
     VTSS_MSLEEP(2000); // Take a good long nap, otherwise the PoE module can cause the entire system to reset
     pd69200_firm_update_rd(inst, buf, 5); // read TPE\r\n - Section 5.1 - step 2
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
@@ -2880,7 +2889,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
         microsemi_firmware = mapped_memory;
     }
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "Updating PoE firmware...");
+    printf("\nUpdating PoE firmware...\n");
 
     // If greater than 127 then we have reached end of file
     while ((byte_cnt < firmware_size) && (*microsemi_firmware <= 127)) {
@@ -2890,7 +2899,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
         // Print out progress
         progress = (byte_cnt * 10) / firmware_size;
         if (progress != prev_progress) {
-            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PoE Firmware update progress:%d %%\n\r", progress * 10);
+            printf("PoE Firmware update progress:%d %%\n", progress * 10);
             prev_progress = progress;
         }
 
@@ -2943,7 +2952,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
                 DEBUG(inst, MEBA_TRACE_LVL_NOISE, "NOT END of File");
             } else if (buf[0] == 'T' && buf[1] == 'P') { // if read TP\r\n
                 DEBUG(inst, MEBA_TRACE_LVL_NOISE, "END of File");     // Reset - Section 5.1 - step 7
-                DEBUG(inst, MEBA_TRACE_LVL_INFO ,"PoE Firmware update progress:100 %%\n\r");
+                printf("PoE Firmware update progress:100 %%\n");
                 break; //end of file
             } else {
                 DEBUG(inst, MEBA_TRACE_LVL_ERROR, "No Ack");
@@ -2959,7 +2968,6 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     }
 
     // Wait 400ms - Section 5.1 - step 8
-    //    VTSS_MSLEEP(400);
     VTSS_MSLEEP(2000); // Take a good long nap, otherwise the PoE module can cause the entire system to reset
 
     // Reset - Section 5.1 - step 9
@@ -3294,6 +3302,11 @@ mesa_rc meba_poe_pd69200_ctrl_status_get(
     current_status->prod_number_from_file   = private_data->status.global.prod_number_from_file;
     current_status->sw_version_from_file    = private_data->status.global.sw_version_from_file;
     current_status->param_number_from_file  = private_data->status.global.param_number_from_file;
+
+    current_status->build_number            = private_data->status.global.build_number;
+    current_status->internal_sw_version     = private_data->status.global.internal_sw_version;
+    current_status->asic_patch_number       = private_data->status.global.asic_patch_number;
+
     current_status->ePoE_Controller_Type    = private_data->status.global.ePoE_Controller_Type;
     current_status->isBT                    = private_data->IsBT_mode_user_config;
 
@@ -4270,7 +4283,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
 
 // utility functions
 #define ALIGN_RESPONSE       "        "
-#define POEBT_TITLE          "\n\r[POE ]" // Used for CLI printout header portion
+#define POEBT_TITLE          "\n[POE ]" // Used for CLI printout header portion
 #define POEBT_SYSLOG_HEADER  "[PoE]:"     // used as the left portion in PoE-BT syslog message. For example: [PoE-BT]: Port #00 status changed to 'Fault' (int code=0x25)
 
 
@@ -4288,28 +4301,28 @@ static mesa_bool_t check_report_key_ok(
     // First make sure that the checksum is correct
     if (pd69200_check_sum_ok(&rx_buf[0])) {
         if (rx_buf[0] != REPORT_KEY) {
-            sprintf(msg ,"%sReport key error, rx0=%2X , REPORT_KEY=%2X \n\r",ALIGN_RESPONSE, rx_buf[0] , REPORT_KEY);
+            sprintf(msg ,"%sReport key error, rx0=%2X , REPORT_KEY=%2X \n",ALIGN_RESPONSE, rx_buf[0] , REPORT_KEY);
             report_key_ok_v = false;
         } else if (rx_buf[2] == 0x00 && rx_buf[3] == 0x00) {
-            sprintf(msg ,"%sCommand received/correctly executed \n\r", ALIGN_RESPONSE);
+            sprintf(msg ,"%sCommand received/correctly executed \n", ALIGN_RESPONSE);
             report_key_ok_v = true;
         } else if  (rx_buf[2] == 0xFF && rx_buf[3] == 0xFF && rx_buf[4] == 0xFF && rx_buf[5] == 0xFF) {
-            sprintf(msg ,"%sCommand Received/Wrong Checksum \n\r",ALIGN_RESPONSE);
+            sprintf(msg ,"%sCommand Received/Wrong Checksum \n",ALIGN_RESPONSE);
             report_key_ok_v = false;
         } else if  (rx_buf[2] > 0x0  && rx_buf[3] < 0x80) {
-            sprintf(msg ,"%sFailed Execution/Conflict in Subject Bytes\n\r",ALIGN_RESPONSE);
+            sprintf(msg ,"%sFailed Execution/Conflict in Subject Bytes\n",ALIGN_RESPONSE);
             report_key_ok_v = false;
         } else if  (rx_buf[2] > 0x80  && rx_buf[3] < 0x90) {
-            sprintf(msg ,"%sFailed Execution/Wrong Data Byte Value \n\r",ALIGN_RESPONSE);
+            sprintf(msg ,"%sFailed Execution/Wrong Data Byte Value \n",ALIGN_RESPONSE);
             report_key_ok_v = false;
         } else if  (rx_buf[2] == 0xFF  && rx_buf[3] == 0xFF) {
-            sprintf(msg ,"%sFailed Execution/Undefined Key Value \n\r",ALIGN_RESPONSE);
+            sprintf(msg ,"%sFailed Execution/Undefined Key Value \n",ALIGN_RESPONSE);
             report_key_ok_v = false;
         } else {
-            sprintf(msg ,"%sUndefined revieved Value: rx2:%2X , rx3:%2X \n\r",ALIGN_RESPONSE, rx_buf[2], rx_buf[3]);
+            sprintf(msg ,"%sUndefined revieved Value: rx2:%2X , rx3:%2X \n",ALIGN_RESPONSE, rx_buf[2], rx_buf[3]);
             report_key_ok_v = true;
         }
-    } else {sprintf(msg ,"%sCalculated checksum error \n\r",ALIGN_RESPONSE);
+    } else {sprintf(msg ,"%sCalculated checksum error \n",ALIGN_RESPONSE);
         report_key_ok_v = false;
     }
 
@@ -4334,7 +4347,7 @@ static mesa_rc check_controller_response(
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s Failed, Invalid checksum: %s\n",  __FUNCTION__,
               print_as_hex_string(rx_buf, PD_BUFFER_SIZE, dbg_txt, sizeof(dbg_txt)));
 
-        sprintf(msg ,"%sTelemetry: Rx message checksum test failed \n\r", ALIGN_RESPONSE);
+        sprintf(msg ,"%sTelemetry: Rx message checksum test failed \n", ALIGN_RESPONSE);
         return MESA_RC_ERROR;
     }
 
@@ -4344,11 +4357,11 @@ static mesa_rc check_controller_response(
               __FUNCTION__, rx_buf[0],
               print_as_hex_string(rx_buf, PD_BUFFER_SIZE, dbg_txt, sizeof(dbg_txt)));
 
-        sprintf(msg ,"%sTelemetry: Invalid key rx0:%2X \n\r", ALIGN_RESPONSE , rx_buf[0]);
+        sprintf(msg ,"%sTelemetry: Invalid key rx0:%2X \n", ALIGN_RESPONSE , rx_buf[0]);
         return MESA_RC_ERROR;
     }
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG ,"%sTelemetry succeed \n\r", ALIGN_RESPONSE);
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%sTelemetry succeed \n", ALIGN_RESPONSE);
     return MESA_RC_OK;
 }
 
@@ -4509,7 +4522,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
 
     // check input string validation
     if ((var == NULL) || (str_len < 8)) {
-        strncpy(msg ,"  Error: Missing protocol arguments \n\r" ,max_msg_buf_size);
+        strncpy(msg ,"  Error: Missing protocol arguments \n" ,max_msg_buf_size);
         return MESA_RC_ERROR;
     }
 
@@ -4537,7 +4550,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
         char *ret = strstr(str_args, "0X");
         if (ret != str_args)
         {
-            strncpy(msg ,"  Error: string must begin with 0x or 0X \n\r" ,max_msg_buf_size);
+            strncpy(msg ,"  Error: string must begin with 0x or 0X \n" ,max_msg_buf_size);
             return MESA_RC_ERROR;
         }
 
@@ -4548,7 +4561,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
         // check if entered chars are valid hex or decimal number or space
         if(!IsValidHexString(pStrTmp))
         {
-            strncpy(msg ,"  Arguments string is not valid Hex or Dec number \n\r" ,max_msg_buf_size);
+            strncpy(msg ,"  Arguments string is not valid Hex or Dec number \n" ,max_msg_buf_size);
             return MESA_RC_ERROR;
         }
 
@@ -4601,7 +4614,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
                 ValidNum_e eValidNum = checkArgument(p_arg);
                 if (eValidNum != eValidNum_Decimal)
                 {
-                    sprintf(msg ,"  Error: argument #%d: %s is not a decimal number \n\r" ,i+1 ,p_arg);
+                    sprintf(msg ,"  Error: argument #%d: %s is not a decimal number \n" ,i+1 ,p_arg);
                     return MESA_RC_ERROR;
                 }
 
@@ -4609,7 +4622,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
 
                 if (dec_val > 0xFF)
                 {
-                    sprintf(msg ,"  Error: argument #%d: %s value is out of range (0xFF) \n\r" ,i+1 ,p_arg);
+                    sprintf(msg ,"  Error: argument #%d: %s value is out of range (0xFF) \n" ,i+1 ,p_arg);
                     return MESA_RC_ERROR;
                 }
 
@@ -4621,7 +4634,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
                 ValidNum_e eValidNum = checkArgument(p + 2);  // skip the 0x
                 if ((eValidNum != eValidNum_Hex) && (eValidNum != eValidNum_Decimal))
                 {
-                    sprintf(msg ,"  Error: argument #%d: %s is not a hexadecimal number \n\r" ,i+1 , p_arg);
+                    sprintf(msg ,"  Error: argument #%d: %s is not a hexadecimal number \n" ,i+1 , p_arg);
                     return MESA_RC_ERROR;
                 }
 
@@ -4633,7 +4646,7 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
 
                 if (dec_val > 0xFF)
                 {
-                    sprintf(msg ,"  Error: argument #%d: %s value is out of range (0xFF) \n\r" ,i+1 ,p);
+                    sprintf(msg ,"  Error: argument #%d: %s value is out of range (0xFF) \n" ,i+1 ,p);
                     return MESA_RC_ERROR;
                 }
             }
@@ -4665,11 +4678,11 @@ mesa_rc meba_poe_pd69200_ctrl_debug(
            bUpdate_check_cum = TRUE;
         }
 
-        //sprintf(msg ,"\n\rstr: %s: args_count:%d , str_len:%d \n\r", s, args_count , str_len);
+        //sprintf(msg ,"\nstr: %s: args_count:%d , str_len:%d \n", s, args_count , str_len);
     }
     else
     {
-        sprintf(msg ,"    Invalid 15 bytes arguments !!! str len:%d , #args:%d \n\r", str_len, args_count);
+        sprintf(msg ,"    Invalid 15 bytes arguments !!! str len:%d , #args:%d \n", str_len, args_count);
         return MESA_RC_ERROR;
     }
 
@@ -5292,7 +5305,7 @@ mesa_rc meba_poe_pd69200bt_get_BT_port_measurements(
     const meba_poe_ctrl_inst_t* const inst,
     uint8_t                         channel,
     uint16_t* main_voltage_dv,
-    uint16_t* calculated_current_mA,
+    uint32_t* calculated_current_mA,
     uint16_t* port_power_consumption_dW,
     uint16_t* port_voltage_dV)
 {
@@ -5627,7 +5640,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_cfg_set(
             inst ,handle,port_cfg_POEMCU));
 
         MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings \n\r");
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings \n");
     }
 
     return MESA_RC_OK;
@@ -6223,7 +6236,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     port_status->bt_port_pm_mode         = port_cfg_POEMCU->bt_port_pm_mode;
     port_status->pse_port_type           = port_cfg->pse_port_type;
 
-//    DEBUG(inst, MEBA_TRACE_LVL_INFO, "CH=%d ,pse_port_type: 0x%X \n\r" ,handle ,port_status->pse_port_type);
+//    DEBUG(inst, MEBA_TRACE_LVL_INFO, "CH=%d ,pse_port_type: 0x%X \n" ,handle ,port_status->pse_port_type);
 
     if (port_status->meba_poe_ieee_port_state == MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER) {
         uint8_t  port_phy_info;
@@ -6289,7 +6302,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     }
 
     uint16_t main_voltage_dv = 0;
-    uint16_t calculated_current_ma = 0;
+    mesa_poe_milliampere_t calculated_current_ma = 0;
     uint16_t port_power_consumption_dw = 0;
     uint16_t port_voltage_dv = 0;
 
@@ -6380,7 +6393,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
 
     port_status->system_setup = 2; // This value is specificed in Table 79-6f IEEE 803.2bt/D3.7  Type 3 PSE = 0. Type 4 PSE = 2.
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "CH=%d ,UNG status=%d ,intStatus=0x%X", handle , port_status->meba_poe_port_state , port_status->poe_internal_port_status);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "CH=%d ,UNG status=%d ,intStatus=0x%X", handle , port_status->meba_poe_port_state , port_status->poe_internal_port_status);
     return MESA_RC_OK;
 }
 
@@ -6395,7 +6408,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_data_set(
 
     meba_poe_port_cfg_t* port_cfg = &(((poe_driver_private_t*)(inst->private_data))->cfg.ports[handle]);
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO ,"UPDATE LLDP-AT: Set Max Power to %d mW. Cable length = %d meter\n\r",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "UPDATE LLDP-AT: Set Max Power to %d mW. Cable length = %d meter\n",
            pd_data->pd_requested_power_mw, port_cfg->cable_length * 10);
 
     return meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
@@ -6420,7 +6433,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_bt_data_set(
 
     meba_poe_port_cfg_t* port_cfg = &(((poe_driver_private_t*)(inst->private_data))->cfg.ports[handle]);
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO ,"UPDATE LLDP-BT: Set Max Power SINGLE=%d mW, ALT-A=%d mW, ALT-B=%d mW. Cable length = %d meter\n\r",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "UPDATE LLDP-BT: Set Max Power SINGLE=%d mW, ALT-A=%d mW, ALT-B=%d mW. Cable length = %d meter\n",
            pd_data->pd_requested_power_single_mw,
            pd_data->pd_requested_power_alt_a_mw,
            pd_data->pd_requested_power_alt_b_mw,
@@ -6640,7 +6653,19 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
         MESA_RC(meba_poe_pd69200_ctrl_save_command(inst));
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Save PoE settings");
    }
+/*
+    // Get serial number
+    poebt_serial_number_t tSN;
+    mesa_rc rc = pd69200bt_get_serial_number(inst, &tSN);
+    if (rc != MESA_RC_OK)
+    {
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s failed to read serial number", __FUNCTION__);
+    }
 
+    meba_poe_status_t* current_status = &(((poe_driver_private_t*)(inst->private_data))->status.global);
+    current_status->UN = tSN.UN;
+    current_status->PN = tSN.PN;
+*/
     meba_poe_global_cfg_t *global_cfg = &(((poe_driver_private_t*)(inst->private_data))->cfg.global);
 
     if (interruptible_power)
