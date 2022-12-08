@@ -37,6 +37,14 @@ typedef mepa_rc (*mepa_macsec_rx_sa_status_get_t)(struct mepa_device *dev, const
 typedef mepa_rc (*mepa_macsec_rx_seca_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, const mepa_macsec_pkt_num_t lowest_pn, const mepa_macsec_sak_t *const sak, const mepa_macsec_ssci_t *const ssci);
 typedef mepa_rc (*mepa_macsec_rx_seca_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, mepa_macsec_pkt_num_t *const lowest_pn, mepa_macsec_sak_t *const sak, mepa_bool_t *const active, mepa_macsec_ssci_t *const ssci);
 typedef mepa_rc (*mepa_macsec_rx_seca_lowest_pn_update_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, const mepa_macsec_pkt_num_t lowest_pn);
+typedef mepa_rc (*mepa_macsec_tx_sa_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, const uint32_t next_pn, const mepa_bool_t confidentiality, const mepa_macsec_sak_t *const sak);
+typedef mepa_rc (*mepa_macsec_tx_sa_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, uint32_t *const next_pn, mepa_bool_t *const confidentiality, mepa_macsec_sak_t *const sak, mepa_bool_t *const active);
+typedef mepa_rc (*mepa_macsec_tx_sa_activate_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an);
+typedef mepa_rc (*mepa_macsec_tx_sa_disable_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an);
+typedef mepa_rc (*mepa_macsec_tx_sa_del_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an);
+typedef mepa_rc (*mepa_macsec_tx_sa_status_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, mepa_macsec_tx_sa_status_t *const status);
+typedef mepa_rc (*mepa_macsec_tx_seca_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, const mepa_macsec_pkt_num_t next_pn, const mepa_bool_t confidentiality, const mepa_macsec_sak_t *const sak, const mepa_macsec_ssci_t *const ssci);
+typedef mepa_rc (*mepa_macsec_tx_seca_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, mepa_macsec_pkt_num_t *const next_pn, mepa_bool_t *const confidentiality, mepa_macsec_sak_t *const sak, mepa_bool_t *const active, mepa_macsec_ssci_t *const ssci);
 
 /** \brief PHY MACsec Driver */
 typedef struct mepa_macsec_driver {
@@ -71,6 +79,14 @@ typedef struct mepa_macsec_driver {
     mepa_macsec_rx_seca_set_t mepa_macsec_rx_seca_set;
     mepa_macsec_rx_seca_get_t mepa_macsec_rx_seca_get;
     mepa_macsec_rx_seca_lowest_pn_update_t mepa_macsec_rx_seca_lowest_pn_update;
+    mepa_macsec_tx_sa_set_t mepa_macsec_tx_sa_set;
+    mepa_macsec_tx_sa_get_t mepa_macsec_tx_sa_get;
+    mepa_macsec_tx_sa_activate_t mepa_macsec_tx_sa_activate;
+    mepa_macsec_tx_sa_disable_t mepa_macsec_tx_sa_disable;
+    mepa_macsec_tx_sa_del_t mepa_macsec_tx_sa_del;
+    mepa_macsec_tx_sa_status_get_t mepa_macsec_tx_sa_status_get;
+    mepa_macsec_tx_seca_set_t mepa_macsec_tx_seca_set;
+    mepa_macsec_tx_seca_get_t mepa_macsec_tx_seca_get;
 
 } mepa_macsec_driver_t;
 

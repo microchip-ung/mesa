@@ -361,3 +361,91 @@ mepa_rc meba_phy_macsec_rx_seca_lowest_pn_update(meba_inst_t inst, mepa_port_no_
 
     return mepa_macsec_rx_seca_lowest_pn_update(inst->phy_devices[port_no], port, sci, an, lowest_pn);
 }
+
+mepa_rc meba_phy_macsec_tx_sa_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an, const uint32_t next_pn, const mepa_bool_t confidentiality, const mepa_macsec_sak_t *const sak)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_set(inst->phy_devices[port_no], port, an, next_pn, confidentiality, sak);
+}
+
+mepa_rc meba_phy_macsec_tx_sa_get(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an, uint32_t *const next_pn, mepa_bool_t *const confidentiality, mepa_macsec_sak_t *const sak, mepa_bool_t *const active)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_get(inst->phy_devices[port_no], port, an, next_pn, confidentiality, sak, active);
+}
+
+mepa_rc meba_phy_macsec_tx_sa_activate(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_activate(inst->phy_devices[port_no], port, an);
+}
+
+mepa_rc meba_phy_macsec_tx_sa_disable(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_disable(inst->phy_devices[port_no], port, an);
+}
+
+mepa_rc meba_phy_macsec_tx_sa_del(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_del(inst->phy_devices[port_no], port, an);
+}
+
+mepa_rc meba_phy_macsec_tx_sa_status_get(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an, mepa_macsec_tx_sa_status_t *const status)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_sa_status_get(inst->phy_devices[port_no], port, an, status);
+}
+
+mepa_rc meba_phy_macsec_tx_seca_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an, const mepa_macsec_pkt_num_t next_pn, const mepa_bool_t confidentiality, const mepa_macsec_sak_t *const sak, const mepa_macsec_ssci_t *const ssci)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_seca_set(inst->phy_devices[port_no], port, an, next_pn, confidentiality, sak, ssci);
+}
+
+mepa_rc meba_phy_macsec_tx_seca_get(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const uint16_t an, mepa_macsec_pkt_num_t *const next_pn, mepa_bool_t *const confidentiality, mepa_macsec_sak_t *const sak, mepa_bool_t *const active, mepa_macsec_ssci_t *const ssci)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_tx_seca_get(inst->phy_devices[port_no], port, an, next_pn, confidentiality, sak, active, ssci);
+}

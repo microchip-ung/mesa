@@ -115,6 +115,21 @@ typedef struct {
     mepa_macsec_rx_sa_pn_status_t pn_status;                  /**< Rx SecA XPN status */
 } mepa_macsec_rx_sa_status_t;
 
+/** \brief Tx SecA XPN status as defined by 802.1AE */
+typedef struct {
+    mepa_macsec_pkt_num_t  next_pn;                           /**< Rev B Next XPN */
+} mepa_macsec_tx_sa_pn_status_t;
+
+/** \brief Tx SA status as defined by 802.1AE */
+typedef struct {
+    mepa_bool_t in_use;                                       /**< In use (802.1AE)  */
+    uint32_t next_pn;                                         /**< Next PN (802.1AE) */
+    uint32_t created_time;                                    /**< Creation time (802.1AE)*/
+    uint32_t started_time;                                    /**< Started time (802.1AE)*/
+    uint32_t stopped_time;                                    /**< Stopped time (802.1AE) */
+    mepa_macsec_tx_sa_pn_status_t pn_status;                  /**< Rev B Tx SecA XPN status */
+} mepa_macsec_tx_sa_status_t;
+
 /** \brief Rx SC parameters (optional) */
 typedef struct {
     mepa_validate_frames_t validate_frames;                   /**< The validateFrames control (802.1AE section 10.7.8) */
@@ -457,6 +472,91 @@ mepa_rc mepa_macsec_rx_seca_lowest_pn_update(struct mepa_device *dev,
                                              const mepa_macsec_sci_t *const sci,
                                              const uint16_t an,
                                              const mepa_macsec_pkt_num_t lowest_pn);
+
+/*--------------------------------------------------------------------*/
+/* Transmit Secure Association (SA) management                        */
+/*--------------------------------------------------------------------*/
+
+/**Create an Tx SA which is associated with the Tx SC within the SecY.
+ * This SA is not in use until mepa_macsec_tx_sa_activate() is performed.
+ * If SA was created before any change in parameters like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+ * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+ *
+ */
+mepa_rc mepa_macsec_tx_sa_set(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const uint16_t an,
+                              const uint32_t next_pn,
+                              const mepa_bool_t confidentiality,
+                              const mepa_macsec_sak_t *const sak);
+
+
+/**Get the  Tx SA configuration.*/
+mepa_rc mepa_macsec_tx_sa_get(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const uint16_t an,
+                              uint32_t *const next_pn,
+                              mepa_bool_t *const confidentiality,
+                              mepa_macsec_sak_t *const sak,
+                              mepa_bool_t *const active);
+
+
+/** This function switches transmission from a previous Tx SA to the Tx SA identified by an.
+    Transmission using the new SA is in effect immediately.
+ */
+mepa_rc mepa_macsec_tx_sa_activate(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   const uint16_t an);
+
+
+/** This function disables Tx SA identified by an. Frames still in the pipeline are not discarded. */
+mepa_rc mepa_macsec_tx_sa_disable(struct mepa_device *dev,
+                                  const mepa_macsec_port_t port,
+                                  const uint16_t an);
+
+
+/** This function deletes Tx SA object identified by an. The Tx SA must be disabled before deleted. */
+mepa_rc mepa_macsec_tx_sa_del(struct mepa_device *dev,
+                              const mepa_macsec_port_t port,
+                              const uint16_t an);
+
+/**Tx SA status
+ * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+ * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+ */
+mepa_rc mepa_macsec_tx_sa_status_get(struct mepa_device *dev,
+                                     const mepa_macsec_port_t port,
+                                     const uint16_t an,
+                                     mepa_macsec_tx_sa_status_t *const status);
+
+/*--------------------------------------------------------------------*/
+/* For XPN supported devices                                          */
+/* Transmit Secure Association (SA) management                        */
+/*--------------------------------------------------------------------*/
+
+/** Create an Tx SA which is associated with the Tx SC within the SecY.
+ * This SA is not in use until mepa_macsec_tx_sa_activate() is performed.
+ */
+mepa_rc mepa_macsec_tx_seca_set(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const uint16_t an,
+                                const mepa_macsec_pkt_num_t next_pn,
+                                const mepa_bool_t confidentiality,
+                                const mepa_macsec_sak_t *const sak,
+                                const mepa_macsec_ssci_t *const ssci);
+
+/**Get the Tx SA configuration supporting 64-bit and 32-bit PN. */
+mepa_rc mepa_macsec_tx_seca_get(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const uint16_t an,
+                                mepa_macsec_pkt_num_t *const next_pn,
+                                mepa_bool_t *const confidentiality,
+                                mepa_macsec_sak_t *const sak,
+                                mepa_bool_t *const active,
+                                mepa_macsec_ssci_t *const ssci);
+
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

@@ -154,22 +154,8 @@ typedef mepa_macsec_port_status_t vtss_macsec_port_status_t;
 typedef mepa_macsec_secy_port_status_t vtss_macsec_secy_port_status_t;
 typedef mepa_macsec_tx_sc_status_t vtss_macsec_tx_sc_status_t;
 typedef mepa_macsec_rx_sc_status_t vtss_macsec_rx_sc_status_t;
-
-/** \brief Tx SecA XPN status as defined by 802.1AE */
-typedef struct {
-    vtss_macsec_pkt_num_t  next_pn;  /**< Rev B Next XPN */
-} vtss_macsec_tx_sa_pn_status_t;
-
-/** \brief Tx SA status as defined by 802.1AE */
-typedef struct {
-    BOOL in_use;      /**< In use (802.1AE)  */
-    u32 next_pn;      /**< Next PN (802.1AE) */
-    u32 created_time; /**< Creation time (802.1AE)*/
-    u32 started_time; /**< Started time (802.1AE)*/
-    u32 stopped_time; /**< Stopped time (802.1AE) */
-    vtss_macsec_tx_sa_pn_status_t pn_status; /**< Rev B Tx SecA XPN status */
-} vtss_macsec_tx_sa_status_t;
-
+typedef mepa_macsec_tx_sa_pn_status_t vtss_macsec_tx_sa_pn_status_t;
+typedef mepa_macsec_tx_sa_status_t vtss_macsec_tx_sa_status_t;
 typedef mepa_macsec_rx_sa_pn_status_t vtss_macsec_rx_sa_pn_status_t;
 typedef mepa_macsec_rx_sa_status_t vtss_macsec_rx_sa_status_t;
 typedef mepa_macsec_rx_sc_conf_t vtss_macsec_rx_sc_conf_t;
@@ -179,7 +165,6 @@ typedef mepa_macsec_hmac_conf_t vtss_macsec_hmac_conf_t;
 typedef mepa_macsec_mac_conf_t vtss_macsec_mac_conf_t;
 typedef mepa_macsec_init_bypass_t vtss_macsec_init_bypass_t;
 typedef mepa_macsec_init_t vtss_macsec_init_t;
-
 
 #define MACSEC_INIT_BYPASS_NONE    VTSS_MACSEC_INIT_BYPASS_NONE    /**< Backward compatibility */
 #define MACSEC_INIT_BYPASS_ENABLE  VTSS_MACSEC_INIT_BYPASS_ENABLE  /**< Backward compatibility */
