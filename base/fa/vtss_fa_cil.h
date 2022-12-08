@@ -74,7 +74,6 @@
 #define RT_CHIP_PORT_VD2                    (RT_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
 #define RT_CHIP_PORTS_ALL                   (RT_CHIP_PORT_CPU + 5) /* Total number of ports */
 #define RT_PORT_ARRAY_SIZE                  (RT_CHIP_PORTS > VTSS_PORT_ARRAY_SIZE ? VTSS_PORT_ARRAY_SIZE : RT_CHIP_PORTS)
-
 #define RT_TAS_NUMBER_OF_LISTS              fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_LISTS)
 #define RT_TAS_NUMBER_OF_PROFILES           fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_PROFILES)
 #define RT_TAS_NUMBER_OF_ENTRIES            fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_ENTRIES)
@@ -85,38 +84,31 @@
 #define RT_EVC_POL_CNT                      fla_get_const(vtss_state, __RT_EVC_POL_CNT)
 #define RT_EVC_STAT_CNT                     fla_get_const(vtss_state, __RT_EVC_STAT_CNT)
 #define RT_SDX_CNT                          fla_get_const(vtss_state, __RT_SDX_CNT)
-
 #define RT_HSCH_LAYERS                      fla_get_const(vtss_state, __RT_HSCH_LAYERS)
 #define RT_HSCH_L0_SES                      fla_get_const(vtss_state, __RT_HSCH_L0_SES)
 #define RT_HSCH_L1_SES                      fla_get_const(vtss_state, __RT_HSCH_L1_SES)
 #define RT_HSCH_L2_SES                      fla_get_const(vtss_state, __RT_HSCH_L2_SES)
 #define RT_HSCH_L3_QSHPS                    fla_get_const(vtss_state, __RT_HSCH_L3_QSHPS)
-
 #define RT_HSCH_MAX_RATE_GROUP_0            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_0)
 #define RT_HSCH_MAX_RATE_GROUP_1            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_1)
 #define RT_HSCH_MAX_RATE_GROUP_2            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_2)
 #define RT_HSCH_MAX_RATE_GROUP_3            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_3)
-
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_0       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_0)
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_1       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_1)
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_2       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_2)
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_3       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_3)
-
 #define RT_LB_GROUP_CNT                     fla_get_const(vtss_state, __RT_LB_GROUP_CNT)
 #define RT_LB_SET_CNT                       fla_get_const(vtss_state, __RT_LB_SET_CNT)
-#define RT_PGID_FA                          FA_TGT ? (2048 + 65) : (1024 + 30)
-#define RT_MAC_INDEX_CNT                    FA_TGT ? 2048 : 4096
+#define RT_PGID_FA                          fla_get_const(vtss_state, __RT_PGID_FA)
+#define RT_MAC_INDEX_CNT                    fla_get_const(vtss_state, __RT_MAC_INDEX_CNT)
 #define RT_MAC_ADDRS                        fla_get_const(vtss_state, __RT_MAC_ADDRS)
-
-#define RT_DSM_CAL_MAX_DEVS_PER_TAXI        (FA_TGT ? 13 : 10)
-#define RT_DSM_CAL_TAXIS                    (FA_TGT ? 8 : 5)
-
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI        fla_get_const(vtss_state, __RT_DSM_CAL_MAX_DEVS_PER_TAXI)
+#define RT_DSM_CAL_TAXIS                    fla_get_const(vtss_state, __RT_DSM_CAL_TAXIS)
 #define RT_MSTREAM_CNT                      fla_get_const(vtss_state, __RT_MSTREAM_CNT)
 #define RT_CSTREAM_CNT                      fla_get_const(vtss_state, __RT_CSTREAM_CNT)
 #define RT_AFI_SLOW_INJ_CNT                 fla_get_const(vtss_state, __RT_AFI_SLOW_INJ_CNT)
 #define RT_AFI_FAST_INJ_BPS_MIN             1000ULL
 #define RT_AFI_FAST_INJ_BPS_MAX             (FA_TGT ? 25000000000ULL : 10000000000ULL)
-
 #define RT_PATH_SERVICE_VOE_CNT             fla_get_const(vtss_state, __RT_PATH_SERVICE_VOE_CNT)
 #define RT_PORT_VOE_BASE_IDX                fla_get_const(vtss_state, __RT_PORT_VOE_BASE_IDX)
 #define RT_PORT_VOE_CNT                     fla_get_const(vtss_state, __RT_PORT_VOE_CNT)
@@ -125,14 +117,21 @@
 #define RT_VOE_CNT                          ((RT_PATH_SERVICE_VOE_CNT) + (RT_PORT_VOE_CNT))
 #define RT_VOI_CNT                          ((RT_DOWN_VOI_CNT) + (RT_UP_VOI_CNT))
 #define RT_EVENT_MASK_ARRAY_SIZE            ((RT_VOE_CNT+31)/32)
-
 #define RT_ACL_CNT_SIZE                     fla_get_const(vtss_state, __RT_ACL_CNT_SIZE)
 #define RT_ES2_CNT_SIZE                     fla_get_const(vtss_state, __RT_ES2_CNT_SIZE)
-
 #define RT_ES0_CNT                          fla_get_const(vtss_state, __RT_ES0_CNT)
 #define RT_ES2_CNT                          fla_get_const(vtss_state, __RT_ES2_CNT)
+#define RT_FA_ES2_CNT                       fla_get_const(vtss_state, __RT_FA_ES2_CNT)
+#define RT_IP6PFX_CNT                       fla_get_const(vtss_state, __RT_IP6PFX_CNT)
 #define RT_VCAP_SUPER_BLK_CNT               fla_get_const(vtss_state, __RT_VCAP_SUPER_BLK_CNT)
 #define RT_VCAP_SUPER_RULE_CNT              (RT_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6)
+#define RT_QOS_EGRESS_MAP_IDS               fla_get_const(vtss_state, __RT_QOS_EGRESS_MAP_IDS)
+#define RT_QOS_EGRESS_MAP_ID_END            (VTSS_QOS_EGRESS_MAP_ID_START + RT_QOS_EGRESS_MAP_IDS)
+#define RT_QOS_INGRESS_MAP_IDS              fla_get_const(vtss_state, __RT_QOS_INGRESS_MAP_IDS)
+#define RT_QOS_INGRESS_MAP_ID_END           (VTSS_QOS_INGRESS_MAP_ID_START + RT_QOS_INGRESS_MAP_IDS)
+#define RT_QOS_EGRESS_MAP_ROWS              RT_QOS_EGRESS_MAP_IDS
+#define RT_QOS_INGRESS_MAP_ROWS             (RT_QOS_INGRESS_MAP_IDS * 2)
+#define RT_QOS_INGRESS_MAP_IX_RESERVED      (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN)
 
 
 // FA/LA runtimes macros
@@ -199,9 +198,9 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
 #define REG_ADDR(p) IOREG(p)
 
 #define REG_RD(...) REG_RD_(__VA_ARGS__)
-#define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)              \
+#define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);            \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
         if ((dsg != 0) && vtss_state->chip_design != dsg)              \
             vtss_fa_reg_error(__FILE__, __LINE__,                      \
                               "Register not existing in this chip!");  \
@@ -211,9 +210,9 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
     } while (0)
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
-#define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)              \
+#define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);            \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
         if ((dsg != 0) && vtss_state->chip_design != dsg)              \
             vtss_fa_reg_error(__FILE__, __LINE__,                      \
                               "Register not existing in this chip!");  \
@@ -225,7 +224,7 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
 #define REG_WRM_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value, mask)    \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);            \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
         if ((dsg != 0) && vtss_state->chip_design != dsg)              \
             vtss_fa_reg_error(__FILE__, __LINE__,                      \
                               "Register not existing in this chip!");  \

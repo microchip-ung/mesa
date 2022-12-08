@@ -1187,7 +1187,7 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
 #endif
 
     if (info->full) {
-        pr("Runtime constants:\n");
+        pr("\nRuntime constants:\n");
         pr("RT_SERDES_10G_START                 :%d\n", RT_SERDES_10G_START);
         pr("RT_SERDES_25G_STAR                  :%d\n", RT_SERDES_25G_START);
         pr("RT_BUFFER_MEMORY                    :%d\n", RT_BUFFER_MEMORY);
@@ -1254,6 +1254,13 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
         pr("RT_ES2_CNT                          :%d\n", RT_ES2_CNT);
         pr("RT_VCAP_SUPER_BLK_CNT               :%d\n", RT_VCAP_SUPER_BLK_CNT);
         pr("RT_VCAP_SUPER_RULE_CNT              :%d\n", RT_VCAP_SUPER_RULE_CNT);
+        pr("RT_QOS_EGRESS_MAP_IDS               :%d\n", RT_QOS_EGRESS_MAP_IDS);
+        pr("RT_QOS_EGRESS_MAP_ID_END            :%d\n", RT_QOS_EGRESS_MAP_ID_END);
+        pr("RT_QOS_INGRESS_MAP_IDS              :%d\n", RT_QOS_INGRESS_MAP_IDS);
+        pr("RT_QOS_INGRESS_MAP_ID_END           :%d\n", RT_QOS_INGRESS_MAP_ID_END);
+        pr("RT_QOS_EGRESS_MAP_ROWS              :%d\n", RT_QOS_EGRESS_MAP_ROWS);
+        pr("RT_QOS_INGRESS_MAP_ROWS             :%d\n", RT_QOS_INGRESS_MAP_ROWS);
+        pr("RT_QOS_INGRESS_MAP_IX_RESERVED      :%d\n", RT_QOS_INGRESS_MAP_IX_RESERVED);
     }
     return VTSS_RC_OK;
 }

@@ -48,7 +48,15 @@ static unsigned int fa_chip_const[] = {
     [__RT_ES2_CNT_SIZE] = 2048,
     [__RT_ES0_CNT] = 4096,
     [__RT_ES2_CNT] = 2048,
+    [__RT_FA_ES2_CNT] = 1024,
+    [__RT_IP6PFX_CNT] = 512,
     [__RT_VCAP_SUPER_BLK_CNT] = 10,
+    [__RT_QOS_INGRESS_MAP_IDS] = 256,
+    [__RT_QOS_EGRESS_MAP_IDS] = 512,
+    [__RT_PGID_FA] = (2048 + 65),
+    [__RT_MAC_INDEX_CNT] = 2048,
+    [__RT_DSM_CAL_MAX_DEVS_PER_TAXI] = 13,
+    [__RT_DSM_CAL_TAXIS] = 8
 };
 
 
@@ -97,7 +105,15 @@ static unsigned int la_chip_const[] = {
     [__RT_ES2_CNT_SIZE] = 1024,
     [__RT_ES0_CNT] = 1536,
     [__RT_ES2_CNT] = 1024,
+    [__RT_FA_ES2_CNT] = 512,
+    [__RT_IP6PFX_CNT] = 256,
     [__RT_VCAP_SUPER_BLK_CNT] = 6,
+    [__RT_QOS_INGRESS_MAP_IDS] = 64,
+    [__RT_QOS_EGRESS_MAP_IDS] = 128,
+    [__RT_PGID_FA] = (1024 + 30),
+    [__RT_MAC_INDEX_CNT] = 4096,
+    [__RT_DSM_CAL_MAX_DEVS_PER_TAXI] = 10,
+    [__RT_DSM_CAL_TAXIS] = 5
 };
 
 // Register assignment _END_

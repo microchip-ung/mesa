@@ -930,8 +930,8 @@ static vtss_rc fa_qos_ingress_map_port_update(vtss_state_t         *vtss_state,
     u16 ix;
     u32 key;
 
-    if (id < VTSS_QOS_INGRESS_MAP_IDS &&
-        (ix = vtss_state->qos.imap.id.entry[id].ix) < VTSS_QOS_INGRESS_MAP_ROWS) {
+    if (id < RT_QOS_INGRESS_MAP_IDS &&
+        (ix = vtss_state->qos.imap.id.entry[id].ix) < RT_QOS_INGRESS_MAP_ROWS) {
         key = vtss_fa_imap_key2clm(vtss_state->qos.imap.ix[0].entry[ix].key, 0);
     } else {
         ix = 0;
@@ -3921,12 +3921,12 @@ static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
         vtss_debug_print_header(pr, buf);
         if (info->full) {
             if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
-                for (i = 0; i < VTSS_QOS_INGRESS_MAP_ROWS; i++) {
+                for (i = 0; i < RT_QOS_INGRESS_MAP_ROWS; i++) {
                     (void) fa_debug_qos_ingress_mapping(vtss_state, pr, i, 1);
                 }
             } else {
 #if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
-                for (i = 0; i < VTSS_QOS_EGRESS_MAP_ROWS; i++) {
+                for (i = 0; i < RT_QOS_EGRESS_MAP_ROWS; i++) {
                     (void) fa_debug_qos_egress_mapping(vtss_state, pr, res, i, 1);
                 }
 #endif
@@ -5381,7 +5381,18 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->ingress_map_vcap_update = fa_qos_ingress_map_vcap_update;
         state->ingress_map_hw_update   = fa_qos_ingress_map_hw_update;
         state->ingress_map_hw_copy     = fa_qos_ingress_map_hw_copy;
+        state->imap.id.entry_len       = RT_QOS_INGRESS_MAP_IDS;
+        state->imap.ix[0].entry_len    = RT_QOS_INGRESS_MAP_ROWS;
+        if (RT_QOS_INGRESS_MAP_ROWS > 2*VTSS_QOS_INGRESS_ROW_MIN) {
+            state->imap.ix[0].reserved     = (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN);
+        } else {
+            state->imap.ix[0].reserved     = (RT_QOS_INGRESS_MAP_ROWS);
+        }
 #if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
+        state->emap.ix[0].entry_len    = RT_QOS_EGRESS_MAP_ROWS;
+        state->emap.ix[1].entry_len    = RT_QOS_EGRESS_MAP_ROWS;
+        state->emap.id.entry_len       = RT_QOS_EGRESS_MAP_IDS;
+        state->emap_id_end             = RT_QOS_EGRESS_MAP_ID_END;
         state->egress_map_add          = fa_qos_egress_map_add;
         state->egress_map_del          = fa_qos_egress_map_del;
         state->egress_map_vcap_update  = fa_qos_egress_map_vcap_update;

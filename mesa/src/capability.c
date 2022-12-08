@@ -898,16 +898,24 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_QOS_INGRESS_MAP_CNT:
+    case MESA_CAP_QOS_INGRESS_MAP_CNT: {
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-        c = VTSS_QOS_INGRESS_MAP_IDS;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->qos.imap.id.entry_len;
+        }
 #endif
+    }
         break;
 
-    case MESA_CAP_QOS_EGRESS_MAP_CNT:
+    case MESA_CAP_QOS_EGRESS_MAP_CNT: {
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-        c = VTSS_QOS_EGRESS_MAP_IDS;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->qos.emap.id.entry_len;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_QOS_COSID_CLASSIFICATION:

@@ -1564,6 +1564,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
         vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
+        break;
     default:
         return VTSS_RC_ERROR;
     }

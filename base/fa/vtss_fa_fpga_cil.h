@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 
+// Temp file for VTSS_ARCH_LAN969X_FPGA
+
+
 #ifndef _VTSS_LA_CIL_H_
 #define _VTSS_LA_CIL_H_
 /* Register space starts by 'CPU' area followed by 'SWC' area */
@@ -17,7 +20,7 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_ARCH_FA
 #endif
 
@@ -99,11 +102,18 @@
 #define RT_ES2_CNT_SIZE                     32
 #define RT_ES0_CNT                          8
 #define RT_ES2_CNT                          4
+#define RT_FA_ES2_CNT                       4
+#define RT_IP6PFX_CNT                       4
 #define RT_VCAP_SUPER_BLK_CNT               6
 #define RT_VCAP_SUPER_RULE_CNT              (RT_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6)
-
-
-
+#define RT_QOS_INGRESS_MAP_IDS              8
+#define RT_QOS_EGRESS_MAP_IDS               32
+#define RT_IP6PFX_CNT                       4
+#define RT_QOS_INGRESS_MAP_ID_END           (VTSS_QOS_INGRESS_MAP_ID_START + RT_QOS_INGRESS_MAP_IDS)
+#define RT_QOS_EGRESS_MAP_ID_END            (VTSS_QOS_EGRESS_MAP_ID_START + RT_QOS_EGRESS_MAP_IDS)
+#define RT_QOS_EGRESS_MAP_ROWS              RT_QOS_EGRESS_MAP_IDS
+#define RT_QOS_INGRESS_MAP_ROWS             (RT_QOS_INGRESS_MAP_IDS * 2)
+#define RT_QOS_INGRESS_MAP_IX_RESERVED      (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN)
 
 // to make compile easy
 #define VTSS_PORT_CONF_DEV25G_MODES 0
@@ -124,22 +134,6 @@
 #include "vtss_la_reg.h"
 
 // Port 0-(VTSS_CHIP_PORTS-1) are switch ports, others are internal ports
-#if defined(VTSS_ARCH_SPARX5)
-#define VTSS_CHIP_PORTS       65
-#define VTSS_SERDES_10G_START 13
-#define VTSS_SERDES_25G_START 25
-#define FA_BUFFER_MEMORY      4194280 /* 22795 words * 184 bytes */
-#define FA_BUFFER_REFERENCE   22795   /* Frame references */
-#define FA_DSM_CAL_LEN 64
-#define FA_DSM_CAL_EMPTY 0xFFFF
-#define FA_DSM_CAL_MAX_DEVS_PER_TAXI 13
-#define FA_DSM_CAL_TAXIS 8
-#define FA_DSM_CAL_BW_LOSS 553
-#define FA_RES_CFG_MAX_PORT_IDX 560
-#define FA_RES_CFG_MAX_PRIO_IDX 630
-#define FA_RES_CFG_MAX_COLOUR_IDX 638
-#endif
-
 #if defined(VTSS_ARCH_LAN969X)
 #define VTSS_CHIP_PORTS       30
 #define VTSS_SERDES_10G_START 0
@@ -169,39 +163,6 @@
 #define VTSS_CHIP_PORT_VD1   (VTSS_CHIP_PORT_CPU + 3) /* VD1/Port used for AFI/OAM */
 #define VTSS_CHIP_PORT_VD2   (VTSS_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
 #define VTSS_CHIP_PORTS_ALL  (VTSS_CHIP_PORT_CPU + 5) /* Total number of ports */
-
-#if defined(VTSS_ARCH_SPARX5)
-// Fireant port devices:
-// D0  - D11      DEV5G  (12)
-// D12 - D15      DEV10G  (4)
-// D16 - D47      DEV2G5 (32)
-// D48 - D55      DEV10G  (8)
-// D56 - D63      DEV25G  (8)
-// D64            DEV5G   (1)
-//                -----------
-//                65 port devices + 33 DEV2G5 'shadow' devices
-// Macros for primary ports:
-#define VTSS_PORT_IS_2G5(port)   (port >= 16 && port <= 47)
-#define VTSS_PORT_IS_5G(port)    (port <= 11 || port == 64)
-#define VTSS_PORT_IS_10G(port)   ((port >= 12 && port <= 15) || (port >= 48 && port <= 55))
-#define VTSS_PORT_IS_25G(port)   (port >= 56 && port <= 63)
-// Macros for block address targets:
-#define VTSS_TO_DEV2G5(port)   vtss_to_dev2g5(port)
-#define VTSS_TO_DEV5G(port)    vtss_to_dev5g(port)
-#define VTSS_TO_DEV10G(port)   vtss_to_dev10g(port)
-#define VTSS_TO_DEV25G(port)   vtss_to_dev25g(port)
-#define VTSS_TO_HIGH_DEV(port) VTSS_PORT_IS_5G(port) ? VTSS_TO_DEV5G(port) :  VTSS_PORT_IS_10G(port) ? VTSS_TO_DEV10G(port) : VTSS_TO_DEV25G(port)
-#define VTSS_TO_PCS_TGT(port)  VTSS_PORT_IS_5G(port) ? vtss_to_pcs5g(port) :  VTSS_PORT_IS_10G(port) ? vtss_to_pcs10g(port) : vtss_to_pcs25g(port)
-
-#define VTSS_TO_SD_CMU(indx)  vtss_to_sd_cmu(vtss_state, indx)
-#define VTSS_TO_SD_CMU_CFG(indx)  vtss_to_sd_cmu_cfg(vtss_state, indx)
-#define VTSS_TO_SD6G_LANE(indx) vtss_to_sd6g_lane(vtss_state, indx)
-#define VTSS_TO_SD10G_LANE(indx) vtss_to_sd10g_lane(vtss_state, indx)
-#define VTSS_TO_SD25G_LANE(indx) vtss_to_sd25g_lane(vtss_state, indx)
-#define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(vtss_state, indx)
-
-
-#endif
 
 #if defined(VTSS_ARCH_LAN969X)
 // Laguna port devices:
@@ -233,8 +194,6 @@
 #define VTSS_TO_SD10G_LANE(indx) vtss_to_sd10g_lane(vtss_state, indx)
 #define VTSS_TO_SD25G_LANE(indx) vtss_to_sd25g_lane(vtss_state, indx)
 #define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(vtss_state, indx)
-
-
 #endif /* VTSS_ARCH_LAN969X */
 
 /* Fireant has 4 PTP PIN connected to GPIO that can be used for different purposes, the defines below defines the
@@ -359,14 +318,6 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 /* ================================================================= *
  *  Port masks
  * ================================================================= */
-#if defined(VTSS_ARCH_SPARX5)
-#define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]);                REG_WR(_t##1, (_m).m[1]);                REG_WR(_t##2, (_m).m[2]);                }
-#define REG_WRX_PMASK(_t, x, _m)      { REG_WR(_t(x), (_m).m[0]);             REG_WR(_t##1(x), (_m).m[1]);             REG_WR(_t##2(x), (_m).m[2]);             }
-#define REG_WRM_PMASK(_t, _v, _m)     { REG_WRM(_t, (_v).m[0], (_m).m[0]);    REG_WRM(_t##1, (_v).m[1], (_m).m[1]);    REG_WRM(_t##2, (_v).m[2], (_m).m[2]);    }
-#define REG_RD_PMASK(_t, _m)          { REG_RD(_t, &(_m)->m[0]);              REG_RD(_t##1, &(_m)->m[1]);              REG_RD(_t##2, &(_m)->m[2]);              }
-#define REG_RDX_PMASK(_t, x, _m)      { REG_RD(_t(x), &(_m)->m[0]);           REG_RD(_t##1(x), &(_m)->m[1]);           REG_RD(_t##2(x), &(_m)->m[2]);           }
-#define REG_WRXM_PMASK(_t, x, _v, _m) { REG_WRM(_t(x), (_v).m[0], (_m).m[0]); REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]); REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]); }
-#endif
 #if defined(VTSS_ARCH_LAN969X)
 #define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]);                }
 #define REG_WRX_PMASK(_t, x, _m)      { REG_WR(_t(x), (_m).m[0]);             }

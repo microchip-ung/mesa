@@ -264,6 +264,7 @@ typedef struct {
 typedef struct {
     vtss_qos_map_ix_entry_t *entry;     /**< Array of entries, indexed by hw index */
     u16                      entry_len; /**< Indicated the number of allocated entries above */
+    u16                      entry_end; /**<  VTSS_QOS_INGRESS_MAP_ID_END */
     u16                      free;      /**< Start of free area */
     u16                      reserved;  /**< Start of reserved area (never changes after initialization) */
 } vtss_qos_map_ix_adm_t;
@@ -566,6 +567,8 @@ typedef struct {
     vtss_qos_map_id_entry_t imap_id[VTSS_QOS_INGRESS_MAP_IDS];    /* Allocation of id table. Only accessed through imap below */
     vtss_qos_map_ix_entry_t imap_ix[VTSS_QOS_INGRESS_MAP_ROWS];   /* Allocation of ix table. Only accessed through imap below */
     vtss_qos_map_adm_t      imap;                                 /* Generic table administration */
+    u16                     imap_id_end;
+    u16                     emap_id_end;
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)

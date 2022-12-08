@@ -4305,7 +4305,7 @@ static void vtss_id2tce(vtss_vcap_id_t id, vtss_tce_id_t *tce_id, vtss_port_no_t
     *port_no = (id >> 32);
 }
 
-static void vtss_tce2tag(const vtss_tce_tag_t *tce, vtss_es0_data_t *es0, BOOL outer)
+static void vtss_tce2tag(vtss_state_t *vtss_state, const vtss_tce_tag_t *tce, vtss_es0_data_t *es0, BOOL outer)
 {
     vtss_es0_action_t *action = &es0->entry->action;
 
@@ -4346,7 +4346,7 @@ static void vtss_tce2tag(const vtss_tce_tag_t *tce, vtss_es0_data_t *es0, BOOL o
         tag->dei.sel = sel->dei;
         tag->dei.val = tce->dei;
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-        if (tce->map_id < VTSS_QOS_EGRESS_MAP_IDS) {
+        if (tce->map_id < vtss_state->qos.emap.id.entry_len) {
             if (outer) {
                 es0->map_id_ot = tce->map_id;
                 if (sel->pcp == VTSS_ES0_PCP_MAPPED) {
@@ -4497,9 +4497,9 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     }
 #endif
 #endif
-    vtss_tce2tag(&tce->action.tag, es0, TRUE);
+    vtss_tce2tag(vtss_state, &tce->action.tag, es0, TRUE);
 #if !defined(VTSS_ARCH_LUTON26)
-    vtss_tce2tag(&tce->action.inner_tag, es0, FALSE);
+    vtss_tce2tag(vtss_state, &tce->action.inner_tag, es0, FALSE);
 #endif
     entry.action.pop_cnt = tce->action.pop_cnt;
 #if defined(VTSS_FEATURE_FRER)
