@@ -1038,30 +1038,24 @@ vtss_rc vtss_macsec_rx_sa_counters_get(const vtss_inst_t            inst,
 /*--------------------------------------------------------------------*/
 /* VP / Uncontrolled classification                                   */
 /*--------------------------------------------------------------------*/
-#define VTSS_MACSEC_MATCH_DISABLE        0x0001 /**< Disable match  */
-#define VTSS_MACSEC_MATCH_DMAC           0x0002 /**< DMAC match  */
-#define VTSS_MACSEC_MATCH_ETYPE          0x0004 /**< ETYPE match */
-#define VTSS_MACSEC_MATCH_VLAN_ID        0x0008 /**< VLAN match  */
-#define VTSS_MACSEC_MATCH_VLAN_ID_INNER  0x0010 /**< Inner VLAN match */
-#define VTSS_MACSEC_MATCH_BYPASS_HDR     0x0020 /**< MPLS header match */
-#define VTSS_MACSEC_MATCH_IS_CONTROL     0x0040 /**< Control frame match e.g. Ethertype 0x888E */
-#define VTSS_MACSEC_MATCH_HAS_VLAN       0x0080 /**< The frame contains a VLAN tag */
-#define VTSS_MACSEC_MATCH_HAS_VLAN_INNER 0x0100 /**< The frame contains an inner VLAN tag */
-#define VTSS_MACSEC_MATCH_SMAC           0x0200 /**< Source MAC address  */
+#define VTSS_MACSEC_MATCH_DISABLE        MEPA_MACSEC_MATCH_DISABLE
+#define VTSS_MACSEC_MATCH_DMAC           MEPA_MACSEC_MATCH_DMAC
+#define VTSS_MACSEC_MATCH_ETYPE          MEPA_MACSEC_MATCH_ETYPE
+#define VTSS_MACSEC_MATCH_VLAN_ID        MEPA_MACSEC_MATCH_VLAN_ID
+#define VTSS_MACSEC_MATCH_VLAN_ID_INNER  MEPA_MACSEC_MATCH_VLAN_ID_INNER
+#define VTSS_MACSEC_MATCH_BYPASS_HDR     MEPA_MACSEC_MATCH_BYPASS_HDR
+#define VTSS_MACSEC_MATCH_IS_CONTROL     MEPA_MACSEC_MATCH_IS_CONTROL
+#define VTSS_MACSEC_MATCH_HAS_VLAN       MEPA_MACSEC_MATCH_HAS_VLAN
+#define VTSS_MACSEC_MATCH_HAS_VLAN_INNER MEPA_MACSEC_MATCH_HAS_VLAN_INNER
+#define VTSS_MACSEC_MATCH_SMAC           MEPA_MACSEC_MATCH_SMAC
 
-#define VTSS_MACSEC_MATCH_PRIORITY_LOWEST 15 /**< Lowest possible matching priority */
-#define VTSS_MACSEC_MATCH_PRIORITY_LOW    12 /**< Low matching priority */
-#define VTSS_MACSEC_MATCH_PRIORITY_MID     8 /**< Medium matching priority */
-#define VTSS_MACSEC_MATCH_PRIORITY_HIGH    4 /**< High matching priority */
-#define VTSS_MACSEC_MATCH_PRIORITY_HIGHEST 0 /**< Hihhest possible matching priority */
+#define VTSS_MACSEC_MATCH_PRIORITY_LOWEST MEPA_MACSEC_MATCH_PRIORITY_LOWEST
+#define VTSS_MACSEC_MATCH_PRIORITY_LOW    MEPA_MACSEC_MATCH_PRIORITY_LOW
+#define VTSS_MACSEC_MATCH_PRIORITY_MID     MEPA_MACSEC_MATCH_PRIORITY_MID
+#define VTSS_MACSEC_MATCH_PRIORITY_HIGH    MEPA_MACSEC_MATCH_PRIORITY_HIGH
+#define VTSS_MACSEC_MATCH_PRIORITY_HIGHEST MEPA_MACSEC_MATCH_PRIORITY_HIGHEST
 
-/** \brief MACsec control frame matching */
-typedef struct {
-    u32            match;         /**< Use combination of (OR): VTSS_MACSEC_MATCH_DMAC,
-                                       VTSS_MACSEC_MATCH_ETYPE */
-    vtss_mac_t     dmac;          /**< DMAC address to match (SMAC not supported) */
-    vtss_etype_t   etype;         /**< Ethernet type to match  */
-} vtss_macsec_control_frame_match_conf_t;
+typedef mepa_macsec_control_frame_match_conf_t vtss_macsec_control_frame_match_conf_t;
 
 /** \brief Set the control frame matching rules.
  *  16 rules are supported for ETYPE (8 for 1G Phy).
@@ -1103,129 +1097,20 @@ vtss_rc vtss_macsec_control_frame_match_conf_get(const vtss_inst_t              
                                                  vtss_macsec_control_frame_match_conf_t       *const conf,
                                                  u32                                           rule_id);
 
-/** \brief Matching patterns,
- * When traffic is passed through the MACsec processing block, it will be match
- * against a set of rules. If non of the rules matches, it will be matched
- * against the default rules (one and only on of the default rules will always
- * match) defined in vtss_macsec_default_action_policy_t.
- *
- * The classification rules are associated with a MACsec port and an action. The
- * action is defined in vtss_macsec_match_action_t and defines if frames
- * should be dropped, forwarded to the controlled or the un-controlled port of
- * the given virtual MACsec port.
- *
- * These classification rules are used both on the ingress and the egress side.
- * On the ingress side, only tags located before the SECtag will be used.
- *
- * These rules are a limited resource, and the HW is limited to allow the same
- * amount of classification rules as concurrent SA streams. Therefore to utilize
- * the hardware 100%, they should only be used to associate traffic with the
- * controlled port of a MACsec port. In simple scenarios where a single peer is
- * connected to a single PHY, there are more then sufficiet resources to use
- * this mechanism for associate traffic with the uncontrolled port.
- *
- * Instead of using this to forward control frames to the uncontrolled port,
- * the default rules may be used to bypass those frames. This will however have
- * the following consequences:
- *  - The controlled frames will not be included in uncontrolled port
- *    counters. To get the correct counter values, the application will need to
- *    gather all the control frames, calculate the statistics and use this to
- *    compensate the uncontrolled port counters.
- *  - All frames which are classified as control frames are passed through. If
- *    the control frame matches against the ether-type, it will
- *    evaluate to true in the following three cases:
- *     * If the ether-type located directly after the source MAC address matches
- *     * If the ether-type located the first VLAN tag matches
- *     * If the ether-type located a double VLAN tag matches
- * */
-typedef struct {
-    /** This field is used to specify which part of the matching pattern is
-     * active. If multiple fields are active, they must all match if the
-     * pattern is to match.  */
-    u32          match;
+typedef mepa_macsec_match_pattern_t vtss_macsec_match_pattern_t;
 
-    /** Signals if the frame has been classified as a control frame. This allow
-     * to match if a frame must be classified as a control frame, or if it has
-     * not be classified as a control frame. The classification is controlled
-     * by the vtss_macsec_control_frame_match_conf_t struct. This field is
-     * activated by setting the VTSS_MACSEC_MATCH_IS_CONTROL in "match" */
-    BOOL         is_control;
+#define VTSS_MACSEC_MATCH_ACTION_DROP MEPA_MACSEC_MATCH_ACTION_DROP
+#define VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT
+#define VTSS_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT MEPA_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT
+#define VTSS_MACSEC_MATCH_ACTION_CNT MEPA_MACSEC_MATCH_ACTION_CNT
 
-    /** Signals if the frame contains a VLAN tag. This allows to match if a VLAN
-     * tag must exists, and if a VLAN tag must not exists. This field is
-     * activated by setting the VTSS_MACSEC_MATCH_HAS_VLAN bit in "match" */
-    BOOL         has_vlan_tag;
+typedef mepa_macsec_match_action_t vtss_macsec_match_action_t;
 
-    /** Signals if the frame contains an inner VLAN tag. This allows to match if
-     * an inner VLAN tag must exists, and if an inner VLAN tag must not exists.
-     * This field is activated by setting the VTSS_MACSEC_MATCH_HAS_VLAN_INNER
-     * bit in "match" */
-    BOOL         has_vlan_inner_tag;
+#define    VTSS_MACSEC_DIRECTION_INGRESS MEPA_MACSEC_DIRECTION_INGRESS
+#define    VTSS_MACSEC_DIRECTION_EGRESS MEPA_MACSEC_DIRECTION_EGRESS
+#define    VTSS_MACSEC_DIRECTION_CNT MEPA_MACSEC_DIRECTION_CNT
 
-    /** This field can be used to match against a parsed ether-type. This
-     * field is activated by setting the VTSS_MACSEC_MATCH_ETYPE bit in "match"
-     */
-    vtss_etype_t etype;
-
-    /** This field can be used to match against the VLAN id. This field is
-     * activated by setting the VTSS_MACSEC_MATCH_VLAN_ID bit in "match" */
-    vtss_vid_t   vid;
-
-    /** This field can be used to match against the inner VLAN id. This field
-     * is activated by setting the VTSS_MACSEC_MATCH_VLAN_ID_INNER bit in
-     * "match" */
-    vtss_vid_t   vid_inner;
-
-    /** This field along with hdr_mask is used to do a binary matching of a MPLS
-     * header. This is activated by setting the VTSS_MACSEC_MATCH_BYPASS_HDR bit
-     * in "match" */
-    u8           hdr[8];
-
-    /** Full mask set for the 'hdr' field. */
-    u8           hdr_mask[8];
-
-    /** In case multiple rules matches a given frame, the rule with the highest
-     * priority wins. Valid range is 0 (highest) - 15 (lowest).*/
-    u8           priority;
-
-    /** This field can be used to match against the Source MAC address.  This field is
-     * activated by setting the VTSS_MACSEC_MATCH_SMAC bit in "match" */
-    vtss_mac_t   src_mac;
-
-    /** This field can be used to match against the Destination MAC address.  This field is
-     * activated by setting the VTSS_MACSEC_MATCH_DMAC bit in "match" */
-    vtss_mac_t   dest_mac;
-} vtss_macsec_match_pattern_t;
-
-/** \brief Pattern matching actions */
-typedef enum {
-    /** Drop the packet */
-    VTSS_MACSEC_MATCH_ACTION_DROP=0,
-
-   /** Forward the packet to the controlled port */
-    VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT=1,
-
-    /** Forward the packet to the uncontrolled port */
-    VTSS_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT=2,
-
-    /** Number of actions - always add new actions above this line */
-    VTSS_MACSEC_MATCH_ACTION_CNT = 3,
-} vtss_macsec_match_action_t;
-
-
-/** \brief Type used to state direction  */
-typedef enum {
-    /** Ingress. Traffic which is received by the port. */
-    VTSS_MACSEC_DIRECTION_INGRESS=0,
-
-    /** Egress. Traffic which is transmitted on the port. */
-    VTSS_MACSEC_DIRECTION_EGRESS=1,
-
-    /** Number of directions - will always be 2 */
-    VTSS_MACSEC_DIRECTION_CNT = 2,
-
-} vtss_macsec_direction_t;
-
+typedef mepa_macsec_direction_t vtss_macsec_direction_t;
 
 /** \brief Configure the Matching pattern for a given MACsec port, for a given
  * action. Only one action may be associated with each actions. One matching
@@ -1279,39 +1164,10 @@ vtss_rc vtss_macsec_pattern_get(const vtss_inst_t                  inst,
                                 const vtss_macsec_match_action_t   action,
                                 vtss_macsec_match_pattern_t       *const pattern);
 
-/** \brief Default matching actions */
-typedef enum {
-    VTSS_MACSEC_DEFAULT_ACTION_DROP   = 0,  /**< Drop frame */
-    VTSS_MACSEC_DEFAULT_ACTION_BYPASS = 1,  /**< Bypass frame */
-} vtss_macsec_default_action_t;
-
-/** \brief Default policy.
- * Frames not matched by any of the MACsec patterns will be evaluated against
- * the default policy.
- */
-typedef struct {
-    /**  Defines action for ingress frames which are not classified as MACsec
-     *   frames and not classified as control frames. */
-    vtss_macsec_default_action_t ingress_non_control_and_non_macsec;
-
-    /**  Defines action for ingress frames which are not classified as MACsec
-     *   frames and are classified as control frames. */
-    vtss_macsec_default_action_t ingress_control_and_non_macsec;
-
-    /**  Defines action for ingress frames which are classified as MACsec frames
-     *   and are not classified as control frames. */
-    vtss_macsec_default_action_t ingress_non_control_and_macsec;
-
-    /**  Defines action for ingress frames which are classified as MACsec frames
-     *   and are classified as control frames. */
-    vtss_macsec_default_action_t ingress_control_and_macsec;
-
-    /**  Defines action for egress frames which are classified as control frames. */
-    vtss_macsec_default_action_t egress_control;
-
-    /**  Defines action for egress frames which are not classified as control frames. */
-    vtss_macsec_default_action_t egress_non_control;
-} vtss_macsec_default_action_policy_t;
+#define VTSS_MACSEC_DEFAULT_ACTION_DROP MEPA_MACSEC_DEFAULT_ACTION_DROP
+#define VTSS_MACSEC_DEFAULT_ACTION_BYPASS MEPA_MACSEC_DEFAULT_ACTION_BYPASS
+typedef mepa_macsec_default_action_t vtss_macsec_default_action_t;
+typedef mepa_macsec_default_action_policy_t vtss_macsec_default_action_policy_t;
 
 /**
  * \brief   Assign default policy
@@ -1344,30 +1200,18 @@ vtss_rc vtss_macsec_default_action_get(const vtss_inst_t                        
 /* Header / TAG Bypass                                                */
 /*--------------------------------------------------------------------*/
 
-/** \brief  Enum for Bypass mode, Tag or Header  */
-typedef enum {
-    VTSS_MACSEC_BYPASS_NONE,   /**< Disable bypass mode  */
-    VTSS_MACSEC_BYPASS_TAG,    /**< Enable TAG bypass mode  */
-    VTSS_MACSEC_BYPASS_HDR,    /**< Enable Header bypass mode */
-} vtss_macsec_bypass_t;
+#define VTSS_MACSEC_BYPASS_NONE MEPA_MACSEC_BYPASS_NONE
+#define VTSS_MACSEC_BYPASS_TAG MEPA_MACSEC_BYPASS_TAG
+#define VTSS_MACSEC_BYPASS_HDR MEPA_MACSEC_BYPASS_HDR
 
-/** \brief Structure for Bypass mode */
-typedef struct {
-    vtss_macsec_bypass_t  mode;            /**< Bypass Mode, Tag bypass or Header bypass */
-    u32                   hdr_bypass_len;  /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.  
-                                           * The bypass includes MPLS DA + MPLS SA + MPLS Etype (before frame DA/SA)
-                                           * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */ 
-    vtss_etype_t          hdr_etype;       /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)   
-                                           * When matched, process control packets using DMAC/SMAC/Etype after the header 
-                                           * If not matched process control packets using the first DMAC/SMAC/Etype (as normally done) */
-} vtss_macsec_bypass_mode_t;
+typedef mepa_macsec_bypass_t vtss_macsec_bypass_t;
+typedef mepa_macsec_bypass_mode_t vtss_macsec_bypass_mode_t;
 
-/** \brief Enum for number of TAGs  */
-typedef enum {
-    VTSS_MACSEC_BYPASS_TAG_ZERO, /**< Disable */
-    VTSS_MACSEC_BYPASS_TAG_ONE,  /**< Bypass 1 tag */
-    VTSS_MACSEC_BYPASS_TAG_TWO,  /**< Bypass 2 tags */
-} vtss_macsec_tag_bypass_t;
+#define VTSS_MACSEC_BYPASS_TAG_ZERO MEPA_MACSEC_BYPASS_TAG_ZERO
+#define VTSS_MACSEC_BYPASS_TAG_ONE MEPA_MACSEC_BYPASS_TAG_ONE
+#define VTSS_MACSEC_BYPASS_TAG_TWO MEPA_MACSEC_BYPASS_TAG_TWO
+
+typedef mepa_macsec_tag_bypass_t vtss_macsec_tag_bypass_t;
 
 
 /** \brief Set header bypass mode globally for the port

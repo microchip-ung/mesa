@@ -56,6 +56,18 @@ typedef mepa_rc (*mepa_macsec_rx_sc_counters_get_t)(struct mepa_device *dev, con
 typedef mepa_rc (*mepa_macsec_tx_sc_counters_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, mepa_macsec_tx_sc_counters_t *const counters);
 typedef mepa_rc (*mepa_macsec_tx_sa_counters_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const uint16_t an, mepa_macsec_tx_sa_counters_t *const counters);
 typedef mepa_rc (*mepa_macsec_rx_sa_counters_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, mepa_macsec_rx_sa_counters_t *const counters);
+typedef mepa_rc (*mepa_macsec_control_frame_match_conf_set_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const mepa_macsec_control_frame_match_conf_t *const conf, uint32_t *const rule_id);
+typedef mepa_rc (*mepa_macsec_control_frame_match_conf_del_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const uint32_t rule_id);
+typedef mepa_rc (*mepa_macsec_control_frame_match_conf_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_control_frame_match_conf_t *const conf, uint32_t rule_id);
+typedef mepa_rc (*mepa_macsec_pattern_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_direction_t direction, const mepa_macsec_match_action_t action, const mepa_macsec_match_pattern_t *const pattern);
+typedef mepa_rc (*mepa_macsec_pattern_del_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_direction_t direction, const mepa_macsec_match_action_t action);
+typedef mepa_rc (*mepa_macsec_pattern_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_direction_t direction, const mepa_macsec_match_action_t action, mepa_macsec_match_pattern_t *const pattern);
+typedef mepa_rc (*mepa_macsec_default_action_set_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const mepa_macsec_default_action_policy_t *const policy);
+typedef mepa_rc (*mepa_macsec_default_action_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_default_action_policy_t *const policy);
+typedef mepa_rc (*mepa_macsec_bypass_mode_set_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const mepa_macsec_bypass_mode_t *const bypass);
+typedef mepa_rc (*mepa_macsec_bypass_mode_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_bypass_mode_t *const bypass);
+typedef mepa_rc (*mepa_macsec_bypass_tag_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_tag_bypass_t tag);
+typedef mepa_rc (*mepa_macsec_bypass_tag_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, mepa_macsec_tag_bypass_t *const tag);
 
 /** \brief PHY MACsec Driver */
 typedef struct mepa_macsec_driver {
@@ -109,6 +121,18 @@ typedef struct mepa_macsec_driver {
     mepa_macsec_tx_sc_counters_get_t mepa_macsec_tx_sc_counters_get;
     mepa_macsec_tx_sa_counters_get_t mepa_macsec_tx_sa_counters_get;
     mepa_macsec_rx_sa_counters_get_t mepa_macsec_rx_sa_counters_get;
+    mepa_macsec_control_frame_match_conf_set_t mepa_macsec_control_frame_match_conf_set;
+    mepa_macsec_control_frame_match_conf_del_t mepa_macsec_control_frame_match_conf_del;
+    mepa_macsec_control_frame_match_conf_get_t mepa_macsec_control_frame_match_conf_get;
+    mepa_macsec_pattern_set_t mepa_macsec_pattern_set;
+    mepa_macsec_pattern_del_t mepa_macsec_pattern_del;
+    mepa_macsec_pattern_get_t mepa_macsec_pattern_get;
+    mepa_macsec_default_action_set_t mepa_macsec_default_action_set;
+    mepa_macsec_default_action_get_t mepa_macsec_default_action_get;
+    mepa_macsec_bypass_mode_set_t mepa_macsec_bypass_mode_set;
+    mepa_macsec_bypass_mode_get_t mepa_macsec_bypass_mode_get;
+    mepa_macsec_bypass_tag_set_t mepa_macsec_bypass_tag_set;
+    mepa_macsec_bypass_tag_get_t mepa_macsec_bypass_tag_get;
 
 } mepa_macsec_driver_t;
 

@@ -144,7 +144,7 @@ typedef u32 vtss_port_no_t;
 #endif // _VTSS_MAIN_TYPES_H_
 
 /** \brief VLAN Identifier */
-typedef u16 vtss_vid_t; /* 0-4095 */
+typedef mepa_vid_t vtss_vid_t; /* 0-4095 */
 
 typedef mepa_mac_t vtss_mac_t;
 
@@ -156,7 +156,7 @@ typedef u8 vtss_mac_addr_t[VTSS_MAC_ADDR_SZ_BYTES]; /**< MAC address (SMAC/DMAC)
 #define MAC_ADDR_BROADCAST {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}  /**< Broadcast address used for addr in the vtss_mac_t struct */
 
 /** \brief Ethernet Type **/
-typedef u16 vtss_etype_t;
+typedef mepa_etype_t vtss_etype_t;
 
 /** \brief The different interfaces for connecting MAC and PHY */
 typedef enum

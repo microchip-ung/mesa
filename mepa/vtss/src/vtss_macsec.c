@@ -400,6 +400,98 @@ static mepa_rc vtss_phy_macsec_rx_sa_counters_get(struct mepa_device *dev,
     return vtss_macsec_rx_sa_counters_get(NULL, port, sci, an, counters);
 }
 
+static mepa_rc vtss_phy_macsec_control_frame_match_conf_set(struct mepa_device *dev ,
+                                                            const mepa_port_no_t port_no,
+                                                            const mepa_macsec_control_frame_match_conf_t *const conf,
+                                                            uint32_t *const rule_id)
+{
+    return vtss_macsec_control_frame_match_conf_set(NULL, port_no, conf, rule_id);
+}
+
+
+static mepa_rc vtss_phy_macsec_control_frame_match_conf_del(struct mepa_device *dev,
+                                                            const mepa_port_no_t port_no,
+                                                            const uint32_t rule_id)
+{
+    return vtss_macsec_control_frame_match_conf_del(NULL, port_no, rule_id);
+}
+
+static mepa_rc vtss_phy_macsec_control_frame_match_conf_get(struct mepa_device *dev,
+                                                            const mepa_port_no_t port_no,
+                                                            mepa_macsec_control_frame_match_conf_t *const conf,
+                                                            uint32_t rule_id)
+{
+    return vtss_macsec_control_frame_match_conf_get(NULL, port_no, conf, rule_id);
+}
+
+static mepa_rc vtss_phy_macsec_pattern_set(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_direction_t direction,
+                                           const mepa_macsec_match_action_t action,
+                                           const mepa_macsec_match_pattern_t *const pattern)
+{
+    return vtss_macsec_pattern_set(NULL, port, direction, action, pattern);
+}
+
+static mepa_rc vtss_phy_macsec_pattern_del(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_direction_t direction,
+                                           const mepa_macsec_match_action_t action)
+{
+    return vtss_macsec_pattern_del(NULL, port, direction, action);
+}
+
+static mepa_rc vtss_phy_macsec_pattern_get(struct mepa_device *dev,
+                                           const mepa_macsec_port_t port,
+                                           const mepa_macsec_direction_t direction,
+                                           const mepa_macsec_match_action_t action,
+                                           mepa_macsec_match_pattern_t *const pattern)
+{
+    return vtss_macsec_pattern_get(NULL, port, direction, action, pattern);
+}
+
+static mepa_rc vtss_phy_macsec_default_action_set(struct mepa_device *dev,
+                                                  const mepa_port_no_t port_no,
+                                                  const mepa_macsec_default_action_policy_t *const policy)
+{
+    return vtss_macsec_default_action_set(NULL, port_no, policy);
+}
+
+static mepa_rc vtss_phy_macsec_default_action_get(struct mepa_device *dev,
+                                                  const mepa_port_no_t port_no,
+                                                  mepa_macsec_default_action_policy_t *const policy)
+{
+    return vtss_macsec_default_action_get(NULL, port_no, policy);
+}
+
+static mepa_rc vtss_phy_macsec_bypass_mode_set(struct mepa_device *dev,
+                                               const mepa_port_no_t port_no,
+                                               const mepa_macsec_bypass_mode_t *const bypass)
+{
+    return vtss_macsec_bypass_mode_set(NULL, port_no, bypass);
+}
+
+static mepa_rc vtss_phy_macsec_bypass_mode_get(struct mepa_device *dev,
+                                               const mepa_port_no_t port_no,
+                                               mepa_macsec_bypass_mode_t *const bypass)
+{
+    return vtss_macsec_bypass_mode_get(NULL, port_no, bypass);
+}
+
+static mepa_rc vtss_phy_macsec_bypass_tag_set(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port,
+                                              const mepa_macsec_tag_bypass_t tag)
+{
+    return vtss_macsec_bypass_tag_set(NULL, port, tag);
+}
+
+static mepa_rc vtss_phy_macsec_bypass_tag_get(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port,
+                                              mepa_macsec_tag_bypass_t *const tag)
+{
+    return vtss_macsec_bypass_tag_get(NULL, port, tag);
+}
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -451,5 +543,17 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_tx_sc_counters_get = vtss_phy_macsec_tx_sc_counters_get,
     .mepa_macsec_tx_sa_counters_get = vtss_phy_macsec_tx_sa_counters_get,
     .mepa_macsec_rx_sa_counters_get = vtss_phy_macsec_rx_sa_counters_get,
+    .mepa_macsec_control_frame_match_conf_set = vtss_phy_macsec_control_frame_match_conf_set,
+    .mepa_macsec_control_frame_match_conf_del = vtss_phy_macsec_control_frame_match_conf_del,
+    .mepa_macsec_control_frame_match_conf_get = vtss_phy_macsec_control_frame_match_conf_get,
+    .mepa_macsec_pattern_set = vtss_phy_macsec_pattern_set,
+    .mepa_macsec_pattern_del = vtss_phy_macsec_pattern_del,
+    .mepa_macsec_pattern_get = vtss_phy_macsec_pattern_get,
+    .mepa_macsec_default_action_set = vtss_phy_macsec_default_action_set,
+    .mepa_macsec_default_action_get = vtss_phy_macsec_default_action_get,
+    .mepa_macsec_bypass_mode_set = vtss_phy_macsec_bypass_mode_set,
+    .mepa_macsec_bypass_mode_get = vtss_phy_macsec_bypass_mode_get,
+    .mepa_macsec_bypass_tag_set = vtss_phy_macsec_bypass_tag_set,
+    .mepa_macsec_bypass_tag_get = vtss_phy_macsec_bypass_tag_get,
 
 };

@@ -761,5 +761,303 @@ mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
                                        const uint16_t an,
                                        mepa_macsec_rx_sa_counters_t *const counters);
 
+/*--------------------------------------------------------------------*/
+/* VP / Uncontrolled classification                                   */
+/*--------------------------------------------------------------------*/
+#define MEPA_MACSEC_MATCH_DISABLE        0x0001           /**< Disable match  */
+#define MEPA_MACSEC_MATCH_DMAC           0x0002           /**< DMAC match  */
+#define MEPA_MACSEC_MATCH_ETYPE          0x0004           /**< ETYPE match */
+#define MEPA_MACSEC_MATCH_VLAN_ID        0x0008           /**< VLAN match  */
+#define MEPA_MACSEC_MATCH_VLAN_ID_INNER  0x0010           /**< Inner VLAN match */
+#define MEPA_MACSEC_MATCH_BYPASS_HDR     0x0020           /**< MPLS header match */
+#define MEPA_MACSEC_MATCH_IS_CONTROL     0x0040           /**< Control frame match e.g. Ethertype 0x888E */
+#define MEPA_MACSEC_MATCH_HAS_VLAN       0x0080           /**< The frame contains a VLAN tag */
+#define MEPA_MACSEC_MATCH_HAS_VLAN_INNER 0x0100           /**< The frame contains an inner VLAN tag */
+#define MEPA_MACSEC_MATCH_SMAC           0x0200           /**< Source MAC address  */
+
+#define MEPA_MACSEC_MATCH_PRIORITY_LOWEST 15              /**< Lowest possible matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_LOW    12              /**< Low matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_MID     8              /**< Medium matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_HIGH    4              /**< High matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_HIGHEST 0              /**< Hihhest possible matching priority */
+
+/** \brief MACsec control frame matching */
+typedef struct {
+    uint32_t            match;                            /**< Use combination of (OR): VTSS_MACSEC_MATCH_DMAC,
+                                                             MEPA_MACSEC_MATCH_ETYPE */
+    mepa_mac_t     dmac;                                  /**< DMAC address to match (SMAC not supported) */
+    mepa_etype_t   etype;                                 /**< Ethernet type to match  */
+} mepa_macsec_control_frame_match_conf_t;
+
+/**Set the control frame matching rules.
+ *  16 rules are supported for ETYPE (8 for 1G Phy).
+ *   8 rules are supported for DMACs
+ *   2 rules are supported for ETYPE & DMAC
+ */
+mepa_rc mepa_macsec_control_frame_match_conf_set(struct mepa_device *dev ,
+                                                 const mepa_port_no_t port_no,
+                                                 const mepa_macsec_control_frame_match_conf_t *const conf,
+                                                 uint32_t *const rule_id);
+
+/** Delete a control frame matching rule. */
+mepa_rc mepa_macsec_control_frame_match_conf_del(struct mepa_device *dev,
+                                                 const mepa_port_no_t port_no,
+                                                 const uint32_t rule_id);
+
+/**
+ Get the control frame matching rules.
+ */
+mepa_rc mepa_macsec_control_frame_match_conf_get(struct mepa_device *dev,
+                                                 const mepa_port_no_t port_no,
+                                                 mepa_macsec_control_frame_match_conf_t *const conf,
+                                                 uint32_t rule_id);
+
+/** \brief Matching patterns,
+ * When traffic is passed through the MACsec processing block, it will be match
+ * against a set of rules. If non of the rules matches, it will be matched
+ * against the default rules (one and only on of the default rules will always
+ * match) defined in mepa_macsec_default_action_policy_t.
+ *
+ * The classification rules are associated with a MACsec port and an action. The
+ * action is defined in mepa_macsec_match_action_t and defines if frames
+ * should be dropped, forwarded to the controlled or the un-controlled port of
+ * the given virtual MACsec port.
+ *
+ * These classification rules are used both on the ingress and the egress side.
+ * On the ingress side, only tags located before the SECtag will be used.
+ *
+ * These rules are a limited resource, and the HW is limited to allow the same
+ * amount of classification rules as concurrent SA streams. Therefore to utilize
+ * the hardware 100%, they should only be used to associate traffic with the
+ * controlled port of a MACsec port. In simple scenarios where a single peer is
+ * connected to a single PHY, there are more then sufficiet resources to use
+ * this mechanism for associate traffic with the uncontrolled port.
+ *
+ * Instead of using this to forward control frames to the uncontrolled port,
+ * the default rules may be used to bypass those frames. This will however have
+ * the following consequences:
+ *  - The controlled frames will not be included in uncontrolled port
+ *    counters. To get the correct counter values, the application will need to
+ *    gather all the control frames, calculate the statistics and use this to
+ *    compensate the uncontrolled port counters.
+ *  - All frames which are classified as control frames are passed through. If
+ *    the control frame matches against the ether-type, it will
+ *    evaluate to true in the following three cases:
+ *     * If the ether-type located directly after the source MAC address matches
+ *     * If the ether-type located the first VLAN tag matches
+ *     * If the ether-type located a double VLAN tag matches
+ * */
+
+typedef struct {
+    /** This field is used to specify which part of the matching pattern is
+     * active. If multiple fields are active, they must all match if the
+     * pattern is to match.  */
+    uint32_t          match;
+
+    /** Signals if the frame has been classified as a control frame. This allow
+     * to match if a frame must be classified as a control frame, or if it has
+     * not be classified as a control frame. The classification is controlled
+     * by the mepa_macsec_control_frame_match_conf_t struct. This field is
+     * activated by setting the MEPA_MACSEC_MATCH_IS_CONTROL in "match" */
+    mepa_bool_t         is_control;
+
+    /** Signals if the frame contains a VLAN tag. This allows to match if a VLAN
+     * tag must exists, and if a VLAN tag must not exists. This field is
+     * activated by setting the MEPA_MACSEC_MATCH_HAS_VLAN bit in "match" */
+    mepa_bool_t         has_vlan_tag;
+
+    /** Signals if the frame contains an inner VLAN tag. This allows to match if
+     * an inner VLAN tag must exists, and if an inner VLAN tag must not exists.
+     * This field is activated by setting the MEPA_MACSEC_MATCH_HAS_VLAN_INNER
+     * bit in "match" */
+    mepa_bool_t         has_vlan_inner_tag;
+
+    /** This field can be used to match against a parsed ether-type. This
+     * field is activated by setting the MEPA_MACSEC_MATCH_ETYPE bit in "match"
+     */
+    mepa_etype_t etype;
+
+    /** This field can be used to match against the VLAN id. This field is
+     * activated by setting the MEPA_MACSEC_MATCH_VLAN_ID bit in "match" */
+    mepa_vid_t   vid;
+
+    /** This field can be used to match against the inner VLAN id. This field
+     * is activated by setting the MEPA_MACSEC_MATCH_VLAN_ID_INNER bit in
+     * "match" */
+    mepa_vid_t   vid_inner;
+
+    /** This field along with hdr_mask is used to do a binary matching of a MPLS
+     * header. This is activated by setting the MEPA_MACSEC_MATCH_BYPASS_HDR bit
+     * in "match" */
+    uint8_t           hdr[8];
+
+    /** Full mask set for the 'hdr' field. */
+    uint8_t           hdr_mask[8];
+
+    /** In case multiple rules matches a given frame, the rule with the highest
+     * priority wins. Valid range is 0 (highest) - 15 (lowest).*/
+    uint8_t           priority;
+
+    /** This field can be used to match against the Source MAC address.  This field is
+     * activated by setting the MEPA_MACSEC_MATCH_SMAC bit in "match" */
+    mepa_mac_t   src_mac;
+
+    /** This field can be used to match against the Destination MAC address.  This field is
+     * activated by setting the MEPA_MACSEC_MATCH_DMAC bit in "match" */
+    mepa_mac_t   dest_mac;
+} mepa_macsec_match_pattern_t;
+
+/** \brief Pattern matching actions */
+typedef enum {
+    /** Drop the packet */
+    MEPA_MACSEC_MATCH_ACTION_DROP=0,
+
+   /** Forward the packet to the controlled port */
+    MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT=1,
+
+    /** Forward the packet to the uncontrolled port */
+    MEPA_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT=2,
+
+    /** Number of actions - always add new actions above this line */
+    MEPA_MACSEC_MATCH_ACTION_CNT = 3,
+} mepa_macsec_match_action_t;
+
+
+/** \brief Type used to state direction  */
+typedef enum {
+    /** Ingress. Traffic which is received by the port. */
+    MEPA_MACSEC_DIRECTION_INGRESS=0,
+
+    /** Egress. Traffic which is transmitted on the port. */
+    MEPA_MACSEC_DIRECTION_EGRESS=1,
+
+    /** Number of directions - will always be 2 */
+    MEPA_MACSEC_DIRECTION_CNT = 2,
+
+} mepa_macsec_direction_t;
+
+/** Configure the Matching pattern for a given MACsec port, for a given
+ * action. Only one action may be associated with each actions. One matching
+ * slot will be acquired immediately when this is called for the "DROP" or the
+ * "UNCONTROLLED_PORT" actions. When matching pattern is configured for the
+ * "CONTROLLED_PORT" action, HW a matching resource will be acquired for every
+ * SA added.
+ */
+mepa_rc mepa_macsec_pattern_set(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const mepa_macsec_direction_t direction,
+                                const mepa_macsec_match_action_t action,
+                                const mepa_macsec_match_pattern_t *const pattern);
+
+/** Delete a pattern matching rule.*/
+mepa_rc mepa_macsec_pattern_del(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const mepa_macsec_direction_t direction,
+                                const mepa_macsec_match_action_t action);
+
+/** Get the pattern matching rule. */
+mepa_rc mepa_macsec_pattern_get(struct mepa_device *dev,
+                                const mepa_macsec_port_t port,
+                                const mepa_macsec_direction_t direction,
+                                const mepa_macsec_match_action_t action,
+                                mepa_macsec_match_pattern_t *const pattern);
+
+
+/** \brief Default matching actions */
+typedef enum {
+    MEPA_MACSEC_DEFAULT_ACTION_DROP   = 0,  /**< Drop frame */
+    MEPA_MACSEC_DEFAULT_ACTION_BYPASS = 1,  /**< Bypass frame */
+} mepa_macsec_default_action_t;
+
+/** \brief Default policy.
+ * Frames not matched by any of the MACsec patterns will be evaluated against
+ * the default policy.
+ */
+typedef struct {
+    /**  Defines action for ingress frames which are not classified as MACsec
+     *   frames and not classified as control frames. */
+    mepa_macsec_default_action_t ingress_non_control_and_non_macsec;
+
+    /**  Defines action for ingress frames which are not classified as MACsec
+     *   frames and are classified as control frames. */
+    mepa_macsec_default_action_t ingress_control_and_non_macsec;
+
+    /**  Defines action for ingress frames which are classified as MACsec frames
+     *   and are not classified as control frames. */
+    mepa_macsec_default_action_t ingress_non_control_and_macsec;
+
+    /**  Defines action for ingress frames which are classified as MACsec frames
+     *   and are classified as control frames. */
+    mepa_macsec_default_action_t ingress_control_and_macsec;
+
+    /**  Defines action for egress frames which are classified as control frames. */
+    mepa_macsec_default_action_t egress_control;
+
+    /**  Defines action for egress frames which are not classified as control frames. */
+    mepa_macsec_default_action_t egress_non_control;
+} mepa_macsec_default_action_policy_t;
+
+/** Assign default policy */
+mepa_rc mepa_macsec_default_action_set(struct mepa_device *dev,
+                                       const mepa_port_no_t port_no,
+                                       const mepa_macsec_default_action_policy_t *const policy);
+
+/** Get default policy */
+mepa_rc mepa_macsec_default_action_get(struct mepa_device *dev,
+                                       const mepa_port_no_t port_no,
+                                       mepa_macsec_default_action_policy_t *const policy);
+
+/*--------------------------------------------------------------------*/
+/* Header / TAG Bypass                                                */
+/*--------------------------------------------------------------------*/
+
+/** \brief  Enum for Bypass mode, Tag or Header  */
+typedef enum {
+    MEPA_MACSEC_BYPASS_NONE,   /**< Disable bypass mode  */
+    MEPA_MACSEC_BYPASS_TAG,    /**< Enable TAG bypass mode  */
+    MEPA_MACSEC_BYPASS_HDR,    /**< Enable Header bypass mode */
+} mepa_macsec_bypass_t;
+
+/** \brief Structure for Bypass mode */
+typedef struct {
+    mepa_macsec_bypass_t  mode;                    /**< Bypass Mode, Tag bypass or Header bypass */
+    uint32_t hdr_bypass_len;                       /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.
+                                                     * The bypass includes MPLS DA + MPLS SA + MPLS Etype (before frame DA/SA)
+                                                     * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */
+    mepa_etype_t hdr_etype;                        /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)
+                                                     * When matched, process control packets using DMAC/SMAC/Etype after the header
+                                                     * If not matched process control packets using the first DMAC/SMAC/Etype (as normally done) */
+} mepa_macsec_bypass_mode_t;
+
+/** \brief Enum for number of TAGs  */
+typedef enum {
+    MEPA_MACSEC_BYPASS_TAG_ZERO,                   /**< Disable */
+    MEPA_MACSEC_BYPASS_TAG_ONE,                    /**< Bypass 1 tag */
+    MEPA_MACSEC_BYPASS_TAG_TWO,                    /**< Bypass 2 tags */
+} mepa_macsec_tag_bypass_t;
+
+
+/** Set header bypass mode globally for the port */
+mepa_rc mepa_macsec_bypass_mode_set(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no,
+                                    const mepa_macsec_bypass_mode_t *const bypass);
+
+/** Get the header bypass mode */
+mepa_rc mepa_macsec_bypass_mode_get(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no,
+                                    mepa_macsec_bypass_mode_t *const bypass);
+
+
+/** Set the bypass tag mode i.e. number of Tags to bypass: 0(disable), 1 or 2 tags.*/
+mepa_rc mepa_macsec_bypass_tag_set(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   const mepa_macsec_tag_bypass_t tag);
+
+/** Get the bypass Tag mode i.e. 0, 1 or 2 tags. */
+mepa_rc mepa_macsec_bypass_tag_get(struct mepa_device *dev,
+                                   const mepa_macsec_port_t port,
+                                   mepa_macsec_tag_bypass_t *const tag);
+
+
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
