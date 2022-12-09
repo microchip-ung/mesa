@@ -1998,6 +1998,8 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
 
             sig.msg_type = head1 & 0xF;
             sig.sequence_id = head2;
+            sig.crc_src_port = head1 >> 4;
+            sig.has_crc_src = TRUE;
 
             MEPA_EXIT(dev);
             rd_cb(data->port_no, &ts, &sig, status);
@@ -2007,6 +2009,8 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
         }
     } while (valid_ts);
     MEPA_EXIT(dev);
+    T_I(MEPA_TRACE_GRP_TS, "msg_type:%d seq_id:%d crc_src_port:0x%x", sig.msg_type,
+                            sig.sequence_id, sig.crc_src_port);
 
     return MEPA_RC_OK;
 }

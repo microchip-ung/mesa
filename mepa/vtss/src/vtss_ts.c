@@ -1520,6 +1520,8 @@ static void vtss_phy_ts_fifo_read_cb(const vtss_inst_t              inst,
     mep_sig.domain_num = sig->domain_num;
     mep_sig.sequence_id = sig->sequence_id;
     memcpy(mep_sig.src_port_identity, sig->src_port_identity, sizeof(mep_sig.src_port_identity));
+    mep_sig.has_crc_src = false;
+    mep_sig.crc_src_port = 0;
     fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
 }
 
