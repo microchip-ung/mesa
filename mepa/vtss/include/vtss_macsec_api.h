@@ -866,85 +866,17 @@ vtss_rc vtss_macsec_tx_seca_get(const vtss_inst_t              inst,
 /*--------------------------------------------------------------------*/
 /* SecY Counters                                                      */
 /*--------------------------------------------------------------------*/
-/** \brief Counter structure for common counters */
-typedef struct {
-    u64 if_in_octets;           /**< In octets       */
-    u64 if_in_ucast_pkts;       /**< In unicasts     */
-    u64 if_in_multicast_pkts;   /**< In multicasts   */
-    u64 if_in_broadcast_pkts;   /**< In broadcasts   */
-    u64 if_in_discards;         /**< In discards     */
-    u64 if_in_errors;           /**< In errors       */
-    u64 if_out_octets;          /**< Out octets      */
-    u64 if_out_ucast_pkts;      /**< Out unicasts    */
-    u64 if_out_multicast_pkts;  /**< Out multicasts  */
-    u64 if_out_broadcast_pkts;  /**< Out broadcasts  */
-    u64 if_out_errors;          /**< Out errors      */
-} vtss_macsec_common_counters_t;
+typedef mepa_macsec_common_counters_t vtss_macsec_common_counters_t;
+typedef mepa_macsec_uncontrolled_counters_t vtss_macsec_uncontrolled_counters_t;
+typedef mepa_macsec_secy_port_counters_t vtss_macsec_secy_port_counters_t;
+typedef mepa_macsec_secy_counters_t vtss_macsec_secy_counters_t;
 
-/** \brief Counter structure for uncontrolled counters */
-typedef struct {
-    u64 if_in_octets;           /**< In octets       */
-    u64 if_in_ucast_pkts;       /**< In unicasts     */
-    u64 if_in_multicast_pkts;   /**< In multicasts   */
-    u64 if_in_broadcast_pkts;   /**< In broadcasts   */
-    u64 if_in_discards;         /**< In discards     */
-    u64 if_in_errors;           /**< In errors       */
-    u64 if_out_octets;          /**< Out octets      */
-    u64 if_out_ucast_pkts;      /**< Out unicasts    */
-    u64 if_out_multicast_pkts;  /**< Out multicasts  */
-    u64 if_out_broadcast_pkts;  /**< Out broadcasts  */
-    u64 if_out_errors;          /**< Out errors      */
-} vtss_macsec_uncontrolled_counters_t;
+#define VTSS_MACSEC_CAP_GCM_AES_128       MEPA_MACSEC_CAP_GCM_AES_128
+#define VTSS_MACSEC_CAP_GCM_AES_256       MEPA_MACSEC_CAP_GCM_AES_256
+#define VTSS_MACSEC_CAP_GCM_AES_XPN_128   MEPA_MACSEC_CAP_GCM_AES_XPN_128
+#define VTSS_MACSEC_CAP_GCM_AES_XPN_256   MEPA_MACSEC_CAP_GCM_AES_XPN_256
 
-/** \brief Counter structure for SecY ports */
-typedef struct {
-    u64 if_in_octets;           /**< In octets       */
-    u64 if_in_pkts;             /**< Out octets      */
-    u64 if_in_ucast_pkts;       /**< In unicasts   - available from Rev B */
-    u64 if_in_multicast_pkts;   /**< In multicasts - available from Rev B */
-    u64 if_in_broadcast_pkts;   /**< In broadcasts - available from Rev B */
-    u64 if_in_discards;         /**< In discards     */
-    u64 if_in_errors;           /**< In errors       */
-    u64 if_out_octets;          /**< Out octets      */
-    u64 if_out_pkts;            /**< Out packets     */
-    u64 if_out_errors;          /**< Out errors      */
-    u64 if_out_ucast_pkts;      /**< Out unicasts   - available from Rev B */
-    u64 if_out_multicast_pkts;  /**< Out multicasts - available from Rev B */
-    u64 if_out_broadcast_pkts;  /**< Out broadcasts - available from Rev B */
-} vtss_macsec_secy_port_counters_t;
-
-/** \brief SecY counters as defined by 802.1AE */
-typedef struct {
-    u64 in_pkts_untagged;    /**< Received packets without the secTAG when secyValidateFrames is not in strict mode. NOTE: Theses packets will be counted in the uncontrolled if_in_pkts and not in the controlled if_in_pkts  */
-    u64 in_pkts_no_tag;      /**< Received packets discarded without the secTAG when secyValidateFrames is in strict mode. */
-    u64 in_pkts_bad_tag;     /**< Received packets discarded with an invalid secTAG or zero value PN or an invalid PN. */
-    u64 in_pkts_unknown_sci; /**< Received packets with unknown SCI when secyValidateFrames is not in strict mode
-                                  and the C bit in the SecTAG is not set. */
-    u64 in_pkts_no_sci;      /**< Received packets discarded with unknown SCI when  secyValidateFrames is in strict mode
-                                  or the C bit in the SecTAG is set. */
-    u64 in_pkts_overrun;     /**< Received packets discarded because the number of receive packets exceeded the
-                                  cryptographic performace capabilities. */
-    u64 in_octets_validated; /**< Received octets validated */
-    u64 in_octets_decrypted; /**< Received octets decrypted */
-    u64 out_pkts_untagged;   /**< Number of packets transmitted without the MAC security TAG. NOTE: Theses packets will be counted in the uncontrolled if_out_pkts and not in the controlled if_out_pkts for Rev A of macsec. From Rev B onwards, they will be counted under controlled port for successful SA lookup */
-    u64 out_pkts_too_long;   /**< Number of transmitted packets discarded because the packet length is larger than the interface MTU. */
-    u64 out_octets_protected;/**< The number of octets integrity protected but not encrypted. */
-    u64 out_octets_encrypted;/**< The number of octets integrity protected and encrypted. */
-} vtss_macsec_secy_counters_t;
-
-/* Possible values for the vtss_macsec_secy_cap_t:ciphersuite_cap */
-#define VTSS_MACSEC_CAP_GCM_AES_128       0x0001 /**< GCM-AES-128 cipher suite capability */ 
-#define VTSS_MACSEC_CAP_GCM_AES_256       0x0002 /**< GCM-AES-256 cipher suite capability */ 
-#define VTSS_MACSEC_CAP_GCM_AES_XPN_128   0x0004 /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
-#define VTSS_MACSEC_CAP_GCM_AES_XPN_256   0x0008 /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
-
-/** \brief Capabilities as defined by 802.1AE */
-typedef struct {
-    u16 max_peer_scs;           /**< Max peer SCs (802.1AE) */
-    u16 max_receive_keys;       /**< Max Rx keys  (802.1AE) */
-    u16 max_transmit_keys;      /**< Max Tx keys  (802.1AE) */
-    u32 ciphersuite_cap;        /**< The cipher suite capability offered by the API and chip */
-} vtss_macsec_secy_cap_t;
+typedef mepa_macsec_secy_cap_t vtss_macsec_secy_cap_t;
 
 /** \brief Get counters from a SecY controlled (802-1AE) port.
  *
@@ -1035,32 +967,9 @@ vtss_rc vtss_macsec_counters_clear(const vtss_inst_t     inst,
 /*--------------------------------------------------------------------*/
 /* SC Counters                                                        */
 /*--------------------------------------------------------------------*/
-/** \brief SC Counters as defined by 802.1AE. */
-typedef struct {
-    // Bugzilla#12752 
-    u64 in_pkts_unchecked;    /**< Unchecked packets (802.1AE) - Due to a chip limitation InOctetsValidated/Decrypted is not incremented. The API will not correctly count "if_in_octets" since this counter is indirectly derived from InOctetsValidated/Decrypted which per standard. Hence if_in_octets calculation of controlled port is incorrect and only the DMAC and SMAC octets are counted.*/
 
-    u64 in_pkts_delayed;        /**< Delayed packets (802.1AE) */
-    u64 in_pkts_late;           /**< Late packets (802.1AE) */
-    u64 in_pkts_ok;             /**< Ok packets (802.1AE) */
-    u64 in_pkts_invalid;        /**< Invalid packets (802.1AE) */
-    u64 in_pkts_not_valid;      /**< No valid packets (802.1AE) */
-    u64 in_pkts_not_using_sa;   /**< Packets not using SA (802.1AE) */
-    u64 in_pkts_unused_sa;      /**< Unused SA (802.1AE) */
-    u64 in_octets_validated;    /**< Received octets validated */
-    u64 in_octets_decrypted;    /**< Received octets decrypted */
-} vtss_macsec_rx_sc_counters_t;
-
-
-/** \brief Tx SC counters as defined by 802.1AE */
-typedef struct {
-    u64 out_pkts_protected; /**< Protected but not encrypted (802.1AE) */
-    u64 out_pkts_encrypted; /**< Both protected and encrypted (802.1AE) */
-    u64 out_octets_protected;/**< The number of octets integrity protected but not encrypted. */
-    u64 out_octets_encrypted;/**< The number of octets integrity protected and encrypted. */
-} vtss_macsec_tx_sc_counters_t;
-
-
+typedef mepa_macsec_rx_sc_counters_t vtss_macsec_rx_sc_counters_t;
+typedef mepa_macsec_tx_sc_counters_t vtss_macsec_tx_sc_counters_t;
 
 /** \brief RX SC counters
  *
@@ -1092,28 +1001,8 @@ vtss_rc vtss_macsec_tx_sc_counters_get(const vtss_inst_t               inst,
 /*--------------------------------------------------------------------*/
 /* SA Counters                                                        */
 /*--------------------------------------------------------------------*/
-/** \brief Tx SA counters as defined by 802.1AE */
-typedef struct {
-  u64 out_pkts_protected; /**< Protected but not encrypted (802.1AE) */
-  u64 out_pkts_encrypted; /**< Both protected and encrypted (802.1AE) */
-} vtss_macsec_tx_sa_counters_t;
-
-
-/** \brief Rx SA counters as defined by 802.1AE */
-typedef struct {
-    u64 in_pkts_ok;           /**< Ok packets  (802.1AE) */
-    u64 in_pkts_invalid;      /**< Invalid packets (802.1AE) */
-    u64 in_pkts_not_valid;    /**< Not valid packets (802.1AE) */
-    u64 in_pkts_not_using_sa; /**< Not using SA (802.1AE) */
-    u64 in_pkts_unused_sa;    /**< Unused SA (802.1AE) */
-
-    // Bugzilla#12752 
-    u64 in_pkts_unchecked;    /**< Unchecked packets (802.1AE) - Due to a chip limitation InOctetsValidated/Decrypted is not incremented. The API will not correctly count "if_in_octets" since this counter is indirectly derived from InOctetsValidated/Decrypted which per standard. Hence if_in_octets calculation of controlled port is incorrect and only the DMAC and SMAC octets are counted.*/
-
-    u64 in_pkts_delayed;      /**< Delayed packets (802.1AE) */
-    u64 in_pkts_late;         /**< Late packets (802.1AE) */
-} vtss_macsec_rx_sa_counters_t;
-
+typedef mepa_macsec_tx_sa_counters_t vtss_macsec_tx_sa_counters_t;
+typedef mepa_macsec_rx_sa_counters_t vtss_macsec_rx_sa_counters_t;
 
 /** \brief Tx SA counters
  *

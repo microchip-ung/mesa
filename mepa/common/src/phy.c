@@ -1789,3 +1789,170 @@ mepa_rc mepa_macsec_tx_seca_get(struct mepa_device *dev,
 
     return dev->drv->mepa_macsec->mepa_macsec_tx_seca_get(dev, port, an, next_pn, confidentiality, sak, active, ssci);
 }
+
+mepa_rc mepa_macsec_controlled_counters_get(struct mepa_device *dev,
+                                            const mepa_macsec_port_t port,
+                                            mepa_macsec_secy_port_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_controlled_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_controlled_counters_get(dev, port, counters);
+}
+
+mepa_rc mepa_macsec_uncontrolled_counters_get(struct mepa_device                   *dev,
+                                              const mepa_port_no_t                port_no,
+                                              mepa_macsec_uncontrolled_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_uncontrolled_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_uncontrolled_counters_get(dev, port_no, counters);
+}
+
+mepa_rc mepa_macsec_common_counters_get(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no,
+                                        mepa_macsec_common_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_common_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_common_counters_get(dev, port_no, counters);
+}
+
+mepa_rc mepa_macsec_secy_cap_get(struct mepa_device *dev,
+                                 const mepa_port_no_t port_no,
+                                 mepa_macsec_secy_cap_t *const cap)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_secy_cap_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_secy_cap_get(dev, port_no, cap);
+}
+
+mepa_rc mepa_macsec_secy_counters_get(struct mepa_device *dev,
+                                      const mepa_macsec_port_t port,
+                                      mepa_macsec_secy_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_secy_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_secy_counters_get(dev, port, counters);
+}
+
+mepa_rc mepa_macsec_counters_update(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_counters_update) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_counters_update(dev, port_no);
+}
+
+mepa_rc mepa_macsec_counters_clear(struct mepa_device *dev,
+                                   const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_rx_sc_counters_get(struct mepa_device *dev,
+                                       const mepa_macsec_port_t port,
+				       const mepa_macsec_sci_t *const sci,
+                                       mepa_macsec_rx_sc_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_rx_sc_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_rx_sc_counters_get(dev, port, sci, counters);
+}
+
+mepa_rc mepa_macsec_tx_sc_counters_get(struct mepa_device *dev,
+                                       const mepa_macsec_port_t port,
+				       mepa_macsec_tx_sc_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_tx_sc_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_tx_sc_counters_get(dev, port, counters);
+}
+
+mepa_rc mepa_macsec_tx_sa_counters_get(struct mepa_device *dev,
+                                       const mepa_macsec_port_t port,
+				       const uint16_t an,
+				       mepa_macsec_tx_sa_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_tx_sa_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_tx_sa_counters_get(dev, port, an, counters);
+}
+
+mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
+                                       const mepa_macsec_port_t port,
+	                               const mepa_macsec_sci_t *const sci,
+				       const uint16_t an,
+				       mepa_macsec_rx_sa_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_rx_sa_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_rx_sa_counters_get(dev, port, sci, an, counters);
+}
