@@ -217,6 +217,14 @@ typedef struct {
     mepa_macsec_init_bypass_t bypass;
 } mepa_macsec_init_t;
 
+/** MACsec configuration of MTU for ingress and egress packets
+ * If an egress MACsec packet that causes the MTU to be exceeded will cause the per-SA Out_Pkts_Too_Long*/
+typedef struct {
+    uint32_t  mtu;                                    /**< Defines the maximum packet size (in bytes) - VLAN tagged packets are allowed to be 4 bytes longer */
+    mepa_bool_t drop;                                 /**< Set to TRUE in order to drop packets larger than mtu. Set to FALSE in order to allow packets larger than mtu to be transmitted (Out_Pkts_Too_Long will still count). Frames will be "dropped" by corrupting the frame's CRC. Packets with source port as the Common port or the reserved port are ingress, packets from the Controlled or Uncontrolled port are egress.*/
+    mepa_bool_t vlan_unaware_en;                      /**< Set TRUE for VLAN unaware mode. Set FALSE for VLAN aware mode.*/
+} mepa_macsec_mtu_t;
+
 // MACsec Initialization //////////////////////////////////////////////////////
 
 // Initilize the MACsec block
@@ -1013,27 +1021,27 @@ mepa_rc mepa_macsec_default_action_get(struct mepa_device *dev,
 
 /** \brief  Enum for Bypass mode, Tag or Header  */
 typedef enum {
-    MEPA_MACSEC_BYPASS_NONE,   /**< Disable bypass mode  */
-    MEPA_MACSEC_BYPASS_TAG,    /**< Enable TAG bypass mode  */
-    MEPA_MACSEC_BYPASS_HDR,    /**< Enable Header bypass mode */
+    MEPA_MACSEC_BYPASS_NONE,                          /**< Disable bypass mode  */
+    MEPA_MACSEC_BYPASS_TAG,                           /**< Enable TAG bypass mode  */
+    MEPA_MACSEC_BYPASS_HDR,                           /**< Enable Header bypass mode */
 } mepa_macsec_bypass_t;
 
 /** \brief Structure for Bypass mode */
 typedef struct {
-    mepa_macsec_bypass_t  mode;                    /**< Bypass Mode, Tag bypass or Header bypass */
-    uint32_t hdr_bypass_len;                       /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.
-                                                     * The bypass includes MPLS DA + MPLS SA + MPLS Etype (before frame DA/SA)
-                                                     * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */
-    mepa_etype_t hdr_etype;                        /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)
-                                                     * When matched, process control packets using DMAC/SMAC/Etype after the header
-                                                     * If not matched process control packets using the first DMAC/SMAC/Etype (as normally done) */
+    mepa_macsec_bypass_t  mode;                       /**< Bypass Mode, Tag bypass or Header bypass */
+    uint32_t hdr_bypass_len;                          /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.
+                                                       * The bypass includes MPLS DA + MPLS SA + MPLS Etype (before frame DA/SA)
+                                                       * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */
+    mepa_etype_t hdr_etype;                           /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)
+                                                       * When matched, process control packets using DMAC/SMAC/Etype after the header
+                                                       * If not matched process control packets using the first DMAC/SMAC/Etype (as normally done) */
 } mepa_macsec_bypass_mode_t;
 
 /** \brief Enum for number of TAGs  */
 typedef enum {
-    MEPA_MACSEC_BYPASS_TAG_ZERO,                   /**< Disable */
-    MEPA_MACSEC_BYPASS_TAG_ONE,                    /**< Bypass 1 tag */
-    MEPA_MACSEC_BYPASS_TAG_TWO,                    /**< Bypass 2 tags */
+    MEPA_MACSEC_BYPASS_TAG_ZERO,                      /**< Disable */
+    MEPA_MACSEC_BYPASS_TAG_ONE,                       /**< Bypass 1 tag */
+    MEPA_MACSEC_BYPASS_TAG_TWO,                       /**< Bypass 2 tags */
 } mepa_macsec_tag_bypass_t;
 
 
@@ -1058,6 +1066,122 @@ mepa_rc mepa_macsec_bypass_tag_get(struct mepa_device *dev,
                                    const mepa_macsec_port_t port,
                                    mepa_macsec_tag_bypass_t *const tag);
 
+/*--------------------------------------------------------------------*/
+/* Others                                                             */
+/*--------------------------------------------------------------------*/
+
+#define MEPA_MACSEC_FRAME_CAPTURE_SIZE_MAX 504 /**< The maximum frame size supported for MACSEC capturing */
+
+/** \brief Enum for frame capturing  */
+typedef enum {
+    MEPA_MACSEC_FRAME_CAPTURE_DISABLE,               /**< Disable frame capturing */
+    MEPA_MACSEC_FRAME_CAPTURE_INGRESS,               /**< Enable ingress frame capturing */
+    MEPA_MACSEC_FRAME_CAPTURE_EGRESS,                /**< Enable egress frame capturing */
+} mepa_macsec_frame_capture_t;
+
+/** Sets MTU for both ingress and egress. */
+mepa_rc mepa_macsec_mtu_set(struct mepa_device *dev,
+                            const mepa_port_no_t port_no,
+                            const mepa_macsec_mtu_t *const mtu_conf);
+
+/** Gets current MTU configuration */
+mepa_rc mepa_macsec_mtu_get(struct mepa_device *dev,
+                            const mepa_port_no_t port_no,
+                            mepa_macsec_mtu_t *mtu_conf);
+
+/** Enable frame capture.  Used for test/debugging.
+ *   The buffer will only capture the first frame received after capturing has been started
+ *   The procedure for frame capturing is as follow:
+ *   1) Start capturing (Call mepa_macsec_frame_capture_set with MEPA_MACSEC_FRAME_CAPTURE_INGRESS/MEPA_MACSEC_FRAME_CAPTURE_EGRESS)
+ *   2) Send in the frame to be captured
+ *   3) Disable capturing (Call mepa_macsec_frame_capture_set with MEPA_MACSEC_FRAME_CAPTURE_DISABLE) in order to prepare for next capturing.
+ *   4) Get the captured frame using mepa_macsec_frame_get.
+ *
+ */
+
+mepa_rc mepa_macsec_frame_capture_set(struct mepa_device *dev,
+                                      const mepa_port_no_t port_no,
+                                      const mepa_macsec_frame_capture_t capture);
+
+/** Get a frame from an internal capture buffer. Used for test/debugging. */
+mepa_rc mepa_macsec_frame_get(struct mepa_device *dev,
+                              const mepa_port_no_t port_no,
+                              const uint32_t buf_length,
+                              uint32_t *const return_length,
+                              uint8_t *const frame);
+
+/** \brief Enum for events  */
+typedef enum {
+    MEPA_MACSEC_SEQ_NONE  = 0x0,
+    MEPA_MACSEC_SEQ_THRESHOLD_EVENT = 0x1,
+    MEPA_MACSEC_SEQ_ROLLOVER_EVENT  = 0x2,
+    MEPA_MACSEC_SEQ_ALL   = 0x3
+} mepa_macsec_event_t;
+
+
+/**
+ * Enabling / Disabling of events
+ **/
+mepa_rc mepa_macsec_event_enable_set(struct mepa_device *dev,
+                                     const mepa_port_no_t port_no,
+                                     const mepa_macsec_event_t ev_mask,
+                                     const mepa_bool_t enable);
+
+/**
+ * Get Enabling of events
+ **/
+mepa_rc mepa_macsec_event_enable_get(struct mepa_device *dev,
+                                     const mepa_port_no_t port_no,
+                                     mepa_macsec_event_t *const ev_mask);
+
+/**
+ * Polling for active events
+ **/
+mepa_rc mepa_macsec_event_poll(struct mepa_device *dev,
+                               const mepa_port_no_t port_no,
+                               mepa_macsec_event_t *const ev_mask);
+
+
+/**
+ * Configure the SEQ threshold
+ **/
+mepa_rc mepa_macsec_event_seq_threshold_set(struct mepa_device *dev,
+                                            const mepa_port_no_t port_no,
+                                            const uint32_t threshold);
+
+/**
+ * Get the SEQ threshold
+ **/
+mepa_rc mepa_macsec_event_seq_threshold_get(struct mepa_device *dev,
+                                            const mepa_port_no_t port_no,
+                                            uint32_t *const threshold);
+
+/**
+ * Get the Egress Interrupt SA Active AN
+ **/
+mepa_rc mepa_macsec_egr_intr_sa_get(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no,
+                                    mepa_macsec_port_t *const port,
+                                    uint16_t *const an);
+
+/**
+ * \brief Chip register read
+ *
+ **/
+mepa_rc mepa_macsec_csr_read(struct mepa_device *dev,
+                             const mepa_port_no_t port_no,
+                             const uint16_t mmd,
+                             const uint32_t addr,
+                             uint32_t *const value);
+/**
+ * \brief Chip register write
+ *
+ **/
+mepa_rc mepa_macsec_csr_write(struct mepa_device *dev,
+                              const mepa_port_no_t port_no,
+                              const uint32_t mmd,
+                              const uint32_t addr,
+                              const uint32_t value);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

@@ -174,15 +174,7 @@ typedef mepa_macsec_init_t vtss_macsec_init_t;
 #define VTSS_MACSEC_INIT_BYPASS_ENABLE MEPA_MACSEC_INIT_BYPASS_ENABLE
 #define VTSS_MACSEC_INIT_BYPASS_DISABLE MEPA_MACSEC_INIT_BYPASS_DISABLE
 
-
-/** \brief MACsec configuration of MTU for ingress and egress packets  
- *
- * If an egress MACsec packet that causes the MTU to be exceeded will cause the per-SA Out_Pkts_Too_Long*/
-typedef struct {
-    u32  mtu;      /**< Defines the maximum packet size (in bytes) - VLAN tagged packets are allowed to be 4 bytes longer */
-    BOOL drop;     /**< Set to TRUE in order to drop packets larger than mtu. Set to FALSE in order to allow packets larger than mtu to be transmitted (Out_Pkts_Too_Long will still count). Frames will be "dropped" by corrupting the frame's CRC. Packets with source port as the Common port or the reserved port are ingress, packets from the Controlled or Uncontrolled port are egress.*/
-    BOOL vlan_unaware_en;     /**< Set TRUE for VLAN unaware mode. Set FALSE for VLAN aware mode.*/
-} vtss_macsec_mtu_t;
+typedef mepa_macsec_mtu_t vtss_macsec_mtu_t;
 
 /*--------------------------------------------------------------------*/
 /* MACsec Initialization                                              */
@@ -1166,6 +1158,7 @@ vtss_rc vtss_macsec_pattern_get(const vtss_inst_t                  inst,
 
 #define VTSS_MACSEC_DEFAULT_ACTION_DROP MEPA_MACSEC_DEFAULT_ACTION_DROP
 #define VTSS_MACSEC_DEFAULT_ACTION_BYPASS MEPA_MACSEC_DEFAULT_ACTION_BYPASS
+
 typedef mepa_macsec_default_action_t vtss_macsec_default_action_t;
 typedef mepa_macsec_default_action_policy_t vtss_macsec_default_action_policy_t;
 
@@ -1269,14 +1262,12 @@ vtss_rc vtss_macsec_bypass_tag_get(const vtss_inst_t             inst,
 /* Others                                                             */
 /*--------------------------------------------------------------------*/
 
-#define VTSS_MACSEC_FRAME_CAPTURE_SIZE_MAX 504 /**< The maximum frame size supported for MACSEC capturing */
+#define VTSS_MACSEC_FRAME_CAPTURE_SIZE_MAX MEPA_MACSEC_FRAME_CAPTURE_SIZE_MAX
+#define VTSS_MACSEC_FRAME_CAPTURE_DISABLE MEPA_MACSEC_FRAME_CAPTURE_DISABLE
+#define VTSS_MACSEC_FRAME_CAPTURE_INGRESS MEPA_MACSEC_FRAME_CAPTURE_INGRESS
+#define VTSS_MACSEC_FRAME_CAPTURE_EGRESS MEPA_MACSEC_FRAME_CAPTURE_EGRESS
 
-/** \brief Enum for frame capturing  */
-typedef enum {
-    VTSS_MACSEC_FRAME_CAPTURE_DISABLE, /**< Disable frame capturing */
-    VTSS_MACSEC_FRAME_CAPTURE_INGRESS, /**< Enable ingress frame capturing */
-    VTSS_MACSEC_FRAME_CAPTURE_EGRESS,  /**< Enable egress frame capturing */
-} vtss_macsec_frame_capture_t;
+typedef mepa_macsec_frame_capture_t vtss_macsec_frame_capture_t;
 
 /** \brief Sets MTU for both ingress and egress.
  * \param inst         [IN]    VTSS-API instance.
@@ -1335,13 +1326,12 @@ vtss_rc vtss_macsec_frame_get(const vtss_inst_t             inst,
                               u32                           *const return_length,
                               u8                            *const frame);
 
-/** \brief Enum for events  */
-typedef enum {
-    VTSS_MACSEC_SEQ_NONE  = 0x0,
-    VTSS_MACSEC_SEQ_THRESHOLD_EVENT = 0x1,
-    VTSS_MACSEC_SEQ_ROLLOVER_EVENT  = 0x2,
-    VTSS_MACSEC_SEQ_ALL   = 0x3
-} vtss_macsec_event_t;
+#define VTSS_MACSEC_SEQ_NONE MEPA_MACSEC_SEQ_NONE
+#define VTSS_MACSEC_SEQ_THRESHOLD_EVENT MEPA_MACSEC_SEQ_THRESHOLD_EVENT
+#define VTSS_MACSEC_SEQ_ROLLOVER_EVENT MEPA_MACSEC_SEQ_ROLLOVER_EVENT
+#define VTSS_MACSEC_SEQ_ALL MEPA_MACSEC_SEQ_ALL
+
+typedef mepa_macsec_event_t vtss_macsec_event_t;
 
 
 /**

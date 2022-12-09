@@ -492,6 +492,99 @@ static mepa_rc vtss_phy_macsec_bypass_tag_get(struct mepa_device *dev,
     return vtss_macsec_bypass_tag_get(NULL, port, tag);
 }
 
+static mepa_rc vtss_phy_macsec_mtu_set(struct mepa_device *dev,
+                                       const mepa_port_no_t port_no,
+                                       const mepa_macsec_mtu_t *const mtu_conf)
+{
+    return vtss_macsec_mtu_set(NULL, port_no, mtu_conf);
+}
+
+static mepa_rc vtss_phy_macsec_mtu_get(struct mepa_device *dev,
+                                       const mepa_port_no_t port_no,
+                                       mepa_macsec_mtu_t *mtu_conf)
+{
+    return vtss_macsec_mtu_get(NULL, port_no, mtu_conf);
+}
+
+static mepa_rc vtss_phy_macsec_frame_capture_set(struct mepa_device *dev,
+                                                 const mepa_port_no_t port_no,
+                                                 const mepa_macsec_frame_capture_t capture)
+{
+    return vtss_macsec_frame_capture_set(NULL, port_no, capture);
+}
+
+static mepa_rc vtss_phy_macsec_frame_get(struct mepa_device *dev,
+                                         const mepa_port_no_t port_no,
+                                         const uint32_t buf_length,
+                                         uint32_t *const return_length,
+                                         uint8_t *const frame)
+{
+    return vtss_macsec_frame_get(NULL, port_no, buf_length, return_length, frame);
+}
+
+static mepa_rc vtss_phy_macsec_event_enable_set(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                const mepa_macsec_event_t ev_mask,
+                                                const mepa_bool_t enable)
+{
+    return vtss_macsec_event_enable_set(NULL, port_no, ev_mask, enable);
+}
+
+static mepa_rc vtss_phy_macsec_event_enable_get(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                mepa_macsec_event_t *const ev_mask)
+
+{
+    return vtss_macsec_event_enable_get(NULL, port_no, ev_mask);
+}
+
+static mepa_rc vtss_phy_macsec_event_poll(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no,
+                                          mepa_macsec_event_t *const ev_mask)
+{
+    return vtss_macsec_event_poll(NULL, port_no, ev_mask);
+}
+
+static mepa_rc vtss_phy_macsec_event_seq_threshold_set(struct mepa_device *dev,
+                                                       const mepa_port_no_t port_no,
+                                                       const uint32_t threshold)
+{
+    return vtss_macsec_event_seq_threshold_set(NULL, port_no, threshold);
+}
+
+static mepa_rc vtss_phy_macsec_event_seq_threshold_get(struct mepa_device *dev,
+                                                       const mepa_port_no_t port_no,
+                                                       uint32_t *const threshold)
+{
+    return vtss_macsec_event_seq_threshold_get(NULL, port_no, threshold);
+}
+
+static mepa_rc vtss_phy_macsec_egr_intr_sa_get(struct mepa_device *dev,
+                                               const mepa_port_no_t port_no,
+                                               mepa_macsec_port_t *const port,
+                                               uint16_t *const an)
+{
+    return vtss_macsec_egr_intr_sa_get(NULL, port_no, port, an);
+}
+
+static mepa_rc vtss_phy_macsec_csr_read(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no,
+                                        const uint16_t mmd,
+                                        const uint32_t addr,
+                                        uint32_t *const value)
+{
+    return vtss_macsec_csr_read(NULL, port_no, mmd, addr, value);
+}
+
+static mepa_rc vtss_phy_macsec_csr_write(struct mepa_device *dev,
+                                         const mepa_port_no_t port_no,
+                                         const uint32_t mmd,
+                                         const uint32_t addr,
+                                         const uint32_t value)
+{
+    return vtss_macsec_csr_write(NULL, port_no, mmd, addr, value);
+}
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -555,5 +648,17 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_bypass_mode_get = vtss_phy_macsec_bypass_mode_get,
     .mepa_macsec_bypass_tag_set = vtss_phy_macsec_bypass_tag_set,
     .mepa_macsec_bypass_tag_get = vtss_phy_macsec_bypass_tag_get,
+    .mepa_macsec_mtu_set = vtss_phy_macsec_mtu_set,
+    .mepa_macsec_mtu_get = vtss_phy_macsec_mtu_get,
+    .mepa_macsec_frame_capture_set = vtss_phy_macsec_frame_capture_set,
+    .mepa_macsec_frame_get = vtss_phy_macsec_frame_get,
+    .mepa_macsec_event_enable_set = vtss_phy_macsec_event_enable_set,
+    .mepa_macsec_event_enable_get = vtss_phy_macsec_event_enable_get,
+    .mepa_macsec_event_poll = vtss_phy_macsec_event_poll,
+    .mepa_macsec_event_seq_threshold_set = vtss_phy_macsec_event_seq_threshold_set,
+    .mepa_macsec_event_seq_threshold_get = vtss_phy_macsec_event_seq_threshold_get,
+    .mepa_macsec_egr_intr_sa_get = vtss_phy_macsec_egr_intr_sa_get,
+    .mepa_macsec_csr_read = vtss_phy_macsec_csr_read,
+    .mepa_macsec_csr_write = vtss_phy_macsec_csr_write,
 
 };
