@@ -585,6 +585,95 @@ static mepa_rc vtss_phy_macsec_csr_write(struct mepa_device *dev,
     return vtss_macsec_csr_write(NULL, port_no, mmd, addr, value);
 }
 
+
+static mepa_rc vtss_phy_macsec_dbg_counter_get(struct mepa_device *dev,
+                                               const mepa_port_no_t port_no,
+                                               mepa_macsec_rc_dbg_counters_t *const counters)
+{
+    return vtss_macsec_dbg_counter_get(NULL, port_no, counters);
+}
+
+static mepa_rc vtss_phy_macsec_hmac_counters_get(struct mepa_device *dev,
+                                                 const mepa_port_no_t port_no,
+                                                 mepa_macsec_mac_counters_t *const counters,
+                                                 const mepa_bool_t clear)
+{
+    return vtss_macsec_hmac_counters_get(NULL, port_no, counters, clear);
+}
+
+static mepa_rc vtss_phy_macsec_lmac_counters_get(struct mepa_device *dev,
+                                                 const mepa_port_no_t port_no,
+                                                 mepa_macsec_mac_counters_t *const counters,
+                                                 const mepa_bool_t clear)
+{
+    return vtss_macsec_lmac_counters_get(NULL, port_no, counters, clear);
+}
+
+static mepa_rc vtss_phy_macsec_is_capable(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no,
+                                          mepa_bool_t *capable)
+{
+    return vtss_macsec_is_capable(NULL, port_no, capable);
+}
+
+static mepa_rc vtss_phy_macsec_dbg_reg_dump(struct mepa_device *dev,
+                                            const mepa_port_no_t port_no,
+                                            const mepa_debug_print_t pr)
+{
+    return vtss_macsec_dbg_reg_dump(NULL, port_no, pr);
+}
+
+static mepa_rc vtss_phy_macsec_inst_count_get(struct mepa_device *dev,
+                                              const vtss_port_no_t   port_no,
+                                              mepa_macsec_inst_count_t *count)
+{
+    return vtss_macsec_inst_count_get(NULL, port_no, count);
+}
+
+static mepa_rc vtss_phy_macsec_lmac_counters_clear(struct mepa_device *dev,
+                                                   const mepa_port_no_t port_no)
+{
+    return vtss_macsec_lmac_counters_clear(NULL, port_no);
+}
+
+static mepa_rc vtss_phy_macsec_hmac_counters_clear(struct mepa_device *dev,
+                                                   const mepa_port_no_t port_no)
+{
+    return vtss_macsec_hmac_counters_clear(NULL, port_no);
+}
+
+static mepa_rc vtss_phy_macsec_debug_counters_clear(struct mepa_device *dev,
+                                                    const mepa_port_no_t port_no)
+{
+    return vtss_macsec_debug_counters_clear(NULL, port_no);
+}
+
+static mepa_rc vtss_phy_macsec_common_counters_clear(struct mepa_device *dev,
+                                                     const mepa_port_no_t port_no)
+{
+    return vtss_macsec_common_counters_clear(NULL, port_no);
+}
+
+static mepa_rc vtss_phy_macsec_uncontrolled_counters_clear(struct mepa_device *dev,
+                                                           const mepa_port_no_t port_no)
+{
+    return vtss_macsec_uncontrolled_counters_clear(NULL, port_no);
+}
+
+static mepa_rc vtss_phy_macsec_controlled_counters_clear (struct mepa_device *dev,
+                                                          const mepa_macsec_port_t port)
+{
+    return vtss_macsec_controlled_counters_clear(NULL, port);
+}
+
+static mepa_rc vtss_phy_macsec_rxsa_counters_clear(struct mepa_device *dev,
+                                                   const mepa_macsec_port_t port,
+                                                   const mepa_macsec_sci_t *const sci,
+                                                   const uint16_t an)
+{
+    return vtss_macsec_rxsa_counters_clear(NULL, port, sci, an);
+}
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -660,5 +749,18 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_egr_intr_sa_get = vtss_phy_macsec_egr_intr_sa_get,
     .mepa_macsec_csr_read = vtss_phy_macsec_csr_read,
     .mepa_macsec_csr_write = vtss_phy_macsec_csr_write,
+    .mepa_macsec_dbg_counter_get = vtss_phy_macsec_dbg_counter_get,
+    .mepa_macsec_hmac_counters_get = vtss_phy_macsec_hmac_counters_get,
+    .mepa_macsec_lmac_counters_get = vtss_phy_macsec_lmac_counters_get,
+    .mepa_macsec_is_capable = vtss_phy_macsec_is_capable,
+    .mepa_macsec_dbg_reg_dump = vtss_phy_macsec_dbg_reg_dump,
+    .mepa_macsec_inst_count_get = vtss_phy_macsec_inst_count_get,
+    .mepa_macsec_lmac_counters_clear = vtss_phy_macsec_lmac_counters_clear,
+    .mepa_macsec_hmac_counters_clear = vtss_phy_macsec_hmac_counters_clear,
+    .mepa_macsec_debug_counters_clear = vtss_phy_macsec_debug_counters_clear,
+    .mepa_macsec_common_counters_clear = vtss_phy_macsec_common_counters_clear,
+    .mepa_macsec_uncontrolled_counters_clear = vtss_phy_macsec_uncontrolled_counters_clear,
+    .mepa_macsec_controlled_counters_clear = vtss_phy_macsec_controlled_counters_clear,
+    .mepa_macsec_rxsa_counters_clear = vtss_phy_macsec_rxsa_counters_clear,
 
 };

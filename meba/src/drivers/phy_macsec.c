@@ -835,3 +835,146 @@ mepa_rc meba_phymacsec_csr_write(meba_inst_t inst, const mepa_port_no_t port_no,
 
     return mepa_macsec_csr_write(inst->phy_devices[port_no], port_no, mmd, addr, value);
 }
+
+mepa_rc meba_phy_macsec_dbg_counter_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_rc_dbg_counters_t *const counters)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_dbg_counter_get(inst->phy_devices[port_no], port_no, counters);
+}
+
+mepa_rc meba_phy_macsec_hmac_counters_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_hmac_counters_get(inst->phy_devices[port_no], port_no, counters, clear);
+}
+
+mepa_rc meba_phy_macsec_lmac_counters_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_lmac_counters_get(inst->phy_devices[port_no], port_no, counters, clear);
+}
+
+mepa_rc meba_phy_macsec_is_capable(meba_inst_t inst, const mepa_port_no_t port_no, mepa_bool_t *capable)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_is_capable(inst->phy_devices[port_no], port_no, capable);
+}
+
+mepa_rc meba_phy_macsec_dbg_reg_dump(meba_inst_t inst, const mepa_port_no_t port_no, const mepa_debug_print_t pr)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_dbg_reg_dump(inst->phy_devices[port_no], port_no, pr);
+}
+
+mepa_rc meba_phy_macsec_inst_count_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_inst_count_t *count)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_inst_count_get(inst->phy_devices[port_no], port_no, count);
+}
+
+mepa_rc meba_phy_macsec_lmac_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_lmac_counters_clear(inst->phy_devices[port_no], port_no);
+}
+
+mepa_rc meba_phy_macsec_hmac_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_hmac_counters_clear(inst->phy_devices[port_no], port_no);
+}
+
+mepa_rc meba_phy_macsec_debug_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_debug_counters_clear(inst->phy_devices[port_no], port_no);
+}
+
+mepa_rc meba_phy_macsec_common_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_common_counters_clear(inst->phy_devices[port_no], port_no);
+}
+
+mepa_rc meba_phy_macsec_uncontrolled_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_uncontrolled_counters_clear(inst->phy_devices[port_no], port_no);
+}
+
+mepa_rc meba_phy_macsec_controlled_counters_clear (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_controlled_counters_clear(inst->phy_devices[port_no], port);
+}
+
+mepa_rc meba_phy_macsec_rxsa_counters_clear(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_macsec_rxsa_counters_clear(inst->phy_devices[port_no], port, sci, an);
+}

@@ -7,6 +7,25 @@
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
+#define MEPA_MACSEC_10G_MAX_SA 64     /**< 10G PHY Max SAs : 64 */
+#define MEPA_MACSEC_1G_MAX_SA  16     /**< 1G PHY Max SAs : 16 */
+#define MEPA_MACSEC_SA_PER_SC_MAX  4  /**< SAs per SC Max : 4 */
+#define MEPA_MACSEC_SA_PER_SC_MIN  2  /**< SAs per SC Min : 2 */
+
+#define MEPA_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC_MAX /**< SAs per SCs : 4 */
+#ifdef MEPA_CHIP_10G_PHY
+#define MEPA_MACSEC_MAX_SA     MEPA_MACSEC_10G_MAX_SA   /**< 10G PHY Max SAs : 64 */
+#else
+#define MEPA_MACSEC_MAX_SA     MEPA_MACSEC_1G_MAX_SA    /**< 1G PHY Max SAs : 16 */
+#endif
+#define MEPA_MACSEC_MAX_SA_RX  MEPA_MACSEC_MAX_SA       /**< Max Rx SAs */
+#define MEPA_MACSEC_MAX_SA_TX  MEPA_MACSEC_MAX_SA       /**< Max Tx SAs */
+#define MEPA_MACSEC_MAX_SC_RX  MEPA_MACSEC_MAX_SA/2     /**< Max Rx SCs : 32/8 */
+#define MEPA_MACSEC_MAX_SC_TX  MEPA_MACSEC_MAX_SC_RX    /**< Max Tx SCs : 32/8 */
+#define MEPA_MACSEC_MAX_SECY   MEPA_MACSEC_MAX_SC_TX    /**< Max SecYs : 32/8 */
+
+#define MEPA_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
+
 /** \brief SecY port status as defined by 802.1AE */
 typedef struct {
     mepa_bool_t mac_enabled;                                  /**< MAC is enabled (802.1AE) */
@@ -1182,6 +1201,233 @@ mepa_rc mepa_macsec_csr_write(struct mepa_device *dev,
                               const uint32_t mmd,
                               const uint32_t addr,
                               const uint32_t value);
+
+/** \brief Debug counters for counting the number error return codes.  */
+typedef struct {
+    uint32_t invalid_sci_macaddr;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_INVALID_SCI_MACADDR*/
+    uint32_t macsec_not_enabled;      /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_NOT_ENABLED*/
+    uint32_t secy_already_in_use;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE*/
+    uint32_t no_secy_found;           /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_NO_SECY_FOUND*/
+    uint32_t no_secy_vacency;         /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_NO_SECY_VACANCY*/
+    uint32_t invalid_validate_frm;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM*/
+    uint32_t invalid_hdr_bypass_len;  /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN*/
+    uint32_t sc_not_found;            /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_SC_NOT_FOUND*/
+    uint32_t could_not_prg_sa_match;  /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH*/
+    uint32_t could_not_prg_sa_flow;   /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW*/
+    uint32_t could_not_ena_sa;        /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA*/
+    uint32_t could_not_set_sa;        /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA*/
+    uint32_t no_ctrl_frm_match;       /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH*/
+    uint32_t could_not_set_pattern;   /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN*/
+    uint32_t timeout_issue;           /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_TIMEOUT_ISSUE*/
+    uint32_t could_not_empty_egress;  /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS*/
+    uint32_t an_not_created;          /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_AN_NOT_CREATED*/
+    uint32_t could_not_empty_ingress; /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS*/
+    uint32_t tx_sc_not_exist;         /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_TX_SC_NOT_EXIST*/
+    uint32_t could_not_disable_sa;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA*/
+    uint32_t could_not_del_rx_sa;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA*/
+    uint32_t could_not_del_tx_sa;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA*/
+    uint32_t pattern_not_set;         /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_PATTERN_NOT_SET*/
+    uint32_t hw_resource_exhusted;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED*/
+    uint32_t sci_already_exist;       /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS*/
+    uint32_t sc_resource_not_found;   /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND*/
+    uint32_t rx_an_already_in_use;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE*/
+    uint32_t empty_record;            /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_EMPTY_RECORD*/
+    uint32_t could_not_prg_xform;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM*/
+    uint32_t could_not_toggle_sa;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA*/
+    uint32_t tx_an_already_in_use;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE*/
+    uint32_t all_available_sa_in_use; /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE*/
+    uint32_t match_disable;           /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_MATCH_DISABLE*/
+    uint32_t all_cp_rules_in_use;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE*/
+    uint32_t pattern_prio_not_valid;  /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID*/
+    uint32_t buffer_too_small;        /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_BUFFER_TOO_SMALL*/
+    uint32_t frm_too_long;            /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_FRAME_TOO_LONG*/
+    uint32_t frm_truncated;           /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_FRAME_TRUNCATED*/
+    uint32_t phy_powered_down;        /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_PHY_POWERED_DOWN*/
+    uint32_t phy_not_macsec_capable;  /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE*/
+    uint32_t an_not_exist;            /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_AN_NOT_EXIST*/
+    uint32_t no_pattern_cfg;          /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_NO_PATTERN_CFG*/
+    uint32_t unexpected_speed;        /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_UNEXPECT_SPEED*/
+    uint32_t max_mtu;                 /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_MAX_MTU*/
+    uint32_t unexpected_cp_mode;      /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_UNEXPECT_CP_MODE*/
+    uint32_t could_not_disable_an;    /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN*/
+    uint32_t rule_out_of_range;       /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE*/
+    uint32_t rule_not_exit;           /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_RULE_NOT_EXIT*/
+    uint32_t csr_read;                /**< Number of errors happen with error code MEPA_RC_ERR_CSR_READ*/
+    uint32_t csr_write;               /**< Number of errors happen with error code MEPA_RC_ERR_CSR_WRITE*/
+    uint32_t unknown_rc_code;         /**< Number of errors happen with unknown error code*/
+} mepa_macsec_rc_dbg_counters_t;
+
+/**
+ * Get return code debug counters
+**/
+mepa_rc mepa_macsec_dbg_counter_get(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no,
+                                    mepa_macsec_rc_dbg_counters_t *const counters);
+
+
+#define deb_counter_get mepa_macsec_dbg_counter_get /**< Backward compatibility */
+
+/*--------------------------------------------------------------------*/
+/* Line MAC / Host MAC / FC                                           */
+/*--------------------------------------------------------------------*/
+
+/** \brief Host/Line Mac Counters */
+typedef struct {
+    /* Rx RMON counters */
+    uint64_t if_rx_octets;           /**< In octets       */
+    uint64_t if_rx_in_bytes;         /**< In bytes        */
+    uint32_t if_rx_pause_pkts;       /**< In pause        */
+    uint32_t if_rx_ucast_pkts;       /**< In unicasts     */
+    uint32_t if_rx_multicast_pkts;   /**< In multicasts   */
+    uint32_t if_rx_broadcast_pkts;   /**< In broadcasts   */
+    uint32_t if_rx_discards;         /**< In discards     */
+    uint32_t if_rx_errors;           /**< In errors       */
+
+    uint64_t if_rx_StatsPkts;        /**< In All Pkt cnts    */
+    uint32_t if_rx_CRCAlignErrors;   /**< In CRC errors      */
+    uint32_t if_rx_UndersizePkts;    /**< In Undersize pkts  */
+    uint32_t if_rx_OversizePkts;     /**< In Oversize pkts   */
+    uint32_t if_rx_Fragments;        /**< In Fragments       */
+    uint32_t if_rx_Jabbers;          /**< In Jabbers         */
+    uint32_t if_rx_Pkts64Octets;         /**< In Pkts64Octets         */
+    uint32_t if_rx_Pkts65to127Octets;    /**< In Pkts65to127Octets    */
+    uint32_t if_rx_Pkts128to255Octets;   /**< In Pkts128to255Octets   */
+    uint32_t if_rx_Pkts256to511Octets;   /**< In Pkts256to511Octets   */
+    uint32_t if_rx_Pkts512to1023Octets;  /**< In Pkts512to1023Octets  */
+    uint32_t if_rx_Pkts1024to1518Octets; /**< In Pkts1024to1518Octets */
+    uint32_t if_rx_Pkts1519toMaxOctets;  /**< In Pkts1519toMaxOctets  */
+
+    /* Tx RMON counters */
+    uint64_t if_tx_octets;           /**< Out octets      */
+    uint32_t if_tx_pause_pkts;       /**< Out pause       */
+    uint32_t if_tx_ucast_pkts;       /**< Out unicasts    */
+    uint32_t if_tx_multicast_pkts;   /**< Out multicasts  */
+    uint32_t if_tx_broadcast_pkts;   /**< Out broadcasts  */
+    uint32_t if_tx_errors;           /**< Out errors      */
+
+    uint32_t if_tx_DropEvents;            /**< Out _DropEvents          */
+    uint64_t if_tx_StatsPkts;             /**< Out StatsPkts            */
+    uint32_t if_tx_Collisions;            /**< Out Collisions           */
+    uint32_t if_tx_Pkts64Octets;          /**< Out Pkts64Octets         */
+    uint32_t if_tx_Pkts65to127Octets;     /**< Out Pkts65to127Octets    */
+    uint32_t if_tx_Pkts128to255Octets;    /**< Out Pkts128to255Octets   */
+    uint32_t if_tx_Pkts256to511Octets;    /**< Out Pkts256to511Octets   */
+    uint32_t if_tx_Pkts512to1023Octets;   /**< Out Pkts512to1023Octets  */
+    uint32_t if_tx_Pkts1024to1518Octets;  /**< Out Pkts1024to1518Octets */
+    uint32_t if_tx_Pkts1519toMaxOctets;   /**< Out Pkts1519toMaxOctets  */
+} mepa_macsec_mac_counters_t;
+
+/**
+ * Host Mac counters (To be moved)
+ *
+ **/
+mepa_rc mepa_macsec_hmac_counters_get(struct mepa_device *dev,
+                                      const mepa_port_no_t port_no,
+                                      mepa_macsec_mac_counters_t *const counters,
+                                      const mepa_bool_t clear);
+
+/**
+ * Line Mac counters (To be moved)
+ *
+ **/
+mepa_rc mepa_macsec_lmac_counters_get(struct mepa_device *dev,
+                                      const mepa_port_no_t port_no,
+                                      mepa_macsec_mac_counters_t *const counters,
+                                      const mepa_bool_t clear);
+/**
+ * Function for getting if a port is MACSEC capable
+ **/
+mepa_rc mepa_macsec_is_capable(struct mepa_device *dev,
+                               const mepa_port_no_t port_no,
+                               mepa_bool_t *capable);
+/**
+ * Function for dump MACSEC registers
+ **/
+
+mepa_rc mepa_macsec_dbg_reg_dump(struct mepa_device *dev,
+                                 const mepa_port_no_t port_no,
+                                 const mepa_debug_print_t pr);
+
+/*--------------------------------------------------------------------*/
+/* Macsec SC Instance Counters structures                                */
+/*--------------------------------------------------------------------*/
+
+/** \brief No. of  Tx SA or Rx SA Information */
+typedef struct {
+    uint8_t no_sa;                              /**< No. of SAs configured */
+    uint8_t sa_id[MEPA_MACSEC_SA_PER_SC_MAX];   /**< Configured SA ids */
+} mepa_sc_inst_count_t;
+
+/*--------------------------------------------------------------------*/
+/* Macsec SecY Instance Counters structures                                */
+/*--------------------------------------------------------------------*/
+
+/** \brief No. of  Tx SC and Rx SC Information */
+typedef struct {
+    uint8_t no_txsc;                            /**< No. of Tx SCs configured */
+    uint8_t txsc_id;                            /**< Configured Tx SC ids */
+    mepa_macsec_sci_t tx_sci;              /**< Tx SCI */
+    mepa_sc_inst_count_t txsc_inst_count;  /**< Tx SC Instances */
+    uint8_t no_rxsc;                            /**< No. of Rx SCs configured */
+    uint8_t rxsc_id[MEPA_MACSEC_MAX_SC_RX];     /**< Configured Rx SC ids */
+    mepa_macsec_sci_t rx_sci[MEPA_MACSEC_MAX_SC_RX];             /**< Rx SCIs */
+    mepa_sc_inst_count_t rxsc_inst_count[MEPA_MACSEC_MAX_SC_RX]; /**< Rx SCs Instances */
+} mepa_secy_inst_count_t;
+
+/*--------------------------------------------------------------------*/
+/* Macsec Instance Counters structures                                */
+/*--------------------------------------------------------------------*/
+
+/** \brief No. of  SecYs, Virtual Port Information */
+typedef struct {
+    uint8_t no_secy;                       /**< No. of SecYs configured */
+    uint8_t secy_vport[MEPA_MACSEC_MAX_SECY]; /**< Configured SecY virtual port */
+    mepa_secy_inst_count_t secy_inst_count[MEPA_MACSEC_MAX_SECY]; /**< SecY Instances */
+} mepa_macsec_inst_count_t;
+
+/** Get the Instances count of SecYs, Rx SCs, Tx SA and Rx SAs.
+ *
+ */
+mepa_rc mepa_macsec_inst_count_get(struct mepa_device *dev,
+                                   const mepa_port_no_t   port_no,
+                                   mepa_macsec_inst_count_t *count);
+
+/** Clear the RMON Line mac counters.
+ */
+mepa_rc mepa_macsec_lmac_counters_clear(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no);
+
+/** Clear the RMON Host mac counters.
+ */
+mepa_rc mepa_macsec_hmac_counters_clear(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no);
+
+/** Clear the Macsec Debug counters.
+ */
+mepa_rc mepa_macsec_debug_counters_clear(struct mepa_device *dev,
+                                         const mepa_port_no_t port_no);
+
+/**Clear the Common counters.
+ */
+mepa_rc mepa_macsec_common_counters_clear(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no);
+
+/** Clear the Uncontrolled port counters.
+ */
+mepa_rc mepa_macsec_uncontrolled_counters_clear(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no);
+
+/** Clear the Controlled port counters.
+ */
+mepa_rc mepa_macsec_controlled_counters_clear (struct mepa_device *dev,
+                                               const mepa_macsec_port_t port);
+
+/**Clear the Rx SA counters.
+ */
+mepa_rc mepa_macsec_rxsa_counters_clear(struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        const mepa_macsec_sci_t *const sci,
+                                        const uint16_t an);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

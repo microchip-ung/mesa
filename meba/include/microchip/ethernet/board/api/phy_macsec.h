@@ -83,6 +83,19 @@ mepa_rc meba_phy_macsec_event_seq_threshold_get(meba_inst_t inst, const mepa_por
 mepa_rc meba_phy_macsec_egr_intr_sa_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_port_t *const port, uint16_t *const an);
 mepa_rc meba_phy_macsec_csr_read(meba_inst_t inst, const mepa_port_no_t port_no, const uint16_t mmd, const uint32_t addr, uint32_t *const value);
 mepa_rc meba_phy_macsec_csr_write(meba_inst_t inst, const mepa_port_no_t port_no, const uint32_t mmd, const uint32_t addr, const uint32_t value);
+mepa_rc meba_phy_macsec_dbg_counter_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_rc_dbg_counters_t *const counters);
+mepa_rc meba_phy_macsec_hmac_counters_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear);
+mepa_rc meba_phy_macsec_lmac_counters_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear);
+mepa_rc meba_phy_macsec_is_capable(meba_inst_t inst, const mepa_port_no_t port_no, mepa_bool_t *capable);
+mepa_rc meba_phy_macsec_dbg_reg_dump(meba_inst_t inst, const mepa_port_no_t port_no, const mepa_debug_print_t pr);
+mepa_rc meba_phy_macsec_inst_count_get(meba_inst_t inst, const mepa_port_no_t port_no, mepa_macsec_inst_count_t *count);
+mepa_rc meba_phy_macsec_lmac_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
+mepa_rc meba_phy_macsec_hmac_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
+mepa_rc meba_phy_macsec_debug_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
+mepa_rc meba_phy_macsec_common_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
+mepa_rc meba_phy_macsec_uncontrolled_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
+mepa_rc meba_phy_macsec_controlled_counters_clear (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port);
+mepa_rc meba_phy_macsec_rxsa_counters_clear(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_BOARD_PHY_MACSEC_DRIVER_H_

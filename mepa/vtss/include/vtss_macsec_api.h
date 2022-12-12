@@ -7,24 +7,24 @@
 #include <vtss_phy_api.h>
 #include <microchip/ethernet/phy/api/phy_macsec.h>
 
-#define VTSS_MACSEC_10G_MAX_SA 64     /**< 10G PHY Max SAs : 64 */
-#define VTSS_MACSEC_1G_MAX_SA  16     /**< 1G PHY Max SAs : 16 */
-#define VTSS_MACSEC_SA_PER_SC_MAX  4  /**< SAs per SC Max : 4 */
-#define VTSS_MACSEC_SA_PER_SC_MIN  2  /**< SAs per SC Min : 2 */
+#define VTSS_MACSEC_10G_MAX_SA MEPA_MACSEC_10G_MAX_SA
+#define VTSS_MACSEC_1G_MAX_SA  MEPA_MACSEC_1G_MAX_SA
+#define VTSS_MACSEC_SA_PER_SC_MAX  MEPA_MACSEC_SA_PER_SC_MAX
+#define VTSS_MACSEC_SA_PER_SC_MIN  MEPA_MACSEC_SA_PER_SC_MIN
 
-#define VTSS_MACSEC_SA_PER_SC VTSS_MACSEC_SA_PER_SC_MAX /**< SAs per SCs : 4 */
+#define VTSS_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC
 #ifdef VTSS_CHIP_10G_PHY
-#define VTSS_MACSEC_MAX_SA     VTSS_MACSEC_10G_MAX_SA   /**< 10G PHY Max SAs : 64 */
+#define VTSS_MACSEC_MAX_SA MEPA_MACSEC_MAX_SA
 #else
-#define VTSS_MACSEC_MAX_SA     VTSS_MACSEC_1G_MAX_SA    /**< 1G PHY Max SAs : 16 */
+#define VTSS_MACSEC_MAX_SA MEPA_MACSEC_MAX_SA
 #endif
-#define VTSS_MACSEC_MAX_SA_RX  VTSS_MACSEC_MAX_SA       /**< Max Rx SAs */
-#define VTSS_MACSEC_MAX_SA_TX  VTSS_MACSEC_MAX_SA       /**< Max Tx SAs */
-#define VTSS_MACSEC_MAX_SC_RX  VTSS_MACSEC_MAX_SA/2     /**< Max Rx SCs : 32/8 */
-#define VTSS_MACSEC_MAX_SC_TX  VTSS_MACSEC_MAX_SC_RX    /**< Max Tx SCs : 32/8 */
-#define VTSS_MACSEC_MAX_SECY   VTSS_MACSEC_MAX_SC_TX    /**< Max SecYs : 32/8 */
+#define VTSS_MACSEC_MAX_SA_RX  MEPA_MACSEC_MAX_SA_RX
+#define VTSS_MACSEC_MAX_SA_TX  MEPA_MACSEC_MAX_SA_TX
+#define VTSS_MACSEC_MAX_SC_RX  MEPA_MACSEC_MAX_SC_RX
+#define VTSS_MACSEC_MAX_SC_TX  MEPA_MACSEC_MAX_SC_TX
+#define VTSS_MACSEC_MAX_SECY   MEPA_MACSEC_MAX_SECY
 
-#define VTSS_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
+#define VTSS_MAC_BLOCK_MTU_MAX MEPA_MAC_BLOCK_MTU_MAX
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1442,60 +1442,7 @@ vtss_rc vtss_macsec_csr_write(const vtss_inst_t           inst,
                               const u32                   value);
 
 
- /** \brief Debug counters for counting the number error return codes.  */
-typedef struct {
-    u32 invalid_sci_macaddr;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_INVALID_SCI_MACADDR*/
-    u32 macsec_not_enabled;      /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_NOT_ENABLED*/
-    u32 secy_already_in_use;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_SECY_ALREADY_IN_USE*/
-    u32 no_secy_found;           /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_NO_SECY_FOUND*/
-    u32 no_secy_vacency;         /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_NO_SECY_VACANCY*/
-    u32 invalid_validate_frm;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_INVALID_VALIDATE_FRM*/
-    u32 invalid_hdr_bypass_len;  /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN*/
-    u32 sc_not_found;            /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_SC_NOT_FOUND*/
-    u32 could_not_prg_sa_match;  /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH*/
-    u32 could_not_prg_sa_flow;   /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW*/
-    u32 could_not_ena_sa;        /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA*/
-    u32 could_not_set_sa;        /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA*/
-    u32 no_ctrl_frm_match;       /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH*/
-    u32 could_not_set_pattern;   /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN*/
-    u32 timeout_issue;           /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_TIMEOUT_ISSUE*/
-    u32 could_not_empty_egress;  /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS*/
-    u32 an_not_created;          /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_AN_NOT_CREATED*/
-    u32 could_not_empty_ingress; /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS*/
-    u32 tx_sc_not_exist;         /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_TX_SC_NOT_EXIST*/
-    u32 could_not_disable_sa;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA*/
-    u32 could_not_del_rx_sa;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA*/
-    u32 could_not_del_tx_sa;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA*/
-    u32 pattern_not_set;         /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_PATTERN_NOT_SET*/
-    u32 hw_resource_exhusted;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED*/
-    u32 sci_already_exist;       /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_SCI_ALREADY_EXISTS*/
-    u32 sc_resource_not_found;   /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND*/
-    u32 rx_an_already_in_use;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE*/
-    u32 empty_record;            /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_EMPTY_RECORD*/
-    u32 could_not_prg_xform;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM*/
-    u32 could_not_toggle_sa;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA*/
-    u32 tx_an_already_in_use;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE*/
-    u32 all_available_sa_in_use; /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE*/
-    u32 match_disable;           /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_MATCH_DISABLE*/
-    u32 all_cp_rules_in_use;     /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE*/
-    u32 pattern_prio_not_valid;  /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID*/
-    u32 buffer_too_small;        /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_BUFFER_TOO_SMALL*/
-    u32 frm_too_long;            /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_FRAME_TOO_LONG*/
-    u32 frm_truncated;           /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_FRAME_TRUNCATED*/
-    u32 phy_powered_down;        /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN*/
-    u32 phy_not_macsec_capable;  /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE*/
-    u32 an_not_exist;            /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_AN_NOT_EXIST*/
-    u32 no_pattern_cfg;          /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_NO_PATTERN_CFG*/
-    u32 unexpected_speed;        /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_UNEXPECT_SPEED*/
-    u32 max_mtu;                 /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_MAX_MTU*/
-    u32 unexpected_cp_mode;      /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_UNEXPECT_CP_MODE*/
-    u32 could_not_disable_an;    /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN*/
-    u32 rule_out_of_range;       /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_RULE_OUT_OF_RANGE*/
-    u32 rule_not_exit;           /**< Number of errors happen with error code VTSS_RC_ERR_MACSEC_RULE_NOT_EXIT*/
-    u32 csr_read;                /**< Number of errors happen with error code VTSS_RC_ERR_CSR_READ*/
-    u32 csr_write;               /**< Number of errors happen with error code VTSS_RC_ERR_CSR_WRITE*/
-    u32 unknown_rc_code;         /**< Number of errors happen with unknown error code*/
-} vtss_macsec_rc_dbg_counters_t;
+typedef mepa_macsec_rc_dbg_counters_t vtss_macsec_rc_dbg_counters_t;
 
 /**
  * \brief Get return code debug counters
@@ -1510,57 +1457,12 @@ vtss_rc vtss_macsec_dbg_counter_get(const vtss_inst_t             inst,
                                     const vtss_port_no_t          port_no,
                                     vtss_macsec_rc_dbg_counters_t *const counters);
 
-#define deb_counter_get vtss_macsec_dbg_counter_get /**< Backward compatibility */
 
 /*--------------------------------------------------------------------*/
 /* Line MAC / Host MAC / FC                                           */
 /*--------------------------------------------------------------------*/
 
-/** \brief Host/Line Mac Counters */
-typedef struct {
-    /* Rx RMON counters */
-    u64 if_rx_octets;           /**< In octets       */
-    u64 if_rx_in_bytes;         /**< In bytes        */
-    u32 if_rx_pause_pkts;       /**< In pause        */
-    u32 if_rx_ucast_pkts;       /**< In unicasts     */
-    u32 if_rx_multicast_pkts;   /**< In multicasts   */
-    u32 if_rx_broadcast_pkts;   /**< In broadcasts   */
-    u32 if_rx_discards;         /**< In discards     */
-    u32 if_rx_errors;           /**< In errors       */
-  
-    u64 if_rx_StatsPkts;        /**< In All Pkt cnts    */
-    u32 if_rx_CRCAlignErrors;   /**< In CRC errors      */
-    u32 if_rx_UndersizePkts;    /**< In Undersize pkts  */
-    u32 if_rx_OversizePkts;     /**< In Oversize pkts   */
-    u32 if_rx_Fragments;        /**< In Fragments       */
-    u32 if_rx_Jabbers;          /**< In Jabbers         */
-    u32 if_rx_Pkts64Octets;         /**< In Pkts64Octets         */
-    u32 if_rx_Pkts65to127Octets;    /**< In Pkts65to127Octets    */
-    u32 if_rx_Pkts128to255Octets;   /**< In Pkts128to255Octets   */
-    u32 if_rx_Pkts256to511Octets;   /**< In Pkts256to511Octets   */
-    u32 if_rx_Pkts512to1023Octets;  /**< In Pkts512to1023Octets  */
-    u32 if_rx_Pkts1024to1518Octets; /**< In Pkts1024to1518Octets */
-    u32 if_rx_Pkts1519toMaxOctets;  /**< In Pkts1519toMaxOctets  */
-
-    /* Tx RMON counters */ 
-    u64 if_tx_octets;           /**< Out octets      */
-    u32 if_tx_pause_pkts;       /**< Out pause       */
-    u32 if_tx_ucast_pkts;       /**< Out unicasts    */
-    u32 if_tx_multicast_pkts;   /**< Out multicasts  */
-    u32 if_tx_broadcast_pkts;   /**< Out broadcasts  */
-    u32 if_tx_errors;           /**< Out errors      */
-
-    u32 if_tx_DropEvents;            /**< Out _DropEvents          */
-    u64 if_tx_StatsPkts;             /**< Out StatsPkts            */
-    u32 if_tx_Collisions;            /**< Out Collisions           */
-    u32 if_tx_Pkts64Octets;          /**< Out Pkts64Octets         */
-    u32 if_tx_Pkts65to127Octets;     /**< Out Pkts65to127Octets    */
-    u32 if_tx_Pkts128to255Octets;    /**< Out Pkts128to255Octets   */
-    u32 if_tx_Pkts256to511Octets;    /**< Out Pkts256to511Octets   */
-    u32 if_tx_Pkts512to1023Octets;   /**< Out Pkts512to1023Octets  */
-    u32 if_tx_Pkts1024to1518Octets;  /**< Out Pkts1024to1518Octets */
-    u32 if_tx_Pkts1519toMaxOctets;   /**< Out Pkts1519toMaxOctets  */
-} vtss_macsec_mac_counters_t;
+typedef mepa_macsec_mac_counters_t vtss_macsec_mac_counters_t;
 
 /**
  * \brief Host Mac counters (To be moved)
@@ -1607,38 +1509,19 @@ vtss_rc vtss_macsec_dbg_reg_dump(const vtss_inst_t     inst,
 /* Macsec SC Instance Counters structures                                */
 /*--------------------------------------------------------------------*/
 
-/** \brief No. of  Tx SA or Rx SA Information */
-typedef struct {
-    u8 no_sa;                              /**< No. of SAs configured */
-    u8 sa_id[VTSS_MACSEC_SA_PER_SC_MAX];   /**< Configured SA ids */
-} vtss_sc_inst_count_t;
+typedef mepa_sc_inst_count_t vtss_sc_inst_count_t;
 
 /*--------------------------------------------------------------------*/
 /* Macsec SecY Instance Counters structures                                */
 /*--------------------------------------------------------------------*/
 
-/** \brief No. of  Tx SC and Rx SC Information */
-typedef struct {
-    u8 no_txsc;                            /**< No. of Tx SCs configured */
-    u8 txsc_id;                            /**< Configured Tx SC ids */
-    vtss_macsec_sci_t tx_sci;              /**< Tx SCI */
-    vtss_sc_inst_count_t txsc_inst_count;  /**< Tx SC Instances */
-    u8 no_rxsc;                            /**< No. of Rx SCs configured */
-    u8 rxsc_id[VTSS_MACSEC_MAX_SC_RX];     /**< Configured Rx SC ids */
-    vtss_macsec_sci_t rx_sci[VTSS_MACSEC_MAX_SC_RX];             /**< Rx SCIs */
-    vtss_sc_inst_count_t rxsc_inst_count[VTSS_MACSEC_MAX_SC_RX]; /**< Rx SCs Instances */
-} vtss_secy_inst_count_t;
+typedef mepa_secy_inst_count_t vtss_secy_inst_count_t;
 
 /*--------------------------------------------------------------------*/
 /* Macsec Instance Counters structures                                */
 /*--------------------------------------------------------------------*/
 
-/** \brief No. of  SecYs, Virtual Port Information */
-typedef struct {
-    u8 no_secy;                       /**< No. of SecYs configured */
-    u8 secy_vport[VTSS_MACSEC_MAX_SECY]; /**< Configured SecY virtual port */
-    vtss_secy_inst_count_t secy_inst_count[VTSS_MACSEC_MAX_SECY]; /**< SecY Instances */
-} vtss_macsec_inst_count_t;
+typedef mepa_macsec_inst_count_t vtss_macsec_inst_count_t;
 
 /** \brief   Get the Instances count of SecYs, Rx SCs, Tx SA and Rx SAs.
  *

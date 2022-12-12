@@ -2331,3 +2331,195 @@ mepa_rc mepa_macsec_csr_write(struct mepa_device *dev,
 
     return dev->drv->mepa_macsec->mepa_macsec_csr_write(dev, port_no, mmd, addr, value);
 }
+
+mepa_rc mepa_macsec_dbg_counter_get(struct mepa_device *dev,
+                                    const mepa_port_no_t port_no,
+                                    mepa_macsec_rc_dbg_counters_t *const counters)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_dbg_counter_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_dbg_counter_get(dev, port_no, counters);
+}
+
+mepa_rc mepa_macsec_hmac_counters_get(struct mepa_device *dev,
+                                      const mepa_port_no_t port_no,
+                                      mepa_macsec_mac_counters_t *const counters,
+                                      const mepa_bool_t clear)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_hmac_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_hmac_counters_get(dev, port_no, counters, clear);
+}
+
+mepa_rc mepa_macsec_lmac_counters_get(struct mepa_device *dev,
+                                      const mepa_port_no_t port_no,
+                                      mepa_macsec_mac_counters_t *const counters,
+                                      const mepa_bool_t clear)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_lmac_counters_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_lmac_counters_get(dev, port_no, counters, clear);
+}
+
+mepa_rc mepa_macsec_is_capable(struct mepa_device *dev,
+                               const mepa_port_no_t port_no,
+                               mepa_bool_t *capable)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_is_capable) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_is_capable(dev, port_no, capable);
+}
+
+mepa_rc mepa_macsec_dbg_reg_dump(struct mepa_device *dev,
+                                 const mepa_port_no_t port_no,
+                                 const mepa_debug_print_t pr)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_dbg_reg_dump) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_dbg_reg_dump(dev, port_no, pr);
+}
+
+mepa_rc mepa_macsec_inst_count_get(struct mepa_device *dev,
+                                   const mepa_port_no_t port_no,
+                                   mepa_macsec_inst_count_t *count)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_inst_count_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_inst_count_get(dev, port_no, count);
+}
+
+mepa_rc mepa_macsec_lmac_counters_clear(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_lmac_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_lmac_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_hmac_counters_clear(struct mepa_device *dev,
+                                        const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_hmac_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_hmac_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_debug_counters_clear(struct mepa_device *dev,
+                                         const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_debug_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_debug_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_common_counters_clear(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_common_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_common_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_uncontrolled_counters_clear(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_uncontrolled_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_uncontrolled_counters_clear(dev, port_no);
+}
+
+mepa_rc mepa_macsec_controlled_counters_clear(struct mepa_device *dev,
+                                              const mepa_macsec_port_t port)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_controlled_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_controlled_counters_clear(dev, port);
+}
+
+mepa_rc mepa_macsec_rxsa_counters_clear(struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        const mepa_macsec_sci_t *const sci,
+                                        const uint16_t an)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_rxsa_counters_clear) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_rxsa_counters_clear(dev, port, sci, an);
+}

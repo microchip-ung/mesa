@@ -493,6 +493,12 @@ vtss_rc vtss_macsec_egr_intr_sa_get(const vtss_inst_t inst, const vtss_port_no_t
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
+
+vtss_rc vtss_macsec_inst_count_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_macsec_inst_count_t *count)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
 #endif // !defined(VTSS_FEATURE_MACSEC)
 
 #if !defined(VTSS_CHIP_10G_PHY)
