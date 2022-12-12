@@ -96,6 +96,21 @@ mepa_rc meba_phy_macsec_common_counters_clear(meba_inst_t inst, const mepa_port_
 mepa_rc meba_phy_macsec_uncontrolled_counters_clear(meba_inst_t inst, const mepa_port_no_t port_no);
 mepa_rc meba_phy_macsec_controlled_counters_clear (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port);
 mepa_rc meba_phy_macsec_rxsa_counters_clear(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);
+mepa_rc meba_phy_macsec_rxsc_counters_clear(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t  *const sci);
+mepa_rc meba_phy_macsec_txsa_counters_clear(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t  port, const uint16_t  an);
+mepa_rc meba_phy_macsec_txsc_counters_clear (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port);
+mepa_rc meba_phy_macsec_secy_counters_clear (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port);
+mepa_rc meba_phy_macsec_port_enable_status_get (meba_inst_t inst, const mepa_port_no_t port_no, mepa_bool_t *status);
+mepa_rc meba_phy_macsec_rxsa_an_status_get (meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, mepa_bool_t *status);
+mepa_rc meba_phy_mac_block_mtu_get(meba_inst_t inst, const mepa_port_no_t port_no, uint16_t *const mtu_value, mepa_bool_t *const mtu_tag_check);
+mepa_rc meba_phy_mac_block_mtu_set(meba_inst_t inst, const mepa_port_no_t port_no, const uint16_t mtu_value, const mepa_bool_t mtu_tag_check);
+mepa_rc meba_phy_macsec_fcbuf_frame_gap_comp_set(meba_inst_t inst, const mepa_port_no_t port_no, const uint8_t frm_gap);
+mepa_rc meba_phy_macsec_dbg_fcb_block_reg_dump(meba_inst_t inst, const mepa_port_no_t port_no, const mepa_debug_print_t pr);
+mepa_rc meba_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump(meba_inst_t inst, const mepa_port_no_t port_no, const mepa_debug_print_t pr);
+#ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
+mepa_rc meba_phy_macsec_dbg_reconfig(meba_inst_t inst, const mepa_port_no_t port_no);
+#endif
+mepa_rc meba_phy_macsec_dbg_update_seq_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, uint16_t an, mepa_bool_t egr, const mepa_bool_t disable);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_BOARD_PHY_MACSEC_DRIVER_H_

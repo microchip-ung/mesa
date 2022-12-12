@@ -674,6 +674,107 @@ static mepa_rc vtss_phy_macsec_rxsa_counters_clear(struct mepa_device *dev,
     return vtss_macsec_rxsa_counters_clear(NULL, port, sci, an);
 }
 
+static mepa_rc vtss_phy_macsec_rxsc_counters_clear(struct mepa_device *dev,
+                                                   const mepa_macsec_port_t port,
+                                                   const mepa_macsec_sci_t  *const sci)
+{
+    return vtss_macsec_rxsc_counters_clear(NULL, port, sci);
+}
+
+static mepa_rc vtss_phy_macsec_txsa_counters_clear(struct mepa_device *dev,
+                                                   const mepa_macsec_port_t  port,
+                                                   const uint16_t  an)
+{
+    return vtss_macsec_txsa_counters_clear(NULL, port, an);
+}
+
+static mepa_rc vtss_phy_macsec_txsc_counters_clear(struct mepa_device *dev,
+                                                   const mepa_macsec_port_t port)
+{
+    return vtss_macsec_txsc_counters_clear(NULL, port);
+}
+
+static mepa_rc vtss_phy_macsec_secy_counters_clear(struct mepa_device *dev,
+                                                   const mepa_macsec_port_t port)
+{
+    return vtss_macsec_secy_counters_clear(NULL, port);
+}
+
+static mepa_rc vtss_phy_macsec_port_enable_status_get(struct mepa_device *dev,
+                                                      const mepa_port_no_t port_no,
+                                                      mepa_bool_t *status)
+{
+    return vtss_macsec_port_enable_status_get(NULL, port_no, status);
+}
+
+static mepa_rc vtss_phy_macsec_rxsa_an_status_get(struct mepa_device *dev,
+                                                  const mepa_macsec_port_t port,
+                                                  const mepa_macsec_sci_t *const sci,
+                                                  const uint16_t an,
+                                                  mepa_bool_t *status)
+{
+    return vtss_macsec_rxsa_an_status_get(NULL, port, sci, an, status);
+}
+
+static mepa_rc vtss_phy_mac_block_mtu_get(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no,
+                                          uint16_t *const mtu_value,
+                                          mepa_bool_t *const mtu_tag_check)
+{
+    return vtss_mac_block_mtu_get(NULL, port_no, mtu_value, mtu_tag_check);
+}
+
+static mepa_rc vtss_phy_mac_block_mtu_set(struct mepa_device *dev,
+                                          const mepa_port_no_t port_no,
+                                          const uint16_t mtu_value,
+                                          const mepa_bool_t mtu_tag_check)
+{
+    return vtss_mac_block_mtu_set(NULL, port_no, mtu_value, mtu_tag_check);
+}
+
+static mepa_rc vtss_phy_macsec_fcbuf_frame_gap_comp_set(struct mepa_device *dev,
+                                                        const mepa_port_no_t port_no,
+                                                        const uint8_t frm_gap)
+{
+    return vtss_macsec_fcbuf_frame_gap_comp_set(NULL, port_no, frm_gap);
+}
+
+static mepa_rc vtss_phy_macsec_dbg_fcb_block_reg_dump(struct mepa_device *dev,
+                                                      const mepa_port_no_t port_no,
+                                                      const mepa_debug_print_t pr)
+{
+    return vtss_macsec_dbg_fcb_block_reg_dump(NULL, port_no, pr);
+}
+
+static mepa_rc vtss_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump(struct mepa_device *dev,
+                                                                    const mepa_port_no_t port_no,
+                                                                    const mepa_debug_print_t pr)
+
+{
+    return vtss_macsec_dbg_frm_match_handling_ctrl_reg_dump(NULL, port_no, pr);
+}
+
+#ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
+
+static mepa_rc vtss_phy_macsec_dbg_reconfig(struct mepa_device *dev,
+                                            const mepa_port_no_t port_no)
+{
+    return vtss_macsec_dbg_reconfig(NULL, port_no, pr);
+}
+
+#endif
+
+
+static mepa_rc vtss_phy_macsec_dbg_update_seq_set(struct mepa_device *dev,
+                                                  const mepa_macsec_port_t port,
+                                                  const mepa_macsec_sci_t *const sci,
+                                                  uint16_t an,
+                                                  mepa_bool_t egr,
+                                                  const mepa_bool_t disable)
+{
+    return vtss_macsec_dbg_update_seq_set(NULL, port, sci, an, egr, disable);
+}
+
 mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_init_set = vtss_phy_macsec_init_set,
     .mepa_macsec_init_get = vtss_phy_macsec_init_get,
@@ -762,5 +863,20 @@ mepa_macsec_driver_t vtss_macsec_drivers = {
     .mepa_macsec_uncontrolled_counters_clear = vtss_phy_macsec_uncontrolled_counters_clear,
     .mepa_macsec_controlled_counters_clear = vtss_phy_macsec_controlled_counters_clear,
     .mepa_macsec_rxsa_counters_clear = vtss_phy_macsec_rxsa_counters_clear,
+    .mepa_macsec_rxsc_counters_clear = vtss_phy_macsec_rxsc_counters_clear,
+    .mepa_macsec_txsa_counters_clear = vtss_phy_macsec_txsa_counters_clear,
+    .mepa_macsec_txsc_counters_clear = vtss_phy_macsec_txsc_counters_clear,
+    .mepa_macsec_secy_counters_clear = vtss_phy_macsec_secy_counters_clear,
+    .mepa_macsec_port_enable_status_get = vtss_phy_macsec_port_enable_status_get,
+    .mepa_macsec_rxsa_an_status_get = vtss_phy_macsec_rxsa_an_status_get,
+    .mepa_mac_block_mtu_get = vtss_phy_mac_block_mtu_get,
+    .mepa_mac_block_mtu_set = vtss_phy_mac_block_mtu_set,
+    .mepa_macsec_fcbuf_frame_gap_comp_set = vtss_phy_macsec_fcbuf_frame_gap_comp_set,
+    .mepa_macsec_dbg_fcb_block_reg_dump = vtss_phy_macsec_dbg_fcb_block_reg_dump,
+    .mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump = vtss_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump,
+#ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
+    .mepa_macsec_dbg_reconfig = vtss_phy_macsec_dbg_reconfig,
+#endif
+    .mepa_macsec_dbg_update_seq_set = vtss_phy_macsec_dbg_update_seq_set,
 
 };

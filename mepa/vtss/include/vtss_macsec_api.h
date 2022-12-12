@@ -1746,7 +1746,7 @@ vtss_rc vtss_macsec_dbg_frm_match_handling_ctrl_reg_dump(const vtss_inst_t      
                                                          const vtss_debug_printf_t     pr);
 
 
-#ifdef VTSS_MACSEC_FIFO_OVERFLOW_WORKAROUND
+#ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
 /** \brief MACsec Debug Re-configuration.
  *
  * \param inst          [IN] VTSS-API instance.

@@ -26,6 +26,10 @@
 
 #define MEPA_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** \brief SecY port status as defined by 802.1AE */
 typedef struct {
     mepa_bool_t mac_enabled;                                  /**< MAC is enabled (802.1AE) */
@@ -1428,6 +1432,94 @@ mepa_rc mepa_macsec_rxsa_counters_clear(struct mepa_device *dev,
                                         const mepa_macsec_port_t port,
                                         const mepa_macsec_sci_t *const sci,
                                         const uint16_t an);
+
+/** Clear the Rx SC counters. */
+mepa_rc mepa_macsec_rxsc_counters_clear(struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        const mepa_macsec_sci_t  *const sci);
+
+/** Clear the Tx SA counters. */
+mepa_rc mepa_macsec_txsa_counters_clear(struct mepa_device *dev,
+                                        const mepa_macsec_port_t  port,
+                                        const uint16_t  an);
+
+/** Clear the Tx SC counters. */
+mepa_rc mepa_macsec_txsc_counters_clear (struct mepa_device *dev,
+                                         const mepa_macsec_port_t port);
+
+/** Clear the SecY counters. */
+mepa_rc mepa_macsec_secy_counters_clear (struct mepa_device *dev,
+                                         const mepa_macsec_port_t port);
+
+/** Get the Macsec Enable Status. */
+mepa_rc mepa_macsec_port_enable_status_get (struct mepa_device *dev,
+                                            const mepa_port_no_t port_no,
+                                            mepa_bool_t *status);
+
+/** Get the Macsec RxSA AN Status. */
+mepa_rc mepa_macsec_rxsa_an_status_get (struct mepa_device *dev,
+                                        const mepa_macsec_port_t port,
+                                        const mepa_macsec_sci_t *const sci,
+                                        const uint16_t an,
+                                        mepa_bool_t *status);
+
+/** Get MAC Block MTU and Tag Check configuration. */
+mepa_rc mepa_mac_block_mtu_get(struct mepa_device *dev,
+                               const mepa_port_no_t port_no,
+                               uint16_t *const mtu_value,
+                               mepa_bool_t *const mtu_tag_check);
+
+/** Set MAC Block MTU and Tag Check configuration. */
+mepa_rc mepa_mac_block_mtu_set(struct mepa_device *dev,
+                               const mepa_port_no_t port_no,
+                               const uint16_t mtu_value,
+                               const mepa_bool_t mtu_tag_check);
+
+/** Set frame gap compensation in FC Buffer. */
+mepa_rc mepa_macsec_fcbuf_frame_gap_comp_set(struct mepa_device *dev,
+                                             const mepa_port_no_t port_no,
+                                             const uint8_t frm_gap);
+
+/** Flow Control buffer Block Reg Dump. */
+mepa_rc mepa_macsec_dbg_fcb_block_reg_dump(struct mepa_device *dev,
+                                           const mepa_port_no_t port_no,
+                                           const mepa_debug_print_t pr);
+
+
+/** Flow Control buffer Block Reg Dump. */
+mepa_rc mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump(struct mepa_device *dev,
+                                                         const mepa_port_no_t port_no,
+                                                         const mepa_debug_print_t pr);
+
+
+#ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
+/** MACsec Debug Re-configuration.
+ *
+ */
+mepa_rc mepa_macsec_dbg_reconfig(struct mepa_device *dev,
+                                 const mepa_port_no_t port_no);
+#endif
+
+/** Configure MACsec Update sequence number.
+ *
+ */
+mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
+                                       const mepa_macsec_port_t port,
+                                       const mepa_macsec_sci_t *const sci,
+                                       uint16_t an,
+                                       mepa_bool_t egr,
+                                       const mepa_bool_t disable);
+
+
+// ***************************************************************************
+//
+//  End of file.
+//
+// ***************************************************************************
+
+#ifdef __cplusplus
+}
+#endif
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
