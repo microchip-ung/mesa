@@ -39,8 +39,10 @@ else()
 set(API_MEBA_CACHE_IN)
 list(APPEND API_MEBA_CACHE_IN meba/include/microchip/ethernet/board/api/types.h)
 list(APPEND API_MEBA_CACHE_IN meba/include/microchip/ethernet/board/api/phy.h)
+list(APPEND API_MEBA_CACHE_IN meba/include/microchip/ethernet/board/api/phy_macsec.h)
 list(APPEND API_MEBA_CACHE_IN mepa/include/microchip/ethernet/phy/api/types.h)
 list(APPEND API_MEBA_CACHE_IN mepa/include/microchip/ethernet/phy/api/phy.h)
+list(APPEND API_MEBA_CACHE_IN mepa/include/microchip/ethernet/phy/api/phy_macsec.h)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.h ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag/mesa-rpc.c
                    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../../mesa/scripts/ag2.rb -b ${CMAKE_CURRENT_SOURCE_DIR}/../.. -o ${CMAKE_CURRENT_BINARY_DIR}/mesa-ag ${API_MESA_CACHE_IN} ${API_MEBA_CACHE_IN} ${API_ME_CACHE_IN}
                    DEPENDS mesa_cache

@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <microchip/ethernet/switch/api.h>
-#include <microchip/ethernet/board/api/phy.h>
+#include "microchip/ethernet/board/api.h"
 #include <json-c/json.h>
 
 extern meba_inst_t meba_global_inst;

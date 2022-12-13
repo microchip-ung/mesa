@@ -111,6 +111,11 @@ $methods_blacklist = [
     "mesa_tod_set_ns_cnt_cb",
     "mesa_cap_callback_add",
     "meba_phy_debug_info_print",
+    "meba_phy_macsec_dbg_fcb_block_reg_dump",
+    "meba_phy_macsec_dbg_fcb_block_reg_dump",
+    "meba_phy_macsec_dbg_reconfig",
+    "meba_phy_macsec_dbg_reg_dump",
+    "meba_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump",
 ]
 
 $methods_greylist = [
