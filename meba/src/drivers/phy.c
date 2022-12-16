@@ -541,3 +541,47 @@ mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
     }
     return mepa_selftest_read(inst->phy_devices[port_no], inf);
 }
+
+// To Set PRBS
+mepa_rc meba_prbs_set(meba_inst_t inst, mepa_port_no_t port_no,
+                      mepa_phy_prbs_type_t type,
+                      mepa_phy_prbs_direction_t direction,
+                      mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_prbs_set(inst->phy_devices[port_no], type, direction, prbs_conf);
+}
+
+// To Get PRBS
+mepa_rc meba_prbs_get(meba_inst_t inst, mepa_port_no_t port_no,
+                      mepa_phy_prbs_type_t type,
+                      mepa_phy_prbs_direction_t direction,
+                      mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_prbs_get(inst->phy_devices[port_no], type, direction, prbs_conf);
+}
+
+// To inject errors to PRBS
+mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no,
+                              mepa_phy_prbs_monitor_conf_t *const value)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_prbs_monitor_set(inst->phy_devices[port_no], value);
+}
+
+// To Get  error status  of PRBS
+mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no,
+                              mepa_phy_prbs_monitor_conf_t *const value)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_prbs_monitor_get(inst->phy_devices[port_no], value);
+}

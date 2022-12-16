@@ -412,5 +412,52 @@ typedef struct {
     uint32_t		err_cnt;
 } mepa_selftest_info_t;
 
+/** \brief PRBS information */
+typedef enum {
+    MEPA_PHY_DIRECTION_HOST, /**< To configure HOST PRBS */
+    MEPA_PHY_DIRECTION_LINE, /**< To configure LINE PRBS */
+    MEPA_PHY_DIRECTION_CNT,  /**< ENUM Count             */
+} mepa_phy_prbs_direction_t;
+
+/** \brief PRBS information */
+typedef enum {
+    MEPA_PHY_PRBS_TYPE_SERDES, /**< Configure SERDES prbs */
+    MEPA_PHY_PRBS_TYPE_PCS,    /**< Configure PCS prbs    */
+    MEPA_PHY_PRBS_TYPE_CNT,    /**< ENUM Count            */
+} mepa_phy_prbs_type_t;
+
+/** \brief PRBS mode */
+typedef enum {
+    MEPA_PRBS7, /**< PRBS mode 7 */
+    MEPA_PRBS15,/**< PRBS mode 15 */
+    MEPA_PRBS31,/**< PRBS mode 31 */
+}mepa_prbs_pattern_t;
+
+/** \brief PRBS clock */
+typedef enum {
+    MEPA_PRBS_CLK25_MHZ, /**< Clock 25MHz */
+    MEPA_PRBS_CLK125_MHZ,/**< Clock 125MHz */
+} mepa_prbs_clock_t;
+
+/** \brief PRBS Loopback */
+typedef enum {
+    MEPA_PRBS_INTERNAL_LOOPBACK, /**< Internal loopback for PRBS */
+    MEPA_PRBS_EXTERNAL_LOOPBACK, /**< External loopback for PRBS */
+} mepa_prbs_loopback_t;
+
+/** \brief PRBS Information */
+typedef struct {
+    mepa_bool_t enable;            /**< Enabling PRBS */
+    mepa_prbs_pattern_t prbsn_sel; /**< PRBS mode selection */
+    mepa_prbs_clock_t clk;         /**< Clock selection */
+    mepa_prbs_loopback_t loopback; /**< Loopback selection */
+} mepa_phy_prbs_generator_conf_t;
+
+/** \brief PRBS Error Information */
+typedef struct {
+    mepa_prbs_pattern_t  prbsn_sel; /**< PRBS mode selection */
+    uint32_t no_of_errors;          /**< Error Generation */
+} mepa_phy_prbs_monitor_conf_t;
+
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_TYPES_H_ */

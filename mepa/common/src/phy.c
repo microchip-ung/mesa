@@ -2728,3 +2728,38 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
     return dev->drv->mepa_macsec->mepa_macsec_dbg_update_seq_set(dev, port, sci, an, egr, disable);
 }
 
+mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    if (!dev->drv->mepa_driver_prbs_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_prbs_set(dev, type, direction, prbs_conf);
+}
+
+mepa_rc mepa_prbs_get(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    if (!dev->drv->mepa_driver_prbs_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_prbs_get(dev, type, direction, prbs_conf);
+}
+
+mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    if (!dev->drv->mepa_driver_prbs_monitor_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_prbs_monitor_set(dev, value);
+}
+
+mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    if (!dev->drv->mepa_driver_prbs_monitor_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_prbs_monitor_get(dev, value);
+}

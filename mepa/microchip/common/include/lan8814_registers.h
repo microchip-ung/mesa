@@ -297,6 +297,21 @@
 #define INDY_RCVRD_CLK_OUT_DIV_1 INDY_EXT_PAGE_4, 257
 #define INDY_RCVRD_CLK_OUT_SEL_2 INDY_EXT_PAGE_4, 258
 #define INDY_RCVRD_CLK_OUT_DIV_2 INDY_EXT_PAGE_4, 259
+
+// Register 139
+#define INDY_SERDES_CR_CONTROL INDY_EXT_PAGE_4, 139
+#define INDY_F_SERDES_CR_CONTROL_0 INDY_BIT(0)
+#define INDY_F_SERDES_CR_CONTROL_1 INDY_BIT(1)
+
+// Register 140
+#define INDY_SERDES_CR_ADDR INDY_EXT_PAGE_4, 140
+
+// Register 141
+#define INDY_SERDES_CR_DATA INDY_EXT_PAGE_4, 141
+
+// Register 142
+#define INDY_SERDES_CLOCK_CONF INDY_EXT_PAGE_4, 142
+
 //====================================================================================
 //      Extended Page 5
 //====================================================================================

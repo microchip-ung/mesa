@@ -131,5 +131,17 @@ mepa_rc meba_selftest_start(meba_inst_t inst, mepa_port_no_t port_no,
 mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
                             mepa_selftest_info_t *const inf);
 
+// To Set PRBS
+mepa_rc meba_prbs_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const conf);
+
+// To Get PRBS
+mepa_rc meba_prbs_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const conf);
+
+// To inject an error to PRBS
+mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
+
+//To get error status of PRBS
+mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

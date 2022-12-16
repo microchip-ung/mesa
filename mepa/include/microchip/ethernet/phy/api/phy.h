@@ -715,5 +715,53 @@ mepa_rc mepa_selftest_start(struct mepa_device *dev, const mepa_selftest_info_t 
  **/
 mepa_rc mepa_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const selftest_inf);
 
+/**
+ * \brief To Set the PRBS7 sequence configuration
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param conf     [IN] PRBS7 information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const mepa_conf);
+
+/**
+ * \brief To Get the PRBS7 sequence configuration
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param conf     [OUT] PRBS7 information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_prbs_get(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const mepa_conf);
+
+/**
+ * \brief To inject an error
+ *
+ * \param dev       [IN]  Driver instance.
+ * \param value     [IN] Error count information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+
+/**
+ * \brief To Verify the PRBS7
+ *
+ * \param dev       [IN]  Driver instance.
+ * \param value     [OUT] Error count information
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

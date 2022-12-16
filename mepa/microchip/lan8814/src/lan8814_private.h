@@ -134,7 +134,7 @@ typedef struct {
 
 typedef struct {
     mepa_bool_t              init_done;
-    uint8_t                       packet_idx;
+    uint8_t                  packet_idx;
     mepa_port_no_t           port_no;
     mepa_conf_t              conf;
     mepa_event_t             events;
@@ -148,13 +148,15 @@ typedef struct {
     mepa_bool_t              fdx_status;
     mepa_cable_diag_result_t cable_diag;
     mepa_start_of_frame_conf_t sof_conf;
-    mepa_bool_t              framepreempt_en;      // Frame Preemption
+    mepa_bool_t              framepreempt_en; // Frame Preemption
     mepa_media_mode_t        mdi_mode;
     uint16_t                 link_up_cnt;
     mepa_bool_t              post_mac_rst;
     mepa_bool_t              aneg_after_link_up;
     mepa_bool_t              crc_workaround;
     indy_ts_data_t           ts_state;
+    mepa_phy_prbs_generator_conf_t prbs_conf;
+    mepa_bool_t              prbs_init;
 } phy_data_t;
 
 #endif

@@ -1888,6 +1888,322 @@ ret_err:
     return MEPA_RC_ERROR;
 }
 
+static mepa_rc indy_serdes_set(mepa_device_t *dev, uint16_t addr, uint16_t data, uint8_t op_rd)
+{
+    uint16_t val;
+
+    EP_WR(dev, INDY_SERDES_CR_ADDR, addr);
+    if (!op_rd) {
+        EP_WR(dev, INDY_SERDES_CR_DATA, data);
+        EP_RD(dev, INDY_SERDES_CR_CONTROL, &val);
+        val |= INDY_F_SERDES_CR_CONTROL_1 | INDY_F_SERDES_CR_CONTROL_0;
+        EP_WR(dev, INDY_SERDES_CR_CONTROL, val);
+    } else {
+        EP_RD(dev, INDY_SERDES_CR_CONTROL, &val);
+        val &= ~INDY_F_SERDES_CR_CONTROL_1;
+        val |= INDY_F_SERDES_CR_CONTROL_0;
+        EP_WR(dev, INDY_SERDES_CR_CONTROL, val);
+        EP_RD(dev, INDY_SERDES_CR_DATA, &val);
+    }
+    return MEPA_RC_OK;
+}
+
+struct serd_set {
+    uint16_t addr;
+    uint16_t data;
+    uint8_t op_rd;
+};
+
+static mepa_rc indy_prbs7_init(mepa_device_t *dev)
+{
+    mepa_rc rc;
+    int i;
+
+        struct serd_set serdes_settings[] = {
+            {0x1018, 0x0aa8, 0},
+            {0x1018, 0x0550, 0},
+            {0x0011, 0x004c, 0}, // Disable rtune req (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ)
+            {0x0011, 0x084c, 0}, // Enable override (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ_OVRD)
+            {0x1001, 0x0040, 0}, // Set Tx Reset high (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
+            {0x1001, 0x00c0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET_OVRD)
+            {0x1006, 0x1000, 0}, // Set Rx reset high (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
+            {0x1006, 0x3000, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET_OVRD)
+            {0x0011, 0x084e, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN_OVRD)
+            {0x1000, 0x0200, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_CM_EN_OVRD)
+            {0x1000, 0x0280, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_EN_OVRD)
+            {0x1005, 0x0008, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN_OVRD)
+            {0x1005, 0x0028, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN_OVRD)
+            {0x1000, 0x02a0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_LO.TX_DATA_EN_OVRD)
+            {0x0015, 0x0000, 0}, // Set MPLL Half Rate to 0
+            {0x0015, 0x1000, 0},
+            {0x0012, 0x0000, 0}, // Do not use FSEL override pins for multiplier for ssp (SUP.DIG.MPLL_OVRD_IN_HI.FSEL)
+            {0x0012, 0x0200, 0}, // Enable FSEL override (SUP.DIG.MPLL_OVRD_IN_HI.FSEL_OVRD)
+            {0x0013, 0x0000, 0}, // Write Fraction multipler to: 0x000 (SUP_DIG_SSC_OVRD_IN.SSC_REF_CLK_SEL)
+            {0x0013, 0x0000, 0}, // Disable ssc override (SUP_DIG_SSC_OVRD_IN.SSC_EN)
+            {0x0013, 0x2000, 0}, // Enable override (SUP_DIG_SSC_OVRD_IN.SSC_OVRD_IN_EN)
+            {0x1001, 0x00c0, 0}, // Set TX lane rate (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE) to 00
+            {0x1001, 0x00c4, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE_OVRD)
+            {0x1006, 0x3000, 0}, // Set RX lane rate (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE) to 00
+            {0x1006, 0x3004, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE_OVRD)
+            {0x0012, 0x8200, 0}, // Set tx_vboost_lvl
+            {0x0015, 0x5000, 0}, // Set los_bias
+            {0x0015, 0x5009, 0}, // Set los_level
+            {0x0015, 0x5029, 0}, // Set acjt_level
+            {0x0015, 0x5429, 0}, // Set enable for tx_vboost_lvl/los_bias/los_level/acjt_level
+            {0x1002, 0x007f, 0}, // Set the TX amplitude (LANEX_DIG_TX_OVRD_DRV_LO.AMPLITUDE)
+            {0x1002, 0x0c7f, 0}, // Set the TX preemphasis (LANEX_DIG_TX_OVRD_DRV_LO.PREEMPH)
+            {0x1002, 0x4c7f, 0}, // Enable override (LANEX_DIG_TX_OVRD_DRV_LO.EN)
+            {0x1003, 0x0000, 0}, // Override tx_term_offset to 0 (LANE0_DIG_TX_OVRD_DRV_HI.TERM_OFFSET)
+            {0x1003, 0x0020, 0}, // Enable override (LANE0_DIG_TX_OVRD_DRV_HI.EN)
+            {0x0003, 0x0010, 0}, // Set Rtune to TX(SUP.DIG.RTUNE_DEBUG.TYPE)
+            {0x0003, 0x0012, 0}, // Force Rtune High(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
+            {0x0003, 0x0010, 0}, // Force Rtune Low(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
+            {0x1001, 0x01c4, 0}, // Set tx_vboost_en (LANEX.DIG.TX.OVRD_IN_HI.TX_VBOOST_EN
+            {0x1001, 0x03c4, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_VBOOST_EN_OVRD)
+            {0x1006, 0x3004, 0}, // Set Rx Eq to use a fixed setting (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN)
+            {0x1006, 0x3084, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN_OVRD)
+            {0x1006, 0x3284, 0}, // Set Rx Eq value(LANEX_DIG_RX_OVRD_IN_HI.RX_EQ)
+            {0x1006, 0x3a84, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_EQ_OVRD)
+            {0x1006, 0x3a9c, 0}, // Set Rx Los filter to XAUI mode (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER)
+            {0x1006, 0x3abc, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER_OVRD)
+            {0x1005, 0x0028, 0}, // Set Rx Bit shift to 0(LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT)
+            {0x1005, 0x0228, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT_OVRD)
+            {0x1005, 0x0228, 0}, // Set Rx invert bit to: 0 (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT)
+            {0x1005, 0x022a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT_OVRD)
+            {0x1005, 0x122a, 0}, // Enable rx los(LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN)
+            {0x1005, 0x322a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN_OVRD)
+            {0x1005, 0x326a, 0}, // Set Rx Align(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
+            {0x1005, 0x32ea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN_OVRD)
+            {0x1005, 0x36ea, 0}, // Set Term enable(LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN)
+            {0x1005, 0x3eea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN_OVRD)
+            {0x0012, 0x8600, 0}, // Reset MPll. Set bit to 1 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
+            {0x0012, 0x8200, 0}, // Reset MPll. Set bit to 0 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
+            {0x1015, 0x03e0, 0}, // Set pattern generator to send commas, not commas (LANEX_DIG_TX_LBERT_CTL.PAT0)
+            {0x1015, 0x03e6, 0}, // Set pattern generator to correct mode (LANEX_DIG_TX_LBERT_CTL.MODE)
+            {0x1001, 0x0384, 0}, // Set Tx Reset low (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
+            {0x1006, 0x2abc, 0}, // Set Rx reset low (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
+            {0x1005, 0x3eee, 0}, // Turn on RX PLL Enable (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN)
+            {0x1005, 0x3efe, 0}, // Enable Rx(LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN)
+            {0x101c, 0x0000, 1}, // Verify CDR has locked
+            {0x1005, 0x3ebe, 0}, // Turn off data alignment(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
+            {0x1015, 0x25c6, 0}, // Set patten generator to selected pattern(LANEX_DIG_TX_LBERT_CTL.PAT0)
+        };
+        int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+        for (i = 0; i < arr_len; i++) {
+            rc = indy_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+            if (rc < 0)
+                return rc;
+        }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_prbs7_clk(mepa_device_t *dev, mepa_prbs_clock_t clk)
+{
+    mepa_rc rc;
+    int i;
+    uint16_t val;
+
+    EP_RD(dev, INDY_SERDES_CLOCK_CONF, &val);
+    if(clk == MEPA_PRBS_CLK125_MHZ && val == 0x0016) {
+         struct serd_set serdes_settings[] = {
+            {0x0010, 0x0001, 0}, // Set ref_clock divider value to 1 (SUP_DIG_ATEOVRD.ref_clkdiv2)
+            {0x0011, 0x08a2, 0}, // Set multiplier value (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER)
+            {0x0011, 0x0aa2, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER_OVRD)
+            {0x0011, 0x0aa3, 0}, // Enable MPLL (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN)
+        };
+        int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+        for (i = 0; i < arr_len; i++) {
+            rc = indy_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+            if (rc < 0)
+                return rc;
+        }
+
+    }
+    else if (clk == MEPA_PRBS_CLK25_MHZ && val == 0x0006) {
+        struct serd_set serdes_settings[] = {
+            {0x0010, 0x0000, 0}, // Set ref_clock divider value to 0 (SUP_DIG_ATEOVRD.ref_clkdiv2)
+            {0x0011, 0x0992, 0}, // Set multiplier value (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER)
+            {0x0011, 0x0b92, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER_OVRD)
+            {0x0011, 0x0b93, 0}, // Enable MPLL (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN)
+      };
+        int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+        for (i = 0; i < arr_len; i++) {
+            rc = indy_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+            if (rc < 0)
+                return rc;
+        }
+    }
+    else if(clk == MEPA_PRBS_CLK125_MHZ && val == 0x0006)
+        return MEPA_RC_ERROR;
+    else
+        return MEPA_RC_ERROR;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_prbs7_loopback(mepa_device_t *dev, mepa_prbs_loopback_t loopback)
+{
+    mepa_rc rc;
+    int i;
+    if(loopback == MEPA_PRBS_INTERNAL_LOOPBACK) {
+        struct serd_set serdes_settings[] = {
+            {0x1000, 0x02a1, 0}, // Enable internal loopback (LANEX.DIG.TX.OVRD_IN_LO.LOOPBK_EN)
+            {0x1000, 0x02a3, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_LOOPBK_EN_OVRD)
+            {0x1000, 0x02a3, 0}, // Turn off Beacon Enable (LANEX.DIG.TX.OVRD_IN_LO.TX_BEACON_EN)
+            {0x1000, 0x0aa3, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_BEACON_EN_OVRD)
+            {0x1000, 0x0aa3, 0}, // Turn off tx_rx detect (LANEX.DIG.TX.OVRD_IN_LO.TX_DETECT_RX_REQ)
+            {0x1000, 0x2aa3, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_DETECT_RX_REQ_OVRD)
+            {0x1000, 0x2aa3, 0}, // Turn off tx invert (LANEX.DIG.TX.OVRD_IN_LO.TX_INVERT)
+            {0x1000, 0x2aab, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_INVERT_OVRD)
+            {0x1000, 0x2bab, 0}, // Set TX CM Enable (LANEX.DIG.TX.OVRD_IN_LO.TX_CM_EN)
+            {0x1000, 0x2beb, 0}, // Turn on TX Enable (LANEX.DIG.TX.OVRD_IN_LO.TX_EN)
+            {0x1000, 0x2bfb, 0}, // Set Tx Data Enable high(LANEX_DIG_TX_OVRD_IN_LO.TX_DATA_EN)
+        };
+        int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+        for (i = 0; i < arr_len; i++) {
+            rc = indy_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+            if (rc < 0)
+                return rc;
+        }
+    }
+    else
+        return MEPA_RC_ERROR;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_prbs7_enable(mepa_device_t *dev)
+{
+    mepa_rc rc;
+    int i;
+    struct serd_set serdes_settings[] = {
+        {0x1015, 0x0000, 0},
+        {0x1015, 0x25c4, 0}, // Set patten generator to selected mode(LANEX_DIG_TX_LBERT_CTL.MODE)
+        {0x1016, 0x0004, 0}, // Set patten matcher to selected mode(LANEX_DIG_RX_LBERT_CTL.MODE)
+        {0x1016, 0x0004, 0}, // Sync pattern matcher low(LANEX_DIG_RX_LBERT_CTL.SYNC)
+        {0x1016, 0x0014, 0}, // Sync pattern matcher high(LANEX_DIG_RX_LBERT_CTL.SYNC)
+        {0x1016, 0x0004, 0}, // Sync pattern matcher low(LANEX_DIG_RX_LBERT_CTL.SYNC)
+        {0x1016, 0x0014, 0}, // Sync the patten matchers high (LANEX.DIG.RX.LBERT_CTL.SYNC)
+        {0x1016, 0x0004, 0}, // Sync the pattern matchers low (LANEX.DIG.RX.LBERT_CTL.SYNC)
+    };
+    int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+    for (i = 0; i < arr_len; i++) {
+        rc = indy_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+        if (rc < 0)
+            return rc;
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_prbs7_set(mepa_device_t *dev, mepa_bool_t enable, mepa_prbs_clock_t clk, mepa_prbs_loopback_t loopback)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    if (enable) {
+        rc = indy_prbs7_init(dev);
+        if (rc < 0 )
+            return rc;
+        rc = indy_prbs7_loopback(dev,loopback);
+        if (rc < 0 )
+            return rc;
+        rc = indy_prbs7_clk(dev, clk);
+        if (rc < 0 )
+            return rc;
+        rc = indy_prbs7_enable(dev);
+        if (rc < 0 )
+            return rc;
+    }
+    else {
+        rc = indy_serdes_set(dev, 0x1015,0x0000,0);
+        if (rc < 0)
+            return rc;
+
+        //QSGMII Hard Reset
+        EP_WR(dev, INDY_QSGMII_HARD_RESET,0x1);
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    if (prbs_conf == NULL) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (type >= MEPA_PHY_PRBS_TYPE_CNT || direction >= MEPA_PHY_DIRECTION_CNT) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (direction == MEPA_PHY_DIRECTION_HOST && type == MEPA_PHY_PRBS_TYPE_SERDES) {
+        mepa_rc rc = MEPA_RC_OK;
+
+        if (prbs_conf->prbsn_sel == MEPA_PRBS7){
+
+            MEPA_ENTER(dev);
+            rc = indy_prbs7_set(dev, prbs_conf->enable, prbs_conf->clk, prbs_conf->loopback);
+            MEPA_EXIT(dev);
+
+            data->prbs_conf = *prbs_conf;
+            return rc < 0 ? rc : MEPA_RC_OK;
+        }
+    }
+    return MEPA_RC_ERROR;
+}
+
+static mepa_rc indy_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    MEPA_ENTER(dev);
+
+    *prbs_conf = data->prbs_conf;
+
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+
+}
+
+static mepa_rc indy_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    if (value->prbsn_sel == MEPA_PRBS7) {
+
+        MEPA_ENTER(dev);
+        //Introducing one error into sequence
+        rc = indy_serdes_set(dev, 0x1015, 0x0014, 0);
+        if (rc < 0)
+            return rc;
+	    MEPA_EXIT(dev);
+
+        return MEPA_RC_OK;
+    }
+    return MEPA_RC_ERROR;
+}
+
+static mepa_rc indy_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    uint16_t val;
+
+    if (value->prbsn_sel == MEPA_PRBS7) {
+
+        MEPA_ENTER(dev);
+        EP_WR(dev, INDY_SERDES_CR_ADDR, 0x1017); // Check for  errors
+        EP_RD(dev, INDY_SERDES_CR_CONTROL, &val);
+        val &= ~INDY_F_SERDES_CR_CONTROL_1;
+        val |= INDY_F_SERDES_CR_CONTROL_0;
+        EP_WR(dev, INDY_SERDES_CR_CONTROL, val);
+        EP_RD(dev, INDY_SERDES_CR_DATA, &val);
+        value->no_of_errors = val;
+        MEPA_EXIT(dev);
+
+        return MEPA_RC_OK;
+    }
+    return MEPA_RC_ERROR;
+}
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
     static const int nr_indy_drivers = 2;
@@ -1930,6 +2246,10 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_framepreempt_get = indy_framepreempt_get,
             .mepa_driver_selftest_start = indy_selftest_start,
             .mepa_driver_selftest_read = indy_selftest_read,
+            .mepa_driver_prbs_set = indy_prbs_set,
+            .mepa_driver_prbs_get = indy_prbs_get,
+            .mepa_driver_prbs_monitor_set = indy_prbs_monitor_set,
+            .mepa_driver_prbs_monitor_get = indy_prbs_monitor_get,
         },
         {
             .id = 0x221670,  // Single PHY based on LAN8814 instantiated in LAN966x
@@ -1967,6 +2287,10 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_framepreempt_get = indy_framepreempt_get,
             .mepa_driver_selftest_start = indy_selftest_start,
             .mepa_driver_selftest_read = indy_selftest_read,
+            .mepa_driver_prbs_set = indy_prbs_set,
+            .mepa_driver_prbs_get = indy_prbs_get,
+            .mepa_driver_prbs_monitor_set = indy_prbs_monitor_set,
+            .mepa_driver_prbs_monitor_get = indy_prbs_monitor_get,
         },
     };
 

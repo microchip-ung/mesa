@@ -572,6 +572,54 @@ typedef mepa_rc (*mepa_driver_selftest_start_t)(struct mepa_device *dev, const m
  **/
 typedef mepa_rc (*mepa_driver_selftest_read_t)(struct mepa_device *dev, mepa_selftest_info_t *const inf);
 
+/**
+ * \brief To Set PRBS
+ *
+ * \param dev    [IN]  Driver instance.
+ * \param conf   [IN] Pseudo Random Binary Sequence 7 information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_prbs_set_t)(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf);
+
+/**
+ * \brief To Get PRBS
+ *
+ * \param dev    [IN]  Driver instance.
+ * \param conf   [OUT] Pseudo Random Binary Sequence 7 information.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_prbs_get_t)(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf);
+
+/**
+ * \brief To inject an error
+ *
+ * \param dev        [IN] Driver instance.
+ * \param value      [IN] Pseudo Random Binary Sequence 7 error count.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_prbs_monitor_set_t)(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+
+/**
+ * \brief To Get  an error status
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param value      [OUT] Pseudo Random Binary Sequence 7 error count.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_prbs_monitor_get_t)(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
     mepa_driver_reset_t                mepa_driver_reset;
@@ -612,7 +660,10 @@ typedef struct mepa_driver {
     mepa_driver_framepreempt_get_t     mepa_driver_framepreempt_get;
     mepa_driver_selftest_start_t       mepa_driver_selftest_start;
     mepa_driver_selftest_read_t        mepa_driver_selftest_read;
-
+    mepa_driver_prbs_set_t             mepa_driver_prbs_set;
+    mepa_driver_prbs_get_t             mepa_driver_prbs_get;
+    mepa_driver_prbs_monitor_set_t     mepa_driver_prbs_monitor_set;
+    mepa_driver_prbs_monitor_get_t     mepa_driver_prbs_monitor_get;
     mepa_ts_driver_t                   *mepa_ts;
     mepa_macsec_driver_t               *mepa_macsec;
     uint32_t id;                  /**< Id of the driver */
