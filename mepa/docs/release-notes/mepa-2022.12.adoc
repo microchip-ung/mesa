@@ -1,0 +1,48 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2022.12
+
+== MEPA-2022.12
+
+|===
+|Version:          |MEPA-2022.12
+|Previous Version: |MEPA-2022.09
+|Date:             |2022-12-15
+|Description:      |Roadmap Release
+|===
+
+=== Disclaimers
+
+=== General
+
+This release contains following contents:
+
+* LAN8814 new features & bug fixes
+* VSC8258 new features
+
+=== API Enhancements
+
+
+=== New Features
+
+==== LAN8814
+
+* MEPA-182     Create API to Generate 12-bit CRC Value to match PTP TX Msg Header1
+* MEPA-181     Patch for ANEG restart after booting
+
+==== VSC8258
+* MEPA-185     [M10G] MEPA APIs for MACsec Feature
+* MEPA-186     [M10G] Application Changes to validate MEPA MACsec APIs
+
+
+=== Documentation updates
+
+* Documentation for new features added
+
+
+=== Bug Fixes
+
+==== LAN8814
+
+* MEPA-184      CRC errors reported when toggling speed between AN and forced speeds with 1Gbps bidirectional traffic
