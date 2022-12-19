@@ -30,6 +30,7 @@ This release contains following contents:
 
 * MEPA-182     Create API to Generate 12-bit CRC Value to match PTP TX Msg Header1
 * MEPA-181     Patch for ANEG restart after booting
+* MEPA-121     PRBS7 generation and checker
 
 ==== VSC8258
 * MEPA-185     [M10G] MEPA APIs for MACsec Feature
