@@ -51,7 +51,7 @@ static vtss_rc mmd_read_inc(vtss_state_t        *inst,
                             u8                   cnt)
 {
     return inst->callout[port_no]->mmd_read_inc(inst->callout_ctx[port_no], mmd, addr, buf,
-                                 cnt);
+                                                cnt);
 }
 
 static vtss_rc mmd_write(vtss_state_t        *inst,
@@ -267,15 +267,16 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 
     // Translate MDI mode
     phy_config.mdi = VTSS_PHY_MDIX_AUTO;
-    if (config->mdi_mode == MEPA_MEDIA_MODE_MDI)
+    if (config->mdi_mode == MEPA_MEDIA_MODE_MDI) {
         phy_config.mdi = VTSS_PHY_MDI;
-    else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX)
+    } else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX) {
         phy_config.mdi = VTSS_PHY_MDIX;
+    }
 
-    if (vtss_phy_conf_get(data->vtss_instance, data->port_no,&phy_config) == MESA_RC_OK) {
+    if (vtss_phy_conf_get(data->vtss_instance, data->port_no, &phy_config) == MESA_RC_OK) {
         if (config->admin.enable) {
             if (config->speed == MESA_SPEED_AUTO ||
-                    config->speed == MESA_SPEED_1G) {
+                config->speed == MESA_SPEED_1G) {
                 phy_config.mode = VTSS_PHY_MODE_ANEG;
 
                 phy_config.aneg.speed_2g5_fdx = config->aneg.speed_2g5_fdx;
@@ -337,10 +338,11 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     conf->aneg.no_restart_aneg = phy_conf.aneg.no_restart_aneg;
     // Translate MDI Mode
     conf->mdi_mode = MEPA_MEDIA_MODE_AUTO;
-    if (phy_conf.mdi == VTSS_PHY_MDI)
+    if (phy_conf.mdi == VTSS_PHY_MDI) {
         conf->mdi_mode = MEPA_MEDIA_MODE_MDI;
-    else if (phy_conf.mdi == VTSS_PHY_MDIX)
+    } else if (phy_conf.mdi == VTSS_PHY_MDIX) {
         conf->mdi_mode = MEPA_MEDIA_MODE_MDIX;
+    }
 
     if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
         conf->speed = MEPA_SPEED_AUTO;
@@ -348,7 +350,7 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
         // Get manual negotiation options
         if (vtss_phy_conf_1g_get(data->vtss_instance, data->port_no, &cfg_neg) == MESA_RC_OK) {
             conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
-                cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
+                            cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
         }
     } else if (phy_conf.mode == VTSS_PHY_MODE_FORCED) {
         conf->speed = phy_conf.forced.speed;
@@ -884,7 +886,7 @@ static mepa_rc phy_1g_i2c_read(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)(dev->data);
 
     return vtss_phy_i2c_read(data->vtss_instance, data->port_no, i2c_mux,
-                            i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+                             i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
 static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
@@ -898,14 +900,14 @@ static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
     phy_data_t *data = (phy_data_t *)(dev->data);
 
     return vtss_phy_i2c_write(data->vtss_instance, data->port_no, i2c_mux,
-                             i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+                              i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
 
 // Debug dump API for PHY
 mepa_rc phy_debug_info_dump(struct mepa_device *dev,
-                             const mepa_debug_print_t pr,
-                             const mepa_debug_info_t   *const info)
+                            const mepa_debug_print_t pr,
+                            const mepa_debug_info_t   *const info)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
     vtss_port_no_t    port_no = data->port_no;
@@ -933,6 +935,55 @@ mepa_rc phy_debug_info_dump(struct mepa_device *dev,
 
     return vtss_phy_debug_info_print(data->vtss_instance, pr, &phy_info);
 }
+
+/*
+Address is in this format
+[15:0] -> Register address
+[20:16] -> Device ID (MMD device id)
+[22:21] -> Port ID
+[23] -> Read/Write
+*/
+static mepa_rc phy_10g_clause45_read(struct mepa_device *dev,
+                                     uint32_t address, uint16_t *const value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t page_add = (address >> 16) & 0xffff;
+    uint16_t mmd = (page_add & 0x1f);
+    uint16_t addr = address & 0xffff;
+    uint32_t data_val;
+
+    if (mmd) {
+        rc = vtss_phy_10g_csr_read(data->vtss_instance, data->port_no, mmd, addr, &data_val);
+        *value = (uint16_t)data_val;
+    }
+
+    return rc;
+
+}
+/*
+Address is in this format
+[15:0] -> Register address
+[20:16] -> Device ID (MMD device id)
+[22:21] -> Port ID
+[23] -> Read/Write
+*/
+static mepa_rc phy_10g_clause45_write(struct mepa_device *dev,
+                                      uint32_t address, uint16_t value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t page_add = (address >> 16) & 0xffff;
+    uint16_t mmd = (page_add & 0x1f);
+    uint16_t addr = address & 0xffff;
+
+    if (mmd) {
+        rc = vtss_phy_10g_csr_write(data->vtss_instance, data->port_no, mmd, addr, value);
+    }
+    return rc;
+
+}
+
 
 mepa_drivers_t mepa_mscc_driver_init()
 {
@@ -1131,6 +1182,8 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_probe = phy_10g_probe,
             .mepa_driver_aneg_status_get = NULL,
             .mepa_driver_phy_info_get = phy_10g_info_get,
+            .mepa_driver_clause45_read = phy_10g_clause45_read,
+            .mepa_driver_clause45_write = phy_10g_clause45_write,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         }
