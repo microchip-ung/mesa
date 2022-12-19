@@ -98,6 +98,52 @@ static const mesa_gpio_func_info_t pcb135_gpio_func_info[PCB135_GPIO_FUNC_INFO_S
      .alt = MESA_GPIO_FUNC_ALT_0},
 };
 
+typedef struct
+{
+    vtss_gpio_10g_no_t gpio_tx_dis;   /* Tx Disable GPIO number */
+    vtss_gpio_10g_no_t gpio_aggr_int; /* Aggregated Interrupt-0 GPIO number */
+    vtss_gpio_10g_no_t gpio_i2c_clk;  /* GPIO Pin selection as I2C_CLK for I2C communication with SFP  */
+    vtss_gpio_10g_no_t gpio_i2c_dat;  /* GPIO Pin selection as I2C_DATA for I2C communication with SFP */
+    vtss_gpio_10g_no_t gpio_virtual;  /* Per port Virtual GPIO number,for internal GPIO usage          */
+    vtss_gpio_10g_no_t gpio_sfp_mod_det;  /* GPIO Pin selection as SFP module detect              */
+    uint32_t           aggr_intrpt;   /* Channel interrupt bitmask */
+}fa_malibu_gpio_port_map_t;
+
+static const fa_malibu_gpio_port_map_t malibu_gpio_map[] = {
+    /* P49: CH3 */
+    {
+        28, 34, 26, 27, 0, 25,
+        ((1<<VTSS_10G_GPIO_AGGR_INTRPT_CH3_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR3_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR3_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_GPIO_INTR_EN)),
+    },
+    /* P50: CH2 */
+    {
+        20, 34, 18, 19, 0, 17,
+        ((1<<VTSS_10G_GPIO_AGGR_INTRPT_CH2_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR2_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR2_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_GPIO_INTR_EN)),
+    },
+    /* P51: CH1 */
+    {
+        12, 34, 10, 11, 0, 9,
+        ((1<<VTSS_10G_GPIO_AGGR_INTRPT_CH1_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR1_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR1_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_GPIO_INTR_EN)),
+    },
+    /* P52: CH0 */
+    {
+        4, 34, 2, 3, 0, 1,
+        ((1<<VTSS_10G_GPIO_AGGR_INTRPT_CH0_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR0_EN) |
+         (1<<VTSS_10G_GPIO_AGGR_INTRPT_GPIO_INTR_EN)),
+    },
+};
+
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
 #define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
 #define PORT_2_SGPIO_BIT(board, p) (board->port[p].sgpio_bit)
@@ -110,6 +156,22 @@ static const meba_aux_rawio_t rawio = {
         .cmd    = 0xAC+2,
         .data   = 0xAC+3,
         .cfg    = 0xAC+4,
+    },
+    .gpio = {
+        .alt_0  = 0x10,
+        .alt1_0 = 0x12,
+    }
+};
+
+/* malibu connected to fireant pcb 135 */
+static const meba_aux_rawio_t rawio_mdio3 = {
+    .base = 0x4000000,
+    .gcb = 0x1,
+    .miim = {
+        .status = 0xC7+0,
+        .cmd    = 0xC7+2,
+        .data   = 0xC7+3,
+        .cfg    = 0xC7+4,
     },
     .gpio = {
         .alt_0  = 0x10,
@@ -1455,7 +1517,6 @@ static mesa_rc fa_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
     return rc;
 }
 
-
 static mesa_rc fa_gpio_func_info_get(meba_inst_t inst,
                                      mesa_gpio_func_t gpio_func,  mesa_gpio_func_info_t *info)
 {
@@ -1484,6 +1545,122 @@ static mesa_rc fa_gpio_func_info_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_bool_t fa_10g_malibu_detect(const meba_inst_t inst)
+{
+    uint16_t model = 0;
+    meba_board_state_t *board = INST2BOARD(inst);
+    if (mebaux_mmd_rd(inst, (board->type == BOARD_TYPE_SPARX5_PCB134)?&rawio:&rawio_mdio3, 0, 0x4, 30, 0, &model) == MESA_RC_OK) {
+        if (model == 0x8254 || model == 0x8256 || model == 0x8257 || model == 0x8258) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static mesa_rc malibu_mode_conf(const meba_inst_t inst)
+{
+    T_I(inst , "MALIBU CONFIGURING\n");
+    mesa_rc rc = MESA_RC_OK;
+    int port_start , port_end;
+    meba_board_state_t *board = INST2BOARD(inst);
+    uint32_t loop = 0;
+    while (!(board->malibu_present = fa_10g_malibu_detect(inst)) && loop < 50) {
+        // After power up malibu is slow to respond
+        loop++;
+    }
+    if (!board->malibu_present) {
+        return MESA_RC_OK;
+    }
+    port_start = (board->type == BOARD_TYPE_SPARX5_PCB134)?16:52;
+    port_end = port_start + 4;
+    /* Malibu phy addr 4,5,6,7 */
+    int port_malibu_start = 4;
+    for (mesa_port_no_t iport = port_start; iport < port_end ; iport++) {
+        board->port[iport].map.mac_if              = MESA_PORT_INTERFACE_SFI;
+        board->port[iport].map.map.miim_controller = (board->type == BOARD_TYPE_SPARX5_PCB134)?MESA_MIIM_CONTROLLER_0:MESA_MIIM_CONTROLLER_3;
+        board->port[iport].map.map.miim_addr       =  port_malibu_start++;
+        board->port[iport].map.cap = (MEBA_PORT_CAP_VTSS_10G_PHY | MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_SFP_DETECT );
+    }
+    return rc;
+}
+
+/* Chip port for malibu is same in pcb 134 and pcb 135 */
+#define MALIBU_PORT_START 60
+#define MALIBU_PORT_END 63
+static mesa_rc malibu_gpio_conf(const meba_inst_t inst)
+{
+    mesa_rc rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t port_no;
+    if (board->malibu_present == false)
+        return MESA_RC_OK;    // Return all well if no Malibu
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        uint32_t chip_port  = board->port[port_no].map.map.chip_port;
+        if (chip_port >= MALIBU_PORT_START && chip_port <= MALIBU_PORT_END) {
+            const fa_malibu_gpio_port_map_t *gmap = &malibu_gpio_map[chip_port - MALIBU_PORT_START];
+            vtss_gpio_10g_gpio_mode_t gpio_conf;
+            if ((rc = vtss_phy_10g_gpio_mode_get(PHY_INST, port_no, gmap->gpio_tx_dis, &gpio_conf)) == MESA_RC_OK) {
+                gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
+                rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gmap->gpio_tx_dis, &gpio_conf);
+            }
+            if (rc != MESA_RC_OK) {
+                return rc;
+            }
+            /* configure interrupt */
+            if ((rc = vtss_phy_10g_gpio_mode_get(PHY_INST, port_no, gmap->gpio_aggr_int, &gpio_conf)) == MESA_RC_OK) {
+                gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
+                gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
+                gpio_conf.aggr_intrpt = gmap->aggr_intrpt;
+                rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gmap->gpio_aggr_int, &gpio_conf);
+            }
+            if (rc != MESA_RC_OK) {
+                return rc;
+            }
+	    /* Configure I2c Slave pins clk,data(for SFP access on line)  */
+	    if ((rc = vtss_phy_10g_gpio_mode_get(PHY_INST, port_no, gmap->gpio_i2c_clk, &gpio_conf)) == MESA_RC_OK) {
+	        gpio_conf.mode = VTSS_10G_PHY_GPIO_OUT;
+	        gpio_conf.p_gpio = gmap->gpio_virtual;
+	        gpio_conf.in_sig = VTSS_10G_GPIO_INTR_SGNL_I2C_MSTR_CLK_OUT;
+	        rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gmap->gpio_i2c_clk, &gpio_conf);
+	    }
+	    if (rc != MESA_RC_OK) {
+	        return rc;
+	    }
+            if ((rc = vtss_phy_10g_gpio_mode_get(PHY_INST, port_no, gmap->gpio_sfp_mod_det, &gpio_conf)) == MESA_RC_OK) {
+                gpio_conf.mode = VTSS_10G_PHY_GPIO_IN;
+                gpio_conf.input = VTSS_10G_GPIO_INPUT_SFP_MOD_DET;
+                gpio_conf.p_gpio_intrpt = 1;
+                rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gmap->gpio_sfp_mod_det, &gpio_conf);
+            }
+            if (rc != MESA_RC_OK) {
+                return rc;
+            }
+        }
+    }
+    return rc;
+}
+
+/* reseting the malibu */
+static void malibu_init(meba_inst_t inst)
+{
+    int port_start , port_end;
+    meba_board_state_t *board = INST2BOARD(inst);
+    port_start = (board->type == BOARD_TYPE_SPARX5_PCB134)?16:52;
+    port_end = port_start + 4;
+    /* Malibu is connected with fireant via mdio3 in pcb 135 and mdio0 in pcb 134
+     * and the malibu phy addresses are 4,5,6,7
+     * Port mappings are given below
+     * pcp 134
+     * 16,17,18,19  mapped to malibu host side
+     * pcb 135
+     * 52,53,54,55 mapped to malibu host side */
+    for (mesa_port_no_t iport = port_start; iport < port_end; iport++) {
+        if (meba_phy_reset(inst, iport, NULL) != MESA_RC_OK) {
+            T_E(inst, "meba_phy_reset failed, port_no %u", iport);
+        }
+    }
+}
+
 static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
 {
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1494,6 +1671,7 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
     switch (reset) {
         case MEBA_BOARD_INITIALIZE:
             board->func->board_init(inst);
+            malibu_mode_conf(inst);
             break;
         case MEBA_PORT_RESET:
             if (board->type == BOARD_TYPE_SPARX5_PCB135 && !board->gpy241_present) {
@@ -1505,6 +1683,10 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         }
                     }
                 }
+            }
+            if (board->malibu_present) {
+                /* Initlize the 10G Malibu Phy */
+                malibu_init(inst);
             }
             break;
         case MEBA_PORT_RESET_POST:
@@ -1518,6 +1700,10 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         mesa_mmd_write(NULL, 0, board->port[port_no].map.map.miim_controller, board->port[port_no].map.map.miim_addr, 0x1, 0xe400, 6);
                     }
                 }
+            }
+            if (board->malibu_present) {
+                /* Initlize the 10G Malibu Phy */
+                malibu_gpio_conf(inst);
             }
             break;
         case MEBA_STATUS_LED_INITIALIZE:
