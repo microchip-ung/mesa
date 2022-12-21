@@ -2309,6 +2309,8 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
         if (!info->port_list[port_no] ||
             VTSS_FUNC(port.counters_get, port_no, &counters) != VTSS_RC_OK)
             continue;
+        if (info->clear && VTSS_FUNC(port.counters_clear, port_no) != VTSS_RC_OK)
+            continue;
         VTSS_SPRINTF(buf, "Port %u Counters", port_no);
         vtss_debug_print_header(pr, buf);
 
