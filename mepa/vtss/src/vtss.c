@@ -984,6 +984,29 @@ static mepa_rc phy_10g_clause45_write(struct mepa_device *dev,
 
 }
 
+static mepa_rc malibu_10g_event_enable_set(struct mepa_device *dev,
+                                           mepa_event_t event, mesa_bool_t enable)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    // No need to use VTSS_ENTER since vtss_phy_10g_event_enable_set() it self has the
+    // lock
+    rc = vtss_phy_10g_event_enable_set(data->vtss_instance, data->port_no, event, enable);
+    return rc;
+}
+
+static mepa_rc malibu_10g_event_enable_get(struct mepa_device *dev,
+                                           mepa_event_t *const event)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    T_D(data, MEPA_TRACE_GRP_GEN, "Inside malibu_10g_event_enable_get");
+    // No need to use VTSS_ENTER since vtss_phy_10g_event_enable_get() it self has the
+    // lock
+    rc = vtss_phy_10g_event_enable_get(data->vtss_instance, data->port_no, event);
+    return rc;
+}
+
 
 mepa_drivers_t mepa_mscc_driver_init()
 {
@@ -1184,6 +1207,8 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_phy_info_get = phy_10g_info_get,
             .mepa_driver_clause45_read = phy_10g_clause45_read,
             .mepa_driver_clause45_write = phy_10g_clause45_write,
+            .mepa_driver_event_enable_set = malibu_10g_event_enable_set,
+            .mepa_driver_event_enable_get = malibu_10g_event_enable_get,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         }
