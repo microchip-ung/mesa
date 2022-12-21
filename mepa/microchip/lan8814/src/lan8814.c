@@ -281,10 +281,10 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
     mepa_port_interface_t mac_if;
 
     (void)indy_info_get(dev, &phy_info);
-    (void)indy_if_get(dev, 1000,  &mac_if);
+    (void)indy_if_get(dev, MEPA_SPEED_1G,  &mac_if);
 
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
-        pr("Port:%d   Family:Indy   Type:%d   Rev:%d   MacIf:%s\n",dev->numeric_handle,
+        pr("Port:%d   Family:Indy   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
            phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
     }
 
@@ -777,6 +777,7 @@ static mepa_rc indy_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t mo
     switch (mode) {
       case MEPA_MEDIA_MODE_MDI:
         val |= INDY_F_MDI_SET;
+        // Fall through
       case MEPA_MEDIA_MODE_MDIX:
         val |= INDY_F_SWAPOFF;
       break;
@@ -1749,6 +1750,7 @@ static mepa_rc indy_selftest_start(struct mepa_device *dev, const mepa_selftest_
         switch (inf->mdi) {
           case MEPA_MEDIA_MODE_MDI:
             val |= INDY_F_MDI_SET;
+            // Fall through
           default:
             val |= INDY_F_SWAPOFF;
           break;
