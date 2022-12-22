@@ -249,7 +249,10 @@ vtss_rc vtss_mep_policer_conf_set(const vtss_inst_t             inst,
  **/
 typedef enum {
     VTSS_SHAPER_MODE_LINE, /**< Use line-rate for the shaper */
-    VTSS_SHAPER_MODE_DATA  /**< Use data-rate for the shaper */
+    VTSS_SHAPER_MODE_DATA, /**< Use data-rate for the shaper */
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPER_FRAME)
+    VTSS_SHAPER_MODE_FRAME  /**< Use frame-rate for the shaper */
+#endif
 } vtss_shaper_mode_t;
 #endif
 
@@ -257,11 +260,11 @@ typedef enum {
  * \brief Shaper
  **/
 typedef struct {
-    vtss_burst_level_t level;          /**< CBS (Committed Burst Size).                 Unit: bytes */
-    vtss_bitrate_t     rate;           /**< CIR (Committed Information Rate).           Unit: kbps. Use VTSS_BITRATE_DISABLED to disable shaper */
+    vtss_burst_level_t level;          /**< CBS (Committed Burst Size).       Unit: bytes. frames if frame-rate */
+    vtss_bitrate_t     rate;           /**< CIR (Committed Information Rate). Unit: kbps. frame/s if frame-rate. Use VTSS_BITRATE_DISABLED to disable shaper */
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
-    vtss_burst_level_t ebs;            /**< EBS (Excess Burst Size).                    Unit: bytes */
-    vtss_bitrate_t     eir;            /**< EIR (Excess Information Rate).              Unit: kbps. Use VTSS_BITRATE_DISABLED to disable DLB */
+    vtss_burst_level_t ebs;            /**< EBS (Excess Burst Size).          Unit: bytes */
+    vtss_bitrate_t     eir;            /**< EIR (Excess Information Rate).    Unit: kbps. Use VTSS_BITRATE_DISABLED to disable DLB */
 #endif /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
     vtss_shaper_mode_t mode;           /**< RT (Rate type). Shaper rate type configuration: 0 = Line-rate, 1 = Data-rate */

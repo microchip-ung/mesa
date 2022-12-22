@@ -1190,7 +1190,7 @@ static vtss_rc fa_qos_leak_list_link(vtss_state_t         *vtss_state,
     int                   group;
     BOOL                  change_group = FALSE;
 
-    VTSS_D("Enter - layer %u, se %u", layer, se);
+    VTSS_D("Enter - layer %u, se %u, rate %u", layer, se, rate);
 
     if (layer >= VTSS_HSCH_LAYERS) {
         VTSS_E("Invalid layer %u!", layer);
@@ -1261,10 +1261,15 @@ static vtss_rc fa_qos_leak_list_link(vtss_state_t         *vtss_state,
 
 vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *shaper, u32 layer, u32 se, u32 dlb_sense_port, u32 dlb_sense_qos)
 {
-    u32            cir, cbs;
-    vtss_bitrate_t resolution;
+    u32                   cir, cbs;
+    vtss_bitrate_t        resolution, frame_kbps;
+    vtss_shaper_mode_t    mode;
+    vtss_qos_leak_layer_t *ll = &vtss_state->qos.leak_conf.layer[layer];
+    vtss_qos_leak_entry_t *le = &ll->entry[se];
+    vtss_qos_leak_group_t *lg;
 
-    VTSS_D("Enter - layer %u, se %u, dlb_sense_port %u, dlb_sense_qos %u!", layer, se, dlb_sense_port, dlb_sense_qos);
+    VTSS_D("Enter - layer %u, se %u, rate %u, mode %u, dlb_sense_port %u, dlb_sense_qos %u!",
+            layer, se, shaper->rate, shaper->mode, dlb_sense_port, dlb_sense_qos);
 
     /* Shaper rate configuration.
      * Resolution is determined by the actual leak list. Example if resolution is 100 kbps:
@@ -1289,17 +1294,67 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *sha
             VTSS_M_HSCH_HSCH_CFG_CFG_HSCH_LAYER);
 
     if (shaper->rate != VTSS_BITRATE_DISABLED) {
-        VTSS_RC(fa_qos_leak_list_link(vtss_state, layer, se, shaper->rate, &resolution));
+        if (shaper->mode != VTSS_SHAPER_MODE_FRAME) {
+            VTSS_RC(fa_qos_leak_list_link(vtss_state, layer, se, shaper->rate, &resolution));
 
-        cir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(shaper->rate,  resolution));
-        cbs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->level, 4096));
+            cir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(shaper->rate,  resolution));
+            cbs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP(shaper->level, 4096));
+            mode = shaper->mode;
+        } else {
+            /* This is Frame based shaping */
 
+            /* Try with Low rate mode */
+            /* Insert scheduler element in leak list based on frame_kbps */
+            /* Call to fa_qos_leak_list_link() changes the le->group */
+            frame_kbps = ((uint64_t)shaper->rate * 100000) / 1000;  /* Each frame uses 100000 tokens */
+            VTSS_RC(fa_qos_leak_list_link(vtss_state, layer, se, frame_kbps, &resolution));
+            lg = &ll->group[le->group];
+
+            /* Uses 100000 tokens for every frame transmitted */
+            /* At every leak timeout one token is taken - that is 0.00001 frame - it requires 100000 leak_time to send a frame */
+            /* Calculate the frames per sec if cir is one */
+            /* frame_time_ns = lg->leak_time * 100000; */
+            /* frame_time_s = (lg->leak_time * 100000)/1000000000; */
+            /* frame_per_sec = 10000/(lg->leak_time * 100000); */
+            /* frame_per_sec = 10000/lg->leak_time; */
+            /* Calculate the value for CIR */
+            /* cir = shaper->rate / frame_per_sec; */
+            cir = ((uint64_t)shaper->rate * lg->leak_time) / 10000;
+            cbs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP((shaper->level * 10), 3));
+            mode = 3;
+
+            if (VTSS_BITMASK(17) < cir) {   /* Check if CIR fits into the register */
+                /* Try with High rate mode. */
+                /* Insert scheduler element in leak list based on frame_kbps */
+                /* Call to fa_qos_leak_list_link() changes the le->group */
+                frame_kbps = ((uint64_t)shaper->rate * 1000) / 1000; /* Each frame uses 1000 tokens */
+                VTSS_RC(fa_qos_leak_list_unlink(vtss_state, layer, se));
+                VTSS_RC(fa_qos_leak_list_link(vtss_state, layer, se, frame_kbps, &resolution));
+                lg = &ll->group[le->group];
+
+                /* Uses 1000 tokens for every frame transmitted */
+                /* At every leak timeout one token is taken - that is 0.001 frame - it requires 1000 leak_time to send a frame */
+                /* Calculate the frames per sec if cir is one */
+                /* frame_time_ns = lg->leak_time * 1000; */
+                /* frame_time_s = (lg->leak_time * 1000)/1000000000; */
+                /* frame_per_sec = 1000000000/(lg->leak_time * 1000); */
+                /* frame_per_sec = 1000000/lg->leak_time; */
+                /* Calculate the value for CIR */
+                /* cir = shaper->rate / frame_per_sec; */
+                cir = ((uint64_t)shaper->rate * lg->leak_time) / 1000000;
+                cbs = MIN(VTSS_BITMASK(6),  VTSS_DIV_ROUND_UP((shaper->level * 10), 328));
+                mode = 2;
+            }
+
+            VTSS_D("cir %u  cbs %u  mode %u  leak_time %u", cir, cbs, mode, lg->leak_time);
+            cir = MIN(VTSS_BITMASK(17), cir);
+        }
         REG_WR(VTSS_HSCH_CIR_CFG(se),
                VTSS_F_HSCH_CIR_CFG_CIR_RATE(cir) |
                VTSS_F_HSCH_CIR_CFG_CIR_BURST(cbs));
 
         REG_WRM(VTSS_HSCH_SE_CFG(se),
-                VTSS_F_HSCH_SE_CFG_SE_FRM_MODE(shaper->mode),
+                VTSS_F_HSCH_SE_CFG_SE_FRM_MODE(mode),
                 VTSS_M_HSCH_SE_CFG_SE_FRM_MODE);
     } else {
         REG_WR(VTSS_HSCH_CIR_CFG(se),      0); /* Disable CIR */
@@ -1323,7 +1378,7 @@ static vtss_rc fa_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vtss
     u32                  layer = 0; /* Default layer on all variants */
     int                  queue;
 
-    VTSS_D("Enter - port_no: %u", port_no);
+    VTSS_D("Enter - port_no: %u  chip_port %u", port_no, chip_port);
     for (queue = 0; queue < 8; queue++) {
         u32 se = FA_HSCH_L0_SE(chip_port, queue);
         VTSS_RC(vtss_fa_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue], layer, se, chip_port, queue));

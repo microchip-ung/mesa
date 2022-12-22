@@ -250,7 +250,8 @@ typedef struct {
 // Shaper Accounting Mode
 typedef enum {
     MESA_SHAPER_MODE_LINE, // Use line-rate for the shaper
-    MESA_SHAPER_MODE_DATA  // Use data-rate for the shaper
+    MESA_SHAPER_MODE_DATA, // Use data-rate for the shaper
+    MESA_SHAPER_MODE_FRAME CAP(QOS_EGRESS_SHAPER_FRAME) // Use frame-rate for the shaper
 } mesa_shaper_mode_t CAP(QOS_EGRESS_SHAPERS_RT);
 
 // Shaper

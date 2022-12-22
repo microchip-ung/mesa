@@ -871,6 +871,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_QOS_EGRESS_SHAPER_FRAME:
+#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPER_FRAME)
+        c = 1;
+#endif
+        break;
+
     case MESA_CAP_QOS_EGRESS_SHAPERS_DLB:
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
         c = 1;

@@ -156,6 +156,7 @@ typedef enum {
     MESA_CAP_QOS_WRED,                      /**< WRED */
     MESA_CAP_QOS_DLB_CM,                    /**< DLB policer Color Mode */
     MESA_CAP_QOS_EGRESS_SHAPERS_RT,         /**< Egress shaper rate type support */
+    MESA_CAP_QOS_EGRESS_SHAPER_FRAME,       /**< Egress shaper frame rate type support */
     MESA_CAP_QOS_EGRESS_SHAPERS_DLB,        /**< Egress shaper DLB support */
     MESA_CAP_QOS_PORT_POLICER_EXT_DPBL,     /**< Drop Precedence Bypass Level */
     MESA_CAP_QOS_PORT_POLICER_EXT_TTM,      /**< Traffic type mask */

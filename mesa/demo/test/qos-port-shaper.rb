@@ -7,6 +7,8 @@ require_relative 'libeasy/et'
 
 $ts = get_test_setup("mesa_pc_b2b_2x")
 
+$frame_support = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_EGRESS_SHAPER_FRAME")
+
 # Use random ingress/egress port
 idx_list = port_idx_shuffle($ts)
 ig = idx_list[0]
@@ -33,6 +35,41 @@ dut_port_state_up([port])
 test "Port shaper disabled from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
    #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
     measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [2],         false)
+end
+
+if ($frame_support == 1)
+    # Check frame based shaping using three different rates.
+    test "Port shaper frame rate 100 from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
+        conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
+        conf["shaper"]["level"] = 5
+        conf["shaper"]["rate"] = 100
+        conf["shaper"]["mode"] = "MESA_SHAPER_MODE_FRAME"
+        conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
+
+       #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+        measure([ig], eg, 600,  1,     true,             false,           [100],           [3],         true)
+    end
+
+    test "Port shaper frame rate 1000 from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
+        conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
+        conf["shaper"]["level"] = 10
+        conf["shaper"]["rate"] = 1000
+        conf["shaper"]["mode"] = "MESA_SHAPER_MODE_FRAME"
+        conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
+
+       #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+        measure([ig], eg, 600,  1,     true,             false,           [1000],           [3],         true)
+    end
+    test "Port shaper frame rate 300000 from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
+        conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
+        conf["shaper"]["level"] = 50
+        conf["shaper"]["rate"] = 300000
+        conf["shaper"]["mode"] = "MESA_SHAPER_MODE_FRAME"
+        conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
+
+       #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+        measure([ig], eg, 300,  1,     true,             false,           [300000],         [3],         true)
+    end
 end
 
 # Check line rate using five different rates. The rates are selected to be multiple of 400 as Serval chip on support this without calling a calibrate function 50 times a sec.
