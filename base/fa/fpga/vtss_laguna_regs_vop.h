@@ -1340,13 +1340,13 @@
 
 
 /**
- * \brief Configures the 7 different LOC scan periods
+ * \brief Configures the different LOC scan periods
  *
  * \details
  * Independent timers are implemented to be used with the Loss Of
  * Continuity (LOC) Scan.
  *
- * This register implements the timeout period for every one of the 7 LOC
+ * This register implements the timeout period for every one of the LOC
  * timers.
  * The timeout period is specified in the number of LOC base ticks between
  * every LOC timer expiry.
@@ -1357,7 +1357,7 @@
  *
  * A LOC miss count scan is initiated at half the configured LOC PERIOD.
  *
- * A VOE can be configured for LOC checking based on one of the 7 timeout
+ * A VOE can be configured for LOC checking based on one of the timeout
  * counters.
  *
  * The LOC Controller is used both by Ethernet VOEs and MPLS-TP VOEs for
@@ -1376,6 +1376,16 @@
  * --------------------------
  * A LOC event is generated at the VOE when the BFD_MISS_CNT is equal to
  * the valid Detect Multiplier in the VOE.
+ *
+ * MRP VOE:
+ * --------------------------
+ * A LOC event is generated at the VOE when the TST_MISS_CNT or
+ * ITST_MISS_CNT equal the configured maximum miss counts in the VOE.
+ *
+ * DLR VOE:
+ * --------------------------
+ * A LOC event is generated at the VOE when the BNC_MISS_CNT or
+ * ADV_MISS_CNT equal the configured maximum miss counts in the VOE.
  *
  * Register: \a VOP:COMMON:LOC_PERIOD_CFG
  *
@@ -1444,8 +1454,8 @@
  * The HMO timers are used only Ethernet VOEs. The HMO timers have no
  * effect on MPLS-TP VOEs.
  *
- * Ethernet VOE:
- * -----------------------
+ * Ethernet and L3 VOE:
+ * -----------------------------------
  * The HMO events are assigned to a specific HMO scan timer:
  *  * VOP::HMO_TIMER_CFG.*
  *
@@ -1463,9 +1473,8 @@
  *  * VOP:VOE_STAT:AUTO_HIT_ME_ONCE
  *
  *
- *
- * MPLS-TP VOE:
- * --------------------------
+ * MPLS-TP, MRP, DLR VOE:
+ * -----------------------------------
  * The HMO counters have no effect.
  *
  * Register: \a VOP:COMMON:HMO_PERIOD_CFG
@@ -1943,6 +1952,18 @@
  * -----------------
  *  * VOP_MPLS:VOE_STAT_MPLS:INTR_ENA_MPLS
  *
+ * L3:
+ * -----------------
+ *  * VOP_L3:VOE_STAT_L3:INTR_ENA_L3
+ *
+ * MRP:
+ * -----------------
+ *  * VOP_MRP:VOE_STAT_MRP:MRP_INTR_ENA
+ *
+ * MRP:
+ * -----------------
+ *  * VOP_DLR:VOE_STAT_DLR:DLR_INTR_ENA
+ *
  * The following register indicates with a single bit if there is an
  * asserted interrupt in each of the registers in VOE_INTR
  *
@@ -1956,13 +1977,8 @@
 
 /**
  * \brief
- * Status of interrupts per VOEEthernet:----------------------Interrupt is
- * cleared by clearing the sticky causing interrupt in
- * VOP:VOE_STAT:INTR_STICKY:* or by disabling the interrupt source in
- * VOP:VOE_STAT:INTR_ENA.*MPLS-TP:-------------------------Interrupt is
- * cleared by clearing the sticky causing interrupt in
- * VOP_MPLS:VOE_STAT_MPLS:INTR_STICKY_MPLS.* or by disabling the interrupt
- * source in VOP_MPLS:VOE_STAT_MPLS:INTR_ENA_MPLS.*
+ * Status of interrupts per VOE.An interrupt is cleared by clearing the
+ * sticky causing the interrupt.
  *
  * \details
  * Each bit in the field indicates the interrupt from a single VOE.

@@ -472,6 +472,8 @@
  * \brief
  * Enable search for entries where MAC_ENTRY_CHANGE2SW = 1 during FIND
  * SMALLEST or SCAN commands. Software should use this filter to do MAC
+ * table synchronization searching for entries in the MAC table that have
+ * changed since last scan.
  *
  * \details
  * 0: SCAN and FIND_SMALLEST commands don't care about MAC_ENTRY_CHANGE2SW

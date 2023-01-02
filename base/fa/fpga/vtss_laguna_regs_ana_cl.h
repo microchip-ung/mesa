@@ -1980,14 +1980,14 @@
 
 /**
  * \brief
- * Enable HSR tag awareness.If HSR tag aware, the frame's HSR-tag is parsed
- * and HSR-tag information is available for stream recovery. Any VLAN tags
- * before or after the HSR-tag are parsed (maximum two VLAN tags are
- * supported together with an HSR-tag). The PDU below the tags is parsed.If
- * HSR-tag unaware, the frame's HSR-tag is not analyzed and the frame is
- * considered a frame with ETYPE=0xF1C1. Any VLAN tags before the HSR-tag
+ * Enable HSR tag awareness.If HSR tag aware, the frame's HSR tag is
+ * parsed. No information from the HSR tag is extracted. Any VLAN tags
+ * before or after the HSR tag are parsed (maximum two VLAN tags are
+ * supported together with an HSR tag). The PDU below the tags is parsed.If
+ * HSR-tag unaware, the frame's HSR tag is not analyzed and the frame is
+ * considered a frame with ETYPE=0x892F. Any VLAN tags before the HSR tag
  * are still analyzed.ANA_CL:COMMON:ETAG_CFG.ETAG_TPID_ENA and
- * ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA must be set to 0 when HSR-tag
+ * ANA_CL:COMMON:RTAG_CFG.RTAG_TPID_ENA must be set to 0 when HSR tag
  * awareness is enabled.
  *
  * \details

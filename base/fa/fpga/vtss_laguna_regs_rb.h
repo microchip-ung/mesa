@@ -171,9 +171,10 @@
 
 /**
  * \brief
- * Enables passage of preamble through queue. This is needed for frames
- * going towards the interlink port, and should be disabled for ports
- * facing Ethernet devices.
+ * If set for a queue, the frame's preamble passes through queue system
+ * untouched. If cleared, the frame's preamble is cleared by the queue
+ * system. By default, LRE <-> interlink queues must pass through the
+ * preamble while LRE <-> LRE queues must clear the preamble.
  *
  * \details
  * Bit n: Enable bit for queue n
@@ -545,9 +546,9 @@
  *
  * \details
  * 0: PTP not recognized.
- * 1: PTPoE (DMAC, VID)
- * 2: PTPoIP4oUDP (DMAC, VID, HSR, DIP-IPv4, DPORT)
- * 3: PTPoIP6oUDP (DMAC, VID, HSR, DIP-IPv6, DPORT)
+ * 1: PTPoE (DMAC, VID, HSR)
+ * 2: PTPoUDPoIPv4 (DMAC, VID, HSR, DIP-IPv4, DPORT)
+ * 3: PTPoUDPoIPv6 (DMAC, VID, HSR, DIP-IPv6, DPORT)
 
  *
  * Field: ::VTSS_RB_RB_CFG . PTP_AWARE_SEL
@@ -842,16 +843,18 @@
  * PTPoE filter - 8 filters in total. Filter 0:
  * - PTP_DATA[0]: DMAC[31:0]
  * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
- * PTP_DATA[2] and PTP_DATA[3] for filter 1 etc.
  *
- * PTPoIPv4oUDP filter - 4 filters in total. Filter 0:
+ * Similar, PTP_DATA[2] and PTP_DATA[3] for filter 1 etc.
+ *
+ * PTPoUDPoIPv4 filter - 4 filters in total. Filter 0:
  * - PTP_DATA[0]: DMAC[31:0]
  * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
  * - PTP_DATA[2]: IPv4 DIP
  * - PTP_DATA[3][15:0]: DPORT
- * PTP_DATA[4]-PTP_DATA[7] for filter 1 etc.
  *
- * PTPoIPv6oUDP filter - 2 filters in total. Filter 0:
+ * Similar, PTP_DATA[4]-PTP_DATA[7] for filter 1 etc.
+ *
+ * PTPoUDPoIPv6 filter - 2 filters in total. Filter 0:
  * - PTP_DATA[0]: DMAC[31:0]
  * - PTP_DATA[1][27:0]: VID, DMAC[47:32]
  * - PTP_DATA[2]: IPv6 DIP[31:0]
@@ -859,7 +862,8 @@
  * - PTP_DATA[4]: IPv6 DIP[95:64]
  * - PTP_DATA[5]: IPv6 DIP[127:96]
  * - PTP_DATA[6][15:0]: DPORT
- * PTP_DATA[8]-PTP_DATA[14] for filter 1.
+ *
+ * Similar, PTP_DATA[8]-PTP_DATA[14] for filter 1.
 
  *
  * Register: \a RB:COMMON:PTP_DATA
@@ -891,8 +895,8 @@
  * which is controlled in RB::RB_CFG.PTP_AWARE_SEL.
  *
  * For PTPoE, 8 filters are available.
- * For PTPoIPv4oUDP, 4 filters are available, indexed 0 through 3.
- * For PTPoIPv6oUDP, 2 filters are available, indexed 0 through 1.
+ * For PTPoUDPoIPv4, 4 filters are available, indexed 0 through 3.
+ * For PTPoUDPoIPv6, 2 filters are available, indexed 0 through 1.
 
  *
  * Register: \a RB:COMMON:PTP_FILTER_CFG
@@ -942,7 +946,7 @@
  * \brief
  * Filter element settings. RB::RB_CFG.PTP_AWARE_SEL defines the overall
  * PTP classification capabilities and L3 and L4 filter elements are only
- * applicable when PTPoIPv4oUDP or PTPoIPv6oUDP are set in
+ * applicable when PTPoUDPoIPv4 or PTPoUDPoIPv6 are set in
  * PTP_AWARE_SEL.Related
  * parameters:RB::RB_CFG.PTP_AWARE_SELRB::PTP_FILTER_CFG.PTP_VID_SELRB::PTP
  * _FILTER_CFG.PTP_HSR_SELRB::PTP_DATA
@@ -1800,7 +1804,7 @@
 
 /**
  * \brief
- * Set if PTPoIPv4oUDP frame was detected.
+ * Set if PTPoUDPoIPv4 frame was detected.
  *
  * \details
  * Field: ::VTSS_RB_STICKY . PTP_IP4_STICKY
@@ -1811,7 +1815,7 @@
 
 /**
  * \brief
- * Set if PTPoIPv6oUDP frame was detected.
+ * Set if PTPoUDPoIPv6 frame was detected.
  *
  * \details
  * Field: ::VTSS_RB_STICKY . PTP_IP6_STICKY
@@ -2242,8 +2246,8 @@
  * lreCntUnique counter. Counts number of entries in the duplicate discard
  * table for port for which zero duplicates were received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_ZERO for port x is increment
- * when removed entries DISC_CNT_x equals 1.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_ZERO for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 0.
  *
  * Register: \a RB:STAT:CNT_DUPL_ZERO
  *
@@ -2271,8 +2275,8 @@
  * lreCntDuplicate counter. Counts number of entries in the duplicate
  * discard table for port for which a single duplicate was received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_ONE for port x is increment
- * when removed entries DISC_CNT_x equals 2.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_ONE for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 1.
  *
  * Register: \a RB:STAT:CNT_DUPL_ONE
  *
@@ -2300,8 +2304,8 @@
  * lreCntMulti counter. Counts number of entries in the duplicate discard
  * table for port for which two or more duplicates were received.
  *
- * When aging an entry in DISC_TBL, CNT_DUPL_TWO for port x is increment
- * when removed entries DISC_CNT_x equals 3.
+ * When aging or overwriting an entry in DISC_TBL, CNT_DUPL_TWO for port x
+ * is incremented when the removed entry's DISC_CNT_x equals 2 or 3.
  *
  * Register: \a RB:STAT:CNT_DUPL_TWO
  *
@@ -2404,10 +2408,12 @@
 
 /**
  * \brief
- * Overwrite sequence number entry when CPU_ACCESS_CMD==LEARN.
+ * Overwrite sequence number in existing entry (HOST_ENTRY_SEQ_NO) when
+ * CPU_ACCESS_CMD command is LEARN.
  *
  * \details
- * 0: Keep old values1: Overwrite with CPU provided values
+ * 0: Keep old values
+ * 1: Overwrite with CPU provided values
 
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_LEARN_SEQNO
@@ -2418,11 +2424,12 @@
 
 /**
  * \brief
- * Overwrite cnt_rx[2:0] and cnt_rx_wrong_lan[2:0] when
- * CPU_ACCESS_CMD==LEARN.
+ * Overwrite statistics in existing entry (HOST_ACCESS_STAT_[0|1|2|3]) when
+ * CPU_ACCESS_CMD command is LEARN.
  *
  * \details
- * 0: Keep old values1: Overwrite with CPU provided values
+ * 0: Keep old values
+ * 1: Overwrite with CPU provided values
 
  *
  * Field: ::VTSS_RB_HOST_ACCESS_CTRL . CPU_ACCESS_LEARN_STATS
@@ -2822,13 +2829,13 @@
  * \details
  * Configures automated age scan of host table.
  *
- * This register is replicated for the two age intervals supported.
+ * This register is replicated for the 2 age intervals supported.
  *
  * Age interval are configured for auto learned entries through:
- * RB:PORT:TBL_CFG.HOST_AGE_INTERVAL
+ * RB:PORT:TBL_CFG.HOST_AGE_INTERVAL.
  *
  * Age intervals are configured for CPU learned entries through:
- * RB::HOST_ACCESS_CFG_2.HOST_ENTRY_AGE_INTERVAL
+ * RB::HOST_ACCESS_CFG_2.HOST_ENTRY_AGE_INTERVAL.
  *
  * Register: \a RB:HOST_TBL:HOST_AUTOAGE_CFG
  *
@@ -2839,15 +2846,11 @@
 
 /**
  * \brief
- * Sets the unit time of PERIOD_VAL. Internally the auto aging
- * state-machine computes the aging period by shifting
- * RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL by 5, 8, 12, 16 respectively.
+ * Sets the unit time for PERIOD_VAL.
  *
  * \details
- * 0: 32*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL1:
- * 256*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL2:
- * 4096*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL3:
- * 65536*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL
+ * 0: 32 clock cycles1: 256 clock cycles2: 4,096 clock cycles3: 65,536
+ * clock cycles
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -2857,18 +2860,14 @@
 
 /**
  * \brief
- * Time between automatic ageing of a row in
- * RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
+ * Time in units between automatic aging of two consecutive
+ * rows.Example:The host table has 1,024 rows. The clock frequency is
+ * 328.125 MHz giving a clock period of 3.048 ns.To achieve a 10 seconds
+ * aging period per row, then each row must be aged every ~10ms. We can
+ * choose UNIT_SIZE = 3 (65,536*3.048ns = 199.75us) and PERIOD_VAL = 50.
  *
  * \details
- * n: Age period in RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE amount of clock
- * cycles, i.e. for an RB:HOST_TBL:HOST_AUTOAGE_CFG.PERIOD_VAL = 1 the
- * hardware will age an row every RB:HOST_TBL:HOST_AUTOAGE_CFG.UNIT_SIZE
- * clock cycles.
- *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
- * then every row should age every ~234375 us. At 1 GHz frequency we can
- * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
- * 1000MHz)/(65536)) = 3576
+ * n: Age period = n * unit defined in UNIT_SIZE
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG . PERIOD_VAL
  */
@@ -2892,7 +2891,7 @@
 
 /**
  * \brief
- * Enable autoage scan per interval.
+ * Enable automated age scan per interval.
  *
  * \details
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG_1 . AUTOAGE_INTERVAL_ENA
@@ -2903,12 +2902,12 @@
 
 /**
  * \brief
- * Triggers an instant hardware autoage scan (once current scan
- * completes).The bit is cleared by HW when a full scan completes.
+ * Triggers an instant hardware age scan (once current scan completes).The
+ * bit is cleared by HW when a full scan completes.
  *
  * \details
  * 0: No force
- * 1: Force start of autoage scan
+ * 1: Force start of age scan
  *
  * Field: ::VTSS_RB_HOST_AUTOAGE_CFG_1 . FORCE_HW_SCAN_SHOT
  */
@@ -2933,7 +2932,7 @@
 /**
  * \brief
  * Current autoage row. Changed on every autoage period. Indicate the host
- * table row to be autoaged aged next.Incremented by hardware during auto
+ * table row to be autoaged next.Incremented by hardware during auto
  * ageing.
  *
  * \details
@@ -3425,17 +3424,14 @@
  * row. The rules are in order and priority based.
  *
  * \details
- *
- *	     Bit:0 - DUPLICATES: Enables find and replace entries that have
- * seen more than one duplicate.
- *
- *	     Bit:1 - RESERVED.
- *	     Bit:2 - AGING     : Enables find and replace the oldest entry
- * in the row.
- *	     Bit:3 - RANDOM    : Enables find and replace a random entry if
- * all other methods fail.
- *	     Bit:4 - Enables that the DUPLICATES rule includes entries that
- * have seen one duplicate.
+ * Bit 0 - DUPLICATES: Enables find and replace entries that have seen more
+ * than one duplicate.
+ * Bit 1 - RESERVED
+ * Bit 2 - AGING: Enables find and replace the oldest entry in the row.
+ * Bit 3 - RANDOM: Enables find and replace a random entry if all other
+ * methods fail.
+ * Bit 4 - Enables that the DUPLICATES rule includes entries that have seen
+ * one duplicate.
 
  *
  * Field: ::VTSS_RB_DISC_ACCESS_CTRL . AUTOLRN_REPLACE_RULE_ENA
@@ -3523,7 +3519,8 @@
 /**
  * \brief
  * Duplicate counter for egress port 2. Incremented each time the entry is
- * used by a duplicate frame on port 2. Counter saturates at 3.
+ * used by a duplicate frame on port 2. Counter saturates at 3.Related
+ * parameters:RB::CNT_DUPL_ZERORB::CNT_DUPL_ONERB::CNT_DUPL_TWO
  *
  * \details
  * 0: No duplicates seen. If DISC_ENTRY_PORT_MASK[2] is set, the first copy
@@ -3635,15 +3632,11 @@
 
 /**
  * \brief
- * Sets the unit time of PERIOD_VAL. Internally the auto aging
- * state-machine computes the aging period by shifting
- * RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL by 5, 8, 12, 16 respectively.
+ * Sets the unit time for PERIOD_VAL.
  *
  * \details
- * 0: 32*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL1:
- * 256*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL2:
- * 4096*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL3:
- * 65536*RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL
+ * 0: 32 clock cycles1: 256 clock cycles2: 4,096 clock cycles3: 65,536
+ * clock cycles
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . UNIT_SIZE
  */
@@ -3653,18 +3646,14 @@
 
 /**
  * \brief
- * Time between automatic ageing of a row in
- * RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE units of clock cycles.
+ * Time in units between automatic aging of two consecutive
+ * rows.Example:The duplicate discard table has 256 rows. The clock
+ * frequency is 328.125 MHz giving a clock period of 3.048 ns.To achieve a
+ * 100ms aging period per row, then each row must be aged every ~391us. We
+ * can choose UNIT_SIZE = 1 (256*3.048ns = 780.3ns) and PERIOD_VAL = 501.
  *
  * \details
- * n: Age period in RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE amount of clock
- * cycles, i.e. for an RB:DISC_TBL:DISC_AUTOAGE_CFG.PERIOD_VAL = 1 the
- * hardware will age an row every RB:DISC_TBL:DISC_AUTOAGE_CFG.UNIT_SIZE
- * clock cycles.
- *	   e.g. To achieve a 60s aging period per entry (i.e. 256 rows),
- * then every row should age every ~234375 us. At 1 GHz frequency we can
- * choose UNIT_SIZE = 3 and PERIOD_VAL = ceil((234375 us *
- * 1000MHz)/(65536)) = 3576
+ * n: Age period = n * unit defined in UNIT_SIZE
  *
  * Field: ::VTSS_RB_DISC_AUTOAGE_CFG . PERIOD_VAL
  */

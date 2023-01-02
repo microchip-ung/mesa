@@ -102,7 +102,7 @@
 
 /**
  * \brief
- * Configure mode of DEV5G D0 device.
+ * Configure mode of DEV10G D0 device.
  *
  * \details
  * 0: DEV5G  XFI - USXGMII mode (device speed > 2.5G)
@@ -116,7 +116,7 @@
 
 /**
  * \brief
- * Configure mode of DEV5G D4 device.
+ * Configure mode of DEV10G D4 device.
  *
  * \details
  * 0: DEV5G  XFI - USXGMII mode (device speed > 2.5G)
@@ -245,11 +245,7 @@
  * \brief Enable QSGMII mode for different ports
  *
  * \details
- * Enable QSGMII mode for different ports
- *
- * Note:  This setting can be overruled from USGMII enable and USXGMII
- * enable configuration as some Dev5G and Dev2G5 devices are used in
- * multiple modes.
+ * Enable QSGMII mode for different ports.
  *
  * Register: \a PORT_CONF:HW_CFG:QSGMII_ENA
  */
@@ -257,7 +253,7 @@
 
 /**
  * \brief
- * Set bit to enable QSGMII mode for devices DEV5G_0, DEV2G5_1, DEV2G5_2,
+ * Set bit to enable QSGMII mode for devices DEV10G_0, DEV2G5_1, DEV2G5_2,
  * and DEV2G5_3 via SerDes10G_0
  *
  * \details
@@ -272,7 +268,7 @@
 
 /**
  * \brief
- * Set bit to enable QSGMII mode for devices DEV5G_4, DEV2G5_5, DEV2G5_6,
+ * Set bit to enable QSGMII mode for devices DEV10G_4, DEV2G5_5, DEV2G5_6,
  * and DEV2G5_7 via SerDes10G_1
  *
  * \details

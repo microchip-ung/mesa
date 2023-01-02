@@ -1375,7 +1375,7 @@
 
 /**
  * \brief
- * If set ,and ANA_AC:PGID:PGID_MISC_CFG.OBEY_VLAN is also set, the CPU
+ * If set, and ANA_AC:PGID:PGID_MISC_CFG.OBEY_VLAN is also set, the CPU
  * copy information from the PGID table is ignored.
  *
  * \details
