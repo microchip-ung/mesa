@@ -708,6 +708,10 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
     return rc;
 }
 
+#if !defined(VTSS_VOE_CNT)
+#define VTSS_VOE_CNT 8
+#endif
+
 static vtss_rc lan966x_ts_seq_cnt_get(vtss_state_t *vtss_state,  u32 sec_cntr,  u16 *const cnt_val)
 {
     vtss_rc rc = VTSS_RC_OK;

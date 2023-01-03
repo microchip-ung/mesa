@@ -52,6 +52,11 @@
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
+#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
+#define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
+#define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
+#define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
+#define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
@@ -89,11 +94,6 @@
 #define VTSS_FEATURE_SYNCE                        /**< SYNCE - L1 syncronization feature */
 #endif
 #define VTSS_FEATURE_FAN                          /**< Fan control */
-#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
-#define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardwarce support */
-#define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
-#define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
-#define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
 #define VTSS_FEATURE_VOP                          /**< Y.1731/IEEE802.1ag OAM */
 #define VTSS_FEATURE_MRP                          /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_AFI_SWC                      /**< Switch-core-based Automatic Frame Injection */
