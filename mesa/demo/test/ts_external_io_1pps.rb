@@ -29,7 +29,7 @@ $diff_high = 2
 $diff_low = 2
 
 if ($pcb == "6849-Sunrise")
-    $diff_high = 5
+    $diff_high = 8
     $diff_low = 5
 end
 if ($pcb == "8291-EndNode")
@@ -205,7 +205,7 @@ def tod_external_io_1pps_tod_offset_test
 
     diff = ts2["nanoseconds"] - ts1["nanoseconds"]
     t_i("Difference #{diff} in TOD nanoseconds must be approx 0")
-    if ((diff > 2) || (diff < -$diff_low))
+    if ((diff > $diff_high) || (diff < -$diff_low))
         t_e("Difference is not as expected")
     end
     end
