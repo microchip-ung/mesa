@@ -831,6 +831,8 @@ static vtss_rc lan966x_ts_link_up(vtss_state_t *vtss_state, const vtss_port_no_t
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
@@ -923,6 +925,7 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, lan966x_debug_ts, vtss_state, pr, info);
 }
+#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

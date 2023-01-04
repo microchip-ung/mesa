@@ -232,9 +232,11 @@ vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t              inst,
 
 vtss_rc vtss_ts_inst_create(struct vtss_state_s *vtss_state);
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_ts_debug_print(struct vtss_state_s *vtss_state,
                          const vtss_debug_printf_t pr,
                          const vtss_debug_info_t   *const info);
+#endif
 
 #endif  /* VTSS_FEATURE_TIMESTAMP */
 

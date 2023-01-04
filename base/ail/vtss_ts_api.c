@@ -1349,6 +1349,7 @@ vtss_rc vtss_ts_inst_create(vtss_state_t *vtss_state)
 }
 
 
+#if VTSS_OPT_DEBUG_PRINT
 
 /* - Debug print --------------------------------------------------- */
 
@@ -1426,6 +1427,6 @@ void vtss_ts_debug_print(vtss_state_t *vtss_state,
     }
     pr("\n");
 }
-
+#endif // VTSS_OPT_DEBUG_PRINT
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
