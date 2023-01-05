@@ -135,6 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
+    - MESA-2022 # Not a bug
 
   # See the 'del' section above for a description
   #
