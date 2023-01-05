@@ -184,6 +184,10 @@ libvsc*.so:
   :int: 214
   :val: 
   :chip: libvsc*.so
+- :str: MESA_CAP_PACKET_INJ_ENCAP
+  :int: 215
+  :val: 
+  :chip: libvsc*.so
 - :str: MESA_CAP_AFI_V1
   :int: 300
   :val: 
@@ -940,52 +944,60 @@ libvsc*.so:
   :int: 1201
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_V1
+- :str: MESA_CAP_VOP_V0
   :int: 1202
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_V2
+- :str: MESA_CAP_VOP_V1
   :int: 1203
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_PATH_SERVICE_VOE_CNT
+- :str: MESA_CAP_VOP_V2
   :int: 1204
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_PORT_VOE_CNT
+- :str: MESA_CAP_VOP_TAGGING
   :int: 1205
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_VOE_CNT
+- :str: MESA_CAP_VOP_PATH_SERVICE_VOE_CNT
   :int: 1206
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_DOWN_VOI_CNT
+- :str: MESA_CAP_VOP_PORT_VOE_CNT
   :int: 1207
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_UP_VOI_CNT
+- :str: MESA_CAP_VOP_VOE_CNT
   :int: 1208
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_VOI_CNT
+- :str: MESA_CAP_VOP_DOWN_VOI_CNT
   :int: 1209
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
+- :str: MESA_CAP_VOP_UP_VOI_CNT
   :int: 1210
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
+- :str: MESA_CAP_VOP_VOI_CNT
   :int: 1211
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_EVENT_SUPPORTED
+- :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1212
   :val: 
   :chip: libvsc*.so
-- :str: MESA_CAP_VOP_CCM_DEFECT
+- :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1213
+  :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_VOP_EVENT_SUPPORTED
+  :int: 1214
+  :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_VOP_CCM_DEFECT
+  :int: 1215
   :val: 
   :chip: libvsc*.so
 - :str: MESA_CAP_CLOCK
