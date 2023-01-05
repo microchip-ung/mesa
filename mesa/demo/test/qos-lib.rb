@@ -57,6 +57,8 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[ig[0]], conf)       # Start dummy TAS in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
+
     t_i ("Check GCL is pending")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (conf["config_pending"] != true)
