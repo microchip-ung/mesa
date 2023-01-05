@@ -29,7 +29,7 @@ if [[ -z $BLD_USER ]]; then
     echo "ERROR: BLD_USER variable not set!" 1>&2
     exit 1
 fi
-
+   
 if [[ -z $BLD_UID ]]; then
     echo "ERROR: BLD_UID variable not set!" 1>&2
     exit 1
@@ -41,6 +41,8 @@ adduser --no-create-home --disabled-password --home /mapped_home --uid $BLD_UID 
 # Allow user to sudo without password
 echo "$BLD_USER ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/$BLD_USER
 chmod 0440 /etc/sudoers.d/$BLD_USER
+
+echo "127.0.0.1 ${HOSTNAME}" >> /etc/hosts
 
 # Unset IFS to make "$*" put a space between each argument.
 unset IFS

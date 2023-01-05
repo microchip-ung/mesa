@@ -12,30 +12,35 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
   && apt-get upgrade -y \
   && apt-get install -y \
 # Packages sorted alphabetically
-    asciidoc \
     build-essential \
     cmake \
     cmake-curses-gui \
     git \
+    iputils-ping \
     libjson-c-dev \
+    libpcap-dev \
     locales \
     ruby-full \
     ruby-parslet \
     sudo \
+    wget \
+    zlib1g-dev \
+    zlibc \
 # Cleanup
-#  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/* \
 # Generate en_US.UTF-8 locale
   && locale-gen en_US.UTF-8 \
 # Update locate to en_US.UTF-8
   && update-locale LANG=en_US.UTF-8 LANGUAGE=en \
 # git needs a user
   && git config --system user.email "br@example.com" && git config --system user.name "Build Root" \
-# TBD Use bundler instead?
-  && gem install nokogiri asciidoctor \
-# Support Microsemi version
+  # Support Microsemi version
   && ln -s /usr/local/bin/mchp-install-pkg /usr/local/bin/mscc-install-pkg
 
-RUN apt-get install -y wget
+# TBD Use bundler instead?
+RUN sudo gem install nokogiri -v '1.10.8' --source 'https://rubygems.org/'
+RUN sudo gem install asciidoctor -v '2.0.8' --source 'https://rubygems.org/'
+RUN sudo gem install mini_portile2 -v '2.4.0' --source 'https://rubygems.org/'
 
 # Set locale
 ENV LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8'
@@ -47,7 +52,6 @@ COPY ./mchp-install-pkg /usr/local/bin
 # mchp building environment
 COPY ./SimpleGridClient /usr/local/bin
 
-RUN apt-get install -y iputils-ping libpcap-dev
 RUN gem install hexdump packetfu ox
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/easytest/easytest/utils/:/easytest/easytest/test-setup-server/
 RUN mkdir /easytest && cd /easytest && git clone https://bitbucket.microchip.com/scm/unge/sw-tools-easytest.git easytest
