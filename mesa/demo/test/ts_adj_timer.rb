@@ -94,6 +94,12 @@ def tod_adj_timer_test(domain_out, domain_in)
         diff_high = 240114
         diff_low = 239885
     end
+    if ($pcb == "6849-Sunrise")
+        diff_no_adj = 12
+        adj_max = 1300000
+        diff_high = 130100
+        diff_low = 129900
+    end
 
     #domain_out == 3 indicates use of default domain API
     domain_def = (domain_out == 3) ? true : false

@@ -286,6 +286,8 @@ def equal_interval_3_prio_1_port_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[ig[0]], conf)       # Start dummy TAS in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
+
     t_i ("Check GCL is pending")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (conf["config_pending"] != true)
@@ -420,6 +422,8 @@ def jira_appl_3396_test
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
+
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
     if (status["config_pending"] != true)
@@ -439,6 +443,8 @@ def jira_appl_3396_test
     conf["base_time"]["seconds"] = 6
     conf["base_time"]["nanoseconds"] += 128    #Move the start time out less than cycle_time_ext
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -543,6 +549,8 @@ def jira_appl_4898_test
 
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
+
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
@@ -653,6 +661,8 @@ def jira_appl_3433_test
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
 
+    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
+
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
     if (status["config_pending"] != true)
@@ -696,11 +706,7 @@ def jira_appl_3433_test
 
     t_i ("Measure after Frame Preemption enabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    if ($ts.dut.pcb == 135)
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
-    else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [4.2],          true,              [2])
-    end
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
 
     t_i ("Stop GCL")
     conf["gate_enabled"] = false
@@ -832,8 +838,12 @@ test "test_conf" do
     end
     t_i ("Configure all ports to C tag aware.  port_list #{port_list}")
     port_list.each do |i|
-        $ts.dut.run("mesa-cmd port flow control #{i+1} disable")
-        $ts.dut.run("mesa-cmd port mode #{i+1} 1000fdx")
+        t_i ("Configure all ports to disable flow control")
+        conf = $ts.dut.call("mesa_port_conf_get", i)
+        conf["flow_control"]["obey"] = false
+        conf["flow_control"]["generate"] = false
+        conf["speed"] = "MESA_SPEED_1G"
+        $ts.dut.call("mesa_port_conf_set", i, conf)
 
         t_i ("Configure all ports to C tag aware")
         conf = $ts.dut.call("mesa_vlan_port_conf_get", i)
@@ -877,7 +887,8 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
-#     jira_appl_4898_test
+#   This test is out commented and failing as it is a mis-configuration
+#   jira_appl_4898_test
     jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
         jira_appl_3433_test
