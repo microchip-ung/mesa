@@ -279,14 +279,12 @@ def equal_interval_3_prio_1_port_test
     conf["cycle_time"] = cycle_time
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 0
-    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["seconds"] = 4
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[ig[0]], conf)       # Start dummy TAS in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -303,7 +301,7 @@ def equal_interval_3_prio_1_port_test
         t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
     end
     time = conf["config_change_time"]
-    if ((time["nanoseconds"] != 0) || (time["seconds"] != 3) || (time["sec_msb"] != 0))
+    if ((time["nanoseconds"] != 0) || (time["seconds"] != 4) || (time["sec_msb"] != 0))
         t_e("GCL unexpected config_change_time = nanoseconds #{time["nanoseconds"]} seconds #{time["seconds"]} sec_msb #{time["sec_msb"]}")
     end
     open = 0
@@ -416,13 +414,11 @@ def jira_appl_3396_test
     conf["cycle_time"] = 256
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 303697500
-    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["seconds"] = 4
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -440,11 +436,9 @@ def jira_appl_3396_test
     end
 
     t_i ("Start GCL again")
-    conf["base_time"]["seconds"] = 6
+    conf["base_time"]["seconds"] = 8
     conf["base_time"]["nanoseconds"] += 128    #Move the start time out less than cycle_time_ext
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -541,7 +535,7 @@ def jira_appl_4898_test
 #    conf["cycle_time"] = 1000000
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 303697500
-    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["seconds"] = 4
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = false
@@ -549,8 +543,6 @@ def jira_appl_4898_test
 
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
@@ -655,13 +647,11 @@ def jira_appl_3433_test
     conf["cycle_time"] = cycle_time
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 303697500
-    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["seconds"] = 4
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
