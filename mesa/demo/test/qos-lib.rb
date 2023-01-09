@@ -50,14 +50,12 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     conf["cycle_time"] = cycle_time
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 0
-    conf["base_time"]["seconds"] = 3
+    conf["base_time"]["seconds"] = 4
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[ig[0]], conf)       # Start dummy TAS in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
-
-    sleep 1 # It happens that the test fails the following check. Hope this sleep will help :-)
 
     t_i ("Check GCL is pending")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -74,7 +72,7 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
         t_e("GCL unexpected config_pending = #{conf["config_pending"]}")
     end
     time = conf["config_change_time"]
-    if ((time["nanoseconds"] != 0) || (time["seconds"] != 3) || (time["sec_msb"] != 0))
+    if ((time["nanoseconds"] != 0) || (time["seconds"] != 4) || (time["sec_msb"] != 0))
         t_e("GCL unexpected config_change_time = nanoseconds #{time["nanoseconds"]} seconds #{time["seconds"]} sec_msb #{time["sec_msb"]}")
     end
     open = 0
