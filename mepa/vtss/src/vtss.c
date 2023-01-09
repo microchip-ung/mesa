@@ -698,30 +698,10 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
 {
     vtss_phy_10g_mode_t oper_mode = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
-
-    oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
-    oper_mode.xfi_pol_invert = 1;
-    oper_mode.polarity.host_rx = true;
-    oper_mode.polarity.line_rx = true;
-    oper_mode.polarity.host_tx = false;
-    oper_mode.polarity.line_tx = false;
-    oper_mode.is_host_wan = false;
-    oper_mode.lref_for_host = false;
-    oper_mode.h_clk_src.is_high_amp = true;
-    oper_mode.l_clk_src.is_high_amp = true;
-    oper_mode.h_media = VTSS_MEDIA_TYPE_SR;
-    oper_mode.l_media = VTSS_MEDIA_TYPE_SR;
-    oper_mode.serdes_conf.l_offset_guard = true;
-    oper_mode.serdes_conf.h_offset_guard = true;
-
-    if ((data->port_no == 25) || (data->port_no == 24)) {
-        oper_mode.polarity.host_rx = false;
-        oper_mode.polarity.line_rx = false;
-        oper_mode.polarity.host_tx = true;
-        oper_mode.polarity.line_tx = true;
-    }
-
-    return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
+    if (vtss_phy_10g_mode_get(data->vtss_instance, data->port_no, &oper_mode) != MEPA_RC_OK)
+        return MEPA_RC_ERROR;
+    else
+        return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
 }
 
 static mepa_rc venice_10g_reset(mepa_device_t *dev,
@@ -756,6 +736,12 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
     }
     memset(status, 0, sizeof(*status));
     status->link = status_10g.status;
+    if (status_10g.pma.rx_link && status_10g.hpma.rx_link && status_10g.pcs.rx_link && status_10g.hpcs.rx_link)
+    {
+       status->speed = MESA_SPEED_10G;
+       status->fiber = 1;
+       status->fdx = 1;
+    }
     return MEPA_RC_OK;
 }
 
@@ -1027,6 +1013,53 @@ static mepa_rc malibu_10g_event_enable_get(struct mepa_device *dev,
 }
 
 
+static mepa_rc malibu_10g_gpio_write(struct mepa_device *dev,
+                                     uint8_t gpio_no, mepa_bool_t value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    rc = vtss_phy_10g_gpio_write(data->vtss_instance, data->port_no, gpio_no, value);
+    return rc;
+}
+
+static mepa_rc malibu_10g_gpio_read(struct mepa_device *dev,
+                                    uint8_t gpio_no, mepa_bool_t *const value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    rc = vtss_phy_10g_gpio_read(data->vtss_instance, data->port_no, gpio_no, value);
+    return rc;
+}
+
+static mepa_rc malibu_10g_power_set(struct mepa_device *dev,
+                                    mepa_power_mode_t power)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    vtss_phy_10g_power_t power_status;
+
+    switch(power){
+    case MESA_PHY_POWER_NOMINAL:
+        power_status=VTSS_PHY_10G_POWER_DISABLE;
+        break;
+    case MESA_PHY_POWER_ACTIPHY:
+    case MESA_PHY_POWER_DYNAMIC:
+    case MESA_PHY_POWER_ENABLED:
+        power_status= VTSS_PHY_10G_POWER_ENABLE;
+        break;
+    }
+    rc= vtss_phy_10g_power_set(data->vtss_instance, data->port_no, &power_status);
+    return rc;
+}
+
+static mepa_rc malibu_10g_event_poll(struct mepa_device *dev, mepa_event_t *const ev_mask)
+{
+    mepa_rc rc=MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    rc=vtss_phy_10g_event_poll(data->vtss_instance, data->port_no ,ev_mask);
+    return rc;
+}
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -1207,8 +1240,8 @@ mepa_drivers_t mepa_mscc_driver_init()
 
 mepa_drivers_t mepa_malibu_driver_init()
 {
-    static const int nr_malibu_phy = 1;
-    static mepa_driver_t malibu_drivers[] = {{
+	static const int nr_malibu_phy = 1;
+        static mepa_driver_t malibu_drivers[] = {{
             .id = 0x8200,
             .mask = 0x0000FF00,
             .mepa_driver_delete = phy_10g_delete,
@@ -1217,17 +1250,21 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_conf_set = phy_10g_conf_set,
             .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = malibu_10g_if_get,
-            .mepa_driver_power_set = NULL,
+            .mepa_driver_power_set = malibu_10g_power_set,
             .mepa_driver_cable_diag_start = NULL,
             .mepa_driver_cable_diag_get = NULL,
             .mepa_driver_media_set = NULL,
+            .mepa_driver_event_poll = malibu_10g_event_poll,
             .mepa_driver_probe = phy_10g_probe,
             .mepa_driver_aneg_status_get = NULL,
+            .mepa_driver_gpio_out_set = malibu_10g_gpio_write,
+            .mepa_driver_gpio_in_get = malibu_10g_gpio_read,
             .mepa_driver_phy_info_get = phy_10g_info_get,
             .mepa_driver_clause45_read = phy_10g_clause45_read,
             .mepa_driver_clause45_write = phy_10g_clause45_write,
             .mepa_driver_event_enable_set = malibu_10g_event_enable_set,
             .mepa_driver_event_enable_get = malibu_10g_event_enable_get,
+            .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         }

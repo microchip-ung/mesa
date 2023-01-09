@@ -1621,6 +1621,22 @@ static void malibu_init(meba_inst_t inst)
     meba_board_state_t *board = INST2BOARD(inst);
     port_start = (board->type == BOARD_TYPE_SPARX5_PCB134)?16:52;
     port_end = port_start + 4;
+    vtss_phy_10g_mode_t oper_mode = {};
+    oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
+    oper_mode.xfi_pol_invert = 1;
+    oper_mode.polarity.host_rx = false;
+    oper_mode.polarity.line_rx = false;
+    oper_mode.polarity.host_tx = false;
+    oper_mode.polarity.line_tx = false;
+    oper_mode.is_host_wan = false;
+    oper_mode.lref_for_host = false;
+    oper_mode.h_clk_src.is_high_amp = true;
+    oper_mode.l_clk_src.is_high_amp = true;
+    oper_mode.h_media = VTSS_MEDIA_TYPE_DAC;
+    oper_mode.l_media = VTSS_MEDIA_TYPE_DAC;
+    oper_mode.serdes_conf.l_offset_guard = true;
+    oper_mode.serdes_conf.h_offset_guard = true;
+    port_start = (board->type == BOARD_TYPE_SPARX5_PCB134)?16:52;
     /* Malibu is connected with fireant via mdio3 in pcb 135 and mdio0 in pcb 134
      * and the malibu phy addresses are 4,5,6,7
      * Port mappings are given below
@@ -1629,9 +1645,14 @@ static void malibu_init(meba_inst_t inst)
      * pcb 135
      * 52,53,54,55 mapped to malibu host side */
     for (mesa_port_no_t iport = port_start; iport < port_end; iport++) {
-        if (meba_phy_reset(inst, iport, NULL) != MESA_RC_OK) {
-            T_E(inst, "meba_phy_reset failed, port_no %u", iport);
+        if ((board->type == BOARD_TYPE_SPARX5_PCB134 && (iport == 18 || iport == 19)) ||
+            (board->type == BOARD_TYPE_SPARX5_PCB135 && (iport == 54 || iport == 55))) {
+            oper_mode.polarity.line_tx = true;
         }
+        if (vtss_phy_10g_mode_set(PHY_INST, iport, &oper_mode) != MESA_RC_OK) {
+            T_E(inst, "vtss_phy_10g_mode_set failed, port_no %u", iport);
+        }
+        meba_phy_reset(inst, iport, NULL);
     }
 }
 
