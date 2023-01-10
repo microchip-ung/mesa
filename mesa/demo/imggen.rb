@@ -119,12 +119,6 @@ $machines = {
                 { :name => "lan9668_ung8281_0_at_lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8281_0.dtso"},
             ]
           },
-          {
-            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-sr.dtb",
-            :overlays => [
-                { :name => "lan9668_sr6849_0_at_lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_6849_0.dtso"},
-            ]
-          },
         ],
         :fdtaddr => "<0x67e00000>",
         :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
@@ -138,10 +132,10 @@ $machines = {
         :kcomp => "gzip",
         :dt => [
             { :name => "pcb125",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb125.dtb"},
-            { :name => "pcb134",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134.dtb"},
-            { :name => "pcb134_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb134_emmc.dtb"},
-            { :name => "pcb135",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135.dtb"},
-            { :name => "pcb135_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_pcb135_emmc.dtb"},
+            { :name => "pcb134",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_pcb134.dtb"},
+            { :name => "pcb134_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_pcb134_emmc.dtb"},
+            { :name => "pcb135",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_pcb135.dtb"},
+            { :name => "pcb135_emmc",   :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_pcb135_emmc.dtb"},
             { :name => "ls1046_pcb121", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb121.dtb"},
             { :name => "ls1046_pcb134", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb134.dtb"},
         ],
