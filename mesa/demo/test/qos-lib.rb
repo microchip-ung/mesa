@@ -129,6 +129,7 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         pcp0 = 900
+        pcp3 = 1400
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         pcp0 = 10
