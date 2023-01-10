@@ -830,11 +830,8 @@ test "test_conf" do
     t_i ("Configure all ports to C tag aware.  port_list #{port_list}")
     port_list.each do |i|
         t_i ("Configure all ports to disable flow control")
-        conf = $ts.dut.call("mesa_port_conf_get", i)
-        conf["flow_control"]["obey"] = false
-        conf["flow_control"]["generate"] = false
-#        conf["speed"] = "MESA_SPEED_1G"
-        $ts.dut.call("mesa_port_conf_set", i, conf)
+        $ts.dut.run("mesa-cmd port flow control #{i+1} disable")
+        $ts.dut.run("mesa-cmd port mode #{i+1} 1000fdx")
 
         t_i ("Configure all ports to C tag aware")
         conf = $ts.dut.call("mesa_vlan_port_conf_get", i)
@@ -870,6 +867,7 @@ test "test_conf" do
         dconf[1]["dei"] = [1,1,1,1,1,1,1,1]
         $ts.dut.call("mesa_qos_port_dpl_conf_set", i, $dpl_cnt, dconf)
     end
+    dut_port_state_up(port_list)
 end
 
 test "test_run" do
