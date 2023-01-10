@@ -3523,13 +3523,11 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
     }
 
     /* Read the current gate state on the port */
-#if defined(VTSS_FEATURE_QOS_OT)
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
         tas_gate_state_read(vtss_state, port_no, status->gate_open, vtss_state->qos.tas.port_conf[port_no].ot);
+    } else {
+        tas_gate_state_read(vtss_state, port_no, status->gate_open, FALSE);
     }
-#else
-    tas_gate_state_read(vtss_state, port_no, status->gate_open, FALSE);
-#endif
 
     return VTSS_RC_OK;
 }

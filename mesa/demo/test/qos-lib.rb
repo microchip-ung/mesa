@@ -64,7 +64,7 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])

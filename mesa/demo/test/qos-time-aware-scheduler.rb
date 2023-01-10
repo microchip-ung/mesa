@@ -223,6 +223,7 @@ def equal_interval_gcl_reconfig_test
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         pcp3 = 1600
+        pcp0 = 900
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         pcp0 = 10
