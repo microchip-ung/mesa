@@ -61,7 +61,7 @@ def equal_interval_gcl_reconfig_test
 
     t_i ("Start GCL")
     base_time = tod[0].dup
-    base_time["seconds"] = 3
+    base_time["seconds"] = 4
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
     conf["max_sdu"][0] = frame_size + (frame_size/2)
     conf["max_sdu"][3] = frame_size + (frame_size/2)
@@ -76,7 +76,7 @@ def equal_interval_gcl_reconfig_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -221,7 +221,7 @@ def equal_interval_gcl_reconfig_test
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         pcp0 = 900
-        pcp3 = 1300
+        pcp3 = 1400
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
@@ -357,6 +357,7 @@ def equal_interval_3_prio_1_port_test
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         pcp0 = 900
+        pcp3 = 1400
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
@@ -776,7 +777,7 @@ def equal_interval_1_prio_3_port_test
         conf["cycle_time"] = cycle_time
         conf["cycle_time_ext"] = 256
         conf["base_time"]["nanoseconds"] = 0
-        conf["base_time"]["seconds"] = 3
+        conf["base_time"]["seconds"] = 4
         conf["base_time"]["sec_msb"] = 0
         conf["gate_enabled"] = true
         conf["config_change"] = true
@@ -784,7 +785,7 @@ def equal_interval_1_prio_3_port_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Test TAS on all egress ports")
     eg.each do |eg_idx|
