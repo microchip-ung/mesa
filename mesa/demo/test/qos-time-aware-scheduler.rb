@@ -221,6 +221,7 @@ def equal_interval_gcl_reconfig_test
     end
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         pcp0 = 900
+        pcp3 = 1300
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
@@ -293,7 +294,7 @@ def equal_interval_3_prio_1_port_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     conf = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -427,7 +428,7 @@ def jira_appl_3396_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -447,7 +448,7 @@ def jira_appl_3396_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
@@ -551,7 +552,7 @@ def jira_appl_4898_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
@@ -660,7 +661,7 @@ def jira_appl_3433_test
     end
 
     t_i ("Wait for GCL to start")
-    sleep 4
+    sleep 5
 
     t_i ("Check GCL is started")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
@@ -832,7 +833,7 @@ test "test_conf" do
         conf = $ts.dut.call("mesa_port_conf_get", i)
         conf["flow_control"]["obey"] = false
         conf["flow_control"]["generate"] = false
-        conf["speed"] = "MESA_SPEED_1G"
+#        conf["speed"] = "MESA_SPEED_1G"
         $ts.dut.call("mesa_port_conf_set", i, conf)
 
         t_i ("Configure all ports to C tag aware")
