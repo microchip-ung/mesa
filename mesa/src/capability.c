@@ -103,11 +103,18 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #error "Add architecture here!"
 #endif
 
-/* Port shaper frame rate is currently not supported */
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN    1
+#define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX    2600000
+#define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN   1
+#define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX   2000 // This is correct for SE_FRM_MODE = 2
+//#define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX 18   // This is correct for SE_FRM_MODE = 3
+#else
 #define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN    0
 #define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX    0
 #define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN   0
 #define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX   0
+#endif
 
 /* Queue shaper bit rate is the same as port shaper */
 #define VTSS_QOS_QUEUE_SHAPER_BIT_RATE_MIN    VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN

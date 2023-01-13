@@ -1315,7 +1315,7 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t *vtss_state, vtss_shaper_t *sha
             /* Calculate the frames per sec if cir is one */
             /* frame_time_ns = lg->leak_time * 100000; */
             /* frame_time_s = (lg->leak_time * 100000)/1000000000; */
-            /* frame_per_sec = 10000/(lg->leak_time * 100000); */
+            /* frame_per_sec = 1000000000/(lg->leak_time * 100000); */
             /* frame_per_sec = 10000/lg->leak_time; */
             /* Calculate the value for CIR */
             /* cir = shaper->rate / frame_per_sec; */
