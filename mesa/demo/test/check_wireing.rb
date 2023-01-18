@@ -27,7 +27,7 @@ test "check port wireing" do
                         not r["link"]
                     end
                 else
-                    check_poll 0.2, 30, "Dut link must be up: #{link2[:dut]}" do
+                    check_poll 0.2, 60, "Dut link must be up: #{link2[:dut]}" do
                         r = $ts.dut.call("mscc_appl_port_status_get", link2[:dut])
                         r["link"]
                     end
