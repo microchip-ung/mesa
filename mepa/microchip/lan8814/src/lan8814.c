@@ -584,6 +584,10 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         indy_rev_workaround(dev);
         indy_qsgmii_aneg(dev, FALSE);
         data->init_done = TRUE;
+        if (data->dev.model == 0x26) {
+            data->crc_workaround = TRUE;
+            data->aneg_after_link_up = FALSE;
+        }
     }
 
     //Clear self-test if enabled before reset
@@ -667,18 +671,18 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
                      !data->post_mac_rst) {
                     //link not completely up
                     status->link = 0;
-                } else if (data->link_up_cnt > 2 && !data->aneg_after_link_up) {// poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                } else if (!data->aneg_after_link_up) {// poll the status for 1 iteration assuming the polling interval is 1 second apart.
                     T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                     WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
                     data->aneg_after_link_up = TRUE;
                     status->link = 0;
-                } else if (data->link_up_cnt++ > 2 && data->aneg_after_link_up) {// After auto-negotation restarted, poll the status atleast for 2 iterations assuming the polling interval is 1 second apart.
+                } else if (data->aneg_after_link_up) {// After auto-negotiation restarted, set the link status as up.
                     status->speed = MEPA_SPEED_1G;
                     status->fdx = 1;
                     data->crc_workaround = FALSE;
                     data->aneg_after_link_up = FALSE;
-                } else { // link up time <= 2 seconds assuming polling interval is 1 second.
-                    T_I(MEPA_TRACE_GRP_GEN, "link up cnt %d", data->link_up_cnt);
+                } else {
+                    T_I(MEPA_TRACE_GRP_GEN, "no link");
                     status->link = 0;
                 }
             // Work-around for CRC errors end.
@@ -740,7 +744,6 @@ end:
                 }
             } else {// link down event.
                 indy_workaround_fifo_reset(dev);
-                data->link_up_cnt = 0;
             }
         }
     }
@@ -855,10 +858,6 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             if (restart_aneg) {
                 T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                 WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
-            }
-            if (data->dev.model == 0x26) {
-                data->crc_workaround = TRUE;
-                data->aneg_after_link_up = FALSE;
             }
         } else if (config->speed != MEPA_SPEED_UNDEFINED) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
