@@ -1948,7 +1948,8 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     /* Setup VLAN configuration */
     VTSS_RC(fa_vlan_conf_set(vtss_state));
 
-    /* Include all ports in VLAN 1, exclude all ports from VLAN 4095 */
+    /* Include all ports in VLAN 1, exclude all ports from VLAN 0 and 4095 */
+    VTSS_RC(fa_vlan_mask_update(vtss_state, 0, state->port_none));
     VTSS_RC(fa_vlan_mask_update(vtss_state, 1, state->port_all));
     VTSS_RC(fa_vlan_mask_update(vtss_state, 4095, state->port_none));
 

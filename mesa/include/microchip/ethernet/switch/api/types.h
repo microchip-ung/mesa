@@ -323,7 +323,7 @@ typedef struct
     // Network to route
     mesa_ipv4_network_t network;
 
-    // IP address of next-hop router (zero if local route)
+    // IP address of next-hop router (zero if local route, all-ones if discard route)
     mesa_ipv4_t         destination;
 } mesa_ipv4_uc_t;
 
@@ -333,7 +333,7 @@ typedef struct
     // Network to route
     mesa_ipv6_network_t network;
 
-    // IP address of next-hop router (zero if local route)
+    // IP address of next-hop router (zero if local route, all-ones if discard route)
     mesa_ipv6_t         destination;
 } mesa_ipv6_uc_t;
 

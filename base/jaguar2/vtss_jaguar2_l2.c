@@ -1788,9 +1788,10 @@ static vtss_rc jr2_l2_init(vtss_state_t *vtss_state)
     u32             port, msti;
     u64             port_mask_all = 0xffffffffffffffff;
 
-    /* VLAN: Clear VID 4095 mask, enable VLAN and use default port config */
+    /* VLAN: Clear VID 0 and 4095 mask, enable VLAN and use default port config */
     JR2_WR(VTSS_ANA_L3_COMMON_VLAN_CTRL, 
            VTSS_F_ANA_L3_COMMON_VLAN_CTRL_VLAN_ENA(1));
+    JR2_WRX_PMASK(VTSS_ANA_L3_VLAN_VLAN_MASK_CFG, 0, 0ULL);
     JR2_WRX_PMASK(VTSS_ANA_L3_VLAN_VLAN_MASK_CFG, 4095, 0ULL);
     VTSS_RC(jr2_vlan_mask_apply(vtss_state, 1, port_mask_all));
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {

@@ -22,6 +22,8 @@ $conf_table =
          vid: 2,
          network: 0x02020200,
          prefix: 24,
+         discard_network: 0x04040400,
+         discard_prefix: 24,
          router: 0x02020201,
          host: 0x02020202,
          dmac: [2,2,2,2,2,2]
@@ -30,6 +32,8 @@ $conf_table =
          vid: 3,
          network: 0x03030300,
          prefix: 24,
+         discard_network: 0x05050505,
+         discard_prefix: 32,
          router: 0x03030301,
          host: 0x03030303,
          dmac: [3,3,3,3,3,3]
@@ -80,7 +84,7 @@ test "conf" do
         $ts.dut.call("mesa_l3_rleg_add", conf)
     end
 
-    t_i("Add direct routes and host routes")
+    t_i("Add direct routes, host routes and discard routes")
     $conf_table.each do |e|
         ipv4_uc = {
             network: {
@@ -101,6 +105,11 @@ test "conf" do
         ipv4_uc[:network][:address] = e[:host]
         ipv4_uc[:network][:prefix_size] = 32
         ipv4_uc[:destination] = e[:host]
+        $ts.dut.call("mesa_l3_route_add", conf)
+
+        ipv4_uc[:network][:address] = e[:discard_network]
+        ipv4_uc[:network][:prefix_size] = e[:discard_prefix]
+        ipv4_uc[:destination] = 0xffffffff
         $ts.dut.call("mesa_l3_route_add", conf)
     end
 
@@ -144,23 +153,49 @@ test "frame-io" do
 
             $ts.dut.p.each_index do |idx_tx|
                 cmd = "sudo ef name f1 #{f1} name f2 #{f2}"
+                cmd += " tx #{$ts.pc.p[idx_tx]} name f1"
                 $ts.dut.p.each_index do |idx_rx|
-                    dir = "rx"
-                    f = nil
-                    if (idx_rx == idx_tx)
-                        dir = "tx"
-                        f = "f1"
-                    elsif (idx_tx < 2 and idx_rx == idx)
+                    cmd += " rx #{$ts.pc.p[idx_rx]}"
+                    if (idx_tx < 2 and idx_rx == idx)
                         # If sent to a port with routing, forward to host port
-                        f = "f2"
-                    end
-                    cmd += " #{dir} #{$ts.pc.p[idx_rx]}"
-                    unless (f.nil?)
-                        cmd += " name #{f}"
+                        cmd += " name f2"
                     end
                 end
                 $ts.pc.run(cmd)
             end
         end
     end
+end
+
+test "discard-route" do
+    # Tx frames for for each host port
+    $conf_table.each_with_index do |entry, idx|
+        # Tx frame f1, expect discard
+        dmac = mac_to_txt($router_mac)
+        sip = ipv4_to_txt($conf_table[idx == 0 ? 1 : 0][:host])
+        dip = ipv4_to_txt(entry[:discard_network])
+        f1 = "eth dmac #{dmac} ipv4 sip #{sip} dip #{dip}"
+        $ts.dut.p.each_index do |idx_tx|
+            cmd = "sudo ef name f1 #{f1} "
+            $ts.dut.p.each_index do |idx_rx|
+                dir = "rx"
+                f = nil
+                if (idx_rx == idx_tx)
+                    dir = "tx"
+                    f = "f1"
+                end
+                cmd += " #{dir} #{$ts.pc.p[idx_rx]}"
+                unless (f.nil?)
+                    cmd += " name #{f}"
+                end
+            end
+            $ts.pc.run(cmd)
+        end
+    end
+end
+
+test "dump" do
+    break
+    $ts.dut.run("mesa-cmd debug api vlan")
+    $ts.dut.run("mesa-cmd debug api l3")
 end

@@ -120,7 +120,7 @@ static vtss_rc fa_l3_rleg_stat_reset(vtss_state_t *vtss_state)
 {
     u32 i, j;
 
-    for (i = 0; i < (2 * VTSS_RLEG_CNT); i++) {
+    for (i = 0; i < (2 * VTSS_RLEG_STAT_CNT); i++) {
         for (j = 0; j < 2; j++) {
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_MSB_CNT(i, j), 0);
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_LSB_CNT(i, j), 0);
@@ -397,8 +397,8 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
        VTSS_X_ANA_L3_RLEG_CFG_0_RLEG_MAC_LSB(cfg0),
        VTSS_X_ANA_L3_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(cfg1));
 
-    for (i = 0; i < VTSS_RLEG_CNT; i++) {
-        if (vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) {
+    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
+        if (i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) {
             continue;
         }
 
@@ -483,8 +483,8 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < VTSS_RLEG_CNT; i++) {
-        if ((vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) ||
+    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
+        if ((i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) ||
             fa_l3_rleg_hw_stat_poll(vtss_state, i) != VTSS_RC_OK) {
             continue;
         }
@@ -566,7 +566,7 @@ static vtss_rc fa_l3_poll(vtss_state_t *vtss_state)
        The worst case is a 40-bit byte counter, which would wrap in about 900 seconds at 10 Gbps */
     VTSS_RC(fa_l3_rleg_hw_stat_poll(vtss_state, vtss_state->l3.statistics.rleg));
     vtss_state->l3.statistics.rleg++;
-    if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_CNT) {
+    if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_STAT_CNT) {
         vtss_state->l3.statistics.rleg = 0;
     }
     return VTSS_RC_OK;

@@ -7,6 +7,10 @@
 
 #if defined(VTSS_FEATURE_LAYER3)
 
+// One router leg is reserved for discarding
+#define VTSS_RLEG_DISCARD  VTSS_RLEG_CNT
+#define VTSS_RLEG_STAT_CNT (VTSS_RLEG_CNT + 1)
+
 /* ARP table is divided into rows with 12 columns each */
 #define VTSS_L3_ARP_COL_CNT 12
 #define VTSS_L3_ARP_ROW_CNT (VTSS_ARP_CNT / VTSS_L3_ARP_COL_CNT)
@@ -127,8 +131,8 @@ typedef struct {
 } vtss_l3_mc_tbl_t;
 
 typedef struct {
-    vtss_l3_counters_t interface_shadow_counter[VTSS_RLEG_CNT];
-    vtss_l3_counters_t interface_counter[VTSS_RLEG_CNT];
+    vtss_l3_counters_t interface_shadow_counter[VTSS_RLEG_STAT_CNT];
+    vtss_l3_counters_t interface_counter[VTSS_RLEG_STAT_CNT];
     u32                rleg; /* Next router leg to poll */
 } vtss_l3_statistics_t;
 

@@ -827,7 +827,9 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
                                 u32 cnt)
 {
     BOOL         enable = vtss_state->l3.common.routing_enable;
-    vtss_l3_nb_t nb_zero;
+    BOOL         discard = 1;
+    int          i;
+    vtss_l3_nb_t nb_zero = {0};
 
     if (net->network.type == VTSS_IP_TYPE_IPV4) {
         I("net: " IPV4N_FORMAT,
@@ -844,7 +846,20 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
         /* Single next-hop */
         if (nb == NULL) {
             nb = &nb_zero;
-            VTSS_MEMSET(nb, 0, sizeof(*nb));
+            if (net->network.type == VTSS_IP_TYPE_IPV4) {
+                discard = (net->nh.dip.addr.ipv4 == 0xffffffff);
+            } else {
+                for (i = 0; i < 16; i++) {
+                    if (net->nh.dip.addr.ipv6.addr[i] != 0xff) {
+                        discard = 0;
+                    }
+                }
+            }
+            if (discard) {
+                // Discard route, ensure non-zero DMAC and use reserved router leg
+                nb->dmac.addr[5] = 0xff;
+                nb->rleg = VTSS_RLEG_DISCARD;
+            }
         }
         I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
     } else {
