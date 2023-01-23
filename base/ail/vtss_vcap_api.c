@@ -1852,6 +1852,17 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
     vtss_vcap_obj_t   *obj;
     u32               i;
 
+    if (vtss_state->create_pre) {
+        // Preprocessing
+#if defined(VTSS_FEATURE_VCAP_SUPER)
+        vtss_vcap_super_obj_t *vcap_super = &vtss_state->vcap.vcap_super;
+
+        vcap_super->block.max_count = VTSS_VCAP_SUPER_BLK_CNT;
+        vcap_super->max_rule_count = VTSS_VCAP_SUPER_RULE_CNT;
+#endif /* VTSS_FEATURE_VCAP_SUPER */
+        return VTSS_RC_OK;
+    }
+
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         action = &vtss_state->vcap.acl_port_conf[port_no].action;
         action->learn = 1;
@@ -1861,11 +1872,8 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
     {
         vtss_vcap_super_obj_t *vcap_super = &vtss_state->vcap.vcap_super;
 
-        vcap_super->block.max_count = VTSS_VCAP_SUPER_BLK_CNT;
-        vcap_super->row_count = VTSS_VCAP_SUPER_ROW_CNT;
-
         /* Add VCAP_SUPER entries to free list */
-        vcap_super->max_rule_count = VTSS_VCAP_SUPER_RULE_CNT;
+        vcap_super->row_count = VTSS_VCAP_SUPER_ROW_CNT;
         for (i = 0; i < vcap_super->max_rule_count; i++) {
             entry = &vcap_super->table[i];
             entry->next = vcap_super->free;

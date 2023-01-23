@@ -131,7 +131,8 @@ static void integrity_update(vtss_inst_t inst)
 /* finds and returns an unused rleg id for the provided vlan. Will fail if the
  * given vlan is allready configured, or if no more rlegs are aviable. */
 static inline
-vtss_rc rleg_id_get_new(vtss_l3_rleg_conf_t       *rleg_conf,
+vtss_rc rleg_id_get_new(vtss_state_t              *vtss_state,
+                        vtss_l3_rleg_conf_t       *rleg_conf,
                         const vtss_l3_rleg_conf_t *const new_rleg,
                         vtss_l3_rleg_id_t         *rleg_id)
 {
@@ -139,7 +140,7 @@ vtss_rc rleg_id_get_new(vtss_l3_rleg_conf_t       *rleg_conf,
     u32 free_id = 0xffffffff; // just to make lint happy
     BOOL found_free = FALSE;
 
-    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
+    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
         if (rleg_conf[i].vlan == new_rleg->vlan) {
             E("rleg_id_get_new failed, as vlan %d is allready used by rleg %d",
               rleg_conf[i].vlan, i);
@@ -170,7 +171,8 @@ vtss_rc rleg_id_get_new(vtss_l3_rleg_conf_t       *rleg_conf,
 /* finds and returns an existing rleg id for the provided vlan. Will fail if the
  * given vlan does not allready exitst. */
 static inline
-vtss_rc rleg_id_get(vtss_l3_rleg_conf_t *rleg_conf,
+vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
+                    vtss_l3_rleg_conf_t *rleg_conf,
                     const vtss_vid_t     vlan,
                     vtss_l3_rleg_id_t   *rleg_id,
                     vtss_l3_rleg_conf_t *rleg)
@@ -180,7 +182,7 @@ vtss_rc rleg_id_get(vtss_l3_rleg_conf_t *rleg_conf,
     if (vlan == 0)
         return VTSS_RC_ERROR;
 
-    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
+    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
         if (rleg_conf[i].vlan == vlan) {
             if (rleg_id)
                 *rleg_id = i;
@@ -198,12 +200,13 @@ vtss_rc rleg_id_get(vtss_l3_rleg_conf_t *rleg_conf,
 /* finds delete and returns an existing rleg id for the provided vlan. Will fail
  * if the given vlan does not allready exitst. */
 static inline
-vtss_rc rleg_id_del(vtss_l3_rleg_conf_t *rleg_conf,
+vtss_rc rleg_id_del(vtss_state_t        *vtss_state,
+                    vtss_l3_rleg_conf_t *rleg_conf,
                     const vtss_vid_t     vlan,
                     vtss_l3_rleg_id_t   *rleg_id)
 {
     vtss_l3_rleg_id_t id;
-    VTSS_RC(rleg_id_get(rleg_conf, vlan, &id, 0));
+    VTSS_RC(rleg_id_get(vtss_state, rleg_conf, vlan, &id, 0));
 
     *rleg_id = id;
     rleg_conf[id].ipv4_unicast_enable = FALSE;
@@ -243,7 +246,7 @@ static vtss_rc rleg_del(vtss_state_t *vtss_state,
               rleg_id, vlan);                          \
         }                                              \
     }
-    rc = rleg_id_del(rleg_conf, vlan, &rleg_id);
+    rc = rleg_id_del(vtss_state, rleg_conf, vlan, &rleg_id);
     I("Deleting rleg_id = %d, vlan = %d", rleg_id, vlan);
     DO(VTSS_FUNC(l3.vlan_set, rleg_id, vlan, FALSE));
     DO(VTSS_FUNC(l3.rleg_set, rleg_id, &conf));
@@ -270,7 +273,7 @@ static vtss_rc rleg_add(vtss_state_t *vtss_state,
         I("Skipping: " #X "rleg_id = %d, vlan = %d due to earlier error", \
           rleg_id, conf->vlan);                                           \
     }
-    rc = rleg_id_get_new(vtss_state->l3.rleg_conf, conf, &rleg_id);
+    rc = rleg_id_get_new(vtss_state, vtss_state->l3.rleg_conf, conf, &rleg_id);
     D("Adding rleg: rleg_id = %d, vlan = %d", rleg_id, conf->vlan);
     DO(VTSS_FUNC(l3.rleg_set, rleg_id, conf));
     DO(VTSS_FUNC(l3.vlan_set, rleg_id, conf->vlan, TRUE));
@@ -286,7 +289,7 @@ static vtss_rc rleg_update(vtss_state_t              *vtss_state,
     u32 i;
     vtss_rc rc = VTSS_RC_ERROR;
 
-    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
+    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
         if (rleg_conf[i].vlan == conf->vlan) {
             rleg_conf[i] = *conf;
             D("Updating rleg: rleg_id = %d, vlan = %d", i, conf->vlan);
@@ -424,7 +427,7 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
     vtss_l3_arp_info_t *arp = &vtss_state->l3.arp;
     vtss_l3_arp_row_t  *row, *row_free;
     u8                 size, done;
-    u16                i, j, k, i_free = VTSS_L3_ARP_ROW_CNT, j_free = 0, old, new;
+    u16                i, j, k, i_free = arp->row_cnt, j_free = 0, old, new;
     struct {
         u16 free_cnt; /* Number of free entries */
         u16 row_idx;  /* Index of row with smallest number of used entries */
@@ -443,7 +446,7 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
 
     VTSS_MEMSET(info, 0, sizeof(info));
     done = 0;
-    for (i = 0; i < VTSS_L3_ARP_ROW_CNT && !done; i++) {
+    for (i = 0; i < arp->row_cnt && !done; i++) {
         row = &arp->row[i];
         if ((size = row->size) != 0) {
             pi = &info[size];
@@ -465,14 +468,14 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
                     pi->free_cnt += size;
                 }
             }
-        } else if (i_free == VTSS_L3_ARP_ROW_CNT) {
+        } else if (i_free == arp->row_cnt) {
             /* First free row found */
             i_free = i;
         }
     }
 
     pi = NULL;
-    if (i_free == VTSS_L3_ARP_ROW_CNT) {
+    if (i_free == arp->row_cnt) {
         /* No free row or column found, check if we can free a new row */
         for (size = (VTSS_L3_ARP_COL_CNT / 2); size > 1; size--) {
             if (info[size].free_cnt >= VTSS_L3_ARP_COL_CNT) {
@@ -501,7 +504,7 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
             }
         }
         done = 0;
-        for (i = 0; i < VTSS_L3_ARP_ROW_CNT && !done; i++) {
+        for (i = 0; i < arp->row_cnt && !done; i++) {
             row = &arp->row[i];
             if (row->size != size || row == row_free) {
                 continue;
@@ -550,17 +553,18 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
 
 static inline vtss_rc arp_free(vtss_state_t *vtss_state, u16 idx)
 {
-    vtss_l3_arp_row_t *row;
-    u8                size;
-    u16               i = (idx / VTSS_L3_ARP_COL_CNT);
-    u16               j = (idx % VTSS_L3_ARP_COL_CNT);
+    vtss_l3_arp_info_t *arp = &vtss_state->l3.arp;
+    vtss_l3_arp_row_t  *row;
+    u8                 size;
+    u16                i = (idx / VTSS_L3_ARP_COL_CNT);
+    u16                j = (idx % VTSS_L3_ARP_COL_CNT);
 
-    if (i >= VTSS_L3_ARP_ROW_CNT) {
+    if (i >= arp->row_cnt) {
         E("illegal idx: %u", idx);
         return VTSS_RC_ERROR;
     }
 
-    row = &vtss_state->l3.arp.row[i];
+    row = &arp->row[i];
     if ((size = row->size) == 0 || row->used[j] == 0) {
         E("already free idx: %u", idx);
         return VTSS_RC_ERROR;
@@ -990,13 +994,14 @@ static vtss_rc mc_rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
 }
 
-static BOOL mc_tbl_find(vtss_l3_mc_tbl_t *tbl, u32 *rlegs, u8 rpf, u16 *id)
+static BOOL mc_tbl_find(vtss_state_t *vtss_state,
+                        vtss_l3_mc_tbl_t *tbl, u32 *rlegs, u8 rpf, u16 *id)
 {
     u32 i, a;
 
     if (rlegs == NULL) {
         // Find an empty table entry
-        for (i = 0; i < VTSS_MC_TBL_CNT; ++i) {
+        for (i = 0; i < vtss_state->l3.mc_tbl_cnt; ++i) {
             if (tbl[i].cnt == 0) {
                 for (a = 0; a < 4; a++) {
                     tbl[i].rlegs[a] = 0;
@@ -1010,7 +1015,7 @@ static BOOL mc_tbl_find(vtss_l3_mc_tbl_t *tbl, u32 *rlegs, u8 rpf, u16 *id)
         return FALSE;
     } else {
         // Find an specific table entry
-        for (i = 0; i < VTSS_MC_TBL_CNT; ++i) {
+        for (i = 0; i < vtss_state->l3.mc_tbl_cnt; ++i) {
             if (tbl[i].cnt == 0) {
                 continue;
             }
@@ -1036,13 +1041,13 @@ static vtss_rc mc_update_rleg_tbl(vtss_state_t           *vtss_state,
 
     // For RPF
     if (cur->src_rleg != VTSS_VID_NULL) {
-        if (rleg_id_get(vtss_state->l3.rleg_conf, cur->src_rleg, &rpf, NULL) != VTSS_RC_OK) {
+        if (rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, cur->src_rleg, &rpf, NULL) != VTSS_RC_OK) {
             E("Router leg not found");
             return VTSS_RC_ERROR;
         }
     }
     // Does the new rleg entry exist?
-    if (mc_tbl_find(tbl_ptr, new_rlegs, rpf, &new_tbl_id)) {
+    if (mc_tbl_find(vtss_state, tbl_ptr, new_rlegs, rpf, &new_tbl_id)) {
         // Yes it does, use it
         tbl_ptr[cur->tbl].cnt--;
         cur->tbl = new_tbl_id;
@@ -1058,7 +1063,7 @@ static vtss_rc mc_update_rleg_tbl(vtss_state_t           *vtss_state,
         }
     } else {
         // Entry does not exist create a new one
-        if (!mc_tbl_find(tbl_ptr, NULL, 0, &new_tbl_id)) {
+        if (!mc_tbl_find(vtss_state, tbl_ptr, NULL, 0, &new_tbl_id)) {
             I("MC L3 Table is full");
             return VTSS_RC_ERROR;
         }
@@ -1099,7 +1104,7 @@ static inline vtss_rc mc_rt_rleg_modify(vtss_state_t                  *vtss_stat
         I("MC Route not found");
         return VTSS_RC_ERROR;
     }
-    if (rleg_id_get(vtss_state->l3.rleg_conf, dest_rleg, &rleg_id, NULL) != VTSS_RC_OK) {
+    if (rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, dest_rleg, &rleg_id, NULL) != VTSS_RC_OK) {
         E("Router leg not found");
         return VTSS_RC_ERROR;
     }
@@ -1213,7 +1218,7 @@ static inline vtss_rc mc_rt_add(vtss_state_t                  *vtss_state,
         }
 
         // Find an empty L3 MC entry
-        if (!mc_tbl_find(tbl_ptr, NULL, 0, &new_tbl_id)) {
+        if (!mc_tbl_find(vtss_state, tbl_ptr, NULL, 0, &new_tbl_id)) {
             E("MC L3 Table is full");
             return VTSS_RC_ERROR;
         }
@@ -1550,7 +1555,7 @@ static inline vtss_rc nb_add(vtss_state_t              *vtss_state,
     vtss_l3_nh_key_t  nh;
     int               cmp = 1;
 
-    VTSS_RC(rleg_id_get(vtss_state->l3.rleg_conf, nb->vlan, &rleg, NULL));
+    VTSS_RC(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, nb->vlan, &rleg, NULL));
 
     /* Search for an existing entry or a place to insert new entry */
     nb2nh(nb, &nh);
@@ -1803,7 +1808,7 @@ vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t     inst,
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = rleg_id_get(vtss_state->l3.rleg_conf, vid, NULL, conf);
+        rc = rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vid, NULL, conf);
     }
     VTSS_L3_EXIT();
 
@@ -1859,7 +1864,7 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         VTSS_MEMSET(counters, 0, sizeof(*counters));
-        for (i = 0; i < VTSS_RLEG_CNT; i++) {
+        for (i = 0; i < vtss_state->l3.rleg_cnt; i++) {
             if (vtss_state->l3.rleg_conf[i].vlan != 0 &&
                 VTSS_FUNC(l3.rleg_counters_get, i) == VTSS_RC_OK) {
                 /* Summarize router leg counters */
@@ -1913,7 +1918,7 @@ vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t   inst,
 
     VTSS_L3_ENTER();
     DO(vtss_inst_check(inst, &vtss_state));
-    DO(rleg_id_get(vtss_state->l3.rleg_conf, vlan, &rleg, 0));
+    DO(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, 0));
     if (rc == VTSS_RC_OK &&
         VTSS_FUNC(l3.rleg_counters_get, rleg) == VTSS_RC_OK) {
         *counters = vtss_state->l3.statistics.interface_counter[rleg];
@@ -1948,7 +1953,7 @@ vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t   inst,
 
     VTSS_L3_ENTER();
     DO(vtss_inst_check(inst, &vtss_state));
-    DO(rleg_id_get(vtss_state->l3.rleg_conf, vlan, &rleg, 0));
+    DO(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, 0));
     if (rc == VTSS_RC_OK) {
         (void) VTSS_MEMSET(&(vtss_state->l3.statistics.interface_counter[rleg]), 0,
                       sizeof(vtss_l3_counters_t));
@@ -2261,7 +2266,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
     pr("============\n");
     pr("ID   RLEG IPv4UC IPv6UC IPv4MC IPv6MC IPv4ICMP IPv6ICMP vlan vrid0 vrid1 mc_limit ttl_limit\n");
     pr("---- ---- ------ ------ ------ ------ -------- -------- ---- ----- ----- -------- ---------\n");
-    for (i = 0; i < VTSS_RLEG_CNT; i++) {
+    for (i = 0; i < l3->rleg_cnt; i++) {
         const vtss_l3_rleg_conf_t *r = &l3->rleg_conf[i];
 
         if ( (!r->ipv4_unicast_enable) &&
@@ -2392,10 +2397,10 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
 
     pr("ARP Table:\n");
     pr("==========\n");
-    pr("Rows    : %u\n", VTSS_L3_ARP_ROW_CNT);
+    pr("Rows    : %u\n", l3->arp.row_cnt);
     pr("Columns : %u\n", VTSS_L3_ARP_COL_CNT);
-    pr("Total   : %u\n\n", VTSS_L3_ARP_ROW_CNT * VTSS_L3_ARP_COL_CNT);
-    for (i = 0; i < VTSS_L3_ARP_ROW_CNT; i++) {
+    pr("Total   : %u\n\n", l3->arp.row_cnt * VTSS_L3_ARP_COL_CNT);
+    for (i = 0; i < l3->arp.row_cnt; i++) {
         row = &l3->arp.row[i];
         if (row->size == 0) {
             continue;
@@ -2453,7 +2458,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
     pr("============\n");
     pr("ID   Count  RPF-VMID  Rlegs IDs\n");
     pr("---- ------ --------  --------\n");
-    for (i = 0; i < VTSS_MC_TBL_CNT; i++) {
+    for (i = 0; i < l3->mc_tbl_cnt; i++) {
         vtss_l3_mc_tbl_t *t = &vtss_state->l3.mc_tbl[i];
         if (t->cnt == 0) {
             continue;
@@ -2488,14 +2493,27 @@ vtss_rc vtss_l3_inst_create(vtss_state_t *vtss_state)
     vtss_l3_nb_t     *nb;
     vtss_l3_mc_rt_t *mc_net;
 
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        l3->rleg_cnt = VTSS_RLEG_CNT;
+        l3->arp_cnt = VTSS_ARP_CNT;
+        l3->mc_tbl_cnt = VTSS_MC_TBL_CNT;
+        return VTSS_RC_OK;
+    }
+
+    // Calculate derived constants
+    l3->rleg_stat_cnt = (l3->rleg_cnt + 1);
+    l3->rleg_discard = l3->rleg_cnt;
+    l3->arp.row_cnt = (l3->arp_cnt / VTSS_L3_ARP_COL_CNT);
+
     /* Fill up free lists */
-    for (i = 0; i < VTSS_L3_NH_CNT; i++) {
+    for (i = 0; i < (l3->arp_cnt + VTSS_L3_NH_MAX); i++) {
         nh = &l3->nh.table[i];
         nh->next = l3->nh.free;
         l3->nh.free = nh;
         l3->nh.free_cnt++;
     }
-    for (i = 0; i < VTSS_L3_NH_GRP_CNT; i++) {
+    for (i = 0; i <= (l3->arp_cnt / 2); i++) {
         grp = &l3->nh_grp.table[i];
         grp->next = l3->nh_grp.free;
         l3->nh_grp.free = grp;

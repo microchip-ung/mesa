@@ -1952,7 +1952,6 @@ vtss_rc vtss_jr2_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->policer_update = jr2_evc_policer_update;
         state->counters_update = jr2_evc_counters_update;
         state->isdx_update = vtss_jr2_isdx_update;
-        state->sdx_info.max_count = VTSS_SDX_CNT;
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(jr2_l2_init(vtss_state));

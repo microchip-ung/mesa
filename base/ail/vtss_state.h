@@ -268,7 +268,7 @@ typedef struct vtss_state_s {
     u32                           chip_count;      /* Number of devices */
     vtss_chip_no_t                chip_no;         /* Currently selected device */
     u32                           port_count;
-
+    BOOL                          create_pre;      // AIL create preprocessing
     /* CIL function pointers not part of a specific group */
     vtss_cil_func_t cil;
 

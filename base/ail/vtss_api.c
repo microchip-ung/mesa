@@ -196,23 +196,65 @@ vtss_rc vtss_inst_get(const vtss_target_type_t target,
     return VTSS_RC_OK;
 }
 
-/* Initialize state to default values */
-static vtss_rc vtss_inst_default_set(vtss_state_t *vtss_state)
+static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
 {
-    VTSS_D("enter");
+    vtss_state->create_pre = create_pre;
 
-    vtss_state->port_count = VTSS_PORTS;
-
+    if (create_pre) {
+        // General default constants
+        vtss_state->port_count = VTSS_PORTS;
 #if defined(VTSS_FEATURE_SYNCE)
-    {
-        u32               i;
-        for (i=0; i<VTSS_SYNCE_CLK_PORT_ARRAY_SIZE; i++) {
+        u32 i;
+        for (i = 0; i < VTSS_SYNCE_CLK_PORT_ARRAY_SIZE; i++) {
             vtss_state->synce.old_port_no[i] = 0xFFFFFFFF;
         }
-    }
 #endif /* VTSS_FEATURE_SYNCE*/
+    }
 
-    VTSS_D("exit");
+#if defined(VTSS_FEATURE_MISC)
+    VTSS_RC(vtss_misc_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_MISC */
+
+#if defined(VTSS_FEATURE_PORT_CONTROL)
+    VTSS_RC(vtss_port_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_PORT_CONTROL */
+
+#if defined(VTSS_FEATURE_PACKET)
+    VTSS_RC(vtss_packet_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_PACKET */
+
+#if defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
+     VTSS_RC(vtss_afi_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_AFI_SWC && VTSS_AFI_V2 */
+
+#if defined(VTSS_FEATURE_QOS)
+    VTSS_RC(vtss_qos_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_LAYER2)
+    VTSS_RC(vtss_l2_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_LAYER2 */
+
+#if defined(VTSS_FEATURE_LAYER3)
+    VTSS_RC(vtss_l3_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_LAYER2 */
+
+#if defined(VTSS_FEATURE_VCAP)
+    VTSS_RC(vtss_vcap_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_VCAP */
+
+#if defined(VTSS_FEATURE_VOP)
+    VTSS_RC(vtss_oam_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_VOP */
+
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_mrp_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_MRP */
+
+#if defined(VTSS_FEATURE_TIMESTAMP)
+    VTSS_RC(vtss_ts_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_TIMESTAMP */
+
     return VTSS_RC_OK;
 }
 
@@ -231,6 +273,10 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     vtss_state->create = *create;
     vtss_state->chip_count = 1;
 
+    // Create AIL, preprocessing
+    VTSS_RC(vtss_ail_create(vtss_state, 1));
+
+    // Create CIL
     switch (create->target) {
 #if defined(VTSS_ARCH_OCELOT)
     case VTSS_TARGET_7511:
@@ -317,52 +363,8 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
 
     vtss_state->arch = arch;
 
-    /* Set default configuration */
-    VTSS_RC(vtss_inst_default_set(vtss_state));
-
-#if defined(VTSS_FEATURE_MISC)
-    VTSS_RC(vtss_misc_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_MISC */
-
-#if defined(VTSS_FEATURE_PORT_CONTROL)
-    VTSS_RC(vtss_port_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_PORT_CONTROL */
-
-#if defined(VTSS_FEATURE_PACKET)
-    VTSS_RC(vtss_packet_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_PACKET */
-
-#if defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
-     VTSS_RC(vtss_afi_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_AFI_SWC && VTSS_AFI_V2 */
-
-#if defined(VTSS_FEATURE_QOS)
-    VTSS_RC(vtss_qos_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_QOS */
-
-#if defined(VTSS_FEATURE_LAYER2)
-    VTSS_RC(vtss_l2_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_LAYER2 */
-
-#if defined(VTSS_FEATURE_LAYER3)
-    VTSS_RC(vtss_l3_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_LAYER2 */
-
-#if defined(VTSS_FEATURE_VCAP)
-    VTSS_RC(vtss_vcap_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_VCAP */
-
-#if defined(VTSS_FEATURE_VOP)
-    VTSS_RC(vtss_oam_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_VOP */
-
-#if defined(VTSS_FEATURE_MRP)
-    VTSS_RC(vtss_mrp_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_MRP */
-
-#if defined(VTSS_FEATURE_TIMESTAMP)
-    VTSS_RC(vtss_ts_inst_create(vtss_state));
-#endif /* VTSS_FEATURE_TIMESTAMP */
+    // Create AIL, postprocessing
+    VTSS_RC(vtss_ail_create(vtss_state, 0));
 
     /* Setup default instance */
     if (vtss_default_inst == NULL)

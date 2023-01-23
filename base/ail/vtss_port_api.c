@@ -1001,6 +1001,11 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
     vtss_port_no_t   port_no;
     vtss_init_conf_t *init_conf = &vtss_state->init_conf;
 
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        return VTSS_RC_OK;
+    }
+
     init_conf->miim_read = vtss_miim_reg_read;
     init_conf->miim_write = vtss_miim_reg_write;
     init_conf->mmd_read = vtss_mmd_reg_read;

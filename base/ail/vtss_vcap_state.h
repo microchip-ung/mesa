@@ -59,14 +59,11 @@
 #define VTSS_FEATURE_CLM             /* VCAP CLM */
 #define VTSS_FEATURE_LPM             /* VCAP LPM */
 #define VTSS_FEATURE_VCAP_SUPER      /* VCAP_SUPER pool */
-#if defined(VTSS_ARCH_SPARX5)
-#define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
-#else
-#define VTSS_VCAP_SUPER_BLK_CNT  6   /* Number of VCAP_SUPER blocks */
-#endif
 #if defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_VCAP_SUPER_BLK_CNT  6   /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  4   /* Number of rows in one block (full rules) */
 #else
+#define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
 #endif
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6) /* Six rules per row */

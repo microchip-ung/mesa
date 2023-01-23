@@ -3459,7 +3459,6 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
 
     hdr = &state->pol_table.hdr;
     hdr->name = "policer";
-    hdr->max_count = VTSS_EVC_POL_CNT;
     hdr->row = state->pol_table.row;
     dummy = VTSS_POL_STAT_NONE;
     VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
@@ -3468,7 +3467,6 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
 
     hdr = &state->istat_table.hdr;
     hdr->name = "istat";
-    hdr->max_count = VTSS_EVC_STAT_CNT;
     hdr->row = state->istat_table.row;
     dummy = VTSS_POL_STAT_NONE;
     VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
@@ -3480,7 +3478,6 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
 #endif
     hdr = &state->estat_table.hdr;
     hdr->name = "estat";
-    hdr->max_count = VTSS_EVC_STAT_CNT;
     hdr->row = state->estat_table.row;
     dummy = VTSS_POL_STAT_NONE;
     VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
@@ -3491,9 +3488,6 @@ static vtss_rc vtss_l2_pol_stat_create(vtss_state_t *vtss_state)
     cnt = 8;
     hdr = &state->ms_table.hdr;
     hdr->name = "mstream";
-    hdr->max_count = VTSS_MSTREAM_CNT;
-    state->max_cstream_cnt = VTSS_CSTREAM_CNT;
-    state->max_mstream_cnt = VTSS_MSTREAM_CNT;
     hdr->row = state->ms_table.row;
     dummy = VTSS_POL_STAT_NONE;
     VTSS_RC(vtss_xrow_alloc(vtss_state, hdr, cnt, &dummy));
@@ -4732,7 +4726,7 @@ vtss_rc vtss_eflow_alloc(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_RC_ERROR;
-        for (i = 0; i < VTSS_SDX_CNT; i++) {
+        for (i = 0; i < vtss_state->l2.sdx_info.max_count; i++) {
             eflow = &vtss_state->l2.eflow[i];
             if (!eflow->used) {
                 eflow->used = 1;
@@ -5210,11 +5204,34 @@ vtss_rc vtss_l2_restart_sync(vtss_state_t *vtss_state)
 
 vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 {
+    vtss_l2_state_t       *state = &vtss_state->l2;
     vtss_port_no_t        port_no;
     vtss_vlan_port_conf_t *vlan;
     vtss_vid_t            vid;
     vtss_vlan_entry_t     *vlan_entry;
     u32                   i;
+
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        state->mac_table_max = VTSS_MAC_ADDRS;
+#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+        state->mac_index_cnt = VTSS_MAC_INDEX_CNT;
+#endif
+#if defined(VTSS_SDX_CNT)
+        state->sdx_info.max_count = VTSS_SDX_CNT;
+#endif
+#if defined(VTSS_EVC_STAT_CNT)
+        state->pol_table.hdr.max_count = VTSS_EVC_POL_CNT;
+        state->istat_table.hdr.max_count = VTSS_EVC_STAT_CNT;
+        state->estat_table.hdr.max_count = VTSS_EVC_STAT_CNT;
+#endif
+#if defined(VTSS_FEATURE_FRER)
+        state->ms_table.hdr.max_count = VTSS_MSTREAM_CNT;
+        state->max_cstream_cnt = VTSS_CSTREAM_CNT;
+        state->max_mstream_cnt = VTSS_MSTREAM_CNT;
+#endif
+        return VTSS_RC_OK;
+    }
 
     vtss_state->l2.vlan_conf.s_etype = VTSS_ETYPE_TAG_S; /* Default S-tag Ethernet type */
 
@@ -5273,13 +5290,12 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
             mstp_entry->state[port_no] = VTSS_STP_STATE_FORWARDING;
     }
 #endif
-    vtss_state->l2.mac_ptr_size = VTSS_MAC_PTR_SIZE;
+    vtss_state->l2.mac_ptr_size = (state->mac_table_max / VTSS_MAC_PTR_SIZE);
     vtss_state->l2.aggr_mode.smac_enable = 1;
 
     vtss_state->l2.mirror_conf.port_no = VTSS_PORT_NO_NONE;
 
     /* Initialize MAC address table */
-    vtss_state->l2.mac_table_max = VTSS_MAC_ADDRS;
     for (i = 0; i < vtss_state->l2.mac_table_max; i++) {
         /* Insert first in free list */
         vtss_state->l2.mac_table[i].next = vtss_state->l2.mac_list_free;
@@ -5287,9 +5303,6 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
     }
     vtss_state->l2.mac_age_time = 300;
 
-#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-    vtss_state->l2.mac_index_cnt = VTSS_MAC_INDEX_CNT;
-#endif
 #if defined(VTSS_FEATURE_VCAP)
     {
         vtss_vlan_trans_grp2vlan_entry_t *grp_entry;

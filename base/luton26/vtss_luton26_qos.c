@@ -987,7 +987,6 @@ vtss_rc vtss_l26_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
         state->evc_policer_conf_set = vtss_l26_evc_policer_conf_set;
 #endif /* VTSS_FEATURE_QOS_POLICER_DLB */
-        state->prio_count = L26_PRIOS;
         /* Reserve policer for ACL discarding) */
         state->policer_user[L26_ACL_POLICER_DISC] = VTSS_POLICER_USER_DISCARD;
         break;

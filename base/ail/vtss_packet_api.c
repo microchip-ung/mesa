@@ -498,6 +498,11 @@ vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
     vtss_packet_rx_conf_t *rx_conf = &vtss_state->packet.rx_conf;
     u32                   queue;
 
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        return VTSS_RC_OK;
+    }
+
     rx_conf->reg.bpdu_cpu_only = 1;
     /* Enabling SFlow queue has side-effects on some platforms (JR-48), so by default we don't. */
     rx_conf->map.sflow_queue = VTSS_PACKET_RX_QUEUE_NONE;

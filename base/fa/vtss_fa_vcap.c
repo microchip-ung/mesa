@@ -4018,7 +4018,7 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
             max = 32;
         }
 
-        for (i = 0; i < VTSS_RLEG_CNT; i++) {
+        for (i = 0; i < vtss_state->l3.rleg_cnt; i++) {
             mod = (i % max);
             if (mod == 0) {
                 found = FALSE;
@@ -5337,6 +5337,7 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vcap_super->block_map = fa_vcap_super_block_map;
         vcap_super->block_move = fa_vcap_super_block_move;
         vcap_super->block.max_count = RT_VCAP_SUPER_BLK_CNT;
+        vcap_super->max_rule_count = RT_VCAP_SUPER_RULE_CNT;
 
         /* CLM_A */
         clm_a->entry_add = fa_clm_a_entry_add;

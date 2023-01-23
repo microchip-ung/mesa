@@ -5380,6 +5380,7 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->ingress_map_hw_update   = fa_qos_ingress_map_hw_update;
         state->ingress_map_hw_copy     = fa_qos_ingress_map_hw_copy;
         state->imap.id.entry_len       = RT_QOS_INGRESS_MAP_IDS;
+        state->imap_id_end             = RT_QOS_INGRESS_MAP_ID_END;
         state->imap.ix[0].entry_len    = RT_QOS_INGRESS_MAP_ROWS;
         if (RT_QOS_INGRESS_MAP_ROWS > 2*VTSS_QOS_INGRESS_ROW_MIN) {
             state->imap.ix[0].reserved     = (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN);
@@ -5398,9 +5399,6 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->egress_map_hw_copy      = fa_qos_egress_map_hw_copy;
 #endif
         state->cpu_port_shaper_set = fa_qos_cpu_port_shaper_set;
-
-        state->prio_count = VTSS_PRIOS;
-
         state->status_get = fa_qos_status_get;
 
 #if defined(VTSS_FEATURE_QOS_TAS)

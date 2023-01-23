@@ -3714,9 +3714,9 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->isdx_update = vtss_fa_isdx_update;
         state->sdx_info.max_count = RT_SDX_CNT;
         state->pol_table.hdr.max_count = RT_EVC_POL_CNT;
+        state->istat_table.hdr.max_count = RT_EVC_STAT_CNT;
         state->estat_table.hdr.max_count = RT_EVC_STAT_CNT;
         state->mac_table_max = RT_MAC_ADDRS;
-        state->mac_ptr_size = RT_MAC_ADDRS/VTSS_MAC_PAGE_SIZE;
 #if defined(VTSS_FEATURE_REDBOX)
         state->rb_cap_get = fa_rb_cap_get;
         state->rb_conf_set = fa_rb_conf_set;

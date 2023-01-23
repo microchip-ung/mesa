@@ -1124,7 +1124,6 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->evc_policer_conf_set = srvl_evc_policer_conf_set;
         state->evc_policer_max = 1022;
 #endif /* VTSS_FEATURE_EVC_POLICERS */
-        state->prio_count = SRVL_PRIOS;
         break;
     case VTSS_INIT_CMD_INIT:
         /* Setup discard policer */

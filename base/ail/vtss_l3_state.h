@@ -22,6 +22,7 @@ typedef struct {
 } vtss_l3_arp_row_t;
 
 typedef struct {
+    u16               row_cnt;
     vtss_l3_arp_row_t row[VTSS_L3_ARP_ROW_CNT];
 } vtss_l3_arp_info_t;
 
@@ -163,6 +164,11 @@ typedef struct {
 
     /* Configuration/state */
     u32                        checksum;
+    u16                        rleg_cnt;
+    u16                        rleg_stat_cnt;
+    u16                        rleg_discard;
+    u16                        arp_cnt;
+    u16                        mc_tbl_cnt;
     vtss_l3_common_conf_t      common;
     vtss_l3_rleg_conf_t        rleg_conf[VTSS_RLEG_CNT];
     vtss_l3_statistics_t       statistics;

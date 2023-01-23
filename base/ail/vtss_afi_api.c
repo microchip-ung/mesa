@@ -1972,14 +1972,18 @@ vtss_rc vtss_afi_inst_create(vtss_state_t *vtss_state)
     vtss_afi_state_t *state = &vtss_state->afi;
     vtss_port_no_t   port_no;
 
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        state->slow_inj_cnt = VTSS_AFI_SLOW_INJ_CNT;
+        state->fast_inj_bps_min = VTSS_AFI_FAST_INJ_BPS_MIN;
+        state->fast_inj_bps_max = VTSS_AFI_FAST_INJ_BPS_MAX;
+        return VTSS_RC_OK;
+    }
+
     // Set chip default values
     for (port_no = 0; port_no < VTSS_ARRSZ(state->port_tbl); port_no++) {
         state->port_tbl[port_no].frm_out_max = VTSS_AFI_FRM_OUT_MAX_DEF;
     }
-    state->slow_inj_cnt = VTSS_AFI_SLOW_INJ_CNT;
-    state->fast_inj_bps_min = VTSS_AFI_FAST_INJ_BPS_MIN;
-    state->fast_inj_bps_max = VTSS_AFI_FAST_INJ_BPS_MAX;
-
     return VTSS_RC_OK;
 }
 

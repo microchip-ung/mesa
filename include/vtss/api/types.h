@@ -584,7 +584,7 @@ typedef u16 vtss_qos_ingress_map_id_t;
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_QOS_INGRESS_MAP_IDS      8
-#elif defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
+#elif defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_QOS_INGRESS_MAP_IDS      256
 #else
 #define VTSS_QOS_INGRESS_MAP_IDS      128
@@ -599,7 +599,7 @@ typedef u16 vtss_qos_egress_map_id_t;
 
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_QOS_EGRESS_MAP_IDS       32
-#elif defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
+#elif defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_QOS_EGRESS_MAP_IDS       512
 #else
 #define VTSS_QOS_EGRESS_MAP_IDS       256

@@ -2027,8 +2027,6 @@ vtss_rc vtss_jr2_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
         state->cpu_port_shaper_set = jr2_qos_cpu_port_shaper_set;
 
-        state->prio_count = JR2_PRIOS;
-
         state->status_get = jr2_qos_status_get;
         break;
     case VTSS_INIT_CMD_INIT:

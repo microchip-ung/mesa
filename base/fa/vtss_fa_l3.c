@@ -129,7 +129,7 @@ static vtss_rc fa_l3_rleg_stat_reset(vtss_state_t *vtss_state)
 {
     u32 i, j;
 
-    for (i = 0; i < (2 * VTSS_RLEG_STAT_CNT); i++) {
+    for (i = 0; i < (2 * vtss_state->l3.rleg_stat_cnt); i++) {
         for (j = 0; j < 2; j++) {
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_MSB_CNT(i, j), 0);
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_LSB_CNT(i, j), 0);
@@ -384,6 +384,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info)
 {
+    vtss_l3_state_t    *l3 = &vtss_state->l3;
     BOOL               header = 1;
     vtss_vid_t         vid;
     u32                i, value, enable, cfg0, cfg1;
@@ -406,8 +407,8 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
        VTSS_X_ANA_L3_RLEG_CFG_0_RLEG_MAC_LSB(cfg0),
        VTSS_X_ANA_L3_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(cfg1));
 
-    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
-        if (i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) {
+    for (i = 0; i < l3->rleg_stat_cnt; i++) {
+        if (i < l3->rleg_cnt && l3->rleg_conf[i].vlan == 0 && !info->full) {
             continue;
         }
 
@@ -470,7 +471,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
     }
     VTSS_RC(vtss_fa_debug_lpm(vtss_state, pr, info));
 
-    for (i = 0; i < VTSS_ARP_CNT; i++) {
+    for (i = 0; i < l3->arp_cnt; i++) {
         REG_RD(VTSS_ANA_L3_ARP_CFG_0(i), &cfg0);
         if (VTSS_X_ANA_L3_ARP_CFG_0_ARP_ENA(cfg0) == 0 && !info->full) {
             continue;
@@ -491,14 +492,14 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
-        if ((i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) ||
+    for (i = 0; i < l3->rleg_stat_cnt; i++) {
+        if ((i < l3->rleg_cnt && l3->rleg_conf[i].vlan == 0 && !info->full) ||
             fa_l3_rleg_hw_stat_poll(vtss_state, i) != VTSS_RC_OK) {
             continue;
         }
 
         pr("RLEG %u counters:\n\n", i);
-        cnt = &vtss_state->l3.statistics.interface_counter[i];
+        cnt = &l3->statistics.interface_counter[i];
         fa_l3_debug_cnt(pr, "ipv4_uc_packets", cnt->ipv4uc_received_frames, cnt->ipv4uc_transmitted_frames);
         fa_l3_debug_cnt(pr, "ipv4_uc_bytes", cnt->ipv4uc_received_octets, cnt->ipv4uc_transmitted_octets);
         fa_l3_debug_cnt(pr, "ipv6_uc_packets", cnt->ipv6uc_received_frames, cnt->ipv6uc_transmitted_frames);
@@ -574,7 +575,7 @@ static vtss_rc fa_l3_poll(vtss_state_t *vtss_state)
        The worst case is a 40-bit byte counter, which would wrap in about 900 seconds at 10 Gbps */
     VTSS_RC(fa_l3_rleg_hw_stat_poll(vtss_state, vtss_state->l3.statistics.rleg));
     vtss_state->l3.statistics.rleg++;
-    if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_STAT_CNT) {
+    if (vtss_state->l3.statistics.rleg >= vtss_state->l3.rleg_cnt) {
         vtss_state->l3.statistics.rleg = 0;
     }
     return VTSS_RC_OK;
@@ -598,6 +599,14 @@ vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mc_rt_rleg_add = fa_l3_mc_rt_rleg_add;
         state->arp_set = fa_l3_arp_set;
         state->debug_sticky_clear = fa_l3_debug_sticky_clear;
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+        if (LA_TGT) {
+            // Reduced L3 scale for Laguna
+            state->rleg_cnt = 126;
+            state->arp_cnt = 1024;
+            state->mc_tbl_cnt = 1024;
+        }
+#endif
         vtss_l3_integrity_update(vtss_state);
         break;
     case VTSS_INIT_CMD_INIT:

@@ -81,6 +81,20 @@ vtss_rc vtss_voe_alloc(const vtss_inst_t            inst,
     return rc;
 }
 
+static vtss_rc vtss_inst_voe_check(const vtss_inst_t    inst,
+                                   vtss_state_t        **vtss_state,
+                                   const vtss_voe_idx_t voe_idx)
+{
+    vtss_rc rc;
+
+    if ((rc = vtss_inst_check(inst, vtss_state)) == VTSS_RC_OK) {
+        if (voe_idx >= (*vtss_state)->oam.voe_cnt) {
+            rc = VTSS_RC_ERROR;
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_voe_free(const vtss_inst_t     inst,
                       const vtss_voe_idx_t  voe_idx)
 {
@@ -88,13 +102,8 @@ vtss_rc vtss_voe_free(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d", voe_idx);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_free, voe_idx);
     }
     VTSS_EXIT();
@@ -109,13 +118,8 @@ vtss_rc vtss_voe_conf_set(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_conf[voe_idx] = *conf;
         rc = VTSS_FUNC(oam.voe_conf_set, voe_idx, conf);
     }
@@ -132,13 +136,8 @@ vtss_rc vtss_voe_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voe_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -153,13 +152,8 @@ vtss_rc vtss_voe_cc_conf_set(const vtss_inst_t         inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_cc_conf[voe_idx] = *conf;
         rc = VTSS_FUNC(oam.voe_cc_conf_set, voe_idx, conf);
     }
@@ -175,13 +169,8 @@ vtss_rc vtss_voe_cc_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voe_cc_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -196,13 +185,8 @@ vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  rdi %u", voe_idx, rdi);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_rdi_conf[voe_idx] = rdi;
         rc = VTSS_FUNC(oam.voe_cc_rdi_set, voe_idx, rdi);
     }
@@ -218,13 +202,8 @@ vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  rdi %p", voe_idx, rdi);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *rdi = vtss_state->oam.voe_rdi_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -238,13 +217,8 @@ vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d", voe_idx);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_cc_cpu_copy_next_set, voe_idx);
     }
     VTSS_EXIT();
@@ -260,13 +234,8 @@ vtss_rc vtss_voe_lt_conf_set(const vtss_inst_t          inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_lt_conf[voe_idx] = *conf;
         rc = VTSS_FUNC(oam.voe_lt_conf_set, voe_idx, conf);
     }
@@ -282,13 +251,8 @@ vtss_rc vtss_voe_lt_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voe_lt_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -303,13 +267,8 @@ vtss_rc vtss_voe_lb_conf_set(const vtss_inst_t          inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_lb_conf[voe_idx] = *conf;
         rc = VTSS_FUNC(oam.voe_lb_conf_set, voe_idx, conf);
     }
@@ -325,13 +284,8 @@ vtss_rc vtss_voe_lb_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voe_lb_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -346,13 +300,8 @@ vtss_rc vtss_voe_laps_conf_set(const vtss_inst_t            inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voe_laps_conf[voe_idx] = *conf;
         rc = VTSS_FUNC(oam.voe_laps_conf_set, voe_idx, conf);
     }
@@ -368,13 +317,8 @@ vtss_rc vtss_voe_laps_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  conf %p", voe_idx, conf);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voe_laps_conf[voe_idx];
     }
     VTSS_EXIT();
@@ -390,13 +334,8 @@ vtss_rc vtss_voe_status_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  status %p", voe_idx, status);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_status_get, voe_idx, status);
     }
     VTSS_EXIT();
@@ -411,13 +350,8 @@ vtss_rc vtss_voe_counters_get(const vtss_inst_t    inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  counters %p", voe_idx, counters);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_counters_get, voe_idx, counters);
     }
     VTSS_EXIT();
@@ -431,13 +365,8 @@ vtss_rc vtss_voe_counters_clear(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d", voe_idx);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_counters_clear, voe_idx);
     }
     VTSS_EXIT();
@@ -452,13 +381,8 @@ vtss_rc vtss_voe_cc_status_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  status %p", voe_idx, status);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_cc_status_get, voe_idx, status);
     }
     VTSS_EXIT();
@@ -473,13 +397,8 @@ vtss_rc vtss_voe_cc_counters_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  counters %p", voe_idx, counters);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_cc_counters_get, voe_idx, counters);
     }
     VTSS_EXIT();
@@ -493,13 +412,8 @@ vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d", voe_idx);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_cc_counters_clear, voe_idx);
     }
     VTSS_EXIT();
@@ -515,13 +429,8 @@ vtss_rc vtss_voe_lt_status_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  status %p", voe_idx, status);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_lt_status_get, voe_idx, status);
     }
     VTSS_EXIT();
@@ -536,13 +445,8 @@ vtss_rc vtss_voe_lb_status_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  status %p", voe_idx, status);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_lb_status_get, voe_idx, status);
     }
     VTSS_EXIT();
@@ -557,13 +461,8 @@ vtss_rc vtss_voe_lb_counters_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d  counters %p", voe_idx, counters);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_lb_counters_get, voe_idx, counters);
     }
     VTSS_EXIT();
@@ -577,13 +476,8 @@ vtss_rc vtss_voe_lb_counters_clear(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %d", voe_idx);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_lb_counters_clear, voe_idx);
     }
     VTSS_EXIT();
@@ -598,13 +492,8 @@ vtss_rc vtss_voe_laps_status_get(const vtss_inst_t       inst,
     vtss_rc      rc;
 
     VTSS_D("Enter voe_idx %d  status %p", voe_idx, status);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_laps_status_get, voe_idx, status);
     }
     VTSS_EXIT();
@@ -642,13 +531,8 @@ vtss_rc vtss_voe_event_mask_set(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %u  mask %u  enable %u", voe_idx, mask, enable);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         if (enable) {
             vtss_state->oam.voe_event_mask[voe_idx] |= mask;
         } else {
@@ -668,13 +552,8 @@ vtss_rc vtss_voe_event_mask_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %u  mask %p", voe_idx, mask);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         *mask = vtss_state->oam.voe_event_mask[voe_idx];
     }
     VTSS_EXIT();
@@ -689,13 +568,8 @@ vtss_rc vtss_voe_event_get(const vtss_inst_t     inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voe_idx %u  mask %p", voe_idx, mask);
-
-    if (voe_idx >= VTSS_VOE_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voe_check(inst, &vtss_state, voe_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voe_event_get, voe_idx, mask);
     }
     VTSS_EXIT();
@@ -725,6 +599,20 @@ vtss_rc vtss_voi_alloc(const vtss_inst_t            inst,
     return rc;
 }
 
+static vtss_rc vtss_inst_voi_check(const vtss_inst_t    inst,
+                                   vtss_state_t        **vtss_state,
+                                   const vtss_voi_idx_t voi_idx)
+{
+    vtss_rc rc;
+
+    if ((rc = vtss_inst_check(inst, vtss_state)) == VTSS_RC_OK) {
+        if (voi_idx >= (*vtss_state)->oam.voi_cnt) {
+            rc = VTSS_RC_ERROR;
+        }
+    }
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_voi_free(const vtss_inst_t       inst,
                       const vtss_voi_idx_t    voi_idx)
 {
@@ -732,13 +620,8 @@ vtss_rc vtss_voi_free(const vtss_inst_t       inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voi_idx %u", voi_idx);
-
-    if (voi_idx >= VTSS_VOI_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voi_check(inst, &vtss_state, voi_idx)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(oam.voi_free, voi_idx);
     }
     VTSS_EXIT();
@@ -753,13 +636,8 @@ vtss_rc vtss_voi_conf_set(const vtss_inst_t       inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voi_idx %u  conf %p", voi_idx, conf);
-
-    if (voi_idx >= VTSS_VOI_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voi_check(inst, &vtss_state, voi_idx)) == VTSS_RC_OK) {
         vtss_state->oam.voi_conf[voi_idx] = *conf;
         rc = VTSS_FUNC(oam.voi_conf_set, voi_idx, conf);
     }
@@ -775,13 +653,8 @@ vtss_rc vtss_voi_conf_get(const vtss_inst_t      inst,
     vtss_rc      rc;
 
     VTSS_D("Enter  voi_idx %u  conf %p", voi_idx, conf);
-
-    if (voi_idx >= VTSS_VOI_CNT) {
-        return VTSS_RC_ERROR;
-    }
-
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_voi_check(inst, &vtss_state, voi_idx)) == VTSS_RC_OK) {
         *conf = vtss_state->oam.voi_conf[voi_idx];
     }
     VTSS_EXIT();
@@ -796,12 +669,15 @@ vtss_rc vtss_voi_conf_get(const vtss_inst_t      inst,
 vtss_rc vtss_oam_inst_create(vtss_state_t *vtss_state)
 {
 #if defined(VTSS_FEATURE_VOP)
-    vtss_state->oam.path_service_voe_cnt = VTSS_PATH_SERVICE_VOE_CNT;
-    vtss_state->oam.port_voe_base_idx = VTSS_PORT_VOE_BASE_IDX;
-    vtss_state->oam.port_voe_cnt = VTSS_PORT_VOE_CNT;
-    vtss_state->oam.voe_cnt = VTSS_VOE_CNT;
-    vtss_state->oam.voi_cnt = VTSS_VOI_CNT;
-    vtss_state->oam.event_mask_array_size = VTSS_EVENT_MASK_ARRAY_SIZE;
+    if (vtss_state->create_pre) {
+        // Preprocessing
+        vtss_state->oam.path_service_voe_cnt = VTSS_PATH_SERVICE_VOE_CNT;
+        vtss_state->oam.port_voe_base_idx = VTSS_PORT_VOE_BASE_IDX;
+        vtss_state->oam.port_voe_cnt = VTSS_PORT_VOE_CNT;
+        vtss_state->oam.voe_cnt = VTSS_VOE_CNT;
+        vtss_state->oam.voi_cnt = VTSS_VOI_CNT;
+        vtss_state->oam.event_mask_array_size = VTSS_EVENT_MASK_ARRAY_SIZE;
+    }
 #endif
     return VTSS_RC_OK;
 }

@@ -817,11 +817,15 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L3_RLEG_CNT:
+    case MESA_CAP_L3_RLEG_CNT: {
 #if defined(VTSS_RLEG_CNT)
-        c = VTSS_RLEG_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l3.rleg_cnt;
+        }
 #endif
         break;
+    }
 
     case MESA_CAP_L3_LPM_CNT:
 #if defined(VTSS_LPM_CNT)
@@ -829,11 +833,15 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L3_ARP_CNT:
+    case MESA_CAP_L3_ARP_CNT: {
 #if defined(VTSS_ARP_CNT)
-        c = VTSS_ARP_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l3.arp_cnt;
+        }
 #endif
         break;
+    }
 
     // QoS
     case MESA_CAP_QOS_PRIO_CNT:
