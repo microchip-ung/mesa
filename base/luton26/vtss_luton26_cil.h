@@ -35,16 +35,11 @@
 #define CPU_INJ_DMA     1 /* CPU Injection GRP - DMA based */
 
 #define L26_ACS   16  /* Number of aggregation masks */
-#define L26_PRIOS 8   /* Number of priorities */
-#define L26_PRIO_END (VTSS_PRIO_START + L26_PRIOS) /* Luton 26 priority end number */
 
 /* Buffer constants */
 #define L26_BUFFER_MEMORY 512000
 #define L26_BUFFER_REFERENCE 5500
 #define L26_BUFFER_CELL_SZ 48
-
-#define L26_GPIOS        32
-#define L26_SGPIO_GROUPS 1
 
 /* Reserved PGIDs */
 #define PGID_UC      (VTSS_PGID_LUTON26-4)

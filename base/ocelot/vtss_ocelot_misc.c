@@ -1206,8 +1206,6 @@ vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->sgpio_read = srvl_sgpio_read;
         state->sgpio_event_enable = srvl_sgpio_event_enable;
         state->sgpio_event_poll = srvl_sgpio_event_poll;
-        state->gpio_count = SRVL_GPIOS;
-        state->sgpio_group_count = SRVL_SGPIO_GROUPS;
         state->dev_all_event_poll = srvl_dev_all_event_poll;
         state->dev_all_event_enable = srvl_dev_all_event_enable;
         state->intr_cfg = srvl_intr_cfg;

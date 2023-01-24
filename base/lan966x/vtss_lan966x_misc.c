@@ -621,9 +621,7 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->sgpio_read = lan966x_sgpio_read;
         state->sgpio_event_enable = lan966x_sgpio_event_enable;
         state->sgpio_event_poll = lan966x_sgpio_event_poll;
-        state->sgpio_group_count = VTSS_SGPIO_GROUPS;
 #endif
-        //TBD: state->gpio_count = LAN966X_GPIOS;
         state->dev_all_event_poll = lan966x_dev_all_event_poll;
         state->dev_all_event_enable = lan966x_dev_all_event_enable;
 #if defined(VTSS_FEATURE_INTERRUPTS)

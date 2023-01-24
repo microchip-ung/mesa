@@ -522,7 +522,11 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS         64
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define VTSS_GPIOS         0
+#else
+#define VTSS_GPIOS         66
+#endif
 #endif /* VTSS_ARCH_SPARX5 */
 
 #if defined(VTSS_ARCH_LAN966X)

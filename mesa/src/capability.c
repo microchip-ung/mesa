@@ -337,17 +337,25 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
 
     // Miscellaneous
-    case MESA_CAP_MISC_GPIO_CNT:
+    case MESA_CAP_MISC_GPIO_CNT: {
 #if defined(VTSS_GPIOS)
-        c = VTSS_GPIOS;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->misc.gpio_count;
+        }
 #endif
         break;
+    }
 
-    case MESA_CAP_MISC_SGPIO_CNT:
+    case MESA_CAP_MISC_SGPIO_CNT: {
 #if defined(VTSS_SGPIO_GROUPS)
-        c = VTSS_SGPIO_GROUPS;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->misc.sgpio_group_count;
+        }
 #endif
         break;
+    }
 
     case MESA_CAP_MISC_PORT_GPIO:
         // Unused

@@ -2498,7 +2498,6 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_EVC_POLICERS)
         state->evc_policer_max = 1022;
 #endif
-        state->prio_count = LAN966X_PRIOS;
         break;
 
     case VTSS_INIT_CMD_INIT:

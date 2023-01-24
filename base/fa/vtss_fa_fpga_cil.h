@@ -153,7 +153,6 @@
 #endif
 
 #define FA_MULTIPLIER_BIT     ((VTSS_M_QRES_RES_CFG_WM_HIGH + 1) / 2)
-#define FA_PRIOS 8                  /* Number of priorities */
 #define FA_BUFFER_CELL_SZ     184   /* Cell size  */
 
 #define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS

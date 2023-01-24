@@ -1309,8 +1309,11 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->irq_status = fa_misc_irq_status;
         state->irq_enable = fa_misc_irq_enable;
 #endif  /* VTSS_FEATURE_IRQ_CONTROL */
-        state->gpio_count = VTSS_GPIOS;
-        state->sgpio_group_count = FA_TGT ? VTSS_SGPIO_GROUPS : 1;
+        if (FA_TGT) {
+            state->gpio_count = 64;
+        } else {
+            state->sgpio_group_count = 1;
+        }
 #if defined(VTSS_FEATURE_EEE)
         vtss_state->eee.port_conf_set   = fa_eee_port_conf_set;
 #endif /* VTSS_FEATURE_EEE */

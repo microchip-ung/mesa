@@ -230,7 +230,13 @@ static mesa_rc lan969x_status_led_set(meba_inst_t inst,
                                       meba_led_type_t type,
                                       meba_led_color_t color)
 {
-    mesa_rc rc = MESA_RC_ERROR;
+    mesa_rc            rc = MESA_RC_ERROR;
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (board->type == BOARD_TYPE_SUNRISE) {
+        return MESA_RC_OK;
+    }
+
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
         T_I(inst, "LED:%d, color=%d", type, color);
         switch (color) {

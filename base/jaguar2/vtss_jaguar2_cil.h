@@ -109,13 +109,6 @@
 //#define JR2_ES0_CNT 1024
 
 #define JR2_ACS          16   /* Number of aggregation masks */
-#define JR2_PRIOS        8    /* Number of priorities */
-#define JR2_GPIOS        64   /* Number of GPIOs */
-#if defined(VTSS_ARCH_SERVAL_T)
-#define JR2_SGPIO_GROUPS 1    /* Number of SGPIO groups */
-#else
-#define JR2_SGPIO_GROUPS 3    /* Number of SGPIO groups */
-#endif
 #define JR2_EVC_CNT      1024 /* Number of EVCs */
 
 #if defined(VTSS_ARCH_SERVAL_T)

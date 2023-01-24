@@ -173,7 +173,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 static vtss_rc vtss_gpio_no_check(vtss_state_t *vtss_state, const vtss_gpio_no_t gpio_no)
 {
     if (gpio_no > vtss_state->misc.gpio_count) {
-        VTSS_E("illegal gpio_no: %u/%u", gpio_no, vtss_state->misc.gpio_count);
+        VTSS_E("%s: illegal gpio_no: %u/%u", vtss_func, gpio_no, vtss_state->misc.gpio_count);
         return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
@@ -645,8 +645,16 @@ vtss_rc vtss_eee_port_conf_set(const vtss_inst_t                 inst,
 
 vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
 {
+    vtss_misc_state_t *state = &vtss_state->misc;
+
     if (vtss_state->create_pre) {
         // Preprocessing
+#if defined(VTSS_GPIOS)
+        state->gpio_count = VTSS_GPIOS;
+#endif
+#if defined(VTSS_SGPIO_GROUPS)
+        state->sgpio_group_count = VTSS_SGPIO_GROUPS;
+#endif
         return VTSS_RC_OK;
     }
 
@@ -655,8 +663,8 @@ vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
         vtss_sgpio_group_t group;
 
         for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
-            vtss_state->misc.sgpio_conf[0][group].bit_count = 4;
-            vtss_state->misc.sgpio_conf[1][group].bit_count = 4;
+            state->sgpio_conf[0][group].bit_count = 4;
+            state->sgpio_conf[1][group].bit_count = 4;
         }
     }
 #endif /* VTSS_FEATURE_SERIAL_GPIO */

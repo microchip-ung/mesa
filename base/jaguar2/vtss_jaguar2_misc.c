@@ -1380,8 +1380,6 @@ vtss_rc vtss_jr2_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->misc.irq_status = jr2_misc_irq_status;
         vtss_state->misc.irq_enable = jr2_misc_irq_enable;
 #endif  /* VTSS_FEATURE_IRQ_CONTROL */
-        state->gpio_count = JR2_GPIOS;
-        state->sgpio_group_count = JR2_SGPIO_GROUPS;
 
 #if defined(VTSS_FEATURE_EEE)
         vtss_state->eee.port_conf_set   = jr2_eee_port_conf_set;

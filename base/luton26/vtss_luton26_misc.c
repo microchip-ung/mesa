@@ -1057,10 +1057,6 @@ vtss_rc vtss_l26_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->misc.irq_status = lu26_misc_irq_status;
         vtss_state->misc.irq_enable = lu26_misc_irq_enable;
 #endif  /* VTSS_FEATURE_IRQ_CONTROL */
-
-        /* State data */
-        state->gpio_count = L26_GPIOS;
-        state->sgpio_group_count = L26_SGPIO_GROUPS;
         break;
     case VTSS_INIT_CMD_INIT:
         break;

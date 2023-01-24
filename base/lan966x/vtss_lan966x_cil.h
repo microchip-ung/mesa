@@ -194,8 +194,6 @@ static inline u32 __ioreg(const char *file, int line,
 #define LAN966X_POLICER_DISC  344 // 255   : Discard policer
 #define LAN966X_POLICER_CNT   345 // Total number of policers
 
-#define LAN966X_PRIOS        8   /* Number of priorities */
-
 /* LAN966X has 4 PTP PIN connected to GPIO that can be used for different purposes, the defines below defines the
  * default usage of the 4 pins.
  */

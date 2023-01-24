@@ -65,9 +65,6 @@
 #define SRVL_ES0_CNT VTSS_SRVL_ES0_CNT
 
 #define SRVL_ACS          16  /* Number of aggregation masks */
-#define SRVL_PRIOS        8   /* Number of priorities */
-#define SRVL_GPIOS        32  /* Number of GPIOs */
-#define SRVL_SGPIO_GROUPS 1   /* Number of SGPIO groups */
 
 /* Reserved PGIDs */
 #define PGID_UC      (VTSS_PGID_LUTON26 - 4)
