@@ -1635,6 +1635,14 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
     REG_WR(QSYS_PREEMPT_CFG(port),
            QSYS_PREEMPT_CFG_P_QUEUES(mask) |
            QSYS_PREEMPT_CFG_STRICT_IPG(mask ? 0 : 2));
+
+    // Restart the mac merge block
+    REG_WR(DEV_ENABLE_CONFIG(port), 0);
+    REG_WR(DEV_ENABLE_CONFIG(port),
+           DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
+           DEV_ENABLE_CONFIG_MM_TX_ENA(1) |
+           DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
+
     return VTSS_RC_OK;
 }
 
@@ -1816,7 +1824,16 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
 #endif
 
     VTSS_D("show %u  basic %u  port_pol %u  storm_pol %u  policer %u  schedul %u  shape %u",
-            show_act, basics_act, port_pol_act, storm_pol_act, policer_act, schedul_act, shape_act);
+           show_act, basics_act, port_pol_act, storm_pol_act, policer_act, schedul_act, shape_act);
+
+    if (info->action == 10) {
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+            REG_RD(DEV_MM_STATUS(VTSS_CHIP_PORT(port_no)), &value);
+            pr("p:%d MM_STATUS:0x%x\n",port_no, value);
+        }
+#endif
+    }
 
     if (show_act) {
         pr("QOS Debug Group action:\n");
@@ -1830,6 +1847,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
         pr("    7XXXX   Print Time Aware Scheduling configurations. All active liats or the XXXX specified\n");
         pr("    8XXXX   Print Time Aware Scheduling gate state analyze. Port is the XXXX specified\n");
         pr("    9XXXX   Print Time Aware Scheduling counter analyze. Port is the XXXX specified\n");
+        pr("    10      Print frame preemtion details\n");
         pr("\n");
     }
 
