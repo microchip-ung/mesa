@@ -1640,13 +1640,6 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
            QSYS_PREEMPT_CFG_P_QUEUES(mask) |
            QSYS_PREEMPT_CFG_STRICT_IPG(mask ? 0 : 2));
 
-    // Restart the mac merge block
-    REG_WR(DEV_ENABLE_CONFIG(port), 0);
-    REG_WR(DEV_ENABLE_CONFIG(port),
-           DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
-           DEV_ENABLE_CONFIG_MM_TX_ENA(1) |
-           DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
-
     return VTSS_RC_OK;
 }
 
