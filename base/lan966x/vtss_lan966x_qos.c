@@ -1619,6 +1619,10 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
         }
     }
 
+    REG_WRM(DEV_VERIF_CONFIG(port),
+            DEV_VERIF_CONFIG_PRM_VERIFY_DIS(1),
+            DEV_VERIF_CONFIG_PRM_VERIFY_DIS_M);
+
     // Setup preemption
     REG_WR(DEV_VERIF_CONFIG(port),
            DEV_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
@@ -1657,7 +1661,18 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
     if (vtss_state->qos.fp.port_conf[port_no].verify_disable_tx) {
         v = VTSS_MM_STATUS_VERIFY_DISABLED;
     } else {
-        v = (DEV_MM_STATUS_PRMPT_VERIFY_STATE_X(value) + 2);
+        v = (DEV_MM_STATUS_PRMPT_VERIFY_STATE_X(value));
+        if (v == 3) {
+            /* Verification failed, restart it */
+            REG_WRM(DEV_VERIF_CONFIG(port),
+                    DEV_VERIF_CONFIG_PRM_VERIFY_DIS(1),
+                    DEV_VERIF_CONFIG_PRM_VERIFY_DIS_M);
+
+            REG_WRM(DEV_VERIF_CONFIG(port),
+                    DEV_VERIF_CONFIG_PRM_VERIFY_DIS(0),
+                    DEV_VERIF_CONFIG_PRM_VERIFY_DIS_M);
+        }
+        v += 2;
     }
     status->status_verify = v;
     return VTSS_RC_OK;
@@ -1831,6 +1846,8 @@ static vtss_rc lan966x_qos_debug(vtss_state_t               *vtss_state,
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             REG_RD(DEV_MM_STATUS(VTSS_CHIP_PORT(port_no)), &value);
             pr("p:%d MM_STATUS:0x%x\n",port_no, value);
+            REG_RD(DEV_VERIF_CONFIG(VTSS_CHIP_PORT(port_no)), &value);
+            pr("p:%d DEV_VERIF_CONFIG:0x%x\n",port_no, value);
         }
 #endif
     }
