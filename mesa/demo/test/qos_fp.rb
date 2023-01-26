@@ -93,7 +93,7 @@ end
 
 test "frame-io" do
     cnt = 10
-    len_uc = 3000
+    len_uc = 5000
     len_bc = 64
     for i in 0..(cnt - 1) do
         cmd = "sudo ef "
