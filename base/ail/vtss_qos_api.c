@@ -1196,10 +1196,6 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
     vtss_port_no_t     port_no;
     u32                i;
 
-    if ((vtss_state->arch == VTSS_ARCH_CU_PHY) || (vtss_state->arch == VTSS_ARCH_10G_PHY)) {
-        return VTSS_RC_OK; /* No need to initialize QoS state on a PHY */
-    }
-
     if (vtss_state->create_pre) {
         // Preprocessing
         vtss_state->qos.prio_count = VTSS_PRIOS;

@@ -119,8 +119,6 @@ extern const char *vtss_func;
 
 /* Target architecture */
 typedef enum {
-    VTSS_ARCH_CU_PHY,  /* Cu PHYs */
-    VTSS_ARCH_10G_PHY, /* 10G PHYs */
     VTSS_ARCH_L26,     /* Luton26 */
     VTSS_ARCH_SRVL,    /* Serval */
     VTSS_ARCH_JR1,     /* Jaguar-1 */
