@@ -966,22 +966,14 @@ static vtss_rc fa_mmd_write(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
-#else
-    return VTSS_RC_OK;
-#endif
 }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
                                    const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
 {
     return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
 }
-#endif
-
-#define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
 
@@ -1017,7 +1009,6 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 tgt, sts, spd = 0;
 
     if (!vtss_state->port.kr_conf[port_no].aneg.enable) {
@@ -1048,7 +1039,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_RATE(spd),
             VTSS_M_IP_KRANEG_AN_CFG1_RATE);
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -1106,7 +1097,7 @@ static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
                 VTSS_F_IP_KRANEG_FW_MSG_LDSTAT_VLD(1),
                 VTSS_M_IP_KRANEG_FW_MSG_LDSTAT_VLD);
     }
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -1132,7 +1123,6 @@ static vtss_rc fa_np_set(vtss_state_t *vtss_state,
                          const vtss_port_no_t port_no,
                          u32 np0, u32 np1, u32 np2)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 val;
     u32 tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(port_no));
     REG_RD(VTSS_IP_KRANEG_LD_NP0(tgt), &val);
@@ -1210,7 +1200,6 @@ static vtss_rc fa_port_kr_rsfec_radapt_set(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1314,7 +1303,6 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t port_no,
                                   u32 *const irq)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1366,7 +1354,6 @@ static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
                                        const vtss_port_no_t port_no,
                                        BOOL enable)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -1382,7 +1369,6 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_kr_status_t *const status)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 sts0, sts1, tr;
     u16 val1, val2, val3;
     u32 tgt, pcs;
@@ -1502,7 +1488,6 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
             *rs_fec_uc +=  (reg2 << 16) | reg;
             status->fec.uncorrected_block_cnt = *rs_fec_uc;
         }
-#endif
     }
 
     // Debug
@@ -1538,14 +1523,13 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                     VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
         }
     }
-#endif
+
     return VTSS_RC_OK;
 }
 
 static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
         return VTSS_RC_ERROR;
@@ -4263,11 +4247,11 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     u32  sd_indx, sd_type, sd;
     u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
-    BOOL lock, hi_ber;
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-        u32 value, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
+        u32 value, val2, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
+        BOOL lock, hi_ber, spd25g = vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G;
         FA_DEBUG_ALL(pr, DEV10G_DEV_RST_CTRL(tgt), port, "DEV10G_DEV_RST_CTRL");
         FA_DEBUG_10G_MAC(pr, TX_MONITOR_STICKY(tgt), port, "TX_MONITOR_STICKY");
         FA_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
