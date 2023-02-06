@@ -144,7 +144,7 @@ $machines = {
 
     "ocelot_pcb121" => {
         :arch => "arm64",
-        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone/release/mscc-linux-kernel.bin.gz",
         :kerneladdr => "<0x80080000>",
         :kernelentry => "<0x80080000>",
         :ramdiscaddr => "<0x88080000>",
