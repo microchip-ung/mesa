@@ -81,7 +81,7 @@
 #define RT_LB_GROUP_CNT                     5
 #define RT_LB_SET_CNT                       272
 #define RT_PGID_FA                          542
-#define RT_MAC_INDEX_CNT                    4096
+#define RT_MAC_INDEX_CNT                    16
 #define RT_DSM_CAL_MAX_DEVS_PER_TAXI        10
 #define RT_DSM_CAL_TAXIS                    5
 #define RT_MSTREAM_CNT                      256
