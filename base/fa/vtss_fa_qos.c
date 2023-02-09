@@ -2693,7 +2693,8 @@ static void tas_gcl_state_update(vtss_state_t *vtss_state, const vtss_port_no_t 
 
     if (gcl_state->next_list_idx != TAS_LIST_IDX_NONE) {    /* Start next list is ongoing. Check if done */
         next_state = tas_list_state_read(vtss_state, gcl_state->next_list_idx);
-        if (next_state == TAS_LIST_STATE_OPERATING) {   /* Start next list is done */
+        if ((next_state == TAS_LIST_STATE_OPERATING) ||
+            (next_state == TAS_LIST_STATE_ADMIN)) {   /* Start next list is done or terminated */
             (void)tas_list_free(vtss_state, gcl_state->curr_list_idx);    /* Free any possible valid lists */
             (void)tas_list_free(vtss_state, gcl_state->trunk_list_idx);
             if (gcl_state->stop_ongoing) {  /* The next list is a stop list */
