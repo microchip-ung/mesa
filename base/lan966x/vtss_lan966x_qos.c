@@ -1092,7 +1092,8 @@ static void tas_gcl_state_update(vtss_state_t *vtss_state, const vtss_port_no_t 
         if (VTSS_RC_OK != tas_list_state_read(vtss_state, gcl_state->next_list_idx, &next_state)) {
             VTSS_D("tas_list_state_read() failed");
         }
-        if (next_state == TAS_LIST_STATE_OPERATING) {   /* Start next list is done */
+        if ((next_state == TAS_LIST_STATE_OPERATING) ||
+            (next_state == TAS_LIST_STATE_ADMIN)) {   /* Start next list is done or terminated */
             (void)tas_list_free(vtss_state, gcl_state->curr_list_idx);    /* Free any possible valid lists */
             (void)tas_list_free(vtss_state, gcl_state->trunk_list_idx);
             if (gcl_state->stop_ongoing) {  /* The next list is a stop list */
@@ -1166,6 +1167,21 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
         maxsdu = (fp_enable_tx != 0) ? 1 : (max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0);  /* In case of FP aktive the MAXSDU must be as small as possible */
         REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
     }
+    /* Configure the queue max sdu */
+    for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+        value = QSYS_QMAXSDU_CFG_0_QMAXSDU_0(max_sdu[i]);
+        switch (i) {
+        case 0: REG_WR(QSYS_QMAXSDU_CFG_0(chip_port), value); break;
+        case 1: REG_WR(QSYS_QMAXSDU_CFG_1(chip_port), value); break;
+        case 2: REG_WR(QSYS_QMAXSDU_CFG_2(chip_port), value); break;
+        case 3: REG_WR(QSYS_QMAXSDU_CFG_3(chip_port), value); break;
+        case 4: REG_WR(QSYS_QMAXSDU_CFG_4(chip_port), value); break;
+        case 5: REG_WR(QSYS_QMAXSDU_CFG_5(chip_port), value); break;
+        case 6: REG_WR(QSYS_QMAXSDU_CFG_6(chip_port), value); break;
+        case 7: REG_WR(QSYS_QMAXSDU_CFG_7(chip_port), value); break;
+        }
+    }
+
     REG_RD(SYS_FRONT_PORT_MODE(chip_port), &value);
     hold_advance = SYS_FRONT_PORT_MODE_ADD_FRAG_SIZE_X(value) + 1;
     REG_WR(QSYS_TAS_PROFILE_CFG(profile_idx), QSYS_TAS_PROFILE_CFG_PORT_NUM(chip_port) |

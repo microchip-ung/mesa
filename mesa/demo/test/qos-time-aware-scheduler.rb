@@ -375,6 +375,106 @@ def equal_interval_3_prio_1_port_test
     end
 end
 
+def jira_mesa_898_test
+    eg = rand(3)    # Get a random egress port between 0 and 3
+    ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
+
+    test "Time aware scheduling JIRA MESA-898" do
+
+    frame_size = 500
+    frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
+    frame_tx_interval_count = 1000            # Number of frame transmitted in a GCL entry time interval
+    time_interval = frame_tx_interval_count * frame_tx_time_nano
+    cycle_time = 3*time_interval
+
+    t_i ("Create GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
+    gcl = conf[0]
+    gce_cnt = conf[1]
+    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
+    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
+    gcl[0]["gate_open"][0] = true
+    gcl[0]["time_interval"] = time_interval
+    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
+    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
+    gcl[1]["gate_open"][3] = true
+    gcl[1]["time_interval"] = time_interval
+    gcl[2]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
+    gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
+    gcl[2]["gate_open"][7] = true
+    gcl[2]["time_interval"] = time_interval
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 0
+    tod[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    t_i ("Start GCL with max SDU size smaller than the frame size")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["max_sdu"][0] = frame_size - 50
+    conf["max_sdu"][3] = frame_size - 50
+    conf["max_sdu"][7] = frame_size - 50
+    conf["gate_enabled"] = true
+    conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+    conf["cycle_time"] = cycle_time
+    conf["cycle_time_ext"] = 256
+    conf["base_time"]["nanoseconds"] = 0
+    conf["base_time"]["seconds"] = 4
+    conf["base_time"]["sec_msb"] = 0
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to start")
+    sleep 5
+
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+    t_i "Measure that no frames are transmitted due to frame size too big"
+    erate = 0
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+
+    t_i ("Stop GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+
+    t_i ("Start GCL with max SDU size bigger than the frame size")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["max_sdu"][0] = frame_size + (frame_size/2)
+    conf["max_sdu"][3] = frame_size + (frame_size/2)
+    conf["max_sdu"][7] = frame_size + (frame_size/2)
+    conf["gate_enabled"] = true
+    conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to start")
+    sleep 5
+
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+    erate = 990000000/3
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+
+    t_i ("Stop GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+    end
+end
+
 def jira_mesa_899_test
     eg = rand(2)    # Get a random egress port between 0 and 1
 
@@ -949,6 +1049,9 @@ test "test_run" do
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test
     jira_mesa_899_test
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        jira_mesa_898_test
+    end
     jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
         jira_appl_3433_test
