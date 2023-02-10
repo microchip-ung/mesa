@@ -64,7 +64,7 @@ static mesa_rc cisco_sgmii_phy_read(meba_inst_t meba_inst,
 
     mesa_rc rc = meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false,
                                                   0x56, addr, data, 2, true);
-    if (rc != MESA_RC_OK) return MESA_RC_OK;
+    if (rc != MESA_RC_OK) return MESA_RC_ERROR;
 
     *value = ((data[0] << 8) | data[1]);
     return MESA_RC_OK;
