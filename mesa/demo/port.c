@@ -40,6 +40,8 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 meba_inst_t meba_global_inst;
 #define LOOP_PORT_INVALID  0xFFFFFFFF
 static uint32_t loop_port = LOOP_PORT_INVALID;
+
+static meba_sfp_driver_t *sfp_drivers = NULL;
 /* ================================================================= *
  *  Port control
  * ================================================================= */
@@ -280,6 +282,14 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     MEBA_WRAP(meba_port_admin_state_set, meba_global_inst, port_no, &meba_admin);
 
     return MESA_RC_OK;
+}
+
+static void sfp_drivers_prepend(meba_sfp_drivers_t drivers)
+{
+    for (int i = 0; i < drivers.count; ++i) {
+        drivers.sfp_drv[i].next = sfp_drivers;
+        sfp_drivers = &drivers.sfp_drv[i];
+    }
 }
 
 static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t init)
@@ -728,6 +738,21 @@ static void cli_cmd_port_cable(cli_req_t *req)
     }
 }
 
+static meba_sfp_driver_t *sfp_driver_search(meba_sfp_device_info_t *device_info)
+{
+    meba_sfp_driver_t *driver = sfp_drivers;
+
+    while (driver) {
+        if (strcmp(device_info->vendor_pn, driver->product_name) != 0) {
+            driver = driver->next;
+            continue;
+        }
+        return driver;
+    }
+    // No existing driver found
+    return NULL;
+}
+
 #define PR_CAP(x) {if (cap_all & MEBA_PORT_CAP_##x) cli_printf("%-*s  ", strlen(#x), cap & MEBA_PORT_CAP_##x ? #x : "-");}
 
 static void cli_cmd_port_cap(cli_req_t *req)
@@ -828,7 +853,7 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
     mesa_port_conf_t       conf;
     port_entry_t           *entry;
     meba_sfp_device_info_t *info;
-    int                    found = 0;
+    int                    found = 0, pre;
     uint8_t                rom[255];
     char                   out_buf[4096];
     port_cli_req_t         *mreq = req->module_req;
@@ -845,16 +870,23 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
         }
 
         if (!found) {
-            cli_printf("Port(cli)  SFP-type        Vendor          Rev     SN              Los   API-IF      Speed Link\n");
+            cli_printf("Port(cli)  SFP-type        Known Vendor          Product Name    Rev     SN              Los   API-IF      Speed Link\n");
             found = 1;
         }
+
         info = (entry->sfp_device ? &entry->sfp_device->info : NULL);
-        cli_printf("%-10d %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",
+        if (info != NULL) {
+            pre = sfp_driver_search(info) == NULL ? 0 : 1;
+        }
+
+        cli_printf("%-10d %-15s %-5s %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",
                    uport,
                    mesa_sfp_if2txt(entry->sfp_type),
-                   info ? info->vendor_name : "N/A",
-                   info ? info->vendor_rev : "N/A",
-                   info ? info->vendor_sn : "N/A",
+                   info ? pre ? "yes" : "no" : "-",
+                   info ? info->vendor_name : "-",
+                   info ? info->vendor_pn : "-",
+                   info ? info->vendor_rev : "-",
+                   info ? info->vendor_sn : "-",
                    entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
                    entry->sfp_type == MEBA_SFP_TRANSRECEIVER_25G_DAC ? "-" :
                    entry->sfp_status.los ? "yes" : "no",
@@ -1511,6 +1543,19 @@ static void port_init(meba_inst_t inst)
         }
     } // Port loop
 
+    // Install known SFPs (used for comparision when a SFP is insterted)
+    sfp_drivers_prepend(meba_cisco_driver_init());
+    sfp_drivers_prepend(meba_axcen_driver_init());
+    sfp_drivers_prepend(meba_finisar_driver_init());
+    sfp_drivers_prepend(meba_hp_driver_init());
+    sfp_drivers_prepend(meba_d_link_driver_init());
+    sfp_drivers_prepend(meba_oem_driver_init());
+    sfp_drivers_prepend(meba_wavesplitter_driver_init());
+    sfp_drivers_prepend(meba_avago_driver_init());
+    sfp_drivers_prepend(meba_excom_driver_init());
+    sfp_drivers_prepend(meba_mac_to_mac_driver_init());
+    sfp_drivers_prepend(meba_fs_driver_init());
+
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET_POST);
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_LED_INITIALIZE);
 }
@@ -1531,7 +1576,7 @@ static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *dri
 static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_bool_t sfp_is_inserted) {
     meba_sfp_device_info_t info;
     port_entry_t *entry = &port_table[port_no];
-    meba_sfp_driver_t *sfp_driver = &entry->sfp_driver;
+    meba_sfp_driver_t *sfp_driver = &entry->sfp_driver, *drv;
 
     if (!sfp_is_inserted) {
         // Remove the SFP
@@ -1548,13 +1593,20 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         entry->sfp_status.los = TRUE;
         return;
     }
+    // Read SFP ROM
+    meba_sfp_device_info_get(inst, port_no, &info);
 
-    // A SFP is inserted.
-    // Now read the ROM through MEBA and install the driver according to the MSA standard
-    if (meba_fill_driver(inst, port_no, sfp_driver, &info) == FALSE) {
-        T_E("Port:%u Could not read from SFP", port_no);
-        return;
+    // Search for pre-installed drivers (based on product name)
+    // If not found then install the driver according to the MSA standard
+    if ((drv = sfp_driver_search(&info)) == NULL) {
+        if (meba_fill_driver(inst, port_no, sfp_driver, &info) == FALSE) {
+            T_E("Port:%u Could not read from SFP", port_no);
+            return;
+        }
+    } else {
+        sfp_driver = drv;
     }
+
     T_I("SFP vendor:'%s' pn:'%s'", info.vendor_name, info.vendor_pn);
 
     meba_sfp_device_t *sfp_device = create_device(inst, sfp_driver, port_no, &info);
@@ -1563,7 +1615,6 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         return;
     }
     entry->sfp_device = sfp_device;
-
 
     if (sfp_device->drv->meba_sfp_driver_tr_get(sfp_device, &entry->sfp_type) != MESA_RC_OK) {
         T_E("Port:%u Could not get SFP tranceiver type", port_no);

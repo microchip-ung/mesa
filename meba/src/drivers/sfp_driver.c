@@ -150,6 +150,10 @@ static mesa_rc cisco_sgmii_conf_set(meba_sfp_device_t *dev,
                                     const meba_sfp_driver_conf_t *conf) {
     sfp_data_t *data = (sfp_data_t *)(dev->data);
 
+    // Make sure that clause-37 aneg is disabled
+    mesa_port_clause_37_control_t ctrl = {};
+    mesa_port_clause_37_control_set(data->inst, data->port_no, &ctrl);
+
     if (conf->admin.enable && !cisco_sgmii_set(data->meba_inst, data->port_no))
         return MESA_RC_ERROR;
 
@@ -165,6 +169,27 @@ static mesa_rc cisco_sgmii_if_get(meba_sfp_device_t *dev,
         case MESA_SPEED_1G:
         case MESA_SPEED_AUTO:
             *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
+            return MESA_RC_OK;
+        default:
+            // Set the same interface, even the user sets wrong speed,
+            // so we will have one interface.
+            *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
+            return MESA_RC_ERROR;
+    }
+}
+
+static mesa_rc cisco_sgmii_2g5_if_get(meba_sfp_device_t *dev,
+                                      mesa_port_speed_t speed,
+                                      mesa_port_interface_t *mac_if) {
+    switch (speed) {
+        case MESA_SPEED_10M:
+        case MESA_SPEED_100M:
+        case MESA_SPEED_1G:
+        case MESA_SPEED_AUTO:
+            *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
+            return MESA_RC_OK;
+        case MESA_SPEED_2500M:
+            *mac_if = MESA_PORT_INTERFACE_SERDES;
             return MESA_RC_OK;
         default:
             // Set the same interface, even the user sets wrong speed,
@@ -658,6 +683,29 @@ meba_sfp_drivers_t meba_finisar_driver_init() {
     result.count = VTSS_ARRSZ(finisar_drivers);
 
     return result;
+}
+
+meba_sfp_drivers_t meba_fs_driver_init() {
+    static meba_sfp_driver_t fs_drivers[] = {
+        {
+            .product_name = "SFP-2.5G-T",
+            .meba_sfp_driver_delete = dev_delete,
+            .meba_sfp_driver_reset = dev_reset,
+            .meba_sfp_driver_poll = dev_poll,
+            .meba_sfp_driver_conf_set = cisco_sgmii_conf_set,
+            .meba_sfp_driver_if_get = cisco_sgmii_2g5_if_get,
+            .meba_sfp_driver_mt_get = NULL,
+            .meba_sfp_driver_tr_get = tr_2g5_get,
+            .meba_sfp_driver_probe = dev_probe,
+        },
+    };
+
+    meba_sfp_drivers_t result;
+    result.sfp_drv = fs_drivers;
+    result.count = VTSS_ARRSZ(fs_drivers);
+
+    return result;
+
 }
 
 meba_sfp_drivers_t meba_hp_driver_init() {

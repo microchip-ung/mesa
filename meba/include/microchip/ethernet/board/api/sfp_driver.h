@@ -253,6 +253,9 @@ meba_sfp_drivers_t meba_excom_driver_init();
 // Returns drivers for MAC-to-MAC connection.
 meba_sfp_drivers_t meba_mac_to_mac_driver_init();
 
+// Returns drivers for FS
+meba_sfp_drivers_t meba_fs_driver_init();
+
 // Let's the driver to detect which functions need to set based on the rom
 // memory. device_info is filled with device-specific info on successful exit.
 mesa_bool_t meba_fill_driver(struct meba_inst       *meba_inst,
