@@ -480,24 +480,25 @@ def jira_mesa_899_test
 
     test "Time aware scheduling JIRA MESA-899" do
 
+    t_i ("Stop GCL even though no is active")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
     t_i ("Create GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
     gcl = conf[0]
     gce_cnt = conf[1]
     gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][0] = true
-    gcl[0]["gate_open"][1] = true
-    gcl[0]["gate_open"][2] = true
-    gcl[0]["gate_open"][3] = true
-    gcl[0]["time_interval"] = 128
+    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = true}
+    gcl[0]["time_interval"] = 10000
     gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][4] = true
-    gcl[1]["gate_open"][5] = true
-    gcl[1]["gate_open"][6] = true
-    gcl[1]["gate_open"][7] = true
-    gcl[1]["time_interval"] = 128
+    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = true}
+    gcl[1]["time_interval"] = 10000
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -508,39 +509,45 @@ def jira_mesa_899_test
 
     t_i ("Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
-    conf["max_sdu"][0] = 64
-    conf["max_sdu"][3] = 64
-    conf["max_sdu"][7] = 64
     conf["gate_enabled"] = true
     conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
-    conf["cycle_time"] = 256
+    conf["cycle_time"] = 20000
     conf["cycle_time_ext"] = 256
-    conf["base_time"]["nanoseconds"] = 303697500
-    conf["base_time"]["seconds"] = 4
+    conf["base_time"]["nanoseconds"] = 0
+    conf["base_time"]["seconds"] = 5
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    t_i ("Check GCL is pending")
-    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (status["config_pending"] != true)
-        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    for i in 1..50
+        status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+        if (status["config_pending"] == false)
+            break;
+        end
+        sleep 0.1
     end
 
-    t_i ("Stop GCL before it becomes operational")
+    t_i ("Stop GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
     conf["gate_enabled"] = false
     conf["config_change"] = false
-    conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    t_i ("Wait for GCL to stop")
-    sleep 2
-
-    t_i ("Check GCL is stopped")
-    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
-    if (status["config_pending"] == true)
-        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    pending = true
+    for i in 1..50
+        status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+        if (status["config_pending"] == false)
+            pending = false
+            break;
+        end
+        sleep 0.1
     end
+    if (pending == true)
+        t_e("Pending never cleared after stop GCL")
+    end
+
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
     end
 end
 

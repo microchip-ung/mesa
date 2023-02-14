@@ -3229,6 +3229,15 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
         if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
             /* Calculate first possible base time of stop list. This is TOD plus two times the current cycle time */
             _vtss_ts_domain_timeofday_get(vtss_state, 0, &stop_base_time, &tc);
+             VTSS_D("stop base_time seconds %u  nanoseconds %u  sec_msb %u", stop_base_time.seconds, stop_base_time.nanoseconds, stop_base_time.sec_msb);
+             VTSS_D("current base_time seconds %u  nanoseconds %u  sec_msb %u", current_port_conf.base_time.seconds, current_port_conf.base_time.nanoseconds, current_port_conf.base_time.sec_msb);
+
+            /* Check if current base time is in the future. This should not happen as gcl_state say that list is started */
+            if (vtss_timestampLarger(&current_port_conf.base_time, &stop_base_time)) {
+                VTSS_D("current list base time is in the future");
+                stop_base_time = current_port_conf.base_time;
+            }
+
             if (vtss_timestampAddNano(&stop_base_time, 2 * current_port_conf.cycle_time) != VTSS_RC_OK) {
                 VTSS_D("Calculate first possible base time of stop list failed.  cycle_time %u", current_port_conf.cycle_time);
                 return VTSS_RC_ERROR;
