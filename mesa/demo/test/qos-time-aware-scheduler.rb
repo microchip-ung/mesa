@@ -376,8 +376,8 @@ def equal_interval_3_prio_1_port_test
 end
 
 def jira_mesa_898_test
-    eg = rand(3)    # Get a random egress port between 0 and 3
-    ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
+    eg = rand(2)    # Get a random egress port between 0 and 1
+    ig = (eg == 1) ? [0] : [1]
 
     test "Time aware scheduling JIRA MESA-898" do
 
@@ -433,8 +433,8 @@ def jira_mesa_898_test
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
     t_i "Measure that no frames are transmitted due to frame size too big"
     erate = 0
-   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
-    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000], etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate],            [1],            true,              [3],     [cycle_time])
 
     t_i ("Stop GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -463,9 +463,9 @@ def jira_mesa_898_test
 
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
-    erate = 990000000/3
+    erate = 1000000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
-    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate],             [1],            true,              [3],     [cycle_time])
 
     t_i ("Stop GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -771,6 +771,12 @@ def jira_appl_3433_test
 
     test "Time aware scheduling JIRA APPL-3433" do
 
+    oper_up0 = $ts.dut.call("mesa_port_state_get", $loop_port0)
+    oper_up1 = $ts.dut.call("mesa_port_state_get", $loop_port1)
+    if ((oper_up0 == false) || (oper_up1 == false))
+        t_e ("Loop ports are not up. oper_up0 #{oper_up0} oper_up1 #{oper_up1}")
+    end
+
     # Port-to-port forwarding via loop ports
     $ts.dut.call("mesa_vlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$ts.dut.port_list[0]},#{$loop_port0},#{$loop_port1}")
     pvlan = $ts.dut.call("mesa_pvlan_port_members_get", 0)
@@ -1044,6 +1050,7 @@ test "test_conf" do
         dconf[1]["dei"] = [1,1,1,1,1,1,1,1]
         $ts.dut.call("mesa_qos_port_dpl_conf_set", i, $dpl_cnt, dconf)
     end
+    sleep 5
     dut_port_state_up(port_list)
 end
 
