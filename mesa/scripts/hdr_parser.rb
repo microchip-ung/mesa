@@ -2,6 +2,10 @@
 # Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
+# Parts of this file is borrowed from https://github.com/mrcsparker/kalc v0.3,
+# also MIT-licensed.
+# Copyright (c) 2012-2018 Chris Parker
+
 require 'parslet'
 
 class CParser < Parslet::Parser

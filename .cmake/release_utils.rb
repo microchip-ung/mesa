@@ -10,7 +10,7 @@
 # To clone the real stuff, do a
 # git clone ssh://git@bitbucket.microchip.com/unge/sw-tools-mscc-release-utils.git
 
-MSCC_RELEASE_UTILS_VER     = 'v0.140'
+MSCC_RELEASE_UTILS_VER     = 'v0.152'
 MSCC_RELEASE_UTILS_PACKAGE = 'mscc-sw-release-utils'
 MSCC_RELEASE_UTILS_SUBDIR  = "#{MSCC_RELEASE_UTILS_PACKAGE}-#{MSCC_RELEASE_UTILS_VER}"
 MSCC_RELEASE_UTILS_DIR     = "/opt/mscc/#{MSCC_RELEASE_UTILS_SUBDIR}"

@@ -7,7 +7,6 @@ require "#{MSCC_RELEASE_UTILS_DIR}/licenses.rb" # Load the classes defined by th
 def licenses(top, output_file = nil, prv_release = nil, cur_release = nil)
     api_licenses = CLicenseModuleInfo.new(top, "MESA")
 
-
     license_options = Hash.new()
     license_options[:release_version_prv] = prv_release
     license_options[:release_version_cur] = cur_release
@@ -83,3 +82,6 @@ def licenses_bin(top, arch, output_file = nil, bsp = nil, tc = nil, cur_release 
     end
 end
 
+# Trial run:
+# Uncomment the next line, cd to top-of-MESA-repo, ruby ./.cmake/licenses.rb
+# licenses(".")
