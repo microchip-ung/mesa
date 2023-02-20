@@ -784,6 +784,7 @@ def jira_appl_3433_test
     $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$loop_port1}")
 
     t_i ("Measure initially")
+    $ts.dut.run("mesa-cmd mac flush")
    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
