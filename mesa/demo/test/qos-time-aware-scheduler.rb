@@ -514,18 +514,50 @@ def jira_mesa_899_test
     conf["cycle_time"] = 20000
     conf["cycle_time_ext"] = 256
     conf["base_time"]["nanoseconds"] = 0
-    conf["base_time"]["seconds"] = 5
+    conf["base_time"]["seconds"] = 3
     conf["base_time"]["sec_msb"] = 0
     conf["gate_enabled"] = true
     conf["config_change"] = true
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
-    for i in 1..50
+    pending = true
+    for i in 1..60
         status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
         if (status["config_pending"] == false)
+            pending = false
             break;
         end
         sleep 0.1
+    end
+    if (pending == true)
+        t_e("Pending never cleared after stop GCL")
+    end
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    if (tod[0]["seconds"] != 3)
+        t_e ("TOD is not as expected #{tod[0]["seconds"]}")
+    end
+
+    t_i ("Start new GCL to take over")
+    conf["base_time"]["seconds"] = 5
+    # This is the gap between the two lists but it is less than cycle_time_ext so no extension happens
+    conf["base_time"]["nanoseconds"] = 150
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    pending = true
+    for i in 1..60
+        status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+        if (status["config_pending"] == false)
+            pending = false
+            break;
+        end
+        sleep 0.1
+    end
+    if (pending == true)
+        t_e("Pending never cleared after stop GCL")
+    end
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    if (tod[0]["seconds"] != 5)
+        t_e ("TOD is not as expected #{tod[0]["seconds"]}")
     end
 
     t_i ("Stop GCL")
@@ -535,7 +567,7 @@ def jira_mesa_899_test
     $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
 
     pending = true
-    for i in 1..50
+    for i in 1..60
         status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
         if (status["config_pending"] == false)
             pending = false

@@ -3017,7 +3017,8 @@ static vtss_rc fa_qos_tas_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32                      i, profile_idx, trunk_profile_idx, trunk_startup_time, stop_startup_time, time_gap, new_startup_time;
+    u32                      i, profile_idx, trunk_profile_idx, trunk_startup_time, stop_startup_time, time_gap,
+                             new_startup_time = 2000;  /* two nanoseconds */
     u32                      list_idx, trunk_list_idx, obsolete_list_idx, stop_list_idx;
     vtss_qos_tas_port_conf_t *new_port_conf = &vtss_state->qos.tas.port_conf[port_no];
     vtss_qos_tas_port_conf_t trunk_port_conf, stop_port_conf, current_port_conf;
@@ -3168,20 +3169,22 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             }
 
             /* Start the new list */
-            /* Calculate the 'old' last cycle start time */
-            if (trunk_list_idx != TAS_LIST_IDX_NONE) {
-                old_cycle_start_time = trunk_port_conf.base_time;   /* Trunk list has only one cycle so the base time is the start of the last cycle */
-            } else {
-                old_cycle_start_time = current_end_time;            /* Start of current last cycle is the end time of last cycle minus the cycle time */
-                if (vtss_timestampSubNano(&old_cycle_start_time, current_port_conf.cycle_time) != VTSS_RC_OK) {
-                    VTSS_D("Calculate the 'old' last cycle start time failed");
+            if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
+                /* Calculate the 'old' last cycle start time */
+                if (trunk_list_idx != TAS_LIST_IDX_NONE) {
+                    old_cycle_start_time = trunk_port_conf.base_time;   /* Trunk list has only one cycle so the base time is the start of the last cycle */
+                } else {
+                    old_cycle_start_time = current_end_time;            /* Start of current last cycle is the end time of last cycle minus the cycle time */
+                    if (vtss_timestampSubNano(&old_cycle_start_time, current_port_conf.cycle_time) != VTSS_RC_OK) {
+                        VTSS_D("Calculate the 'old' last cycle start time failed");
+                        return VTSS_RC_ERROR;
+                    }
+                }
+                /* Calculate the new startup time */
+                if (!tas_time_stamp_diff(&new_port_conf->base_time, &old_cycle_start_time, &new_startup_time)) { /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). */
+                    VTSS_D("Calculate the new startup time failed");
                     return VTSS_RC_ERROR;
                 }
-            }
-            /* Calculate the new startup time */
-            if (!tas_time_stamp_diff(&new_port_conf->base_time, &old_cycle_start_time, &new_startup_time)) { /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). */
-                VTSS_D("Calculate the new startup time failed");
-                return VTSS_RC_ERROR;
             }
             if (tas_list_start(vtss_state, port_no, list_idx, obsolete_list_idx, new_port_conf, new_startup_time) != VTSS_RC_OK) {
                 /* Start failed */
