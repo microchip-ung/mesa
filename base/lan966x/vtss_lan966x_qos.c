@@ -1529,7 +1529,7 @@ static vtss_rc lan966x_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vts
         /* Check if a stop of list is on going - must finish */
         if (gcl_state->stop_ongoing) {
             VTSS_D("The TAS list stop is ongoing");
-            return VTSS_RC_ERROR;
+            return VTSS_RC_OK;
         }
 
         /* Check if a list is scheduled to start */
