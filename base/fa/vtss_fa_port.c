@@ -2341,11 +2341,32 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
     BOOL pd_serdes = 1;
 
-    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) ||
-        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
+    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
         pd_serdes = 0; // Do not power down multi-port serdes
+    }
+
+    // Only power down QSGMII serdes when all port instanaces are powered down
+    if (power_down && vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
+        u32 base = (port / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            pd_serdes = 1;
+            for (u32 api_port = VTSS_PORT_NO_START; api_port < vtss_state->port_count; api_port++) {
+                if (api_port == port_no) {
+                    continue;
+                }
+                if (base + cnt == VTSS_CHIP_PORT(api_port)) {
+                    if (!vtss_state->port.conf[api_port].power_down) {
+                        pd_serdes = 0;
+                        break;
+                    }
+                }
+            }
+            if (!pd_serdes) {
+                break;
+            }
+        }
     }
 
     if (pd_serdes) {
