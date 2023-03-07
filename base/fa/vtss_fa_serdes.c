@@ -3681,7 +3681,7 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
 
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
 {
-    u32 sd25g_tgt, sd_lane_tgt;
+    u32 sd25g_tgt, sd_lane_tgt, cmu_tgt, sd_tgt;
 
     /* MESA-853: Disable reference clock termination on 25G Serdeses */
     for (u32 p = 0; p < 8; p++) {
@@ -3707,6 +3707,85 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd25g_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
+
+    }
+
+    /* MESA-901: Serdes's are default powered up, start with power all down */
+    for (u32 s = 0; s <= 32; s++) {
+        if (s < VTSS_SERDES_10G_START) {
+            sd_tgt = VTSS_TO_SD6G_LANE(s);
+        } else if (s < VTSS_SERDES_25G_START) {
+            sd_tgt = VTSS_TO_SD10G_LANE(s - VTSS_SERDES_10G_START);
+        } else {
+            sd_tgt = VTSS_TO_SD25G_LANE(s - VTSS_SERDES_25G_START);
+        }
+        sd_lane_tgt = VTSS_TO_SD_LANE(s);
+
+        if (s < VTSS_SERDES_25G_START) {
+            /* Take serdes out of reset */
+            REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                    VTSS_F_SD_LANE_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
+                    VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+
+            /* Optimal power down settings from GUC */
+            REG_WR(VTSS_SD_LANE_TARGET_QUIET_MODE_6G(sd_lane_tgt), 0x1EF4E0C);
+
+            /* Power down 6G/10G serdes */
+            REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
+                    VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(1),
+                    VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+        } else {
+            if (s == VTSS_SERDES_25G_START) {
+                /* Take serdes out of reset (only needed once) */
+                REG_WRM(VTSS_SD25G_CFG_TARGET_SD_LANE_CFG(sd_lane_tgt),
+                        VTSS_F_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST(0),
+                        VTSS_M_SD25G_CFG_TARGET_SD_LANE_CFG_EXT_CFG_RST);
+            }
+            /* Optimal power down settings from GUC */
+            REG_WR(VTSS_SD25G_CFG_TARGET_QUIET_MODE_6G(sd_lane_tgt), 0x1EF4E0C);
+
+            /* Power down 25G serdes */
+            REG_WRM(VTSS_SD25G_TARGET_LANE_04(sd_tgt),
+                    VTSS_F_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER(1),
+                    VTSS_M_SD25G_TARGET_LANE_04_LN_CFG_PD_DRIVER);
+        }
+    }
+
+    /* MESA-901: CMUs are default powered up, start with power all down */
+    for (u32 cmu = 0; cmu <= 13; cmu++) {
+        cmu_tgt = VTSS_TO_SD_CMU(cmu);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_05(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_05_CFG_REFCK_TERM_EN(0),
+                VTSS_M_SD10G_CMU_TARGET_CMU_05_CFG_REFCK_TERM_EN);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_09(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_DN(0),
+                VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_DN);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_06(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_06_CFG_VCO_PD(1),
+                VTSS_M_SD10G_CMU_TARGET_CMU_06_CFG_VCO_PD);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_09(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_UP(0),
+                VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_EN_TX_CK_UP);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_08(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_08_CFG_CK_TREE_PD(1),
+                VTSS_M_SD10G_CMU_TARGET_CMU_08_CFG_CK_TREE_PD);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_0D(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_0D_CFG_REFCK_PD(1) |
+                VTSS_F_SD10G_CMU_TARGET_CMU_0D_CFG_PD_DIV64(1) |
+                VTSS_F_SD10G_CMU_TARGET_CMU_0D_CFG_PD_DIV66(1),
+                VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_REFCK_PD |
+                VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_PD_DIV64 |
+                VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_PD_DIV66);
+
+        REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_06(cmu_tgt),
+                VTSS_F_SD10G_CMU_TARGET_CMU_06_CFG_CTRL_LOGIC_PD(1),
+                VTSS_M_SD10G_CMU_TARGET_CMU_06_CFG_CTRL_LOGIC_PD);
     }
 
     return VTSS_RC_OK;
