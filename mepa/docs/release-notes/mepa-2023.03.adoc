@@ -1,0 +1,36 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2023.03
+
+== MEPA-2023.03
+
+|===
+|Version:          |MEPA-2023.03
+|Previous Version: |MEPA-2022.12
+|Date:             |2023-03-29
+|Description:      |Release Notes
+|===
+
+=== Disclaimers
+
+=== General
+
+This release contains following contents:
+
+* LAN8814 bug fixes
+
+=== API Enhancements
+
+
+=== New Features
+
+=== Documentation updates
+
+=== Bug Fixes
+
+==== LAN8814
+
+* MEPA-184     CRC errors reported when toggling speed between AN and forced speeds with 1Gbps bidirectional traffic
+* MEPA-163     Changing port speed is erasing previous port configurations (eg: loopbacks)
+* MEPA-181     Patch for ANEG restart after booting
