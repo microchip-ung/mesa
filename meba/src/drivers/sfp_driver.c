@@ -329,6 +329,9 @@ static mesa_rc tr_2g5_if_get(meba_sfp_device_t *dev, mesa_port_speed_t speed,
         case MESA_SPEED_100M:
             *mac_if = MESA_PORT_INTERFACE_100FX;
             return MESA_RC_OK;
+        case MESA_SPEED_2500M:
+            *mac_if = MESA_PORT_INTERFACE_VAUI;
+            return MESA_RC_OK;
         default:
             *mac_if = MESA_PORT_INTERFACE_VAUI;
             return MESA_RC_ERROR;
