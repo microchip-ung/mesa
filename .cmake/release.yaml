@@ -135,7 +135,7 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
-    - MESA-2022 # Not a bug
+    - MESA-2023 # Release-note-script picks up this from a commit just mentioning the 2023.03 release :-(
 
   # See the 'del' section above for a description
   #
