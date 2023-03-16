@@ -122,13 +122,18 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
     uint16_t val = 0;
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    // Reset all timestamp fifos
-    EP_WR(dev, INDY_PTP_TSU_HARD_RESET, 0x1);
-    MEPA_MSLEEP(2);
+    if (!data->ts_state.ts_init_done) {
+        // Reset all timestamp fifos at initialisation.
+        // Resetting tsu with 2-step config and reconfiguring it is disabling timestamping.
+        EP_WR(dev, INDY_PTP_TSU_HARD_RESET, 0x1);
+        MEPA_MSLEEP(2);
+    }
 
     // port specific config
     data->ts_state.rx_ts_len = ts_init_conf->rx_ts_len;
     data->ts_state.rx_ts_pos = ts_init_conf->rx_ts_pos;
+    data->ts_state.tx_auto_followup_ts = ts_init_conf->tx_auto_followup_ts;
+
     if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
 		val = val | INDY_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
 		val = val | INDY_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
@@ -183,6 +188,7 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 
 #endif
 
+    data->ts_state.ts_init_done = TRUE;
     return MEPA_RC_OK;
 }
 
@@ -230,6 +236,9 @@ static mepa_rc indy_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
     ts_init_conf->tx_fifo_spi_conf  = data->ts_state.tx_spi_en;
     ts_init_conf->tx_ts_len         = data->ts_state.tx_fifo_ts_len;
     ts_init_conf->auto_clear_ls     = FALSE;
+    ts_init_conf->tc_op_mode        = MEPA_TS_TC_OP_MODE_C; //Mode A not yet supported.
+    ts_init_conf->dly_req_recv_10byte_ts = FALSE;
+    ts_init_conf->tx_auto_followup_ts = data->ts_state.tx_auto_followup_ts;
     MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
@@ -1786,10 +1795,20 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         case MEPA_TS_PTP_CLOCK_MODE_BC2STEP:
             if (ptpclock_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P ) {
                 // Peer-to-Peer delay measurement method
-                ts_insert = SYNC_PACKET | PDELAY_REQ_PACKET | PDELAY_RESP_PACKET;
+                ts_insert = PDELAY_REQ_PACKET;
+                if (data->ts_state.tx_auto_followup_ts) {
+                    tx_mod |= INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT | INDY_PTP_TX_MOD_PDRESPFOLLOWUP_TS_INSERT;
+                } else {
+                    ts_insert |= SYNC_PACKET | PDELAY_RESP_PACKET;
+                }
             } else {
                 // End-to-End delay measurement method
-                ts_insert = SYNC_PACKET | DELAY_REQ_PACKET;
+                ts_insert =  DELAY_REQ_PACKET;
+                if (data->ts_state.tx_auto_followup_ts) {
+                    tx_mod |= INDY_PTP_TX_MOD_FOLLOWUP_TS_INSERT;
+                } else {
+                    ts_insert |= SYNC_PACKET;
+                }
             }
             break;
         case MEPA_TS_PTP_CLOCK_MODE_TC1STEP:

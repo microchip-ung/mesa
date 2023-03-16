@@ -155,7 +155,7 @@ typedef struct {
     mepa_bool_t                   auto_clear_ls;
     mepa_ts_tc_op_mode_t          tc_op_mode;       /**< TC operating mode */
     mepa_bool_t                   dly_req_recv_10byte_ts; /**< Store 10-byte ingress timestamp for delay request message. Used for auto delay req/response. */
-    mepa_bool_t                   framepreempt_en;  /**< Frame Preemption*/
+    mepa_bool_t                   tx_auto_followup_ts; /**< If true, PHY will insert timestamp in follow-up message instead of generating interrupt to application. */
 } mepa_ts_init_conf_t;
 
 /** \brief PHY timestamp unit reset */
