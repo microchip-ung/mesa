@@ -487,16 +487,16 @@ static vtss_phy_ts_tc_op_mode_t mepa_to_mesa_tc_opmode(mepa_ts_tc_op_mode_t tc_o
     vtss_phy_ts_tc_op_mode_t ret;
     switch (tc_opmode) {
     case MEPA_TS_TC_OP_MODE_A:
-        ret = VTSS_PHY_TS_TC_OP_MODE_A;
+        ret = VTSS_PHY_TS_TC_OP_MODE_B;
         break;
     case MEPA_TS_TC_OP_MODE_B:
-        ret = VTSS_PHY_TS_TC_OP_MODE_B;
+        ret = VTSS_PHY_TS_TC_OP_MODE_A;
         break;
     case MEPA_TS_TC_OP_MODE_C:
         ret = VTSS_PHY_TS_TC_OP_MODE_C;
         break;
     default:
-        ret = VTSS_PHY_TS_TC_OP_MODE_A;
+        ret = VTSS_PHY_TS_TC_OP_MODE_B;
         break;
     }
     return ret;
