@@ -364,6 +364,8 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     u32                   port;
     vtss_ts_port_conf_t   *conf;
     i32                   rx_delay;
+    u64                   ingr_latency;
+    i64                   sign = 1;
 
     VTSS_D("Enter  port_no %d", port_no);
 
@@ -374,16 +376,24 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
 
     port = VTSS_CHIP_PORT(port_no);
     conf = &vtss_state->ts.port_conf[port_no];
+    ingr_latency = VTSS_LLABS(conf->ingress_latency);
+    if (conf->ingress_latency < 0) {
+        if ((ingr_latency >> 16) > (conf->default_igr_latency/1000)) {
+            VTSS_I(" Negative ingress latency too high to be configured for port %d", port_no);
+            return VTSS_RC_ERROR;
+        }
+        sign = -1;
+    }
 
     /* The default_igr_latency is in picoseconds */
     /* The ingress_latency is in nanoseconds<<16  */
     /* Register is in nanoseconds<<8 */
-    rx_delay = (VTSS_MOD64(conf->ingress_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) + ((conf->default_igr_latency << 8)/1000);
+    rx_delay = ((VTSS_MOD64(ingr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) * sign) + ((conf->default_igr_latency << 8)/1000);
 
     if (rx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         rx_delay = 0xFFFFFF;
     }
-    VTSS_I("rx_delay %d  egress_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_igr_latency);
+    VTSS_I("rx_delay %d  ingress_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(ingr_latency), conf->default_igr_latency);
 
     DEV_WRM(PTP_RXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY(rx_delay),
@@ -405,6 +415,8 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     u32                   port;
     vtss_ts_port_conf_t   *conf;
     u32                   tx_delay;
+    u64                   egr_latency;
+    i64                   sign = 1;
 
     VTSS_D("Enter  port_no %d", port_no);
 
@@ -415,16 +427,24 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
 
     port = VTSS_CHIP_PORT(port_no);
     conf = &vtss_state->ts.port_conf[port_no];
+    egr_latency = VTSS_LLABS(conf->egress_latency);
+    if (conf->egress_latency < 0) {
+        if ((egr_latency >> 16) > (conf->default_egr_latency/1000)) {
+            VTSS_I(" Negative latency too high to be configured for port %d", port_no);
+            return VTSS_RC_ERROR;
+        }
+        sign = -1;
+    }
 
     /* The default_egr_latency is in picoseconds */
     /* The egress_latency is in nanoseconds<<16  */
     /* Register is in nanoseconds<<8 */
-    tx_delay = (VTSS_MOD64(conf->egress_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) + ((conf->default_egr_latency << 8)/1000);
+    tx_delay = ((VTSS_MOD64(egr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) * sign) + ((conf->default_egr_latency << 8)/1000);
 
     if (tx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         tx_delay = 0xFFFFFF;
     }
-    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
+    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(egr_latency), conf->default_egr_latency);
 
     DEV_WRM(PTP_TXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY(tx_delay),
