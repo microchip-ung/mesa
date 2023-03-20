@@ -304,7 +304,10 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (config->man_neg) {
             cfg_neg.master.cfg = true;
             cfg_neg.master.val = config->man_neg == MEPA_MANUAL_NEG_REF ? true : false;
-	}
+        } else {
+            cfg_neg.master.cfg = false;
+            cfg_neg.master.val = MEPA_MANUAL_NEG_DISABLED;
+        }
 
         (void)vtss_phy_conf_1g_set(NULL, data->port_no, &cfg_neg);
         phy_config.forced.speed = config->speed;
