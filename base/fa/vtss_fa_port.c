@@ -383,6 +383,20 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     /* Return partner advertisement ability */
     value = VTSS_X_DEV1G_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
 
+    /* Workaround for a Serdes issue (TN1395), when aneg completes with FDX capability=0 */
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
+        if (status->autoneg.complete) {
+            if (((value >> 21) & 0x1) == 0) {
+                REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+                REG_WRM_SET(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+                (void)fa_port_clause_37_control_set(vtss_state, port_no);
+                VTSS_MSLEEP(50);
+                REG_RD(VTSS_DEV1G_PCS1G_ANEG_STATUS(tgt), &value);
+                status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
+            }
+        }
+    }
+
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         VTSS_RC(vtss_cmn_port_sgmii_cisco_aneg_get(value, sgmii_adv));
         /* status->link = PCS link. sgmii_adv->link = Phy link */
