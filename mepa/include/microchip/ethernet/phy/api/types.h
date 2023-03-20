@@ -175,6 +175,13 @@ typedef enum {
     MEPA_MEDIA_MODE_MDIX,     /**< MDIX */
 } mepa_media_mode_t;
 
+/** \brief preferref Force Media AMS Select */
+typedef enum {
+    MEPA_PHY_MEDIA_FORCE_AMS_SEL_NORMAL = 0, /**< Force AMS Override to Force Selection - Normal */
+    MEPA_PHY_MEDIA_FORCE_AMS_SEL_SERDES,     /**< Force AMS Override to Force Selection - SerDes Media */
+    MEPA_PHY_MEDIA_FORCE_AMS_SEL_COPPER,     /**< Force AMS Override to Force Selection - Copper Media */
+} mepa_phy_media_force_ams_sel_t;
+
 /** \brief Represents the configuration that is applied to PHY. */
 typedef struct {
     mepa_port_speed_t speed;       /**< Forced port speed */
@@ -186,6 +193,7 @@ typedef struct {
     mepa_bool_t mac_if_aneg_ena;   /**< Enable auto-negotiation on host mac interface */
     mepa_manual_neg_t man_neg;     /**< manual negotiation control in 1G instead of using auto-negotiation */
     mepa_media_mode_t mdi_mode;    /**< Preferred media mode */
+    mepa_phy_media_force_ams_sel_t force_ams_mode_sel; /**< Force AMS Media Select */
 } mepa_conf_t;
 
 /** \brief  MEPA event mask */

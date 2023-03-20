@@ -309,6 +309,15 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             cfg_neg.master.val = MEPA_MANUAL_NEG_DISABLED;
         }
 
+        // Force AMS Media Select MEPA:104
+        if (config->force_ams_mode_sel){
+            phy_config.force_ams_sel = config->force_ams_mode_sel == MEPA_PHY_MEDIA_FORCE_AMS_SEL_SERDES ?
+                            MEPA_PHY_MEDIA_FORCE_AMS_SEL_SERDES : MEPA_PHY_MEDIA_FORCE_AMS_SEL_COPPER;
+        }
+        else {
+            phy_config.force_ams_sel = MEPA_PHY_MEDIA_FORCE_AMS_SEL_NORMAL;
+        }
+
         (void)vtss_phy_conf_1g_set(NULL, data->port_no, &cfg_neg);
         phy_config.forced.speed = config->speed;
         phy_config.forced.fdx = config->fdx;
@@ -349,10 +358,15 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
         conf->mdi_mode = MEPA_MEDIA_MODE_MDIX;
     }
 
+    // Force AMS Media Select
+    conf->force_ams_mode_sel = !phy_conf.force_ams_sel ? VTSS_PHY_MEDIA_FORCE_AMS_SEL_NORMAL :
+                               phy_conf.force_ams_sel == VTSS_PHY_MEDIA_FORCE_AMS_SEL_SERDES ?
+                                                         VTSS_PHY_MEDIA_FORCE_AMS_SEL_SERDES : VTSS_PHY_MEDIA_FORCE_AMS_SEL_COPPER;
+
     if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
         conf->speed = MEPA_SPEED_AUTO;
 
-        // Get manual negotiation options
+	// Get manual negotiation options
         if (vtss_phy_conf_1g_get(data->vtss_instance, data->port_no, &cfg_neg) == MESA_RC_OK) {
             conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
                             cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
