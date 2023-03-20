@@ -1557,6 +1557,24 @@ static mesa_bool_t fa_10g_malibu_detect(const meba_inst_t inst)
     return false;
 }
 
+static mesa_bool_t fa_1g_viper_detect(const meba_inst_t inst)
+{
+    uint32_t phy_id = 0;
+    uint16_t reg2 = 0;
+    uint16_t reg3 = 0;
+    for(int loop = 1 ; loop < 50 ; loop++)
+     {
+	mebaux_miim_rd(inst, &rawio,0, MESA_MIIM_CONTROLLER_0,2, &reg2);
+	mebaux_miim_rd(inst, &rawio,0, MESA_MIIM_CONTROLLER_0,3, &reg3);
+
+	phy_id = ((uint32_t)reg2) << 16 | reg3;
+        if (((phy_id & 0xffff0)>> 4) == 0x707c) {	//Viper driver ID, masking Rev
+            return true;
+        }
+    }
+    return false;
+}
+
 static mesa_rc malibu_mode_conf(const meba_inst_t inst)
 {
     T_I(inst , "MALIBU CONFIGURING\n");
@@ -1583,6 +1601,37 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
     }
     return rc;
 }
+
+static mesa_rc viper_mode_conf(const meba_inst_t inst)
+{
+    mesa_rc rc = MESA_RC_OK;
+    int port_start , port_end;
+
+    meba_board_state_t *board = INST2BOARD(inst);
+    board->viper_present = fa_1g_viper_detect(inst);
+
+    if (!board->viper_present) {
+        return MESA_RC_OK;
+    }
+
+    port_start = (board->type == BOARD_TYPE_SPARX5_PCB134)?0:52;
+    port_end = port_start + 4;
+    /* Viper phy addr 0,1,2,3 */
+    int port_viper_start = 0;
+
+    for(mesa_port_no_t iport = port_start; iport < port_end; iport++)
+    {
+	 board->port[iport].map.mac_if =  MESA_PORT_INTERFACE_QSGMII;
+	 board->port[iport].map.map.miim_controller = MESA_MIIM_CONTROLLER_0;
+	 board->port[iport].map.map.miim_addr = port_viper_start++;
+	 board->port[iport].map.cap = (MEBA_PORT_CAP_1G_PHY | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_DETECT | MEBA_PORT_CAP_SFP_1G |
+			 MEBA_PORT_CAP_DUAL_FIBER_1000X | MEBA_PORT_CAP_NO_FORCE | MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_10M_FDX |
+			 MEBA_PORT_CAP_100M_HDX | MEBA_PORT_CAP_100M_FDX );
+   }
+    return rc;
+
+}
+
 
 /* Chip port for malibu is same in pcb 134 and pcb 135 */
 #define MALIBU_PORT_START 60
@@ -1672,9 +1721,10 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_BOARD_INITIALIZE:
             board->func->board_init(inst);
             malibu_mode_conf(inst);
+            viper_mode_conf(inst);
             break;
         case MEBA_PORT_RESET:
-            if (board->type == BOARD_TYPE_SPARX5_PCB135 && !board->gpy241_present) {
+            if ((board->type == BOARD_TYPE_SPARX5_PCB134 || board->type == BOARD_TYPE_SPARX5_PCB135)  && !board->gpy241_present) {
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
                     if (board->port[port_no].map.map.chip_port % 4 == 0 &&
                         (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
