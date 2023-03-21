@@ -16,6 +16,7 @@
 #define STATUSLED_R_GPIO 13
 #define AQR_RESET 19
 #define PHY_ID_GPY241 0xDC00
+#define INDY_COMA_GPIO 16
 
 /* LED colors */
 typedef enum {
@@ -1167,82 +1168,6 @@ static mesa_rc fa_status_led_set(meba_inst_t inst,
     return rc;
 }
 
-static void gpy_led_wrm(meba_inst_t inst, uint16_t ctrl, uint16_t miim, uint16_t mmd, uint16_t addr,  uint16_t value, uint16_t mask)
-{
-    uint16_t val;
-    meba_board_state_t *board = INST2BOARD(inst);
-
-    if (miim > 3) {
-        T_E (inst, "Illegal MIIM address %d",miim);
-        return;
-    }
-    val = board->gpy241_leds[miim];
-    val = ((val & ~mask) | (value & mask));
-    mesa_mmd_write(NULL, 0, ctrl, miim, mmd, addr, val);
-    board->gpy241_leds[miim] = val; // need to cache it as the phy FW will overwrite the LED reg
-}
-
-#define GPY_LED_OFF                0xf000
-#define GPY_LED_1G_LINK_ON         0xf001 // Left green
-#define GPY_LED_100M_LINK_ON       0xf004 // right green
-#define GPY_LED_100M_1G_LINK_MASK  0xff05
-#define GPY_LED_2G5_LINK_ON        0xf002 // right orange
-#define GPY_LED_2G5_LINK_MASK      0xff02
-#define GPY_LED_CONTROL            0,27   // LED control register mmd,addr
-
-/*
-   PHYLED0: Left Green     1G speed
-   PHYLED1: Right Orange   2G5 speed
-   PHYLED2: Right Green    10m/100M speed
-
-   Note: Due to board layout issue LEDs are are controlled from the neighbour phy (miim addr +/-1).
-         The LED control is manual and traffic blinking is not a part of this
-*/
-
-static void fa_gpy_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
-{
-    meba_board_state_t *board = INST2BOARD(inst);
-    meba_port_entry_t  *entry = &board->port[port_no].map;
-    uint16_t           phyled_0_2_value = GPY_LED_OFF, neighbor_addr;
-    uint16_t           phyled_1_value = GPY_LED_OFF;
-
-    if (entry->map.chip_port < 56 || entry->map.chip_port > 59) {
-        return; /* Not GPY phy connected ports */
-    }
-
-    if (status->link) {
-        switch (status->speed) {
-        case MESA_SPEED_10M:
-        case MESA_SPEED_100M:
-            phyled_0_2_value = GPY_LED_100M_LINK_ON;
-            phyled_1_value   = GPY_LED_OFF;
-            break;
-        case MESA_SPEED_1G:
-            phyled_0_2_value = GPY_LED_1G_LINK_ON;
-            phyled_1_value   = GPY_LED_OFF;
-            break;
-        case MESA_SPEED_2500M:
-            phyled_0_2_value = GPY_LED_OFF;
-            phyled_1_value   = GPY_LED_2G5_LINK_ON;
-            break;
-        default:
-            break;
-        }
-    }
-
-    if (entry->map.miim_addr == 0 || entry->map.miim_addr == 2) {
-        neighbor_addr = entry->map.miim_addr + 1;
-    } else {
-        neighbor_addr = entry->map.miim_addr - 1;
-    }
-
-    /* Update 10/100/1G from the neighbour phy */
-    gpy_led_wrm(inst, entry->map.miim_controller, neighbor_addr, GPY_LED_CONTROL, phyled_0_2_value, GPY_LED_100M_1G_LINK_MASK);
-
-    /* Update 2.5G LED from the neighbour phy */
-    gpy_led_wrm(inst, entry->map.miim_controller, neighbor_addr, GPY_LED_CONTROL, phyled_1_value, GPY_LED_2G5_LINK_MASK);
-}
-
 static void fa_aqr_led_update(meba_inst_t inst, mesa_port_no_t port_no, const mesa_port_status_t *status)
 {
 #define AQR_LED_OFF             0x0000
@@ -1350,7 +1275,10 @@ static mesa_rc fa_port_led_update(meba_inst_t inst,
             (void)fa_aqr_led_update(inst, port_no, status);
             return MESA_RC_OK;
         } else if (board->gpy241_present && (board_port >= 48) && (board_port <= 51)) {
-            (void)fa_gpy_led_update(inst, port_no, status);
+            // gpy241 LEDs controlled from gpy241 phy:
+            // Left Green     : 10m/100M speed
+            // Right Orange   : 2G5 speed
+            // Right Green    : 1G speed
             return MESA_RC_OK;
         }
         if (sgpio_port >= 28 && sgpio_port <= 31) {
@@ -1747,6 +1675,10 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                         mesa_mmd_write(NULL, 0, board->port[port_no].map.map.miim_controller, board->port[port_no].map.map.miim_addr, 0x1, 0xe400, 6);
                     }
                 }
+            } else if (board->gpy241_present) {
+                // Release COMA mode (activate Indy phys)
+                mesa_gpio_direction_set(NULL, 0, INDY_COMA_GPIO, true);
+                mesa_gpio_write(NULL, 0, INDY_COMA_GPIO, false);
             }
             if (board->malibu_present) {
                 /* Initlize the 10G Malibu Phy */
