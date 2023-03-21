@@ -372,9 +372,16 @@ step $res, "API Doc" do
         rev = $1
     end
 
+    #MESA-Doc
     run "cd mesa/docs/scripts; #{$rvm_ruby} ./dg.rb -r #{rev} -s #{git_sha}", "doc"
     run "cp ./mesa-doc.html images/.", "doc"
     run "cp ./mesa-doc.html #{$ws}/.", "doc"
+
+    #MEPA-Doc
+    run "cd mepa/docs/scripts; #{$rvm_ruby} ./dg.rb -r #{rev} -s #{git_sha}", "doc"
+    run "cp ./mepa/mepa-doc.html images/.", "doc"
+    run "cp ./mepa/mepa-doc.html #{$ws}/.", "doc"
+
     run "ls", "doc"
 end
 
