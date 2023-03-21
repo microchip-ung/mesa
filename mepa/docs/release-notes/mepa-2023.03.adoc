@@ -18,12 +18,15 @@
 
 This release contains following contents:
 
-* LAN8814 bug fixes
+* LAN8814 new features & bug fixes
 
 === API Enhancements
 
 
 === New Features
+
+==== LAN8814
+* MEPA-179     Automatic Timestamp insertion in Followup
 
 === Documentation updates
 
