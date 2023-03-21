@@ -277,7 +277,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             phy_config.mode = VTSS_PHY_MODE_POWER_DOWN;
         }
 
-	/* Fix for MEPA-233 and MEPA-296 */
+        /* Fix for MEPA-233 and MEPA-296 */
         phy_config.aneg.speed_2g5_fdx = config->aneg.speed_2g5_fdx;
         phy_config.aneg.speed_5g_fdx = config->aneg.speed_5g_fdx;
         phy_config.aneg.speed_10g_fdx = config->aneg.speed_10g_fdx;
@@ -288,13 +288,13 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         phy_config.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
         phy_config.aneg.no_restart_aneg = config->aneg.no_restart_aneg;
 
-	// Translate MDI mode
-	phy_config.mdi = VTSS_PHY_MDIX_AUTO;
-	if (config->mdi_mode == MEPA_MEDIA_MODE_MDI) {
-	    phy_config.mdi = VTSS_PHY_MDI;
-	} else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX) {
-	    phy_config.mdi = VTSS_PHY_MDIX;
-	}
+        // Translate MDI mode
+        phy_config.mdi = VTSS_PHY_MDIX_AUTO;
+        if (config->mdi_mode == MEPA_MEDIA_MODE_MDI) {
+            phy_config.mdi = VTSS_PHY_MDI;
+        } else if (config->mdi_mode == MEPA_MEDIA_MODE_MDIX) {
+            phy_config.mdi = VTSS_PHY_MDIX;
+        }
         // We don't support 1G half duplex
         phy_config.aneg.speed_1g_hdx = 0;
         phy_config.aneg.symmetric_pause = config->flow_control;
@@ -366,7 +366,7 @@ static mepa_rc phy_1g_conf_get(mepa_device_t *dev, mepa_conf_t *const conf)
     if (phy_conf.mode == VTSS_PHY_MODE_ANEG) {
         conf->speed = MEPA_SPEED_AUTO;
 
-	// Get manual negotiation options
+        // Get manual negotiation options
         if (vtss_phy_conf_1g_get(data->vtss_instance, data->port_no, &cfg_neg) == MESA_RC_OK) {
             conf->man_neg = !cfg_neg.master.cfg ? MEPA_MANUAL_NEG_DISABLED :
                             cfg_neg.master.val ? MEPA_MANUAL_NEG_REF : MEPA_MANUAL_NEG_CLIENT;
