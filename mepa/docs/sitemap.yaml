@@ -35,13 +35,13 @@ pages:
         - src: "mepa/docs/diag.adoc"
         - src: "mepa/docs/events.adoc"
         - src: "mepa/docs/timestamp.adoc"
+        - src: "mepa/docs/macsec.adoc"
 
     - name: "MEPA API Reference"
       pages:
         - src:  "me/include/microchip/ethernet/common.h"
-        - src:  "mepa/common/include/mepa_driver.h"
-        - src:  "mepa/common/include/mepa_ts_driver.h"
         - src:  "mepa/include/microchip/ethernet/phy/api/phy_ts.h"
+        - src:  "mepa/include/microchip/ethernet/phy/api/phy_macsec.h"
         - src:  "mepa/include/microchip/ethernet/phy/api/types.h"
         - src:  "mepa/include/microchip/ethernet/phy/api/phy.h"
         - src:  "mepa/include/microchip/ethernet/phy/api.h"

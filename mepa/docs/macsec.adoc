@@ -1,0 +1,441 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+== MACSec description
+
+The Media Access Control Security (MACsec) standard (IEEE 802.1AE-2006) defines data confidentiality
+and integrity for data. MACsec allows authorized systems on an interconnected LAN to ensure
+confidentiality of data and to monitor frames coming from unauthorized device and take corrective
+measures.
+
+This API provides a management interface to SecY entities, described on clause 10 of 802.1AE.
+
+
+[cols="1,9"]
+|===
+|Term | Description
+
+|SecY
+|As defined by the 802.1AE standard, a SecY is the entity that operates the
+MACsec protocol on a network port (Phy in this context).  There may be zero or
+more SecY instances on any physical port.  A SecY instance is associated with an
+Virtual Port.  A SecY contains one transmit SC and zero or more receive SC's.
+There is a receive SC for each peer entity on the LAN who is a member of the
+connectivity association (CA). SecY's are identified by their SCI (MAC, Virtual
+Port).
+
+|SC
+|A Secure Channel (SC) represents a security relationship from one member of a
+CA to the others. Each SC has a sequence of SA's allowing for replacement of
+cryptographic keys without terminating the SC. Each SC has at most 4 active
+SA's, the SA within an SC is identified by its association number.  Each receive
+SC is identified by it's SCI value in the SecTAG.  Receive SC's are instantiated
+by the Key Agreement component when a remote peer joins the CA.  Transmit SC's
+are instantiated in the same operation as when a SecY is instantiated and is
+destroyed only when the SecY is destroyed.
+
+|SA
+|SA's contain cryptographic keying material used for MACsec protection and
+validation operations. SA's are periodically updated from the MACsec Manager's
+KaY component. An SA is identified by the SC it belongs to and its association
+number (AN).
+
+|Common Port
+|An instance of the MAC Internal Sublayer Service used by the SecY to provide
+transmission and reception of frames for both the controlled and uncontrolled
+ports.
+
+|Controlled Port
+|The access point used to provide the secure MAC Service to a client of a SecY.
+In other words the en/decrypting port.
+
+|Uncontrolled Port
+|The access point used to provide the insecure MAC Service to a client of a
+SecY. Typically used for EAPOL frames.
+
+
+|===
+
+
+=== MACSec block initialization
+
+`mepa_macsec_init_set()`:  is used for enabling, initializing, and setting bypass for the MACSEC block.
+
+When the MACsec block is Disabled, all frames are passed through unchanged.
+
+The default state of the MACSEC Block, after Phy initialization, is MACsec block is Disabled.
+When the MACsec block is enabled, API `mepa_macsec_init_set()` is called with enable=TRUE, and
+all frames are dropped until SecY (CA) is created and configured. To initialize the MACSEC block,
+the block must be enabled and the bypass param must be set to: `MEPA_MACSEC_INIT_BYPASS_NONE`, ie. the
+Application must ensure that `mepa_macsec_init_set()` has been called once with bypass param set
+to `MEPA_MACSEC_INIT_BYPASS_NONE` in order for the MACSEC initialization to be completed for the port.
+To place the MACSEC block into bypass, the API `mepa_macsec_init_set()` must be called again with
+the bypass param set to: `MEPA_MACSEC_INIT_BYPASS_ENABLE` and to remove the bypass, the API
+`mepa_macsec_init_set()` must be called with the bypass param set to:
+`MEPA_MACSEC_INIT_BYPASS_DISABLE`.
+
+NOTE: In MACSec operation for certain 10G PHYs, when link down is detected, the
+MACSec block should be set to be bypassed until link up is detected, then MACSec
+block should be set to be non-bypassed.  When the link is down, there is a CLOCK
+Src within the MACSEC Block that is removed and so some Register updates did not
+occur. It was not all Register updates, only certain ones. Therefore, putting
+the block into BYPASS would prevent further operation as a work-around for this
+issue.
+
+Customer application should follow the below psuedo code
+
+    1) On link down
+       Check if interface 10G & macsec capable
+          If (yes) then check
+          if Macsec block is enabled using API mepa_macsec_init_get(), check if init->enable == TRUE
+          If (macsec_enabled) then call the API below, to set the BYPASS mode
+          API: mepa_macsec_init_set() init struct: vtss_macsec_init_t init;
+          init.bypass = MACSEC_INIT_BYPASS_ENABLE;
+
+    2) On link up
+       Check if interface is macsec capable
+          If (yes) then check
+          if Macsec block is enabled using API mepa_macsec_init_get(), check if init->enable == TRUE
+          If (macsec_enabled) then call the API below, to remove the BYPASS
+          API: mepa_macsec_init_set() init struct: vtss_macsec_init_t init;
+          init.bypass = MACSEC_INIT_BYPASS_DISABLE;
+
+Please note that the customer application using bypass mode other than the purpose mentioned above,
+should make sure that API `mepa_macsec_init_set()` has been called once with bypass param set to
+`MEPA_MACSEC_INIT_BYPASS_NONE`, to initialize the port for MACSEC operation.
+
+If the Application is calling API `mepa_macsec_init_set()` with bypass param set to:
+`MEPA_MACSEC_INIT_BYPASS_ENABLE` / `MEPA_MACSEC_INIT_BYPASS_DISABLE`, there is a requirement that macsec init has been completed
+
+=== Classification and Pattern Matching
+
+==== Matching patterns
+
+When traffic passes through the MACsec processing block, it will be matched
+against a set of rules/policies. If none of these rules/policies match, the traffic will be matched
+against the default rules/policies.  Note: one and only one of the default rules/policies will always
+match and this is defined in mepa_macsec_default_action_policy_t
+
+The classification rules/policies are associated with a MACsec port and an action. The
+action is defined in mepa_macsec_match_action_t and defines frame drop and frame forwarding
+Requirements.  If the frame should be forwarded, it will be forwarded to the controlled or
+the uncontrolled port of the given virtual MACsec port.
+
+These classification rules are used for both the ingress and the egress traffic.
+On the ingress side, only tags located before the SECtag will be processed and used.
+
+These rules are a limited resource, and the HW is limited to allow the same
+amount of classification rules as concurrent SA streams. Therefore, to utilize
+the hardware 100%, the rules should only be used to associate traffic with the
+controlled port (encryption/decryption) of a MACsec port.  If these rules are not being matched,
+then the traffic matching falls to the default rules/policies.
+
+In simple scenarios where a single peer is connected to a single PHY port,
+there are more than sufficient resources to use this mechanism for associating traffic
+with the controlled and the uncontrolled port, but the user should be aware that these resources are limited.
+It is recommended that resources are always optimized and this is accomplished by
+configuring the classification rules for the control port and configuring the default rules/policies
+for the uncontrolled port.
+
+Instead of using this method to forward control frames to the uncontrolled port,
+the default rules mepa_macsec_default_action_policy_t may be used to bypass those frames.
+
+However, this will have the following consequences:
+
+the controlled frames will not be included in uncontrolled port
+counters. To get the correct counter values, the application will need to
+gather all the control frames, calculate the statistics and use this to
+Compensate/recalculate the uncontrolled port counters.
+
+All frames which are classified as control frames are passed through. If
+the control frame matches against the ether-type, it will evaluate to true in the following three cases:
+
+  1) If the ether-type located directly after the source MAC address matches
+  2) If the ether-type located the first VLAN tag matches
+  3) If the ether-type located a double VLAN tag matches
+
+`mepa_macsec_control_frame_match_conf_set()`: Set the control frame matching rules.
+
+`mepa_macsec_control_frame_match_conf_get()`: Get the control frame matching rules.
+
+`mepa_macsec_pattern_set()`: Configure the Matching pattern for a given MACsec port, for a given
+                             action. Only one action may be associated with each actions. One matching
+                             slot will be acquired immediately when this is called for the "DROP" or the
+                             "UNCONTROLLED_PORT" actions. When matching pattern is configured for the
+                             "CONTROLLED_PORT" action, HW a matching resource will be acquired for every
+                             SA added.
+
+=== SECY APIs
+
+Secure Entity operates the MACSec protocol on a network port .There may be zero or more SecY instances
+on any physical port. A SecY instance is associated with a Virtual Port. A SecY contains one transmit
+Secure Channel (SC) and zero or more receive SC's. There is a receive SC for each peer entity on the LAN,
+which is a member of the Connectivity Association (CA). SecY's are identified by their
+Secure Channel Identifier (SCI) or by MAC virtual port.
+
+`mepa_macsec_secy_conf_add()` : Create a SecY entity of a MACsec port
+                                The entity is created with given parameters.
+                                The controlled port is disabled by default and must be enabled before normal processing.
+                                Classification pattern must be configured to classify traffic to a SecY instance
+
+`mepa_macsec_secy_conf_update()`: Create a SecY entity of a MACsec port
+                                   SecY update with new parameters i.e. Replay Window size etc, it will
+                                   update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+                                   will not change. Tx/Rx SA Status Next PN and Lowest PN shows different
+                                   as compare with existing Tx/Rx SA Status.
+
+
+
+`mepa_macsec_secy_controlled_set()` : Enable/Disable the SecY's controlled (secure) port.
+                                      The controlled port is disabled by default.
+
+
+`mepa_macsec_secy_port_status_get()`: Get status from a SecY port, controlled, uncontrolled or common.
+
+
+`mepa_macsec_port_get_next()`: Browse through available macsec ports (secy's) on a physical port
+                               Use NULL pointer to get the first port and use found ports as a search port in the next round.
+
+
+=== Receive Secure Channel (SC) management
+
+`mepa_macsec_rx_sc_add()`: Create an Rx SC object inside of the SecY.
+
+`mepa_macsec_rx_sc_update()`: Instead of inheriting the configuration from the SecY the Rx SC can use its own configuration.
+                              RxSC update with new parameters i.e. Replay Window size etc, it will
+                              update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+                              will not change. Rx SA Status Next PN and Lowest PN shows different
+                              as compare with existing Rx SA Status.
+
+
+`mepa_macsec_rx_sc_get_next()`: Browse through the Rx SCs inside of the SecY.
+
+`mepa_macsec_rx_sc_del()`: Delete the Rx SC and the associated SAs
+
+
+
+=== Transmit Secure Channel (SC) management
+
+`mepa_macsec_tx_sc_set()`: Create an Tx SC object inside of the SecY.  One TxSC is supported for each SecY.
+
+`mepa_macsec_tx_sc_update()`: Instead of inheriting the configuration from the SecY the Tx SC can use its own configuration.
+                              TxSC update with new parameters i.e. Replay Window size etc, it will
+                              update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+                              will not change. Tx SA Status Next PN and Lowest PN shows different
+                              as compare with existing Tx SA Status.
+
+`mepa_macsec_tx_sc_get_conf()`: Get the SC configuration
+
+`mepa_macsec_tx_sc_del()`: Delete the Tx SC object and the associated SAs
+
+
+=== Receive Secure Association (SA) management
+
+`mepa_macsec_rx_sa_set()`: Create an Rx SA which is associated with an SC within the SecY.
+                           This SA is not enabled until vtss_macsec_rx_sa_activate() is performed.
+
+`mepa_macsec_rx_sa_get()`: Get the Rx SA configuration of the active SA.
+                           If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                           updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+                           the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+
+`mepa_macsec_rx_sa_activate()`: Activate the SA associated with the AN.
+                                The reception switches from a previous SA to the SA identified by the AN.
+                                Note that the reception using the new SA does not necessarily begin immediately.
+
+`mepa_macsec_rx_sa_disable()`: This function disables Rx SA identified by an. Frames still in the pipeline are not discarded.
+
+`mepa_macsec_rx_sa_del()`: This function deletes Rx SA object identified by an. The Rx SA must be disabled before deleted.
+
+`mepa_macsec_rx_sa_lowest_pn_update()`: Set (update) the packet number (pn) value to value in lowest_pn
+
+`mepa_macsec_rx_sa_status_get()`: Rx SA status
+                                  If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                                  updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+                                  the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+
+
+=== Receive Secure Association (SA) management (XPN)
+
+`mepa_macsec_rx_seca_set()`: Create an Rx SA which is associated with an SC within the SecY.
+
+`mepa_macsec_rx_seca_get()`: Get the Rx SA configuration of the active SA.
+
+`mepa_macsec_rx_seca_lowest_pn_update()`: Update the lowest_pn packet number in 64-bit or 32-bit for Rx SA.
+
+=== Transmit Secure Association (SA) management
+
+`mepa_macsec_tx_sa_set()`: Create an Tx SA which is associated with the Tx SC within the SecY.
+                           This SA is not in use until vtss_macsec_tx_sa_activate() is performed.
+                           If SA was created before any change in parameters like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                           updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+                           the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's
+
+`mepa_macsec_tx_sa_get()`: Get the  Tx SA configuration.
+
+`mepa_macsec_tx_sa_activate()`: This function switches transmission from a previous Tx SA to the Tx SA identified by an.
+                                Transmission using the new SA is in effect immediately.
+
+`mepa_macsec_tx_sa_disable()`: This function disables Tx SA identified by an. Frames still in the pipeline are not discarded.
+
+`mepa_macsec_tx_sa_del()`: This function deletes Tx SA object identified by an. The Tx SA must be disabled before deleted.
+
+`mepa_macsec_tx_sa_status_get()`: TX SA status, if SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                           updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
+                           the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
+
+=== Transmit Secure Association (SA) management(XPN)
+
+`mepa_macsec_tx_seca_set()`: Create an Tx SA which is associated with the Tx SC within the SecY.
+                             This SA is not in use until vtss_macsec_tx_sa_activate() is performed.
+
+`mepa_macsec_tx_seca_get()`: Get the Tx SA configuration supporting 64-bit and 32-bit PN.
+
+=== Header / TAG Bypass
+
+Additionally the API provide support for external-virtual ports (port
+virtalization done outside the SECtag). This includes protecting streams
+which are encapsulated in VLAN-tag, double VLAN tag and MPLS tunnels. This
+is an extension to what is defined in IEEE 802.1AE.
+
+As an example consider the following frame:
+
+        +-------------------------------+
+        | DA | SA | VLAN=1000 | PAYLOAD |
+        +-------------------------------+
+
+If this frame is transmitted on a traditional MACsec PHY, the SECtag will be
+injected directly after source MAC address. The resulting frame will look
+like this:
+
+        +----------------------------------------------+
+        | DA | SA | SECtag | VLAN=1000 | PAYLOAD | ICV |
+        +----------------------------------------------+
+
+By using the tag and header bypassing features available in VTSS MACsec
+capable PHYs, the frames can be associated with a virtual port by setting up
+matching rules. This virtual port can be configured to skip certain TAGs in
+the MACsec processing. In this case we could configure a rule to match
+traffic on VLAN 1000, and associate this with a virtual MACsec port. This
+MACsec port can now be configured to skip the VLAN tag in its MACsec
+processing.
+
+If this is done, the previous frame would look like the following when it has
+been transmitted on the MACsec aware PHY.
+
+       +----------------------------------------------+
+       | DA | SA | VLAN=1000 | SECtag | PAYLOAD | ICV |
+       +----------------------------------------------+
+
+Here the VLAN tag is not encrypted, and it is not included in the ICV
+checksum. If this frame is received on the PHY, it will find the VLAN tag,
+parse it and use this information to associate the MACsec frame with the
+given virtual MACsec port.
+
+`mepa_macsec_bypass_mode_set()`: Set header bypass mode globally for the port
+
+`mepa_macsec_bypass_tag_set()`: Set the bypass tag mode i.e. number of Tags to bypass: 0(disable), 1 or 2 tags.
+
+
+=== MEPA MACSec functions
+
+`mepa_macsec_init_set()` +
+`mepa_macsec_init_get()` +
+`mepa_macsec_secy_conf_add()` +
+`mepa_macsec_secy_conf_update()` +
+`mepa_macsec_secy_conf_get()` +
+`mepa_macsec_secy_conf_del()` +
+`mepa_macsec_secy_controlled_set()` +
+`mepa_macsec_secy_controlled_get()` +
+`mepa_macsec_secy_port_status_get()` +
+`mepa_macsec_port_get_next()` +
+`mepa_macsec_rx_sc_add()` +
+`mepa_macsec_rx_sc_update()` +
+`mepa_macsec_rx_sc_get_conf()` +
+`mepa_macsec_rx_sc_get_next()` +
+`mepa_macsec_rx_sc_del()` +
+`mepa_macsec_rx_sc_status_get()` +
+`mepa_macsec_tx_sc_set()` +
+`mepa_macsec_tx_sc_update()` +
+`mepa_macsec_tx_sc_get_conf()` +
+`mepa_macsec_tx_sc_del()` +
+`mepa_macsec_tx_sc_status_get()` +
+`mepa_macsec_rx_sa_set()` +
+`mepa_macsec_rx_sa_get()` +
+`mepa_macsec_rx_sa_activate()` +
+`mepa_macsec_rx_sa_disable()` +
+`mepa_macsec_rx_sa_del()` +
+`mepa_macsec_rx_sa_lowest_pn_update()` +
+`mepa_macsec_rx_sa_status_get()` +
+`mepa_macsec_rx_seca_set()` +
+`mepa_macsec_rx_seca_get()` +
+`mepa_macsec_rx_seca_lowest_pn_update()` +
+`mepa_macsec_tx_sa_set()` +
+`mepa_macsec_tx_sa_get()` +
+`mepa_macsec_tx_sa_activate()` +
+`mepa_macsec_tx_sa_disable()` +
+`mepa_macsec_tx_sa_del()` +
+`mepa_macsec_tx_sa_status_get()` +
+`mepa_macsec_tx_seca_set()` +
+`mepa_macsec_tx_seca_get()` +
+`mepa_macsec_controlled_counters_get()` +
+`mepa_macsec_uncontrolled_counters_get()` +
+`mepa_macsec_common_counters_get()` +
+`mepa_macsec_secy_cap_get()` +
+`mepa_macsec_secy_counters_get()` +
+`mepa_macsec_counters_update()` +
+`mepa_macsec_counters_clear()` +
+`mepa_macsec_rx_sc_counters_get()` +
+`mepa_macsec_tx_sc_counters_get()` +
+`mepa_macsec_tx_sa_counters_get()` +
+`mepa_macsec_rx_sa_counters_get()` +
+`mepa_macsec_control_frame_match_conf_set()` +
+`mepa_macsec_control_frame_match_conf_del()` +
+`mepa_macsec_control_frame_match_conf_get()` +
+`mepa_macsec_pattern_set()` +
+`mepa_macsec_pattern_del()` +
+`mepa_macsec_pattern_get()` +
+`mepa_macsec_default_action_set()` +
+`mepa_macsec_default_action_get()` +
+`mepa_macsec_bypass_mode_set()` +
+`mepa_macsec_bypass_mode_get()` +
+`mepa_macsec_bypass_tag_set()` +
+`mepa_macsec_bypass_tag_get()` +
+`mepa_macsec_mtu_set()` +
+`mepa_macsec_mtu_get()` +
+`mepa_macsec_frame_capture_set()` +
+`mepa_macsec_frame_get()` +
+`mepa_macsec_event_enable_set()` +
+`mepa_macsec_event_enable_get()` +
+`mepa_macsec_event_poll()` +
+`mepa_macsec_event_seq_threshold_set()` +
+`mepa_macsec_event_seq_threshold_get()` +
+`mepa_macsec_egr_intr_sa_get()` +
+`mepa_macsec_csr_read()` +
+`mepa_macsec_csr_write()` +
+`mepa_macsec_dbg_counter_get()` +
+`mepa_macsec_hmac_counters_get()` +
+`mepa_macsec_lmac_counters_get()` +
+`mepa_macsec_is_capable()` +
+`mepa_macsec_dbg_reg_dump()` +
+`mepa_macsec_inst_count_get()` +
+`mepa_macsec_lmac_counters_clear()` +
+`mepa_macsec_hmac_counters_clear()` +
+`mepa_macsec_debug_counters_clear()` +
+`mepa_macsec_common_counters_clear()` +
+`mepa_macsec_uncontrolled_counters_clear()` +
+`mepa_macsec_controlled_counters_clear()` +
+`mepa_macsec_rxsa_counters_clear()` +
+`mepa_macsec_rxsc_counters_clear()` +
+`mepa_macsec_txsa_counters_clear()` +
+`mepa_macsec_txsc_counters_clear()` +
+`mepa_macsec_secy_counters_clear()` +
+`mepa_macsec_port_enable_status_get()` +
+`mepa_macsec_rxsa_an_status_get()` +
+`mepa_mac_block_mtu_get()` +
+`mepa_mac_block_mtu_set()` +
+`mepa_macsec_fcbuf_frame_gap_comp_set()` +
+`mepa_macsec_dbg_fcb_block_reg_dump()` +
+`mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump()` +
+`mepa_macsec_dbg_reconfig()` +
+`mepa_macsec_dbg_update_seq_set()`
