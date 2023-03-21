@@ -26,9 +26,6 @@
 
 #define MEPA_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /** \brief SecY port status as defined by 802.1AE */
 typedef struct {
@@ -1517,9 +1514,6 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
 //
 // ***************************************************************************
 
-#ifdef __cplusplus
-}
-#endif
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
