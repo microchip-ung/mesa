@@ -2,12 +2,14 @@ GEM
   remote: https://rubygems.org/
   specs:
     hexdump (0.2.3)
+    net-telnet (0.2.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   hexdump
+  net-telnet
 
 BUNDLED WITH
    1.17.2

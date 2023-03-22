@@ -963,8 +963,6 @@ class Mesa_Pc_b2b
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
-            @pc.bash_function "rvm use 2.6.2"
-            #@pc.run "rvm info"
             upload_utils conf
             @pc.run "bundle-install.sh"
             @pc.run "lazy-ef-install.rb #{$easyframes_sha}" # TODO, find a better place to store this data
