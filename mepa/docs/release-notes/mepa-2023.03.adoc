@@ -31,6 +31,8 @@ This release contains following contents:
 
 === Documentation updates
 
+* MACSec Documentation
+
 === Bug Fixes
 
 ==== LAN8814
