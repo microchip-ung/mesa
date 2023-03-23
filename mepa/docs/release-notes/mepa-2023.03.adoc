@@ -19,6 +19,7 @@
 This release contains following contents:
 
 * LAN8814 new features & bug fixes
+* VSC8584 bug fixes
 
 === API Enhancements
 
@@ -34,6 +35,12 @@ This release contains following contents:
 
 ==== LAN8814
 
-* MEPA-184     CRC errors reported when toggling speed between AN and forced speeds with 1Gbps bidirectional traffic
 * MEPA-163     Changing port speed is erasing previous port configurations (eg: loopbacks)
 * MEPA-181     Patch for ANEG restart after booting
+* MEPA-184     CRC errors reported when toggling speed between AN and forced speeds with 1Gbps bidirectional traffic
+
+==== VSC8584
+
+* MEPA-104     Missing Ability to set/select "force_ams_sel" in mepa_driver_conf_set API
+* MEPA-233     API: mepa_conf_set not saving the config if admin.enable=FALSE
+* MEPA-296     MDI/MDIX settings being overwritten in mepa_conf_set
