@@ -2168,20 +2168,16 @@ static mepa_rc indy_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa
 
 static mepa_rc indy_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
 {
-    mepa_rc rc = MEPA_RC_OK;
+    mepa_rc rc = MEPA_RC_ERROR;
 
     if (value->prbsn_sel == MEPA_PRBS7) {
-
         MEPA_ENTER(dev);
         //Introducing one error into sequence
         rc = indy_serdes_set(dev, 0x1015, 0x0014, 0);
-        if (rc < 0)
-            return rc;
-	    MEPA_EXIT(dev);
-
-        return MEPA_RC_OK;
+        MEPA_EXIT(dev);
     }
-    return MEPA_RC_ERROR;
+
+    return rc;
 }
 
 static mepa_rc indy_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
