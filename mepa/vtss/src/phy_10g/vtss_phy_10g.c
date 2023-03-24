@@ -16,9 +16,6 @@
 #if defined(VTSS_FEATURE_WIS)
 #include "vtss_wis_api.h"
 #endif /* VTSS_FEATURE_WIS */
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-#include "vtss_phy_10g_edc_fw.h"
-#endif /* VTSS_FEATURE_EDC_FW_LOAD */
 /* register addresses used to identiify the Venice SKU's */
 #define VENICE_REG_EFUSE 0x0290
 #define VENICE_REG_FEATURE_STATE 0x02A0
@@ -1446,44 +1443,6 @@ static vtss_rc vtss_phy_10g_edc_fw_status_private(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-static vtss_rc vtss_phy_10g_fw_load_private(vtss_state_t *vtss_state,
-                                            const vtss_port_no_t port_no)
-{
-    vtss_phy_10g_fw_status_t status;
-    u16 value;
-    u32 i;
-    
-    VTSS_D("Enter");
-    /* Check MODE0/MODE1 status */
-    VTSS_RC(vtss_mmd_rd(vtss_state, port_no, MMD_GLOBAL, 0x1B, &value));  
-    if ((value & 0x3) != 0) {
-        VTSS_E("MODE0/MODE1 Pins must be 0 for MDIO fw-load"); 
-        return VTSS_RC_ERROR; 
-    }
-
-    /* Assert uP reset */
-    VTSS_RC(vtss_mmd_wr_masked(vtss_state, port_no, MMD_GLOBAL, 0x2, 0x0080, 0x0080));
-
-    /* Format On-Chip-Memory with the EDC firmware.  */
-    /* Note that 'edc_fw_arr' array is auto-generated from a file */
-    /* in a Motorola S3 format, delivered by the EDC designers  */
-    /* The convertion is conducted by a TCL script  */
-    for (i = 0; i<(sizeof(edc_fw_arr)/(sizeof(u16))); i++) {
-        VTSS_RC(vtss_mmd_wr(vtss_state, port_no, 0x1F, i, edc_fw_arr[i]));
-    }
-    /* Relase uP reset */
-    VTSS_RC(vtss_mmd_wr_masked(vtss_state, port_no, MMD_GLOBAL, 0x2, 0, 0x0080));  
-    vtss_state->phy_10g_state[port_no].edc_fw_api_load = 1;    
-    VTSS_RC(vtss_phy_10g_edc_fw_status_private(vtss_state, port_no, &status));      
-    if ((status.edc_fw_chksum) && (status.icpu_activity)) {
-        return VTSS_RC_OK;
-    } 
-    VTSS_E("Internal microprocessor is not active after fw-load"); 
-    return VTSS_RC_ERROR;
-}
-#endif
-
 vtss_rc vtss_phy_10g_init_conf_set(vtss_state_t *vtss_state)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
@@ -1593,21 +1552,6 @@ static vtss_rc vtss_phy_10g_mode_set_private(vtss_state_t *vtss_state,
     case VTSS_PHY_TYPE_8484:
     case VTSS_PHY_TYPE_8487:
     case VTSS_PHY_TYPE_8488:       
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-        /* Load the EDC firmware via MDIO */
-        if ((mode->edc_fw_load == VTSS_EDC_FW_LOAD_MDIO) && 
-            (vtss_state->phy_10g_state[port_no].channel_id == 0) && 
-            (vtss_state->phy_10g_state[port_no].edc_fw_api_load == 0)) {
-            VTSS_RC(vtss_phy_10g_fw_load_private(vtss_state, port_no));
-        }
-        /* FW version 1.09 and above requires 1xA201.2 to be set to 1  */
-        if (mode->edc_fw_load == VTSS_EDC_FW_LOAD_MDIO) {
-            VTSS_RC(vtss_mmd_rd(vtss_state, port_no, MMD_GLOBAL, 0x7FE2, &value));  
-            if (value >= 109) {
-                VTSS_RC(vtss_mmd_wr_masked(vtss_state, port_no, MMD_PMA, 0xA201, 0x0004, 0x0004));
-            } 
-        }        
-#endif
         /* Set the  TX XFI data polarity */
         VTSS_RC(VTSS_PHY_WARM_WR_MASKED(pma_port_no(vtss_state, port_no), MMD_PMA, 0x8012, (mode->xfi_pol_invert?8:0), 0x0008));
         /* Set the  Xaui Lane flipping */
@@ -2330,14 +2274,6 @@ static vtss_rc vtss_phy_10g_mode_set_init (vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     }
 
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-    if (vtss_state->warm_start_cur) {
-        if (vtss_state->phy_10g_state[port_no].mode.edc_fw_load == VTSS_EDC_FW_LOAD_MDIO && 
-            vtss_state->phy_10g_state[port_no].channel_id == 0) {
-            vtss_state->phy_10g_state[port_no].edc_fw_api_load = 1;    
-        }
-    }
-#endif /* VTSS_FEATURE_EDC_FW_LOAD */
     rc = VTSS_RC_COLD(vtss_phy_10g_mode_set_private(vtss_state, port_no));
 #ifdef VTSS_FEATURE_WIS
     if ((vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8484) || 

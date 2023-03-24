@@ -306,14 +306,6 @@ typedef enum {
     VTSS_CHANNEL_3,      /**< Channel id is hardcoded to 3  */
 } vtss_channel_t;
 
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-/** \brief EDC modes */
-typedef enum {
-    VTSS_EDC_FW_LOAD_MDIO,    /**< Load EDC FW through MDIO to iCPU */
-    VTSS_EDC_FW_LOAD_NOTHING, /**< Do not load FW to iCPU */
-} vtss_edc_fw_load_t;
-#endif /* VTSS_FEATURE_EDC_FW_LOAD */
-
 /** \brief 10G Phy operating mode */
 typedef struct {
     vtss_oper_mode_t oper_mode;                 /**< Phy operational mode */
@@ -335,11 +327,6 @@ typedef struct {
     vtss_recvrdclk_cdr_div_t rcvrd_clk_div;     /**< 8488 only: recovered clock's divisor      */
     vtss_srefclk_div_t  sref_clk_div;           /**< 8488 only: SRERCLK divisor                */
     vtss_wref_clk_div_t wref_clk_div;           /**< 8488 only: WREFCLK divisor                */
-
-#if defined(VTSS_FEATURE_EDC_FW_LOAD)
-    /** \brief EDC modes */
-    vtss_edc_fw_load_t edc_fw_load;             /**< EDC Firmware load */
-#endif /* VTSS_FEATURE_EDC_FW_LOAD */
 
     /** \brief Serdes parameters  */
     struct {
