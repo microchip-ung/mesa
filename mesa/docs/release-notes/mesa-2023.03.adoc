@@ -1,0 +1,32 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2022.12
+
+== MESA-2022.12
+
+|===
+|Version:          |MESA-2023.03
+|Previous Version: |MESA-2022.12
+|Date:             |2023-03-31
+|Description:      |Roadmap release
+|===
+
+=== General
+
+==== IPv4 and IPv6 Discard Route support
+
+All platforms with routing support have gained support for discard routes.
+
+This feature is enabled by setting an all-ones next-hop address (see
+`mesa_ipv4_uc_t::destination` / `mesa_ipv6_uc_t::destination`), and install
+the route using the normal `mesa_l3_route_add` function.
+
+==== Added support for frame-rate shapers
+
+Platforms that implement the `QOS_EGRESS_SHAPER_FRAME` (only Sparx5 SKUs)
+capability have gained support for frame-rate shapers.
+
+The shaper is enabled by setting `mesa_shaper_t::mode` to
+`MESA_SHAPER_MODE_FRAME` and by configureing the `mesa_shaper_t::level` and
+`mesa_shaper_t::rate` to number of `frames` and `frames/s`, respectively.
