@@ -623,9 +623,6 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     //Configure frame preemption
     indy_framepreempt_set(dev, rst_conf->framepreempt_en);
 
-    //Configure frame preemption
-    indy_framepreempt_set(dev, rst_conf->framepreempt_en);
-
     return MEPA_RC_OK;
 }
 
