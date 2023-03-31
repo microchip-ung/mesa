@@ -65,7 +65,7 @@ MEPA_LIB(LIB_NAME mepa_ocelot_pcb121 ADVANCED
 
 MEPA_LIB(LIB_NAME mepa_sparx5 ADVANCED
          DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814
-         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814)
+         DRVS     mepa_drv_vtss_10g_macsec_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814)
 
 MEPA_LIB(LIB_NAME mepa_sparx5_bringup ADVANCED
          DEFS     -DMEPA_HAS_VTSS
