@@ -916,9 +916,9 @@ $easyframes_sha = "ce45ec85871ad2f1412a964868f8ad11bf581bfc"
 UBOOT_PROMPTS = ["m => ", "ocelot # ", "luton # ", "jr2 # ", "servalt # ", "=> "]
 
 class Mesa_Pc_b2b
-    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin, :port_map
+    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin, :port_map, :labels
 
-    def initialize conf, mesa_args, port_cnt, topo_name
+    def initialize conf, mesa_args, port_cnt, topo_name, labels
         #Default topology
         dut_url = conf["dut"]["terminal"]
         dut_args = conf["dut"]["mesa_demo_args"]
@@ -960,6 +960,7 @@ class Mesa_Pc_b2b
 
         #Create the DUT
         @dut = MesaDut.new :mesa, dut_url, dut_ports, dut_looped_ports, dut_looped_ports_10g, port_admin, pcb, cap
+        @labels = labels
 
         if conf.key?("easytest_cmd_server")
             @pc = TestPCRemote.new conf["easytest_cmd_server"], pc_ports, conf["easytest_server"]
@@ -1206,7 +1207,19 @@ def show_mesa_setup(ts)
                 txt += " "
             end
 
-            t_i("+---------+" + txt + "+---------+") if (idx == 0)
+            if (idx == 0)
+                a = ts.labels["platform"].split("_t3")
+                if (a.size == 2)
+                    len = (txt.length + 12)
+                    l = ("   t3" + a[1])
+                    while (l.length < len)
+                        l += " "
+                    end
+                    l += a[0]
+                    t_i(l)
+                end
+                t_i("+---------+" + txt + "+---------+")
+            end
             t_i(str)
             if (idx == ((cnt / 2) - 1))
                 t_i("|   PC    |" + txt + "|   DUT   |")
@@ -1260,14 +1273,14 @@ def dut_init_block name
     exit -1 if has_err
 end
 
-def get_test_setup_inner(setup, conf, mesa_args, topo_name)
+def get_test_setup_inner(setup, conf, mesa_args, topo_name, labels)
     case setup
     when "mesa_pc_b2b_4x"
-        ts = Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name)
+        ts = Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name, labels)
         show_mesa_setup(ts)
         return ts
     when "mesa_pc_b2b_2x"
-        ts = Mesa_Pc_b2b.new(conf, mesa_args, 2, topo_name)
+        ts = Mesa_Pc_b2b.new(conf, mesa_args, 2, topo_name, labels)
         show_mesa_setup(ts)
         return ts
     else
@@ -1353,7 +1366,7 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     xml_tag_end "labels"
 
     dut_init_block setup do
-        ts = get_test_setup_inner(setup, conf, mesa_args, topo_name)
+        ts = get_test_setup_inner(setup, conf, mesa_args, topo_name, labels)
         $global_test_setup = ts
 
         if (defined? ts.dut) and ts.dut.api == :mesa
