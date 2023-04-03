@@ -734,10 +734,10 @@ end:
                         // copy the capabilities on host side
                         indy_qsgmii_tx_abilities(dev, status->speed, status->fdx);
                     }
-                    if ((status->speed == MEPA_SPEED_10M || status->speed == MEPA_SPEED_100M) &&
-                        (status->fdx == FALSE)) {
-                        indy_workaround_half_duplex(dev);
-                    }
+                }
+                if ((status->speed == MEPA_SPEED_10M || status->speed == MEPA_SPEED_100M) &&
+                    (status->fdx == FALSE)) {
+                    indy_workaround_half_duplex(dev);
                 }
             } else {// link down event.
                 indy_workaround_fifo_reset(dev);
