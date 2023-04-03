@@ -185,6 +185,7 @@ def compile(ws, odir, preset, c)
 
     if $opt[:simplegrid]
         cmd = "SimpleGridClient -l webstax "
+        cmd << "-e MCHP_DOCKER_NAME=\"ghcr.io/microchip-ung/bsp-buildenv\" -e MCHP_DOCKER_TAG=\"1.9\" "
         cmd << "-w #{$tar} "
         cmd << "-c '#{bcmd}' "
         cmd << "-a #{ws}/#{odir} "
