@@ -33,8 +33,61 @@ static uint16_t indy_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
     {0,    0,   0,  0},
 };
 
+static uint8_t def_mac[] = {0x01, 0x1B, 0x19, 0x00, 0x00, 0x00};
+
 static mepa_rc indy_ltc_target_seconds(mepa_device_t *dev, uint32_t sec);
 
+static void get_default_ts_eth_class(mepa_ts_classifier_eth_t *const conf)
+{
+    conf->mac_match_mode = MEPA_TS_ETH_ADDR_MATCH_ANY;
+    conf->mac_match_select = MEPA_TS_ETH_MATCH_DEST_ADDR;
+    memcpy(conf->mac_addr, def_mac, sizeof(conf->mac_addr));
+    conf->vlan_check = FALSE;
+    conf->vlan_conf.pbb_en = FALSE;
+    conf->vlan_conf.tpid = 0x88A8;
+    conf->vlan_conf.etype = 0x88f7;
+    conf->vlan_conf.num_tag = 0;
+}
+static void get_default_ts_ip_class(mepa_ts_classifier_ip_t *const conf)
+{
+    conf->ip_ver = MEPA_TS_IP_VER_4;
+    conf->ip_match_mode = MEPA_TS_IP_MATCH_DEST;
+    conf->ip_addr.ipv4.addr = conf->ip_addr.ipv4.mask = 0;
+    memset(conf->ip_addr.ipv6.addr, 0, sizeof(conf->ip_addr.ipv6.addr));
+    memset(conf->ip_addr.ipv6.mask, 0, sizeof(conf->ip_addr.ipv6.mask));
+    conf->udp_sport_en = FALSE;
+    conf->udp_dport_en = TRUE;
+    conf->udp_sport = 0;
+    conf->udp_dport = 319;
+}
+static void get_default_ts_ptp_class(mepa_ts_classifier_ptp_t *const conf)
+{
+    conf->version.upper = 2;
+    conf->version.lower = 2;
+    conf->minor_version.upper = conf->minor_version.lower = 0;
+    //domain
+    conf->domain.mode = MEPA_TS_MATCH_MODE_VALUE;
+    conf->domain.match.value.val = 0;
+    conf->domain.match.value.mask = 0xF;
+    //sdoid
+    conf->sdoid.mode = MEPA_TS_MATCH_MODE_VALUE;
+    conf->sdoid.match.value.val = 0;
+    conf->sdoid.match.value.mask = 0; //not used for 1588-2008 standard
+}
+static void get_default_ts_clock_cfg(mepa_ts_ptp_clock_conf_t *clk_conf)
+{
+    clk_conf->clk_mode = MEPA_TS_PTP_CLOCK_MODE_NONE;
+    clk_conf->delaym_type = MEPA_TS_PTP_DELAYM_E2E;
+    clk_conf->enable = FALSE;
+    get_default_ts_ptp_class(&clk_conf->ptp_class_conf);
+}
+static void get_default_ts_classifier_cfg(mepa_ts_classifier_t *const conf)
+{
+    conf->pkt_encap_type = MEPA_TS_ENCAP_NONE;
+    conf->clock_id = 0;
+    get_default_ts_eth_class(&conf->eth_class_conf);
+    get_default_ts_ip_class(&conf->ip_class_conf);
+}
 static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t *ts_init_conf)
 {
     uint16_t val = 0, clock_cfg = 0, pll_div = 0;
@@ -141,6 +194,13 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
 		EP_WRM(dev, INDY_PTP_RX_TAIL_TAG, val, INDY_DEF_MASK);
     }
 
+    // initialise classifier config state with default values.
+    get_default_ts_classifier_cfg(&data->ts_state.ts_port_conf.rx_pkt_conf);
+    get_default_ts_classifier_cfg(&data->ts_state.ts_port_conf.tx_pkt_conf);
+    // initialise clock config
+    get_default_ts_clock_cfg(&data->ts_state.ts_port_conf.rx_clock_conf);
+    get_default_ts_clock_cfg(&data->ts_state.ts_port_conf.tx_clock_conf);
+
 #if 1 // Hardware default values are not aligned
     // Ingress latencies
     val = indy_ing_latencies[ts_init_conf->clk_freq][2];
@@ -221,7 +281,6 @@ static mepa_rc indy_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf
 
     return rc;
 }
-
 static mepa_rc indy_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *const ts_init_conf)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -1381,6 +1440,12 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
         T_E(MEPA_TRACE_GRP_TS, "PBB not supported on Indy.  Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
+    if ((pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_OR_DEST) &&
+        (pkt_conf->eth_class_conf.mac_match_mode   != MEPA_TS_ETH_ADDR_MATCH_48BIT)) {
+        T_E(MEPA_TRACE_GRP_TS, "When both source or destination mac address need to be matched,"
+                               "match mode must be set to full 48-bit address");
+        return MEPA_RC_ERROR;
+    }
     switch (pkt_conf->pkt_encap_type) {
     case MEPA_TS_ENCAP_ETH_PTP:
         parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
@@ -1396,7 +1461,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+                parse_config = parse_config & ~INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1425,7 +1490,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+                parse_config = parse_config & ~INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1485,6 +1550,12 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
     if (pkt_conf->eth_class_conf.vlan_check && pkt_conf->eth_class_conf.vlan_conf.pbb_en) {
         return MEPA_RC_ERROR;
     }
+    if ((pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_OR_DEST) &&
+        (pkt_conf->eth_class_conf.mac_match_mode   != MEPA_TS_ETH_ADDR_MATCH_48BIT)) {
+        T_E(MEPA_TRACE_GRP_TS, "When both source or destination mac address need to be matched,"
+                               "match mode must be set to full 48-bit address");
+        return MEPA_RC_ERROR;
+    }
 
     switch (pkt_conf->pkt_encap_type) {
     case MEPA_TS_ENCAP_ETH_PTP:
@@ -1501,7 +1572,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
+                parse_config = parse_config & ~INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1530,7 +1601,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+                parse_config = parse_config & ~INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1619,7 +1690,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set(mepa_device_t *dev, uint16_t flow_
         return rc;
     }
 
-    memcpy(&data->ts_state.ts_port_conf.rx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
+    memcpy(&data->ts_state.ts_port_conf.tx_pkt_conf, pkt_conf, sizeof(mepa_ts_classifier_t));
     MEPA_EXIT(dev);
     return rc;
 }
