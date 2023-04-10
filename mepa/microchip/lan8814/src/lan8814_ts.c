@@ -1461,7 +1461,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config & ~INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1490,7 +1490,7 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config & ~INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1572,7 +1572,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config & ~INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1601,7 +1601,7 @@ static mepa_rc indy_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config & ~INDY_PTP_TX_PARSE_CONFIG_PEER_NONPEER_MIX;
+                parse_config = parse_config | INDY_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
