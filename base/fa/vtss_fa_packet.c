@@ -561,7 +561,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
                                 const u8                           xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                 vtss_packet_rx_info_t       *const info)
 {
-    u16                 vstax_hi, vstax_one;
+    u16                 vstax_hi, vstax_one, rb = 0;
     u32                 fwd, misc, sflow_id;
     u64                 tstamp, dst, vstax_lo;
     u8                  xtr_hdr_2;
@@ -571,13 +571,17 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
-    // (Fireant) Bit 287-272 (16 bits) are unused
-    // (Laguna) Bit 287-279 (9 bits) are unused
+    // (Fireant) Bit 272-287 (16 bits) are unused
+    // (Laguna) Bit 279-287 (9 bits) are unused
 
-    // (Laguna) RB is Bit 278-272
-//    rb        = xtr_hdr[ 1] & 0x7F;
+#if defined(VTSS_FEATURE_REDBOX)
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        // RedBox is bit 270-278 (9 bits)
+        rb = ((xtr_hdr[1] & 0x7f) << 2) | ((xtr_hdr[2] & 0xc0) >> 6);
+    }
+#endif
 
-    // TS is bit 232-271
+    // TS is bit 232-269 (38 bits)
     xtr_hdr_2 = xtr_hdr[ 2] & 0x3F;  /* For some reason bit6-7 is occasionally unexpectedly set. Must be cleared */
     tstamp    = ((u64)xtr_hdr_2 << 32);
     tstamp   |= ((u64)xtr_hdr[ 3] << 24) | ((u64)xtr_hdr[ 4] << 16) | ((u64)xtr_hdr[ 5] <<  8) | ((u64)xtr_hdr[ 6] <<  0);
@@ -647,6 +651,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     info->tag.pcp  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29,  3);
     info->tag.dei  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
     info->tag.vid  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
+    info->rb_port_a = (VTSS_EXTRACT_BITFIELD(rb, 7, 1) == 0);
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, trc_grp, meta->etype, info));
 

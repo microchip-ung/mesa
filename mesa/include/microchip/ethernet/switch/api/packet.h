@@ -388,6 +388,9 @@ typedef struct {
 
     // Ingress flow ID or MESA_IFLOW_ID_NONE (not used for Luton26)
     mesa_iflow_id_t iflow_id;
+
+    // RedBox: True if frame was received on port A, false if port B
+    mesa_bool_t rb_port_a;
 } mesa_packet_rx_info_t;
 
 // Chip pipeline injection point.
