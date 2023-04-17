@@ -20,7 +20,6 @@ typedef unsigned int       u32;  /**< 32-bit unsigned */
 typedef unsigned long long u64;  /**< 64-bit unsigned */
 
 typedef unsigned char      BOOL; /**< Boolean implemented as 8-bit unsigned */
-typedef unsigned int       uintptr_t; /**< Unsigned integer big enough to hold pointers */
 
 typedef struct {
     long int tv_sec;

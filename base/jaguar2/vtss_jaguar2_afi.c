@@ -5,7 +5,7 @@
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_AFI
 #include "vtss_jaguar2_cil.h"
-#include <unistd.h>
+#include <stdint.h>
 
 #if defined(VTSS_ARCH_JAGUAR_2) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
 

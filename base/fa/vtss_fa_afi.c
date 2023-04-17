@@ -4,7 +4,7 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_AFI
 #include "vtss_fa_cil.h"
-#include <unistd.h>
+#include <stdint.h>
 
 #if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
 
