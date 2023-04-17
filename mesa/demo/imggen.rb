@@ -143,7 +143,6 @@ $machines = {
         :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
     },
 
-
     "fireant" => {
         :arch => "arm64",
         :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
