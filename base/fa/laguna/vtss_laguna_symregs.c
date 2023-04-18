@@ -8798,14 +8798,15 @@ vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const d
 }
 
 #else /* VTSS_OPT_SYMREG */
-vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
-    return VTSS_RC_ERROR;
-}
+/* vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) { */
+/*     return VTSS_RC_ERROR; */
+/* } */
 #endif /* VTSS_OPT_SYMREG */
 #endif /* VTSS_ARCH_LAN969X */
-#endif
+
 #ifdef VTSS_ARCH_LAN969X
 vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
     return VTSS_RC_ERROR;
 }
 #endif
+#endif /* #if 0 */

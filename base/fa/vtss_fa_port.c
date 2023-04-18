@@ -408,12 +408,12 @@ u32 vtss_to_sd6g_kr(vtss_state_t *vtss_state, u32 port)
 
 u32 vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port)
 {
-    u32 p = vtss_port_dev_index(vtss_state, port);
-    switch (p) {
+    switch (port) {
     case 0:  return VTSS_TO_DEV2G5_0;
     case 1:  return VTSS_TO_DEV2G5_1;
     case 2:  return VTSS_TO_DEV2G5_2;
     case 3:  return VTSS_TO_DEV2G5_3;
+    case 8:  return VTSS_TO_DEV2G5_8;
         default:
         VTSS_E("illegal 2G5 port number %d",port);
         return 0;
@@ -426,7 +426,6 @@ u32 vtss_to_dev5g(vtss_state_t *vtss_state, u32 port)
     return 0;
 }
 #endif /* VTSS_ARCH_LAN969X_FPGA */
-
 
 u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
@@ -2250,7 +2249,7 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
         return VTSS_RC_OK;
     }
 #if defined(VTSS_ARCH_LAN969X_FPGA)
-    if (serdes_mode == VTSS_SERDES_MODE_QSGMII) {
+    if (serdes_mode == VTSS_SERDES_MODE_QSGMII || serdes_mode == VTSS_SERDES_MODE_SGMII) {
         vtss_state->port.sd28_mode[indx] = serdes_mode;
         return VTSS_RC_OK;
     }
@@ -3535,10 +3534,18 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 #endif
         /* Enable/disable shadow device */
         if (VTSS_PORT_IS_5G(port)) {
-            bt_indx = VTSS_BIT((port <= 11) ? port : 12);
+            if (FA_TGT) {
+                bt_indx = VTSS_BIT((port <= 11) ? port : 12);
+            } else {
+                bt_indx = port;
+            }
             REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_10G(port)) {
-            bt_indx = VTSS_BIT(vtss_port_dev_index(vtss_state, port));
+            if (FA_TGT) {
+                bt_indx = VTSS_BIT(vtss_port_dev_index(vtss_state, port));
+            } else {
+                bt_indx = VTSS_BIT((port == 0) ? 12 : (port == 4) ? 13 : (port == 8) ? 14 : port);
+            }
             REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
         } else if (VTSS_PORT_IS_25G(port)) {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)

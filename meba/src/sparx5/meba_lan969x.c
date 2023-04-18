@@ -28,6 +28,7 @@ static port_map_t port_table_sunrise[] = {
     {1, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G},
     {2, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G},
     {3, MESA_MIIM_CONTROLLER_1, 3, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G},
+    {8, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, MEBA_PORT_CAP_SFP_1G, MESA_BW_1G},
 };
 
 static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
@@ -370,7 +371,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
 
     switch (board->type) {
     case BOARD_TYPE_SUNRISE:
-        lan966x_init_port_table(inst, 4, port_table_sunrise);
+        lan966x_init_port_table(inst, 5, port_table_sunrise);
         break;
     default:
         break;
