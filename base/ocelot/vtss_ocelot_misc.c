@@ -1008,7 +1008,7 @@ static vtss_rc srvl_sgpio_conf_set(vtss_state_t *vtss_state,
                          VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CFG_BIT_SOURCE(value) |
                          VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CFG_BIT_POLARITY(pol << bit_idx),
                          VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CFG_BIT_SOURCE(mask) |
-                         VTSS_M_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CFG_BIT_POLARITY);
+                         VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CFG_BIT_POLARITY(1 << bit_idx));
             }
 
             /* Setup the interrupt polarity */
