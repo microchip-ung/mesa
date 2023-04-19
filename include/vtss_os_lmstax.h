@@ -33,7 +33,7 @@ typedef struct {
 
 uint8_t lm_mesa_timeval_init(vtss_timeval_t *timeval);
 void *lm_mesa_pseudo_malloc(uint32_t size);
-void lm_mesa_sprintf(char *s, const char *format, ...);
+int lm_mesa_sprintf(char *s, const char *format, ...);
 int lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 
 #define VTSS_OS_RAND() lmu_pseudo_rand()
