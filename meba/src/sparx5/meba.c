@@ -571,6 +571,14 @@ static void fa_pcb135_board_init(meba_inst_t inst)
     (void) mesa_gpio_write(NULL, 0, AQR_RESET, true);
 
     if (board->gpy241_present) {
+        // Reset Indy phy (GPIO 19)
+        gpio_no = 19;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
+
         // Delay for gpy241 phy coming out of reset
         VTSS_MSLEEP(1000);
     } else {
