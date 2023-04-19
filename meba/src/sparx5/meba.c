@@ -1688,7 +1688,15 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_PORT_RESET_POST:
             if (board->type == BOARD_TYPE_SPARX5_PCB135 && !board->gpy241_present) {
                 // Release COMA mode (activate Elise phys)
-                (void)vtss_phy_post_reset(PHY_INST, 0);
+                for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
+                    if ((board->port[port_no].map.map.chip_port % 4 == 0) &&
+                        (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
+                        if ((rc = vtss_phy_post_reset(PHY_INST, port_no)) != MESA_RC_OK) {
+                            T_E(inst, "Could not post reset phy %d", port_no);
+                        }
+                        break;
+                    }
+                }
 
                 // PCB135 does not use reversed MDI pair for AQR as the driver defaults to.
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
