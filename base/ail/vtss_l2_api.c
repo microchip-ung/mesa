@@ -9075,7 +9075,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         }
         if (header) {
             header = 0;
-            pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age\n");
+            pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age  SV       LSB\n");
         }
         s = buf;
         if (conf->port_a == VTSS_PORT_NO_NONE) {
@@ -9088,7 +9088,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         } else {
             s += VTSS_SPRINTF(s, "%u", conf->port_b);
         }
-        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%u\n",
+        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%-8u%-9s0x%02x\n",
            i,
            m == VTSS_RB_MODE_DISABLED ? "Disabled" :
            m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN" :
@@ -9101,7 +9101,11 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
            conf->nt_dmac_disable,
            conf->nt_age_time,
            conf->pnt_age_time,
-           conf->dd_age_time);
+           conf->dd_age_time,
+           conf->sv == VTSS_RB_SV_FORWARD ? "Forward" :
+           conf->sv == VTSS_RB_SV_DISCARD ? "Discard" :
+           conf->sv == VTSS_RB_SV_CPU_COPY ? "CpuCopy" : "CpuOnly",
+           conf->sv_lsb);
     }
     if (!header) {
         pr("\n");

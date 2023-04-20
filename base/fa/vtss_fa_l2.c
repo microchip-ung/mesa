@@ -1883,9 +1883,9 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     REG_WR(VTSS_RB_SPV_CFG(tgt),
            VTSS_F_RB_SPV_CFG_DMAC_ENA(1) |
            VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_sv) |
-           VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
+           VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(conf->sv_lsb) |
            VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_sv) |
-           VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
+           VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(conf->sv_lsb));
 
     // Cut-through setup in QSYS
     switch (conf->mode) {

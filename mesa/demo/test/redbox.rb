@@ -386,8 +386,12 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", sv_lsb: 0xff, npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"}]},
+              {frm: {dmac: "01:15:4e:00:01:ff", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
                      {idx_rx: "d", hsr: {}, ifh_rx: "a"}]}]
@@ -674,8 +678,11 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
+        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", sv_lsb: 1, npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "a", prp: {}},
+                     {idx_rx: "c"}]},
+              {frm: {dmac: "01:15:4e:00:01:01", et: 0x88fb},
                fwd: [{idx_tx: "a", prp: {}},
                      {idx_rx: "d", prp: {}, ifh_rx: "a"}]}]
     },
@@ -899,8 +906,12 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_PRP", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_PRP", sv: "CPU_ONLY", sv_lsb: 7, npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", prp: {}}]},
+              {frm: {dmac: "01:15:4e:00:01:07", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
                      {idx_rx: "d", hsr: {}, ifh_rx: "a"}]}]
@@ -1100,7 +1111,11 @@ test_table =
     {
         txt: "Supervision Rx on LRE",
         cfg: {mode: "HSR_HSR", sv: "CPU_COPY", npi: "d", sv_queue: 3},
-        tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
+        tab: [{frm: {dmac: "01:15:4e:00:01:01", et: 0x88fb},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c", hsr: {}}]},
+             {frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
                      {idx_rx: "c", hsr: {}},
@@ -1390,6 +1405,7 @@ def rb_conf_set(rb_id, mode, port_a, port_b, cfg)
     conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
     conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
     conf["sv"] = ("MESA_RB_SV_" + fld_get(cfg, :sv, "FORWARD"))
+    conf["sv_lsb"] = fld_get(cfg, :sv_lsb)
     dd_age_time = fld_get(cfg, :dd_age_time)
     if (conf["dd_age_time"] > 1000 and dd_age_time > 1000)
         # Briefly use minimum age to flush DD table from previous test

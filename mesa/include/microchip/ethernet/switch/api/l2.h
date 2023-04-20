@@ -1632,6 +1632,7 @@ typedef struct {
     mesa_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [seconds]
     mesa_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
     mesa_rb_sv_t       sv;              // Interlink Supervision frame forwarding
+    uint8_t            sv_lsb;          // LSB of Supervision frame DMAC
 } mesa_rb_conf_t;
 
 // Get RedBox configuration.
