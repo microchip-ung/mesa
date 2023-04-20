@@ -26,6 +26,9 @@ $rb_table = []
 $rb = nil
 $rb_id = nil
 
+# Global hash for connecting two RedBoxes
+$rb_pair = nil
+
 # Check that two ports can be part of a RedBox
 check_capabilities do
     cnt = cap_get("L2_REDBOX_CNT")
@@ -36,6 +39,43 @@ check_capabilities do
             port = p.to_i
             t_i("port #{port} -> rb_id #{rb_id}")
             port_rb[port] = rb_id
+        end
+    end
+
+    # Look for a pair of neighbour RedBoxes, which can be connected
+    $ts.dut.p.each_with_index do |port_a, idx_a|
+        rb_a = port_rb[port_a]
+        next if (rb_a == nil)
+        # Look for port B with neighbour RedBox ID
+        $ts.dut.p.each_with_index do |port_b, idx_b|
+            rb_b = port_rb[port_b]
+            next if (rb_b == nil)
+            if (rb_b == (rb_a + 1))
+                # Pair (A, B) found
+                $rb_pair = {rb_a: rb_a, rb_b: rb_b, idx_a: idx_a, idx_b: idx_b}
+                break
+            end
+            if (rb_a == (rb_b + 1))
+                # Pair (B, A) found, swapping
+                $rb_pair = {rb_a: rb_b, rb_b: rb_a, idx_a: idx_b, idx_b: idx_a}
+                break
+            end
+        end
+        if ($rb_pair != nil)
+            # Look for port C and D
+            $ts.dut.p.each_index do |idx|
+                next if (idx == $rb_pair[:idx_a] or idx == $rb_pair[:idx_b])
+                if ($rb_pair[:idx_c] == nil)
+                    $rb_pair[:idx_c] = idx
+                else
+                    $rb_pair[:idx_d] = idx
+                end
+            end
+            if ($rb_pair[:idx_d] != nil)
+                t_i("$rb_pair: #{$rb_pair}")
+                break
+            end
+            $rb_pair = nil
         end
     end
 
@@ -67,7 +107,7 @@ check_capabilities do
             break
         end
     end
-    assert($rb_table.size > 0, "RedBox must be present with two available ports")
+    assert(($rb_table.size > 0 or $rb_pair != nil), "RedBox with two ports or RedBox pair must be present")
 end
 
 #---------- Configuration -----------------------------------------------------
@@ -1162,7 +1202,9 @@ def vlan_port_conf_set(idx, e)
 end
 
 def cnt_incr(c, port_name, cnt_name, incr = 1)
-    c[port_name][cnt_name] = (c[port_name][cnt_name] + incr)
+    if (c != nil)
+        c[port_name][cnt_name] = (c[port_name][cnt_name] + incr)
+    end
 end
 
 def queue_set(cfg, conf, name, fld)
@@ -1337,24 +1379,11 @@ def check_str(name, val, exp)
     end
 end
 
-def redbox_test(t)
-    cfg = t[:cfg]
-
-    # Disable the previous RedBox configuration, if needed
-    rb_id = $rb[:rb_id]
-    if (rb_id != $rb_id and $rb_id != nil)
-        conf = $ts.dut.call("mesa_rb_conf_get", $rb_id)
-        conf["mode"] = "MESA_RB_MODE_DISABLED"
-        $ts.dut.call("mesa_rb_conf_set", $rb_id, conf)
-    end
-    $rb_id = rb_id
-
-    # RedBox configuration
-    mode = fld_get(cfg, :mode, "DISABLED")
+def rb_conf_set(rb_id, mode, port_a, port_b, cfg)
     conf = $ts.dut.call("mesa_rb_conf_get", rb_id)
     conf["mode"] = ("MESA_RB_MODE_" + mode)
-    conf["port_a"] = $ts.dut.p[$rb[:idx_a]]
-    conf["port_b"] = $ts.dut.p[$rb[:idx_b]]
+    conf["port_a"] = port_a
+    conf["port_b"] = port_b
     conf["net_id"] = fld_get(cfg, :net_id)
     conf["lan_id"] = fld_get(cfg, :lan_id)
     conf["nt_dmac_disable"] = fld_get(cfg, :nt_dmac_dis, false)
@@ -1369,6 +1398,25 @@ def redbox_test(t)
     end
     conf["dd_age_time"] = dd_age_time
     $ts.dut.call("mesa_rb_conf_set", rb_id, conf)
+
+end
+
+def redbox_test(t)
+    cfg = t[:cfg]
+
+    # Disable the previous RedBox configuration, if needed
+    rb_id = $rb[:rb_id]
+    if (rb_id != $rb_id and $rb_id != nil)
+        conf = $ts.dut.call("mesa_rb_conf_get", $rb_id)
+        conf["mode"] = "MESA_RB_MODE_DISABLED"
+        $ts.dut.call("mesa_rb_conf_set", $rb_id, conf)
+    end
+    $rb_id = rb_id
+
+    # RedBox configuration
+    mode = fld_get(cfg, :mode, "DISABLED")
+    rb_conf_set(rb_id, mode, $ts.dut.p[$rb[:idx_a]], $ts.dut.p[$rb[:idx_b]], cfg);
+    dd_age_time = fld_get(cfg, :dd_age_time)
 
     # Remove nodes and proxy nodes from previous tests
     $ts.dut.call("mesa_rb_node_table_clear", rb_id, "MESA_RB_CLEAR_ALL")
@@ -1561,6 +1609,7 @@ end
 # Run all or selected test
 sel = table_lookup(test_table, :sel)
 $rb_table.each_with_index do |rb, rb_idx|
+    #next
     #next if rb_idx != 0
     $rb = rb
     test_table.each do |t|
@@ -1575,6 +1624,68 @@ $rb_table.each_with_index do |rb, rb_idx|
             end
             redbox_test(t)
         end
+    end
+end
+
+def vlan_conf_set(vid, idx_list)
+    idx_list.each do |idx|
+        vlan_port_conf_set(idx, {pvid: vid, uvid: vid})
+    end
+    $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(idx_list))
+end
+
+def redbox_pair_test
+    # Extract global RedBox pair
+    rb_a = $rb_pair[:rb_a]
+    rb_b = $rb_pair[:rb_b]
+    idx_a = $rb_pair[:idx_a]
+    idx_b = $rb_pair[:idx_b]
+    idx_c = $rb_pair[:idx_c]
+    idx_d = $rb_pair[:idx_d]
+    port_a = $ts.dut.p[idx_a]
+    port_b = $ts.dut.p[idx_b]
+    port_none = 0xffffffff
+
+    # Port A and C are in VLAN 1
+    vlan_conf_set(1, [idx_a, idx_c])
+
+    # Port B and D are in VLAN 2
+    vlan_conf_set(2, [idx_b, idx_d])
+
+    # Setup RedBox A
+    rb_conf_set(rb_a, "HSR_SAN", port_a, port_none, {})
+
+    # Setup RedBox B
+    rb_conf_set(rb_b, "HSR_PRP", port_none, port_b, {})
+
+    # Forwarding test
+    tab = [
+        {fwd: [{idx_tx: "a", hsr: {}},
+               {idx_rx: "b", hsr: {}},
+               {idx_rx: "c"},
+               {idx_rx: "d", prp: {}}]},
+        {fwd: [{idx_tx: "b", hsr: {}},
+               {idx_rx: "a", hsr: {}},
+               {idx_rx: "c"},
+               {idx_rx: "d", prp: {}}]},
+        {fwd: [{idx_tx: "c"},
+               {idx_rx: "a", hsr: {}},
+               {idx_rx: "b", hsr: {}},
+               {idx_rx: "d", prp: {}}]},
+        {fwd: [{idx_tx: "d", prp: {}},
+               {idx_rx: "a", hsr: {}, prp: {}},
+               {idx_rx: "b", hsr: {lan_id: 0}, prp: {lan_id: 0}},
+               {idx_rx: "c", prp: {}}]},
+    ]
+    $rb = $rb_pair
+    tab.each do |entry|
+        rb_frame_test("", entry, nil, 1, 0)
+    end
+end
+
+if $rb_pair != nil and sel == nil
+    test "RedBox pair: HSR_SAN and HSR-PRP" do
+        redbox_pair_test
     end
 end
 

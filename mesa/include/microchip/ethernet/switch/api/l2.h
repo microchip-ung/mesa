@@ -1605,11 +1605,26 @@ typedef enum {
     MESA_RB_SV_CPU_ONLY, // Redirect to CPU
 } mesa_rb_sv_t;
 
-// RedBox configuration
+// RedBox configuration.
+//
+// Port A and B may be selected among ports in the capabilities port list.
+// Alternatively, MESA_PORT_NO_NONE can be used to indicate an internal connection to the neighbour RedBox.
+// Assume that switch port X and Y are candidates for use as RedBox port A and B.
+// The table below shows the legal combinations and how the switch port roles are affected.
+// The switch port roles in the table mean:
+// - Interlink: The port is used as RedBox interlink connection.
+// - Unused   : The port is not used for switching.
+// - Normal   : The port is used for switching and not related to the RedBox.
+//
+// Port A  Port B  Port X     Port Y     Comment
+// ------  ------  --------   ---------  -----------------------------------------
+// X       Y       Interlink  Unused     Redbox using port X and Y
+// X       NONE    Interlink  Normal     RedBox using port X, connected to right neighbour RedBox
+// NONE    Y       Normal     Interlink  RedBox using port Y, connected to left neighbour RedBox
 typedef struct {
     mesa_rb_mode_t     mode;            // Mode
-    mesa_port_no_t     port_a;          // Port A (corresponding switch port is Interlink)
-    mesa_port_no_t     port_b;          // Port B (corresponding switch port is unused)
+    mesa_port_no_t     port_a;          // Port A or MESA_PORT_NO_NONE (connected to left neighbour RedBox)
+    mesa_port_no_t     port_b;          // Port B or MESA_PORT_NO_NONE (connected to right neighbour RedBox)
     uint8_t            net_id;          // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
     uint8_t            lan_id;          // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
     mesa_bool_t        nt_dmac_disable; // Disable Node Table DMAC filtering

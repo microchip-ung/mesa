@@ -252,7 +252,7 @@ char *vtss_mac_txt(vtss_mac_t *mac)
     static char buf[18];
     u8 *p = mac->addr;
 
-    sprintf(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4], p[5]);
+    VTSS_SPRINTF(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4], p[5]);
     return buf;
 }
 

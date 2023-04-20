@@ -1806,7 +1806,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
     u32            tgt = fa_rb_tgt(rb_id);
-    u32            mode, ena, port_a = 0, port_b = 0, net_id = 0, j;
+    u32            mode, ena, port_a = 0, port_b = 0, next_a = 0, next_b = 0, net_id = 0, j;
     u32            hsr_sv = FA_RB_SV_FORWARD, prp_sv = FA_RB_SV_FORWARD;
     u32            age, clk_period, val, unit, mask = 0x4;
     u64            x64;
@@ -1817,10 +1817,10 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
             conf->mode == VTSS_RB_MODE_HSR_HSR ? FA_RB_MODE_HSR_HSR : 0);
     ena = (conf->mode == VTSS_RB_MODE_DISABLED ? 0 : 1);
     if (ena) {
-        if (vtss_state->l2.port_state[conf->port_a]) {
+        if (conf->port_a == VTSS_PORT_NO_NONE || vtss_state->l2.port_state[conf->port_a]) {
             mask |= 0x1;
         }
-        if (vtss_state->l2.port_state[conf->port_b]) {
+        if (conf->port_b == VTSS_PORT_NO_NONE || vtss_state->l2.port_state[conf->port_b]) {
             mask |= 0x2;
         }
     }
@@ -1834,19 +1834,29 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_RB_CFG_RB_MODE(mode) |
            VTSS_F_RB_RB_CFG_RB_ENA(ena));
     if (ena) {
-        VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_a, &port_a));
-        VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_b, &port_b));
+        if (conf->port_a == VTSS_PORT_NO_NONE) {
+            next_a = 1;
+        } else {
+            VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_a, &port_a));
+        }
+        if (conf->port_b == VTSS_PORT_NO_NONE) {
+            next_b = 1;
+        } else {
+            VTSS_RC(vtss_fa_port2taxi(vtss_state, rb_id, conf->port_b, &port_b));
+        }
     }
     REG_WR(VTSS_RB_TAXI_IF_CFG(tgt),
+           VTSS_F_RB_TAXI_IF_CFG_LREA_NEXT(next_a) |
+           VTSS_F_RB_TAXI_IF_CFG_LREB_NEXT(next_b) |
            VTSS_F_RB_TAXI_IF_CFG_LREA_PORT_NO(port_a) |
            VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(port_b));
-    if (old->mode != VTSS_RB_MODE_DISABLED) {
+    if (old->mode != VTSS_RB_MODE_DISABLED && old->port_a != VTSS_PORT_NO_NONE) {
         // Disable IFH/preamble transfers for old port A
         port_a = VTSS_CHIP_PORT(old->port_a);
         REG_WRM_CLR(VTSS_ASM_PORT_CFG(port_a), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port_a), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
     }
-    if (ena) {
+    if (ena && conf->port_a != VTSS_PORT_NO_NONE) {
         // Enable IFH/preamble transfers for new port A
         port_a = VTSS_CHIP_PORT(conf->port_a);
         REG_WRM_SET(VTSS_ASM_PORT_CFG(port_a), VTSS_M_ASM_PORT_CFG_RB_ENA);
@@ -2917,12 +2927,12 @@ void fa_print_host_entry(const vtss_debug_printf_t pr,
         pr("MAC Address        IDX/Row/Col  Type       Lock  SeqNo  Port  Fwd  Age  RCT  RxWrongLan  Rx\n");
     }
     *cnt = (*cnt + 1);
-    sprintf(buf, "%u/%u/%u", idx, idx / FA_HT_COL_CNT, idx % FA_HT_COL_CNT);
+    VTSS_SPRINTF(buf, "%u/%u/%u", idx, idx / FA_HT_COL_CNT, idx % FA_HT_COL_CNT);
     pr("%s  %-13s", vtss_mac_txt(&host->mac), buf);
-    sprintf(buf, "%s%s",
-            host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
-            host->type == FA_HT_SAN ? "SAN" : "LOCAL",
-            host->type != FA_HT_PROXY ? "" : host->pdan ? "-DAN" : "-SAN");
+    VTSS_SPRINTF(buf, "%s%s",
+                 host->type == FA_HT_PROXY ? "PROXY" : host->type == FA_HT_DAN ? "DAN" :
+                 host->type == FA_HT_SAN ? "SAN" : "LOCAL",
+                 host->type != FA_HT_PROXY ? "" : host->pdan ? "-DAN" : "-SAN");
     pr("%-11s%-6u%-7u", buf, host->locked, host->seq_no);
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         p = &host->port[j];
@@ -2953,7 +2963,7 @@ static vtss_rc fa_print_disc_entry(vtss_state_t *vtss_state,
     }
     *cnt = (*cnt + 1);
     fa_mac_set(&mac, cfg0, cfg1);
-    sprintf(buf, "%u/%u/%u", j, j / FA_DT_COL_CNT, j % FA_DT_COL_CNT);
+    VTSS_SPRINTF(buf, "%u/%u/%u", j, j / FA_DT_COL_CNT, j % FA_DT_COL_CNT);
     mask = VTSS_X_RB_DISC_ACCESS_CFG_2_DISC_ENTRY_PORTMASK(cfg2);
     pr("%-13s%s  %-7u%-5u%u/%u/%u%8u/%u/%u\n",
        buf,
@@ -2977,7 +2987,7 @@ static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
     u32 i, j, v;
     char buf[128], *p;
 
-    sprintf(buf, "%s%s", prefix ? prefix : "", name);
+    VTSS_SPRINTF(buf, "%s%s", prefix ? prefix : "", name);
     if ((p = strstr(buf, "_CFG_")) != NULL) {
         p[4] = ':';
     }
@@ -2990,7 +3000,7 @@ static void fa_debug_rb_fld(const vtss_debug_printf_t pr,
                 break;
             }
         }
-        sprintf(buf, v > 9 ? "0x%x" : "%u", v);
+        VTSS_SPRINTF(buf, v > 9 ? "0x%x" : "%u", v);
         pr(cnt == 1 ? "%-12s" : "%-8s", buf);
     }
     if (newline) {
@@ -3042,7 +3052,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf;
     char           buf[64], *p;
     const char     *prefix;
-    u32            tgt, i, j, val, m, x[3], port_a, port_b, clk, cfg0, cfg1, cfg2, idx_next, cnt;
+    u32            tgt, i, j, val, port, m, x[3], clk, cfg0, cfg1, cfg2, idx_next, cnt;
     u64            cur, new, old;
     fa_rb_host_t   host;
     vtss_rc        rc;
@@ -3057,19 +3067,27 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         m = (m ? VTSS_X_RB_RB_CFG_RB_MODE(val) : 10);
         REG_RD(VTSS_RB_TAXI_IF_CFG(tgt), &val);
         conf =  &vtss_state->l2.rb_conf[i];
-        port_a = VTSS_CHIP_PORT(conf->port_a);
-        port_b = VTSS_CHIP_PORT(conf->port_b);
-        pr("RedBox %u (%s), port %u/%u, taxi %u/%u:\n\n",
-           i,
-           m == FA_RB_MODE_PRP_SAN ? "PRP-SAN":
-           m == FA_RB_MODE_HSR_SAN ? "HSR-SAN":
-           m == FA_RB_MODE_HSR_PRP ? "HSR-PRP":
-           m == FA_RB_MODE_HSR_HSR ? "HSR-HSR": "NONE",
-           port_a,
-           port_b,
-           VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(val),
-           VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(val));
-
+        p = buf;
+        p += VTSS_SPRINTF(p, "RedBox %u (%s), port ",
+                          i,
+                          m == FA_RB_MODE_PRP_SAN ? "PRP-SAN":
+                          m == FA_RB_MODE_HSR_SAN ? "HSR-SAN":
+                          m == FA_RB_MODE_HSR_PRP ? "HSR-PRP":
+                          m == FA_RB_MODE_HSR_HSR ? "HSR-HSR": "NONE");
+        if (conf->port_a == VTSS_PORT_NO_NONE) {
+            p += VTSS_SPRINTF(p, "-/");
+        } else {
+            p += VTSS_SPRINTF(p, "%u/", VTSS_CHIP_PORT(conf->port_a));
+        }
+        if (conf->port_b == VTSS_PORT_NO_NONE) {
+            p += VTSS_SPRINTF(p, "-");
+        } else {
+            p += VTSS_SPRINTF(p, "%u", VTSS_CHIP_PORT(conf->port_b));
+        }
+        p += VTSS_SPRINTF(p, ", taxi %u/%u:\n\n",
+                          VTSS_X_RB_TAXI_IF_CFG_LREA_PORT_NO(val),
+                          VTSS_X_RB_TAXI_IF_CFG_LREB_PORT_NO(val));
+        pr(buf);
         REG_RD(VTSS_RB_RB_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, RB_CFG_RB_ENA);
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_RB_MODE);
@@ -3086,6 +3104,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(VTSS_RB_TAXI_IF_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREA_PORT_NO);
         FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREB_PORT_NO);
+        FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREA_NEXT);
+        FA_DEBUG_RB_FLD(&val, TAXI_IF_CFG_LREB_NEXT);
         REG_RD(VTSS_RB_NETID_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_FILTER_ENA);
         FA_DEBUG_RB_FLD(&val, NETID_CFG_NETID_MASK);
@@ -3096,8 +3116,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         REG_RD(VTSS_RB_SPV_CFG(tgt), &val);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_DMAC_ENA);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_HSR_SPV_INT_FWD_SEL);
-        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
-                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
+        VTSS_SPRINTF(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
+                     FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
         pr(buf);
         FA_DEBUG_RB_FLD(&val, SPV_CFG_HSR_MAC_LSB);
         FA_DEBUG_RB_FLD_NL(&val, SPV_CFG_PRP_SPV_INT_FWD_SEL);
@@ -3109,8 +3129,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(B0:DUPL_MULTI, B1:SEQ, B2:AGE, B3:RANDOM, B4: DUPL_ONE)\n");
         p = buf;
         for (j = 0; j < 4; j++) {
-            p += sprintf(p, "%s%u:%u%s",
-                         j == 0 ? "(" : "", j, fa_rb_age_unit(j), j == 3 ? ")\n" : ", ");
+            p += VTSS_SPRINTF(p, "%s%u:%u%s",
+                              j == 0 ? "(" : "", j, fa_rb_age_unit(j), j == 3 ? ")\n" : ", ");
         }
         clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
         for (j = 0; j < 2; j++) {
@@ -3150,7 +3170,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             x[j] = j;
         }
-        sprintf(buf, "RedBox %u, port A/B/C:", i);
+        VTSS_SPRINTF(buf, "RedBox %u, port A/B/C:", i);
         fa_debug_rb_fld(pr, x, 0x3, buf, NULL, TRUE, 3);
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(VTSS_RB_TBL_CFG(tgt, j), &x[j]);
@@ -3188,8 +3208,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         pr("(%u:NONE, %u:HSR, %u:NOT_HSR, %u:REDIR)\n",
            FA_RB_FLT_NONE, FA_RB_FLT_HSR, FA_RB_FLT_NOT_HSR, FA_RB_FLT_REDIR);
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_HSR_SPV_FWD_SEL);
-        sprintf(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
-                FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
+        VTSS_SPRINTF(buf, "(%u:NONE, %u:COPY, %u:REDIR, %u:DISCARD)\n",
+                     FA_RB_SV_FORWARD, FA_RB_SV_CPU_COPY, FA_RB_SV_CPU_ONLY, FA_RB_SV_DISCARD);
         pr(buf);
         FA_DEBUG_RB_PORT_FLD_NL(x, PORT_CFG_PRP_SPV_FWD_SEL);
         pr(buf);
@@ -3207,13 +3227,23 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, BPDU_CFG_BPDU_REDIR_ENA);
 
         for (j = 0; j < 2; j++) {
-            REG_RD(VTSS_ASM_PORT_CFG(j ? port_b : port_a), &x[j]);
+            x[j] = 0;
+            port = (j ? conf->port_b : conf->port_a);
+            if (port != VTSS_PORT_NO_NONE) {
+                port = VTSS_CHIP_PORT(port);
+                REG_RD(VTSS_ASM_PORT_CFG(port), &x[j]);
+            }
         }
         fa_debug_rb_fld(pr, x, VTSS_M_ASM_PORT_CFG_RB_ENA,
                         "ASM:PORT_CFG_RB_ENA", NULL, TRUE, 2);
 
         for (j = 0; j < 2; j++) {
-            REG_RD(VTSS_REW_RTAG_ETAG_CTRL(j ? port_b : port_a), &x[j]);
+            x[j] = 0;
+            port = (j ? conf->port_b : conf->port_a);
+            if (port != VTSS_PORT_NO_NONE) {
+                port = VTSS_CHIP_PORT(port);
+                REG_RD(VTSS_REW_RTAG_ETAG_CTRL(port), &x[j]);
+            }
         }
         fa_debug_rb_fld(pr, x, VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA,
                         "REW:RTAG_ETAG_CTRL:RB_ENA", NULL, TRUE, 2);
@@ -3248,7 +3278,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             FA_DEBUG_RB_PORT_STICKY(x, PRP_LANID_MISMATCH);
             pr("\n");
 
-            sprintf(buf, "RedBox %u", i);
+            VTSS_SPRINTF(buf, "RedBox %u", i);
             vtss_fa_debug_reg_header(pr, buf);
             FA_DEBUG_RB_REG(REG_ADDR(VTSS_RB_RB_CFG(tgt)), "RB_CFG");
             FA_DEBUG_RB_REG(REG_ADDR(VTSS_RB_TAXI_IF_CFG(tgt)), "TAXI_IF_CFG");
@@ -3261,7 +3291,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
             pr("\n");
 
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
-                sprintf(buf, "Port %s", j == 0 ? "A" : j == 1 ? "B" : "C");
+                VTSS_SPRINTF(buf, "Port %s", j == 0 ? "A" : j == 1 ? "B" : "C");
                 vtss_fa_debug_reg_header(pr, buf);
                 FA_DEBUG_RB_REG(REG_ADDR(VTSS_RB_TBL_CFG(tgt, j)), "TBL_CFG");
                 FA_DEBUG_RB_REG(REG_ADDR(VTSS_RB_BPDU_CFG(tgt, j)), "BPDU_CFG");
@@ -3289,7 +3319,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         for (j = 0; j < 2; j++) {
             memset(&host, 0, sizeof(host));
             cnt = 0;
-            sprintf(buf, "RedBox %u %sNode Table", i, j ? "Proxy " : "");
+            VTSS_SPRINTF(buf, "RedBox %u %sNode Table", i, j ? "Proxy " : "");
             while (1) {
                 rc = (info->action ?
                       fa_rb_host_id_get_next(vtss_state, j, i, host.idx, &host) :

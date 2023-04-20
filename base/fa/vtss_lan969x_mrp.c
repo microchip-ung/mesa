@@ -1915,7 +1915,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
 
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full  ||  VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
-                sprintf(buf, "MRP %u", i);
+                VTSS_SPRINTF(buf, "MRP %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
                 vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_CTRL(i)), i, "MEP_MRP_CTRL");
                 vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_FWD_CTRL(i)), i, "MEP_MRP_FWD_CTRL");
@@ -1939,7 +1939,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
             }
         }
 
-        sprintf(buf, "Relevant VOP configuration %u", 0);
+        VTSS_SPRINTF(buf, "Relevant VOP configuration %u", 0);
         vtss_fa_debug_reg_header(pr, buf);
         vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_TICK_CFG), 0, "VOP_TICK_CFG");
         vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TS_CFG), 0, "VOP_MRP_TS_CFG");
@@ -1960,7 +1960,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
 
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full  ||  VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
-                sprintf(buf, "MRP %u", i);
+                VTSS_SPRINTF(buf, "MRP %u", i);
                 vtss_fa_debug_reg_header(pr, buf);
                 vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_MRP_STICKY(i)), i, "MEP_MRP_STICKY");
                 vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TST_RX_CNT(i)), i, "VTSS_VOP_MRP_TST_RX_CNT");

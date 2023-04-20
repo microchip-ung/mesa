@@ -462,8 +462,15 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
         // Tx forwarding also depends on RedBox configuration
         for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
             vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
-            if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
-                vtss_state->l2.port_state[rb_conf->port_b]) {
+            if (rb_conf->mode == VTSS_RB_MODE_DISABLED) {
+                // Skip disabled RedBox
+            } else if (rb_conf->port_a == VTSS_PORT_NO_NONE) {
+                // Port A is internal, port B is forwarding
+                tx_forward[rb_conf->port_b] = 1;
+            } else if (rb_conf->port_b == VTSS_PORT_NO_NONE) {
+                // Port B is internal, port A is forwarding
+                tx_forward[rb_conf->port_a] = 1;
+            } else if (vtss_state->l2.port_state[rb_conf->port_b]) {
                 // Port A is forwarding, port B is discarding
                 tx_forward[rb_conf->port_a] = 1;
                 tx_forward[rb_conf->port_b] = 0;
@@ -8122,7 +8129,11 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t    inst,
         port_a = conf->port_a;
         port_b = conf->port_b;
         if (conf->mode == VTSS_RB_MODE_DISABLED ||
-            (port_a != port_b && cap.port_list[port_a] && cap.port_list[port_b])) {
+            (port_a != port_b &&
+             (port_a == VTSS_PORT_NO_NONE || cap.port_list[port_a]) &&
+             (port_a != VTSS_PORT_NO_NONE || rb_id != 0) &&
+             (port_b == VTSS_PORT_NO_NONE || cap.port_list[port_b]) &&
+             (port_b != VTSS_PORT_NO_NONE || rb_id < (VTSS_REDBOX_CNT - 1)))) {
             rb_conf = &vtss_state->l2.rb_conf[rb_id];
             vtss_state->l2.rb_conf_old = *rb_conf;
             *rb_conf = *conf;
@@ -9016,13 +9027,13 @@ static void vtss_debug_cnt(const vtss_debug_printf_t pr,
     char buf[64];
 
     if (col1 != NULL) {
-        sprintf(buf, "Rx %s:", col1);
+        VTSS_SPRINTF(buf, "Rx %s:", col1);
         pr("%-19s%19" PRIu64 "   ", buf, c1);
     } else {
         pr("%-41s", "");
     }
     if (col2 != NULL) {
-        sprintf(buf, "Tx %s:", strlen(col2) ? col2 : col1);
+        VTSS_SPRINTF(buf, "Tx %s:", strlen(col2) ? col2 : col1);
         pr("%-19s%19" PRIu64, buf, c2);
     }
     pr("\n");
@@ -9053,7 +9064,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
     vtss_rb_node_t       node;
     vtss_rb_proxy_node_t pnode;
     u8                   *p;
-    char                 buf[32];
+    char                 buf[32], *s;
 
     // RedBox configuration
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
@@ -9066,7 +9077,17 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
             header = 0;
             pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age\n");
         }
-        sprintf(buf, "%u/%u", conf->port_a, conf->port_b);
+        s = buf;
+        if (conf->port_a == VTSS_PORT_NO_NONE) {
+            s += VTSS_SPRINTF(s, "-/");
+        } else {
+            s += VTSS_SPRINTF(s, "%u/", conf->port_a);
+        }
+        if (conf->port_b == VTSS_PORT_NO_NONE) {
+            s += VTSS_SPRINTF(s, "-");
+        } else {
+            s += VTSS_SPRINTF(s, "%u", conf->port_b);
+        }
         pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%u\n",
            i,
            m == VTSS_RB_MODE_DISABLED ? "Disabled" :
@@ -9123,11 +9144,11 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
             pr("%-6u%-8u%-6s", node.id, node.locked,
                node.type == VTSS_RB_NODE_TYPE_DAN ? "DAN" :
                node.type == VTSS_RB_NODE_TYPE_SAN ? "SAN" : "?");
-            sprintf(buf, "%u/%u", node.port_a.fwd, node.port_b.fwd);
+            VTSS_SPRINTF(buf, "%u/%u", node.port_a.fwd, node.port_b.fwd);
             pr("%-9s", buf);
-            sprintf(buf, "%u/%u", node.port_a.age, node.port_b.age);
+            VTSS_SPRINTF(buf, "%u/%u", node.port_a.age, node.port_b.age);
             pr("%-9s", buf);
-            sprintf(buf, "%u/%u", node.port_a.cnt.rx, node.port_b.cnt.rx);
+            VTSS_SPRINTF(buf, "%u/%u", node.port_a.cnt.rx, node.port_b.cnt.rx);
             pr("%-23s", buf);
             pr("%u/%u\n", node.port_a.cnt.rx_wrong_lan, node.port_b.cnt.rx_wrong_lan);
         }

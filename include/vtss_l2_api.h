@@ -2804,7 +2804,7 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 
 // Number of RedBox instances
 #if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_REDBOX_CNT 1
+#define VTSS_REDBOX_CNT 2
 #else
 #define VTSS_REDBOX_CNT 5
 #endif
@@ -2847,8 +2847,8 @@ typedef enum {
 // RedBox configuration
 typedef struct {
     vtss_rb_mode_t     mode;            // Mode
-    vtss_port_no_t     port_a;          // Port A (corresponding switch port is Interlink)
-    vtss_port_no_t     port_b;          // Port B (corresponding switch port is unused)
+    vtss_port_no_t     port_a;          // Port A or VTSS_PORT_NO_NONE
+    vtss_port_no_t     port_b;          // Port B or VTSS_PORT_NO_NONE
     u8                 net_id;          // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
     u8                 lan_id;          // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
     BOOL               nt_dmac_disable; // Disable Node Table DMAC filtering
