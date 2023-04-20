@@ -1,7 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#if 0
+
 #include "vtss_fa_cil.h"
 #ifdef VTSS_ARCH_FA
 #ifdef VTSS_OPT_SYMREG
@@ -8015,4 +8015,3 @@ vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const d
 #endif /* VTSS_ARCH_SPARX5 */
 #endif /* VTSS_OPT_SYMREG */
 #endif /* VTSS_ARCH_FA */
-#endif // #if 0
