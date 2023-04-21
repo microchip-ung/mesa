@@ -321,7 +321,8 @@ test_table =
              fwd: [{idx_tx: "a", hsr: {}},
                    {idx_rx: "b", hsr: {}},
                    {idx_rx: "c"},
-                   {idx_rx: "d"}]}
+                   {idx_rx: "d"}]},
+            {node: {mac: 0xcc, cmd: "get", cnt: [{port: "a", name: "rx", val: 1}]}},
         ],
         # Expect own counter on port A
         cnt: [{port: "a", name: "rx_own", val: 1}]
@@ -1622,6 +1623,15 @@ def redbox_test(t)
     end
 end
 
+def show_rb_ports
+    ["a", "b", "c", "d"].each do |name|
+        idx = rb_idx(name)
+        port = $ts.dut.p[idx]
+        chip_port = $ts.port_map[port]["chip_port"]
+        t_i("Port #{name}: #{port}(#{chip_port}) - #{$ts.pc.p[idx]}")
+    end
+end
+
 # Run all or selected test
 sel = table_lookup(test_table, :sel)
 $rb_table.each_with_index do |rb, rb_idx|
@@ -1632,12 +1642,7 @@ $rb_table.each_with_index do |rb, rb_idx|
         next if (t[:sel] != sel)
         txt = ("RedBox #{$rb[:rb_id]}-#{rb_idx}: " + t[:cfg][:mode] + ", " + t[:txt])
         test txt do
-            ["a", "b", "c", "d"].each do |name|
-                idx = rb_idx(name)
-                port = $ts.dut.p[idx]
-                chip_port = $ts.port_map[port]["chip_port"]
-                t_i("Port #{name}: #{port}(#{chip_port}) - #{$ts.pc.p[idx]}")
-            end
+            show_rb_ports
             redbox_test(t)
         end
     end
@@ -1652,12 +1657,12 @@ end
 
 def redbox_pair_test
     # Extract global RedBox pair
-    rb_a = $rb_pair[:rb_a]
-    rb_b = $rb_pair[:rb_b]
-    idx_a = $rb_pair[:idx_a]
-    idx_b = $rb_pair[:idx_b]
-    idx_c = $rb_pair[:idx_c]
-    idx_d = $rb_pair[:idx_d]
+    rb_a = $rb[:rb_a]
+    rb_b = $rb[:rb_b]
+    idx_a = $rb[:idx_a]
+    idx_b = $rb[:idx_b]
+    idx_c = $rb[:idx_c]
+    idx_d = $rb[:idx_d]
     port_a = $ts.dut.p[idx_a]
     port_b = $ts.dut.p[idx_b]
     port_none = 0xffffffff
@@ -1693,7 +1698,6 @@ def redbox_pair_test
                {idx_rx: "b", hsr: {lan_id: 0}, prp: {lan_id: 0}},
                {idx_rx: "c", prp: {}}]},
     ]
-    $rb = $rb_pair
     tab.each do |entry|
         rb_frame_test("", entry, nil, 1, 0)
     end
@@ -1701,6 +1705,8 @@ end
 
 if $rb_pair != nil and sel == nil
     test "RedBox pair: HSR_SAN and HSR-PRP" do
+        $rb = $rb_pair
+        show_rb_ports
         redbox_pair_test
     end
 end
