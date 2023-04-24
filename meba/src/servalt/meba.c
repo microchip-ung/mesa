@@ -19,6 +19,9 @@
 #define SYNCE_RECVRD_CLK_ID          3  // RCVRD_CLK3, configured by overlaid function SYNC_ETH_CFG[3]
 #define SYNCE_RECVRD_CLK_3_PIN      36  // GPIO used as RCVRD_CLK3
 
+/** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       4
+
 /*
  *  The status LED is attached through the SGPIO interface, bits p6.2
  *  and p6.3 (green, red).
@@ -76,14 +79,14 @@ static const meba_ptp_rs422_conf_t rs422_conf = {
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
 
-static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+static const uint32_t pin_conf[VTSS_TS_IO_ARRAY_SIZE] = {
 (MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT),
  MEBA_PTP_IO_CAP_PIN_IN,
 (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
  MEBA_PTP_IO_CAP_TIME_IF_OUT
 };
 
-static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
 
 /* SGPIO LED mapping */
 typedef struct {
@@ -894,7 +897,7 @@ static mesa_rc servalt_ptp_rs422_conf_get(meba_inst_t inst,
 static mesa_rc servalt_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
 
 {
-    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+    if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
     }
     *board_assignment = pin_conf[io_pin];

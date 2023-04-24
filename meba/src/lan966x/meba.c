@@ -11,6 +11,9 @@
 
 #include "meba_aux.h"
 
+/** \brief Number of LAN966X PTP pins, that can be used as 1PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       7
+
 typedef enum {
     BOARD_TYPE_ADARO = VTSS_BOARD_LAN9668_ADARO_REF,
     BOARD_TYPE_SUNRISE = VTSS_BOARD_LAN9668_SUNRISE_REF,
@@ -58,9 +61,9 @@ static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
 
 /* --------------------------- Board specific ------------------------------- */
 // PTP IO Events used for virtual port.
-static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_LAST, MEBA_EVENT_LAST, MEBA_EVENT_LAST};
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_LAST, MEBA_EVENT_LAST, MEBA_EVENT_LAST};
 
-static const uint32_t pin_conf_lan9668[MESA_CAP_TS_IO_CNT] = {
+static const uint32_t pin_conf_lan9668[VTSS_TS_IO_ARRAY_SIZE] = {
 (MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_UNUSED),
 (MEBA_PTP_IO_CAP_UNUSED),
@@ -309,7 +312,7 @@ static mesa_rc lan966x_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pi
 {
     meba_board_state_t *board = INST2BOARD(inst);
 
-    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+    if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
     }
     if (board->type == BOARD_TYPE_8PORT)

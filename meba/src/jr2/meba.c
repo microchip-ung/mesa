@@ -31,6 +31,9 @@
 
 #define PHY_ID_GPY241 0xDC00
 
+/** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       4
+
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
 
 /* JR2 Ref board port configurations  */
@@ -177,16 +180,16 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
 };
 
-static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
 
-static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+static const uint32_t pin_conf[VTSS_TS_IO_ARRAY_SIZE] = {
 (MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_PHY_SYNC),
 (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_TIME_IF_OUT)
 };
 
-static const uint32_t pin_conf_pcb111[MESA_CAP_TS_IO_CNT] = {
+static const uint32_t pin_conf_pcb111[VTSS_TS_IO_ARRAY_SIZE] = {
 (MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
 (MEBA_PTP_IO_CAP_UNUSED),
 (MEBA_PTP_IO_CAP_PIN_OUT | MEBA_PTP_IO_CAP_PIN_IN),
@@ -2657,7 +2660,7 @@ static mesa_rc jr2_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, m
     mesa_rc rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
 
-    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+    if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
     }
 

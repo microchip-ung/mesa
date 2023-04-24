@@ -19,6 +19,9 @@
 #define PDS_408G_POE_DISABLE_PORTS_IO   (10)  // GPI10 , output, 0=POE_Disable. 1=PoE_Enable
 #define PDS_408G_RESET_BUTTON_IP        (12)
 
+/** \brief Number of L26 or Serval PTP pins, that can be used as 1PPS or clock output/input. */
+#define VTSS_TS_IO_ARRAY_SIZE       1
+
 /* SGPIO LED mapping */
 typedef struct {
     uint8_t port;
@@ -40,11 +43,11 @@ typedef enum {
     LED_TOWER_MODE_CNT
 } led_tower_mode_t;
 
-static const uint32_t pin_conf[MESA_CAP_TS_IO_CNT] = {
+static const uint32_t pin_conf[VTSS_TS_IO_ARRAY_SIZE] = {
 (MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT)
 };
 
-static const meba_event_t init_int_source_id[MESA_CAP_TS_IO_CNT] = {MEBA_EVENT_SYNC};
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_SYNC};
 
 static const sgpio_mapping_t tower_led_mapping_lu26[LED_TOWER_MODE_CNT][2] = {
     {{2, 2} /* tower 0 green */, {3, 2} /* tower 0 yellow */},
@@ -173,7 +176,7 @@ static const mesa_fan_conf_t fan_conf_lu10 = {
 
 static mesa_rc caracal_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
 {
-    if (io_pin >= MESA_CAP_TS_IO_CNT) {
+    if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
     }
     *board_assignment = pin_conf[io_pin];
