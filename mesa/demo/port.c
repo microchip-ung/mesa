@@ -233,9 +233,9 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     }
     conf->if_type = mac_if;
 
-
     if (p_conf->admin.enable && (cap & MEBA_PORT_CAP_AUTONEG)
-        && (conf->if_type == MESA_PORT_INTERFACE_SERDES) && (p_conf->speed == MESA_SPEED_1G)) {
+        && (conf->if_type == MESA_PORT_INTERFACE_SERDES)
+        && (p_conf->speed == MESA_SPEED_1G || p_conf->autoneg)) {
         /* IEEE 802.3 clause 37 auto-negotiation */
         T_N("Port:%d, Clause 37 setup", port_no);
         /* PCS auto negotiation */
