@@ -65,7 +65,7 @@ mesa_rc meba_synce_write(meba_inst_t inst, uint8_t addr, uint32_t size, const ui
     if (inst->synce_i2c_if_fd > 0) {
         int sz = write(inst->synce_i2c_if_fd, tx_data, sizeof(tx_data));
         if (sz != sizeof(tx_data)) {
-            T_E(inst, "Failed writing to i2c: %s", strerror(errno));
+            T_D(inst, "Failed writing to i2c: %s", strerror(errno));
             return VTSS_RC_ERROR;
         }
         return VTSS_RC_OK;
@@ -116,6 +116,8 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
     int file;
 
     uint8_t partnum[3];
+    inst->synce_spi_if_fd = -1;
+    inst->synce_i2c_if_fd = -1;
 
     if (strcmp(dpll_id, "i2c") == 0) {
         char i2c_dev[] = "/dev/i2c-0";
