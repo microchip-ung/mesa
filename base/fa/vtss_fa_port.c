@@ -380,9 +380,6 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     /* Get 'Aneg complete'   */
     status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
 
-    /* Return partner advertisement ability */
-    value = VTSS_X_DEV1G_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
-
     /* Workaround for a Serdes issue (TN1395), when aneg completes with FDX capability=0 */
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
         if (status->autoneg.complete) {
@@ -396,6 +393,9 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
             }
         }
     }
+
+    /* Return partner advertisement ability */
+    value = VTSS_X_DEV1G_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
 
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         VTSS_RC(vtss_cmn_port_sgmii_cisco_aneg_get(value, sgmii_adv));
