@@ -944,7 +944,7 @@ $options[:input_files].each do |x|
 
         ast = nil
         cache_file = "#{$options[:output_dir]}/#{x}.cache"
-        if File.exists?(cache_file) and File.mtime(cache_file) > File.mtime(x)
+        if File.exist?(cache_file) and File.mtime(cache_file) > File.mtime(x)
             trace "Loading cache #{cache_file}"
             File.open(cache_file, "r"){|f| ast = Marshal.load(f)}
 

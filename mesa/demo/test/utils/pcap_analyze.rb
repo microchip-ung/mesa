@@ -72,7 +72,7 @@ if ARGV.size == 0
     exit 4
 end
 
-if !File.exists? ARGV[0]
+if !File.exist? ARGV[0]
     $stderr.puts "pcap file: #{ARGV[0]} does not exist"
     exit 5
 end
