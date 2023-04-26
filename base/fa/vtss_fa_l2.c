@@ -1667,8 +1667,8 @@ static vtss_rc fa_rb_cap_get(vtss_state_t *vtss_state,
 
 // Forwarding masks
 #define FA_RB_MSK_NONE 0x0 // No ports
-#define FA_RB_MSK_LRE  0x3 // LRE ports (A/B)
-#define FA_RB_MSK_IL   0x4 // Interlink (C)
+#define FA_RB_MSK_AB   0x3 // LRE ports (A/B)
+#define FA_RB_MSK_C    0x4 // Interlink (C)
 #define FA_RB_MSK_ALL  0x7 // All ports (A/B/C)
 
 static u32 fa_rb_sv(vtss_rb_sv_t sv)
@@ -1715,11 +1715,11 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         if (lre) {
             tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
-            prxy_smac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if SMAC is proxy
+            prxy_smac_msk = FA_RB_MSK_AB;   // Discard on Interlink if SMAC is proxy
             ht = FA_HT_DAN;                 // Learn nodes on LREs
             hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
-            prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
+            prxy_dmac_msk = FA_RB_MSK_NONE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
             hsr_filter = FA_RB_FLT_HSR;     // Discard HSR-tagged frames on Interlink
         }
@@ -1733,7 +1733,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         } else {
             tag_mode = FA_RB_TAG_PRP;
             prp_aware = 1;
-            prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
+            prxy_dmac_msk = FA_RB_MSK_NONE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
             hsr_filter = FA_RB_FLT_HSR;     // Discard HSR-tagged frames on Interlink
             netid = 5;
@@ -1757,9 +1757,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     if (hsr_aware && lre) {
         // Common forwarding rules for HSR aware LRE ports
         if (!conf->nt_dmac_disable) {
-            node_dmac_msk -= FA_RB_MSK_IL;  // Discard on Interlink if DMAC is node
+            node_dmac_msk = FA_RB_MSK_AB;  // Discard on Interlink if DMAC is node
         }
-        prxy_dmac_msk -= FA_RB_MSK_LRE; // Discard on LRE if DMAC is proxy
+        prxy_dmac_msk = FA_RB_MSK_C; // Discard on LRE if DMAC is proxy
     }
 
     age = (ht == FA_HT_PROXY ? FA_RB_AGE_IDX_PNT : FA_RB_AGE_IDX_NT);
@@ -1787,8 +1787,6 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_FWD_CFG_NODE_SRC_FWD_MASK(node_smac_msk));
 
     REG_WR(VTSS_RB_PORT_CFG(tgt, j),
-           VTSS_F_RB_PORT_CFG_CT_EGR_ENA(hsr_aware) |
-           VTSS_F_RB_PORT_CFG_CT_IGR_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
            VTSS_F_RB_PORT_CFG_HSR_SPV_FWD_SEL(sv) |
@@ -1849,6 +1847,8 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         }
     }
     REG_WR(VTSS_RB_RB_CFG(tgt),
+           VTSS_F_RB_RB_CFG_KEEP_PRP_ALL_ENA(1) |
+           VTSS_F_RB_RB_CFG_ABORT_DISC_ENA(1) |
            VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) |
            VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
            VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
