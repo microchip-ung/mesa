@@ -918,6 +918,8 @@ mepa_rc phy_debug_info_dump(struct mepa_device *dev,
     vtss_port_no_t    port_no = data->port_no;
     vtss_debug_info_t phy_info;
 
+    memset(&phy_info, 0, sizeof(phy_info));
+
     // Map from MESA to PHY info
     phy_info.layer = (info->layer == MEPA_DEBUG_LAYER_AIL ? VTSS_DEBUG_LAYER_AIL :
                       info->layer == MEPA_DEBUG_LAYER_CIL ? VTSS_DEBUG_LAYER_CIL :
