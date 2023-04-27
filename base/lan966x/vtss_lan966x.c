@@ -314,16 +314,19 @@ static vtss_rc lan966x_init_conf_set(vtss_state_t *vtss_state)
 
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
 
-    /* Initialize RAM */
-    REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(0), SYS_RESET_CFG_CORE_ENA_M);
-    REG_WRM(SYS_RAM_INIT, SYS_RAM_INIT_RAM_INIT(1) | SYS_RAM_INIT_RAM_CFG_HOOK(0),
-            SYS_RAM_INIT_RAM_INIT_M | SYS_RAM_INIT_RAM_CFG_HOOK_M);
-    do {
-        REG_RD(SYS_RAM_INIT, &val);
-    } while (SYS_RAM_INIT_RAM_INIT_X(val) != 0);
+    REG_RD(SYS_RESET_CFG, &val);
+    if (!SYS_RESET_CFG_CORE_ENA_X(val)) {
+        /* Initialize RAM */
+        REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(0), SYS_RESET_CFG_CORE_ENA_M);
+        REG_WRM(SYS_RAM_INIT, SYS_RAM_INIT_RAM_INIT(1) | SYS_RAM_INIT_RAM_CFG_HOOK(0),
+                SYS_RAM_INIT_RAM_INIT_M | SYS_RAM_INIT_RAM_CFG_HOOK_M);
+        do {
+            REG_RD(SYS_RAM_INIT, &val);
+        } while (SYS_RAM_INIT_RAM_INIT_X(val) != 0);
 
-    /* Enable switch core */
-    REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(1), SYS_RESET_CFG_CORE_ENA_M);
+        /* Enable switch core */
+        REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(1), SYS_RESET_CFG_CORE_ENA_M);
+    }
 
     return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_INIT);
 }
