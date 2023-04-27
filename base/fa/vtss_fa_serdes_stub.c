@@ -21,9 +21,19 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
 {
     return VTSS_RC_OK;
 }
+
 u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-    return VTSS_RC_OK;
+    u32 indx = 0, type;
+
+    (void)vtss_fa_port2sd(vtss_state, port_no, &indx, &type);
+    if (type == FA_SERDES_TYPE_6G) {
+        return indx;
+    } else if (type == FA_SERDES_TYPE_10G) {
+        return indx + RT_SERDES_10G_START;
+    } else {
+        return(indx + RT_SERDES_25G_START);
+    }
 }
 
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode)

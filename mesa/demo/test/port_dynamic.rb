@@ -39,6 +39,16 @@ $p4 = $ts.dut.p[3] + 1
 
 $test_with_traffic = false
 
+check_capabilities do
+    [$ts.dut.p[0], $ts.dut.p[1], $ts.dut.p[2], $ts.dut.p[3]].each do |port_tx|
+        conf = $ts.dut.call "mesa_port_conf_get", port_tx
+        if conf["if_type"].include? "QSGMII"
+        else
+            assert(0==1, "all 4 interfaces must be QSGMII")
+        end
+    end
+end
+
 # PCB-135 Test config:
 # p1 = 16
 # p2 = 15
