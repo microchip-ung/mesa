@@ -57,6 +57,7 @@ typedef struct Intl_Port {
 typedef struct {
     struct gpy211_device initconf;
     struct Intl_Port port_param;
+    mepa_conf_t conf;
 } INTL_priv_data_t;
 
 #define GPY211_DEVICE(dev) (&(((INTL_priv_data_t *)dev->data)->initconf))
@@ -258,11 +259,21 @@ static mesa_rc intl_reset(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
+static mesa_rc intl_conf_get(mepa_device_t *dev,
+                             mepa_conf_t *const config)
+{
+    INTL_priv_data_t *priv = dev->data;
+
+    *config = priv->conf;
+    return MEPA_RC_OK;
+}
+
 static mesa_rc intl_conf_set(mepa_device_t *dev,
                              const mepa_conf_t *config)
 {
     int rc;
     struct gpy211_device *phy = GPY211_DEVICE(dev);
+    INTL_priv_data_t *priv = dev->data;
 
     if (!config->admin.enable) {
         // Force link down by removing all capablities
@@ -335,6 +346,8 @@ static mesa_rc intl_conf_set(mepa_device_t *dev,
     }
 
     rc = gpy2xx_config_aneg(phy);
+
+    priv->conf = *config;
 
     return rc ? MEPA_RC_ERROR : MEPA_RC_OK;
 }
@@ -431,6 +444,7 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_delete = intl_delete;
     intl_drivers[0].mepa_driver_reset = intl_reset;
     intl_drivers[0].mepa_driver_poll = intl_poll;
+    intl_drivers[0].mepa_driver_conf_get = intl_conf_get;
     intl_drivers[0].mepa_driver_conf_set = intl_conf_set;
     intl_drivers[0].mepa_driver_if_get = intl_if_get;
     intl_drivers[0].mepa_driver_power_set = NULL;
