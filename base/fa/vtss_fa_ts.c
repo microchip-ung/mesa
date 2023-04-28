@@ -709,7 +709,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
 #endif
     switch (interface) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SERDES:
@@ -748,7 +747,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         /* Single-Lane SerDes at 100 Mbps */
         /* According to Morten this is not relevant */
         break;
-#endif
     case VTSS_PORT_INTERFACE_SFI:
         /* Single-Lane SerDes at 5 or 10 or 25 Gbps */
         if (speed == VTSS_SPEED_5G) {   /* 5 Gbps */

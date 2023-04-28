@@ -5,7 +5,6 @@
 
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
-require 'pry'
 
 $ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 
