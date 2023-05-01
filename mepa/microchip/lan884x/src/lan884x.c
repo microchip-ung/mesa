@@ -479,8 +479,10 @@ static mepa_rc pfe_debug_info_dump(struct mepa_device *dev,
     (void)pfe_if_get(dev, 1000,  &mac_if);
 
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
+        MEPA_ENTER(dev);
         pr("Port:%d   Family:Pfeiffer   Type:%d   Rev:%d   MacIf:%s\n",dev->numeric_handle,
            phy_info.part_number, phy_info.revision, if2txt(mac_if));
+        MEPA_EXIT(dev);
     }
 
     if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {

@@ -284,8 +284,10 @@ static mepa_rc indy_debug_info_dump(struct mepa_device *dev,
     (void)indy_if_get(dev, MEPA_SPEED_1G,  &mac_if);
 
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
+        MEPA_ENTER(dev);
         pr("Port:%d   Family:Indy   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
            phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
+        MEPA_EXIT(dev);
     }
 
     if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
