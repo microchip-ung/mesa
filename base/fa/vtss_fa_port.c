@@ -2677,7 +2677,7 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL power_down)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 indx, type, sd_tgt;
+    u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
     BOOL pd_serdes = 1;
 
     if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||

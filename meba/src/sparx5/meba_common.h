@@ -61,27 +61,6 @@ typedef struct meba_board_state {
     mepa_device_t        *phy_devices[MAX_PORTS];
 } meba_board_state_t;
 
-#define STATUSLED_G_GPIO 12
-#define STATUSLED_R_GPIO 13
-#define AQR_RESET 19
-
-/* LED colors */
-typedef enum {
-    LED_GREEN,
-    LED_YELLOW,
-    LED_MAX
-} led_color_t;
-
-typedef enum {
-    SFP_DETECT,
-    SFP_FAULT,
-    SFP_LOS
-} sfp_signal_t;
-
-#define VTSS_MSLEEP(m) usleep((m) * 1000)
-
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
 #define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
 #define PORT_2_SGPIO_BIT(board, p) (board->port[p].sgpio_bit)
-
-meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts);

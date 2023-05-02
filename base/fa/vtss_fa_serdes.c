@@ -3766,7 +3766,7 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     for (u32 s = 0; s <= 32; s++) {
         sd_lane_tgt = VTSS_TO_SD_LANE(s);
         /* Optimal power down settings from GUC */
-        if (s < VTSS_SERDES_25G_START) {
+        if (s < RT_SERDES_25G_START) {
             REG_WR(VTSS_SD_LANE_TARGET_QUIET_MODE_6G(sd_lane_tgt), 0x1EF4E0C);
         } else {
             REG_WR(VTSS_SD25G_CFG_TARGET_QUIET_MODE_6G(sd_lane_tgt), 0x1EF4E0C);

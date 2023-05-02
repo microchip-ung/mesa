@@ -12,9 +12,12 @@
 #include "meba_generic.h"
 #include "meba_common.h"
 
+#define STATUSLED_G_GPIO 12
+#define STATUSLED_R_GPIO 13
+#define AQR_RESET 19
 #define PHY_ID_GPY241 0xDC00
 #define INDY_COMA_GPIO 16
-#define VTSS_TS_IO_ARRAY_SIZE       4
+#define VTSS_TS_IO_ARRAY_SIZE 4
 
 /* LED colors */
 typedef enum {
@@ -143,9 +146,8 @@ static const fa_malibu_gpio_port_map_t malibu_gpio_map[] = {
     },
 };
 
-#define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)
-#define PORT_2_SGPIO_PORT(board, p) (board->port[p].sgpio_port)
-#define PORT_2_SGPIO_BIT(board, p) (board->port[p].sgpio_bit)
+
+meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts);
 
 static const meba_aux_rawio_t rawio = {
     .base = 0x4000000,

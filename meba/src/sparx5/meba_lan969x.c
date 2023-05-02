@@ -12,6 +12,9 @@
 #include "meba_generic.h"
 #include "meba_common.h"
 
+#define STATUSLED_G_GPIO 12
+#define STATUSLED_R_GPIO 13
+
 /* Local mapping table */
 typedef struct {
     int32_t                chip_port;
