@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
+
 #include "../vtss_fa_cil.h"
-#if 0
-#ifdef VTSS_ARCH_LAN969X
+#if defined(VTSS_ARCH_LAN969X) && !defined(VTSS_ARCH_LAN969X_FPGA)
 #ifdef VTSS_OPT_SYMREG
 #define VTSS_IO_ORIGIN1_OFFSET 0x0e2000000 /*! default region*/
 #ifndef VTSS_IO_ORIGIN1_SIZE
@@ -275,10 +275,10 @@ static const vtss_symreg_reggrp_t reggrps_within_CPU[] = {
     {"MIIM_TARGET"                          , 0x00000046, 0x00000001, 0x00000001, regs_within_CPU_MIIM_TARGET},
     {"VCORE_ACC"                            , 0x00000047, 0x00000001, 0x00000001, regs_within_CPU_VCORE_ACC},
 #ifndef VTSS_RELEASE
-    {"MSIX_ACC"                             , 0x00000049, 0x00000001, 0x00000001, regs_within_CPU_MSIX_ACC},
+    {"MSIX_ACC"                             , 0x00000048, 0x00000001, 0x00000001, regs_within_CPU_MSIX_ACC},
 #endif
 #ifndef VTSS_RELEASE
-    {"EXT_IF_ACC_STAT"                      , 0x0000004a, 0x00000001, 0x00000001, regs_within_CPU_EXT_IF_ACC_STAT},
+    {"EXT_IF_ACC_STAT"                      , 0x00000049, 0x00000001, 0x00000001, regs_within_CPU_EXT_IF_ACC_STAT},
 #endif
     {"INTR"                                 , 0x0000004a, 0x00000001, 0x00000071, regs_within_CPU_INTR},
     {"DDRCTRL"                              , 0x000000bb, 0x00000001, 0x00000007, regs_within_CPU_DDRCTRL},
@@ -3205,6 +3205,7 @@ static const vtss_symreg_reg_t regs_within_QSPI_QSPI_REGS[] = {
     {"QSPI_VERSION"                         , 0x0000003f, 0x00000001, 0x00000001},
     {"QSPI_DLL_OS"                          , 0x000000c0, 0x00000001, 0x00000001},
     {"QSPI_DLL_SO0"                         , 0x000000c2, 0x00000001, 0x00000001},
+    {"QSPI_DLL_SYNCR"                       , 0x000000f8, 0x00000001, 0x00000001},
     {"QSPI_DLL_VERSION"                     , 0x000000ff, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
@@ -6959,82 +6960,6 @@ static const vtss_symreg_reggrp_t reggrps_within_RB[] = {
     {"DISC_TBL"                             , 0x00000065, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
     {NULL, 0, 0, 0, NULL}
 };
-static const vtss_symreg_reg_t regs_within_RB_COMMON[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"TAXI_IF_CFG"                          , 0x00000000, 0x00000001, 0x00000001},
-    {"CPU_CFG"                              , 0x00000001, 0x00000001, 0x00000001},
-    {"NETID_CFG"                            , 0x00000002, 0x00000001, 0x00000001},
-    {"RB_CFG"                               , 0x00000003, 0x00000001, 0x00000001},
-    {"TPID_CFG"                             , 0x00000004, 0x00000003, 0x00000001},
-    {"SPV_CFG"                              , 0x00000007, 0x00000001, 0x00000001},
-    {"PTP_DATA"                             , 0x00000008, 0x00000010, 0x00000001},
-    {"PTP_FILTER_CFG"                       , 0x00000018, 0x00000008, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_RB_PORT[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"TBL_CFG"                              , 0x00000000, 0x00000001, 0x00000001},
-    {"BPDU_CFG"                             , 0x00000001, 0x00000001, 0x00000001},
-    {"FWD_CFG"                              , 0x00000002, 0x00000001, 0x00000001},
-    {"PORT_CFG"                             , 0x00000003, 0x00000001, 0x00000001},
-    {"PTP_CFG"                              , 0x00000004, 0x00000001, 0x00000001},
-    {"STICKY"                               , 0x00000005, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_RB_STAT[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"CNT_TX_TAG"                           , 0x00000000, 0x00000001, 0x00000001},
-    {"CNT_TX_UNT"                           , 0x00000001, 0x00000001, 0x00000001},
-    {"CNT_TX_LL"                            , 0x00000002, 0x00000001, 0x00000001},
-    {"CNT_RX_TAG"                           , 0x00000003, 0x00000001, 0x00000001},
-    {"CNT_RX_UNT"                           , 0x00000004, 0x00000001, 0x00000001},
-    {"CNT_RX_LL"                            , 0x00000005, 0x00000001, 0x00000001},
-    {"CNT_RX_WRONG_LAN"                     , 0x00000006, 0x00000001, 0x00000001},
-    {"CNT_RX_OWN"                           , 0x00000007, 0x00000001, 0x00000001},
-    {"CNT_DUPL_ZERO"                        , 0x00000008, 0x00000001, 0x00000001},
-    {"CNT_DUPL_ONE"                         , 0x00000009, 0x00000001, 0x00000001},
-    {"CNT_DUPL_TWO"                         , 0x0000000a, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_RB_HOST_TBL[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"HOST_ACCESS_CTRL"                     , 0x00000000, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_CFG_0"                    , 0x00000001, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_CFG_1"                    , 0x00000002, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_CFG_2"                    , 0x00000003, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_STAT_0"                   , 0x00000004, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_STAT_1"                   , 0x00000005, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_STAT_2"                   , 0x00000006, 0x00000001, 0x00000001},
-    {"HOST_ACCESS_STAT_3"                   , 0x00000007, 0x00000001, 0x00000001},
-    {"HOST_AUTOAGE_CFG"                     , 0x00000008, 0x00000002, 0x00000001},
-    {"HOST_AUTOAGE_CFG_1"                   , 0x0000000a, 0x00000002, 0x00000001},
-    {"HOST_AUTOAGE_CFG_2"                   , 0x0000000c, 0x00000002, 0x00000001},
-    {"HOST_EVENT_STICKY"                    , 0x0000000e, 0x00000001, 0x00000001},
-    {"HOST_LATEST_POS_STATUS"               , 0x0000000f, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reg_t regs_within_RB_DISC_TBL[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"DISC_ACCESS_CTRL"                     , 0x00000000, 0x00000001, 0x00000001},
-    {"DISC_ACCESS_CFG_0"                    , 0x00000001, 0x00000001, 0x00000001},
-    {"DISC_ACCESS_CFG_1"                    , 0x00000002, 0x00000001, 0x00000001},
-    {"DISC_ACCESS_CFG_2"                    , 0x00000003, 0x00000001, 0x00000001},
-    {"DISC_AUTOAGE_CFG"                     , 0x00000004, 0x00000001, 0x00000001},
-    {"DISC_AUTOAGE_CFG_1"                   , 0x00000005, 0x00000001, 0x00000001},
-    {"DISC_AUTOAGE_CFG_2"                   , 0x00000006, 0x00000001, 0x00000001},
-    {"DISC_EVENT_STICKY"                    , 0x00000007, 0x00000001, 0x00000001},
-    {"DISC_LATEST_POS_STATUS"               , 0x00000008, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
-static const vtss_symreg_reggrp_t reggrps_within_RB[] = {
-    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"COMMON"                               , 0x00000000, 0x00000001, 0x00000021, regs_within_RB_COMMON},
-    {"PORT"                                 , 0x00000021, 0x00000003, 0x00000006, regs_within_RB_PORT},
-    {"STAT"                                 , 0x00000033, 0x00000003, 0x0000000b, regs_within_RB_STAT},
-    {"HOST_TBL"                             , 0x00000054, 0x00000001, 0x00000010, regs_within_RB_HOST_TBL},
-    {"DISC_TBL"                             , 0x00000064, 0x00000001, 0x00000009, regs_within_RB_DISC_TBL},
-    {NULL, 0, 0, 0, NULL}
-};
 static const vtss_symreg_reg_t regs_within_SD10G_CMU_TARGET_CMU_GRP_0[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"CMU_00"                               , 0x00000000, 0x00000001, 0x00000001},
@@ -8798,14 +8723,8 @@ vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const d
 }
 
 #else /* VTSS_OPT_SYMREG */
-vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
-    return VTSS_RC_ERROR;
-}
+/* vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) { */
+/*     return VTSS_RC_ERROR; */
+/* } */
 #endif /* VTSS_OPT_SYMREG */
 #endif /* VTSS_ARCH_LAN969X */
-#endif
-#ifdef VTSS_ARCH_LAN969X
-vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
-    return VTSS_RC_ERROR;
-}
-#endif
