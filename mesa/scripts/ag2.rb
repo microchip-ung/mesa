@@ -115,6 +115,8 @@ $methods_blacklist = [
     "meba_phy_macsec_dbg_fcb_block_reg_dump",
     "meba_phy_macsec_dbg_reconfig",
     "meba_phy_macsec_dbg_reg_dump",
+    "meba_phy_ts_fifo_read_install",
+    "meba_ts_test_config",
     "meba_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump",
 ]
 

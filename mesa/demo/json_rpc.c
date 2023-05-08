@@ -22,7 +22,7 @@ static mscc_appl_trace_module_t trace_module = {
 
 enum {
     TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
+    TRACE_GROUP_CNT = 2
 };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
@@ -1429,6 +1429,21 @@ static mesa_rc mesa_rpc_packet_tx_frame(json_rpc_req_t *req)
 
 mesa_rc intr_ev_get(const char *name, uint32_t idx, uint32_t *cnt);
 
+/* Update the internal timestamp table, from HW */
+static void test_ts_phy_fifo_read( const mepa_port_no_t           port_no,
+                                   const mepa_timestamp_t     *const fifo_ts,
+                                   const mepa_ts_fifo_sig_t   *const sig,
+                                   const mepa_ts_fifo_status_t status)
+{
+    mepa_ts_fifo_sig_t sig_loc;
+    memset(&sig_loc, 0, sizeof(sig_loc));
+    memcpy(&sig_loc, sig, sizeof(mepa_ts_fifo_sig_t));
+    T_D("PHY Fifo read: port_no %u, msg_type:  %d, type %d, domain %d, seq %d\n", port_no,
+        sig->msg_type, sig->msg_type, sig->domain_num, sig->sequence_id);
+    T_D("PHY Fifo read: tx time:  Sec_Hi:%d, Sec_Low:%u,  Nsec: %u, Nsec (hex) ns %x\n",
+         fifo_ts->seconds.high, fifo_ts->seconds.low, fifo_ts->nanoseconds, fifo_ts->nanoseconds);
+}
+
 static mesa_rc event_get(json_rpc_req_t *req)
 {
     const char *name;
@@ -1440,6 +1455,20 @@ static mesa_rc event_get(json_rpc_req_t *req)
     MESA_RC(json_rpc_add_uint32_t(req, req->result, &cnt));
     return MESA_RC_OK;
 }
+
+static mesa_rc mesa_rpc_meba_phy_ts_fifo_read_install(json_rpc_req_t *req)
+{
+    mepa_port_no_t port_no;
+    mepa_ts_fifo_read_t rd_cb = &test_ts_phy_fifo_read;
+
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &port_no));
+    MESA_RC(json_rpc_call(req, meba_phy_ts_fifo_read_install(meba_global_inst, port_no, rd_cb)));
+    json_object_array_add(req->result, NULL);
+    json_object_array_add(req->result, NULL);
+
+    return MESA_RC_OK;
+}
+
 
 static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_qos_dscp_dpl_conf_get", mesa_rpc_mesa_qos_dscp_dpl_conf_get },
@@ -1454,6 +1483,14 @@ static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_event_get", event_get },
     { NULL, NULL}
 };
+
+static json_rpc_method_t json_rpc_phy_static_table[] = {
+    { "meba_phy_ts_fifo_read_install" , mesa_rpc_meba_phy_ts_fifo_read_install },
+    { NULL , NULL }
+};
+
+
+
 /* - JSON-RPC parser ----------------------------------------------- */
 
 static int find_and_call_method(const char *method_name, json_rpc_req_t *req)
@@ -1473,6 +1510,13 @@ static int find_and_call_method(const char *method_name, json_rpc_req_t *req)
             method->cb(req);
         }
     }
+    for (method = json_rpc_phy_static_table; method->cb != NULL && !found; method++) {
+        if (!strcmp(method->name, method_name)) {
+            found = 1;
+            method->cb(req);
+        }
+    }
+
 
     return (found);
 }
