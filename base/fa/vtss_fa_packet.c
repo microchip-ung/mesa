@@ -658,6 +658,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     info->tag.dei  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28,  1);
     info->tag.vid  = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
     info->rb_port_a = (VTSS_EXTRACT_BITFIELD(rb, 7, 1) == 0);
+    info->rb_tagged = VTSS_EXTRACT_BITFIELD(rb, 8, 1);
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, trc_grp, meta->etype, info));
 

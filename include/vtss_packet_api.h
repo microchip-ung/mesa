@@ -498,6 +498,7 @@ typedef struct {
     vtss_port_no_t sflow_port_no;
     vtss_iflow_id_t iflow_id;
     BOOL rb_port_a;
+    BOOL rb_tagged;
 } vtss_packet_rx_info_t;
 
 #if defined(VTSS_FEATURE_PACKET_PIPELINE_PT)

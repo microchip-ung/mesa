@@ -391,6 +391,10 @@ typedef struct {
 
     // RedBox: True if frame was received on port A, false if port B
     mesa_bool_t rb_port_a;
+
+    // RedBox: True if frame was received with either an RCT or an HSR-tag,
+    // false otherwise
+    mesa_bool_t rb_tagged;
 } mesa_packet_rx_info_t;
 
 // Chip pipeline injection point.
