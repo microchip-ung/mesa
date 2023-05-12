@@ -22,7 +22,7 @@ static mscc_appl_trace_module_t trace_module = {
 
 enum {
     TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT = 2
+    TRACE_GROUP_CNT
 };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
