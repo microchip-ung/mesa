@@ -1839,7 +1839,7 @@ static vtss_rc fa_serdes_dfe_set(vtss_state_t *vtss_state, const vtss_debug_prin
         REG_WRM_SET(VTSS_SD25G_TARGET_LANE_0D(sd_tgt),
                     VTSS_M_SD25G_TARGET_LANE_0D_LN_CFG_DFECK_EN);
         REG_WRM(VTSS_SD25G_TARGET_LANE_1C(sd_tgt),
-                VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD(ena),
+                VTSS_F_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD(!ena),
                 VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_DFE_PD);
         REG_WRM(VTSS_SD25G_TARGET_LANE_0F(sd_tgt),
                 VTSS_F_SD25G_TARGET_LANE_0F_LN_CFG_DFETAP_EN_5_1(ena ? 0x1F : 0),
