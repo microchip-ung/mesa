@@ -249,6 +249,8 @@ static uint32_t caracal_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
             return board->port_cnt;
+        case MEBA_CAP_BOARD_PORT_POE_COUNT:
+            return board->port_cnt;
         case MEBA_CAP_LED_MODES:
             // LED_TOWER_MODE_CNT; No led_update() function - handled implicitly w. caracal_port_led_update ...
             return 1;

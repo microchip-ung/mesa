@@ -23,17 +23,17 @@
 // This firmware can be used with the PD692x0 family of PoE controllers (PD69210, PD69220, and PD69200).
 // please choose 'ePoE_Controller_Type_Unknown' for automatic firmware detection or force specific PD692x0 PoE controller
 //
-// ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// ePD69200_CONTROLLER_TYPE ,
-// ePD69210_CONTROLLER_TYPE ,
-// ePD69220_CONTROLLER_TYPE ,
-#define PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT   ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_PD69200_CONTROLLER_TYPE ,
+// MEBA_POE_PD69210_CONTROLLER_TYPE ,
+// MEBA_POE_PD69220_CONTROLLER_TYPE ,
+#define PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT     MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
 // Set system mode BT or AT firmware:
-// ePoE_System_Mode_AT - AT mode
-// ePoE_System_Mode_BT - BT mode
-#define PDS408G_POE_SYSTEM_MODE_DEFAULT               ePoE_System_Mode_BT
+// MEBA_POE_FIRMWARE_TYPE_AT - AT mode
+// MEBA_POE_FIRMWARE_TYPE_BT - BT mode
+#define PDS408G_POE_SYSTEM_MODE_DEFAULT                 MEBA_POE_FIRMWARE_TYPE_BT
 
 
 // Set unit max power as fixed or variable through Web & CLI
@@ -53,15 +53,21 @@
 #define PDS408G_POE_I2C_ADDRESS                         0x20
 
 
+// poe gpio reset pin number
+// 0xFF   - no gpio use for reset poe ports.
+// 0-0xFE - GPIO number used for reset poe ports.
+#define PDS408G_RESET_POE_GPIO_NUMBER                   0xFF
+
+
 //-------------------------------  PDS408G BT parameters   -----------------------------//
 //--------------------------------------------------------------------------------------//
 
 // BT System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// ePORT_MAX_POWER_15W
-// ePORT_MAX_POWER_30W
-// ePORT_MAX_POWER_60W
-// ePORT_MAX_POWER_90W
-#define BT_PORT_MAX_POWER_DEFAULT                     ePORT_MAX_POWER_60W
+// MEBA_POE_PORT_MAX_POWER_15W
+// MEBA_POE_PORT_MAX_POWER_30W
+// MEBA_POE_PORT_MAX_POWER_60W
+// MEBA_POE_PORT_MAX_POWER_90W
+#define BT_PORT_MAX_POWER_DEFAULT                     MEBA_POE_PORT_MAX_POWER_60W
 
 
 // Port Operation Mode for legacy
@@ -163,7 +169,7 @@
                                 MEBA_POE_PORT_CAP_4PAIR  | \
                                 MEBA_POE_PORT_CAP_FORCE_ON
 
-#define PDS408G_PD69200_CAP ((PDS408G_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_BT) ? PDS408G_PD69200BT_CAP : PDS408G_PD69200AT_CAP)
+#define PDS408G_PD69200_CAP ((PDS408G_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PDS408G_PD69200BT_CAP : PDS408G_PD69200AT_CAP)
 
 meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 {
@@ -195,17 +201,17 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 // This firmware can be used with the PD692x0 family of PoE controllers (PD69210, PD69220, and PD69200).
 // please choose 'ePoE_Controller_Type_Unknown' for automatic firmware detection or force specific PD692x0 PoE controller
 //
-// ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// ePD69200_CONTROLLER_TYPE ,
-// ePD69210_CONTROLLER_TYPE ,
-// ePD69220_CONTROLLER_TYPE ,
-#define CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT   ePD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_PD69200_CONTROLLER_TYPE ,
+// MEBA_POE_PD69210_CONTROLLER_TYPE ,
+// MEBA_POE_PD69220_CONTROLLER_TYPE ,
+#define CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT   MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
 // Set system mode BT or AT firmware:
-// ePoE_System_Mode_AT - AT mode
-// ePoE_System_Mode_BT - BT mode
-#define CARACAL_POE_SYSTEM_MODE_DEFAULT               ePoE_System_Mode_BT
+// MEBA_POE_FIRMWARE_TYPE_AT - AF/AT mode
+// MEBA_POE_FIRMWARE_TYPE_BT - BT mode
+#define CARACAL_POE_SYSTEM_MODE_DEFAULT                MEBA_POE_FIRMWARE_TYPE_BT
 
 
 // Set unit max power as fixed or variable through Web & CLI
@@ -222,6 +228,12 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 
 // set the PoE MCU controller I2C address
 #define CARACAL_POE_I2C_ADDRESS                         0x14
+
+
+// poe gpio reset pin number
+// 0xFF   - no gpio use for reset poe ports.
+// 0-0xFE - GPIO number used for reset poe ports.
+#define CARACAL_RESET_POE_GPIO_NUMBER                   0xFF
 
 
 //---------------------   CARACAL AT parameters    ----------------------//
@@ -329,7 +341,7 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
                                 MEBA_POE_PORT_CAP_TYPE_2 | \
                                 MEBA_POE_PORT_CAP_FORCE_ON
 
-#define CARACAL_PD69200_CAP ((CARACAL_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_BT) ? CARACAL_PD69200BT_CAP : CARACAL_PD69200AT_CAP)
+#define CARACAL_PD69200_CAP ((CARACAL_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? CARACAL_PD69200BT_CAP : CARACAL_PD69200AT_CAP)
 
 
 meba_poe_port_properties_t caracal_pd69200_port_map[] =
@@ -364,22 +376,5 @@ meba_poe_port_properties_t caracal_pd69200_port_map[] =
 };
 
 //----------------- CARACAL cap and port map Customizations ends here -------------------//
-
-
-//--------------------------------------------------------------------------------------//
-//-------------------    user functions implementation   -------------------------------//
-//--------------------------------------------------------------------------------------//
-
-// implementation of poe io reset
-// in case there is no implementation for poe io reset io - leave the function to do nothing
-// input pin_level - 0 : "0" or 1 : "1"
-void poe_io_reset(mesa_bool_t pin_level)
-{
-    //implement here:
-    // - when (pin_level == 1) set gpio set - "1"
-    // - when (pin_level == 0) clear poe gpio - "0"
-
-    //set poe io (pin_level);
-}
 
 #endif // _CARACAL_POE_HW_CFG_H_

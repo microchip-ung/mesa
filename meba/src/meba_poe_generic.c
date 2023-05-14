@@ -54,7 +54,7 @@ mesa_rc meba_poe_generic_sync(
 mesa_rc meba_poe_generic_chipset_get(
         const meba_inst_t             inst,
         mesa_port_no_t                iport,
-        meba_poe_chip_state_t        *chip_state)
+        meba_poe_chip_state_t         *chip_state)
 {
     meba_poe_ctrl_inst_t *controller;
     meba_poe_port_handle_t handle;
@@ -179,7 +179,7 @@ int meba_poe_generic_firmware_upgrade(
     return count;
 }
 
-// return MESA_RC_ERR_POE_FIRMWARE_VER_NOT_NEW if firmware update is needed for any of the controllers. otherwise returns MESA_RC_OK
+// return MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE if firmware update is needed for any of the controllers. otherwise returns MESA_RC_OK
 mesa_rc meba_poe_generic_prepare_firmware_upgrade(
     const meba_inst_t               inst,
     mesa_bool_t                     version_check,
@@ -254,7 +254,7 @@ mesa_rc meba_poe_generic_status_get(
 
 mesa_rc meba_poe_generic_capabilities_get(
     const meba_inst_t             inst,
-    meba_poe_ctrl_cap_t          *capabilities)
+    meba_poe_ctrl_cap_t           *capabilities)
 {
     meba_poe_system_t   *system;
     if ( inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {

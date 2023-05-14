@@ -408,6 +408,11 @@ static void pcb120_init_porttable(meba_inst_t inst)
         if (inst->props.mux_mode == MESA_PORT_MUX_MODE_4) {
             map_wrap = (map_wrap_t) {
                 {
+                    //----------------------------------------------------------------------------------------------------------------------------------------------------
+                    //Port | Chip | MII-Controller          | MII |            MAC            |                          CAP                              |   PoE  | PoE
+                    //     | Port |                         | Addr|            IF             |                                                           | Support| Port
+                    //----------------------------------------------------------------------------------------------------------------------------------------------------
+
                     {0, 5, MESA_MIIM_CONTROLLER_1, 3, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 6},
                     {1, 9, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 1},
                     {2, 6, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 7},
@@ -795,6 +800,8 @@ static uint32_t ocelot_capability(meba_inst_t inst,
         case MEBA_CAP_BOARD_PORT_COUNT:
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
+            return board->port_cnt;
+        case MEBA_CAP_BOARD_PORT_POE_COUNT:
             return board->port_cnt;
         case MEBA_CAP_LED_MODES:
             return 1;    /* No alternate led mode support */

@@ -16,7 +16,7 @@ meba_poe_parameters_t tPoE_parameters =
     .bt_operation_mode_legacy_60W_ignore_pd_class_default = BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT,
     .bt_operation_mode_legacy_90W_ignore_pd_class_default = BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT,
 
-    .pointer_to_meba_poe_io_reset = poe_io_reset,
+    .reset_poe_gpio_number                           = PDS408G_RESET_POE_GPIO_NUMBER,
 
     .indv_mask_AT_ignore_higher_priority_default     = INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
     .indv_mask_AT_supports_legact_detection_default  = INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
@@ -82,9 +82,8 @@ mesa_rc meba_poe_caracal_system_get(
 
 
 mesa_rc meba_poe_caracal_system_initialize(
-    meba_inst_t inst,
-    int         poe_i2c0,
-    int         poe_i2c1)
+        meba_inst_t            inst,
+        meba_poe_init_params_t *tPoe_init_params)
 {
     // Do poe chip detection and fill
     /* caracal_ctrl.api = ....; */
@@ -96,94 +95,169 @@ mesa_rc meba_poe_caracal_system_initialize(
 
     switch (inst->props.board_type) {
     case VTSS_BOARD_LUTON10_PDS408G:
+    {
+        uint8_t poe_12c0 = pds408g_i2c_config.i2c_address;
+        if (inst->poe_i2c_tags.poe_12c0 != 0)
+        {
+            poe_12c0 = inst->poe_i2c_tags.poe_12c0;
+            //T_I("%s=%d", "poe_12c0", poe_12c0);
+        }
 
-            if (poe_i2c0 == 0)
-            {
-                poe_i2c0 = pds408g_i2c_config.i2c_address;
-                //T_I("%s=%d", "poe_12c0", poe_12c0);
+        caracal_pd69200_system.controller_count = 1;
+        caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
+        tPoE_parameters.ePoE_Controller_Type_default = PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
+
+        // overide appl init_params if using H file parameters
+        if(tPoe_init_params->use_poe_static_parameters) {
+            tPoe_init_params->PwrSupply_MaxPwr              = PDS408G_POE_UNIT_MAX_POWER_W_DEFAULT;
+            tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = PDS408G_POE_SYSTEM_MODE_DEFAULT;
+            tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (PDS408G_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
+        } else {
+            pds408g_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
+            pds408g_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
+        }
+
+        if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_BT)
+        {
+            // overide appl init_params if using H file parameters
+            if(tPoe_init_params->use_poe_static_parameters) {
+                tPoe_init_params->Max_POE_Ch              = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
             }
 
-            caracal_pd69200_system.controller_count = 1;
-            caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
-            tPoE_parameters.ePoE_Controller_Type_default = PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
+                  tPoe_init_params->Max_POE_Ch ,
+                  tPoe_init_params->PwrSupply_MaxPwr,
+                  tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE,
+                  tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE);
 
-            if(PDS408G_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_BT)
-            {
-                meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
-                                           "pd69x00bt",
-                                           meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device ,poe_i2c0),
-                                           MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
-                                           MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
-                                           MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
-                                           MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                           pds408g_pd69200_port_map,
-                                           sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
-                                           pds408g_power_supplies,
-                                           sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
-                                           inst->iface.debug,
-                                           tPoE_parameters);
-            }
-            else if(PDS408G_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_AT)
-            {
-                meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
-                                           "pd69x00at",
-                                           meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device ,poe_i2c0),
-                                           MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                           MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
-                                           MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
-                                           pds408g_pd69200_port_map,
-                                           sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
-                                           pds408g_power_supplies,
-                                           sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
-                                           inst->iface.debug,
-                                           tPoE_parameters);
+            tPoE_parameters.poe_init_params = *tPoe_init_params;
+
+            meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
+                                       "pd69x00bt",
+                                       meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device, poe_12c0),
+                                       MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
+                                       MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
+                                       MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
+                                       MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
+                                       pds408g_pd69200_port_map,
+                                       sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                       pds408g_power_supplies,
+                                       sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
+                                       inst->iface.debug,
+                                       tPoE_parameters);
+        }
+        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
+        {
+            // overide appl init_params if using H file parameters
+            if(tPoe_init_params->use_poe_static_parameters) {
+                tPoe_init_params->Max_POE_Ch              = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
             }
 
-            break;
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
+                  tPoe_init_params->Max_POE_Ch ,
+                  tPoe_init_params->PwrSupply_MaxPwr,
+                  tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE,
+                  tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE);
 
-    default:  //caracal board
+            tPoE_parameters.poe_init_params = *tPoe_init_params;
 
-            if (poe_i2c0 == 0)
-            {
-                poe_i2c0 = caracal_i2c_config.i2c_address;
-                //T_I("%s=%d", "poe_12c0", poe_12c0);
-            }
+            meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
+                                       "pd69x00at",
+                                       meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device, poe_12c0),
+                                       MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
+                                       MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                       MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
+                                       pds408g_pd69200_port_map,
+                                       sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                       pds408g_power_supplies,
+                                       sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
+                                       inst->iface.debug,
+                                       tPoE_parameters);
+        }
+    }
+    break;
 
-            caracal_pd69200_system.controller_count = 1;
-            caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
-            tPoE_parameters.ePoE_Controller_Type_default = CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
+default:  //caracal board
+    {
+        uint8_t poe_12c0 = caracal_i2c_config.i2c_address;
+        if (inst->poe_i2c_tags.poe_12c0 != 0)
+        {
+            poe_12c0 = inst->poe_i2c_tags.poe_12c0;
+            //T_I("%s=%d", "poe_12c0", poe_12c0);
+        }
 
-            if(CARACAL_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_BT)
-            {
-                meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
-                                         "pd69x00",
-                                         meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device ,poe_i2c0),
-                                         MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
-                                         MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
-                                         MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
-                                         MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                         caracal_pd69200_port_map,
-                                         sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
-                                         caracal_power_supplies,
-                                         sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
-                                         inst->iface.debug,
-                                         tPoE_parameters);
-            }
-            else if(CARACAL_POE_SYSTEM_MODE_DEFAULT == ePoE_System_Mode_AT)
-            {
-                meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
-                                         "pd69x00",
-                                         meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device ,poe_i2c0),
-                                         MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                         MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
-                                         MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
-                                         caracal_pd69200_port_map,
-                                         sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
-                                         caracal_power_supplies,
-                                         sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
-                                         inst->iface.debug,
-                                         tPoE_parameters);
-            }
+        caracal_pd69200_system.controller_count = 1;
+        caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
+        tPoE_parameters.ePoE_Controller_Type_default = CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
+
+        // overide appl init_params if using H file parameters
+        if(tPoe_init_params->use_poe_static_parameters) {
+            tPoe_init_params->PwrSupply_MaxPwr              = CARACAL_POE_UNIT_MAX_POWER_W_DEFAULT;
+            tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = CARACAL_POE_SYSTEM_MODE_DEFAULT;
+            tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (CARACAL_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
+        } else {
+            caracal_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
+            caracal_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
+        }
+
+        if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_BT)
+        {
+             // overide appl init_params if using H file parameters
+             if(tPoe_init_params->use_poe_static_parameters) {
+                 tPoe_init_params->Max_POE_Ch              = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+             }
+
+             inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
+                   tPoe_init_params->Max_POE_Ch ,
+                   tPoe_init_params->PwrSupply_MaxPwr,
+                   tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE,
+                   tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE);
+
+             tPoE_parameters.poe_init_params = *tPoe_init_params;
+
+             meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
+                                     "pd69x00",
+                                     meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device, poe_12c0),
+                                     MEBA_POE_CTRL_CAP_POWER_MANAGEMENT  |
+                                     MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
+                                     MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
+                                     MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
+                                     caracal_pd69200_port_map,
+                                     sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                     caracal_power_supplies,
+                                     sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
+                                     inst->iface.debug,
+                                     tPoE_parameters);
+        }
+        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
+        {
+             // overide appl init_params if using H file parameters
+             if(tPoe_init_params->use_poe_static_parameters) {
+                 tPoe_init_params->Max_POE_Ch              = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+             }
+
+             inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
+                   tPoe_init_params->Max_POE_Ch ,
+                   tPoe_init_params->PwrSupply_MaxPwr,
+                   tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE,
+                   tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE);
+
+             tPoE_parameters.poe_init_params = *tPoe_init_params;
+
+             meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
+                                     "pd69x00",
+                                     meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device, poe_12c0),
+                                     MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
+                                     MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                     MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
+                                     caracal_pd69200_port_map,
+                                     sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                     caracal_power_supplies,
+                                     sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
+                                     inst->iface.debug,
+                                     tPoE_parameters);
+        }
+      }
     }
     return MESA_RC_OK;
 };

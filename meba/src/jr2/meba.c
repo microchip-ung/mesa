@@ -1598,6 +1598,8 @@ static uint32_t jr2_capability(meba_inst_t inst,
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
             return board->port_cnt;
+        case MEBA_CAP_BOARD_PORT_POE_COUNT:
+            return board->port_cnt;
         case MEBA_CAP_LED_MODES:
             return 1;    /* No alternate led mode support */
         case MEBA_CAP_DYING_GASP:

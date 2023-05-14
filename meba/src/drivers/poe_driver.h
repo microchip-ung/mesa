@@ -9,15 +9,6 @@
 #include <microchip/ethernet/switch/api/types.h>
 
 
-typedef enum
-{
-    ePORT_MAX_POWER_15W = 15,
-    ePORT_MAX_POWER_30W = 30,
-    ePORT_MAX_POWER_60W = 60,
-    ePORT_MAX_POWER_90W = 90,
-} POE_PORT_MAX_POWER_e;
-
-
 typedef struct {
     const char *i2c_device;
     const uint8_t i2c_address;
@@ -29,21 +20,24 @@ typedef void (*pointer_to_meba_poe_io_reset_t)(mesa_bool_t);
 
 typedef struct {
 
-    mesa_bool_t             IsBT_mode_user_config;
+    mesa_bool_t             is_bt;
 
     // PD692x0 family detection method
     meba_poe_controller_type_t ePoE_Controller_Type_default;
 
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    POE_PORT_MAX_POWER_e   ePoE_port_max_power_default;
+    meba_poe_port_max_power_t   ePoE_port_max_power_default;
 
     // BT Port Operation Mode for legacy
     uint8_t bt_operation_mode_legacy_90W_poh_default;
     uint8_t bt_operation_mode_legacy_60W_ignore_pd_class_default;
     uint8_t bt_operation_mode_legacy_90W_ignore_pd_class_default;
 
-    // pointer to poe reset io function
-    pointer_to_meba_poe_io_reset_t pointer_to_meba_poe_io_reset;
+    // gpio number used to reset poe ports
+    uint8_t  reset_poe_gpio_number;
+
+    // the final (from appl or from api h file) init parameters to init poe module
+    meba_poe_init_params_t  poe_init_params;
 
     // power higher priority port.
     uint8_t indv_mask_AT_ignore_higher_priority_default;
@@ -101,7 +95,6 @@ typedef struct {
 
     // Selects the start condition. (Not recommended for new designs, keep 0x00).
     uint8_t AT_PM3_default;
-
 } meba_poe_parameters_t;
 
 

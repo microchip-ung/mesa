@@ -19,6 +19,13 @@
 #include <microchip/ethernet/board/api/phy_macsec.h>
 #include <microchip/ethernet/board/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
+
+typedef struct {
+  uint8_t poe_12c0;
+  uint8_t poe_12c1;
+}meba_poe_i2c_tags_t;
+
+
 /** \brief Board instance struct */
 struct meba_inst {
     int                      api_version;            /**< The MEBA version of the board implementation */
@@ -37,6 +44,7 @@ struct meba_inst {
     mepa_device_t            **phy_devices;          /**< Entry point to phy driver devices. */
     mepa_callout_ctx_t       *phy_device_ctx;        /**< Array of PHY context */
     mepa_callout_t           mepa_callout;
+    meba_poe_i2c_tags_t      poe_i2c_tags;
 };
 
 /**

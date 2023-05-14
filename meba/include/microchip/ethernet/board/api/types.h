@@ -266,6 +266,9 @@ typedef enum {
     // Number of exposed (external) ports on board
     MEBA_CAP_BOARD_PORT_COUNT,
 
+    // Number of exposed (external) poe ports on board
+    MEBA_CAP_BOARD_PORT_POE_COUNT,
+
     // Number of ports in the port map (may be > MEBA_CAP_BOARD_PORT_COUNT if
     // having MEP or Mirror loop ports)
     MEBA_CAP_BOARD_PORT_MAP_COUNT,

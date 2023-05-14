@@ -19,7 +19,7 @@ mesa_rc meba_poe_generic_sync(
 mesa_rc meba_poe_generic_chipset_get(
     const meba_inst_t               inst,
     mesa_port_no_t                  index,
-    meba_poe_chip_state_t          *chip_state);
+    meba_poe_chip_state_t           *chip_state);
 
 mesa_rc meba_poe_generic_version_get(
     const meba_inst_t               inst,

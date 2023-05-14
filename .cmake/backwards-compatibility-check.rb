@@ -283,9 +283,15 @@ $default_configs = "istax_multi.mk"
 #      "27e2ceb283@master", # Appl release to use
 #      $default_configs)               # Configs to build
 # Yet another round of PoE updates
+#check("backwards-check",              # Name of check
+#      "4716b2d3a4@2022.09-poe-integration", # Appl release to use
+#      $default_configs)               # Configs to build
+
+# PoE bt support requires yet another type modifications
 check("backwards-check",              # Name of check
-      "4716b2d3a4@2022.09-poe-integration", # Appl release to use
+      "b90a3945c6@poe-update", # Appl release to use
       $default_configs)               # Configs to build
+
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
 # DO NOT COMMENT OUT / DELETE THIS ENTRY - IF YOU BELIEVE IT IS NEEDED, ASK

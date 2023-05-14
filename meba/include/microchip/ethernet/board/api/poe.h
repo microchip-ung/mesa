@@ -88,13 +88,11 @@ typedef mesa_rc (*meba_poe_system_get_t)(
 
 // Initialize the MEBA PoE subsystem.
 // may only be called once.
-// inst              [IN]  Reference to the meba instance
-// ctrl1_i2c_address [IN]  I2C address of first controller. If zero, default address is used.
-// ctrl2_i2c_address [IN]  I2C address of second controller. If zero, default address is used.
+// inst              [IN] Reference to the meba instance
+// meba_poe_init_params_t *tPoe_init_params [IN]
 typedef mesa_rc (*meba_poe_system_initialize_t)(
-    struct meba_inst   *inst,
-    int                 ctrl1_i2c_address,
-    int                 ctrl2_i2c_address);
+        struct meba_inst       *inst,
+        meba_poe_init_params_t *tPoe_init_params);
 
 
 // Perform chip detection.
@@ -146,12 +144,12 @@ typedef mesa_rc (*meba_poe_save_command_t)(
 typedef mesa_rc (*meba_poe_debug_t)(
         struct meba_inst               *inst,
         mesa_port_no_t                  port_no,
-        char                            *var,
+        char                           *var,
         uint32_t                        str_len,
-        char                            *title ,
-        char                            *tx_str ,
-        char                            *rx_str ,
-        char                            *msg,
+        char                           *title ,
+        char                           *tx_str ,
+        char                           *rx_str ,
+        char                           *msg,
         int                             max_msg_len);
 
 // Perform the Firmware upgrade.
@@ -171,7 +169,7 @@ typedef int (*meba_poe_firmware_upgrade_t)(
 // If the version_check parameter is true, this function will check the firmware
 // version against the version of the installed firmware.  If the firmware
 // versions are identical the return code will be
-// MESA_RC_ERR_POE_FIRMWARE_VER_NOT_NEW.  If the firmware versions are not
+// MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE.  If the firmware versions are not
 // identical the return code will be MESA_RC_OK, and the state of the controller
 // will be set to MEBA_POE_FIRMWARE_UPGRADE
 //
@@ -222,9 +220,9 @@ typedef mesa_rc (*meba_poe_port_pd_data_set_t)(
 // port_no   [IN]  Port handle
 // pd_data   [IN]  PD data to configure.
 typedef mesa_rc (*meba_poe_port_pd_bt_data_set_t)(
-    struct meba_inst          *inst,
-    mesa_port_no_t             port_no,
-    meba_poe_pd_bt_data_t     *pd_data);
+    struct meba_inst                   *inst,
+    mesa_port_no_t                      port_no,
+    meba_poe_pd_bt_data_t              *pd_data);
 
 // Clear port lldp mode
 // port_no   [IN]  Port number.
