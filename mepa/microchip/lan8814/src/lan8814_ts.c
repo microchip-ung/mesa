@@ -160,12 +160,6 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
         data->port_no, ts_init_conf->clk_src, ts_init_conf->clk_freq, ts_init_conf->rx_ts_len,
         ts_init_conf->rx_ts_pos, ts_init_conf->tx_fifo_mode, ts_init_conf->tx_ts_len);
 
-    data->ts_state.clk_src          = ts_init_conf->clk_src;
-    data->ts_state.clk_freq         = ts_init_conf->clk_freq;
-    data->ts_state.tx_fifo_mode     = ts_init_conf->tx_fifo_mode;
-    data->ts_state.tx_fifo_ts_len   = ts_init_conf->tx_ts_len;
-    data->ts_state.tsu_op_mode      = INDY_TS_MODE_STANDALONE;
-
     return MEPA_RC_OK;
 
 }
@@ -182,10 +176,22 @@ static mepa_rc indy_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_t *
         MEPA_MSLEEP(2);
     }
 
+    // common config which are configured in registers for base port.
+    // But, must be stored in data structures for all ports.
+    data->ts_state.clk_src             = ts_init_conf->clk_src;
+    data->ts_state.clk_freq            = ts_init_conf->clk_freq;
+    data->ts_state.tx_fifo_mode        = ts_init_conf->tx_fifo_mode;
+    data->ts_state.tx_fifo_ts_len      = ts_init_conf->tx_ts_len;
+    data->ts_state.tsu_op_mode         = INDY_TS_MODE_STANDALONE;
     // port specific config
-    data->ts_state.rx_ts_len = ts_init_conf->rx_ts_len;
-    data->ts_state.rx_ts_pos = ts_init_conf->rx_ts_pos;
+    data->ts_state.rx_ts_len           = ts_init_conf->rx_ts_len;
+    data->ts_state.rx_ts_pos           = ts_init_conf->rx_ts_pos;
     data->ts_state.tx_auto_followup_ts = ts_init_conf->tx_auto_followup_ts;
+    data->ts_state.tc_op_mode          = ts_init_conf->tc_op_mode;
+
+    if (ts_init_conf->tc_op_mode == MEPA_TS_TC_OP_MODE_B) {
+        T_E(MEPA_TRACE_GRP_TS, "tc mode B not supported on Lan-8814");
+    }
 
     if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
 		val = val | INDY_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
@@ -295,7 +301,7 @@ static mepa_rc indy_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
     ts_init_conf->tx_fifo_spi_conf  = data->ts_state.tx_spi_en;
     ts_init_conf->tx_ts_len         = data->ts_state.tx_fifo_ts_len;
     ts_init_conf->auto_clear_ls     = FALSE;
-    ts_init_conf->tc_op_mode        = MEPA_TS_TC_OP_MODE_C; //Mode A not yet supported.
+    ts_init_conf->tc_op_mode        = data->ts_state.tc_op_mode;
     ts_init_conf->dly_req_recv_10byte_ts = FALSE;
     ts_init_conf->tx_auto_followup_ts = data->ts_state.tx_auto_followup_ts;
     MEPA_EXIT(dev);
@@ -1806,7 +1812,11 @@ static mepa_rc indy_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         EP_WRM(dev, INDY_PTP_RX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_RX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
         // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
-        cf_config = cf_config | INDY_PTP_RX_PTP_CF_METHOD | INDY_PTP_RX_PTP_MAX_CF_DIS;
+        // 0 : Method A - ingress timestamp in reserved bytes.
+        if (data->ts_state.tc_op_mode == MEPA_TS_TC_OP_MODE_C) {
+            cf_config |= INDY_PTP_RX_PTP_CF_METHOD;
+        }
+        cf_config = cf_config | INDY_PTP_RX_PTP_MAX_CF_DIS;
         EP_WRM(dev, INDY_PTP_RX_CF_CFG, cf_config, INDY_DEF_MASK);
         ts_config = ts_config | INDY_PTP_RX_PTP_ALT_MASTER_EN;
         ts_config = ts_config | INDY_PTP_RX_PTP_UDP_CHKSUM_DIS;
@@ -1903,7 +1913,11 @@ static mepa_rc indy_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clock_
         EP_WRM(dev, INDY_PTP_TX_TIMESTAMP_EN, ts_insert, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_TX_CF_MOD_EN, cf_update, INDY_DEF_MASK);
         // 1 : Method B - CF_SUB_ADD_64 - ingress time subtracted from correction field
-        cf_config = cf_config | INDY_PTP_TX_PTP_CF_METHOD | INDY_PTP_TX_PTP_MAX_CF_DIS;
+        // 0 : Method A - subtract ingress timestamp in reserved bytes.
+        if (data->ts_state.tc_op_mode == MEPA_TS_TC_OP_MODE_C) {
+            cf_config |= INDY_PTP_TX_PTP_CF_METHOD;
+        }
+        cf_config = cf_config | INDY_PTP_TX_PTP_MAX_CF_DIS;
         EP_WRM(dev, INDY_PTP_TX_CF_CFG, cf_config, INDY_DEF_MASK);
         ts_config = ts_config | INDY_PTP_TX_PTP_ALT_MASTER_EN;
         ts_config = ts_config | INDY_PTP_TX_PTP_UDP_CHKSUM_DIS;

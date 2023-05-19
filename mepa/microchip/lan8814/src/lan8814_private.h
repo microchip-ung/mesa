@@ -132,6 +132,7 @@ typedef struct {
     mepa_ts_pps_conf_t            pps;
     mepa_bool_t                   tx_auto_followup_ts;
     mepa_bool_t                   ts_init_done;
+    mepa_ts_tc_op_mode_t          tc_op_mode;           // tc mode for correction field update
 } indy_ts_data_t;
 
 typedef struct {
