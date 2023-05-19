@@ -138,27 +138,42 @@
 #define VTSS_FEATURE_PORT_CNT_BRIDGE              /**< Bridge counters */
 #define VTSS_FEATURE_PORT_CONF_BULK               /**< Bulk port configuration support for fast configuration */
 #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
+#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
+#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
+#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
+#define VTSS_FEATURE_PACKET_PIPELINE_PT           /**< Packet Tx supports injection at specific chip pipeline points */
 #define VTSS_FEATURE_QOS                          /**< QoS */
-#define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
-#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
-#define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
-#define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
-#define VTSS_FEATURE_QCL_MAP_ACTION               /**< QoS: QoS Control Lists has ingress map action */
 #define VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL    /**< QoS: Port Policer has Drop Precedence Bypas Level support */
 #define VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2  /**< QoS: Port Policer has Traffic_Type Mask version 2 support */
 #define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT       /**< QoS: Scheduler supports variable number of DWRR inputs */
 #define VTSS_FEATURE_QOS_COSID_CLASSIFICATION     /**< QoS: Has COSID classification per port */
 #define VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT        /**< Qos: Egress shapers have rate type support - line or date rate */
 #define VTSS_FEATURE_QOS_EGRESS_SHAPER_FRAME      /**< Qos: Egress shapers have frame rate type support */
-//WRED is not supported on Fireant #define VTSS_FEATURE_QOS_WRED_V3                  /**< QoS: WRED global - per queue (0..7), per dpl (1..3), per group (0..2) */
-#define VTSS_FEATURE_QOS_INGRESS_MAP              /**< QoS: Has Ingress Map Table */
-#define VTSS_FEATURE_QOS_EGRESS_MAP               /**< QoS: Has Egress Map Table */
-#define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS          /**< QoS: Has leak lists for scheduler elements */
-#define VTSS_FEATURE_QOS_POLICER_DLB             /**< DLB policers */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB /**< QoS: Egress Queue Shapers has CRedit Based shaper support */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER          /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER         /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH /**< QoS: Queue has cut-through support */
+#define VTSS_FEATURE_QOS_FRAME_PREEMPTION         /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
+#define VTSS_FEATURE_QOS_POLICER_DLB              /**< DLB policers */
+#define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS          /**< QoS: Has leak lists for scheduler elements */
+#define VTSS_FEATURE_TIMESTAMP                    /**< Packet timestamp feature (for PTP) */
+#define VTSS_FEATURE_TIMESTAMP_ONE_STEP           /**< ONESTEP timestamp hardware support */
+#define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP       /**< Ingress and egress latency compensation hardware support */
+#define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
+#define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
+#define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
+#define VTSS_FEATURE_CORE_CLOCK                   /**< Core Clock LC-PLL */
+
+#if !VTSS_OPT_LIGHT
+#define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
+#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
+#define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
+#define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
+#define VTSS_FEATURE_QCL_MAP_ACTION               /**< QoS: QoS Control Lists has ingress map action */
+//WRED is not supported on Fireant #define VTSS_FEATURE_QOS_WRED_V3                  /**< QoS: WRED global - per queue (0..7), per dpl (1..3), per group (0..2) */
+#define VTSS_FEATURE_QOS_INGRESS_MAP              /**< QoS: Has Ingress Map Table */
+#define VTSS_FEATURE_QOS_EGRESS_MAP               /**< QoS: Has Egress Map Table */
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 // Unused VTSS_FEATURE_QOS_ defines (they exist for backwards compatibility):
 #define VTSS_FEATURE_QCL_V2                       /**< QoS: QoS Control Lists, V2 features */
@@ -179,16 +194,12 @@
 #define VTSS_FEATURE_QOS_DSCP_CLASS_DP_AWARE      /**< QoS: DSCP classification is DP aware */
 #define VTSS_FEATURE_QOS_DSCP_REMARK              /**< QoS: Has DSCP remarking */
 #define VTSS_FEATURE_QOS_DSCP_REMARK_V2           /**< QoS: 2. version of DSCP remarking */
-#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS     /**< QoS: Has Egress Queue Shapers */
-#define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_QOS_OT                       /**< Operational Technology traffic handling */
 // #define VTSS_FEATURE_PACKET_TX                   /**< CPU Tx frame */
 // #define VTSS_FEATURE_PACKET_RX                   /**< CPU Rx frame */
 // #define VTSS_FEATURE_PACKET_GROUPING             /**< Extraction and injection occurs through extraction and injection groups rather than queues. */
 // #define VTSS_FEATURE_PACKET_PORT_REG             /**< Packet registration per port */
-#define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
 #define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
-#define VTSS_FEATURE_PACKET_PIPELINE_PT           /**< Packet Tx supports injection at specific chip pipeline points */
-#define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
 #define VTSS_FEATURE_VLAN_PORT_V2                 /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG                  /**< VLAN tagging per (VID, port) */
@@ -212,12 +223,6 @@
 #define VTSS_FEATURE_ACL_EXT_DIP                 /**< ACL extended IPv6 rule with DIP matching */
 #define VTSS_FEATURE_ACL_EXT_MAC                 /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 #define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
-#define VTSS_FEATURE_TIMESTAMP                   /**< Packet timestamp feature (for PTP) */
-#define VTSS_FEATURE_TIMESTAMP_ONE_STEP          /**< ONESTEP timestamp hardware support */
-#define VTSS_FEATURE_TIMESTAMP_LATENCY_COMP      /**< Ingress and egress latency compensation hardware support */
-#define VTSS_FEATURE_TIMESTAMP_ORG_TIME          /**< OriginTimestamp update hardware support */
-#define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP    /**< Peer-to-peer path delay compensation hardware support */
-#define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP    /**< Path delay asymmetry compensation hardware support */
 #define VTSS_FEATURE_PTP_RS422                   /**< Support for the RS422 serial/1PPS interface */
 #define VTSS_FEATURE_DELAY_REQ_AUTO_RESP         /**< Delay_Req/Resp processing supported in hardware */
 #define VTSS_FEATURE_SYNC_ANN_AUTO_TRANSMIT      /**< Sync and Announce packet auto generation in hardware */
@@ -231,24 +236,22 @@
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS       /**< Hooks for Serdes Macro configuration */
 #define VTSS_FEATURE_AFI_SWC                      /**< AFI */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
-#define VTSS_FEATURE_CORE_CLOCK                    /**< Core Clock LC-PLL */
 #define VTSS_FEATURE_XFLOW                      /**< Ingress and egress flows */
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
 
 // VTSS_ARCH_LAN969X and VTSS_ARCH_S5I specific features
-#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
-#define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
-#define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */
+#define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS     /**< QoS: Has Egress Queue Shapers */
+#define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
 #define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
 #define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
-#define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
+#endif // !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
@@ -632,7 +635,9 @@
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_VOP_V2                    /**< Version 2 OAM implementation. Jaguar2 and forward */
+#endif
 #endif
 
 #if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)

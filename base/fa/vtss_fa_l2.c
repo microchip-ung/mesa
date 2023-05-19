@@ -105,11 +105,17 @@ static vtss_rc fa_learn_state_set(vtss_state_t *vtss_state,
     vtss_port_mask_t  pmask;
     vtss_port_no_t    port;
     BOOL              lrn[VTSS_PORTS];
+#if defined(VTSS_FEATURE_L2_MSTP)
     vtss_mstp_entry_t *mstp = &vtss_state->l2.mstp_table[0];
+#endif
 
     for (port = 0; port < vtss_state->port_count; port++) {
         // Include MSTP instance 0 state
-        lrn[port] = (member[port] && mstp->state[port] != VTSS_STP_STATE_DISCARDING);
+        lrn[port] = (member[port]
+#if defined(VTSS_FEATURE_L2_MSTP)
+                     && mstp->state[port] != VTSS_STP_STATE_DISCARDING
+#endif
+            );
     }
 
     vtss_port_mask_get(vtss_state, lrn, &pmask);
@@ -117,6 +123,7 @@ static vtss_rc fa_learn_state_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_L2_MSTP)
 static vtss_rc fa_mstp_state_set(vtss_state_t *vtss_state,
                                  const vtss_port_no_t port_no,
                                  const vtss_msti_t msti)
@@ -141,6 +148,7 @@ static vtss_rc fa_mstp_state_set(vtss_state_t *vtss_state,
     REG_WRX_PMASK(VTSS_ANA_L3_MSTP_LRN_CFG, msti, pmask);
     return vtss_cmn_mstp_state_set(vtss_state, port_no, msti);
 }
+#endif
 
 /* Wait until the MAC table operation is finsished */
 static vtss_rc fa_mac_table_idle(vtss_state_t *vtss_state)
@@ -442,7 +450,11 @@ static vtss_rc fa_mac_table_age_cmd(vtss_state_t *vtss_state,
                                     BOOL             age)
 {
     u32        port, addr = 0, addr_type = MAC_ENTRY_ADDR_TYPE_UPSID_PN;
-    vtss_vid_t fid = vtss_state->l2.vlan_table[vid].fid;
+    vtss_vid_t fid = 0;
+
+#if defined(VTSS_FEATURE_VLAN_SVL)
+    fid = vtss_state->l2.vlan_table[vid].fid;
+#endif
 
     if (pgid_age) {
         if (pgid < vtss_state->port_count) {
@@ -612,17 +624,28 @@ static vtss_rc fa_vlan_conf_set(vtss_state_t *vtss_state)
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 {
     vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
+    u32               msti = 0, fid = 0, rl_enable = 0, rl_id = 0;
 
+#if defined(VTSS_FEATURE_L2_MSTP)
+    msti = e->msti;
+#endif
+#if defined(VTSS_FEATURE_VLAN_SVL)
+    fid = (e->fid == 0 ? vid : e->fid);
+#endif
+#if defined(VTSS_FEATURE_LAYER3)
+    rl_enable = e->rl_enable;
+    rl_id = e->rl_id;
+#endif
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(e->msti) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(e->fid == 0 ? vid : e->fid) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(msti) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(fid) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(e->flags & VLAN_FLAGS_FILTER ? 1 : 0) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(e->flags & VLAN_FLAGS_FLOOD ? 0 : 1) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(e->flags & VLAN_FLAGS_LEARN ? 0 : 1) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(e->rl_enable) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(rl_enable) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_PRIVATE_ENA(e->flags & VLAN_FLAGS_ISOLATED ? 1 : 0) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MIRROR_ENA(e->flags & VLAN_FLAGS_MIRROR ? 1 : 0));
-    REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(e->rl_id));
+    REG_WR(VTSS_ANA_L3_VMID_CFG(vid), VTSS_F_ANA_L3_VMID_CFG_VMID(rl_id));
 #if defined(VTSS_FEATURE_QOS_OT)
     REG_WR(VTSS_ANA_L3_QGRP_CFG(vid),
            VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX(e->flags & VLAN_FLAGS_OT ? 1 : 0) |
@@ -751,7 +774,11 @@ static vtss_rc fa_vlan_port_conf_update(vtss_state_t *vtss_state,
             VTSS_F_REW_PORT_VLAN_CFG_PORT_VID(uvid),
             VTSS_M_REW_PORT_VLAN_CFG_PORT_VID);
 
+#if defined(VTSS_FEATURE_VCAP)
     return vtss_fa_vcap_port_update(vtss_state, port_no);
+#else
+    return VTSS_RC_OK;
+#endif
 }
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -803,6 +830,7 @@ static vtss_rc fa_vlan_counters_clear(vtss_state_t *vtss_state, vtss_vid_t vid)
 }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
+#if defined(VTSS_FEATURE_VCAP)
 static vtss_rc fa_vcl_port_conf_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_vcl_port_conf_t *conf = &vtss_state->l2.vcl_port_conf[port_no];
@@ -812,6 +840,7 @@ static vtss_rc fa_vcl_port_conf_set(vtss_state_t *vtss_state, vtss_port_no_t por
     /* Set port key */
     return vtss_fa_vcap_port_key_set(vtss_state, port_no, 2, conf->key_type, conf->dmac_dip);
 }
+#endif
 
 #if defined(VTSS_FEATURE_PSFP)
 static u32 fa_psfp_sfid(const vtss_psfp_filter_id_t id)
@@ -820,6 +849,7 @@ static u32 fa_psfp_sfid(const vtss_psfp_filter_id_t id)
 }
 #endif
 
+#if defined(VTSS_FEATURE_XFLOW)
 static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
 {
 
@@ -914,6 +944,7 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
 #endif
     return VTSS_RC_OK;
 }
+#endif
 
 #if defined(VTSS_FEATURE_XSTAT)
 static vtss_rc fa_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
@@ -974,6 +1005,7 @@ static vtss_rc fa_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counte
 }
 #endif
 
+#if defined(VTSS_EVC_STAT_CNT)
 static vtss_rc fa_evc_policer_update(vtss_state_t *vtss_state, u16 idx)
 {
     return vtss_fa_policer_conf_set(vtss_state, idx, &vtss_state->l2.pol_conf[idx]);
@@ -985,6 +1017,7 @@ static vtss_rc fa_evc_counters_update(vtss_state_t *vtss_state,
 {
     return vtss_fa_sdx_counters_update(vtss_state, stat_idx, NULL, clear);
 }
+#endif
 
 /* ================================================================= *
  *  Layer 2 - PVLAN / Isolated ports
@@ -1135,6 +1168,7 @@ static vtss_rc fa_mirror_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_IPV4_MC_SIP)
 static vtss_rc fa_ip_mc_update(vtss_state_t *vtss_state,
                                vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
@@ -1187,6 +1221,7 @@ static vtss_rc fa_ip_mc_update(vtss_state_t *vtss_state,
     }
     return vtss_vcap_add(vtss_state, obj, user, ipmc->dst.id, ipmc->id_next, &data, 0);
 }
+#endif
 
 static vtss_rc fa_mirror_port_set(vtss_state_t *vtss_state)
 {
@@ -2822,6 +2857,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
 }
 #endif
 
+#if defined(VTSS_FEATURE_VCAP)
 static vtss_rc fa_debug_vxlat(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr,
                               const vtss_debug_info_t *const info)
@@ -2840,6 +2876,7 @@ static vtss_rc fa_debug_vxlat(vtss_state_t *vtss_state,
 #endif
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc fa_debug_aggr(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
@@ -2864,7 +2901,7 @@ static vtss_rc fa_debug_stp(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t *const info)
 {
-    u32              msti;
+    u32              msti, cnt = 1;
     vtss_port_mask_t pmask;
     char             buf[16];
 
@@ -2877,8 +2914,11 @@ static vtss_rc fa_debug_stp(vtss_state_t *vtss_state,
     fa_debug_pmask(vtss_state, pr, "LRN_COPY_CFG", &pmask);
     pr("\n");
 
+#if defined(VTSS_FEATURE_L2_MSTP)
+    cnt = VTSS_MSTIS;
+#endif
     fa_debug_pmask_header(vtss_state, pr, NULL);
-    for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
+    for (msti = 0; msti < cnt; msti++) {
         REG_RDX_PMASK(VTSS_ANA_L3_MSTP_LRN_CFG, msti, &pmask);
         VTSS_SPRINTF(buf, "MSTP_LRN_CFG_%u", msti);
         fa_debug_pmask(vtss_state, pr, buf, &pmask);
@@ -3400,7 +3440,9 @@ vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN,      fa_debug_vlan,      vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN,     fa_debug_pvlan,     vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE, fa_debug_mac_table, vtss_state, pr, info));
+#if defined(VTSS_FEATURE_VCAP)
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT,     fa_debug_vxlat,     vtss_state, pr, info));
+#endif
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR,      fa_debug_aggr,      vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP,       fa_debug_stp,       vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR,    fa_debug_mirror,    vtss_state, pr, info));
@@ -3419,7 +3461,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     vtss_l2_state_t       *state = &vtss_state->l2;
     vtss_vlan_port_conf_t *conf = &state->vlan_port_conf[0];
     vtss_port_no_t        port_no;
-    u32                   port, msti, i, j, value, frames;
+    u32                   port, i, j, value, frames;
     BOOL                  vlan_counters = vtss_vlan_counters_enabled(vtss_state);
     BOOL                  psfp_counters = FALSE;
 
@@ -3456,10 +3498,12 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WRM_CLR(VTSS_ANA_CL_FILTER_CTRL(port), VTSS_M_ANA_CL_FILTER_CTRL_FILTER_SMAC_MC_DIS);
     }
 
+#if defined(VTSS_FEATURE_L2_MSTP)
     /* Update MSTP table */
-    for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
-        VTSS_RC(fa_mstp_state_set(vtss_state, 0, msti));
+    for (i = VTSS_MSTI_START; i < VTSS_MSTI_END; i++) {
+        VTSS_RC(fa_mstp_state_set(vtss_state, 0, i));
     }
+#endif
 
     /* Set MAC age time to default value */
     VTSS_RC(fa_mac_table_age_time_set(vtss_state));
@@ -3577,6 +3621,7 @@ static vtss_rc fa_l2_init(vtss_state_t *vtss_state)
 
 static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_EVC_STAT_CNT)
     vtss_l2_state_t *state = &vtss_state->l2;
     vtss_stat_idx_t stat_idx;
     u32             i, idx;
@@ -3657,6 +3702,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
         state->rb_poll_idx = (idx < 288 ? (idx + 1) : 0);
     }
 #endif
+#endif
     return VTSS_RC_OK;
 }
 
@@ -3673,16 +3719,21 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mac_table_age_time_set      = fa_mac_table_age_time_set;
         state->mac_table_age               = fa_mac_table_age;
         state->mac_table_status_get        = fa_mac_table_status_get;
+
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
         state->mac_index_update            = fa_mac_index_update;
         state->mac_index_cnt               = RT_MAC_INDEX_CNT;
 #endif
         state->learn_port_mode_set         = fa_learn_port_mode_set;
         state->learn_state_set             = fa_learn_state_set;
+#if defined(VTSS_FEATURE_L2_MSTP)
         state->mstp_state_set              = fa_mstp_state_set;
         state->mstp_vlan_msti_set          = vtss_cmn_vlan_members_set;
+#endif
+#if defined(VTSS_FEATURE_L2_ERPS)
         state->erps_vlan_member_set        = vtss_cmn_erps_vlan_member_set;
         state->erps_port_state_set         = vtss_cmn_erps_port_state_set;
+#endif
         state->pgid_table_write            = fa_pgid_table_write;
         state->src_table_write             = fa_src_table_write;
         state->aggr_table_write            = fa_aggr_table_write;
@@ -3693,15 +3744,16 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_port_conf_update       = fa_vlan_port_conf_update;
         state->vlan_port_members_set       = vtss_cmn_vlan_members_set;
         state->vlan_mask_update            = fa_vlan_mask_update;
-        state->vlan_tx_tag_set             = vtss_cmn_vlan_tx_tag_set;
         state->isolated_vlan_set           = vtss_cmn_vlan_members_set;
         state->isolated_port_members_set   = fa_isolated_port_members_set;
         state->flood_conf_set              = fa_flood_conf_set;
+#if defined(VTSS_FEATURE_IPV4_MC_SIP)
         state->ipv4_mc_add                 = vtss_cmn_ipv4_mc_add;
         state->ipv4_mc_del                 = vtss_cmn_ipv4_mc_del;
         state->ipv6_mc_add                 = vtss_cmn_ipv6_mc_add;
         state->ipv6_mc_del                 = vtss_cmn_ipv6_mc_del;
         state->ip_mc_update                = fa_ip_mc_update;
+#endif
         state->mirror_port_set             = fa_mirror_port_set;
         state->mirror_ingress_set          = fa_mirror_ingress_set;
         state->mirror_egress_set           = fa_mirror_egress_set;
@@ -3716,6 +3768,8 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->vlan_counters_clear         = fa_vlan_counters_clear;
         }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
+#if defined(VTSS_FEATURE_VCAP)
+        state->vlan_tx_tag_set          = vtss_cmn_vlan_tx_tag_set;
         state->vcl_port_conf_set        = fa_vcl_port_conf_set;
         state->vce_add                  = vtss_cmn_vce_add;
         state->vce_del                  = vtss_cmn_vce_del;
@@ -3724,7 +3778,10 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->vlan_trans_group_get     = vtss_cmn_vlan_trans_group_get;
         state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
         state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
+#endif
+#if defined(VTSS_FEATURE_XFLOW)
         state->iflow_conf_set = fa_iflow_conf_set;
+#endif
 #if defined(VTSS_FEATURE_FRER)
         if (vtss_state->vtss_features[FEATURE_FRER]) {
             state->cstream_conf_set = fa_cstream_conf_set;
@@ -3745,18 +3802,28 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->policer_status_get = fa_policer_status_get;
         }
 #endif
+#if defined(VTSS_FEATURE_XSTAT)
         state->icnt_get = fa_icnt_get;
         state->ecnt_get = fa_ecnt_get;
+#endif
         state->ac_count = 16;
 // FA-FIXME        state->vsi_info.max_count = VTSS_VSI_CNT;
+#if defined(VTSS_EVC_STAT_CNT)
         state->policer_update = fa_evc_policer_update;
         state->counters_update = fa_evc_counters_update;
         state->isdx_update = vtss_fa_isdx_update;
+#endif
+#if defined(VTSS_SDX_CNT)
         state->sdx_info.max_count = RT_SDX_CNT;
+#endif
+#if defined(VTSS_EVC_STAT_CNT)
         state->pol_table.hdr.max_count = RT_EVC_POL_CNT;
         state->istat_table.hdr.max_count = RT_EVC_STAT_CNT;
         state->estat_table.hdr.max_count = RT_EVC_STAT_CNT;
-        state->mac_table_max = RT_MAC_ADDRS;
+#endif
+        if (RT_MAC_ADDRS < state->mac_table_max) {
+            state->mac_table_max = RT_MAC_ADDRS;
+        }
 #if defined(VTSS_FEATURE_REDBOX)
         state->rb_cap_get = fa_rb_cap_get;
         state->rb_conf_set = fa_rb_conf_set;

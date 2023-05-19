@@ -276,6 +276,8 @@ API_TARGET(LIB lan966x_lm            CHIP 966X          DEFS -DVTSS_OPT_LIGHT=1 
 API_TARGET(LIB lan966x_ad            CHIP 966X          DEFS -DVTSS_OPT_FPGA=2)
 API_TARGET(LIB lan969x_sr            CHIP 969X          DEFS -DVTSS_OPT_FPGA=1)
 API_TARGET(LIB lan969x               CHIP 969X          DEFS)
+API_TARGET(LIB lan969x_lm            CHIP 969X          DEFS -DVTSS_OPT_PORT_COUNT=30 -DVTSS_OPT_LIGHT=1)
+API_TARGET(LIB lan969x_sr_lm         CHIP 969X          DEFS -DVTSS_OPT_PORT_COUNT=30 -DVTSS_OPT_FPGA=1 -DVTSS_OPT_LIGHT=1)
 
 option(BUILD_MESA_CAPABILITY_DUMPER "Build all the mesa capability dumper function" OFF)
 mark_as_advanced(BUILD_MESA_CAPABILITY_DUMPER)

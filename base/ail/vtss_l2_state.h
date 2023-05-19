@@ -20,8 +20,8 @@ typedef struct {
 typedef struct {
     BOOL member[VTSS_PORT_ARRAY_SIZE]; /* Egress ports */
     BOOL resv;                         /* Fixed reservation */
-    u32  references;                   /* Number references to entry */
     BOOL cpu_copy;                     /* CPU copy */
+    u32  references;                   /* Number references to entry */
     vtss_packet_rx_queue_t cpu_queue;  /* CPU queue */
 } vtss_pgid_entry_t;
 
@@ -40,7 +40,9 @@ typedef struct {
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
+#if VTSS_OPT_LIGHT
+#define VTSS_PGID_FA 128
+#elif defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_PGID_FA (512 + 30)
 #else
 #define VTSS_PGID_FA (2048 + 65)

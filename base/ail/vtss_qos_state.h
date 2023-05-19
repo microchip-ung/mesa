@@ -87,21 +87,25 @@ typedef struct {
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_JR_SDX_CNT  511
-#define VTSS_EVC_POL_CNT  512  /* EVC policers */
-#define VTSS_EVC_STAT_CNT 1024 /* EVC statistics */
+#define VTSS_JR_POL_CNT  512  /* EVC policers */
+#define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
 #elif defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_JR_SDX_CNT   31
-#define VTSS_EVC_POL_CNT  32    /* EVC policers */
-#define VTSS_EVC_STAT_CNT 32    /* EVC statistics */
+#define VTSS_JR_SDX_CNT  31
+#define VTSS_JR_POL_CNT  32    /* EVC policers */
+#define VTSS_JR_STAT_CNT 32    /* EVC statistics */
 #else
 #define VTSS_JR_SDX_CNT  4095
-#define VTSS_EVC_POL_CNT  4096 /* EVC policers */
-#define VTSS_EVC_STAT_CNT 8192 /* EVC statistics */
+#define VTSS_JR_POL_CNT  4096 /* EVC policers */
+#define VTSS_JR_STAT_CNT 8192 /* EVC statistics */
 #endif
 #if defined(VTSS_FEATURE_VOP)
 #define VTSS_SDX_CNT VTSS_JR_SDX_CNT
 #endif
-#define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_EVC_POL_CNT + (port * 8) + queue)
+#define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8) + queue)
+#if !VTSS_OPT_LIGHT
+#define VTSS_EVC_POL_CNT  VTSS_JR_POL_CNT
+#define VTSS_EVC_STAT_CNT VTSS_JR_STAT_CNT
+#endif
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
@@ -306,9 +310,15 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_HSCH_LAYERS                        4 /**< Number of layers (L0, L1, L2 and QSCH) */
+#if defined(VTSS_ARCH_LAN969X) && VTSS_OPT_LIGHT
+#define VTSS_HSCH_L0_SES                     1120 /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES                       32 /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES                       35 /**< Number of scheduler elements in layer 2 */
+#else
 #define VTSS_HSCH_L0_SES                     5040 /**< Number of scheduler elements in layer 0 */
 #define VTSS_HSCH_L1_SES                       64 /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES                       70 /**< Number of scheduler elements in layer 2 */
+#endif
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
 #endif /* defined(VTSS_ARCH_SERVAL_T) */
 

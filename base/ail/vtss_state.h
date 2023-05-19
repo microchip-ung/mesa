@@ -362,6 +362,10 @@ typedef struct vtss_state_s {
 #endif
 } vtss_state_t;
 
+#if 0
+char (*_check_vtss_state)[sizeof(vtss_state_t)] = 1;
+#endif
+
 /* Check instance */
 vtss_rc vtss_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state);
 vtss_rc vtss_inst_check_get(const vtss_inst_t inst, vtss_state_t **vtss_state);

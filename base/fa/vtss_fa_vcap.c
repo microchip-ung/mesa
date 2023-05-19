@@ -6,7 +6,7 @@
 
 #include "vtss_fa_cil.h"
 
-#if defined(VTSS_ARCH_FA)
+#if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_VCAP)
 
 /* TG values */
 #define FA_VCAP_TG_NONE 0x00

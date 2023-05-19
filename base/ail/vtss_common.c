@@ -191,6 +191,32 @@ void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_count
     counter->prev = new;
 }
 
+void vtss_cmn_counter_dual_cmd(u32 emac, u32 pmac, vtss_dual_counter_t *counter, vtss_counter_cmd_t cmd)
+{
+    u64 add = 0;
+
+    switch (cmd) {
+    case VTSS_COUNTER_CMD_CLEAR:
+        /* Clear counter */
+        counter->value = 0;
+        break;
+    case VTSS_COUNTER_CMD_UPDATE:
+        /* Accumulate EMAC/PMAC counter */
+        add += emac;
+        add += (emac < counter->emac ? (1ULL<<32) : 0);
+        add -= counter->emac;
+        add += pmac;
+        add += (pmac < counter->pmac ? (1ULL<<32) : 0);
+        add -= counter->pmac;
+        counter->value += add;
+        break;
+    default:
+        break;
+    }
+    counter->emac = emac;
+    counter->pmac = pmac;
+}
+
 /* Rebase 64-bit counter, i.e. discard changes since last update, based on 40-bit chip counter */
 void vtss_cmn_counter_40_rebase(u32 new_lsb, u32 new_msb, vtss_chip_counter_t *counter)
 {

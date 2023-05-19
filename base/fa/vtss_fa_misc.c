@@ -393,6 +393,7 @@ static vtss_rc fa_dev_all_event_enable(vtss_state_t *vtss_state,
 }
 
 
+#ifdef VTSS_FEATURE_IRQ_CONTROL
 static vtss_rc fa_intr_cfg(vtss_state_t *vtss_state,
                            const u32  intr_mask, const BOOL polarity, const BOOL enable)
 {
@@ -405,7 +406,7 @@ static vtss_rc fa_intr_pol_negation(vtss_state_t *vtss_state)
     VTSS_E("Not implemented - use misc_irq_cfg");
     return VTSS_RC_OK;
 }
-
+#endif
 
 #ifdef VTSS_FEATURE_IRQ_CONTROL
 
@@ -1205,6 +1206,7 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
         pr("RT_CHIP_PORT_VD2                    :%d\n", RT_CHIP_PORT_VD2);
         pr("RT_CHIP_PORTS_ALL                   :%d\n", RT_CHIP_PORTS_ALL);
         pr("RT_PORT_ARRAY_SIZE                  :%d\n", RT_PORT_ARRAY_SIZE);
+#if defined(VTSS_FEATURE_QOS_TAS)
         pr("RT_TAS_NUMBER_OF_LISTS              :%d\n", RT_TAS_NUMBER_OF_LISTS);
         pr("RT_TAS_NUMBER_OF_PROFILES           :%d\n", RT_TAS_NUMBER_OF_PROFILES);
         pr("RT_TAS_NUMBER_OF_ENTRIES            :%d\n", RT_TAS_NUMBER_OF_ENTRIES);
@@ -1212,6 +1214,7 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
         pr("RT_TAS_NUMBER_OF_BLOCKS_PER_ROW     :%d\n", RT_TAS_NUMBER_OF_BLOCKS_PER_ROW);
         pr("RT_TAS_NUMBER_OF_ENTRIES_PER_ROW    :%d\n", RT_TAS_NUMBER_OF_ENTRIES_PER_ROW);
         pr("RT_TAS_NUMBER_OF_ROWS               :%d\n", RT_TAS_NUMBER_OF_ROWS);
+#endif
         pr("RT_EVC_POL_CNT                      :%d\n", RT_EVC_POL_CNT);
         pr("RT_EVC_STAT_CNT                     :%d\n", RT_EVC_STAT_CNT);
         pr("RT_SDX_CNT                          :%d\n", RT_SDX_CNT);
@@ -1252,15 +1255,21 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
         pr("RT_ES2_CNT_SIZE                     :%d\n", RT_ES2_CNT_SIZE);
         pr("RT_ES0_CNT                          :%d\n", RT_ES0_CNT);
         pr("RT_ES2_CNT                          :%d\n", RT_ES2_CNT);
+#if defined(VTSS_FEATURE_VCAP)
         pr("RT_VCAP_SUPER_BLK_CNT               :%d\n", RT_VCAP_SUPER_BLK_CNT);
         pr("RT_VCAP_SUPER_RULE_CNT              :%d\n", RT_VCAP_SUPER_RULE_CNT);
-        pr("RT_QOS_EGRESS_MAP_IDS               :%d\n", RT_QOS_EGRESS_MAP_IDS);
-        pr("RT_QOS_EGRESS_MAP_ID_END            :%d\n", RT_QOS_EGRESS_MAP_ID_END);
+#endif
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
         pr("RT_QOS_INGRESS_MAP_IDS              :%d\n", RT_QOS_INGRESS_MAP_IDS);
         pr("RT_QOS_INGRESS_MAP_ID_END           :%d\n", RT_QOS_INGRESS_MAP_ID_END);
-        pr("RT_QOS_EGRESS_MAP_ROWS              :%d\n", RT_QOS_EGRESS_MAP_ROWS);
         pr("RT_QOS_INGRESS_MAP_ROWS             :%d\n", RT_QOS_INGRESS_MAP_ROWS);
         pr("RT_QOS_INGRESS_MAP_IX_RESERVED      :%d\n", RT_QOS_INGRESS_MAP_IX_RESERVED);
+#endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+        pr("RT_QOS_EGRESS_MAP_IDS               :%d\n", RT_QOS_EGRESS_MAP_IDS);
+        pr("RT_QOS_EGRESS_MAP_ID_END            :%d\n", RT_QOS_EGRESS_MAP_ID_END);
+        pr("RT_QOS_EGRESS_MAP_ROWS              :%d\n", RT_QOS_EGRESS_MAP_ROWS);
+#endif
     }
     return VTSS_RC_OK;
 }
@@ -1300,9 +1309,9 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->ptp_event_enable = fa_ptp_event_enable;
         state->dev_all_event_poll = fa_dev_all_event_poll;
         state->dev_all_event_enable = fa_dev_all_event_enable;
+#ifdef VTSS_FEATURE_IRQ_CONTROL
         state->intr_cfg = fa_intr_cfg;
         state->intr_pol_negation = fa_intr_pol_negation;
-#ifdef VTSS_FEATURE_IRQ_CONTROL
         /* Only external destinations (overlaid GPIOs) are configured here */
         /* Interrupt to the internal CPU is configured in the linux kernel */
         state->irq_cfg = fa_misc_irq_cfg;

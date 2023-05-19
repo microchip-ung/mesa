@@ -1319,17 +1319,18 @@ static vtss_rc lan966x_port_status_get(vtss_state_t *vtss_state,
 static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t *vtss_state,
                                             u32 *addr, vtss_dual_counter_t *counter, BOOL clear)
 {
-    u32 base = *addr;
+    u32 emac, pmac, base = *addr;
 
     // E-MAC counters
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->emac, clear));
+    REG_RD(SYS_CNT(*addr), &emac);
     // P-MAC counters, offset depends on Rx/Tx
     *addr = (base + (base < 0x80 ? 0x30 : base < 0x84 ? 0x23 : 0x21));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, addr, &counter->pmac, clear));
+    REG_RD(SYS_CNT(*addr), &pmac);
     *addr = (base + 1); // Next E-MAC counter address
+    vtss_cmn_counter_dual_cmd(emac, pmac, counter, clear ? VTSS_COUNTER_CMD_CLEAR : VTSS_COUNTER_CMD_UPDATE);
     return VTSS_RC_OK;
 }
-#define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
+#define CNT_SUM(cnt) (cnt.value)
 #else
 static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t *vtss_state,
                                             u32 *addr, vtss_chip_counter_t *counter, BOOL clear)
@@ -1735,26 +1736,27 @@ static void lan966x_debug_cnt(const vtss_debug_printf_t pr, const char *col1, co
     u32  i;
     char buf1[32], buf2[32];
     const char *name;
-    vtss_chip_counter_t *c;
+    vtss_chip_counter_t ca, cb;
 
     for (i = 0; i < 2; i++) {
         if (i) {
             name = "pmac";
-            c = &c1->pmac;
+            ca.prev = c1->pmac;
         } else {
             name = "emac";
-            c = &c1->emac;
+            ca.prev = c1->emac;
         }
         VTSS_SPRINTF(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_lan966x_debug_cnt(pr, buf1, NULL, c, NULL);
+            vtss_lan966x_debug_cnt(pr, buf1, NULL, &ca, NULL);
         } else {
             if (VTSS_STRLEN(col2) != 0) {
                 VTSS_SPRINTF(buf2, "%s_%s", name, col2);
             } else {
                 VTSS_STRCPY(buf2, "");
             }
-            vtss_lan966x_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
+            cb.prev = (i ? c2->pmac : c2->emac);
+            vtss_lan966x_debug_cnt(pr, buf1, buf2, &ca, &cb);
         }
     }
 }

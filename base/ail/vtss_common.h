@@ -28,6 +28,7 @@ void vtss_cmn_counter_16_update(u16 value, vtss_chip_counter_t *counter, BOOL cl
 void vtss_cmn_counter_32_rebase(u32 new_base_value, vtss_chip_counter_t *counter);
 void vtss_cmn_counter_32_update(u32 value, vtss_chip_counter_t *counter, BOOL clear);
 void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd);
+void vtss_cmn_counter_dual_cmd(u32 emac, u32 pmac, vtss_dual_counter_t *counter, vtss_counter_cmd_t cmd);
 void vtss_cmn_counter_40_rebase(u32 new_lsb, u32 new_msb, vtss_chip_counter_t *counter);
 void vtss_cmn_counter_40_update(u32 lsb, u32 msb, vtss_chip_counter_t *counter, BOOL clear);
 const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode);

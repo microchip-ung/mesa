@@ -3782,6 +3782,9 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 #define REG_CNT_10G_ONE(name, i, cnt, cmd)       \
 {                                                \
 }
+#define REG_CNT_10G(name, i, cnt, cmd)           \
+{                                                \
+}
 #else
 #define REG_CNT_10G_ONE(name, i, cnt, cmd)       \
 {                                                \
@@ -3789,7 +3792,15 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
     REG_RD(VTSS_DEV10G_##name##_CNT(i), &value); \
     vtss_cmn_counter_32_cmd(value, cnt, cmd);    \
 }
+#define REG_CNT_10G(name, i, cnt, cmd)               \
+{                                                    \
+    u32 emac, pmac;                                  \
+    REG_RD(VTSS_DEV10G_##name##_CNT(i), &emac);      \
+    REG_RD(VTSS_DEV10G_PMAC_##name##_CNT(i), &pmac); \
+    vtss_cmn_counter_dual_cmd(emac, pmac, cnt, cmd); \
+}
 #endif
+
 #define REG_CNT_ANA_AC(name, cnt, cmd)               \
 {                                                    \
     u32 value;                                       \
@@ -3799,17 +3810,13 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 
 #define REG_CNT_1G(name, i, cnt, cmd)                \
 {                                                    \
-    REG_CNT_1G_ONE(name, i, cnt.emac, cmd);          \
-    REG_CNT_1G_ONE(PMAC_##name, i, cnt.pmac, cmd);   \
+    u32 emac, pmac;                                  \
+    REG_RD(VTSS_ASM_##name##_CNT(i), &emac);         \
+    REG_RD(VTSS_ASM_PMAC_##name##_CNT(i), &pmac);    \
+    vtss_cmn_counter_dual_cmd(emac, pmac, cnt, cmd); \
 }
 
-#define REG_CNT_10G(name, i, cnt, cmd)               \
-{                                                    \
-    REG_CNT_10G_ONE(name, i, cnt.emac, cmd);         \
-    REG_CNT_10G_ONE(PMAC_##name, i, cnt.pmac, cmd);  \
-}
-
-#define CNT_SUM(cnt) (cnt.emac.value + cnt.pmac.value)
+#define CNT_SUM(cnt) (cnt.value)
 
 static vtss_rc vtss_fa_qsys_counter_update(vtss_state_t *vtss_state,
                                            u32 *addr, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd)
@@ -3836,11 +3843,13 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
                                      vtss_port_counters_t *const counters,
                                      vtss_counter_cmd_t          cmd)
 {
-    u32                                i, addr, port;
+    u32                                i, addr, port, val;
     vtss_port_counter_t                rx_errors;
     vtss_port_rmon_counters_t          *rmon;
     vtss_port_if_group_counters_t      *if_group;
+#if defined(VTSS_FEATURE_PORT_CNT_ETHER_LIKE)
     vtss_port_ethernet_like_counters_t *elike;
+#endif
     vtss_port_proprietary_counters_t   *prop;
 
     if (port_no >= vtss_state->port_count) {
@@ -3864,7 +3873,8 @@ static vtss_rc fa_port_counters_chip(vtss_state_t                *vtss_state,
         REG_CNT_1G(RX_FRAGMENTS, i, &c->rx_fragments, cmd);
         REG_CNT_1G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, cmd);
         REG_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, cmd);
-        REG_CNT_1G_ONE(RX_OVERSIZE, i, &c->rx_oversize.emac, cmd);
+        REG_RD(VTSS_ASM_RX_OVERSIZE_CNT(i), &val);
+        vtss_cmn_counter_dual_cmd(val, 0, &c->rx_oversize, cmd);
         REG_CNT_1G(RX_JABBERS, i, &c->rx_jabbers, cmd);
         REG_CNT_1G(RX_SIZE64, i, &c->rx_size64, cmd);
         REG_CNT_1G(RX_SIZE65TO127, i, &c->rx_size65_127, cmd);
@@ -4665,19 +4675,19 @@ static void fa_debug_dual_cnt(const vtss_debug_printf_t pr, const char *col1, co
     u32  i;
     char buf1[32], buf2[32];
     const char *name;
-    vtss_chip_counter_t *c;
+    vtss_chip_counter_t ca, cb;
 
     for (i = 0; i < 2; i++) {
         if (i) {
             name = "pmac";
-            c = &c1->pmac;
+            ca.value = c1->pmac;
         } else {
             name = "emac";
-            c = &c1->emac;
+            ca.value = c1->emac;
         }
         VTSS_SPRINTF(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_fa_debug_cnt(pr, buf1, NULL, c, NULL);
+            vtss_fa_debug_cnt(pr, buf1, NULL, &ca, NULL);
         } else {
             if (mixed) {
                 VTSS_SPRINTF(buf2, "%s", col2);
@@ -4687,7 +4697,8 @@ static void fa_debug_dual_cnt(const vtss_debug_printf_t pr, const char *col1, co
             } else {
                 VTSS_STRCPY(buf2, "");
             }
-            vtss_fa_debug_cnt(pr, buf1, buf2, c, i ? &c2->pmac : &c2->emac);
+            cb.value = (i ? c2->pmac : c2->emac);
+            vtss_fa_debug_cnt(pr, buf1, buf2, &ca, &cb);
         }
     }
 }
@@ -4701,9 +4712,9 @@ static void fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const c
 static void fa_debug_mix_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
                              vtss_dual_counter_t *c1, vtss_chip_counter_t *c2)
 {
-    vtss_dual_counter_t c;
+    vtss_dual_counter_t c = {};
 
-    c.emac = *c2;
+    c.emac = c2->value;
     fa_debug_dual_cnt(pr, col1, col2, c1, &c, TRUE);
 }
 
@@ -4719,8 +4730,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
     VTSS_RC(fa_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
     if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
-        vtss_fa_debug_cnt(pr, "emac_ok_bytes", "out_bytes", &cnt.rx_ok_bytes.emac, &cnt.tx_out_bytes);
-        vtss_fa_debug_cnt(pr, "pmac_ok_bytes", NULL, &cnt.rx_ok_bytes.pmac, NULL);
+        fa_debug_mix_cnt(pr, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes, &cnt.tx_out_bytes);
         fa_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
         fa_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
         fa_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);

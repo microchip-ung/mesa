@@ -895,6 +895,7 @@ vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag)
 {
     u32 key;
@@ -948,6 +949,7 @@ static vtss_rc fa_qos_ingress_map_port_update(vtss_state_t         *vtss_state,
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc fa_qos_dwrr_conf_set(vtss_state_t *vtss_state, u32 se, u32 layer, BOOL dwrr_enable, u32 dwrr_cnt, vtss_pct_t *dwrr_pct)
 {
@@ -1612,8 +1614,10 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
         }
     }
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     // Port configuration for ingress mapping lookups (lookup 0 only for now)
     VTSS_RC(fa_qos_ingress_map_port_update(vtss_state, port_no, conf->ingress_map));
+#endif
 
     // Port policing configuration.
     for (policer = 0; policer < VTSS_PORT_POLICERS; policer++) {
@@ -1728,8 +1732,10 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
             VTSS_M_REW_DSCP_MAP_DSCP_UPDATE_ENA                                               |
             VTSS_M_REW_DSCP_MAP_DSCP_REMAP_ENA);
 
+#if defined(VTSS_FEATURE_VCAP)
     // Update ES0-based default port QoS egress mapping
     VTSS_RC(vtss_fa_vcap_port_update(vtss_state, port_no));
+#endif
 
     VTSS_D("Exit");
     return VTSS_RC_OK;
@@ -1918,6 +1924,7 @@ static vtss_rc fa_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 static vtss_rc fa_qos_ingress_map_vcap_update(vtss_state_t *vtss_state,
                                               const u16    id)
 {
@@ -2095,6 +2102,7 @@ static vtss_rc fa_qos_ingress_map_del(vtss_state_t *vtss_state, const vtss_qos_i
     VTSS_D("Redirecting to AIL with egress map id %u", id);
     return vtss_cmn_qos_map_del(vtss_state, &vtss_state->qos.imap, id);
 }
+#endif
 
 #if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
 static vtss_rc fa_qos_egress_map_vcap_update(vtss_state_t *vtss_state,
@@ -2334,6 +2342,7 @@ static vtss_rc fa_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *st
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
 static u32 tas_profile_allocate(vtss_state_t *vtss_state,  const vtss_port_no_t port_no)
 {
     u32                 profile_idx;
@@ -3531,6 +3540,7 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_QOS_TAS
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
 static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
@@ -3620,7 +3630,9 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
                     VTSS_M_ANA_ACL_VCAP_S2_MISC_CTRL_ACL_RT_SEL);
         }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
         (void)fa_qos_tas_update(vtss_state, port_no);
+#endif
     }
 #endif
     return VTSS_RC_OK;
@@ -3676,9 +3688,11 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no
 
     rc1 =  (is_reset ? fa_qos_queue_cut_through_set(vtss_state, port_no) : VTSS_RC_OK);
 
+#if defined(VTSS_FEATURE_QOS_TAS)
     if (LA_TGT) {
         rc2 = lan966x_tas_frag_size_update(vtss_state, port_no);
     }
+#endif
     return ((rc1 != VTSS_RC_OK) ? rc1 : rc2);
 }
 
@@ -3811,6 +3825,7 @@ static vtss_rc fa_debug_qos_scheduler_element(vtss_state_t              *vtss_st
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t              *vtss_state,
                                          const vtss_debug_printf_t pr,
                                          const u32                 ix_start,
@@ -3857,7 +3872,9 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t              *vtss_stat
 
     return VTSS_RC_OK;
 }
+#endif
 
+#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t              *vtss_state,
                                         const vtss_debug_printf_t pr,
                                         const u32                 res,
@@ -3902,7 +3919,9 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t              *vtss_state
 
     return VTSS_RC_OK;
 }
+#endif
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info,
@@ -3959,6 +3978,7 @@ static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
         pr("\n");
     }
 }
+#endif
 
 #define FA_DSM_CAL_ROW_CNT 9
 #define FA_DSM_CAL_COL_CNT 13
@@ -3974,6 +3994,7 @@ static const u8 fa_dsm_cal[FA_DSM_CAL_ROW_CNT][FA_DSM_CAL_COL_CNT] = {
     {65,99,99,99,99,99,99,99,99,99,99,99,99}
 };
 
+#if defined(VTSS_FEATURE_QOS_TAS)
 static char *debug_tas_state_string(u32 value)
 {
     switch (value) {
@@ -4147,6 +4168,7 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
 
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
@@ -4154,7 +4176,10 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 {
     vtss_port_no_t      port_no, chip_port, tas_port=0;
     u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, tas_list_idx = 0, div = 0, len;
-    u32                 qno, src, prio, dst, se;
+    u32                 qno, src, prio, dst;
+#if defined(VTSS_FEATURE_QOS_TAS)
+    u32                 se;
+#endif
     u64                 min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
     BOOL                show_act, basics_act, ingr_mapping_act, gen_pol_act, service_pol_grp_act, service_pol_set_act, port_pol_act,
@@ -4314,11 +4339,13 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("\n");
     }
 
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     if (!info->has_action || ingr_mapping_act) { /* Ingress mapping configuration must be printed */
         vtss_debug_print_header(pr, "QoS ingress mapping tables");
         fa_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.imap);
         pr("\n");
     }
+#endif
 
     if (!info->has_action || gen_pol_act) { /* General policing configuration must be printed */
         vtss_debug_print_header(pr, "QoS Policing (general configuration)");
@@ -4668,6 +4695,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("\n");
     }
 
+#if defined(VTSS_FEATURE_QOS_TAS)
     if (!info->has_action || tas_act) { /* SAT configuration must be printed */
         vtss_tas_gcl_state_t *gcl;
         vtss_tas_list_t *lists = vtss_state->qos.tas.tas_lists;
@@ -4833,6 +4861,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         }
         pr("index %u  chip_port %u  ts1.seconds %u  ts0.seconds %u\n", index, chip_port, ts1.seconds, ts0.seconds);
     }
+#endif
 
     if (!info->has_action || schedul_act) { /* Scheduling hierarchy configuration must be printed */
         // Only show the scheduling hierarchy if HQoS is not present, otherwise use the HQoS debug cmd
@@ -5163,10 +5192,8 @@ static vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent,
 
 static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
 {
-    u32 i, port;
-#if defined(VTSS_FEATURE_QOS_OT) || defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 se;
-#endif
+    u32 port;
+
     VTSS_D("Enter");
 
     /* Get the system clock in Hz */
@@ -5194,21 +5221,24 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     }
 
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+#if defined(VTSS_FEATURE_QOS_TAS)
         vtss_state->qos.tas.tas_gcl_state[port_no].stop_ongoing = FALSE;
         vtss_state->qos.tas.tas_gcl_state[port_no].new_list_scheduled = FALSE;
         vtss_state->qos.tas.tas_gcl_state[port_no].config_change_error = 0;
         vtss_state->qos.tas.tas_gcl_state[port_no].curr_list_idx = TAS_LIST_IDX_NONE;
         vtss_state->qos.tas.tas_gcl_state[port_no].trunk_list_idx = TAS_LIST_IDX_NONE;
         vtss_state->qos.tas.tas_gcl_state[port_no].next_list_idx = TAS_LIST_IDX_NONE;
-        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+        for (u32 i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
             vtss_state->qos.tas.port_conf[port_no].max_sdu[i] = 24 * 64;   /* Default register value is 24. Resolution is 64 bytes */
         }
+#endif
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
         if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
             vtss_state->qos.fp.port_conf[port_no].add_frag_size = 1;    // P_MIN_SIZE default value is 1
         }
 #endif
     }
+#if defined(VTSS_FEATURE_QOS_TAS)
     VTSS_MEMSET(&vtss_state->qos.tas.tas_lists, 0, sizeof(vtss_state->qos.tas.tas_lists));
     VTSS_MEMSET(&vtss_state->qos.tas.tas_profiles, 0, sizeof(vtss_state->qos.tas.tas_profiles));
 #if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
@@ -5217,10 +5247,11 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     VTSS_MEMSET(&vtss_state->qos.tas.tas_entry_blocks, 0, sizeof(vtss_state->qos.tas.tas_entry_blocks));
     VTSS_MEMSET(&vtss_state->qos.tas.tas_entry_rows, 0, sizeof(vtss_state->qos.tas.tas_entry_rows));
 #endif
-    for (i = 0; i < RT_TAS_NUMBER_OF_LISTS; i++) {
+    for (u32 i = 0; i < RT_TAS_NUMBER_OF_LISTS; i++) {
         vtss_state->qos.tas.tas_lists[i].profile_idx = TAS_PROFILE_IDX_NONE;
         vtss_state->qos.tas.tas_lists[i].hold_profile_idx = TAS_PROFILE_IDX_NONE;
     }
+#endif
 
     /* Normal scheduling mode for CPU ports */
     for (port = RT_CHIP_PORT_CPU_0; port <= RT_CHIP_PORT_CPU_1; port++) {
@@ -5241,13 +5272,13 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         }
 
         /* Disable ISDX based QGRP */
-        for (i = 0; i < FA_ISDX_CNT; i++) {
+        for (u32 i = 0; i < FA_ISDX_CNT; i++) {
             REG_WRM(VTSS_ANA_L2_QGRP_CFG(i), VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(0), VTSS_M_ANA_L2_QGRP_CFG_QGRP_ENA);
         }
 
         /* Configure OT scheduler elements to used share 1 */
         for (port = 0; port < RT_CHIP_PORTS; port++) {
-            se = FA_HSCH_L0_OT_SE(port);
+            u32 se = FA_HSCH_L0_OT_SE(port);
             REG_WR(VTSS_XQS_MAP_CFG_CFG, (se/CFGRATIO));
             REG_WR(VTSS_XQS_QLIMIT_SE_SHR(0, (se%CFGRATIO)), 1);
         }
@@ -5272,7 +5303,7 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
                 VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
                 VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (i = 0; i < 8; i++) {
+        for (u32 i = 0; i < 8; i++) {
             REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
                     VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
                     VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
@@ -5291,7 +5322,7 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
                 VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
                 VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (i = 0; i < 8; i++) {
+        for (u32 i = 0; i < 8; i++) {
             REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
                     VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
                     VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
@@ -5310,7 +5341,7 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
                 VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
                 VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (i = 0; i < 8; i++) {
+        for (u32 i = 0; i < 8; i++) {
             REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
                     VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
                     VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
@@ -5374,6 +5405,7 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->qce_add = vtss_cmn_qce_add;
         state->qce_del = vtss_cmn_qce_del;
 #endif
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
         state->ingress_map_add         = fa_qos_ingress_map_add;
         state->ingress_map_del         = fa_qos_ingress_map_del;
         state->ingress_map_vcap_update = fa_qos_ingress_map_vcap_update;
@@ -5387,6 +5419,7 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         } else {
             state->imap.ix[0].reserved     = (RT_QOS_INGRESS_MAP_ROWS);
         }
+#endif
 #if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
         state->emap.ix[0].entry_len    = RT_QOS_EGRESS_MAP_ROWS;
         state->emap.ix[1].entry_len    = RT_QOS_EGRESS_MAP_ROWS;

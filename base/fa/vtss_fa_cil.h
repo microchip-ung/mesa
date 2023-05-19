@@ -455,8 +455,12 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
 u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state);
 vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state);
+#if defined(VTSS_SDX_CNT)
 vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
+#endif
+#if defined(VTSS_EVC_STAT_CNT)
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, vtss_evc_counters_t *const cnt, BOOL clr);
+#endif
 BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 
 
@@ -464,7 +468,9 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
+#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf);
+#endif
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
@@ -571,12 +577,12 @@ BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *t
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
-
-vtss_rc vtss_fa_inst_create(struct vtss_state_s *vtss_state);
+#if defined(VTSS_FEATURE_VOP)
 vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t *vtss_state, vtss_voe_function_t function);
 vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
                                  vtss_voe_function_t  function,
                                  vtss_voe_idx_t       voe_idx);
+#endif
 #endif /* VTSS_FPGA_FA */
 #endif /* VTSS_ARCH_FA */
 #endif /* _VTSS_FA_CIL_H_ */

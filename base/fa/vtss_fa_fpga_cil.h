@@ -220,8 +220,12 @@ extern vtss_rc vtss_fa_emul_init(vtss_state_t *vtss_state);
 extern vtss_rc (*vtss_fa_wr)(vtss_state_t *vtss_state, u32 addr, u32 value);
 extern vtss_rc (*vtss_fa_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
 vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask);
+#if defined(VTSS_SDX_CNT)
 vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
+#endif
+#if defined(VTSS_EVC_STAT_CNT)
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, vtss_evc_counters_t *const cnt, BOOL clr);
+#endif
 BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 
 #define REG_RD(p, value)                 \
@@ -575,5 +579,13 @@ vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
 BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
+
+#if defined(VTSS_FEATURE_VOP)
+vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t *vtss_state, vtss_voe_function_t function);
+vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
+                                 vtss_voe_function_t  function,
+                                 vtss_voe_idx_t       voe_idx);
+#endif
+
 #endif /* VTSS_ARCH_FA */
 #endif /* _VTSS_LA_CIL_H_ */

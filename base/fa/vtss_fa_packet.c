@@ -256,22 +256,28 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
         port_conf = &vtss_state->packet.rx_port_conf[port_no];
 
         for (i = 0; i < 32; i++) {
+            l2cp_conf.cosid_enable = 0;
+            l2cp_conf.cosid = 0;
             if (i < 16) {
                 // BPDU
                 j = i;
                 l2cp_conf.reg = port_conf->bpdu_reg[j];
                 cpu_only = reg->bpdu_cpu_only;
                 l2cp_conf.queue = map->bpdu_queue;
+#if defined(VTSS_FEATURE_PACKET_PORT_L2CP_REG)
                 l2cp_conf.cosid_enable = port_conf->bpdu[j].cosid_enable;
                 l2cp_conf.cosid = port_conf->bpdu[j].cosid;
+#endif
             } else {
                 // GARP
                 j = (i - 16);
                 l2cp_conf.reg = port_conf->garp_reg[j];
                 cpu_only = reg->garp_cpu_only[j];
                 l2cp_conf.queue = map->garp_queue;
+#if defined(VTSS_FEATURE_PACKET_PORT_L2CP_REG)
                 l2cp_conf.cosid_enable = port_conf->garp[j].cosid_enable;
                 l2cp_conf.cosid = port_conf->garp[j].cosid;
+#endif
             }
             if (l2cp_conf.reg == VTSS_PACKET_REG_NORMAL) {
                 // Use global registration
@@ -840,7 +846,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
 {
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
-    BOOL                rewrite = TRUE, setup_cl = FALSE;
+    BOOL                rewrite = TRUE, setup_cl = FALSE, afi = FALSE;
     u32                 pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
 
     if (bin_hdr == NULL) {
@@ -862,6 +868,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
 
 #if defined(VTSS_FEATURE_AFI_SWC)
     if (info->afi_id != VTSS_AFI_ID_NONE) {
+        afi = TRUE;
         // The CPU wants this frame to go into the AFI packet memory for repetitive injection.
         IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_AFI_INJ, 1); // FWD.AFI_INJ = Enable
     }
@@ -906,7 +913,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
 
             rewrite = TRUE;
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting with PTP action: %d, pdu_offset %u", info->ptp_action, info->pdu_offset);
-            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain, info->afi_id != VTSS_AFI_ID_NONE, &rew_cmd));
+            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain, afi, &rew_cmd));
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "", rew_cmd, info->ptp_timestamp);
             IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX+32, 10); // VSTAX.REW_CMD = PTP rewrite command. (when FWD_MODE == FWD_LLOOKUP).
             pl_pt = VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE;
@@ -929,7 +936,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
         }
 
         chip_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->dst_port);
-        if (info->afi_id == VTSS_AFI_ID_NONE) {
+        if (!afi) {
             // Must be 0 for AFI-injected frames, or the REW will see this as a
             // CPU queue mask and not work as expected. The destination port is
             // chosen during mesa_afi_slow_inj_alloc()/mesa_afi_fast_inj_alloc()

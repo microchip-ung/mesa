@@ -22,6 +22,7 @@
 #define LA_HSCH_TAS_SE(port, ot) ((ot) ? (FA_HSCH_L0_OT_SE(port)) : (RT_HSCH_L0_SES + port))
 #define LA_HSCH_L0_SE(port, queue) ((32 * port) + (4 * queue))
 
+#if defined(VTSS_FEATURE_QOS_TAS)
 u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state,  u32 length);
 vtss_rc lan969x_tas_list_free(vtss_state_t *vtss_state,  u32 list_idx);
 vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_qos_tas_port_conf_t *current_port_conf);
@@ -34,6 +35,6 @@ vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s   *vtss_state,
 void tas_list_state_write(vtss_state_t *vtss_state, u32 list_idx, u32 state);
 u8 tas_link_speed_calc(vtss_port_speed_t speed);
 vtss_rc tas_profile_free(vtss_state_t *vtss_state,  u32 profile_idx);
-
+#endif
 
 #endif /* _VTSS_FA_LAN969X_H_ */

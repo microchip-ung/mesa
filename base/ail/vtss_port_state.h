@@ -12,8 +12,9 @@ typedef struct {
 } vtss_chip_counter_t;
 
 typedef struct {
-    vtss_chip_counter_t emac;
-    vtss_chip_counter_t pmac;
+    u64 value; // Accumulated value (64 bit)
+    u32 emac;  // Previous EMAC value
+    u32 pmac;  // Previous PMAC value
 } vtss_dual_counter_t;
 
 typedef struct {
@@ -313,7 +314,6 @@ typedef struct {
 typedef struct {
     union {
         vtss_port_luton26_counters_t luton26; /* and serval1 */
-        vtss_port_jr1_counters_t     jr1;
         vtss_port_jr2_counters_t     jr2;
         vtss_port_fa_counters_t      fa;
     } counter;
