@@ -64,7 +64,8 @@ static void get_default_ts_ptp_class(mepa_ts_classifier_ptp_t *const conf)
 {
     conf->version.upper = 2;
     conf->version.lower = 2;
-    conf->minor_version.upper = conf->minor_version.lower = 0;
+    conf->minor_version.upper = 1;
+    conf->minor_version.lower = 0;
     //domain
     conf->domain.mode = MEPA_TS_MATCH_MODE_VALUE;
     conf->domain.match.value.val = 0;
@@ -1147,6 +1148,7 @@ static mepa_rc indy_ts_classifier_ptp_conf_priv(mepa_device_t *dev, mepa_bool_t 
         version = version << 8;
         version = version | (0xFF & val);
         EP_WRM(dev, INDY_PTP_RX_VERSION, version, INDY_DEF_MASK);
+        EP_WRM(dev, INDY_PTP_TX_VERSION, version, INDY_DEF_MASK);
         if (ptp_hdr_conf->domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
             val = 0;
             val = val | INDY_PTP_RX_DOMAIN_DOMAIN_LO_RANGE_EN;
@@ -2299,7 +2301,7 @@ mepa_rc indy_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t re
     ptp_class_conf.version.lower = 0x2;
     ptp_class_conf.version.upper = 0x2;
     ptp_class_conf.minor_version.lower = 0x0;
-    ptp_class_conf.minor_version.upper = 0x0;
+    ptp_class_conf.minor_version.upper = 0x1;
 
     if ((rc = indy_ts_rx_classifier_conf_set_priv(dev, 0, &pkt_conf)) != MEPA_RC_OK) {
         MEPA_EXIT(dev);
