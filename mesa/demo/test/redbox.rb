@@ -1499,7 +1499,7 @@ def redbox_test(t)
             mac = {addr: [0,0,0,0,0,mac]}
             type = ("MESA_RB_NODE_TYPE_" + fld_get(node, :type, "DAN"))
             san_a = fld_get(node, :san_a, false)
-            conf = {type: type, san_a: san_a}
+            conf = {type: type, san_a: san_a, locked: true}
             cmd = fld_get(node, :cmd, "add")
             cnt = fld_get(node, :cnt, [])
             err = fld_get(node, :err, false)
@@ -1553,7 +1553,7 @@ def redbox_test(t)
             cmd = fld_get(proxy, :cmd, "add")
             err = fld_get(proxy, :err, false)
             if (cmd == "add")
-                $ts.dut.call("mesa_rb_proxy_node_add", rb_id, mac, {type: type})
+                $ts.dut.call("mesa_rb_proxy_node_add", rb_id, mac, {type: type, locked: true})
             elsif (cmd == "del")
                 $ts.dut.call("mesa_rb_proxy_node_del", rb_id, mac)
             elsif (cmd == "get")

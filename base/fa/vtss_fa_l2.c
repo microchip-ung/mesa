@@ -2126,6 +2126,7 @@ static vtss_rc fa_rb_host_mac_set(vtss_state_t *vtss_state,
 static vtss_rc fa_rb_host_add(vtss_state_t *vtss_state,
                               const vtss_rb_id_t rb_id,
                               const vtss_mac_t *const mac,
+                              BOOL locked,
                               u32 ht,
                               u32 mask,
                               u32 pdan)
@@ -2135,7 +2136,7 @@ static vtss_rc fa_rb_host_add(vtss_state_t *vtss_state,
     VTSS_RC(fa_rb_host_mac_set(vtss_state, rb_id, mac));
     REG_WR(VTSS_RB_HOST_ACCESS_CFG_2(tgt),
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PROXY_DAN(pdan) |
-           VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(1) |
+           VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_LOCKED(locked ? 1 : 0) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_VLD(1) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_TYPE(ht) |
            VTSS_F_RB_HOST_ACCESS_CFG_2_HOST_ENTRY_PORTMASK(mask));
@@ -2337,7 +2338,7 @@ static vtss_rc fa_rb_node_add(vtss_state_t *vtss_state,
         ht = FA_HT_SAN;
         mask = (conf->san_a ? 0x1 : 0x2);
     }
-    return fa_rb_host_add(vtss_state, rb_id, mac, ht, mask, 0);
+    return fa_rb_host_add(vtss_state, rb_id, mac, conf->locked, ht, mask, 0);
 }
 
 static vtss_rc fa_rb_node_del(vtss_state_t *vtss_state,
@@ -2420,7 +2421,7 @@ static vtss_rc fa_rb_proxy_node_add(vtss_state_t *vtss_state,
 {
     u32 pdan = (conf->type == VTSS_RB_PROXY_NODE_TYPE_DAN ? 1 : 0);
 
-    return fa_rb_host_add(vtss_state, rb_id, mac, FA_HT_PROXY, 0x4, pdan);
+    return fa_rb_host_add(vtss_state, rb_id, mac, conf->locked, FA_HT_PROXY, 0x4, pdan);
 }
 
 static vtss_rc fa_rb_proxy_node_del(vtss_state_t *vtss_state,

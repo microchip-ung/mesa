@@ -2918,11 +2918,12 @@ typedef enum {
 
 // Node configuration
 typedef struct {
-    vtss_rb_node_type_t type;  // Node type
-    BOOL                san_a; // SAN: Port A indication
+    vtss_rb_node_type_t type;   // Node type
+    BOOL                san_a;  // SAN: Port A indication
+    BOOL                locked; // Locked/static flag
 } vtss_rb_node_conf_t;
 
-// Add static node entry.
+// Add node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 // conf [IN]   Node configuration.
@@ -3013,10 +3014,11 @@ typedef enum {
 
 // Proxy node configuration
 typedef struct {
-    vtss_rb_proxy_node_type_t type;  // Proxy node type
+    vtss_rb_proxy_node_type_t type;   // Proxy node type
+    BOOL                      locked; // Locked/static flag
 } vtss_rb_proxy_node_conf_t;
 
-// Add static proxy node entry.
+// Add proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 // conf [IN]   Proxy node configuration.

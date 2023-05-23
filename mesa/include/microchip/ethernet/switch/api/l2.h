@@ -1694,11 +1694,12 @@ typedef enum {
 
 // Node configuration
 typedef struct {
-    mesa_rb_node_type_t type;  // Node type
-    mesa_bool_t         san_a; // SAN: Port A indication
+    mesa_rb_node_type_t type;   // Node type
+    mesa_bool_t         san_a;  // SAN: Port A indication
+    mesa_bool_t         locked; // Locked/static flag
 } mesa_rb_node_conf_t;
 
-// Add static node entry.
+// Add node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 // conf [IN]   Node configuration.
@@ -1789,10 +1790,11 @@ typedef enum {
 
 // Proxy node configuration
 typedef struct {
-    mesa_rb_proxy_node_type_t type;  // Proxy node type
+    mesa_rb_proxy_node_type_t type;   // Proxy node type
+    mesa_bool_t               locked; // Locked/static flag
 } mesa_rb_proxy_node_conf_t;
 
-// Add static proxy node entry.
+// Add proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 // conf [IN]   Proxy node configuration.
