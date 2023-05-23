@@ -363,7 +363,18 @@ typedef struct vtss_state_s {
 } vtss_state_t;
 
 #if 0
+// For checking state size at compile time
 char (*_check_vtss_state)[sizeof(vtss_state_t)] = 1;
+char (*_check_port_state)[sizeof(vtss_port_state_t)] = 1;
+char (*_check_port_counter_state)[(VTSS_PORTS + 1)*sizeof(vtss_port_chip_counters_t)] = 1;
+char (*_check_port_kr_train_state)[VTSS_PORTS*sizeof(vtss_port_kr_state_t)] = 1;
+char (*_check_l2_state)[sizeof(vtss_l2_state_t)] = 1;
+char (*_check_l2_vlan_state)[VTSS_VIDS*sizeof(vtss_vlan_entry_t)] = 1;
+char (*_check_l2_mac_state)[VTSS_MAC_ADDRS*sizeof(vtss_mac_entry_t)] = 1;
+char (*_check_l2_pgid_state)[VTSS_PGIDS*sizeof(vtss_pgid_entry_t)] = 1;
+char (*_check_qos_state)[sizeof(vtss_qos_state_t)] = 1;
+char (*_check_qos_port_state)[VTSS_PORTS*sizeof(vtss_qos_port_conf_t)] = 1;
+char (*_check_qos_leak_state)[sizeof(vtss_qos_leak_conf_t)] = 1;
 #endif
 
 /* Check instance */

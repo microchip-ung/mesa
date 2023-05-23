@@ -2489,6 +2489,7 @@ static vtss_rc fa_rb_proxy_node_id_get_next(vtss_state_t *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
+#if VTSS_OPT_DEBUG_PRINT
 static void fa_debug_pmask_header(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const char *name)
 {
     char buf[64];
@@ -2959,6 +2960,7 @@ static vtss_rc fa_debug_mirror(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+
 #if defined(VTSS_FEATURE_REDBOX)
 void fa_print_host_entry(const vtss_debug_printf_t pr,
                          const char *name,
@@ -3453,6 +3455,7 @@ vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
 #endif
     return VTSS_RC_OK;
 }
+#endif
 
 /* - Initialization ------------------------------------------------ */
 

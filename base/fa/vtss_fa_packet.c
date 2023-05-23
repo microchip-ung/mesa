@@ -1095,7 +1095,7 @@ static vtss_rc fa_tx_frame_ifh(vtss_state_t *vtss_state,
 }
 
 /* - Debug print --------------------------------------------------- */
-
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_pkt(vtss_state_t              *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t   *const info)
@@ -1174,6 +1174,7 @@ vtss_rc vtss_fa_packet_debug_print(vtss_state_t              *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, fa_debug_pkt, vtss_state, pr, info);
 }
+#endif
 
 /* - Initialization ------------------------------------------------ */
 static vtss_rc fa_packet_init(vtss_state_t *vtss_state)

@@ -3697,6 +3697,7 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no
 }
 
 /* - Debug print --------------------------------------------------- */
+#if VTSS_OPT_DEBUG_PRINT
 static void fa_debug_print_reg2bf(const vtss_debug_printf_t pr, u32 value, u32 len)
 {
     u32 i;
@@ -4174,11 +4175,12 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info)
 {
-    vtss_port_no_t      port_no, chip_port, tas_port=0;
-    u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, tas_list_idx = 0, div = 0, len;
+    vtss_port_no_t      port_no, chip_port;
+    u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, div = 0, len;
     u32                 qno, src, prio, dst;
 #if defined(VTSS_FEATURE_QOS_TAS)
-    u32                 se;
+    vtss_port_no_t      tas_port=0;
+    u32                 se, tas_list_idx = 0;
 #endif
     u64                 min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
@@ -4228,14 +4230,18 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         if (service_pol_set_act) {
             service_pol_set_idx = info->action % div;
         }
+        VTSS_D("service_pol_set_act %u  service_pol_set_idx %u  div %u",
+               service_pol_set_act, service_pol_set_idx, div);
+#if defined(VTSS_FEATURE_QOS_TAS)
         if (tas_act) {
             tas_list_idx = info->action % div;
         }
         if (tas_state_act || tas_count_act) {
             tas_port = info->action % div;
         }
-        VTSS_D("service_pol_set_act %u  tas_act %u  tas_state_act %u  tas_count_act %u  service_pol_set_idx %u  tas_list_idx %u  tas_port %u  div %u",
-                service_pol_set_act, tas_act, tas_state_act, tas_count_act, service_pol_set_idx, tas_list_idx, tas_port, div);
+        VTSS_D("tas_act %u  tas_state_act %u  tas_count_act %u  tas_list_idx %u  tas_port %u",
+               tas_act, tas_state_act, tas_count_act, tas_list_idx, tas_port);
+#endif
     }
 
     VTSS_D("show %u  basic %u  ingr_map %u  gen_pol %u  port_pol %u  storm_pol %u  schedul %u  band %u  shape %u  leak %u  wred  %u  tag_remark  %u  egr_map  %u",
@@ -5167,6 +5173,7 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, fa_debug_qos, vtss_state, pr, info);
 }
+#endif
 
 /* - Initialization ------------------------------------------------ */
 #if defined(VTSS_FEATURE_QOS_OT)

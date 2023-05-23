@@ -307,6 +307,7 @@ u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_ty
     }
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 static void buf_set(char *buf, u32 *u_ptr)
 {
     u32 num;
@@ -318,6 +319,7 @@ static void buf_set(char *buf, u32 *u_ptr)
         }
     }
 }
+#endif
 
 static void kr_ampcode_2_drv(u32 ampcode, u32 *ipdriver, u32 *vcdriver)
 {
@@ -1606,6 +1608,7 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc fa_serdes_tx_eq_tune(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
                              u32 port_no, vtss_port_kr_coef_type_t coef, vtss_port_kr_coef_update_t action)
 {
@@ -1660,11 +1663,12 @@ vtss_rc fa_serdes_tx_eq_tune(vtss_state_t *vtss_state, const vtss_debug_printf_t
 
     return VTSS_RC_OK;
 }
-
+#endif
 
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
 
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no, BOOL ena)
 {
     u32 indx, type, sd_tgt;
@@ -1945,8 +1949,13 @@ static vtss_rc fa_serdes_dfe_read(vtss_state_t *vtss_state, const vtss_debug_pri
 
    return VTSS_RC_OK;
 }
+#endif
 
-static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no)
+static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                    const vtss_debug_printf_t pr,
+#endif
+                                    u32 port_no)
 {
     u32 indx, type, sd_tgt;
     u32 eye_height = 0, highest = 0;
@@ -1954,9 +1963,11 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
     sd_tgt = fa_get_lane_target(vtss_state, type, indx);
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr) {
         pr("Adjust %s VGA\n",type == FA_SERDES_TYPE_10G ? "10G" : type == FA_SERDES_TYPE_6G ? "6G" : "25G");
     }
+#endif
 
     if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
         int cfg_eq_res = 0xf;
@@ -1971,9 +1982,10 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
                     VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
             VTSS_NSLEEP(10000);
             fa_kr_eye_height(vtss_state, port_no, 3, &eye_height);
+#if VTSS_OPT_DEBUG_PRINT
             if (pr)
                 pr("cfg_eq_res:%d eye_height:%d\n",cfg_eq_res, eye_height);
-
+#endif
             if (eye_height > highest) {
                 highest = eye_height;
                 cfg_eq_res_best = (u32)cfg_eq_res;
@@ -1984,9 +1996,11 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
         REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_0B(sd_tgt),
                 VTSS_F_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(cfg_eq_res_best),
                 VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
+#if VTSS_OPT_DEBUG_PRINT
         if (pr)
             pr("Using cfg_eq_res:%d \n",cfg_eq_res_best);
 
+#endif
     } else if (type == FA_SERDES_TYPE_25G) {
         u32 ln_cfg_vga_ctrl = 4;
         u32 ln_cfg_vga_ctrl_best;
@@ -2000,9 +2014,10 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
                     VTSS_M_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0);
             VTSS_NSLEEP(10000);
             fa_kr_eye_height(vtss_state, port_no, 3, &eye_height);
+#if VTSS_OPT_DEBUG_PRINT
             if (pr)
                 pr("ln_cfg_vga_ctrl:%d eye_height:%d\n",ln_cfg_vga_ctrl, eye_height);
-
+#endif
             if (eye_height > highest) {
                 highest = eye_height;
                 ln_cfg_vga_ctrl_best = ln_cfg_vga_ctrl;
@@ -2014,9 +2029,10 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
                 VTSS_F_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0(ln_cfg_vga_ctrl_best),
                 VTSS_M_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0);
 
+#if VTSS_OPT_DEBUG_PRINT
         if (pr)
             pr("Using ln_cfg_vga_ctrl:%d \n",ln_cfg_vga_ctrl_best);
-
+#endif
     } else {
         return VTSS_RC_ERROR;
     }
@@ -2024,7 +2040,11 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, const vtss_debug_p
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no)
+static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                    const vtss_debug_printf_t pr,
+#endif
+                                    u32 port_no)
 {
     u32 indx, type, sd_tgt;
     u32 cfg_vga_ctrl, vga_ctrl_best = 0;
@@ -2043,9 +2063,10 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, const vtss_debug_p
         cfg_vga_ctrl = 0x4;
     }
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr)
         pr("Adjust %s EQR, start from %d :\n",type == FA_SERDES_TYPE_10G ? "10G" : type == FA_SERDES_TYPE_6G ? "6G" : "25G", cfg_vga_ctrl);
-
+#endif
     while (cfg_vga_ctrl <= 15) {
         if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_2F(sd_tgt),
@@ -2058,9 +2079,10 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, const vtss_debug_p
         }
         VTSS_NSLEEP(10000);
         fa_kr_eye_height(vtss_state, port_no, 3, &eye_height);
+#if VTSS_OPT_DEBUG_PRINT
         if (pr)
             pr("eqr_val:%d eye_height:%d\n",cfg_vga_ctrl, eye_height);
-
+#endif
         if (eye_height > highest) {
             highest = eye_height;
             vga_ctrl_best = cfg_vga_ctrl;
@@ -2079,14 +2101,19 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, const vtss_debug_p
                 VTSS_M_SD25G_TARGET_LANE_22_LN_CFG_EQR_FORCE_3_0);
     }
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr)
         pr("Using eqr_ctrl:%d \n",vga_ctrl_best);
-
+#endif
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no)
+static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                    const vtss_debug_printf_t pr,
+#endif
+                                    u32 port_no)
 {
     u32 indx, type, sd_tgt;
     u32 cfg_eqc_force, cfg_eqc_force_best = 0;
@@ -2105,10 +2132,10 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, const vtss_debug_p
         cfg_eqc_force = 0x8;
     }
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr)
         pr("Adjust %s EQC, start from %d :\n",type == FA_SERDES_TYPE_10G ? "10G" : type == FA_SERDES_TYPE_6G ? "6G" : "25G", cfg_eqc_force);
-
-
+#endif
 
     while (cfg_eqc_force <= 15) {
 
@@ -2123,9 +2150,10 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, const vtss_debug_p
         }
         VTSS_NSLEEP(10000); // 10usec
         fa_kr_eye_height(vtss_state, port_no, 3, &eye_height);
+#if VTSS_OPT_DEBUG_PRINT
         if (pr)
             pr("cfg_eqc_force:%d eye_height:%d\n",cfg_eqc_force, eye_height);
-
+#endif
         if (eye_height > highest) {
             highest = eye_height;
             cfg_eqc_force_best = cfg_eqc_force;
@@ -2144,24 +2172,34 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, const vtss_debug_p
                 VTSS_M_SD25G_TARGET_LANE_1C_LN_CFG_EQC_FORCE_3_0);
     }
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr)
         pr("Using cfg_eqc_force:%d \n",cfg_eqc_force_best);
-
+#endif
     return VTSS_RC_OK;
 }
 
-vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              const vtss_debug_printf_t pr,
+#endif
                               u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc)
 {
-
+    vtss_rc rc;
     u32 indx, type, sd_tgt;
     u32 cfg_eq_res, cfg_eqc_force, cfg_vga_ctrl;
+#if VTSS_OPT_DEBUG_PRINT
     u32 eye_height = 0;
+#endif
 
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
     sd_tgt = fa_get_lane_target(vtss_state, type, indx);
 
-    if (pr != NULL || ro) {
+    if (
+#if VTSS_OPT_DEBUG_PRINT
+        pr != NULL ||
+#endif
+        ro) {
         if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_0B(sd_tgt), &cfg_eq_res);
             cfg_eq_res = VTSS_X_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(cfg_eq_res);
@@ -2183,20 +2221,43 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_
             *eqc = cfg_eqc_force;
             return VTSS_RC_OK;
         } else {
+#if VTSS_OPT_DEBUG_PRINT
             fa_kr_eye_height(vtss_state, port_no, 3, &eye_height);
             pr("Before %s CTLE tuning:\n", type == FA_SERDES_TYPE_10G ? "10G" : type == FA_SERDES_TYPE_6G ? "6G" : "25G");
             pr("VGA               :%d\n",cfg_eq_res);
             pr("EQR               :%d\n",cfg_vga_ctrl);
             pr("EQC               :%d\n",cfg_eqc_force);
             pr("Eye height        :%d\n",eye_height);
+#endif
         }
     }
 
-    VTSS_RC(fa_serdes_vga_adjust(vtss_state, pr, port_no));
-    VTSS_RC(fa_serdes_eqr_adjust(vtss_state, pr, port_no));
-    VTSS_RC(fa_serdes_eqc_adjust(vtss_state, pr, port_no));
-    VTSS_RC(fa_serdes_vga_adjust(vtss_state, pr, port_no));
+    rc = fa_serdes_vga_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              pr,
+#endif
+                              port_no);
+    VTSS_RC(rc);
+    rc = fa_serdes_eqr_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              pr,
+#endif
+                              port_no);
+    VTSS_RC(rc);
+    rc = fa_serdes_eqc_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              pr,
+#endif
+                              port_no);
+    VTSS_RC(rc);
+    rc = fa_serdes_vga_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              pr,
+#endif
+                              port_no);
+    VTSS_RC(rc);
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr == NULL) {
         return VTSS_RC_OK;
     }
@@ -2223,11 +2284,12 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_
     pr("EQR               :%d\n",cfg_vga_ctrl);
     pr("EQC               :%d\n",cfg_eqc_force);
     pr("Eye height        :%d\n",eye_height);
+#endif
 
     return VTSS_RC_OK;
 }
 
-
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_serdes_ctle_read(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 port_no)
 {
     u32 indx, type, val, sd_tgt;
@@ -2260,8 +2322,8 @@ static vtss_rc fa_serdes_ctle_read(vtss_state_t *vtss_state, const vtss_debug_pr
     }
 
     return VTSS_RC_OK;
-
 }
+#endif
 
 static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt, u32 *height, vtss_port_no_t port_no)
 {
@@ -2292,12 +2354,18 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, const vtss_debug_printf_t pr)
+static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt
+#if VTSS_OPT_DEBUG_PRINT
+                                        , const vtss_debug_printf_t pr
+#endif
+    )
 {
     u32 indx, vref, val, cnt = 0;
     u32 eye_res[140][10] = {0};
     u32 vref_cnt = 0;
+#if VTSS_OPT_DEBUG_PRINT
     char buf[100];
+#endif
     u32 bottom = 0;
     BOOL top_found = 0;
     BOOL bottom_found = 0;
@@ -2361,6 +2429,7 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
         }
         vref_cnt++;
     }
+#if VTSS_OPT_DEBUG_PRINT
     if (pr != NULL) {
         for (int i = vref_cnt; i >= 0; i--) {
             if ((i % 4 == 0) || i == 127) {
@@ -2369,6 +2438,7 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
             }
         }
     }
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2396,7 +2466,11 @@ static vtss_rc fa_10g_kr_vref_incr(vtss_state_t *vtss_state, u32 sd_tgt, u32 inc
     }
     return VTSS_RC_OK;
 }
-static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, const vtss_debug_printf_t pr, u32 *height)
+static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt,
+#if VTSS_OPT_DEBUG_PRINT
+                                    const vtss_debug_printf_t pr,
+#endif
+                                    u32 *height)
 {
     u32 val, cnt = 0;
     u32 eye_res[10] = {0};
@@ -2497,11 +2571,17 @@ static u32 two_complement(u32 val, u32 mask)
     return val;
 }
 
-static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, const vtss_debug_printf_t pr)
+static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt
+#if VTSS_OPT_DEBUG_PRINT
+                                        , const vtss_debug_printf_t pr
+#endif
+    )
 {
     u32 vref = 0, indx, cnt = 0, val;
     u32 eye_res[140][10] = {0};
+#if VTSS_OPT_DEBUG_PRINT
     char buf[100];
+#endif
     u32 vref_cnt = 0;
 
     REG_RD(VTSS_SD25G_TARGET_LANE_DA(sd_tgt), &vref);
@@ -2541,6 +2621,7 @@ static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
         vref_cnt++;
     }
 
+#if VTSS_OPT_DEBUG_PRINT
     if (pr != NULL) {
         for (int i = vref_cnt; i >= 0; i--) {
             if ((i % 4 == 0) || i == 127) {
@@ -2549,7 +2630,7 @@ static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, co
             }
         }
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2584,7 +2665,9 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t *vtss_state, u32 sd_tgt,
 }
 
 static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
                                        const vtss_debug_printf_t pr,
+#endif
                                        u32 action,
                                        vtss_port_no_t port_no,
                                        u32 *ret_val,
@@ -2720,12 +2803,18 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
     }
 
     if (action == 2) {
-        VTSS_RC(fa_serdes_25g_normal_eye(vtss_state, sd_tgt, pr));
+        rc = fa_serdes_25g_normal_eye(vtss_state, sd_tgt
+#if VTSS_OPT_DEBUG_PRINT
+                                      , pr
+#endif
+            );
+        VTSS_RC(rc);
     } else {
         rc = fa_serdes_25g_eye_dimension(vtss_state, sd_tgt, &height, port_no);
         if (ret_val != NULL) {
             *ret_val = height;
         }
+#if VTSS_OPT_DEBUG_PRINT
         if (pr != NULL) {
             if (rc == VTSS_RC_ERROR) {
                 if (!ignore_error) {
@@ -2735,6 +2824,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
                 pr("Eye height = %d\n", height);
             }
         }
+#endif
     }
 
     // Disable eye scan
@@ -2760,6 +2850,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 #define FA_DEBUG_LANE(pr, addr, i, name) FA_TGT ? vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i, \
                     (sd_type == FA_SERDES_TYPE_10G) ? "VTSS_SD10G_LANE_TARGET_LANE_"name : "VTSS_SD6G_LANE_TARGET_LANE_"name) : \
                      vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i, "VTSS_SD10G_LANE_TARGET_LANE_"name)
@@ -2880,6 +2971,7 @@ static vtss_rc fa_serdes_dump(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+#endif
 
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf)
@@ -3005,7 +3097,9 @@ vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_
 }
 
 static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
                                        const vtss_debug_printf_t pr,
+#endif
                                        u32 action,
                                        vtss_port_no_t port_no,
                                        u32 *ret_val,
@@ -3126,21 +3220,33 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
 
     u32 height = 0;
     if (action == 2) {
-        VTSS_RC(fa_serdes_10g_normal_eye(vtss_state, sd_tgt, pr));
+        rc = fa_serdes_10g_normal_eye(vtss_state, sd_tgt
+#if VTSS_OPT_DEBUG_PRINT
+                                      , pr
+#endif
+            );
+        VTSS_RC(rc);
     } else if (action == 10) {
-        VTSS_RC(fa_serdes_10g_kr_eye(vtss_state, sd_tgt, pr, &height));
+        rc = fa_serdes_10g_kr_eye(vtss_state, sd_tgt,
+#if VTSS_OPT_DEBUG_PRINT
+                                  pr,
+#endif
+                                  &height);
+        VTSS_RC(rc);
         if (ret_val != NULL) {
             *ret_val = height;
         }
+#if VTSS_OPT_DEBUG_PRINT
         if (pr != NULL) {
             pr("Eye height = %d\n", height);
         }
-
+#endif
     } else {
         rc = fa_serdes_10g_eye_dimension(vtss_state, sd_tgt, &height, port_no);
         if (ret_val != NULL) {
             *ret_val = height;
         }
+#if VTSS_OPT_DEBUG_PRINT
         if (pr != NULL) {
             if (rc == VTSS_RC_ERROR) {
                 if (!ignore_error) {
@@ -3150,6 +3256,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
                 pr("Eye height = %d\n", height);
             }
         }
+#endif
     }
 
     REG_WR(VTSS_SD10G_LANE_TARGET_LANE_23(sd_tgt), lane_23);
@@ -3169,6 +3276,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
    return rc;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info,
@@ -3302,6 +3410,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif
 
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
                          vtss_port_no_t port_no,
@@ -3311,9 +3420,17 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
     vtss_rc rc = VTSS_RC_OK;
 
     if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
-        rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+        rc = fa_serdes_10g_eye_setup(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                     NULL,
+#endif
+                                     action, port_no, ret_val, 1);
     } else {
-        rc = fa_serdes_25g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+        rc = fa_serdes_25g_eye_setup(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                     NULL,
+#endif
+                                     action, port_no, ret_val, 1);
     }
 
     return rc;

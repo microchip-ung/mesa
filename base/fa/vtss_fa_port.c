@@ -635,6 +635,7 @@ static u16 wm_enc(u16 value)
     return value;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 static u32 wm_dec(u32 value)
 {
     if (value >= FA_MULTIPLIER_BIT) {
@@ -642,6 +643,7 @@ static u32 wm_dec(u32 value)
     }
     return value;
 }
+#endif
 
 /* - CIL functions ------------------------------------------------- */
 
@@ -965,13 +967,21 @@ static vtss_rc fa_mmd_write(vtss_state_t *vtss_state,
 static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no)
 {
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, FALSE, NULL, NULL, NULL);
+    return fa_serdes_ctle_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                 NULL,
+#endif
+                                 port_no, FALSE, NULL, NULL, NULL);
 }
 
 static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
                                    const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
 {
-    return fa_serdes_ctle_adjust(vtss_state, NULL, port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
+    return fa_serdes_ctle_adjust(vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                                 NULL,
+#endif
+                                 port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
 }
 
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
@@ -1814,6 +1824,7 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
 }
 
 
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t  *const info)
@@ -1910,6 +1921,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif
 
 /* Source: ffl_sqs.tcl in verification */
 static u32 port_fwd_urg(vtss_state_t *vtss_state, vtss_port_speed_t speed)
@@ -4247,6 +4259,7 @@ static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
 #endif /* VTSS_FEATURE_PORT_CONF_BULK */
 
 /* - Debug print --------------------------------------------------- */
+#if VTSS_OPT_DEBUG_PRINT
 
 #define FA_DEBUG_MAC(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV1G_MAC_##addr), i, "MAC_"name)
 #define FA_DEBUG_PCS(pr, addr, i, name) vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV1G_PCS1G_##addr), i, "PCS1G_"name)
@@ -4995,7 +5008,7 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MUX, fa_debug_mux, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
-
+#endif
 
 /* - Initialization ------------------------------------------------ */
 

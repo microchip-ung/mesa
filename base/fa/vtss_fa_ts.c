@@ -1023,6 +1023,7 @@ static vtss_rc fa_ts_seq_cnt_get(vtss_state_t *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
 {
     u32            port;
@@ -1136,6 +1137,7 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, fa_debug_ts, vtss_state, pr, info);
 }
+#endif
 
 /* - Initialization ------------------------------------------------ */
 

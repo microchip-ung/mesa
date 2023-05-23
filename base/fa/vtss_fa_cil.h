@@ -313,6 +313,7 @@ static inline u32 fla_get_const(vtss_state_t *vtss_state, u32 constant)
     return vtss_state->chip_const[constant];
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr, const char *txt);
 void vtss_fa_debug_print_pmask(vtss_state_t *vtss_state,
@@ -326,7 +327,7 @@ void vtss_fa_debug_sticky(vtss_state_t *vtss_state,
                           const vtss_debug_printf_t pr, u32 addr, const char *name);
 void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const char *col2,
                        vtss_chip_counter_t *c1, vtss_chip_counter_t *c2);
-
+#endif
 #define FA_DEBUG_REG(pr, tgt, addr)                vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), #addr)
 #define FA_DEBUG_REG_NAME(pr, tgt, addr, name)     vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), name)
 #define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name) vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr(x)), x, name)
@@ -371,10 +372,12 @@ vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state,
 
 /* Port functions */
 vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
                                    const vtss_debug_printf_t pr,
                                    const vtss_debug_info_t   *const info);
 vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, BOOL res_stat_cur);
+#endif
 
 /* Port functions for index to address target */
 u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port);
@@ -412,13 +415,18 @@ u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);
 vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,  const vtss_debug_printf_t pr,
                              const vtss_debug_info_t   *const info, vtss_port_no_t port_no);
+#endif
 vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                             const vtss_port_serdes_debug_t *const conf);
 BOOL fa_is_target(vtss_state_t *vtss_state);
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
-vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state, const vtss_debug_printf_t pr,
+vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
+#if VTSS_OPT_DEBUG_PRINT
+                              const vtss_debug_printf_t pr,
+#endif
                               u32 port_no, BOOL ro, u32 *vga, u32 *eqr, u32 *eqc);
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
@@ -439,19 +447,23 @@ vtss_rc fa_port_kr_tap_set(vtss_state_t *vtss_state, const vtss_port_no_t port_n
 
 /* Miscellaneous functions */
 vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
                           const vtss_chip_no_t   chip_no,
                           const vtss_gpio_no_t   gpio_no,
                           const vtss_gpio_mode_t mode);
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr);
 vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr);
+#endif
 u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state);
 vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state);
@@ -472,9 +484,11 @@ vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t *vtss_state, u32 lb_set_idx, vtss_dlb_policer_conf_t *conf);
 #endif
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset);
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
                                          const vtss_port_no_t  port_no);
@@ -484,15 +498,19 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32 vtss_fa_vtss_pgid(const vtss_state_t *const vtss_state, u32 pgid);
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
+#endif
 
 /* L3 functions */
 vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_l3_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
+#endif
 /* Packet functions */
 typedef struct {
     vtss_packet_reg_type_t reg;
@@ -502,9 +520,11 @@ typedef struct {
 } vtss_fa_l2cp_conf_t;
 
 vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_packet_debug_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_fa_l2cp_conf_set(vtss_state_t *vtss_state, u32 profile, u32 l2cp, vtss_fa_l2cp_conf_t *conf);
 
 #if defined(VTSS_FEATURE_AFI_SWC)
@@ -566,9 +586,11 @@ void fla_init_const(vtss_state_t *vtss_state, BOOL fa);
 #if defined(VTSS_FEATURE_TIMESTAMP)
 /* Timestamp functions */
 vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_ts_debug_print(vtss_state_t *vtss_state,
                                 const vtss_debug_printf_t pr,
                                 const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub);
 vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano);
 vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);

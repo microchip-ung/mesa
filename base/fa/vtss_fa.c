@@ -55,6 +55,7 @@ vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask)
     return rc;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr, const char *txt)
 {
@@ -136,6 +137,7 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
     }
     pr("\n");
 }
+#endif
 
 #if defined(VTSS_SDX_CNT)
 static void fa_evc_counter_update(u32 frames, u32 lsb, u32 msb, vtss_chip_counter_pair_t *chip_counter,
@@ -273,6 +275,7 @@ BOOL fa_is_target(vtss_state_t *vtss_state)
  *  Debug print utility functions
  * ================================================================= */
 
+#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info)
@@ -313,6 +316,7 @@ static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
 #endif
     return VTSS_RC_OK;
 }
+#endif
 
 vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
@@ -1108,7 +1112,7 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     return tmp4;
 }
 
-
+#if VTSS_OPT_DEBUG_PRINT
 static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd) {
     switch (spd) {
     case FA_CAL_SPEED_1G:
@@ -1146,6 +1150,7 @@ static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd) {
     }
     return "?";
 }
+#endif
 
 static u32 calspd2int(fa_cal_speed_t spd) {
     switch (spd) {
@@ -1394,6 +1399,7 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
     return VTSS_RC_OK;
 }
 
+#if VTSS_OPT_DEBUG_PRINT
 // Dump the dsm taxi calendar
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr)
@@ -1479,7 +1485,7 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-
+#endif
 
 // Configure the DSM calendar based on port-map
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
@@ -1579,7 +1585,9 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 
     vtss_state->cil.init_conf_set    = fa_init_conf_set;
     vtss_state->cil.restart_conf_set = fa_restart_conf_set;
+#if VTSS_OPT_DEBUG_PRINT
     vtss_state->cil.debug_info_print = fa_debug_info_print;
+#endif
     vtss_state->port.map_set         = fa_port_map_set;
 
 #if defined(VTSS_OPT_EMUL)

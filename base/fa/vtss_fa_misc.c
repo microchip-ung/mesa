@@ -1118,6 +1118,7 @@ static vtss_rc fa_sgpio_read(vtss_state_t *vtss_state,
 
 
 /* - Debug print --------------------------------------------------- */
+#if VTSS_OPT_DEBUG_PRINT
 
 #define FA_DEBUG_GPIO(pr, addr, name) FA_DEBUG_REG_NAME(pr, DEVCPU_GCB, GPIO_##addr, "GPIO_"name)
 #define FA_DEBUG_SIO(pr, addr, name) FA_DEBUG_REG_NAME(pr, DEVCPU_GCB, SIO_##addr, "SIO_"name)
@@ -1281,7 +1282,7 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, fa_debug_misc, vtss_state, pr, info));
     return VTSS_RC_OK;
 }
-
+#endif
 
 
 
