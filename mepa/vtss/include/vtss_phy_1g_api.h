@@ -1595,6 +1595,7 @@ vtss_rc vtss_phy_patch_setttings_get(const vtss_inst_t       inst,
  * \param status [INOUT]  Pointer to where to put the result */
 
 void vtss_phy_reg_decode_status(vtss_port_no_t port_no,
+                                vtss_port_interface_t mac_if,
                                 u16 lp_auto_neg_advertisment_reg,
                                 u16 lp_1000base_t_status_reg,
                                 u16 mii_status_reg,
