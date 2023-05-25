@@ -259,6 +259,12 @@
 #define board_mux_port_in_30                MESA_SYNCE_DEV_MUX_BOARD(  500,      MESA_SYNCE_DEV_INPUT | 30)
 #define board_mux_port_in_31                MESA_SYNCE_DEV_MUX_BOARD(  500,      MESA_SYNCE_DEV_INPUT | 31)
 
+#define board_mux_a_port_29_in              MESA_SYNCE_DEV_MUX_BOARD(  501,      MESA_SYNCE_DEV_INPUT | 29)
+#define board_mux_a_port_out                MESA_SYNCE_DEV_MUX_BOARD(  501,      0)
+
+#define board_mux_b_port_30_in              MESA_SYNCE_DEV_MUX_BOARD(  502,      MESA_SYNCE_DEV_INPUT | 30)
+#define board_mux_b_port_out                MESA_SYNCE_DEV_MUX_BOARD(  502,      0)
+
 #define board_mux_port_out_0             MESA_SYNCE_DEV_MUX_BOARD(   500,      0)
 #define board_mux_port_out_1             MESA_SYNCE_DEV_MUX_BOARD(   500,      1)
 #define board_mux_port_out_2             MESA_SYNCE_DEV_MUX_BOARD(   500,      2)
@@ -439,20 +445,6 @@
 #define indy_phy_mux_11b_port_in_47               MESA_SYNCE_DEV_MUX_PHY(    823,      MESA_SYNCE_DEV_INPUT | 47)
 #define indy_phy_mux_11b_reco_clk_in_1            MESA_SYNCE_DEV_MUX_PHY(    823,      MEPA_SYNCE_CLOCK_DST_2)
 #define indy_phy_mux_11b_port_out_1               MESA_SYNCE_DEV_MUX_PHY(    823,      MEPA_SYNCE_CLOCK_DST_2)
-
-#define indy_phy_mux_12a_port_in_52               MESA_SYNCE_DEV_MUX_PHY(    824,      MESA_SYNCE_DEV_INPUT | 52)
-#define indy_phy_mux_12a_port_in_53               MESA_SYNCE_DEV_MUX_PHY(    824,      MESA_SYNCE_DEV_INPUT | 53)
-#define indy_phy_mux_12a_port_in_54               MESA_SYNCE_DEV_MUX_PHY(    824,      MESA_SYNCE_DEV_INPUT | 54)
-#define indy_phy_mux_12a_port_in_55               MESA_SYNCE_DEV_MUX_PHY(    824,      MESA_SYNCE_DEV_INPUT | 55)
-#define indy_phy_mux_12a_reco_clk_in_0            MESA_SYNCE_DEV_MUX_PHY(    824,      MEPA_SYNCE_CLOCK_DST_1)
-#define indy_phy_mux_12a_port_out_0               MESA_SYNCE_DEV_MUX_PHY(    824,      MEPA_SYNCE_CLOCK_DST_1)
-
-#define indy_phy_mux_12b_port_in_52               MESA_SYNCE_DEV_MUX_PHY(    825,      MESA_SYNCE_DEV_INPUT | 52)
-#define indy_phy_mux_12b_port_in_53               MESA_SYNCE_DEV_MUX_PHY(    825,      MESA_SYNCE_DEV_INPUT | 53)
-#define indy_phy_mux_12b_port_in_54               MESA_SYNCE_DEV_MUX_PHY(    825,      MESA_SYNCE_DEV_INPUT | 54)
-#define indy_phy_mux_12b_port_in_55               MESA_SYNCE_DEV_MUX_PHY(    825,      MESA_SYNCE_DEV_INPUT | 55)
-#define indy_phy_mux_12b_reco_clk_in_1            MESA_SYNCE_DEV_MUX_PHY(    825,      MEPA_SYNCE_CLOCK_DST_2)
-#define indy_phy_mux_12b_port_out_1               MESA_SYNCE_DEV_MUX_PHY(    825,      MEPA_SYNCE_CLOCK_DST_2)
 
 #define vmux_0_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    900,      0)
 #define vmux_0_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    900,      0)
@@ -645,22 +637,6 @@
 #define vmux_47_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    947,      0)
 #define vmux_47_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    947,      0)
 #define vmux_47_port_out_1                         MESA_SYNCE_DEV_MUX_PHY(    947,      1)
-
-#define vmux_52_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    948,      0)
-#define vmux_52_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    948,      0)
-#define vmux_52_port_out_1                         MESA_SYNCE_DEV_MUX_PHY(    948,      1)
-
-#define vmux_53_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    949,      0)
-#define vmux_53_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    949,      0)
-#define vmux_53_port_out_1                         MESA_SYNCE_DEV_MUX_PHY(    949,      1)
-
-#define vmux_54_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    950,      0)
-#define vmux_54_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    950,      0)
-#define vmux_54_port_out_1                         MESA_SYNCE_DEV_MUX_PHY(    950,      1)
-
-#define vmux_55_port_in_0                          MESA_SYNCE_DEV_MUX_PHY(    951,      0)
-#define vmux_55_port_out_0                         MESA_SYNCE_DEV_MUX_PHY(    951,      0)
-#define vmux_55_port_out_1                         MESA_SYNCE_DEV_MUX_PHY(    951,      1)
 
 
 
@@ -946,12 +922,19 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_w_zls307
     MESA_SYNCE_GRAPH_CONNECTION(           phy_mux_10_port_out_1,            board_mux_port_in_22),
     MESA_SYNCE_GRAPH_CONNECTION(           phy_mux_11_port_out_0,            board_mux_port_in_23),
     MESA_SYNCE_GRAPH_CONNECTION(           phy_mux_11_port_out_1,            board_mux_port_in_24),
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_2,            board_mux_port_in_29),
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_3,            board_mux_port_in_30),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_2,            board_mux_a_port_29_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_3,            board_mux_b_port_30_in),
+
     MESA_SYNCE_GRAPH_CONNECTION(           board_mux_port_out_0,             dpll_port_0),
     MESA_SYNCE_GRAPH_CONNECTION(           board_mux_port_out_1,             dpll_port_1),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           board_mux_a_port_out,             dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           board_mux_b_port_out,             dpll_port_1),
+
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_56,         dpll_port_4),
 };
+
 static const meba_synce_terminal_attr_t attr_fireant_56_w_zls30772_board[] = {
     //              device                 attr-type             attr-value
     MESA_SYNCE_ATTR(dpll_port_0,           MEBA_ATTR_CLOCK_ID,   1),
@@ -1371,10 +1354,15 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_45,                      vmux_45_port_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_46,                      vmux_46_port_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_47,                      vmux_47_port_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_52,                      vmux_52_port_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_53,                      vmux_53_port_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_54,                      vmux_54_port_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_55,                      vmux_55_port_in_0),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_52,                      divider_switch_mux_port_52_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_52_out,   switch_mux_port_in_52),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_53,                      divider_switch_mux_port_53_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_53_out,   switch_mux_port_in_53),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_54,                      divider_switch_mux_port_54_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_54_out,   switch_mux_port_in_54),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_55,                      divider_switch_mux_port_55_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_55_out,   switch_mux_port_in_55),
 
     MESA_SYNCE_GRAPH_CONNECTION(           vmux_0_port_out_0,                indy_phy_mux_0a_port_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           vmux_0_port_out_1,                indy_phy_mux_0b_port_in_0),
@@ -1472,14 +1460,6 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
     MESA_SYNCE_GRAPH_CONNECTION(           vmux_46_port_out_1,               indy_phy_mux_11b_port_in_46),
     MESA_SYNCE_GRAPH_CONNECTION(           vmux_47_port_out_0,               indy_phy_mux_11a_port_in_47),
     MESA_SYNCE_GRAPH_CONNECTION(           vmux_47_port_out_1,               indy_phy_mux_11b_port_in_47),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_52_port_out_0,               indy_phy_mux_12a_port_in_52),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_52_port_out_1,               indy_phy_mux_12b_port_in_52),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_53_port_out_0,               indy_phy_mux_12a_port_in_53),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_53_port_out_1,               indy_phy_mux_12b_port_in_53),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_54_port_out_0,               indy_phy_mux_12a_port_in_54),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_54_port_out_1,               indy_phy_mux_12b_port_in_54),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_55_port_out_0,               indy_phy_mux_12a_port_in_55),
-    MESA_SYNCE_GRAPH_CONNECTION(           vmux_55_port_out_1,               indy_phy_mux_12b_port_in_55),
 
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_1a_port_out_0,       indy_phy_mux_0a_reco_clk_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_1b_port_out_1,       indy_phy_mux_0b_reco_clk_in_1),
@@ -1503,18 +1483,19 @@ static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_z
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_10b_port_out_1,      indy_phy_mux_9b_reco_clk_in_1),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_11a_port_out_0,      indy_phy_mux_10a_reco_clk_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_11b_port_out_1,      indy_phy_mux_10b_reco_clk_in_1),
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_12a_port_out_0,      indy_phy_mux_11a_reco_clk_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_12b_port_out_1,      indy_phy_mux_11b_reco_clk_in_1),
 
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_1),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_2),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_3),
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_fireant_56,         dpll_port_4),
-
 
 };
 
 static const meba_synce_terminal_attr_t attr_fireant_56_revc_w_zls30772_board[] = {
     //              device                 attr-type             attr-value
+    MESA_SYNCE_ATTR(dpll_port_0,           MEBA_ATTR_CLOCK_ID,   1),
+    MESA_SYNCE_ATTR(dpll_port_1,           MEBA_ATTR_CLOCK_ID,   2),
     MESA_SYNCE_ATTR(dpll_port_2,           MEBA_ATTR_CLOCK_ID,   1),
     MESA_SYNCE_ATTR(dpll_port_3,           MEBA_ATTR_CLOCK_ID,   2),
     MESA_SYNCE_ATTR(dpll_port_4,           MEBA_ATTR_CLOCK_ID,   3),
@@ -1573,21 +1554,38 @@ static const meba_synce_terminal_attr_t attr_fireant_56_revc_w_zls30772_board[] 
     MESA_SYNCE_ATTR(eth_port_52,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
     MESA_SYNCE_ATTR(eth_port_52,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
     MESA_SYNCE_ATTR(eth_port_52,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
     MESA_SYNCE_ATTR(eth_port_53,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ),
     MESA_SYNCE_ATTR(eth_port_53,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
     MESA_SYNCE_ATTR(eth_port_53,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
     MESA_SYNCE_ATTR(eth_port_53,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
     MESA_SYNCE_ATTR(eth_port_53,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
     MESA_SYNCE_ATTR(eth_port_54,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ),
     MESA_SYNCE_ATTR(eth_port_54,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
     MESA_SYNCE_ATTR(eth_port_54,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
     MESA_SYNCE_ATTR(eth_port_54,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
     MESA_SYNCE_ATTR(eth_port_54,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
     MESA_SYNCE_ATTR(eth_port_55,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ),
     MESA_SYNCE_ATTR(eth_port_55,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
     MESA_SYNCE_ATTR(eth_port_55,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
     MESA_SYNCE_ATTR(eth_port_55,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
     MESA_SYNCE_ATTR(eth_port_55,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
+    MESA_SYNCE_ATTR(switch_mux_port_in_52,  MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_52,  MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_78_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_52,  MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_53,  MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_53,  MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_78_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_53,  MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_54,  MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_54,  MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_78_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_54,  MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_55,  MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_55,  MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_78_125MHZ),
+    MESA_SYNCE_ATTR(switch_mux_port_in_55,  MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
 };
 
 mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
