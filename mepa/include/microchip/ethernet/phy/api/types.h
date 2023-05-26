@@ -467,5 +467,35 @@ typedef struct {
     uint32_t no_of_errors;          /**< Error Generation */
 } mepa_phy_prbs_monitor_conf_t;
 
+/** \brief API version */
+typedef uint16_t mepa_restart_version_t;
+
+/** \brief Restart type */
+typedef enum {
+    /**< Cold: Chip and CPU restart, e.g. power cycling */
+    MEPA_RESTART_COLD,
+    /**< Cool: Chip and CPU restart done by CPU */
+    MEPA_RESTART_COOL,
+    /**< Warm: CPU restart only */
+    MEPA_RESTART_WARM
+} mepa_restart_t;
+
+/** \brief Restart status */
+typedef struct {
+    mepa_restart_t restart;      /**< Previous restart mode */
+    mepa_restart_t prev_version; /**< Previous API version */
+    mepa_restart_t cur_version;  /**< Current API version */
+} mepa_restart_status_t;
+
+/** \brief Restart info */
+typedef struct {
+    mepa_restart_t         restart_cur;      /* Current restart configuration */
+    mepa_restart_t         restart_prev;    /* Previous restart configuration */
+    mepa_restart_version_t version_cur;     /* Current version */
+    mepa_restart_version_t  version_prev;    /* Previous version */
+} mepa_restart_info_t;
+
+
+
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_TYPES_H_ */

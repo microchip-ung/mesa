@@ -620,6 +620,54 @@ typedef mepa_rc (*mepa_driver_prbs_monitor_set_t)(struct mepa_device *dev, mepa_
  **/
 typedef mepa_rc (*mepa_driver_prbs_monitor_get_t)(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
 
+/**
+ * \brief To Get restart configuration (next restart mode)
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param value      [OUT] Warmrestart Info.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_warmrestart_conf_get_t)(struct mepa_device *dev, mepa_restart_t *const restart);
+
+/**
+ * \brief Set restart configuration (next restart mode)
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param value      [OUT] Warmrestart Info.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_warmrestart_conf_set_t)(struct mepa_device *dev, const mepa_restart_t restart);
+
+/**
+ * \brief To End  Warm restart configuration
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param value      [OUT] Warmrestart Info.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_warmrestart_conf_end_t)(struct mepa_device *dev);
+
+/**
+ * \brief To End  Warm restart configuration
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param value      [OUT] Warmrestart Info.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_warmrestart_sync_t)(struct mepa_device *dev);
+
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
     mepa_driver_reset_t                mepa_driver_reset;
