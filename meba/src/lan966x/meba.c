@@ -342,7 +342,8 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
             return board->port_cnt;
-
+        case MEBA_CAP_BOARD_PORT_POE_COUNT:
+            return 0;
         case MEBA_CAP_LED_MODES:
             return 1;    /* No alternate led mode support */
 
