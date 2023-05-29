@@ -13,11 +13,7 @@
 #define MEPA_MACSEC_SA_PER_SC_MIN  2  /**< SAs per SC Min : 2 */
 
 #define MEPA_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC_MAX /**< SAs per SCs : 4 */
-#ifdef MEPA_CHIP_10G_PHY
 #define MEPA_MACSEC_MAX_SA     MEPA_MACSEC_10G_MAX_SA   /**< 10G PHY Max SAs : 64 */
-#else
-#define MEPA_MACSEC_MAX_SA     MEPA_MACSEC_1G_MAX_SA    /**< 1G PHY Max SAs : 16 */
-#endif
 #define MEPA_MACSEC_MAX_SA_RX  MEPA_MACSEC_MAX_SA       /**< Max Rx SAs */
 #define MEPA_MACSEC_MAX_SA_TX  MEPA_MACSEC_MAX_SA       /**< Max Tx SAs */
 #define MEPA_MACSEC_MAX_SC_RX  MEPA_MACSEC_MAX_SA/2     /**< Max Rx SCs : 32/8 */

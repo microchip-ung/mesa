@@ -58,7 +58,7 @@ MEPA_DRV(LIB_NAME mepa_drv_vtss_10g_ts
          INCL_PRI ${inc_vtss})
 
 MEPA_DRV(LIB_NAME mepa_drv_vtss_10g_macsec_ts
-         DEFS     -DVTSS_OPT_PHY_10G=1 -DVTSS_OPT_PHY_MACSEC=1 -DVTSS_OPT_PHY_TIMESTAMP=1 -DMEPA_CHIP_10G_PHY=1
+         DEFS     -DVTSS_OPT_PHY_10G=1 -DVTSS_OPT_PHY_MACSEC=1 -DVTSS_OPT_PHY_TIMESTAMP=1
          SRCS     ${src_vtss}
          INCL_PUB ${inc_mepa}
          INCL_PRI ${inc_vtss})
