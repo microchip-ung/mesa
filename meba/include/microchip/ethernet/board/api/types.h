@@ -266,9 +266,6 @@ typedef enum {
     // Number of exposed (external) ports on board
     MEBA_CAP_BOARD_PORT_COUNT,
 
-    // Number of exposed (external) poe ports on board
-    MEBA_CAP_BOARD_PORT_POE_COUNT,
-
     // Number of ports in the port map (may be > MEBA_CAP_BOARD_PORT_COUNT if
     // having MEP or Mirror loop ports)
     MEBA_CAP_BOARD_PORT_MAP_COUNT,
@@ -326,6 +323,11 @@ typedef enum {
 
     // Number of exposed (external) ports directly connected to the CPU
     MEBA_CAP_CPU_PORTS_COUNT,
+
+    // Number of exposed (external) poe ports on board
+    MEBA_CAP_BOARD_PORT_POE_COUNT,
+
+    // For backwards compatibility, add new capabilities here!
 
     MEBA_CAP_LAST   // Last MEBA capability (must be last in list)
 } meba_cap_t;

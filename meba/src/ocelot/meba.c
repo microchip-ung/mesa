@@ -801,8 +801,6 @@ static uint32_t ocelot_capability(meba_inst_t inst,
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
             return board->port_cnt;
-        case MEBA_CAP_BOARD_PORT_POE_COUNT:
-            return board->port_cnt;
         case MEBA_CAP_LED_MODES:
             return 1;    /* No alternate led mode support */
         case MEBA_CAP_DYING_GASP:
@@ -849,6 +847,8 @@ static uint32_t ocelot_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
+        case MEBA_CAP_BOARD_PORT_POE_COUNT:
+            return board->port_cnt;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
