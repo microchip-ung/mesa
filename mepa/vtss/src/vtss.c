@@ -1165,6 +1165,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
+            .mepa_macsec = &vtss_macsec_drivers,
         },
         {
             // VTSS (all other models)
