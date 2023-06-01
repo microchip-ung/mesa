@@ -1763,6 +1763,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         if (lre) {
             tag_mode = FA_RB_TAG_HSR;
             hsr_aware = 1;
+            prxy_smac_msk = FA_RB_MSK_AB;   // Discard on Interlink if SMAC is proxy
             ht = FA_HT_DAN;                 // Learn nodes on LREs
             hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
