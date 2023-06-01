@@ -100,6 +100,77 @@ typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_ctx         *ctx,
                                      const uint16_t                   value);
 
 
+/**
+ * \brief SPI  read function
+ *
+ * \param ctx   [IN]  Pointer to a callout structure
+ * \param mmd   [IN]  MMD register.
+ * \param addr  [IN]  Start register address (0-65535).
+ * \param value [OUT] Pointer to a value.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_spi_read_t)(struct mepa_callout_ctx          *ctx,
+                                   const uint8_t                     mmd,
+                                   const uint16_t                    addr,
+                                   uint32_t                         *const value);
+
+/**
+ * \brief SPI  64bit read function
+ *
+ * \param ctx   [IN]  Pointer to a callout structure
+ * \param mmd   [IN]  MMD register.
+ * \param addr  [IN]  Start register address (0-65535).
+ * \param value [OUT] Pointer to a value (64bit).
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_spi_read_64bit_t)(struct mepa_callout_ctx          *ctx,
+                                         const uint8_t                     mmd,
+                                         const uint16_t                    addr,
+                                         uint64_t                         *const value);
+
+
+/**
+ * \brief SPI  write function
+ *
+ * \param ctx   [IN]  Pointer to a callout structure
+ * \param mmd   [IN]  MMD register.
+ * \param addr  [IN]  Start register address (0-65535).
+ * \param value [OUT] Pointer to a value.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_spi_write_t)(struct mepa_callout_ctx          *ctx,
+                                    const uint8_t                     mmd,
+                                    const uint16_t                    addr,
+                                    const uint32_t                    value);
+
+
+/**
+ * \brief SPI  64bit write function
+ *
+ * \param ctx   [IN]  Pointer to a callout structure
+ * \param mmd   [IN]  MMD register.
+ * \param addr  [IN]  Start register address (0-65535).
+ * \param value [OUT] Pointer to a value.(64bit).
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_spi_write_64bit_t)(struct mepa_callout_ctx          *ctx,
+                                          const uint8_t                     mmd,
+                                          const uint16_t                    addr,
+                                          const uint64_t                    value);
+
+
 typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data, va_list args);
 typedef void *(*mepa_mem_alloc_t)(struct mepa_callout_ctx *ctx, size_t size);
 typedef void (*mepa_mem_free_t)(struct mepa_callout_ctx *ctx, void *ptr);
@@ -115,6 +186,10 @@ extern mepa_trace_func_t MEPA_TRACE_FUNCTION;
 /** \brief PHY synchronisation callbacks passed by application */
 typedef void (*mepa_lock_func_t)(const mepa_lock_t *const lock);
 
+
+
+
+
 /** \brief Address mode that is specific for mchp phy. */
 typedef struct mepa_callout {
     mepa_mmd_read_t        mmd_read;
@@ -122,7 +197,10 @@ typedef struct mepa_callout {
     mepa_mmd_write_t       mmd_write;
     mepa_miim_read_t       miim_read;
     mepa_miim_write_t      miim_write;
-
+    mepa_spi_read_t        spi_read;
+    mepa_spi_write_t       spi_write;
+    mepa_spi_read_64bit_t  spi_read_64bit;
+    mepa_spi_write_64bit_t spi_write_64bit;
     mepa_lock_func_t       lock_enter;
     mepa_lock_func_t       lock_exit;
 
@@ -607,12 +685,12 @@ mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_i2c_read(mepa_device_t *dev,
-                        const uint8_t i2c_mux,
-                        const uint8_t i2c_reg_addr,
-                        const uint8_t i2c_dev_addr,
-                        uint8_t *const value,
-                        uint8_t cnt,
-                        const mepa_bool_t word_access);
+                      const uint8_t i2c_mux,
+                      const uint8_t i2c_reg_addr,
+                      const uint8_t i2c_dev_addr,
+                      uint8_t *const value,
+                      uint8_t cnt,
+                      const mepa_bool_t word_access);
 
 /**
  *
@@ -635,12 +713,12 @@ mepa_rc mepa_i2c_read(mepa_device_t *dev,
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_i2c_write(mepa_device_t *dev,
-                        const uint8_t i2c_mux,
-                        const uint8_t i2c_reg_addr,
-                        const uint8_t i2c_dev_addr,
-                        uint8_t *value,
-                        uint8_t cnt,
-                        const mepa_bool_t word_access);
+                       const uint8_t i2c_mux,
+                       const uint8_t i2c_reg_addr,
+                       const uint8_t i2c_dev_addr,
+                       uint8_t *value,
+                       uint8_t cnt,
+                       const mepa_bool_t word_access);
 
 
 /**
