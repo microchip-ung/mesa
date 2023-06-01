@@ -142,6 +142,16 @@ mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool
     return mepa_fefi_detect(inst->phy_devices[port_no], detect);
 }
 
+/* Set the PHY interface based on inputs.*/
+mepa_rc meba_phy_if_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_interface_t intf)
+{
+    T_I(inst, "Called port %d", port_no);
+    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+
+    return mepa_if_set(inst->phy_devices[port_no], intf);
+}
 /* Get the PHY interface based on speed.*/
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf)

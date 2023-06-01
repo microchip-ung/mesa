@@ -29,6 +29,9 @@ mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t 
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf);
 
+// Set the PHY interface based on the inputs.
+mepa_rc meba_phy_if_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_interface_t intf);
+
 // Sets the power mode in PHY.
 mepa_rc meba_phy_power_set(meba_inst_t inst, mepa_port_no_t port_no,
                            mepa_power_mode_t power);
