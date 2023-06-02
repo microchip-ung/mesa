@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+# Invoke with "-n" or "--no-init" to skip uploading an image and to skip reboot
+# of DUT.
+
+set -e
+
+ts=dk-t35-6
+img=/tftpboot/rbn/new.itb
+file=l2_redbox.rb
+suffix=""
+
+if [ ! -f $file ]; then
+   echo "Test script not found: $file"
+   exit
+fi
+
+rel=1
+
+if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
+    echo "----topo exist release----"
+    et release
+    rel=0
+fi
+
+echo "----Reserve test system----"
+et reserve $ts
+
+case $1 in
+    (--no-init|-n)
+        echo "Skipping uploading of image"
+        ;;
+    (*)
+        echo "----Upload image----"
+        et upload $img
+        ;;
+esac
+
+echo "----Run test----"
+./$file $1 | libeasy/xml2console.rb $suffix
+if [ $rel == 1 ]; then
+    et release
+fi

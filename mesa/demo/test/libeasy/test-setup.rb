@@ -136,6 +136,7 @@ class CliIO
           yield l
           if l.match pattern
             return true
+          else
           end
         end
 
@@ -344,10 +345,35 @@ class MesaDut
         call_execute cmd, "try_ignore", *args
     end
 
+    # Run CLI command on WebStaX. Stop test if error.
+    def call_ws(cmd)
+        call_ws_execute(cmd, "run")
+    end
+
+    # Run CLI command on WebStaX while ignoring errors
+    def try_ignore_ws(cmd)
+        call_ws_execute(cmd, "try_ignore")
+    end
+
+    # Run CLI command without waiting for a prompt
+    def call_ws_no_wait(cmd)
+        call_ws_execute(cmd, "no_wait")
+    end
+
+    # Flush the output
+    def call_ws_flush()
+        call_ws_execute("", "flush")
+    end
+
     def linux_login
         @io.read_line_expect_retry /login:/, 180, 2, ""
         @io.read_line_expect_retry /#/, 10, 1, "root"
         @io.cmd "echo 4 > /proc/sys/kernel/printk"
+    end
+
+    def switch_app_login
+        @io.read_line_expect_retry /Press ENTER to get started/, 180, 2, ""
+        @io.read_line_expect_retry /#/, 10, 1, "admin"
     end
 
     def terminal_alive timeout
@@ -487,6 +513,9 @@ class MesaDut
             @io.send "er -l /tmp/console-er -- sh -c \"#{cmd}\""
         end
 
+        @io.read_line_expect_retry(/# $/, 10, 1)
+        return
+
         pid = pid_for_cmd cmd
 
         ts_begin = Time.now
@@ -544,6 +573,47 @@ class MesaDut
             return o[0]
         else
             return o
+        end
+    end
+
+    # Run CLI command on WebStaX
+    # method = run, try_ignore, no_wait, flush
+    def call_ws_execute(cmd, method)
+        @io.send(cmd) unless method == "flush"
+
+        return if method == "no_wait"
+
+        ts_begin = Time.now()
+        xml_tag_start(method, {"on" => "dut", "cmd" => cmd, "ts" => xml_ts(ts_begin)})
+
+        res_out = Array.new()
+        res     = 0
+
+        @io.read_line_expect_retry(/^#|^\(config.*\)#/, 10, 1) do |l|
+            ts = Time.now()
+            attrs = {"ts_rel" => xml_ts_diff(ts_begin, ts), "ts" => xml_ts(ts), "on" => "dut"}
+            cmd_escaped = Regexp.escape(cmd)
+
+            case l
+            when /^%/
+               xml_tag("#{method}_stderr", l, attrs)
+               res = 1 # Error
+
+            when /^#{cmd_escaped}$/
+               # This is the command we sent. Don't do anything
+
+            else
+               xml_tag("#{method}_stdout", l, attrs)
+               res_out << l
+            end
+        end
+
+        xml_tag_end("#{method}")
+        method_apply_result(method, res)
+        if res > 0
+            return nil
+        else
+            return res_out
         end
     end
 end
@@ -911,7 +981,11 @@ def upload_utils conf
 
 end
 
-$easyframes_sha = "ce45ec85871ad2f1412a964868f8ad11bf581bfc"
+# Original:
+#$easyframes_sha = "ce45ec85871ad2f1412a964868f8ad11bf581bfc"
+
+# With sv support:
+$easyframes_sha = "8a973c9168830c213690e3e16d74b2763dee3ce5"
 
 UBOOT_PROMPTS = ["m => ", "ocelot # ", "luton # ", "jr2 # ", "servalt # ", "=> "]
 
@@ -991,16 +1065,23 @@ class Mesa_Pc_b2b
         end
 
         if $options[:no_init]
+            return
             @pc.run "/easytest/local/if-setup-l2-test.rb"
             @dut.mute
         else
-            t_i "Preparing PC for network load"
+            t_i "Preparing PC for network load. options = #{$options}"
             @pc.run "/easytest/local/if-setup-dhcp.rb"
 
             reboot_dut conf
 
             t_i "Prepare for test run"
             @pc.run "/easytest/local/if-setup-l2-test.rb"
+
+            @dut.io.send("alias l='ls -al'")
+            @dut.io.send("switch_app -i #{dut_args}")
+            @dut.switch_app_login()
+            return
+
             @dut.mute
 
             t = ""
@@ -1112,6 +1193,8 @@ class Mesa_Pc_b2b
 
         if l =~ /#/
           t_i "Do not attempt to SW-reset Laguna"
+          @dut.io.send("do pla deb all") # WebStaX: Allow debug commands
+          @dut.io.send("do deb sys sh")  # WebStaX: exit to a shell
           @dut.io.send("echo 16 >/sys/class/gpio/export")
           sleep 0.1
           @dut.io.send("echo out >/sys/class/gpio/gpio16/direction")
@@ -1170,6 +1253,7 @@ class Mesa_Pc_b2b
 
     def uninit
         @pc.run "/easytest/local/if-setup-dhcp.rb"
+	return
         @dut.unmute
     end
 end
@@ -1278,6 +1362,7 @@ def get_test_setup_inner(setup, conf, mesa_args, topo_name, labels)
     case setup
     when "mesa_pc_b2b_4x"
         ts = Mesa_Pc_b2b.new(conf, mesa_args, 4, topo_name, labels)
+        return ts
         show_mesa_setup(ts)
         return ts
     when "mesa_pc_b2b_2x"
@@ -1390,6 +1475,8 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
     dut_init_block setup do
         ts = get_test_setup_inner(setup, conf, mesa_args, topo_name, labels)
         $global_test_setup = ts
+
+	return ts
 
         if (defined? ts.dut) and ts.dut.api == :mesa
             ports = ts.dut.call("mesa_vlan_port_members_get", 1)
