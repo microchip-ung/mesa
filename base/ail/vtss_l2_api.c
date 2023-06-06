@@ -8497,22 +8497,12 @@ static void vtss_debug_print_vlan(vtss_state_t *vtss_state,
             pr("OT  ");
 #endif
             vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
-#if defined(VTSS_FEATURE_QOS_OT)
-            pr("OT  ");
-#endif
-            vtss_debug_print_port_header(vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ", 0, 1);
             header = 0;
         }
         pr("%-6u", vid);
 #if defined(VTSS_FEATURE_VLAN_SVL)
         pr("%-6u", entry->fid);
 #endif /* VTSS_FEATURE_VLAN_SVL */
-#if defined(VTSS_FEATURE_QOS_OT)
-        pr("%-4u", entry->flags & VLAN_FLAGS_OT ? 1 : 0);
-#endif
-#if defined(VTSS_ARCH_JAGUAR_2)
-        mgmt = entry->mgmt;
-#endif
 #if defined(VTSS_FEATURE_QOS_OT)
         pr("%-4u", entry->flags & VLAN_FLAGS_OT ? 1 : 0);
 #endif
