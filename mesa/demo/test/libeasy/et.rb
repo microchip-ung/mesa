@@ -9,7 +9,6 @@ require_relative './test-setup'
 require_relative './utils'
 
 $options = {}
-
 OptionParser.new do |opts|
     opts.banner = "Usage: example.rb [options]"
 
