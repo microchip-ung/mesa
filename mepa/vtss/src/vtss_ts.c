@@ -601,7 +601,7 @@ static mepa_rc vtss_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
     ts_init_conf->rx_ts_len         = init_conf.rx_ts_len == VTSS_PHY_TS_RX_TIMESTAMP_LEN_30BIT ? MEPA_TS_RX_TIMESTAMP_LEN_30BIT : MEPA_TS_RX_TIMESTAMP_LEN_32BIT;
     ts_init_conf->rx_ts_pos         = init_conf.rx_ts_pos == VTSS_PHY_TS_RX_TIMESTAMP_POS_AT_END ? MEPA_TS_RX_TIMESTAMP_POS_AT_END : MEPA_TS_RX_TIMESTAMP_POS_IN_PTP;
     ts_init_conf->tx_fifo_mode      = init_conf.tx_fifo_mode;
-    ts_init_conf->tx_fifo_spi_conf  = init_conf.tx_fifo_spi_conf;
+    ts_init_conf->tx_fifo_spi_conf  = data->ts.tx_fifo_spi_conf;
     ts_init_conf->tx_ts_len         = init_conf.tx_ts_len == VTSS_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE ? MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE : MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE;
     ts_init_conf->auto_clear_ls     = init_conf.auto_clear_ls;
     ts_init_conf->dly_req_recv_10byte_ts = data->ts.dly_req_recv_10byte_ts;
@@ -616,6 +616,7 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
     vtss_phy_ts_init_conf_t init_conf = {};
 
     data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
+    data->ts.tx_fifo_spi_conf = ts_init_conf->tx_fifo_spi_conf;
     init_conf.clk_freq = ts_init_conf->clk_freq;
     T_I(data, MEPA_TRACE_GRP_GEN, "clock frequency %d\n", ts_init_conf->clk_freq);
     if (ts_init_conf->clk_src >= MEPA_TS_CLOCK_SRC_INTERNAL) {

@@ -16003,7 +16003,6 @@ vtss_rc vtss_phy_ts_init_conf_get(const vtss_inst_t     inst,
             conf->tc_op_mode = vtss_state->phy_ts_port_conf[port_no].tc_op_mode;
             conf->one_step_txfifo = vtss_state->phy_ts_port_conf[port_no].one_step_txfifo;
             conf->auto_clear_ls = vtss_state->phy_ts_port_conf[port_no].auto_clear_ls;
-            conf->tx_fifo_spi_conf = vtss_state->phy_ts_port_conf[port_no].tx_fifo_spi_conf;
 #ifdef VTSS_CHIP_10G_PHY
             conf->xaui_sel_8487 = vtss_state->phy_ts_port_conf[port_no].xaui_sel_8487;
 #endif
