@@ -605,6 +605,7 @@ static mepa_rc vtss_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *co
     ts_init_conf->tx_ts_len         = init_conf.tx_ts_len == VTSS_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE ? MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE : MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE;
     ts_init_conf->auto_clear_ls     = init_conf.auto_clear_ls;
     ts_init_conf->dly_req_recv_10byte_ts = data->ts.dly_req_recv_10byte_ts;
+    ts_init_conf->tc_op_mode  = init_conf.tc_op_mode;
 
     return MEPA_RC_OK;
 }
