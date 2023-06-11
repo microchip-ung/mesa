@@ -28,7 +28,7 @@
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_AT - AF/AT mode
 // MEBA_POE_FIRMWARE_TYPE_BT - BT mode
-#define OCELOT_POE_FIRMWARE_TYPE_DEFAULT                      MEBA_POE_FIRMWARE_TYPE_BT
+#define OCELOT_POE_FIRMWARE_TYPE_DEFAULT                      MEBA_POE_FIRMWARE_TYPE_AT
 
 
 // Set unit max power as fixed or variable through Web & CLI
