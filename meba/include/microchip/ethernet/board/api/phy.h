@@ -155,5 +155,25 @@ mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy
 //To get error status of PRBS
 mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
 
+//i2c Read
+mepa_rc meba_phy_i2c_read(meba_inst_t    inst,
+                          mepa_port_no_t port_no,
+                          uint8_t        i2c_mux,
+                          uint8_t        i2c_reg_addr,
+                          uint8_t        i2c_dev_addr,
+                          mepa_bool_t    word_access,
+                          uint8_t        cnt,
+                          uint8_t        *const value);
+
+//i2c Write
+mepa_rc meba_phy_i2c_write(meba_inst_t    inst,
+                           mepa_port_no_t port_no,
+                           uint8_t        i2c_mux,
+                           uint8_t        i2c_reg_addr,
+                           uint8_t        i2c_dev_addr,
+                           mepa_bool_t    word_access,
+                           uint8_t        cnt,
+                           const uint8_t  *const value);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

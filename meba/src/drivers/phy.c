@@ -628,3 +628,35 @@ mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no,
     }
     return mepa_prbs_monitor_get(inst->phy_devices[port_no], value);
 }
+
+//i2c Read
+mepa_rc meba_phy_i2c_read(meba_inst_t inst,
+                          mepa_port_no_t port_no,
+                          uint8_t i2c_mux,
+                          uint8_t i2c_reg_addr,
+                          uint8_t i2c_dev_addr,
+                          mepa_bool_t word_access,
+                          uint8_t cnt,
+                          uint8_t *const value)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_i2c_read(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+}
+
+//i2c Write
+mepa_rc meba_phy_i2c_write(meba_inst_t inst,
+                           mepa_port_no_t port_no,
+                           uint8_t i2c_mux,
+                           uint8_t i2c_reg_addr,
+                           uint8_t i2c_dev_addr,
+                           mepa_bool_t word_access,
+                           uint8_t cnt,
+                           const uint8_t *const value)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_i2c_write(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+}
