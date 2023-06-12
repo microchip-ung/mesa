@@ -556,6 +556,8 @@ static vtss_rc fa_mac_index_update(vtss_state_t *vtss_state)
     REG_WR(VTSS_ANA_L2_PMAC_CFG,
            VTSS_F_ANA_L2_PMAC_CFG_PMAC_ENA(t->cnt ? 1 : 0) |
            VTSS_F_ANA_L2_PMAC_CFG_PMAC_OUI(t->oui));
+    REG_WR(VTSS_ANA_L2_PMAC_CFG_2,
+           VTSS_F_ANA_L2_PMAC_CFG_2_PMAC_CHK_DMAC_LSB_ENA(1));
     for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
         vid = t->e[i].vid;
         REG_WR(VTSS_ANA_L2_PMAC_VLAN_CFG(i),
