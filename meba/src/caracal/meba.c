@@ -152,7 +152,7 @@ typedef struct meba_board_state {
 #define VTSS_OS_TICK2MSEC(x)    ((x)*100)  // assume itteration every 100msec
 
 static const mesa_fan_conf_t fan_conf = {
-    .fan_pwm_freq = MESA_FAN_PWM_FREQ_20HZ,    // 20MHz
+    .fan_pwm_freq = MESA_FAN_PWM_FREQ_25KHZ,   // 25kHz
     .fan_low_pol = 0,                          // active low
     .fan_open_col = true,                      // Open collector
     .type = MESA_FAN_3_WIRE_TYPE,              // 3-wire
