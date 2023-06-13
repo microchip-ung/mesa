@@ -1183,6 +1183,10 @@ static int __gpy211_setup_forced(struct gpy211_device *phy)
 			return ret;
 		}
 	} else {
+		// Mesa-913
+		LOG_WARN("WARN: Speed forced not supported\n");
+		return -EINVAL;
+
 		/* Full duplex only */
 		ctrl1 &= STD_CTRL_SSM_MASK | STD_CTRL_SSL_MASK
 			 | STD_CTRL_LB_MASK | STD_CTRL_ISOL_MASK
