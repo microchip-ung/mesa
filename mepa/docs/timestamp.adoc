@@ -216,7 +216,7 @@ be used to get/set egress clock configurations.
 In BC1STEP mode on egress side, 10-byte timestamp will be inserted into the
 origin timestamp field.
 
-In BC2STEP or TC2STEP modes on egress side, 10-byte timestamp will be saved
+In BC2STEP or TC2STEP modes on egress side, 10-byte or 8-byte timestamp will be saved
 into FIFO and it has to be read by application by enabling timestamp events.
 
 In TC1STEP mode on egress side, correction field will be updated in the packet.
@@ -373,6 +373,13 @@ The following APIs will be used to read/empty the TSFIFO timestamp:
 * Empty timestamp FIFO entry - `mepa_ts_fifo_empty()`
 
 Install callback to read data (signature + timestamp) from TX TSFIFO.
+
+From 2023.06 release, new API `mepa_ts_fifo_get()` is added to retrieve up to
+8 timestamp entries in single call without using callback functions of
+'mepa_ts_fifo_empty()' API. Each timestamp entry contains a timestamp having
+seconds and nano seconds values and also a signature for correlating timestamp
+with specific message. All VSC phys save 10-byte timestamp into FIFO. LAN8814 phy
+saves 8-byte timestamp into FIFO with 4-byte seconds field.
 
 === TS Reset
 

@@ -619,7 +619,9 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
     data->ts.tx_fifo_spi_conf = ts_init_conf->tx_fifo_spi_conf;
     init_conf.clk_freq = ts_init_conf->clk_freq;
     T_I(data, MEPA_TRACE_GRP_GEN, "clock frequency %d\n", ts_init_conf->clk_freq);
-    if (ts_init_conf->clk_src >= MEPA_TS_CLOCK_SRC_INTERNAL) {
+    if (ts_init_conf->clk_src == MEPA_TS_CLOCK_SRC_INTERNAL) {
+        init_conf.clk_src = VTSS_PHY_TS_CLOCK_SRC_INTERNAL;
+    } else if (ts_init_conf->clk_src > MEPA_TS_CLOCK_SRC_INTERNAL) {
         init_conf.clk_src = VTSS_PHY_TS_CLOCK_SRC_EXTERNAL;
     } else {
         init_conf.clk_src = ts_init_conf->clk_src;
@@ -1540,6 +1542,33 @@ mepa_rc vtss_ts_fifo_empty(struct mepa_device *dev)
     return vtss_phy_ts_fifo_empty(data->vtss_instance, data->port_no);
 }
 
+mepa_rc vtss_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[],
+                         const size_t size, uint32_t *const num)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    vtss_phy_ts_fifo_entry_t vtss_entry[MEPA_TS_FIFO_MAX_ENTRIES];
+    int i;
+
+    if (size < MEPA_TS_FIFO_MAX_ENTRIES) {
+        T_E(data, MEPA_TRACE_GRP_TS, "Size of Input TS list is less than 8\n");
+        return MEPA_RC_ERROR;
+    }
+
+    if (vtss_phy_ts_fifo_get(data->vtss_instance, data->port_no, vtss_entry, MEPA_TS_FIFO_MAX_ENTRIES, num) == VTSS_RC_OK) {
+        for (i = 0; i < *num; i++) {
+            ts_list[i].ts.seconds.high = vtss_entry[i].ts.seconds.high;
+            ts_list[i].ts.seconds.low = vtss_entry[i].ts.seconds.low;
+            ts_list[i].ts.nanoseconds = vtss_entry[i].ts.nanoseconds;
+            ts_list[i].sig.msg_type = vtss_entry[i].sig.msg_type;
+            ts_list[i].sig.domain_num = vtss_entry[i].sig.domain_num;
+            memcpy(ts_list[i].sig.src_port_identity, vtss_entry[i].sig.src_port_identity, sizeof(ts_list[i].sig.src_port_identity));
+            ts_list[i].sig.sequence_id = vtss_entry[i].sig.sequence_id;
+            ts_list[i].sig.has_crc_src = false;
+        }
+    }
+    return MEPA_RC_OK;
+}
+
 mepa_ts_driver_t vtss_ts_drivers = {
     .mepa_ts_init_conf_get          = vtss_ts_init_conf_get,
     .mepa_ts_init_conf_set          = vtss_ts_init_conf_set,
@@ -1575,4 +1604,5 @@ mepa_ts_driver_t vtss_ts_drivers = {
     .mepa_ts_tx_classifier_conf_get = phy_tx_classifier_conf_get,
     .mepa_ts_fifo_read_install      = vtss_ts_fifo_read_install,
     .mepa_ts_fifo_empty             = vtss_ts_fifo_empty,
+    .mepa_ts_fifo_get               = vtss_ts_fifo_get,
 };

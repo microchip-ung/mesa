@@ -408,6 +408,8 @@ static mepa_rc indy_ts_ltc_ls_en_set(mepa_device_t *dev, const mepa_ts_ls_type_t
 }
 
 
+//Since EP_RD_INCR macro is used in below API, it must be ensured that API must be executed without interruption
+//till its end. No other API should access Lan8814 registers as it may interfere with register addresses.
 static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
 {
     uint16_t val = 0, ns_h = 0, ns_l = 0;;
@@ -424,22 +426,22 @@ static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
             ts->seconds.low = 0;
             ts->nanoseconds = 0;
             // Read LTC
-            EP_RD(base_dev, INDY_PTP_LTC_RD_SEC_HI, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_SEC_HI, &val, TRUE);
             ts->seconds.high = val;
             val = 0;
-            EP_RD(base_dev, INDY_PTP_LTC_RD_SEC_MID, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_SEC_MID, &val, FALSE);
             ts->seconds.low = val;
             ts->seconds.low = ts->seconds.low << 16;
             val = 0;
-            EP_RD(base_dev, INDY_PTP_LTC_RD_SEC_LO, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_SEC_LO, &val, FALSE);
             ts->seconds.low = ts->seconds.low | val;
-            EP_RD(base_dev, INDY_PTP_LTC_RD_NS_HI, &ns_h);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_NS_HI, &ns_h, FALSE);
             ts->nanoseconds = ns_h;
             ts->nanoseconds = ts->nanoseconds << 16;
-            EP_RD(base_dev, INDY_PTP_LTC_RD_NS_LO, &ns_l);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_NS_LO, &ns_l, FALSE);
             ts->nanoseconds = ts->nanoseconds | ns_l;
-            EP_RD(base_dev, INDY_PTP_LTC_RD_SUBNS_HI, &val);
-            EP_RD(base_dev, INDY_PTP_LTC_RD_SUBNS_LO, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_SUBNS_HI, &val, FALSE);
+            EP_RD_INCR(base_dev, INDY_PTP_LTC_RD_SUBNS_LO, &val, FALSE);
         } else {
 
             ts->seconds.high = 0;
@@ -448,16 +450,16 @@ static mepa_rc indy_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
             val = 0;
             ns_l = 0;
             ns_h = 0;
-            EP_RD(base_dev, INDY_PTP_GPIO_RE_CLOCK_SEC_HI, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_GPIO_RE_CLOCK_SEC_HI, &val, TRUE);
             ts->seconds.low = val;
             ts->seconds.low = ts->seconds.low << 16;
             val = 0;
-            EP_RD(base_dev, INDY_PTP_GPIO_RE_CLOCK_SEC_LO, &val);
+            EP_RD_INCR(base_dev, INDY_PTP_GPIO_RE_CLOCK_SEC_LO, &val, FALSE);
             ts->seconds.low = ts->seconds.low | val;
-            EP_RD(base_dev, INDY_PTP_GPIO_RE_CLOCK_NS_HI, &ns_h);
+            EP_RD_INCR(base_dev, INDY_PTP_GPIO_RE_CLOCK_NS_HI, &ns_h, FALSE);
             ts->nanoseconds = ns_h & 0x3FFF;
             ts->nanoseconds = ts->nanoseconds << 16;
-            EP_RD(base_dev, INDY_PTP_GPIO_RE_CLOCK_NS_LO, &ns_l);
+            EP_RD_INCR(base_dev, INDY_PTP_GPIO_RE_CLOCK_NS_LO, &ns_l, FALSE);
             ts->nanoseconds = ts->nanoseconds | ns_l;
         }
     }
@@ -2121,6 +2123,8 @@ static mepa_rc indy_ts_tx_ts_get (mepa_device_t *dev)
     return MEPA_RC_OK;
 }
 
+//Since EP_RD_INCR macro is used in below API, it must be ensured that API must be executed without interruption
+//till its end. No other API should access Lan8814 registers as it may interfere with register addresses.
 mepa_rc indy_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t   *const statistics)
 {
     uint16_t val = 0, val2 = 0;
@@ -2128,23 +2132,23 @@ mepa_rc indy_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t   *const statistic
     MEPA_ASSERT(statistics == NULL);
     MEPA_ENTER(dev);
     memset(statistics, 0, sizeof(mepa_ts_stats_t));
-    EP_RD(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_HI, &val);
-    EP_RD(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_LO, &val2);
+    EP_RD_INCR(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_HI, &val, TRUE);
+    EP_RD_INCR(dev, INDY_PTP_TX_CHKSUM_DROPPED_CNT_LO, &val2, FALSE);
     statistics->egr_fcs_err = val;
     statistics->egr_fcs_err = statistics->egr_fcs_err << 16 | val2;
 
-    EP_RD(dev, INDY_PTP_TX_FRMS_MOD_CNT_HI, &val);
-    EP_RD(dev, INDY_PTP_TX_FRMS_MOD_CNT_LO, &val2);
+    EP_RD_INCR(dev, INDY_PTP_TX_FRMS_MOD_CNT_HI, &val, FALSE);
+    EP_RD_INCR(dev, INDY_PTP_TX_FRMS_MOD_CNT_LO, &val2, FALSE);
     statistics->egr_frm_mod_cnt = val;
     statistics->egr_frm_mod_cnt = statistics->egr_frm_mod_cnt << 16 | val2;
 
-    EP_RD(dev, INDY_PTP_RX_CHKSUM_DROPPED_CNT_HI, &val);
-    EP_RD(dev, INDY_PTP_RX_CHKSUM_DROPPED_CNT_LO, &val2);
+    EP_RD_INCR(dev, INDY_PTP_RX_CHKSUM_DROPPED_CNT_HI, &val, TRUE);
+    EP_RD_INCR(dev, INDY_PTP_RX_CHKSUM_DROPPED_CNT_LO, &val2, FALSE);
     statistics->ingr_fcs_err = val;
     statistics->ingr_fcs_err = statistics->ingr_fcs_err << 16 | val2;
 
-    EP_RD(dev, INDY_PTP_RX_FRMS_MOD_CNT_HI, &val);
-    EP_RD(dev, INDY_PTP_RX_FRMS_MOD_CNT_LO, &val2);
+    EP_RD_INCR(dev, INDY_PTP_RX_FRMS_MOD_CNT_HI, &val, FALSE);
+    EP_RD_INCR(dev, INDY_PTP_RX_FRMS_MOD_CNT_LO, &val2, FALSE);
     statistics->ingr_frm_mod_cnt = val;
     statistics->ingr_frm_mod_cnt = statistics->ingr_frm_mod_cnt << 16 | val2;
 
@@ -2225,6 +2229,52 @@ void indy_ts_fifo_read_install(mepa_device_t *dev, mepa_ts_fifo_read_t rd_cb)
     phy_data_t *data = (phy_data_t *)dev->data;
     MEPA_ENTER(dev);
     data->ts_state.fifo_cb = rd_cb;
+    MEPA_EXIT(dev);
+}
+
+//Since EP_RD_INCR macro is used in below API, it must be ensured that API must be executed without interruption
+//till its end. No other API should access Lan8814 registers as it may interfere with register addresses.
+mepa_rc indy_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
+{
+    uint16_t val, i;
+
+    if (size < MEPA_TS_FIFO_MAX_ENTRIES) {
+        T_E(MEPA_TRACE_GRP_TS, "Size of Input TS list is less than 8\n");
+        return MEPA_RC_ERROR;
+    }
+    MEPA_ENTER(dev);
+    for (i = 0; i < MEPA_TS_FIFO_MAX_ENTRIES; i++) {
+        EP_RD_INCR(dev, INDY_PTP_TX_TS_NS_HI, &val, TRUE);
+
+        if (val & INDY_PTP_TX_TS_NS_PTP_TX_TS_VALID) {
+            ts_list[i].ts.nanoseconds = (((val) & 0x3fff) << 16);
+            EP_RD_INCR(dev, INDY_PTP_TX_TS_NS_LO, &val, FALSE);
+            ts_list[i].ts.nanoseconds = ts_list[i].ts.nanoseconds | val;
+
+            EP_RD_INCR(dev, INDY_PTP_TX_TS_SEC_HI, &val, FALSE);
+            ts_list[i].ts.seconds.low =  val;
+
+            EP_RD_INCR(dev, INDY_PTP_TX_TS_SEC_LO, &val, FALSE);
+            ts_list[i].ts.seconds.low = (ts_list[i].ts.seconds.low << 16) | val;
+            ts_list[i].ts.seconds.high = 0;
+
+            EP_RD_INCR(dev, INDY_PTP_TX_MSG_HEADER1, &val, FALSE);
+            ts_list[i].sig.msg_type = val & 0xF;
+            ts_list[i].sig.crc_src_port = val >> 4;
+            ts_list[i].sig.has_crc_src = TRUE;
+
+            EP_RD_INCR(dev, INDY_PTP_TX_MSG_HEADER2, &val, FALSE);
+            ts_list[i].sig.sequence_id = val;
+        } else {
+            break;
+        }
+    }
+    *num = i;
+    MEPA_EXIT(dev);
+    T_I(MEPA_TRACE_GRP_TS, "FIFO entries read = %d", *num);
+
+    return MEPA_RC_OK;
+
     MEPA_EXIT(dev);
 }
 
@@ -2426,5 +2476,6 @@ mepa_ts_driver_t indy_ts_drivers = {
     .mepa_ts_fifo_read_install          = indy_ts_fifo_read_install,
     .mepa_ts_fifo_empty                 = indy_ts_tx_ts_get,
     .mepa_ts_test_config                = indy_ts_test_config,
+    .mepa_ts_fifo_get                   = indy_ts_fifo_get,
 };
 

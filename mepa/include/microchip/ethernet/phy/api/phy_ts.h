@@ -346,6 +346,12 @@ typedef enum {
     MEPA_TS_FIFO_OVERFLOW,
 } mepa_ts_fifo_status_t;
 
+#define MEPA_TS_FIFO_MAX_ENTRIES 8 //In all existing phys, maximum number of FIFO entries is 8.
+typedef struct {
+    mepa_ts_fifo_sig_t sig;
+    mepa_timestamp_t ts;
+} mepa_fifo_ts_entry_t;
+
 /** \brief PTP Sample tests */
 typedef struct {
     uint8_t                         test_id;
@@ -807,21 +813,21 @@ mepa_rc mepa_ts_event_poll(struct mepa_device                     *dev,
                            mepa_ts_event_t                        *const status);
 
 /**
- *  \brief callback after reading the timestamp FIFO entry
+ *  \brief Get FIFO timestamp entries.
  *
  *  \param port_no [IN]  Port number.
- *  \param ts      [IN]  PHY timestamp.
- *  \param sig     [IN]  Timestamp FIFO signature entry.
- *  \param status  [OUT] Timestamp FIFO status.
+ *  \param ts_list [IN]  PHY FIFO timestamp list.
+ *  \param size    [IN]  size of ts_list passed as input argument.
+ *  \param num     [OUT] Number of Timestamp entries read from FIFO.
  *
  *  \return
  *       MEPA_RC_OK on success.\n
  *       MEPA_RC_ERROR on error.
  **/
-void mepa_ts_fifo_read(mepa_port_no_t                              port_no,
-                       const mepa_timestamp_t                     *const ts,
-                       const mepa_ts_fifo_sig_t                   *const sig,
-                       const mepa_ts_fifo_status_t                 status);
+mepa_rc mepa_ts_fifo_get(struct mepa_device   *dev,
+                         mepa_fifo_ts_entry_t ts_list[],
+                         const size_t         size,
+                         uint32_t             *const num);
 
 /** \brief callback after reading the timestamp FIFO entry */
 typedef void (*mepa_ts_fifo_read_t)(mepa_port_no_t              port_no,

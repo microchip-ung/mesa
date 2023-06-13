@@ -74,6 +74,22 @@ mepa_rc indy_ext_reg_wr(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16
     return MEPA_RC_OK;
 }
 
+// Extended page address incremental read. After reading one register address of would automatically be
+// incremented to next location in this function. This is useful for reading contiguous group of registers.
+mepa_rc indy_ext_incr_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t *value, mepa_bool_t start_addr)
+{
+    if (start_addr) {
+        // Set-up to access extended page register.
+        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL, page, INDY_DEF_MASK));
+        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
+        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL,
+                INDY_F_EXT_PAGE_ACCESS_CTRL_INCR_RD_WR | page, INDY_DEF_MASK));
+    }
+    // Read the value
+    MEPA_RC(indy_direct_reg_rd(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, value));
+    return MEPA_RC_OK;
+}
+
 // MMD read and write functions
 // MMD device range : 0 - 31
 mepa_rc indy_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t *value)

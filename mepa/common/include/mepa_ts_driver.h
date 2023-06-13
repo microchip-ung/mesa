@@ -423,6 +423,9 @@ typedef void (*mepa_ts_fifo_read_install_t)(struct mepa_device *dev, mepa_ts_fif
 /** \brief Get all FIFO timestamp entries. Usually called after receiving timestamp captured interrupt. */
 typedef mepa_rc (*mepa_ts_fifo_empty_t)(struct mepa_device *dev);
 
+/** \brief Get FIFO timestamp entries up to maximum of 8 entries. Returns number of FIFO entries read to application. */
+typedef mepa_rc (*mepa_ts_fifo_entry_get_t)(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num);
+
 /** \brief Sample Test configurations */
 typedef mepa_rc (*mepa_ts_test_config_t) (struct mepa_device *dev, uint16_t test_id, mepa_bool_t reg_dump);
 
@@ -464,6 +467,7 @@ typedef struct mepa_ts_driver {
     mepa_ts_test_config_t                   mepa_ts_test_config;
     mepa_ts_fifo_read_install_t             mepa_ts_fifo_read_install;
     mepa_ts_fifo_empty_t                    mepa_ts_fifo_empty;
+    mepa_ts_fifo_entry_get_t                mepa_ts_fifo_get;
 } mepa_ts_driver_t;
 
 #endif

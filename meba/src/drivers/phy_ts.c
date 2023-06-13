@@ -447,3 +447,14 @@ mepa_rc meba_phy_ts_fifo_empty(meba_inst_t inst, mepa_port_no_t port_no)
 
     return mepa_ts_fifo_empty(inst->phy_devices[port_no]);
 }
+
+mepa_rc meba_phy_ts_fifo_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
+{
+    mepa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_ts_fifo_get(inst->phy_devices[port_no], ts_list, size, num);
+}

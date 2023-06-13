@@ -1080,6 +1080,19 @@ mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev)
     return dev->drv->mepa_ts->mepa_ts_fifo_empty(dev);
 }
 
+mepa_rc mepa_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
+{
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_ts->mepa_ts_fifo_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_fifo_get(dev, ts_list, size, num);
+}
+
 mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
                             uint16_t                               test_id,
                             mepa_bool_t                            reg_dump)

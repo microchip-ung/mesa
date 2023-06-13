@@ -645,6 +645,27 @@ vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t      inst,
                                      vtss_phy_ts_fifo_read  *rd_cb,
                                      void                   **cntxt);
 
+#define VTSS_PHY_TS_FIFO_MAX_ENTRIES 8 //In all vsc phys, maximum number of FIFO entries is 8.
+typedef struct {
+    vtss_phy_ts_fifo_sig_t sig;
+    vtss_phy_timestamp_t ts;
+} vtss_phy_ts_fifo_entry_t;
+
+/**
+ * \brief Get FIFO timestamp entries.
+ *
+ * \param inst     [IN]   handle to an API instance
+ * \param port_no  [IN]   port number
+ * \param ts_list  [OUT]  Array to hold retrieved FIFO timestamp entries
+ * \param size     [IN]   size of ts_list array passed to this function.
+ * \param num      [OUT]  Number of fifo timestamp entries read.
+ **/
+vtss_rc vtss_phy_ts_fifo_get(const vtss_inst_t        inst,
+                             const vtss_port_no_t     port_no,
+                             vtss_phy_ts_fifo_entry_t ts_list[],
+                             const size_t             size,
+                             uint32_t                 *const num);
+
 /**
  * Analyzer API
  **/

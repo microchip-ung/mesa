@@ -1651,6 +1651,11 @@ vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t inst, vtss_phy_ts_fifo_re
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
+vtss_rc vtss_phy_ts_fifo_get(const vtss_inst_t inst,  const vtss_port_no_t port_no, vtss_phy_ts_fifo_entry_t ts_list[], const size_t size, uint32_t *const num)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
 vtss_rc vtss_phy_ts_ingress_engine_init(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_ts_engine_t eng_id, const vtss_phy_ts_encap_t encap_type, const u8 flow_st_index, const u8 flow_end_index, const vtss_phy_ts_engine_flow_match_t flow_match_mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;

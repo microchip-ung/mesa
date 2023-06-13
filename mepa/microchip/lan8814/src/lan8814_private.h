@@ -29,6 +29,8 @@ mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value);
 mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uint16_t mask);
 mepa_rc indy_ext_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t *value);
 mepa_rc indy_ext_reg_wr(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t value, uint16_t mask);
+mepa_rc indy_ext_incr_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t *value, mepa_bool_t start_addr);
+
 mepa_rc indy_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t *value);
 mepa_rc indy_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t value, uint16_t mask);
 mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
@@ -44,6 +46,7 @@ mepa_rc indy_ts_debug_info_dump(struct mepa_device *dev,
 #define EP_RD(dev, page_addr, value) indy_ext_reg_rd(dev, page_addr, value)
 #define EP_WR(dev, page_addr, value) indy_ext_reg_wr(dev, page_addr, value, 0xffff)
 #define EP_WRM(dev, page_addr, value, mask) indy_ext_reg_wr(dev, page_addr, value, mask)
+#define EP_RD_INCR(dev, page_addr, value, start) indy_ext_incr_reg_rd(dev, page_addr, value, start);
 
 //MMD device register access macros
 #define MMD_RD(dev, mmd_addr, value) indy_mmd_reg_rd(dev, mmd_addr, value)

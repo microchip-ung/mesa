@@ -4308,7 +4308,10 @@ static vtss_rc vtss_phy_ts_signature_set_priv(vtss_state_t *vtss_state,
  */
 static vtss_rc vtss_phy_ts_fifo_empty_priv(const vtss_inst_t inst,
                                            vtss_state_t *vtss_state,
-                                           const vtss_port_no_t port_no)
+                                           const vtss_port_no_t port_no,
+                                           vtss_phy_ts_fifo_entry_t ts_list[],
+                                           uint32_t                 *const num,
+                                           BOOL                     callback)
 {
     u32   value = 0;
     u32   loop_cnt = 5;
@@ -4323,13 +4326,18 @@ static vtss_rc vtss_phy_ts_fifo_empty_priv(const vtss_inst_t inst,
     vtss_phy_ts_fifo_status_t   status = VTSS_PHY_TS_FIFO_SUCCESS;
     u32   val_1st = 0, val_2nd = 0;
 
-    vtss_phy_ts_fifo_read cb;
-    void *cx;
-    if (vtss_state->ts_fifo_cb == NULL) {
-        return VTSS_RC_ERROR;
+    vtss_phy_ts_fifo_read cb = NULL;
+    void *cx = NULL;;
+
+    if (callback) {
+        if (vtss_state->ts_fifo_cb == NULL) {
+            return VTSS_RC_ERROR;
+        }
+        cb = vtss_state->ts_fifo_cb;
+        cx = vtss_state->cntxt;
+    } else {
+        *num = 0;
     }
-    cb = vtss_state->ts_fifo_cb;
-    cx = vtss_state->cntxt;
     sig_mask = vtss_state->phy_ts_port_conf[port_no].sig_mask;
 
     /* Step 1:: Loop reading the TSFIFO_0 register, until TS_EMPTY bit = 0 */
@@ -4513,12 +4521,21 @@ static vtss_rc vtss_phy_ts_fifo_empty_priv(const vtss_inst_t inst,
                    signature.dest_mac[4],
                    signature.dest_mac[5]);
 
-            status = VTSS_PHY_TS_FIFO_SUCCESS;
-            /* avoid using vtss_state while outside the API lock, as the API may be called from an other thread */
-            VTSS_EXIT();
-            /* call out of the API */
-            cb(inst, port_no, &ts, &signature, cx, status);
-            VTSS_ENTER();
+            if (callback) {
+                status = VTSS_PHY_TS_FIFO_SUCCESS;
+                /* avoid using vtss_state while outside the API lock, as the API may be called from an other thread */
+                VTSS_EXIT();
+                /* call out of the API */
+                cb(inst, port_no, &ts, &signature, cx, status);
+                VTSS_ENTER();
+            } else {
+                ts_list[*num].sig = signature;
+                ts_list[*num].ts = ts;
+                (*num)++;
+                if (*num >= VTSS_PHY_TS_FIFO_MAX_ENTRIES) {
+                    break;
+                }
+            }
         } while (depth > 1);  /* Step 4a:: If TS_FIFO_LEVEL > 1, go back and repeat steps 2 through 4 */
 
         /* Step 4b:: If TS_FIFO_LEVEL = 1, finished handling the TS_FIFO */
@@ -6053,6 +6070,7 @@ vtss_rc vtss_phy_ts_fifo_empty(const vtss_inst_t       inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
+    uint32_t     size;
 
     VTSS_ENTER();
     do {
@@ -6065,7 +6083,7 @@ vtss_rc vtss_phy_ts_fifo_empty(const vtss_inst_t       inst,
                 rc = VTSS_RC_ERROR;
                 break;
             }
-            rc = vtss_phy_ts_fifo_empty_priv(inst, vtss_state, port_no);
+            rc = vtss_phy_ts_fifo_empty_priv(inst, vtss_state, port_no, NULL, &size, TRUE);
         }
     } while (0);
 
@@ -6101,6 +6119,38 @@ vtss_rc vtss_phy_ts_fifo_read_cb_get(const vtss_inst_t      inst,
         *rd_cb = vtss_state->ts_fifo_cb;
         *cntxt = vtss_state->cntxt;
     }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_phy_ts_fifo_get(const vtss_inst_t        inst,
+                             const vtss_port_no_t     port_no,
+                             vtss_phy_ts_fifo_entry_t ts_list[],
+                             const size_t             size,
+                             uint32_t                 *const num)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    do {
+        if (size < VTSS_PHY_TS_FIFO_MAX_ENTRIES) {
+            rc = VTSS_RC_ERROR;
+            break;
+        }
+        if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+            if (vtss_state->phy_ts_port_conf[port_no].port_ts_init_done == FALSE) {
+                rc = VTSS_RC_ERROR;
+                break;
+            }
+            if (vtss_state->phy_ts_port_conf[port_no].tx_fifo_mode != VTSS_PHY_TS_FIFO_MODE_NORMAL) {
+                rc = VTSS_RC_ERROR;
+                break;
+            }
+            rc = vtss_phy_ts_fifo_empty_priv(inst, vtss_state, port_no, ts_list, num, FALSE);
+        }
+    } while (0);
+
     VTSS_EXIT();
     return rc;
 }
