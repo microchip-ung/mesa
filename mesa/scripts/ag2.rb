@@ -118,6 +118,7 @@ $methods_blacklist = [
     "meba_phy_ts_fifo_read_install",
     "meba_ts_test_config",
     "meba_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump",
+    "meba_phy_ts_fifo_get",
 ]
 
 $methods_greylist = [
