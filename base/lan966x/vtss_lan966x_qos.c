@@ -1638,6 +1638,7 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     BOOL                    enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, mask = 0, port = VTSS_CHIP_PORT(port_no);
+    BOOL                    verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
     if (enable_tx) {
         for (i = 0; i < 8; i++) {
@@ -1654,7 +1655,7 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
 
     // Setup preemption
     REG_WR(DEV_VERIF_CONFIG(port),
-           DEV_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
+           DEV_VERIF_CONFIG_PRM_VERIFY_DIS(verify_dis) |
            DEV_VERIF_CONFIG_PRM_VERIFY_TIME(conf->verify_time) |
            DEV_VERIF_CONFIG_VERIF_TIMER_UNITS(vtss_state->port.conf[port_no].speed == VTSS_SPEED_2500M ? 2 : 0));
     REG_WRM(SYS_FRONT_PORT_MODE(port),
@@ -1677,6 +1678,7 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
                                               vtss_qos_fp_port_status_t *const status)
 {
     u32 value, v, port = VTSS_CHIP_PORT(port_no);
+    vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
 
     REG_RD(DEV_MM_STATUS(port), &value);
     status->preemption_active = DEV_MM_STATUS_PRMPT_ACTIVE_STATUS_X(value);
@@ -1684,7 +1686,7 @@ static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t              *vtss_st
         v = VTSS_MM_STATUS_VERIFY_DISABLED;
     } else {
         v = (DEV_MM_STATUS_PRMPT_VERIFY_STATE_X(value));
-        if (v == 3) {
+        if (v == 3 && conf->enable_tx) {
             /* Verification failed, restart it */
             REG_WRM(DEV_VERIF_CONFIG(port),
                     DEV_VERIF_CONFIG_PRM_VERIFY_DIS(1),
@@ -2455,6 +2457,8 @@ static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
                DEV_ENABLE_CONFIG_MM_RX_ENA(1) |
                DEV_ENABLE_CONFIG_MM_TX_ENA(1) |
                DEV_ENABLE_CONFIG_KEEP_S_AFTER_D(0));
+
+        vtss_state->qos.fp.port_conf[port_no].verify_disable_tx = TRUE;
     }
     return VTSS_RC_OK;
 }

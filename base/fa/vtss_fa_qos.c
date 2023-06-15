@@ -3323,6 +3323,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     u32                     enable_tx = (conf->enable_tx ? 1 : 0);
     u32                     i, unit, port = VTSS_CHIP_PORT(port_no);
     vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
+    BOOL                    verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
     if (speed > VTSS_SPEED_10G) {
         VTSS_E("frame preemption is not supported for port speeds above 10G");
@@ -3364,7 +3365,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
             VTSS_M_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS);
 
     DEV_WR(VERIF_CONFIG, port,
-           VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(conf->verify_disable_tx) |
+           VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(verify_dis) |
            VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_TIME(conf->verify_time) |
            VTSS_F_DEV1G_VERIF_CONFIG_VERIF_TIMER_UNITS(unit));
 
@@ -3407,6 +3408,7 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
                                          vtss_qos_fp_port_status_t *const status)
 {
     u32 value, v, port = VTSS_CHIP_PORT(port_no);
+    vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
 
     if (speed > VTSS_SPEED_10G) {
@@ -3421,7 +3423,7 @@ static vtss_rc fa_qos_fp_port_status_get(vtss_state_t              *vtss_state,
     } else {
         v = VTSS_X_DEV1G_MM_STATUS_PRMPT_VERIFY_STATE(value);
 
-        if (v == 3) {
+        if (v == 3 && conf->enable_tx) {
             /* Verification failed, restart it */
             DEV_WRM(VERIF_CONFIG, port,
                     VTSS_F_DEV1G_VERIF_CONFIG_PRM_VERIFY_DIS(1),
