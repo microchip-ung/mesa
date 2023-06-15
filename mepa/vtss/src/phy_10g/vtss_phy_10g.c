@@ -3760,6 +3760,30 @@ vtss_rc vtss_phy_10g_event_poll(const vtss_inst_t     inst,
     return rc;
 }
 
+vtss_rc vtss_phy_10g_extended2_event_poll(const vtss_inst_t              inst,
+                                          const vtss_port_no_t           port_no,
+                                          vtss_phy_10g_extnd2_event_t   *const ex2_events)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        switch (vtss_state->phy_10g_state[port_no].type) {
+        case VTSS_PHY_TYPE_8257:
+        case VTSS_PHY_TYPE_8254:
+        case VTSS_PHY_TYPE_8258:
+            rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_extended2_event_poll, port_no, ex2_events);
+            break;
+         default:
+            rc = VTSS_RC_ERROR;
+            break;
+         }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_phy_10g_pcs_status_get (const vtss_inst_t     inst,
                                          const vtss_port_no_t  port_no,
                                          vtss_phy_10g_extnd_event_t *const ex_events)
@@ -3816,9 +3840,9 @@ vtss_rc vtss_phy_10g_event_enable_set(const vtss_inst_t           inst,
             (vtss_state->phy_10g_state[port_no].family ==  VTSS_PHY_FAMILY_MALIBU)) {
             if (vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_1G_MODE) {  
                 VTSS_EXIT();
-                VTSS_D("Events not currently supported for phy %d in 1G mode",
-                       vtss_state->phy_10g_state[port_no].type);
-                return VTSS_RC_OK;  
+                VTSS_E("Events for WIS0 and WIS1 are set here, 1G Events are set in the extended2_event_enable_set for phy %d in 1G mode",
+                        vtss_state->phy_10g_state[port_no].type);
+                return VTSS_RC_ERROR;
             } 
         }
         if (enable)
@@ -3836,16 +3860,15 @@ vtss_rc vtss_phy_10g_event_enable_set(const vtss_inst_t           inst,
         case VTSS_PHY_TYPE_8489_15:
         case VTSS_PHY_TYPE_8490:
         case VTSS_PHY_TYPE_8491:
-            rc = VTSS_RC_COLD(vtss_phy_10g_88_event_enable_private(vtss_state, port_no));
-            break;
+             rc = VTSS_RC_COLD(vtss_phy_10g_88_event_enable_private(vtss_state, port_no));
+             break;
         case VTSS_PHY_TYPE_8254:
         case VTSS_PHY_TYPE_8256:
         case VTSS_PHY_TYPE_8257:
         case VTSS_PHY_TYPE_8258: {
-            vtss_state->phy_10g_state[port_no].ex_ev_enable = FALSE; 
-            rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no);
-            break;
-        }    
+             rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no, TRUE, FALSE, FALSE);
+             break;
+        }
         default:
             VTSS_D("Events not currently supported for Phy type %d",
                    vtss_state->phy_10g_state[port_no].type);
@@ -3856,6 +3879,58 @@ vtss_rc vtss_phy_10g_event_enable_set(const vtss_inst_t           inst,
     VTSS_EXIT();
     return rc;
 }
+
+vtss_rc vtss_phy_10g_extended2_event_enable_set(const vtss_inst_t                   inst,
+                                                const vtss_port_no_t                port_no,
+                                                const vtss_phy_10g_extnd2_event_t   ex2_ev_mask,
+                                                const BOOL                          extnd2_enable)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    if (!ex2_ev_mask)
+        return(VTSS_RC_OK);
+
+    if (ex2_ev_mask >= ((u64)1 << (VTSS_PHY_10G_EX2_EVENT_MAX_ENTRY))) {
+        VTSS_E("Invalid event mask is passed for port no: %u", port_no);
+        return(VTSS_RC_ERROR);
+    }
+    VTSS_ENTER();
+
+    if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        if (extnd2_enable)
+            vtss_state->phy_10g_state[port_no].ex2_ev_mask |= ex2_ev_mask;
+        else
+            vtss_state->phy_10g_state[port_no].ex2_ev_mask &= ~ex2_ev_mask;
+
+        if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+#if 0
++            if ((vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_1G_MODE) &&
++                 (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU)) {
++                  rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no, FALSE, FALSE, TRUE);
++            } else
+#endif
+            {
+                  switch (vtss_state->phy_10g_state[port_no].type) {
+                     case VTSS_PHY_TYPE_8254:
+                     case VTSS_PHY_TYPE_8257:
+                     case VTSS_PHY_TYPE_8258: {
+                        rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no, FALSE, FALSE, TRUE);
+                        break;
+                     }
+                     default:
+                        VTSS_D("Events not currently supported for Phy type %d",
+                        vtss_state->phy_10g_state[port_no].type);
+                        rc = VTSS_RC_ERROR;
+                     break;
+                  }
+            }
+        }
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_phy_10g_extended_event_enable_set(const vtss_inst_t                   inst,
                                                const vtss_port_no_t                port_no,
                                                const vtss_phy_10g_extnd_event_t  ex_ev_mask,
@@ -3887,8 +3962,7 @@ vtss_rc vtss_phy_10g_extended_event_enable_set(const vtss_inst_t                
             case VTSS_PHY_TYPE_8256:
             case VTSS_PHY_TYPE_8257:
             case VTSS_PHY_TYPE_8258: {
-                vtss_state->phy_10g_state[port_no].ex_ev_enable = TRUE; 
-                rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no);
+                rc = VTSS_FUNC_COLD(cil.malibu_phy_10g_event_enable, port_no, FALSE, TRUE, FALSE);
                 break;
             }
         default:
@@ -3914,6 +3988,21 @@ vtss_rc vtss_phy_10g_event_enable_get(const vtss_inst_t      inst,
     VTSS_EXIT();
     return rc;
 }
+
+vtss_rc vtss_phy_10g_extended2_event_enable_get(const vtss_inst_t                   inst,
+                                                const vtss_port_no_t                port_no,
+                                                vtss_phy_10g_extnd2_event_t  *const ex2_ev_mask)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK)
+        *ex2_ev_mask = vtss_state->phy_10g_state[port_no].ex2_ev_mask;
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_phy_10g_extended_event_enable_get(const vtss_inst_t                   inst,
                                                const vtss_port_no_t                port_no,
                                                vtss_phy_10g_extnd_event_t          *const ex_ev_mask)
@@ -4796,7 +4885,7 @@ vtss_rc vtss_phy_10g_sync(vtss_state_t *vtss_state, const vtss_port_no_t port_no
         (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8257) ||
         (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8258) ||
         (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8254)) {
-        VTSS_SYNC_RC(VTSS_FUNC(cil.malibu_phy_10g_event_enable, port_no));
+        VTSS_SYNC_RC(VTSS_FUNC(cil.malibu_phy_10g_event_enable, port_no, TRUE, TRUE, TRUE));
         VTSS_SYNC_RC(VTSS_FUNC(cil.malibu_phy_10g_host_recvrd_clk_set, port_no));
         VTSS_SYNC_RC(VTSS_FUNC(cil.malibu_phy_10g_line_clk_set, port_no));
         VTSS_SYNC_RC(VTSS_FUNC(cil.malibu_phy_10g_host_clk_set, port_no));

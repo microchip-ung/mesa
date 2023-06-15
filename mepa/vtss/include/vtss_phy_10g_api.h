@@ -2793,8 +2793,58 @@ typedef u32 vtss_phy_10g_event_t;   /**< The type definition to contain the abov
 #define  VTSS_PHY_1G_LINE_AUTONEG_RESTART_EV       0x00040000 /**< PHY 1G Line side Autoneg restart event */
 #define  VTSS_PHY_1G_HOST_AUTONEG_RESTART_EV       0x00080000 /**< PHY 1G Host side Autoneg restart event  - 8256 specific */
 
+/*MAC Block interrupts*/
+#define  VTSS_PHY_10G_LINE_MAC_LOCAL_FAULT_EV      0x00100000 /**< PHY 10G LINE MAC local fault event */
+#define  VTSS_PHY_10G_HOST_MAC_LOCAL_FAULT_EV      0x00400000 /**< PHY 10G HOST MAC local fault event */
+#define  VTSS_PHY_10G_LINE_MAC_REMOTE_FAULT_EV     0x00800000 /**< PHY 10G LINE MAC remote fault event */
+#define  VTSS_PHY_10G_HOST_MAC_REMOTE_FAULT_EV     0x01000000 /**< PHY 10G HOST MAC remote fault event */
+
 /* more  to come */
 typedef u32 vtss_phy_10g_extnd_event_t;   /**< The type definition to contain the above defined extended event mask */
+
+typedef enum {
+    VTSS_PHY_LINE_10G_RX_LOS_EV,    /**< PHY RX LOS interrupt - 8256 specific */
+    VTSS_PHY_LINE_10G_RX_LOL_EV,    /**< PHY RX LOL interrupt - 8256 specific*/
+    VTSS_PHY_LINE_10G_TX_LOL_EV,    /**< PHY TX LOL interrupt - 8256 specific */
+    VTSS_PHY_HOST_10G_RX_CHAR_DEC_CNT_THRESH_EV,    /**< PHY RX character decode error - 8256 specific */
+    VTSS_PHY_HOST_10G_TX_CHAR_ENC_CNT_THRESH_EV,    /**< PHY TX character encode error count  - 8256 specific */
+    VTSS_PHY_HOST_10G_RX_BLK_DEC_CNT_THRESH_EV,     /**< PHY RX block decode error count  - 8256 specific */
+    VTSS_PHY_HOST_10G_TX_BLK_ENC_CNT_THRESH_EV,     /**< PHY TX block encode error count- 8256 specific */
+    VTSS_PHY_HOST_10G_RX_SEQ_CNT_THRESH_EV,         /**< PHY RX sequencing error count - 8256 specific */
+    VTSS_PHY_HOST_10G_TX_SEQ_CNT_THRESH_EV,         /**< PHY TX sequencing error count - 8256 specific */
+    VTSS_PHY_HOST_10G_FEC_UNFIXED_CNT_THRESH_EV,    /**< PHY KR-FEC uncorrectable block count interrupt - 8256 specific */
+    VTSS_PHY_HOST_10G_FEC_FIXED_CNT_THRESH_EV,      /**< PHY KR-FEC corrected threshold - 8256 specific */
+    VTSS_PHY_HOST_10G_HIGHBER_EV,                   /**< PHY high bit Error - 8256 specific */
+    VTSS_PHY_HOST_10G_RX_LINK_STAT_EV,              /**< PHY Link status up/down interrupt - 8256 specific */
+    VTSS_PHY_LINE_1G_XGMII_MASK_OUT_OF_SYNC_MASK,        /**< PHY 1G Line out of sync event */
+    VTSS_PHY_LINE_1G_XGMII_MASK_LINK_DOWN_MASK,          /**< PHY 1G Line Link down event */
+    VTSS_PHY_HOST_1G_XGMII_MASK_OUT_OF_SYNC_MASK,        /**< PHY 1G Host out of sync event */
+    VTSS_PHY_HOST_1G_XGMII_MASK_LINK_DOWN_MASK,          /**< PHY 1G Host Link down event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_XOFF_PAUSE_GEN_STICKY_MASK,                /**< PHY MAC FC buffer XOFF_PAUSE_GEN event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_XON_PAUSE_GEN_STICKY_MASK,                 /**< PHY MAC FC buffer XON_PAUSE_GEN event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_TX_UNCORRECTED_FRM_DROP_STICKY_MASK,       /**< PHY MAC FC buffer Tx uncorrected frame drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_RX_UNCORRECTED_FRM_DROP_STICKY_MASK,       /**< PHY MAC FC buffer Rx uncorrected frame drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_TX_CTRL_QUEUE_OVERFLOW_DROP_STICKY_MASK,   /**< PHY MAC FC buffer Tx Control queue overflow drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_TX_CTRL_QUEUE_UNDERFLOW_DROP_STICKY_MASK,  /**< PHY MAC FC buffer TX Control queue underflow drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_TX_DATA_QUEUE_OVERFLOW_DROP_STICKY_MASK,   /**< PHY MAC FC buffer Tx Data queue overflow drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_TX_DATA_QUEUE_UNDERFLOW_DROP_STICKY_MASK,  /**< PHY MAC FC buffer Tx Data queue underflow drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_RX_OVERFLOW_DROP_STICKY_MASK,              /**< PHY MAC FC buffer Rx overflow drop event */
+    VTSS_MAC_FC_BUFFER_STATUS_MASK_RX_UNDERFLOW_DROP_STICKY_MASK,             /**< PHY MAC FC buffer Rx underflow drop event */
+    VTSS_PHY_10G_TX_FIFO_UNDERFLOW_EV,   /**< PHY 10G TX FIFO UNDERFLOW event */
+    VTSS_PHY_10G_TX_FIFO_OVERFLOW_EV,    /**< PHY 10G TX FIFO OVERFLOW event */
+    VTSS_PHY_10G_RX_FIFO_UNDERFLOW_EV,   /**< PHY 10G RX FIFO UNDERFLOW event */
+    VTSS_PHY_10G_RX_FIFO_OVERFLOW_EV,    /**< PHY 10G RX FIFO OVERFLOW event */
+    VTSS_PHY_10G_TX_FIFO2_UNDERFLOW_EV,  /**< PHY 10G TX FIFO2 UNDERFLOW event */
+    VTSS_PHY_10G_TX_FIFO2_OVERFLOW_EV,   /**< PHY 10G TX FIFO2 OVERFLOW event */
+    VTSS_PHY_10G_HOST_LOPC_EV,           /**< PHY 10G HOST LOPC event */
+    VTSS_PHY_10G_EX2_EVENT_MAX_ENTRY,        /**< MAX ENTRY reached*/
+} vtss_phy_10g_xtended_event_part2_t;
+
+typedef u32 vtss_phy_10g_extnd2_event_t;   /**< The type definition to contain the above defined extended event mask */
+                                           /**< Note: The values in vtss_phy_10g_xtended_event_part2_t are bit offsets, not bit masks */
+                                           /**<       The proper usage would be: x = 1 << VTSS_PHY_LINE_1G_XGMII_MASK_LINK_DOWN_MASK */
+
+
 
 /**
  * \brief Enabling / Disabling of events
@@ -3077,6 +3127,54 @@ vtss_rc vtss_phy_10g_i2c_slave_conf_get(const vtss_inst_t                       
 vtss_rc vtss_phy_10g_get_user_data(const vtss_inst_t                inst,
                                    const vtss_port_no_t             port_no,
                                    void                             **user_data);
+
+
+
+/**
+ * \brief Get Enabling of events
+ *
+ * \param inst [IN]      Target instance reference.
+ * \param port_no [IN]   Port number
+ * \param ex2_ev_mask [OUT]  Mask containing extended events that are enabled
+ *
+ * \return Return code.
+ **/
+
+vtss_rc vtss_phy_10g_extended2_event_enable_get(const vtss_inst_t                  inst,
+                                                const vtss_port_no_t               port_no,
+                                                vtss_phy_10g_extnd2_event_t *const ex2_ev_mask);
+
+
+
+/**
+ * \brief Polling for active events
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number
+ * \param ex2_events [OUT] Event mask containing events that are active
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_phy_10g_extended2_event_poll(const vtss_inst_t     inst,
+                                          const vtss_port_no_t  port_no,
+                                          vtss_phy_10g_extnd2_event_t *const ex2_events);
+
+/**
+ * \brief Enabling / Disabling of events
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number
+ * \param ex2_ev_mask [IN]  Mask containing exetnded events that are enabled/disabled
+ * \param extnd2_enable [IN]   Enable/disable of event
+ *
+ * \return Return code.
+ **/
+
+vtss_rc vtss_phy_10g_extended2_event_enable_set(const vtss_inst_t                  inst,
+                                                const vtss_port_no_t               port_no,
+                                                const vtss_phy_10g_extnd2_event_t  ex2_ev_mask,
+                                                const BOOL                         extnd2_enable);
+
 
 #ifdef __cplusplus
 }

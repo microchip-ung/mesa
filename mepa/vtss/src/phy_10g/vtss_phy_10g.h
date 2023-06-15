@@ -68,8 +68,8 @@ typedef struct _vtss_phy_10g_port_state_info_t {
     BOOL                         warm_start_reg_changed;
     BOOL                         phy_88_event_B;
     BOOL                         current_los;    /* current Loss Of Signal detected (for Venice rev A work around) */
-    BOOL                         ex_ev_enable;
     vtss_phy_10g_extnd_event_t   ex_ev_mask;
+    u64                          ex2_ev_mask;
     vtss_phy_10g_auto_failover_conf_t l_a_failover; /* line, Auto Failover mode */
     vtss_phy_10g_auto_failover_conf_t h_a_failover; /* host, Auto Failover mode */
     vtss_phy_10g_prbs_generator_conf_t prbs_gen_conf[VTSS_PHY_10G_PRBS_TYPE_CNT][VTSS_PHY_10G_DIRECTION_CNT];

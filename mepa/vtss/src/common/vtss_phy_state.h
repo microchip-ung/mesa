@@ -233,7 +233,10 @@ typedef struct {
                                             const u32                   addr,
                                             u32                         value);
    vtss_rc (* malibu_phy_10g_event_enable) (struct vtss_state_s  *vtss_state,
-                                             const vtss_port_no_t port_no);
+                                             const vtss_port_no_t port_no,
+                                             BOOL event_enable,
+                                             BOOL extended_event_enable,
+                                             BOOL extended2_event_enable);
    vtss_rc (* malibu_phy_10g_power_set) (struct vtss_state_s *vtss_state,
                                        vtss_port_no_t port_no);
    vtss_rc (* malibu_phy_10g_base_kr_conf_set) (struct vtss_state_s *vtss_state,
@@ -246,6 +249,9 @@ typedef struct {
    vtss_rc (* malibu_phy_10g_extended_event_poll) (struct vtss_state_s      *vtss_state,
                                            const vtss_port_no_t             port_no,
                                            vtss_phy_10g_extnd_event_t       *const ex_events);
+   vtss_rc (* malibu_phy_10g_extended2_event_poll) (struct vtss_state_s     *vtss_state,
+                                           const vtss_port_no_t             port_no,
+                                           vtss_phy_10g_extnd2_event_t     *const ex_events);
    vtss_rc (* malibu_phy_10g_host_recvrd_clk_set) (struct vtss_state_s *vtss_state,
                                        vtss_port_no_t port_no);
    vtss_rc (* malibu_phy_10g_pcs_status_get) (struct vtss_state_s *vtss_state,
