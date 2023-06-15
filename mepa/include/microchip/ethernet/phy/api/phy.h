@@ -855,5 +855,17 @@ mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_con
  **/
 mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
 
+/**
+ * \brief To get phy capability
+ *
+ * \param dev            [IN]  Driver instance.
+ * \param capability     [IN]  Capability information
+ *
+ * \return
+ *   Required capability of the PHY based on phy id.
+ **/
+
+uint32_t mepa_capability(struct mepa_device *dev , uint32_t capability);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

@@ -916,6 +916,26 @@ static mepa_rc phy_1g_i2c_clock_select(mepa_device_t *dev,
    return vtss_phy_i2c_clock_select(data->vtss_instance, data->port_no, clk_value);
 }
 
+//To get PHY capability
+static uint32_t phy_1g_capability(struct mepa_device *dev , uint32_t capability)
+{
+    uint32_t c = 0;
+    switch(capability) {
+    case MEPA_CAP_MACSEC_SECY_CNT:
+        c = MEPA_MACSEC_1G_MAX_SA/2;
+    break;
+
+    case MEPA_CAP_MACSEC_MAX_SA:
+        c = MEPA_MACSEC_1G_MAX_SA;
+    break;
+
+    case MEPA_CAP_MACSEC_MAX_SC:
+        c = MEPA_MACSEC_1G_MAX_SA/2;
+    break;
+    }
+    return c;
+}
+
 // Debug dump API for PHY
 mepa_rc phy_debug_info_dump(struct mepa_device *dev,
                             const mepa_debug_print_t pr,
@@ -1069,6 +1089,24 @@ static mepa_rc malibu_10g_event_poll(struct mepa_device *dev, mepa_event_t *cons
     return rc;
 }
 
+static uint32_t malibu_10g_capability(struct mepa_device *dev , uint32_t capability)
+{
+    uint32_t c = 0;
+    switch(capability) {
+    case MEPA_CAP_MACSEC_SECY_CNT:
+        c = MEPA_MACSEC_10G_MAX_SA/2;
+    break;
+    case MEPA_CAP_MACSEC_MAX_SA:
+       c = MEPA_MACSEC_10G_MAX_SA;
+    break;
+
+    case MEPA_CAP_MACSEC_MAX_SC:
+       c = MEPA_MACSEC_10G_MAX_SA/2;
+    break;
+   }
+    return c;
+}
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -1174,6 +1212,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_i2c_read = phy_1g_i2c_read,
             .mepa_driver_phy_i2c_write = phy_1g_i2c_write,
             .mepa_driver_phy_i2c_clock_select = phy_1g_i2c_clock_select,
+            .mepa_capability = phy_1g_capability,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },
@@ -1259,6 +1298,7 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mask = 0x0000FF00,
             .mepa_driver_delete = phy_10g_delete,
             .mepa_driver_reset = malibu_10g_reset,
+            .mepa_capability = malibu_10g_capability,
             .mepa_driver_poll = phy_10g_poll,
             .mepa_driver_conf_set = phy_10g_conf_set,
             .mepa_driver_if_set = mscc_if_set,

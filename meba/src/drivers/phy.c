@@ -630,3 +630,12 @@ mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no,
     }
     return mepa_prbs_monitor_get(inst->phy_devices[port_no], value);
 }
+
+//To Get the PHY Capability
+uint32_t meba_capability(meba_inst_t inst , mepa_port_no_t port_no ,uint32_t capability)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_capability(inst->phy_devices[port_no], capability);
+}

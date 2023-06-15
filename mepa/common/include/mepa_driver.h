@@ -682,10 +682,22 @@ typedef mepa_rc (*mepa_driver_warmrestart_conf_end_t)(struct mepa_device *dev);
  **/
 typedef mepa_rc (*mepa_driver_warmrestart_sync_t)(struct mepa_device *dev);
 
+/**
+ * \brief To get phy capability
+ *
+ * \param dev            [IN]  Driver instance.
+ * \param capability     [IN]  Capability information
+ *
+ * \return
+ *   Required capability of the PHY based on phy id.
+ **/
+typedef uint32_t (*mepa_capability_t)(struct mepa_device *dev, uint32_t capability);
+
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
     mepa_driver_reset_t                mepa_driver_reset;
     mepa_driver_poll_t                 mepa_driver_poll;
+    mepa_capability_t                  mepa_capability;
     mepa_driver_conf_set_t             mepa_driver_conf_set;
     mepa_driver_conf_get_t             mepa_driver_conf_get;
     mepa_driver_if_set_t               mepa_driver_if_set;

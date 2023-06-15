@@ -503,6 +503,12 @@ typedef struct {
     mepa_restart_version_t  version_prev;    /* Previous version */
 } mepa_restart_info_t;
 
+/** \brief Capability info */
+typedef enum {
+    MEPA_CAP_MACSEC_SECY_CNT = 100000000, /* MACSec Secy count */
+    MEPA_CAP_MACSEC_MAX_SA,               /* MACSec Max SA */
+    MEPA_CAP_MACSEC_MAX_SC                /* MACSec Max SC */
+} mepa_cap_t;
 
 
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
