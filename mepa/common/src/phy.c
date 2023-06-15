@@ -553,33 +553,33 @@ mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
 }
 
 mepa_rc mepa_i2c_read(struct mepa_device  *dev,
-                      const uint8_t      i2c_mux,
-                      const uint8_t      i2c_reg_addr,
-                      const uint8_t      i2c_dev_addr,
-                      const mepa_bool_t  word_access,
-                      uint8_t            cnt,
-                      uint8_t            *const value)
+                        const uint8_t      i2c_mux,
+                        const uint8_t      i2c_reg_addr,
+                        const uint8_t      i2c_dev_addr,
+                        uint8_t  *const    value,
+                        uint8_t            cnt,
+                        const mepa_bool_t  word_access)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_read) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_phy_i2c_read(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+    return dev->drv->mepa_driver_phy_i2c_read(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
 mepa_rc mepa_i2c_write(struct mepa_device *dev,
-                       const uint8_t      i2c_mux,
-                       const uint8_t      i2c_reg_addr,
-                       const uint8_t      i2c_dev_addr,
-                       const mepa_bool_t  word_access,
-                       uint8_t            cnt,
-                       const uint8_t      *const value)
+                        const uint8_t      i2c_mux,
+                        const uint8_t      i2c_reg_addr,
+                        const uint8_t      i2c_dev_addr,
+                        uint8_t           *value,
+                        uint8_t            cnt,
+                        const mepa_bool_t  word_access)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_write) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_phy_i2c_write(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+    return dev->drv->mepa_driver_phy_i2c_write(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
 mepa_rc mepa_fefi_set(struct mepa_device *dev,const mepa_fefi_mode_t *fefi_conf)

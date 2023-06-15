@@ -800,7 +800,7 @@ vtss_rc vtss_phy_i2c_write(const vtss_inst_t    inst,
                            const u8             i2c_mux,
                            const u8             i2c_reg_addr,
                            const u8             i2c_device_addr,
-                           const u8             *const value,
+                           u8                   *value,
                            u8                   cnt,
                            BOOL                 word_access);
 

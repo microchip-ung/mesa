@@ -504,14 +504,13 @@ typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_driver_phy_i2c_read_t)(
-        struct mepa_device *dev,
-        uint8_t             i2c_mux,
-        uint8_t             i2c_reg_addr,
-        uint8_t             i2c_dev_addr,
-        mepa_bool_t         word_access,
-        uint8_t             cnt,
-        uint8_t             *const value);
+typedef mepa_rc (*mepa_driver_phy_i2c_read_t)(struct mepa_device *dev,
+                             const uint8_t i2c_mux,
+                             const uint8_t i2c_reg_addr,
+                             const uint8_t i2c_dev_addr,
+                             uint8_t *const value,
+                             uint8_t cnt,
+                             const mepa_bool_t word_access);
 
 /**
  *
@@ -533,14 +532,13 @@ typedef mepa_rc (*mepa_driver_phy_i2c_read_t)(
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_driver_phy_i2c_write_t)(
-        struct mepa_device *dev,
-        uint8_t i2c_mux,
-        uint8_t i2c_reg_addr,
-        uint8_t i2c_dev_addr,
-        mepa_bool_t word_access,
-        uint8_t cnt,
-        const uint8_t *const value);
+typedef mepa_rc (*mepa_driver_phy_i2c_write_t)(struct mepa_device *dev,
+                             const uint8_t i2c_mux,
+                             const uint8_t i2c_reg_addr,
+                             const uint8_t i2c_dev_addr,
+                             uint8_t *value,
+                             uint8_t cnt,
+                             const mepa_bool_t word_access);
 
 /**
  * \brief PHY get SQI value

@@ -684,13 +684,13 @@ mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_i2c_read(struct mepa_device *dev,
-                      uint8_t      i2c_mux,
-                      uint8_t      i2c_reg_addr,
-                      uint8_t      i2c_dev_addr,
-                      mepa_bool_t  word_access,
-                      uint8_t      cnt,
-                      uint8_t      *const value);
+mepa_rc mepa_i2c_read(mepa_device_t *dev,
+                      const uint8_t i2c_mux,
+                      const uint8_t i2c_reg_addr,
+                      const uint8_t i2c_dev_addr,
+                      uint8_t *const value,
+                      uint8_t cnt,
+                      const mepa_bool_t word_access);
 
 /**
  *
@@ -712,13 +712,13 @@ mepa_rc mepa_i2c_read(struct mepa_device *dev,
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_i2c_write(struct mepa_device *dev,
-                       uint8_t        i2c_mux,
-                       uint8_t        i2c_reg_addr,
-                       uint8_t        i2c_dev_addr,
-                       mepa_bool_t    word_access,
-                       uint8_t        cnt,
-                       const uint8_t  *const value);
+mepa_rc mepa_i2c_write(mepa_device_t *dev,
+                       const uint8_t i2c_mux,
+                       const uint8_t i2c_reg_addr,
+                       const uint8_t i2c_dev_addr,
+                       uint8_t *value,
+                       uint8_t cnt,
+                       const mepa_bool_t word_access);
 
 
 /**

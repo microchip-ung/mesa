@@ -3987,21 +3987,20 @@ vtss_rc vtss_phy_10g_i2c_reset(const vtss_inst_t                inst,
 
 vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t                inst,
                               const vtss_port_no_t             port_no,
-                              const u8                         addr,
-                              u8                               *value)
+                              const u16                        addr,
+                              u16                              *value)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
     u16 data_reg = 0xc005,addr_reg = 0xc004,mmd = 1;
-    u16 reg_value;
+
     VTSS_ENTER();    
     if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
         if (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_VENICE ||
                 vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU) {
             if ((rc = vtss_mmd_wr(vtss_state,port_no,mmd,addr_reg,addr)) == VTSS_RC_OK ) {
                 MEPA_MSLEEP(1);
-                if ((rc = vtss_mmd_rd(vtss_state,port_no,mmd,data_reg,&reg_value))== VTSS_RC_OK) {
-                    *value = reg_value;
+                if (((rc = vtss_mmd_rd(vtss_state,port_no,mmd,data_reg,value)) == VTSS_RC_OK)) {
                     if (*value & 0x8000) {
                         VTSS_E("I2C bus is busy\n");
                     }
@@ -4021,20 +4020,18 @@ vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t                inst,
 
 vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t                inst,
                                const vtss_port_no_t             port_no,
-                               const u8                         addr,
-                               const u8                         *value)
+                               const u16                        addr,
+                               const u16                        *value)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
     u16 mmd = 1,wr_cntrl_reg = 0xc002,wr_status = 0xc003,is_bsy;
-    u16 reg_val = *value;
-    reg_val <<= 8;
-    reg_val |= addr;
+
     VTSS_ENTER();    
     if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
         if (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_VENICE ||
                                 vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU) {
-            if ((rc = vtss_mmd_wr(vtss_state,port_no,mmd,wr_cntrl_reg,reg_val)) == VTSS_RC_OK ) {
+            if ((rc = vtss_mmd_wr(vtss_state,port_no,mmd,wr_cntrl_reg,addr|(*value << 8))) == VTSS_RC_OK ) {
                 MEPA_MSLEEP(1);
                 if (((rc = vtss_mmd_rd(vtss_state,port_no,mmd,wr_status,&is_bsy)) == VTSS_RC_OK)) {
                     if((is_bsy & 0x01)) {

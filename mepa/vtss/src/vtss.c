@@ -881,12 +881,12 @@ static mepa_device_t *phy_10g_probe(mepa_driver_t *drv,
 }
 
 static mepa_rc phy_1g_i2c_read(mepa_device_t *dev,
-                               uint8_t i2c_mux,
-                               uint8_t i2c_reg_addr,
-                               uint8_t i2c_dev_addr,
-                               mepa_bool_t word_access,
+                               const uint8_t i2c_mux,
+                               const uint8_t i2c_reg_addr,
+                               const uint8_t i2c_dev_addr,
+                               uint8_t *const value,
                                uint8_t cnt,
-                               uint8_t *const value)
+                               const mepa_bool_t word_access)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
@@ -895,12 +895,12 @@ static mepa_rc phy_1g_i2c_read(mepa_device_t *dev,
 }
 
 static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
-                                uint8_t i2c_mux,
-                                uint8_t i2c_reg_addr,
-                                uint8_t i2c_dev_addr,
-                                mepa_bool_t word_access,
+                                const uint8_t i2c_mux,
+                                const uint8_t i2c_reg_addr,
+                                const uint8_t i2c_dev_addr,
+                                uint8_t *value,
                                 uint8_t cnt,
-                                const uint8_t *const value)
+                                const mepa_bool_t word_access)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
@@ -1099,34 +1099,6 @@ static mepa_rc malibu_10g_event_poll(struct mepa_device *dev, mepa_event_t *cons
     mepa_rc rc=MEPA_RC_OK;
     phy_data_t *data =(phy_data_t*)dev->data;
     rc=vtss_phy_10g_event_poll(data->vtss_instance, data->port_no ,ev_mask);
-    return rc;
-}
-
-static mepa_rc malibu_10g_i2c_read(struct mepa_device *dev,
-                                   uint8_t      i2c_mux,
-                                   uint8_t      i2c_reg_addr,
-                                   uint8_t      i2c_dev_addr,
-                                   mepa_bool_t  word_access,
-                                   uint8_t      cnt,
-                                   uint8_t      *const value)
-{
-    mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data =(phy_data_t*)dev->data;
-    rc = vtss_phy_10g_i2c_read(data->vtss_instance, data->port_no, i2c_reg_addr, value);
-    return rc;
-}
-
-static mepa_rc malibu_10g_i2c_write(struct mepa_device *dev,
-                                    uint8_t     i2c_mux,
-                                    uint8_t     i2c_reg_addr,
-                                    uint8_t     i2c_dev_addr,
-                                    mepa_bool_t word_access,
-                                    uint8_t     cnt,
-                                    const uint8_t     *const value)
-{
-    mepa_rc rc =MEPA_RC_OK;
-    phy_data_t *data =(phy_data_t*)dev->data;
-    rc = vtss_phy_10g_i2c_write(data->vtss_instance, data->port_no, i2c_reg_addr, value);
     return rc;
 }
 
@@ -1339,8 +1311,6 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_event_enable_set = malibu_10g_event_enable_set,
             .mepa_driver_event_enable_get = malibu_10g_event_enable_get,
             .mepa_debug_info_dump = phy_debug_info_dump,
-            .mepa_driver_phy_i2c_read = malibu_10g_i2c_read,
-            .mepa_driver_phy_i2c_write = malibu_10g_i2c_write,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         }
