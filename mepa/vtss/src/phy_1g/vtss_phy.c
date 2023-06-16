@@ -9008,8 +9008,6 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
                 }
                 // Setup Reg23E3
-                //Configuring this to access MAC SerDes Clause 37 Advertised Ability 18E3
-                conf->media_if_pcs.force_adv_ability = 1;
                 new_reg_value = 0;
                 new_reg_value = ((conf->media_if_pcs.remote_fault << 14) |
                                  ((conf->media_if_pcs.aneg_pd_detect ? 1 : 0) << 13) |
@@ -9025,8 +9023,6 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                 /* If clearing bit is desired, Clear the bit in the Register either before or after this Write */
                 if (!vtss_state->sync_calling_private) {
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
-                    VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
-                    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_CL37_ADV_ABILITY, 0x0020));
                 }
 
                 VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
@@ -9747,12 +9743,11 @@ static void vtss_phy_link_speeed_decode_status(vtss_port_no_t port_no, u16 lp_10
 }
 
 
-static void vtss_phy_decode_status_reg(vtss_port_no_t port_no, u16 mii_status_reg, u16 mii_pcs_status_reg ,
-                                       u16 mii_pcs_media_status_reg ,vtss_port_status_t *const status)
+static void vtss_phy_decode_status_reg(vtss_port_no_t port_no, u16 mii_status_reg, vtss_port_status_t *const status)
 {
     // Link up/down
-    status->link                   = (((mii_status_reg & (1 << 2))|(mii_pcs_media_status_reg & (1<<2)))&(mii_pcs_status_reg & (1<<2)) ? TRUE : FALSE);
-    status->link_down              = (((mii_status_reg & (1 << 2))|(mii_pcs_media_status_reg & (1<<2)))&(mii_pcs_status_reg & (1<<2)) ? FALSE : TRUE);
+    status->link                   = (mii_status_reg & (1 << 2) ? TRUE : FALSE);
+    status->link_down              = (mii_status_reg & (1 << 2) ? FALSE : TRUE);
     status->aneg_complete          = (mii_status_reg & (1 << 5) ? TRUE : FALSE);
     status->remote_fault           = (mii_status_reg & (1 << 4) ? TRUE : FALSE);
     status->unidirectional_ability = ((mii_status_reg & VTSS_F_PHY_UNIDIRECTIONAL_ABILITY) ? TRUE : FALSE);
@@ -9765,20 +9760,20 @@ static void vtss_phy_decode_status_reg(vtss_port_no_t port_no, u16 mii_status_re
 //     lp_auto_neg_advertisment_reg - The value from the register containing the Link partners auto negotiation advertisement (Standard page 5)
 // In/out:   Status  - Pointer to where to put the result
 void vtss_phy_reg_decode_status(vtss_port_no_t port_no, u16 lp_auto_neg_advertisment_reg, u16 lp_1000base_t_status_reg,
-                                u16 mii_status_reg, u16 mii_pcs_status_reg, u16 mii_pcs_media_status_reg,
-                                const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
+                                u16 mii_status_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
 {
     vtss_phy_flowcontrol_decode_status_private(port_no, lp_auto_neg_advertisment_reg, phy_setup, status); // Flow control
     vtss_phy_link_speeed_decode_status(port_no, lp_1000base_t_status_reg, mii_status_reg, phy_setup, status); // Speed + Duplex
+
     // Link up/down
-    vtss_phy_decode_status_reg(port_no, mii_status_reg, mii_pcs_status_reg, mii_pcs_media_status_reg, status);
+    vtss_phy_decode_status_reg(port_no, mii_status_reg, status);
 }
 vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                                     const vtss_port_no_t port_no,
                                     vtss_port_status_t   *const status)
 {
     vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
-    u16                   reg, reg10, reg17, reg24;
+    u16                   reg, reg10;
     u16                   revision;
     vtss_phy_reset_conf_t *conf = &ps->reset;
     revision = ps->type.revision;
@@ -9788,27 +9783,17 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
 
         /* Read link status from register 1 */
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_STATUS, &reg));
-        /* Read link status on host side of the phy from register 17E3 */
-        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
-        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_STATUS, &reg17));
-         /* Read link status on Media side of the phy from register 24E3 */
-        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
-        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_STATUS, &reg24));
-
         /* Set Link Down Indication based on latched in link_status in Reg01 */
-        status->link_down = (((reg & (1 << 2)) | (reg24 & (1 << 2))) & (reg17 & (1 << 2)) ? 0 : 1);
+        status->link_down = (reg & (1 << 2) ? 0 : 1);
 
         //VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_CONTROL, &reg10));
         /* Populates the Local PHY Status from Reg01 and Reg09 */
-        vtss_phy_decode_status_reg(port_no, reg, reg17, reg24, status);
+        vtss_phy_decode_status_reg(port_no, reg, status);
 
         if (status->link_down) {
             /* Read status again if link down (latch low field) */
-            VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
             VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_STATUS, &reg));
-            VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
-            VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_STATUS, &reg17));
-            status->link = (((reg & (1 << 2)) & (reg24 & (1<<2))) & (reg17 & (1<<2)) ? 1 : 0);
+            status->link = (reg & (1 << 2) ? 1 : 0);
             VTSS_N("status->link = %d, port = %d, reg = 0x%X", status->link, port_no, reg);
         } else {
             status->link = 1;
@@ -9859,8 +9844,6 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                     vtss_phy_link_speeed_decode_status(port_no, reg10, reg, ps->setup, status);
                 } else {
                     /* Vitesse PHY, use register 28 to determine speed/duplex */
-                    /* Read VTSS_PHY_AUXILIARY_CONTROL_AND_STATUS register 28 */
-                    VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
                     VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_AUXILIARY_CONTROL_AND_STATUS, &reg));
                     status->mdi_cross = ((reg & VTSS_F_PHY_AUXILIARY_CONTROL_AND_STATUS_HP_AUTO_MDIX_CROSSOVER_INDICATION) ? TRUE : FALSE);
 
@@ -9882,7 +9865,6 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                 }
                 break;
             case VTSS_PHY_MODE_FORCED:
-                VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
                 VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_AUXILIARY_CONTROL_AND_STATUS, &reg));
                 status->mdi_cross = ((reg & VTSS_F_PHY_AUXILIARY_CONTROL_AND_STATUS_HP_AUTO_MDIX_CROSSOVER_INDICATION) ? TRUE : FALSE);
 

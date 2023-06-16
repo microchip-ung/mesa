@@ -582,30 +582,6 @@ mepa_rc mepa_i2c_write(struct mepa_device *dev,
     return dev->drv->mepa_driver_phy_i2c_write(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
 }
 
-mepa_rc mepa_fefi_set(struct mepa_device *dev,const mepa_fefi_mode_t *fefi_conf)
-{
-    if (!dev || !dev->drv->mepa_driver_phy_fefi_get) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-    return dev->drv->mepa_driver_phy_fefi_set(dev, fefi_conf);
-}
-
-mepa_rc mepa_fefi_get(struct mepa_device *dev, mepa_fefi_mode_t *const fefi_conf)
-{
-    if (!dev || !dev->drv->mepa_driver_phy_fefi_get) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-    return dev->drv->mepa_driver_phy_fefi_get(dev, fefi_conf);
-}
-
-mepa_rc mepa_fefi_detect(struct mepa_device *dev, mepa_bool_t *const detect)
-{
-    if (!dev || !dev->drv->mepa_driver_phy_fefi_detect) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-    return dev->drv->mepa_driver_phy_fefi_detect(dev, detect);
-}
-
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {

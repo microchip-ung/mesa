@@ -45,15 +45,6 @@ mepa_rc meba_phy_media_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_media_
 // Gets Copper 1G PHY auto negotiation status.
 mepa_rc meba_phy_aneg_status_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_aneg_status_t *status);
 
-// Set FEFI configuration
-mepa_rc meba_phy_fefi_set(meba_inst_t inst,mepa_port_no_t port_no, const mepa_fefi_mode_t *fefi_conf);
-
-// Get FEFI configuration
-mepa_rc meba_phy_fefi_get(meba_inst_t inst,mepa_port_no_t port_no, mepa_fefi_mode_t *const fefi_conf);
-
-// Detect FEFI occurance
-mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const detect);
-
 // Read registers using clause22 format for debugging.
 // address format : bits 0 - 4 : address within page i.e. 0 - 31 addresses.
 //                       5 - 31: page number.

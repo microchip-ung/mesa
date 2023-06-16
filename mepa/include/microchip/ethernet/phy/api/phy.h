@@ -734,45 +734,6 @@ mepa_rc mepa_i2c_write(mepa_device_t *dev,
 mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value);
 
 /**
- * \brief Set FEFI configuration
- *
- * \param dev   [IN]   Driver instance.
- * \param fefi_conf   [IN]   FEFI mode as input.
- *
- * \return
- *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
- *   MEPA_RC_OK on success.
- **/
-mepa_rc mepa_fefi_set(struct mepa_device *dev,
-                       const mepa_fefi_mode_t *fefi_conf);
-
-/**
- * \brief Get FEFI configuration
- *
- * \param dev   [IN]   Driver instance.
- * \param fefi_conf   [OUT]   FEFI mode as output.
- *
- * \return
- *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
- *   MEPA_RC_OK on success.
- **/
-mepa_rc mepa_fefi_get(struct mepa_device *dev,
-                       mepa_fefi_mode_t *const fefi_conf);
-
-/**
- * \brief FEFI detection
- *
- * \param dev   [IN]   Driver instance.
- * \param fefi_detect   [OUT]   A BOOL value which is true when FEFI is detected.
- *
- * \return
- *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
- *   MEPA_RC_OK on success.
- **/
-mepa_rc mepa_fefi_detect(struct mepa_device *dev,
-                          mepa_bool_t *const fefi_detect);
-
-/**
  * \brief PHY write SOF value
  *
  * \param dev   [IN]   Driver instance.

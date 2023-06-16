@@ -109,39 +109,6 @@ mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t 
     return mepa_conf_get(inst->phy_devices[port_no], conf);
 }
 
-/* Set FEFI configuration.*/
-mepa_rc meba_phy_fefi_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_fefi_mode_t *fefi_conf)
-{
-    T_I(inst, "Called port %d", port_no);
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
-        return MESA_RC_ERR_INV_PORT_BOARD;
-    }
-
-    return mepa_fefi_set(inst->phy_devices[port_no], fefi_conf);
-}
-
-/* Get FEFI configuration */
-mepa_rc meba_phy_fefi_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_fefi_mode_t *const fefi_conf)
-{
-    T_I(inst, "Called port %d", port_no);
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
-        return MESA_RC_ERR_INV_PORT_BOARD;
-    }
-
-    return mepa_fefi_get(inst->phy_devices[port_no], fefi_conf);
-}
-
-/* FEFI detection */
-mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const detect)
-{
-    T_I(inst, "Called port %d", port_no);
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
-        return MESA_RC_ERR_INV_PORT_BOARD;
-    }
-
-    return mepa_fefi_detect(inst->phy_devices[port_no], detect);
-}
-
 /* Get the PHY interface based on speed.*/
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf)

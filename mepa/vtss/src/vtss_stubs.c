@@ -1313,7 +1313,7 @@ vtss_rc vtss_phy_lcpll_status_get(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-void vtss_phy_reg_decode_status(vtss_port_no_t port_no, u16 lp_auto_neg_advertisment_reg, u16 lp_1000base_t_status_reg, u16 mii_status_reg, u16 mii_pcs_status_reg, u16 mii_pcs_media_status_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
+void vtss_phy_reg_decode_status(vtss_port_no_t port_no, u16 lp_auto_neg_advertisment_reg, u16 lp_1000base_t_status_reg, u16 mii_status_reg, const vtss_phy_conf_t phy_setup, vtss_port_status_t *const status)
 {
 }
 

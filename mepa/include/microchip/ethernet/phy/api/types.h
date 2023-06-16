@@ -274,13 +274,6 @@ typedef enum {
     MEPA_LED1
 } mepa_led_num_t;
 
-/** \breif FEFI mode Select */
-typedef enum {
-    MEPA_100FX_FEFI_NORMAL = 0,
-    MEPA_100FX_FEFI_FORCE_SUPPRESS = 2,
-    MEPA_100FX_FEFI_FORCE_ENABLE = 3,
-} mepa_fefi_mode_t;
-
 /** \brief Additional GPIO data used while setting gpio mode */
 typedef struct {
     uint8_t gpio_no;
