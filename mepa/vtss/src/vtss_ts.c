@@ -1237,8 +1237,8 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             }
             ip->comm_opt.dport_mask = in_conf->ip_class_conf.udp_dport_en ? 0xFFFF : 0;
             ip->comm_opt.dport_val = in_conf->ip_class_conf.udp_dport;
-            ip->comm_opt.sport_val = in_conf->ip_class_conf.udp_sport_en ? 0xFFFF : 0;
-            ip->comm_opt.sport_mask = in_conf->ip_class_conf.udp_sport;
+            ip->comm_opt.sport_mask = in_conf->ip_class_conf.udp_sport_en ? 0xFFFF : 0;
+            ip->comm_opt.sport_val = in_conf->ip_class_conf.udp_sport;
         }
         // ethernet common options
         eth->comm_opt.pbb_en = eth_in->vlan_conf.pbb_en;
@@ -1427,8 +1427,8 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
             }
             ip->comm_opt.dport_mask = in_conf->ip_class_conf.udp_dport_en ? 0xFFFF : 0;
             ip->comm_opt.dport_val = in_conf->ip_class_conf.udp_dport;
-            ip->comm_opt.sport_val = in_conf->ip_class_conf.udp_sport_en ? 0xFFFF : 0;
-            ip->comm_opt.sport_mask = in_conf->ip_class_conf.udp_sport;
+            ip->comm_opt.sport_mask = in_conf->ip_class_conf.udp_sport_en ? 0xFFFF : 0;
+            ip->comm_opt.sport_val = in_conf->ip_class_conf.udp_sport;
         }
         // ethernet common options
         eth->comm_opt.pbb_en = eth_in->vlan_conf.pbb_en;
