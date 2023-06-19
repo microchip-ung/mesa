@@ -321,6 +321,46 @@ typedef mepa_rc (*mepa_driver_event_enable_get_t)(struct mepa_device *dev,
 typedef mepa_rc (*mepa_driver_event_poll_t)(struct mepa_device *dev, mepa_event_t *const ev_mask);
 
 /**
+ * \breif FEFI Set
+ *
+ * \param dev        [IN]      Driver instance.
+ * \param fefi_conf  [IN]      Pointer which takes the configuration mode of FEFI as input.
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_phy_fefi_set_t)(struct mepa_device *dev,
+                 const mepa_fefi_mode_t *fefi_conf);
+
+/**
+ * \breif FEFI Get
+ *
+ * \param dev        [IN]      Driver instance.
+ * \param fefi_conf  [OUT]     Gives the current confiured FEFI mode.
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ *
+ **/
+typedef mepa_rc (*mepa_driver_phy_fefi_get_t)(struct mepa_device *dev,
+                  mepa_fefi_mode_t *const fefi_conf);
+
+/**
+ * \breif FEFI detection
+ *
+ * \param dev          [IN]   Driver instance.
+ * \param fefi_detect  [OUT]  BOOL value returned after FEFI detection.
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_phy_fefi_detect_t)(struct mepa_device *dev,
+                 mepa_bool_t *const fefi_detect);
+
+/**
  * \brief Set loopback. Used for debugging purpose
  *
  * \param dev       [IN] Driver Instance.
@@ -729,6 +769,9 @@ typedef struct mepa_driver {
     mepa_driver_phy_i2c_read_t         mepa_driver_phy_i2c_read;
     mepa_driver_phy_i2c_write_t        mepa_driver_phy_i2c_write;
     mepa_driver_phy_i2c_clock_select_t mepa_driver_phy_i2c_clock_select;
+    mepa_driver_phy_fefi_set_t         mepa_driver_phy_fefi_set;
+    mepa_driver_phy_fefi_get_t         mepa_driver_phy_fefi_get;
+    mepa_driver_phy_fefi_detect_t      mepa_driver_phy_fefi_detect;
     mepa_driver_sqi_read_t             mepa_driver_sqi_read;
     mepa_driver_start_of_frame_write_t mepa_driver_start_of_frame_conf_set;
     mepa_driver_start_of_frame_read_t  mepa_driver_start_of_frame_conf_get;

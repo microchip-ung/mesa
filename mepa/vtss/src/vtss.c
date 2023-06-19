@@ -908,12 +908,53 @@ static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
                               i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
 }
 
-
 static mepa_rc phy_1g_i2c_clock_select(mepa_device_t *dev,
                                        const mepa_i2c_clk_select_t *clk_value)
 {
-   phy_data_t *data = (phy_data_t *)(dev->data);
-   return vtss_phy_i2c_clock_select(data->vtss_instance, data->port_no, clk_value);
+    phy_data_t *data = (phy_data_t *)(dev->data);
+
+    return vtss_phy_i2c_clock_select(data->vtss_instance, data->port_no, clk_value);
+}
+
+static mepa_rc phy_1g_fefi_set(struct mepa_device *dev,
+                               const mepa_fefi_mode_t *conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    vtss_fefi_mode_t fefi_conf;
+    mepa_rc rc = MEPA_RC_OK;
+    if((rc = vtss_phy_fefi_get(data->vtss_instance, data->port_no, &fefi_conf)) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    fefi_conf = *conf;
+    return vtss_phy_fefi_set(data->vtss_instance, data->port_no, fefi_conf);
+}
+
+// Read FEFI Configurations API
+static mepa_rc phy_1g_fefi_get(struct mepa_device *dev,
+                               mepa_fefi_mode_t *const conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    vtss_fefi_mode_t fefi_conf;
+    mepa_rc rc = MEPA_RC_OK;
+    if((rc = vtss_phy_fefi_get(data->vtss_instance, data->port_no, &fefi_conf)) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    *conf = fefi_conf;
+    return MEPA_RC_OK;
+}
+
+// FEFI detect API
+static mepa_rc phy_1g_fefi_detect(struct mepa_device *dev,
+                                  mepa_bool_t *const fefi_detect)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    mepa_bool_t detect = FALSE;
+    mepa_rc rc = MEPA_RC_OK;
+    if((rc = vtss_phy_fefi_detect(data->vtss_instance, data->port_no, &detect)) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    *fefi_detect = detect;
+    return MEPA_RC_OK;
 }
 
 //To get PHY capability
@@ -1213,6 +1254,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_i2c_write = phy_1g_i2c_write,
             .mepa_driver_phy_i2c_clock_select = phy_1g_i2c_clock_select,
             .mepa_capability = phy_1g_capability,
+            .mepa_driver_phy_fefi_set = phy_1g_fefi_set,
+            .mepa_driver_phy_fefi_get = phy_1g_fefi_get,
+            .mepa_driver_phy_fefi_detect = phy_1g_fefi_detect,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },

@@ -9033,8 +9033,6 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
                 }
                 // Setup Reg23E3
-                // Configuring this to access MAC serdes clause 37 advertisement ability 18E3.
-                conf->media_if_pcs.force_adv_ability = 1;
                 new_reg_value = 0;
                 new_reg_value = ((conf->media_if_pcs.remote_fault << 14) |
                                  ((conf->media_if_pcs.aneg_pd_detect ? 1 : 0) << 13) |

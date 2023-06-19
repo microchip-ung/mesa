@@ -1614,7 +1614,6 @@ void vtss_phy_reg_decode_status(vtss_port_no_t port_no,
                                 vtss_port_status_t *const status);
 
 
-
 /**
  * \brief Function for finding flow control status based upon configuration and PHY registers.
  * \param inst                         [IN]    Target instance reference.

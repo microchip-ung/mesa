@@ -1559,7 +1559,7 @@ static mesa_rc viper_mode_conf(const meba_inst_t inst)
         board->port[iport].map.map.miim_controller = MESA_MIIM_CONTROLLER_0;
         board->port[iport].map.map.miim_addr = port_viper_start++;
         board->port[iport].map.cap = (MEBA_PORT_CAP_1G_PHY | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_DETECT | MEBA_PORT_CAP_SFP_1G |
-                                      MEBA_PORT_CAP_DUAL_FIBER_1000X | MEBA_PORT_CAP_NO_FORCE | MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_10M_FDX |
+                                      MEBA_PORT_CAP_DUAL_FIBER_1000X | MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_10M_FDX |
                                       MEBA_PORT_CAP_100M_HDX | MEBA_PORT_CAP_100M_FDX );
     }
     return rc;
