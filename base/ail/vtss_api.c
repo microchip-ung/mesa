@@ -333,17 +333,17 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     case VTSS_TARGET_7552TSN:
     case VTSS_TARGET_7556TSN:
     case VTSS_TARGET_7558TSN:
-    case VTSS_TARGET_LAN9694HSR:
+    case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9694TSN:
-    case VTSS_TARGET_LAN9694VAO:
+    case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9694:
-    case VTSS_TARGET_LAN9696HSR:
+    case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
-    case VTSS_TARGET_LAN9696VAO:
+    case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9696:
-    case VTSS_TARGET_LAN9698HSR:
+    case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
-    case VTSS_TARGET_LAN9698VAO:
+    case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
         arch = VTSS_ARCH_ANT;
         VTSS_RC(vtss_fa_inst_create(vtss_state));

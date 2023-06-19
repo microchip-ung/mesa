@@ -63,19 +63,19 @@ typedef enum {
     VTSS_TARGET_7558TSN            = 0x47558, /**< SparX-5-200i Industrial Switch */
     VTSS_TARGET_LAN9662            = 0x9662,  /**< LAN9662 switch */
     VTSS_TARGET_LAN9668            = 0x9668,  /**< LAN9668 switch */
-    VTSS_TARGET_LAN9694HSR         = 0x96949,  /**< Laguna-40-HSR: +40G TSN Ethernet switch with PRP/HSR */
-    VTSS_TARGET_LAN9694TSN         = 0x96947,  /**< Laguna-40-TSN: +40G TSN Ethernet switch */
-    VTSS_TARGET_LAN9694VAO         = 0x96942,  /**< Laguna-40-VAO: +40G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9694            = 0x96940,  /**< Laguna-40:     +40G Ethernet switch */
-    VTSS_TARGET_LAN9696HSR         = 0x96969,  /**< Laguna-60-HSR: +60G TSN Ethernet switch with PRP/HSR */
-    VTSS_TARGET_LAN9696TSN         = 0x96967,  /**< Laguna-60-TSN: +60G TSN Ethernet switch */
-    VTSS_TARGET_LAN9696VAO         = 0x96962,  /**< Laguna-65-VAO: +65G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9696            = 0x96960,  /**< Laguna-60:     +60G Ethernet switch */
-    VTSS_TARGET_LAN9698HSR         = 0x96989,  /**< Laguna-80-HSR: +80G TSN Ethernet switch with PRP/HSR */
-    VTSS_TARGET_LAN9698TSN         = 0x96987,  /**< Laguna-80-TSN: +80G TSN Ethernet switch */
-    VTSS_TARGET_LAN9698VAO         = 0x96982,  /**< Laguna-90-VAO: +90G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9698            = 0x96980,  /**< Laguna-80:     +80G Ethernet switch */
 
+    VTSS_TARGET_LAN9694            = 0x9694,  /**< Laguna-40:      +40G Ethernet switch */
+    VTSS_TARGET_LAN9691VAO         = 0x9691,  /**< Laguna-40-VAO:  +40G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9694TSN         = 0x9695,  /**< Laguna-40-TSN:  +40G TSN Ethernet switch */
+    VTSS_TARGET_LAN9694RED         = 0x969A,  /**< Laguna-40-RED:  +40G TSN Ethernet switch with PRP/HSR */
+    VTSS_TARGET_LAN9696            = 0x9696,  /**< Laguna-60:      +60G Ethernet switch */
+    VTSS_TARGET_LAN9692VAO         = 0x9692,  /**< Laguna-65-VAO:  +65G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9696TSN         = 0x9697,  /**< Laguna-60-TSN:  +60G TSN Ethernet switch */
+    VTSS_TARGET_LAN9696RED         = 0x969B,  /**< Laguna-60-RED:  +60G TSN Ethernet switch with PRP/HSR */
+    VTSS_TARGET_LAN9698            = 0x9698,  /**< Laguna-100:     +80G Ethernet switch */
+    VTSS_TARGET_LAN9693VAO         = 0x9693,  /**< Laguna-100-VAO: +80G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9698TSN         = 0x9699,  /**< Laguna-100-TSN: +80G TSN Ethernet switch */
+    VTSS_TARGET_LAN9698RED         = 0x969C,  /**< Laguna-100-RED: +80G TSN Ethernet switch with PRP/HSR */
 } vtss_target_type_t;
 
 /** \brief Create structure */

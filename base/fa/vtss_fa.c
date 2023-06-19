@@ -384,17 +384,17 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     case VTSS_TARGET_7558:
     case VTSS_TARGET_7558TSN:
         return 201000;
-    case VTSS_TARGET_LAN9694HSR:
+    case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9694TSN:
-    case VTSS_TARGET_LAN9694VAO:
+    case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9694:
-    case VTSS_TARGET_LAN9696HSR:
+    case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
-    case VTSS_TARGET_LAN9696VAO:
+    case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9696:
-    case VTSS_TARGET_LAN9698HSR:
+    case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
-    case VTSS_TARGET_LAN9698VAO:
+    case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
         return 82000; // Fixme, To be updated for real silicon
 
@@ -449,17 +449,17 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             freq = 0; // Not supported
         }
         break;
-    case VTSS_TARGET_LAN9694HSR:
+    case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9694TSN:
-    case VTSS_TARGET_LAN9694VAO:
+    case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9694:
-    case VTSS_TARGET_LAN9696HSR:
+    case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
-    case VTSS_TARGET_LAN9696VAO:
+    case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9696:
-    case VTSS_TARGET_LAN9698HSR:
+    case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
-    case VTSS_TARGET_LAN9698VAO:
+    case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
         if (f == VTSS_CORE_CLOCK_DEFAULT) {
             freq = VTSS_CORE_CLOCK_250MHZ; // Fixme. To be updated for real silicon
@@ -1529,24 +1529,37 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_7552:
     case VTSS_TARGET_7556:
     case VTSS_TARGET_7558:
+        vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
+        break;
     case VTSS_TARGET_LAN9694:
     case VTSS_TARGET_LAN9696:
     case VTSS_TARGET_LAN9698:
         vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
+        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
+        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         break;
     case VTSS_TARGET_7546TSN:
     case VTSS_TARGET_7549TSN:
     case VTSS_TARGET_7552TSN:
     case VTSS_TARGET_7556TSN:
     case VTSS_TARGET_7558TSN:
+        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
+        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER]  = TRUE;
         vtss_state->vtss_features[FEATURE_PSFP]  = TRUE;
+        vtss_state->vtss_features[FEATURE_MRP] = TRUE;
+        vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
         break;
+    case VTSS_TARGET_LAN9691VAO:
+    case VTSS_TARGET_LAN9692VAO:
+    case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9694TSN:
     case VTSS_TARGET_LAN9696TSN:
     case VTSS_TARGET_LAN9698TSN:
+        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
+        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER] = TRUE;
@@ -1554,22 +1567,21 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_QOS_OT] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
-        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         break;
-    case VTSS_TARGET_LAN9694HSR:
-    case VTSS_TARGET_LAN9696HSR:
-    case VTSS_TARGET_LAN9698HSR:
+    case VTSS_TARGET_LAN9694RED:
+    case VTSS_TARGET_LAN9696RED:
+    case VTSS_TARGET_LAN9698RED:
+        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
+        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
+        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER] = TRUE;
         vtss_state->vtss_features[FEATURE_PSFP] = TRUE;
-        vtss_state->vtss_features[FEATURE_REDBOX] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_OT] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
-        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
+        vtss_state->vtss_features[FEATURE_REDBOX] = TRUE;
         break;
     default:
         return VTSS_RC_ERROR;
