@@ -321,8 +321,10 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     if (entry->media_type == MSCC_PORT_TYPE_CU) {
         conf.if_type = entry->meba.mac_if;
     }
-    if (entry->sfp_device != NULL && entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
-        (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
+    if (entry->sfp_device != NULL) {
+        if (entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
+            (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
+        }
     } else {
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
             conf.serdes.media_type = MESA_SD10G_MEDIA_SR;  // For 10G serdes to Cu
@@ -1569,6 +1571,21 @@ static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *dri
     return device;
 }
 
+// Force a i2c pin-ctrl switch
+static void i2c_pin_ctrl_workaround(mesa_port_no_t port_no) {
+    uint8_t  rom[1];
+
+    for (uint32_t p = 0; p < mesa_capability(NULL, MESA_CAP_PORT_CNT); p++) {
+        port_entry_t *e = &port_table[p];
+        if (e->media_type == MSCC_PORT_TYPE_SFP) {
+            MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, p, FALSE, 0x50, 0, rom, 1, FALSE);
+            if (p != port_no) {
+                break;
+            }
+        }
+    }
+}
+
 static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_bool_t sfp_is_inserted) {
     meba_sfp_device_info_t info;
     port_entry_t *entry = &port_table[port_no];
@@ -1589,6 +1606,8 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         entry->sfp_status.los = TRUE;
         return;
     }
+    // Workaround for i2c not-responding
+    i2c_pin_ctrl_workaround(port_no);
     // Read SFP ROM
     meba_sfp_device_info_get(inst, port_no, &info);
 
@@ -1597,6 +1616,7 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
     if ((drv = sfp_driver_search(&info)) == NULL) {
         if (meba_fill_driver(inst, port_no, sfp_driver, &info) == FALSE) {
             T_E("Port:%u Could not read from SFP", port_no);
+            entry->sfp_device = NULL;
             return;
         }
     } else {
@@ -1607,6 +1627,7 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
 
     meba_sfp_device_t *sfp_device = create_device(inst, sfp_driver, port_no, &info);
     if (sfp_device == NULL) {
+        entry->sfp_device = NULL;
         T_E("Port:%u Could not create SFP device", port_no);
         return;
     }
