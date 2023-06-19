@@ -1166,7 +1166,6 @@ typedef struct {
     vtss_counter_t bytes;  /**< Number of bytes */
 } vtss_counter_pair_t;
 
-#if defined(VTSS_FEATURE_EVC_COUNTERS) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_FEATURE_VOP)
 /** \brief EVC/ECE counters */
 typedef struct {
     vtss_counter_pair_t rx_green;   /**< Rx green frames/bytes */
@@ -1177,7 +1176,6 @@ typedef struct {
     vtss_counter_pair_t tx_green;   /**< Tx green frames/bytes */
     vtss_counter_pair_t tx_yellow;  /**< Tx yellow frames/bytes */
 } vtss_evc_counters_t;
-#endif
 
 /** \brief MPLS TC bits */
 typedef u8 vtss_mpls_tc_t;

@@ -286,9 +286,9 @@ static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_LAYER3)
     VTSS_RC(vtss_fa_l3_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_LAYER3 */
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_IS2)
     VTSS_RC(vtss_fa_vcap_debug_print(vtss_state, pr, info));
-#endif /* VTSS_FEATURE_VCAP */
+#endif /* VTSS_FEATURE_IS2 */
 #if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_fa_qos_debug_print(vtss_state, pr, info));
 #endif /* VTSS_FEATURE_QOS */

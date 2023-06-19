@@ -2288,14 +2288,12 @@ vtss_rc vtss_l26_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         /* IS1 */
-        is1->max_count = VTSS_L26_IS1_CNT;
         is1->entry_get = l26_is1_entry_get;
         is1->entry_add = l26_is1_entry_add;
         is1->entry_del = l26_is1_entry_del;
         is1->entry_move = l26_is1_entry_move;
         
         /* IS2 */
-        is2->max_count = VTSS_L26_IS2_CNT;
         is2->entry_get = l26_is2_entry_get;
         is2->entry_add = l26_is2_entry_add;
         is2->entry_del = l26_is2_entry_del;
@@ -2303,7 +2301,6 @@ vtss_rc vtss_l26_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->is2_entry_update = l26_is2_entry_update;
         
         /* ES0 */
-        es0->max_count = VTSS_L26_ES0_CNT;
         es0->entry_get = l26_es0_entry_get;
         es0->entry_add = l26_es0_entry_add;
         es0->entry_del = l26_es0_entry_del;

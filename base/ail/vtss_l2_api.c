@@ -632,7 +632,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
 
             /* Update IS2 if first aggregation mask changed */
             if (chg) {
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_IS2)
                 VTSS_RC(vtss_vcap_is2_update(vtss_state));
 #endif
             }
@@ -4471,10 +4471,12 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_FEATURE_VOP)
         if (eflow->conf.voe_idx < vtss_state->oam.port_voe_base_idx) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;
         }
+#endif
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
         if (eflow->conf.voi_idx != VTSS_VOI_IDX_NONE) {

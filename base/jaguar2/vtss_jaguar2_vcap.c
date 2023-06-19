@@ -4543,7 +4543,6 @@ vtss_rc vtss_jr2_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->is2_entry_update = jr2_is2_entry_update;
 
         /* ES0 */
-        es0->max_count = VTSS_JR2_ES0_CNT;
         es0->entry_add = jr2_es0_entry_add;
         es0->entry_del = jr2_es0_entry_del;
         es0->entry_move = jr2_es0_entry_move;

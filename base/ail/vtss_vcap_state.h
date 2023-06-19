@@ -23,7 +23,9 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_IS1  /* VCAP IS1 */
+#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_IS2  /* VCAP IS2 */
+#endif
 #define VTSS_FEATURE_ES0  /* VCAP ES0 */
 #endif /* VTSS_ARCH_LAN966X */
 
@@ -52,13 +54,15 @@
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#define VTSS_FEATURE_VCAP_SUPER      /* VCAP_SUPER pool */
+#define VTSS_FEATURE_CLM             /* VCAP CLM */
+#define VTSS_FEATURE_ES0             /* VCAP ES0 */
+#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_IS2             /* VCAP IS2 */
 #define VTSS_FEATURE_IS2_B           /* VCAP IS2_B */
-#define VTSS_FEATURE_ES0             /* VCAP ES0 */
 #define VTSS_FEATURE_ES2             /* VCAP ES2 */
-#define VTSS_FEATURE_CLM             /* VCAP CLM */
 #define VTSS_FEATURE_LPM             /* VCAP LPM */
-#define VTSS_FEATURE_VCAP_SUPER      /* VCAP_SUPER pool */
+#endif
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_VCAP_SUPER_BLK_CNT  6   /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  4   /* Number of rows in one block (full rules) */
@@ -66,7 +70,11 @@
 #define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
 #endif
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_VCAP_SUPER_RULE_CNT VTSS_STREAM_CNT // Full rules assumed
+#else
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6) /* Six rules per row */
+#endif
 #endif
 
 /** \brief VCAP key size */
@@ -490,7 +498,9 @@ typedef struct {
     u16                    sfid;
     BOOL                   sgid_enable;
     u16                    sgid;
+#if defined(VTSS_FEATURE_RCL)
     vtss_rce_action_t      rce_action;
+#endif
 #endif
 } vtss_is1_action_t;
 
@@ -1027,7 +1037,9 @@ typedef struct vtss_vcap_entry_t {
     vtss_vcap_user_t         user;  /* User */
     vtss_vcap_id_t           id;    /* Entry ID */
     vtss_vcap_data_t         data;  /* Entry data */
+#if !VTSS_OPT_LIGHT
     void                     *copy; /* Entry copy. Points to a copy of entry key/action (or NULL if not needed). */
+#endif
 } vtss_vcap_entry_t;
 
 /* VCAP rule index */
@@ -1137,7 +1149,9 @@ typedef struct {
 #if defined(VTSS_ARCH_OCELOT)
 #define VTSS_IS1_CNT      VTSS_SRVL_IS1_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#if defined(VTSS_ARCH_LAN966X_FPGA)
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_LAN966X_IS1_CNT (VTSS_STREAM_CNT * 4)
+#elif defined(VTSS_ARCH_LAN966X_FPGA)
 #define VTSS_LAN966X_IS1_CNT (16 * 4)
 #else
 #define VTSS_LAN966X_IS1_CNT (192 * 4)
@@ -1152,7 +1166,9 @@ typedef struct {
     vtss_vcap_obj_t   obj;                 /* Object */
     vtss_vcap_entry_t table[VTSS_IS1_CNT]; /* Table */
 #if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+#if !VTSS_OPT_LIGHT
     vtss_is1_entry_t  copy[VTSS_IS1_CNT];  /* Copy of entries */
+#endif
 #endif /* VTSS_OPT_WARM_START */
 } vtss_is1_info_t;
 #endif /* VTSS_FEATURE_IS1 */
@@ -1228,14 +1244,18 @@ typedef struct {
 #elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_ES0_CNT VTSS_SRVL_ES0_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#if defined(VTSS_ARCH_LAN966X_FPGA)
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_LAN966X_ES0_CNT VTSS_STREAM_CNT
+#elif defined(VTSS_ARCH_LAN966X_FPGA)
 #define VTSS_LAN966X_ES0_CNT 16
 #else
 #define VTSS_LAN966X_ES0_CNT 256
 #endif
 #define VTSS_ES0_CNT VTSS_LAN966X_ES0_CNT
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_FA_ES0_CNT VTSS_STREAM_CNT
+#elif defined(VTSS_ARCH_LAN969X_FPGA)
 #define VTSS_FA_ES0_CNT 8
 #else
 #define VTSS_FA_ES0_CNT 4096
@@ -1307,6 +1327,7 @@ typedef struct {
                                  const vtss_eflow_id_t flow_id);
 #endif
 #endif /* VTSS_FEATURE_ES0 */
+#if defined(VTSS_FEATURE_IS2)
     vtss_rc (* acl_policer_set)(struct vtss_state_s *vtss_state,
                                 const vtss_acl_policer_no_t policer_no);
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
@@ -1335,6 +1356,7 @@ typedef struct {
                                    const vtss_ace_id_t ace_id,
                                    vtss_ace_status_t   *const status);
 #endif /* VTSS_ARCH_LUTON26 */
+#endif // VTSS_FEATURE_IS2
 #if defined(VTSS_FEATURE_HACL)
     vtss_rc (* hace_add)(struct vtss_state_s *vtss_state,
                          const vtss_hacl_type_t type,
@@ -1385,17 +1407,20 @@ typedef struct {
     vtss_clm_info_t               lpm;
 #endif /* VTSS_FEATURE_LPM */
     vtss_vcap_user_t              acl_user;
+#if defined(VTSS_FEATURE_IS2)
     vtss_acl_policer_conf_t       acl_policer_conf[VTSS_ACL_POLICERS];
 #if defined(VTSS_ARCH_LUTON26)
     vtss_policer_alloc_t          acl_policer_alloc[VTSS_ACL_POLICERS];
 #endif /* VTSS_ARCH_LUTON26 */
     vtss_acl_port_conf_t          acl_old_port_conf;
     vtss_acl_port_conf_t          acl_port_conf[VTSS_PORT_ARRAY_SIZE];
+#endif // VTSS_FEATURE_IS2
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_vcap_port_conf_t         port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_vcap_port_conf_t         port_conf_old;
     vtss_dmac_dip_conf_t          dmac_dip_conf[VTSS_PORT_ARRAY_SIZE];/* Aggregated dmac_dip flag - per port per IS1 lookup */
 #endif
+#if defined(VTSS_FEATURE_IS2)
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_acl_sip_conf_t           acl_sip_table[VTSS_ACL_SIP_CNT];
     u8 acl_cnt_alloc[VTSS_BF_SIZE(VTSS_ACL_CNT_SIZE)];
@@ -1406,6 +1431,7 @@ typedef struct {
     u8 is2b_cnt_alloc[VTSS_BF_SIZE(VTSS_ACL_CNT_SIZE)];
     u8 es2_cnt_alloc[VTSS_BF_SIZE(VTSS_ES2_CNT_SIZE)];
 #endif
+#endif // VTSS_FEATURE_IS2
 } vtss_vcap_state_t;
 
 vtss_rc vtss_vcap_inst_create(struct vtss_state_s *vtss_state);
@@ -1456,12 +1482,15 @@ void vtss_vcap_debug_print_is0(struct vtss_state_s *vtss_state,
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
 vtss_vcap_obj_t *vtss_vcap_is1_obj_get(struct vtss_state_s *vtss_state);
 void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry);
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_is1(struct vtss_state_s *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_vcap_is1_update(struct vtss_state_s *vtss_state, vtss_is1_action_t *act);
 #endif /* VTSS_FEATURE_IS1/CLM */
 #if defined(VTSS_FEATURE_CLM)
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_clm_a(struct vtss_state_s *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
@@ -1471,6 +1500,7 @@ void vtss_vcap_debug_print_clm_b(struct vtss_state_s *vtss_state,
 void vtss_vcap_debug_print_clm_c(struct vtss_state_s *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
+#endif
 vtss_rc vtss_vcap_clm_update(struct vtss_state_s *vtss_state, const vtss_qos_egress_map_id_t id);
 vtss_rc vtss_vcap_clm_update_masq_hit_ena(struct vtss_state_s *vtss_state,
                                           vtss_vcap_obj_t *obj, int user, vtss_vcap_id_t id, BOOL enable);
@@ -1490,17 +1520,21 @@ vtss_rc vtss_vcap_es0_emap_update(struct vtss_state_s *vtss_state, vtss_qos_egre
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 vtss_rc vtss_vcap_es0_update(struct vtss_state_s *vtss_state,
                              const vtss_port_no_t port_no, u16 flags);
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_es0(struct vtss_state_s *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info);
+#endif
 #endif /* VTSS_FEATURE_ES0 */
 const char *vtss_vcap_key_size2txt(vtss_vcap_key_size_t key_size);
 const char *vtss_vcap_key_type2txt(vtss_vcap_key_type_t key_type);
 vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type);
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_range_checkers(struct vtss_state_s *vtss_state,
                                           const vtss_debug_printf_t pr,
                                           const vtss_debug_info_t   *const info);
-
+#endif
+#if defined(VTSS_FEATURE_IS2)
 vtss_rc vtss_cmn_ace_add(struct vtss_state_s *vtss_state,
                          const vtss_ace_id_t ace_id, const vtss_ace_t *const ace);
 vtss_rc vtss_cmn_ace_del(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id);
@@ -1508,10 +1542,12 @@ vtss_rc vtss_cmn_ace_counter_get(struct vtss_state_s *vtss_state,
                                  const vtss_ace_id_t ace_id, vtss_ace_counter_t *const counter);
 vtss_rc vtss_cmn_ace_counter_clear(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id);
 char *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf);
+#endif // VTSS_FEATURE_IS2
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_acl(struct vtss_state_s *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info);
-
+#endif
 #endif /* VTSS_FEATURE_VCAP */
 
 #endif /* _VTSS_VCAP_STATE_H_ */

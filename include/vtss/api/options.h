@@ -64,37 +64,37 @@
 #define VTSS_FEATURE_TIMESTAMP_ORG_TIME           /**< OriginTimestamp update hardware support */
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
+#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
+#define VTSS_FEATURE_XSTAT                        /**< Ingress and egress statistics */
+#define VTSS_FEATURE_XDLB                         /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_QOS_POLICER_DLB              /**< DLB policers */
+#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_FRER_IFLOW_POP               /**< FRER R-tag popping per ingress flow */
+#define VTSS_FEATURE_VCAP                         /**< VCAP */
+#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
+#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
 #define VTSS_FEATURE_QCL_KEY_TYPE                 /**< QoS: QoS Control Lists, different key types per port */
-#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
 #define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
-#define VTSS_FEATURE_QOS_POLICER_DLB              /**< DLB policers */
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
-#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
-#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
-#define VTSS_FEATURE_VCAP                         /**< VCAP */
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */
 #define VTSS_FEATURE_ACL_EXT_DIP                  /**< ACL extended IPv6 rule with DIP matching */
 #define VTSS_FEATURE_LED_POW_REDUC                /**< LED power reduction */
 #define VTSS_FEATURE_MIRROR_CPU                   /**< CPU mirroring */
 //#define VTSS_FEATURE_EVC_POLICERS                 /**< EVC/ECE policers */
 #define VTSS_FEATURE_IRQ_CONTROL                  /**< General IRQ support */
-#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
-#define VTSS_FEATURE_XSTAT                        /**< Ingress and egress statistics */
-#define VTSS_FEATURE_XDLB                         /**< DLB policers allocated dynamically */
-#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
-#define VTSS_FEATURE_FRER_IFLOW_POP               /**< FRER R-tag popping per ingress flow */
-#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_INTERRUPTS                   /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS        /**< Hooks for Serdes Macro configuration */
 #if !defined(VTSS_OPT_FPGA)
@@ -164,10 +164,18 @@
 #define VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP     /**< Peer-to-peer path delay compensation hardware support */
 #define VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP     /**< Path delay asymmetry compensation hardware support */
 #define VTSS_FEATURE_CORE_CLOCK                   /**< Core Clock LC-PLL */
+#define VTSS_FEATURE_FRER                         /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
+#define VTSS_FEATURE_PSFP                         /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
+#define VTSS_FEATURE_XFLOW                        /**< Ingress and egress flows */
+#define VTSS_FEATURE_XSTAT                        /**< Ingress and egress statistics */
+#define VTSS_FEATURE_XDLB                         /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_VCAP                         /**< VCAP */
+#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
+#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
+#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
-#define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
 #define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
 #define VTSS_FEATURE_QCL_MAP_ACTION               /**< QoS: QoS Control Lists has ingress map action */
@@ -204,8 +212,6 @@
 #define VTSS_FEATURE_VLAN_PORT_V2                 /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG                  /**< VLAN tagging per (VID, port) */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
-#define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
-#define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                 /**< Automatic MAC address ageing */
@@ -216,7 +222,6 @@
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_TEMP_SENSOR                  /**< Temperature Sensor */
 #endif
-#define VTSS_FEATURE_VCAP                         /**< VCAP */
 #define VTSS_FEATURE_ACL                          /**< Access Control Lists */
 #define VTSS_FEATURE_HACL                         /**< Hierarchical Access Control Lists */
 #define VTSS_FEATURE_ACL_V2                      /**< Access Control Lists, V2 features */
@@ -236,9 +241,6 @@
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS       /**< Hooks for Serdes Macro configuration */
 #define VTSS_FEATURE_AFI_SWC                      /**< AFI */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
-#define VTSS_FEATURE_XFLOW                      /**< Ingress and egress flows */
-#define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
-#define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
 
 // VTSS_ARCH_LAN969X and VTSS_ARCH_S5I specific features
@@ -246,8 +248,6 @@
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
-#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
-#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
@@ -642,6 +642,15 @@
 
 #if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_VOP_CFM                   /**< OAM/VOE supporting full 802.1 CFM implementation */
+#endif
+
+#if VTSS_OPT_LIGHT
+// Number of entries for IS1/CLM, ES0, filters, gates, meters, counters etc.
+#if defined(VTSS_OPT_FPGA)
+#define VTSS_STREAM_CNT 16 // Maximum for FPGA
+#else
+#define VTSS_STREAM_CNT 64
+#endif
 #endif
 
 /* ================================================================= *

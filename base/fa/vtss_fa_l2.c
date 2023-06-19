@@ -860,6 +860,7 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
     u32               isdx, voe_valid;
     vtss_iflow_conf_t *conf;
     BOOL              independent_mel;
+    vtss_voe_idx_t    voe_idx;
 
     if (sdx == NULL) {
         return VTSS_RC_ERROR;
@@ -887,17 +888,24 @@ static vtss_rc fa_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t
     /* DLB/ISDX mappings */
     VTSS_RC(vtss_fa_isdx_update(vtss_state, sdx));
 
+#if defined(VTSS_FEATURE_VOP)
+    voe_idx = conf->voe_idx;
+#else
+    voe_idx = VTSS_VOE_IDX_NONE;
+#endif
     /* VOE reference, do not point at Port VOE */
-    voe_valid = (conf->voe_idx != VTSS_EVC_VOE_IDX_NONE && conf->voe_idx < RT_PORT_VOE_BASE_IDX ? 1 : 0);
-    independent_mel = (conf->voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;    /* Independent MEL when no pointer to active VOE */
+    voe_valid = (voe_idx != VTSS_EVC_VOE_IDX_NONE && voe_idx < RT_PORT_VOE_BASE_IDX ? 1 : 0);
+    independent_mel = (voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;    /* Independent MEL when no pointer to active VOE */
     REG_WR(VTSS_ANA_CL_OAM_MEP_CFG(isdx),
            VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX_ENA(voe_valid) |
-           VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX(voe_valid ? conf->voe_idx : 0) |
+           VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX(voe_valid ? voe_idx : 0) |
            VTSS_F_ANA_CL_OAM_MEP_CFG_INDEPENDENT_MEL_ENA(independent_mel));
 
+#if defined(VTSS_FEATURE_VOP)
     /* MIP reference */
     REG_WR(VTSS_ANA_CL_ISDX_CFG(isdx),
            VTSS_F_ANA_CL_ISDX_CFG_MIP_IDX(conf->voi_idx == VTSS_EVC_MIP_IDX_NONE ? 0 : vtss_fa_voi_idx_to_mip_idx(vtss_state, conf->voi_idx)));
+#endif
 
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {
@@ -3644,7 +3652,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
             stat_idx.edx = idx;
             VTSS_RC(vtss_fa_sdx_counters_update(vtss_state, &stat_idx, NULL, FALSE));
             idx++;
-            state->sdx_info.poll_idx = (idx < RT_EVC_STAT_CNT ? idx : 0);
+            state->sdx_info.poll_idx = (idx < state->istat_table.hdr.max_count ? idx : 0);
         }
     } else {
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -3662,20 +3670,22 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {
         /* Poll counters for 10 entries, giving 1536/10 = 153 seconds between each poll */
+        u32 mstream_cnt = state->max_mstream_cnt;
+        u32 cstream_cnt = state->max_cstream_cnt;
         for (i = 0; i < 10; i++) {
             idx = state->poll_idx;
-            if (idx < RT_MSTREAM_CNT) {
+            if (idx < mstream_cnt) {
                 if (vtss_state->l2.mstream_conf[idx].recovery) {
                     VTSS_RC(fa_mstream_cnt_update(vtss_state, idx, NULL, FALSE));
                 }
             } else {
-                u32 j = (idx - RT_MSTREAM_CNT);
+                u32 j = (idx - mstream_cnt);
                 if (vtss_state->l2.cstream_conf[j].recovery) {
                     VTSS_RC(fa_cstream_cnt_update(vtss_state, j, NULL, FALSE));
                 }
             }
             idx++;
-            state->poll_idx = (idx < (RT_MSTREAM_CNT + RT_CSTREAM_CNT) ? idx : 0);
+            state->poll_idx = (idx < (mstream_cnt + cstream_cnt) ? idx : 0);
         }
     }
 #endif
@@ -3795,9 +3805,9 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->mstream_conf_set = fa_mstream_conf_set;
             state->cstream_cnt_get = fa_cstream_cnt_get;
             state->mstream_cnt_get = fa_mstream_cnt_get;
-            state->ms_table.hdr.max_count = RT_MSTREAM_CNT;
-            state->max_cstream_cnt = RT_CSTREAM_CNT;
-            state->max_mstream_cnt = RT_MSTREAM_CNT;
+            VTSS_RT_SET(state->ms_table.hdr.max_count, RT_MSTREAM_CNT);
+            VTSS_RT_SET(state->max_cstream_cnt, RT_CSTREAM_CNT);
+            VTSS_RT_SET(state->max_mstream_cnt, RT_MSTREAM_CNT);
         }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
@@ -3821,16 +3831,14 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->isdx_update = vtss_fa_isdx_update;
 #endif
 #if defined(VTSS_SDX_CNT)
-        state->sdx_info.max_count = RT_SDX_CNT;
+        VTSS_RT_SET(state->sdx_info.max_count, RT_SDX_CNT);
 #endif
 #if defined(VTSS_EVC_STAT_CNT)
-        state->pol_table.hdr.max_count = RT_EVC_POL_CNT;
-        state->istat_table.hdr.max_count = RT_EVC_STAT_CNT;
-        state->estat_table.hdr.max_count = RT_EVC_STAT_CNT;
+        VTSS_RT_SET(state->pol_table.hdr.max_count, RT_EVC_POL_CNT);
+        VTSS_RT_SET(state->istat_table.hdr.max_count, RT_EVC_STAT_CNT);
+        VTSS_RT_SET(state->estat_table.hdr.max_count, RT_EVC_STAT_CNT);
 #endif
-        if (RT_MAC_ADDRS < state->mac_table_max) {
-            state->mac_table_max = RT_MAC_ADDRS;
-        }
+        VTSS_RT_SET(state->mac_table_max, RT_MAC_ADDRS);
 #if defined(VTSS_FEATURE_REDBOX)
         state->rb_cap_get = fa_rb_cap_get;
         state->rb_conf_set = fa_rb_conf_set;

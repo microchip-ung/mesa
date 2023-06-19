@@ -3667,8 +3667,6 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_CREATE:
 #if defined(VTSS_FEATURE_IS0)
         /* IS0 */
-        is0->max_count = SRVL_IS0_CNT;
-        is0->max_rule_count = VTSS_SRVL_IS0_CNT;
         is0->entry_get = srvl_is0_entry_get;
         is0->entry_add = srvl_is0_entry_add;
         is0->entry_del = srvl_is0_entry_del;
@@ -3676,16 +3674,12 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif /* VTSS_FEATURE_IS0 */
         
         /* IS1 */
-        is1->max_count = SRVL_IS1_CNT;
-        is1->max_rule_count = VTSS_SRVL_IS1_CNT;
         is1->entry_get = srvl_is1_entry_get;
         is1->entry_add = srvl_is1_entry_add;
         is1->entry_del = srvl_is1_entry_del;
         is1->entry_move = srvl_is1_entry_move;
         
         /* IS2 */
-        is2->max_count = SRVL_IS2_CNT;
-        is2->max_rule_count = VTSS_SRVL_IS2_CNT;
         is2->entry_get = srvl_is2_entry_get;
         is2->entry_add = srvl_is2_entry_add;
         is2->entry_del = srvl_is2_entry_del;
@@ -3693,8 +3687,6 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->is2_entry_update = srvl_is2_entry_update;
         
         /* ES0 */
-        es0->max_count = SRVL_ES0_CNT;
-        es0->max_rule_count = VTSS_SRVL_ES0_CNT;
         es0->entry_get = srvl_es0_entry_get;
         es0->entry_add = srvl_es0_entry_add;
         es0->entry_del = srvl_es0_entry_del;

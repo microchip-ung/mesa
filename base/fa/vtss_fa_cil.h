@@ -15,6 +15,9 @@
 #define VTSS_ARCH_FA
 #endif
 
+// Set runtime constant, if smaller than AIL default
+#define VTSS_RT_SET(_vs, _rt) { if (_rt < _vs) _vs = _rt; }
+
 #if defined(VTSS_ARCH_FA)
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #include "../ail/vtss_state.h"
@@ -132,7 +135,6 @@
 #define RT_QOS_EGRESS_MAP_ROWS              RT_QOS_EGRESS_MAP_IDS
 #define RT_QOS_INGRESS_MAP_ROWS             (RT_QOS_INGRESS_MAP_IDS * 2)
 #define RT_QOS_INGRESS_MAP_IX_RESERVED      (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN)
-
 
 // FA/LA runtimes macros
 #define VTSS_PORT_IS_2G5(port)  fla_port_is_2G5(vtss_state, port)
@@ -560,6 +562,7 @@ vtss_rc vtss_fa_vcap_port_key_set(vtss_state_t *vtss_state, vtss_port_no_t port_
                                   u32 lookup, vtss_vcap_key_type_t key_type, BOOL dmac_dip);
 vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state,
                                  vtss_port_no_t port_no);
+#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_vcap_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info);
@@ -578,6 +581,7 @@ vtss_rc vtss_fa_debug_es0(vtss_state_t *vtss_state,
 vtss_rc vtss_fa_debug_lpm(vtss_state_t *vtss_state,
                           const vtss_debug_printf_t pr,
                           const vtss_debug_info_t   *const info);
+#endif
 #endif /* VTSS_FEATURE_VCAP */
 
 void fla_init_regs(vtss_state_t *vtss_state, BOOL fa);

@@ -849,6 +849,7 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
 
     /* Save a copy if storage is provided. Used for warm start and key size changes */
     data = &cur->data;
+#if !VTSS_OPT_LIGHT
     if (obj->type == VTSS_VCAP_TYPE_IS0) {
 #if defined(VTSS_FEATURE_IS0)
         vtss_is0_entry_t *copy = cur->copy;
@@ -878,6 +879,7 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
         }
 #endif /* VTSS_FEATURE_ES0 */
     }
+#endif // VTSS_OPT_LIGHT
 
     /* Write entry */
     if (vtss_state->warm_start_cur) {
@@ -1245,6 +1247,7 @@ vtss_rc vtss_vcap_es0_update(vtss_state_t *vtss_state,
 
 /* - ACL ----------------------------------------------------------- */
 
+#if defined(VTSS_FEATURE_IS2)
 /* Update ACL port redirect */
 vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
 {
@@ -1610,6 +1613,7 @@ vtss_rc vtss_ace_status_get(const vtss_inst_t    inst,
     return rc;
 }
 #endif /* VTSS_ARCH_LUTON26 */
+#endif // VTSS_FEATURE_IS2
 #endif // VTSS_FEATURE_VCAP
 
 /* - Hierarchical ACLs --------------------------------------------- */
@@ -1813,6 +1817,7 @@ static vtss_rc vtss_vcap_sync_obj(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj
 #if defined(VTSS_FEATURE_WARM_START)
 vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_FEATURE_IS2)
     vtss_port_no_t        port_no;
     vtss_acl_policer_no_t policer_no;
 
@@ -1823,7 +1828,7 @@ vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
     for (policer_no = 0; policer_no <  VTSS_ACL_POLICERS; policer_no++) {
         VTSS_FUNC_RC(vcap.acl_policer_set, policer_no);
     }
-
+#endif // VTSS_FEATURE_IS2
 #if defined(VTSS_FEATURE_IS0)
     VTSS_RC(vtss_vcap_sync_obj(vtss_state, &vtss_state->vcap.is0.obj));
 #endif /* VTSS_FEATURE_IS0 */
@@ -1846,8 +1851,7 @@ vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
 
 vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 {
-    vtss_port_no_t    port_no;
-    vtss_acl_action_t *action;
+    vtss_vcap_state_t *state = &vtss_state->vcap;
     vtss_vcap_entry_t *entry;
     vtss_vcap_obj_t   *obj;
     u32               i;
@@ -1860,13 +1864,29 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
         vcap_super->block.max_count = VTSS_VCAP_SUPER_BLK_CNT;
         vcap_super->max_rule_count = VTSS_VCAP_SUPER_RULE_CNT;
 #endif /* VTSS_FEATURE_VCAP_SUPER */
+#if defined(VTSS_FEATURE_IS0)
+        state->is0.obj.max_count = VTSS_IS0_CNT;
+#endif
+#if defined(VTSS_FEATURE_IS1)
+        state->is1.obj.max_count = VTSS_IS1_CNT;
+#endif
+#if defined(VTSS_FEATURE_IS2)
+        state->is2.obj.max_count = VTSS_IS2_CNT;
+#endif
+#if defined(VTSS_FEATURE_ES0)
+        state->es0.obj.max_count = VTSS_ES0_CNT;
+#endif
+#if defined(VTSS_FEATURE_ES2)
+        state->es2.obj.max_count = VTSS_ES2_CNT;
+#endif
         return VTSS_RC_OK;
     }
 
-    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
-        action = &vtss_state->vcap.acl_port_conf[port_no].action;
-        action->learn = 1;
+#if defined(VTSS_FEATURE_IS2)
+    for (vtss_port_no_t port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
+        vtss_state->vcap.acl_port_conf[port_no].action.learn = 1;
     }
+#endif
 
 #if defined(VTSS_FEATURE_VCAP_SUPER)
     {
@@ -1918,7 +1938,9 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
             entry->next = obj->free;
             obj->free = entry;
 #if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+#if !VTSS_OPT_LIGHT
             entry->copy = &is1->copy[i];
+#endif
 #endif
         }
     }
@@ -2013,6 +2035,7 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
+#if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
                                           const vtss_debug_printf_t pr,
                                           const vtss_debug_info_t   *const info)
@@ -2038,6 +2061,7 @@ void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
     }
     pr("\n");
 }
+#endif
 
 #if defined(VTSS_FEATURE_VCAP_SUPER)
 const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
@@ -2056,6 +2080,7 @@ const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
 }
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
+#if VTSS_OPT_DEBUG_PRINT
 static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info,
                                   vtss_vcap_obj_t           *obj,
@@ -2242,27 +2267,32 @@ void vtss_vcap_debug_print_es0(vtss_state_t *vtss_state,
 }
 #endif /* VTSS_FEATURE_ES0 */
 
+#if defined(VTSS_FEATURE_IS2)
 static const char *vtss_acl_key_txt(vtss_acl_key_t key)
 {
     return (key == VTSS_ACL_KEY_DEFAULT ? "DEF" :
             key == VTSS_ACL_KEY_EXT ? "EXT" :
             key == VTSS_ACL_KEY_ETYPE ? "ETYPE" : "?");
 }
+#endif
 
 void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr,
                                const vtss_debug_info_t   *const info)
 {
+#if defined(VTSS_FEATURE_IS2)
     vtss_port_no_t        port_no;
     BOOL                  header = 1;
     vtss_acl_port_conf_t  *conf;
     vtss_acl_action_t     *act;
     vtss_acl_policer_no_t policer_no;
     char                  buf[64];
+#endif
 
     if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_ACL))
         return;
 
+#if defined(VTSS_FEATURE_IS2)
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no])
             continue;
@@ -2347,6 +2377,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         pr("\n");
     }
     pr("\n");
+#endif // VTSS_FEATURE_IS2
 
 #if defined(VTSS_FEATURE_VCAP)
     vtss_vcap_debug_print_range_checkers(vtss_state, pr, info);
@@ -2396,5 +2427,5 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
                           sizeof(vtss_is2_data_t), sizeof(vtss_is2_info_t));
 #endif /* VTSS_FEATURE_ES2 */
 }
-
+#endif // VTSS_OPT_DEBUG_PRINT
 #endif /* VTSS_FEATURE_VCAP */

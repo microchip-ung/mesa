@@ -1251,7 +1251,7 @@ static vtss_rc lan966x_policer_status_get(vtss_state_t *vtss_state,
 }
 #endif // VTSS_FEATURE_PSFP
 
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_RCL)
 static vtss_rc lan966x_rcl_vid_conf_set(vtss_state_t *vtss_state, const u8 idx)
 {
     vtss_rcl_vid_entry_t *entry = &vtss_state->l2.rcl_vid[idx];
@@ -2006,7 +2006,7 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->psfp_filter_status_get = lan966x_filter_status_get;
         state->policer_status_get = lan966x_policer_status_get;
 #endif
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_RCL)
         state->rcl_vid_conf_set = lan966x_rcl_vid_conf_set;
 #endif
         state->ac_count = LAN966X_ACS;

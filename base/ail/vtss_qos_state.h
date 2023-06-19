@@ -76,10 +76,16 @@ typedef struct {
 #define VTSS_SDX_CNT VTSS_SRVL_SDX_CNT
 #endif /* VTSS_ARCH_OCELOT */
 
-#if defined(VTSS_ARCH_LAN966X) && !VTSS_OPT_LIGHT
+#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_SDX_CNT      VTSS_STREAM_CNT
+#define VTSS_EVC_POL_CNT  VTSS_STREAM_CNT
+#define VTSS_EVC_STAT_CNT VTSS_STREAM_CNT
+#else
 #define VTSS_SDX_CNT      255
 #define VTSS_EVC_POL_CNT  240 /* DLB policers (port/queue/ACL policers reserved) */
 #define VTSS_EVC_STAT_CNT 256 /* ISDX/ESDX statistics */
+#endif
 #endif
 
 #define VTSS_POL_STAT_NONE 0  /* The NO Policer/SDX statistics value */
@@ -98,11 +104,13 @@ typedef struct {
 #define VTSS_JR_POL_CNT  4096 /* EVC policers */
 #define VTSS_JR_STAT_CNT 8192 /* EVC statistics */
 #endif
-#if defined(VTSS_FEATURE_VOP)
-#define VTSS_SDX_CNT VTSS_JR_SDX_CNT
-#endif
 #define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8) + queue)
-#if !VTSS_OPT_LIGHT
+#if defined(VTSS_STREAM_CNT)
+#define VTSS_SDX_CNT      VTSS_STREAM_CNT
+#define VTSS_EVC_POL_CNT  VTSS_STREAM_CNT
+#define VTSS_EVC_STAT_CNT VTSS_STREAM_CNT
+#else
+#define VTSS_SDX_CNT      VTSS_JR_SDX_CNT
 #define VTSS_EVC_POL_CNT  VTSS_JR_POL_CNT
 #define VTSS_EVC_STAT_CNT VTSS_JR_STAT_CNT
 #endif

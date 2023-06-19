@@ -471,7 +471,7 @@ static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_po
         VTSS_RC(lan966x_queue_policer_set(vtss_state, port, queue, conf->policer_queue[queue].rate != VTSS_BITRATE_DISABLED, &pol_cfg));
     }
 
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_QCL)
     /* Update QCL port configuration */
     VTSS_RC(vtss_lan966x_vcap_port_key_addr_set(vtss_state,
                                                 port_no,

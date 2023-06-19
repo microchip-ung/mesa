@@ -595,9 +595,9 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t *vtss_state,
     vtss_l2_debug_print(vtss_state, pr, info);
 #endif /* VTSS_FEATURE_LAYER2 */
 
-#if defined(VTSS_FEATURE_ACL)
+#if defined(VTSS_FEATURE_VCAP)
     vtss_vcap_debug_print_acl(vtss_state, pr, info);
-#endif /* VTSS_FEATURE_ACL */
+#endif /* VTSS_FEATURE_VCAP */
 
 #if defined(VTSS_FEATURE_QOS)
     vtss_qos_debug_print(vtss_state, pr, info);

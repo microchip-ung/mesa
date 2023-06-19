@@ -367,14 +367,30 @@ typedef struct vtss_state_s {
 char (*_check_vtss_state)[sizeof(vtss_state_t)] = 1;
 char (*_check_port_state)[sizeof(vtss_port_state_t)] = 1;
 char (*_check_port_counter_state)[(VTSS_PORTS + 1)*sizeof(vtss_port_chip_counters_t)] = 1;
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 char (*_check_port_kr_train_state)[VTSS_PORTS*sizeof(vtss_port_kr_state_t)] = 1;
+#endif
 char (*_check_l2_state)[sizeof(vtss_l2_state_t)] = 1;
 char (*_check_l2_vlan_state)[VTSS_VIDS*sizeof(vtss_vlan_entry_t)] = 1;
 char (*_check_l2_mac_state)[VTSS_MAC_ADDRS*sizeof(vtss_mac_entry_t)] = 1;
 char (*_check_l2_pgid_state)[VTSS_PGIDS*sizeof(vtss_pgid_entry_t)] = 1;
+char (*_check_l2_psfp_state)[sizeof(vtss_psfp_state_t)] = 1;
+char (*_check_l2_mstream_state)[VTSS_MSTREAM_CNT*sizeof(vtss_frer_stream_conf_t)] = 1;
+char (*_check_l2_cstream_state)[VTSS_CSTREAM_CNT*sizeof(vtss_frer_stream_conf_t)] = 1;
+char (*_check_l2_mstream_cnt_state)[VTSS_MSTREAM_CNT*sizeof(vtss_frer_chip_counters_t)] = 1;
+char (*_check_l2_cstream_cnt_state)[VTSS_CSTREAM_CNT*sizeof(vtss_frer_chip_counters_t)] = 1;
+char (*_check_l2_sdx)[sizeof(vtss_sdx_info_t)] = 1;
+char (*_check_dlb_conf_state)[VTSS_EVC_POL_CNT*sizeof(vtss_dlb_policer_conf_t)] = 1;
 char (*_check_qos_state)[sizeof(vtss_qos_state_t)] = 1;
 char (*_check_qos_port_state)[VTSS_PORTS*sizeof(vtss_qos_port_conf_t)] = 1;
+#if defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS)
 char (*_check_qos_leak_state)[sizeof(vtss_qos_leak_conf_t)] = 1;
+#endif
+char (*_check_vcap_state)[sizeof(vtss_vcap_state_t)] = 1;
+#if defined(VTSS_FEATURE_IS1)
+char (*_check_vcap_is1)[sizeof(vtss_is1_info_t)] = 1;
+#endif
+char (*_check_vcap_es0)[sizeof(vtss_es0_info_t)] = 1;
 #endif
 
 /* Check instance */
