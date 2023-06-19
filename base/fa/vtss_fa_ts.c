@@ -627,6 +627,9 @@ static io_delay_t seriel_2dot5G_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_25G_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_5G_delay[VTSS_PORT_COUNT];
 static io_delay_t qsgmii_1G_delay[VTSS_PORT_COUNT];
+static io_delay_t seriel_10G_kr_delay[VTSS_PORT_COUNT];
+static io_delay_t seriel_25G_kr_delay[VTSS_PORT_COUNT];
+static io_delay_t seriel_25G_rs_delay[VTSS_PORT_COUNT];
 
 /*
 * Signal port status (configuration actually) change (used to detect and compensate for the internal ingress and egress latencies)
@@ -737,14 +740,27 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             tx_delay += (sd_tx_delay_var * dv_factor[2].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_10G) {   /* 10 Gbps */
-            rx_delay = seriel_10G_delay[port].rx;
-            tx_delay = seriel_10G_delay[port].tx;
+            if (vtss_state->port.kr_fec[port_no].r_fec) {
+                rx_delay = seriel_10G_kr_delay[port].rx;
+                tx_delay = seriel_10G_kr_delay[port].tx;
+            } else {
+                rx_delay = seriel_10G_delay[port].rx;
+                tx_delay = seriel_10G_delay[port].tx;
+            }
             rx_delay += (sd_rx_delay_var * dv_factor[3].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[3].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_25G) {   /* 25 Gbps */
-            rx_delay = seriel_25G_delay[port].rx;
-            tx_delay = seriel_25G_delay[port].tx;
+            if (vtss_state->port.kr_fec[port_no].r_fec) {
+                rx_delay = seriel_25G_kr_delay[port].rx;
+                tx_delay = seriel_25G_kr_delay[port].tx;
+            } else if (vtss_state->port.kr_fec[port_no].rs_fec) {
+                rx_delay = seriel_25G_rs_delay[port].rx;
+                tx_delay = seriel_25G_rs_delay[port].tx;
+            } else {
+                rx_delay = seriel_25G_delay[port].rx;
+                tx_delay = seriel_25G_delay[port].tx;
+            }
             rx_delay += (sd_rx_delay_var * dv_factor[4].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[4].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
@@ -1172,6 +1188,8 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     VTSS_MEMSET(seriel_5G_delay, 0, sizeof(seriel_5G_delay));
     VTSS_MEMSET(seriel_25G_delay, 0, sizeof(seriel_25G_delay));
     VTSS_MEMSET(qsgmii_1G_delay, 0, sizeof(qsgmii_1G_delay));
+    VTSS_MEMSET(seriel_25G_kr_delay, 0, sizeof(seriel_25G_kr_delay));
+    VTSS_MEMSET(seriel_25G_rs_delay, 0, sizeof(seriel_25G_rs_delay));
 
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ) {
         /* The below is based on numbers from front end simulation and is only valid for 250 MHZ. */
@@ -1430,6 +1448,13 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         seriel_5G_delay[62].rx = 192640;     seriel_5G_delay[62].tx = 479454;
         seriel_5G_delay[63].rx = 180225;     seriel_5G_delay[63].tx = 467041;
         seriel_5G_delay[64].rx = 93148;      seriel_5G_delay[64].tx = 367767;
+
+        seriel_25G_rs_delay[56].rx = 452787;  seriel_25G_rs_delay[56].tx = 160088;
+        seriel_25G_rs_delay[57].rx = 452787;  seriel_25G_rs_delay[57].tx = 160088;
+        seriel_25G_rs_delay[58].rx = 451235;  seriel_25G_rs_delay[58].tx = 158535;
+        seriel_25G_rs_delay[59].rx = 451235;  seriel_25G_rs_delay[59].tx = 158535;
+        seriel_25G_rs_delay[62].rx = 449650;  seriel_25G_rs_delay[62].tx = 156988;
+        seriel_25G_rs_delay[63].rx = 448093;  seriel_25G_rs_delay[63].tx = 155436;
     }
 
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_625MHZ) {
@@ -1614,6 +1639,41 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         qsgmii_1G_delay[45].rx = 89612;    qsgmii_1G_delay[45].tx = 162695;
         qsgmii_1G_delay[46].rx = 89612;    qsgmii_1G_delay[46].tx = 162695;
         qsgmii_1G_delay[47].rx = 89612;    qsgmii_1G_delay[47].tx = 162695;
+
+        seriel_10G_kr_delay[48].rx = 347816;   seriel_10G_kr_delay[48].tx = 265473;
+        seriel_10G_kr_delay[49].rx = 354057;  seriel_10G_kr_delay[49].tx = 271663;
+        seriel_10G_kr_delay[50].rx = 354057;  seriel_10G_kr_delay[50].tx = 271663;
+        seriel_10G_kr_delay[51].rx = 347816;   seriel_10G_kr_delay[51].tx = 265473;
+        seriel_10G_kr_delay[52].rx = 341609;   seriel_10G_kr_delay[52].tx = 259263;
+        seriel_10G_kr_delay[53].rx = 341609;   seriel_10G_kr_delay[53].tx = 259263;
+        seriel_10G_kr_delay[54].rx = 341609;   seriel_10G_kr_delay[54].tx = 259263;
+        seriel_10G_kr_delay[55].rx = 341609;   seriel_10G_kr_delay[55].tx = 259263;
+        seriel_10G_kr_delay[56].rx = 357207;  seriel_10G_kr_delay[56].tx = 271658;
+        seriel_10G_kr_delay[57].rx = 357207;  seriel_10G_kr_delay[57].tx = 271658;
+        seriel_10G_kr_delay[58].rx = 350978;  seriel_10G_kr_delay[58].tx = 265474;
+        seriel_10G_kr_delay[59].rx = 350978;  seriel_10G_kr_delay[59].tx = 265474;
+        seriel_10G_kr_delay[60].rx = 344845;   seriel_10G_kr_delay[60].tx = 259259;
+        seriel_10G_kr_delay[61].rx = 344845;   seriel_10G_kr_delay[61].tx = 259259;
+        seriel_10G_kr_delay[62].rx = 344845;   seriel_10G_kr_delay[62].tx = 259259;
+        seriel_10G_kr_delay[63].rx = 338601;   seriel_10G_kr_delay[63].tx = 253061;
+
+        seriel_25G_kr_delay[56].rx = 123604;   seriel_25G_kr_delay[56].tx = 81992;
+        seriel_25G_kr_delay[57].rx = 123604;   seriel_25G_kr_delay[57].tx = 81992;
+        seriel_25G_kr_delay[58].rx = 122019;   seriel_25G_kr_delay[58].tx = 80459;
+        seriel_25G_kr_delay[59].rx = 122019;   seriel_25G_kr_delay[59].tx = 80459;
+        seriel_25G_kr_delay[60].rx = 120493;   seriel_25G_kr_delay[60].tx = 78892;
+        seriel_25G_kr_delay[61].rx = 120493;   seriel_25G_kr_delay[61].tx = 78892;
+        seriel_25G_kr_delay[62].rx = 120493;   seriel_25G_kr_delay[62].tx = 78892;
+        seriel_25G_kr_delay[63].rx = 118915;   seriel_25G_kr_delay[63].tx = 77351;
+
+        seriel_25G_rs_delay[56].rx = 453039;  seriel_25G_rs_delay[56].tx = 159891;
+        seriel_25G_rs_delay[57].rx = 453039;  seriel_25G_rs_delay[57].tx = 159891;
+        seriel_25G_rs_delay[58].rx = 451410;  seriel_25G_rs_delay[58].tx = 158353;
+        seriel_25G_rs_delay[59].rx = 451410;  seriel_25G_rs_delay[59].tx = 158353;
+        seriel_25G_rs_delay[60].rx = 449874;  seriel_25G_rs_delay[60].tx = 156792;
+        seriel_25G_rs_delay[61].rx = 449874;  seriel_25G_rs_delay[61].tx = 156792;
+        seriel_25G_rs_delay[62].rx = 449874;  seriel_25G_rs_delay[62].tx = 156792;
+        seriel_25G_rs_delay[63].rx = 448318;  seriel_25G_rs_delay[63].tx = 155254;
     }
 
     return VTSS_RC_OK;

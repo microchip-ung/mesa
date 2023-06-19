@@ -9,6 +9,20 @@ require_relative 'ts_lib'
 $ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 $meba_cap = 0
 
+# To change PCB to run 25G Do the following linux commands:
+# ps
+#               ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f
+# kill ps-id
+# fw_setenv pcb_var 9
+# mesa-demo
+# The NPI port cable must be moved to the responding 25G port
+#conf = $ts.dut.call("mesa_port_conf_get", 2)
+#if (chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && conf["speed"] == "MESA_SPEED_25G")
+#    $ts.dut.looped_port_list.clear
+#    $ts.dut.looped_port_list << 2
+#    $ts.dut.looped_port_list << 3
+#end
+
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
     assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")),
@@ -27,20 +41,6 @@ check_capabilities do
 end
 
 loop_pair_check
-
-# To change PCB to run 25G Do the following linux commands:
-# ps
-#               ps-id root     er -b -l /tmp/t_i-er -- mesa-demo -f
-# kill ps-id
-# fw_setenv pcb_var 9
-# mesa-demo
-# The NPI port cable must be moved to the responding 25G port
-conf = $ts.dut.call("mesa_port_conf_get", 0)
-if (chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && conf["speed"] == "MESA_SPEED_25G")
-    $ts.dut.looped_port_list.clear
-    $ts.dut.looped_port_list << 6
-    $ts.dut.looped_port_list << 7
-end
 
 $npi_port = 1
 $cpu_queue = 7
@@ -277,16 +277,6 @@ test "test_conf" do
 end
 
 test "test_run" do
-    conf = $ts.dut.call("mesa_port_conf_get", 0)
-    if (chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && (conf["speed"] == "MESA_SPEED_25G"))
-        t_i("------------ Measuring 25G mode -----------------")
-        port0 = $ts.dut.looped_port_list[0]
-        port1 = $ts.dut.looped_port_list[1]
-        $ts.dut.run("mesa-cmd port mode #{port1+1} 25g")
-        $ts.dut.run("mesa-cmd port mode #{port0+1} 25g")
-        tod_latency_test(port0, port1)
-    end
-
     i = 0
     while (i < $ts.dut.looped_port_list.length) do
         if ((i % 2) != 0)
@@ -350,9 +340,49 @@ test "test_run" do
                 t_i "Supports 10G"
                 $ts.dut.run("mesa-cmd port mode #{port0+1} 10g")
                 $ts.dut.run("mesa-cmd port mode #{port1+1} 10g")
-                tod_latency_test(port0, port1)
+                sleep 1.0
+                conf = $ts.dut.call("mesa_port_conf_get", port0)
+                if (conf["speed"] == "MESA_SPEED_10G")
+                    tod_latency_test(port0, port1)
+
+                    t_i "Run test with KR RS-FEC"
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
+                    sleep 0.5
+                    tod_latency_test(port0, port1)
+
+                    t_i "Run test with KR R-FEC"
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-10g rfec train")
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-10g rfec train")
+                    sleep 0.5
+                    tod_latency_test(port0, port1)
+                end
             else
                 t_i "Do not Supports 10G"
+            end
+
+            t_i("------------ Measuring 25G mode -----------------")
+            if ($meba_cap[:out].include?("25G_FDX"))
+                t_i "Supports 25G"
+                $ts.dut.run("mesa-cmd port mode #{port0+1} 25g")
+                $ts.dut.run("mesa-cmd port mode #{port1+1} 25g")
+                sleep 0.5
+                conf = $ts.dut.call("mesa_port_conf_get", port0)
+                if (conf["speed"] == "MESA_SPEED_25G")
+                    tod_latency_test(port0, port1)
+
+                    t_i "Run test with KR RS-FEC"
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
+                    sleep 0.5
+                    tod_latency_test(port0, port1)
+
+                    t_i "Run test with KR R-FEC"
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-25g rfec train")
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-25g rfec train")
+                    sleep 0.5
+                    tod_latency_test(port0, port1)
+                end
             end
         end
     end
