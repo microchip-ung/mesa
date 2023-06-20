@@ -1571,21 +1571,6 @@ static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *dri
     return device;
 }
 
-// Force a i2c pin-ctrl switch
-static void i2c_pin_ctrl_workaround(mesa_port_no_t port_no) {
-    uint8_t  rom[1];
-
-    for (uint32_t p = 0; p < mesa_capability(NULL, MESA_CAP_PORT_CNT); p++) {
-        port_entry_t *e = &port_table[p];
-        if (e->media_type == MSCC_PORT_TYPE_SFP) {
-            MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, p, FALSE, 0x50, 0, rom, 1, FALSE);
-            if (p != port_no) {
-                break;
-            }
-        }
-    }
-}
-
 static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_bool_t sfp_is_inserted) {
     meba_sfp_device_info_t info;
     port_entry_t *entry = &port_table[port_no];
@@ -1606,8 +1591,6 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         entry->sfp_status.los = TRUE;
         return;
     }
-    // Workaround for i2c not-responding
-    i2c_pin_ctrl_workaround(port_no);
     // Read SFP ROM
     meba_sfp_device_info_get(inst, port_no, &info);
 
