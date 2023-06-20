@@ -415,6 +415,7 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t *vtss_state,
 {
 #if defined(GCB_SIO_CFG)
     u32 i, port, val = 0, msk, bmode[2], bit_idx, cfg;
+    bool change = TRUE;
 
     // Serial IO port enable register
     for (port = 0; port < 32; port++) {
@@ -477,11 +478,13 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t *vtss_state,
            GCB_SIO_CLOCK_SYS_CLK_PERIOD(vtss_lan966x_clk_period_ps(vtss_state)/100));
 
     for (port = 0; port < 32; port++) {
+        change = TRUE;
         cfg = GCB_SIO_PORT_CFG_PWM_SOURCE(0);
         for (bit_idx = 0; bit_idx < 4; bit_idx++) {
             val = conf->port_conf[port].mode[bit_idx];
             switch (val) {
             case VTSS_SGPIO_MODE_NO_CHANGE:
+                change = FALSE;
                 break;
             case VTSS_SGPIO_MODE_0_ACTIVITY_INV:
             case VTSS_SGPIO_MODE_1_ACTIVITY_INV:
@@ -497,7 +500,10 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t *vtss_state,
             val = (conf->port_conf[port].int_pol_high[bit_idx] ? 0 : msk);
             REG_WRM(GCB_SIO_INTR_POL(bit_idx), val, msk);
         }
-        REG_WR(GCB_SIO_PORT_CFG(port), cfg);
+
+        if (change) {
+            REG_WR(GCB_SIO_PORT_CFG(port), cfg);
+        }
     }
 #endif
     return VTSS_RC_OK;

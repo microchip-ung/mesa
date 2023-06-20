@@ -147,6 +147,11 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
             (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
         }
         if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
+            /* MUX_SELx (I2C) is controlled by the BSP driver */
+            for (uint32_t i = 0; i < 4; i++) {
+                conf.port_conf[11].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
+            }
+
             // Mode 0 is 5 Hz, two bits per port are used
             conf.bmode[0] = MESA_SGPIO_BMODE_5;
             conf.bit_count = 2;
