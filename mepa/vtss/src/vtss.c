@@ -884,30 +884,37 @@ static mepa_rc phy_1g_i2c_read(mepa_device_t *dev,
                                const uint8_t i2c_mux,
                                const uint8_t i2c_reg_addr,
                                const uint8_t i2c_dev_addr,
-                               uint8_t *const value,
+                               const mepa_bool_t word_access,
                                uint8_t cnt,
-                               const mepa_bool_t word_access)
+                               uint8_t *const value)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
     return vtss_phy_i2c_read(data->vtss_instance, data->port_no, i2c_mux,
-                             i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+                             i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
 }
 
 static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
                                 const uint8_t i2c_mux,
                                 const uint8_t i2c_reg_addr,
                                 const uint8_t i2c_dev_addr,
-                                uint8_t *value,
+                                const mepa_bool_t word_access,
                                 uint8_t cnt,
-                                const mepa_bool_t word_access)
+                                uint8_t *value)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
     return vtss_phy_i2c_write(data->vtss_instance, data->port_no, i2c_mux,
-                              i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+                              i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
 }
 
+
+static mepa_rc phy_1g_i2c_clock_select(mepa_device_t *dev,
+                                       const mepa_i2c_clk_select_t *clk_value)
+{
+   phy_data_t *data = (phy_data_t *)(dev->data);
+   return vtss_phy_i2c_clock_select(data->vtss_instance, data->port_no, clk_value);
+}
 
 // Debug dump API for PHY
 mepa_rc phy_debug_info_dump(struct mepa_device *dev,
@@ -1164,6 +1171,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
             .mepa_debug_info_dump = phy_debug_info_dump,
+            .mepa_driver_phy_i2c_read = phy_1g_i2c_read,
+            .mepa_driver_phy_i2c_write = phy_1g_i2c_write,
+            .mepa_driver_phy_i2c_clock_select = phy_1g_i2c_clock_select,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },

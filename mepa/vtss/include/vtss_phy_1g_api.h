@@ -764,10 +764,10 @@ vtss_rc vtss_phy_clock_conf_get(const vtss_inst_t            inst,
  * \param port_no [IN]         Port number.
  * \param i2c_mux [IN]         The i2c clock mux
  * \param i2c_reg_addr [IN]    The i2c register address to access.
- * \param i2c_device_addr [IN] The i2c address of the device to access.
- * \param value [OUT]          Pointer to where array which in going to contain the values read.
+ * \param i2c_device_addr [IN] The i2c address of the device to access
+ * \param word_access [IN]    Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width.
  * \param cnt [IN]             The number of registers to read. Note: The reg_addr is incremented by 1 for each of the read counts. If you want to read 16 bites registers (2 times 8 bits from the same register address), you need to do that by calling the vtss_phy_i2c_read twice, and not use the cnt (set cnt to 1).
- * \param word_access [IN]    Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width
+ * \param value [OUT]          Pointer to where array which in going to contain the values read.
  *
  * \return Return code.
  **/
@@ -776,9 +776,9 @@ vtss_rc vtss_phy_i2c_read(const vtss_inst_t    inst,
                           const u8             i2c_mux,
                           const u8             i2c_reg_addr,
                           const u8             i2c_device_addr,
-                          u8                   *const value,
+                          BOOL                 word_access,
                           u8                   cnt,
-                          BOOL                 word_access);
+                          u8                   *const value);
 
 
 /**
@@ -789,9 +789,9 @@ vtss_rc vtss_phy_i2c_read(const vtss_inst_t    inst,
  * \param i2c_mux [IN]         The i2c clock mux
  * \param i2c_reg_addr [IN]    The i2c register address to access.
  * \param i2c_device_addr [IN] The i2c address of the device to access.
- * \param value [IN]           Pointer to where array containing the values to write.
- * \param cnt [IN]             The number of registers to write. Note: The reg_addr is incremented by 1 for each of the write counts. If you want to write 16 bites registers (2 times 8 bits to the same register address), you need to do that by calling the vtss_phy_i2c_write twice, and not use the cnt (set cnt to 1).
  * \param word_access [IN]    Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width
+ * \param cnt [IN]             The number of registers to write. Note: The reg_addr is incremented by 1 for each of the write counts. If you want to write 16 bites registers (2 times 8 bits to the same register address), you need to do that by calling the vtss_phy_i2c_write twice, and not use the cnt (set cnt to 1).
+ * \param value [IN]           Pointer to where array containing the values to write.
  *
  * \return Return code.
  **/
@@ -800,9 +800,22 @@ vtss_rc vtss_phy_i2c_write(const vtss_inst_t    inst,
                            const u8             i2c_mux,
                            const u8             i2c_reg_addr,
                            const u8             i2c_device_addr,
-                           u8                   *value,
+                           BOOL                 word_access,
                            u8                   cnt,
-                           BOOL                 word_access);
+                           u8                   *value);
+
+
+/**
+ * \brief I2C clock frequency select
+ *
+ * \param dev  [IN]            Driver instance.
+ * \param clk_value [IN]       Pointer to where clock frequency values to write.
+ *
+ * \return Return code.
+**/
+vtss_rc vtss_phy_i2c_clock_select(const vtss_inst_t    inst,
+                                  const vtss_port_no_t port_no,
+                                  const mepa_i2c_clk_select_t *clk_value);
 
 
 /* - Read/write ---------------------------------------------------- */

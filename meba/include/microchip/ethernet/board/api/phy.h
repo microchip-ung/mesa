@@ -25,6 +25,17 @@ mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no,
 // Get the current PHY configuration.
 mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t *const  conf);
 
+// Read the PHY using I2C
+mepa_rc meba_phy_i2c_read(meba_inst_t inst, mepa_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr,
+                          const uint8_t i2c_dev_addr, const mepa_bool_t word_access, uint8_t cnt, uint8_t  *const value);
+
+// Write the PHY using I2C
+mepa_rc meba_phy_i2c_write(meba_inst_t inst, mepa_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr,
+                           const uint8_t i2c_dev_addr, const mepa_bool_t word_access, uint8_t cnt, const uint8_t  *const value);
+
+// Select the I2C clock frequency
+mepa_rc meba_phy_i2c_clock_select(meba_inst_t inst, mepa_port_no_t port_no, const mepa_i2c_clk_select_t *clk_value);
+
 // Get the PHY interface based on speed.
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf);

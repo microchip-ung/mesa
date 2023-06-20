@@ -1089,12 +1089,12 @@ vtss_rc vtss_phy_clock_conf_get(const vtss_inst_t inst, const vtss_port_no_t por
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, u8 *const value, u8 cnt, BOOL word_access)
+vtss_rc vtss_phy_i2c_read(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, BOOL word_access, u8 cnt, u8 *const value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, u8 *value, u8 cnt, BOOL word_access)
+vtss_rc vtss_phy_i2c_write(const vtss_inst_t inst, const vtss_port_no_t port_no, const u8 i2c_mux, const u8 i2c_reg_addr, const u8 i2c_device_addr, BOOL word_access, u8 cnt, u8 *value)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }

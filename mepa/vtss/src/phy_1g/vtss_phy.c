@@ -277,22 +277,41 @@ static vtss_rc vtss_phy_i2c_wait_for_ready(vtss_state_t *vtss_state, vtss_port_n
     return VTSS_RC_OK;
 }
 
+// Function for Setting the I2C clock select
+// In: port_no - The PHY port number from 0, clock value - 0,1,2,3 for selecting the Clock frequency ranging 100 Khz to 4 Mhz
+static vtss_rc vtss_phy_i2c_clock_sel_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, const mepa_i2c_clk_select_t *clk_value)
+{
+    u16 reg_value;
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
+
+    VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1, &reg_value));
+
+    reg_value = ((reg_value & 0xffcf) | *clk_value<<4);
+
+    /* Fix for Jira MEPA-231 I2C clock is selectable based on register 20G */
+    VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1, reg_value));
+
+    return VTSS_RC_OK;
+}
+
 // Function for doing phy i2c reads
 // In: port_no - The PHY port number starting from 0.
-static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, u8 *value, u8 cnt, BOOL word_access)
+static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, BOOL word_access, u8 cnt, u8 *value)
 {
     u16 i, count = (cnt == 0 ? 256 : cnt);
-    u32 reg_val;
+    u32 reg_val = 0;
+    u16 reg_value = 0;
+
     VTSS_I("i2c_mux = %d, i2c_reg_start_addr = 0x%X, i2c_device_addr =0x%X", i2c_mux, i2c_reg_start_addr, i2c_device_addr);
 
     VTSS_RC(vtss_phy_i2c_wait_for_ready(vtss_state, port_no));
 
     VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
 
-
+    VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1, &reg_value));
 
     reg_val = VTSS_F_PHY_I2C_MUX_CONTROL_1_DEV_ADDR(i2c_device_addr) |
-              VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ(1) |
+              VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ((0x30 &(reg_value))>>4) |
               (i2c_mux == 3 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_3_ENABLE : 0) |
               (i2c_mux == 2 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_2_ENABLE : 0) |
               (i2c_mux == 1 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_1_ENABLE : 0) |
@@ -302,7 +321,7 @@ static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t 
 
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1,
                         VTSS_F_PHY_I2C_MUX_CONTROL_1_DEV_ADDR(i2c_device_addr) |
-                        VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ(1) |
+                        VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ((0x30 &(reg_value))>>4) |
                         (i2c_mux == 3 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_3_ENABLE : 0) |
                         (i2c_mux == 2 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_2_ENABLE : 0) |
                         (i2c_mux == 1 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_1_ENABLE : 0) |
@@ -319,6 +338,8 @@ static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t 
         // setup data to be written
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_DATA_READ_WRITE, value[i]));
 
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_DATA_READ_WRITE, &reg_value));
+
         // Execute the write
         VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_2,
                             VTSS_F_PHY_I2C_MUX_CONTROL_2_MUX_READY |
@@ -326,6 +347,7 @@ static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t 
                             VTSS_F_PHY_I2C_MUX_CONTROL_2_ENA_I2C_MUX_ACCESS |
                             VTSS_F_PHY_I2C_MUX_CONTROL_2_ADDR(i2c_reg_addr)));
 
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_2, &reg_value));
         VTSS_D("i2c_reg_start_addr:%d, i2c_reg_addr:%d", i2c_reg_start_addr, i2c_reg_addr);
         VTSS_RC(vtss_phy_i2c_wait_for_ready(vtss_state, port_no));
     }
@@ -336,11 +358,12 @@ static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t 
 
 // Function for doing phy i2c writes
 // In: port_no - The PHY port number starting from 0.
-static vtss_rc vtss_phy_i2c_rd_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, u8 *value, u8 cnt, BOOL word_access)
+static vtss_rc vtss_phy_i2c_rd_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, BOOL word_access, u8 cnt, u8 *value)
 {
 
-    u32 reg_val32;
-    u16 reg_val16;
+    u32 reg_val32 = 0;
+    u16 reg_val16 = 0;
+    u16 reg_value = 0;
     u16 i, count = (cnt == 0 ? 256 : cnt);
 
     VTSS_N("i2c_mux = %d, i2c_reg_start_addr = 0x%X, i2c_device_addr =0x%X", i2c_mux, i2c_reg_start_addr, i2c_device_addr);
@@ -349,8 +372,10 @@ static vtss_rc vtss_phy_i2c_rd_private(vtss_state_t *vtss_state, vtss_port_no_t 
 
     VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
 
+    VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1, &reg_value));
+
     reg_val32 = VTSS_F_PHY_I2C_MUX_CONTROL_1_DEV_ADDR(i2c_device_addr) |
-                VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ(1) |
+                VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ((0x30 &(reg_value))>>4) |
                 (i2c_mux == 3 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_3_ENABLE : 0) |
                 (i2c_mux == 2 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_2_ENABLE : 0) |
                 (i2c_mux == 1 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_1_ENABLE : 0) |
@@ -360,7 +385,7 @@ static vtss_rc vtss_phy_i2c_rd_private(vtss_state_t *vtss_state, vtss_port_no_t 
 
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_I2C_MUX_CONTROL_1,
                         VTSS_F_PHY_I2C_MUX_CONTROL_1_DEV_ADDR(i2c_device_addr) |
-                        VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ(1) |
+                        VTSS_F_PHY_I2C_MUX_CONTROL_1_SCL_CLK_FREQ((0x30 &(reg_value))>>4) |
                         (i2c_mux == 3 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_3_ENABLE : 0) |
                         (i2c_mux == 2 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_2_ENABLE : 0) |
                         (i2c_mux == 1 ? VTSS_F_PHY_I2C_MUX_CONTROL_1_PORT_1_ENABLE : 0) |
@@ -12998,16 +13023,16 @@ vtss_rc vtss_phy_i2c_read(const vtss_inst_t    inst,
                           const u8             i2c_mux,
                           const u8             i2c_reg_start_addr,
                           const u8             i2c_device_addr,
-                          u8                   *const value,
+                          BOOL                 word_access,
                           u8                   cnt,
-                          BOOL                 word_access)
+                          u8                   *const value)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = vtss_phy_i2c_rd_private(vtss_state, port_no, i2c_mux, i2c_reg_start_addr, i2c_device_addr, value, cnt, word_access);
+        rc = vtss_phy_i2c_rd_private(vtss_state, port_no, i2c_mux, i2c_reg_start_addr, i2c_device_addr, word_access, cnt, value);
     }
     VTSS_EXIT();
     return rc;
@@ -13020,16 +13045,33 @@ vtss_rc vtss_phy_i2c_write(const vtss_inst_t    inst,
                            const u8             i2c_mux,
                            const u8             i2c_reg_start_addr,
                            const u8             i2c_device_addr,
-                           u8                   *value,
+                           BOOL                 word_access,
                            u8                   cnt,
-                           BOOL                 word_access)
+                           u8                   *value)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = vtss_phy_i2c_wr_private(vtss_state, port_no, i2c_mux, i2c_reg_start_addr, i2c_device_addr, value, cnt, word_access);
+        rc = vtss_phy_i2c_wr_private(vtss_state, port_no, i2c_mux, i2c_reg_start_addr, i2c_device_addr, word_access, cnt, value);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+
+/* I2C Clock frequency select */
+vtss_rc vtss_phy_i2c_clock_select(const vtss_inst_t    inst,
+                                 const vtss_port_no_t port_no,
+                                 const mepa_i2c_clk_select_t  *clk_value)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = vtss_phy_i2c_clock_sel_private(vtss_state, port_no, clk_value);
     }
     VTSS_EXIT();
     return rc;

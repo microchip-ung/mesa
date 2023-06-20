@@ -288,8 +288,13 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)               # Configs to build
 
 # PoE bt support requires yet another type modifications
+#check("backwards-check",              # Name of check
+#      "b90a3945c6@poe-update", # Appl release to use
+#      $default_configs)               # Configs to build
+
+#Support for I2C argument changes in read/write APIs
 check("backwards-check",              # Name of check
-      "b90a3945c6@poe-update", # Appl release to use
+      "fbb3462153@master.viper", # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release

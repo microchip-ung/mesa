@@ -175,6 +175,14 @@ typedef enum {
     MEPA_MEDIA_MODE_MDIX,     /**< MDIX */
 } mepa_media_mode_t;
 
+/** \breif preferred I2C clock ftrequency select */
+typedef enum {
+    MEPA_I2C_CLK_SEL_0 = 0, /** 100 Khz */
+    MEPA_I2C_CLK_SEL_1, /** 200 Khz */
+    MEPA_I2C_CLK_SEL_2, /** 800 Khz */
+    MEPA_I2C_CLK_SEL_3 /** 4Mhz */
+} mepa_i2c_clk_select_t;
+
 /** \brief preferref Force Media AMS Select */
 typedef enum {
     MEPA_PHY_MEDIA_FORCE_AMS_SEL_NORMAL = 0, /**< Force AMS Override to Force Selection - Normal */

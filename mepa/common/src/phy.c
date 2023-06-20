@@ -556,30 +556,40 @@ mepa_rc mepa_i2c_read(struct mepa_device  *dev,
                         const uint8_t      i2c_mux,
                         const uint8_t      i2c_reg_addr,
                         const uint8_t      i2c_dev_addr,
-                        uint8_t  *const    value,
+                        const mepa_bool_t  word_access,
                         uint8_t            cnt,
-                        const mepa_bool_t  word_access)
+                        uint8_t  *const    value)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_read) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_phy_i2c_read(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+    return dev->drv->mepa_driver_phy_i2c_read(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
 }
 
 mepa_rc mepa_i2c_write(struct mepa_device *dev,
                         const uint8_t      i2c_mux,
                         const uint8_t      i2c_reg_addr,
                         const uint8_t      i2c_dev_addr,
-                        uint8_t           *value,
+                        const mepa_bool_t  word_access,
                         uint8_t            cnt,
-                        const mepa_bool_t  word_access)
+                        const uint8_t           *value)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_write) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_driver_phy_i2c_write(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, value, cnt, word_access);
+    return dev->drv->mepa_driver_phy_i2c_write(dev, i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+}
+
+mepa_rc mepa_i2c_clock_select(struct mepa_device *dev, mepa_i2c_clk_select_t const *clk_value)
+{
+
+    if (!dev || !dev->drv->mepa_driver_phy_i2c_write) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_phy_i2c_clock_select(dev, clk_value);
 }
 
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,

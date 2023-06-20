@@ -671,13 +671,13 @@ mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
  * \param dev  [IN]            Driver instance.
  * \param i2c_mux [IN]         The i2c clock mux
  * \param i2c_reg_addr [IN]    The i2c register address to access.
- * \param i2c_device_addr [IN] The i2c address of the device to access.
- * \param value [OUT]          Pointer to where array which in going to contain the values read.
+ * \param i2c_device_addr [IN] The i2c address of the device to access
+ * \param word_access [IN]     Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width.
  * \param cnt [IN]             The number of registers to read.
  *                             Note: The reg_addr is incremented by 1 for each of the read counts. If you want to read 16 bites registers
  *                             (2 times 8 bits from the same register address), you need to do that by calling the vtss_phy_i2c_read twice,
  *                             and not use the cnt (set cnt to 1).
- * \param word_access [IN]     Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width
+ * \param value [OUT]          Pointer to where array which in going to contain the values read.
  *
  * \return
  *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
@@ -688,9 +688,9 @@ mepa_rc mepa_i2c_read(mepa_device_t *dev,
                       const uint8_t i2c_mux,
                       const uint8_t i2c_reg_addr,
                       const uint8_t i2c_dev_addr,
-                      uint8_t *const value,
+                      const mepa_bool_t word_access,
                       uint8_t cnt,
-                      const mepa_bool_t word_access);
+                      uint8_t *const value);
 
 /**
  *
@@ -700,12 +700,12 @@ mepa_rc mepa_i2c_read(mepa_device_t *dev,
  * \param i2c_mux [IN]         The i2c clock mux
  * \param i2c_reg_addr [IN]    The i2c register address to access.
  * \param i2c_device_addr [IN] The i2c address of the device to access.
- * \param value [IN]           Pointer to where array containing the values to write.
+ * \param word_access [IN]     Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width
  * \param cnt [IN]             The number of registers to write.
  *                             Note: The reg_addr is incremented by 1 for each of the write counts. If you want to write 16 bites registers
  *                             (2 times 8 bits to the same register address), you need to do that by calling the vtss_phy_i2c_write twice,
  *                             and not use the cnt (set cnt to 1).
- * \param word_access [IN]     Set to TRUE if the register data width is 16bit. FALSE = 8 bits data width
+ * \param value [OUT]          Pointer to where array which in going to contain the values read.
  *
  * \return Return code.
  *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
@@ -716,10 +716,24 @@ mepa_rc mepa_i2c_write(mepa_device_t *dev,
                        const uint8_t i2c_mux,
                        const uint8_t i2c_reg_addr,
                        const uint8_t i2c_dev_addr,
-                       uint8_t *value,
+                       const mepa_bool_t word_access,
                        uint8_t cnt,
-                       const mepa_bool_t word_access);
+                       const uint8_t *value);
 
+/**
+ *
+ * \brief I2C clock frequency select
+ *
+ * \param dev  [IN]            Driver instance.
+ * \param clk_value [IN]       Pointer to where array containing the clock frequency values to write.
+ *
+ * \return Return code.
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_i2c_clock_select(mepa_device_t *dev,
+                              mepa_i2c_clk_select_t const *clk_value);
 
 /**
  * \brief PHY get SQI value

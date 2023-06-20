@@ -2097,9 +2097,9 @@ static mesa_rc jr2_sfp_i2c_xfer(meba_inst_t inst,
         }
     } else if (board->port[port_no].map.cap & MEBA_PORT_CAP_DUAL_COPPER) {
         if (write) {
-            rc = vtss_phy_i2c_write(NULL, port_no, port_no, addr, i2c_addr, data, 2, word_access);
+	    rc = vtss_phy_i2c_write(NULL, port_no, port_no, addr, i2c_addr, word_access, 2, data);
         } else {
-            rc = vtss_phy_i2c_read(NULL, port_no, port_no, addr, i2c_addr, data, cnt, word_access);
+            rc = vtss_phy_i2c_read(NULL, port_no, port_no, addr, i2c_addr, word_access, cnt, data);
         }
     } else {
         uint32_t chip_port = board->port[port_no].map.map.chip_port;
