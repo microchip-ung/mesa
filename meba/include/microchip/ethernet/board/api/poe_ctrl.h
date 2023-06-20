@@ -487,7 +487,7 @@ typedef struct {
     poe_individual_mask_info_t  tPoe_individual_mask_info;
 
     // PoE chipset detection state.
-    meba_poe_chip_state_t      chip_state;
+    meba_poe_chip_state_t       chip_state;
 
     // Textual description of the active poe driver
     char const                 *driver_name;
@@ -517,6 +517,10 @@ typedef struct {
 
     // detected poe firmware type - ports mode BT or AF/AT
     meba_poe_firmware_type_t     eDetected_poe_firmware_type;
+    // detected poe software type - ports mode BT or AF or AT
+    //meba_poe_software_power_type_t  eDetected_poe_software_power_type;
+    // max number of poe ports using by poe driver
+    uint8_t                      max_number_of_poe_ports;
 
     // telemetry info from PoE MCU
     uint16_t power_consumption_w;

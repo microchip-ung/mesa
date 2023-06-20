@@ -961,8 +961,6 @@ static uint32_t fa_capability(meba_inst_t inst, int cap)
             return board->type == BOARD_TYPE_SPARX5_PCB135;   // Only PCB135
         case MEBA_CAP_CPU_PORTS_COUNT:
             return board->ls1046 ? 1 : 0;
-        case MEBA_CAP_BOARD_PORT_POE_COUNT:
-            return board->port_cnt;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);

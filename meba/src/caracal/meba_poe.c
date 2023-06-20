@@ -107,19 +107,19 @@ mesa_rc meba_poe_caracal_system_initialize(
         caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
         tPoE_parameters.ePoE_Controller_Type_default = PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
 
-        // overide appl init_params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->PwrSupply_MaxPwr              = PDS408G_POE_UNIT_MAX_POWER_W_DEFAULT;
             tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = PDS408G_POE_SYSTEM_MODE_DEFAULT;
             tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (PDS408G_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
-        } else {
+        } else { // overide meba power supply by appl init_params
             pds408g_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
             pds408g_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
         }
 
         if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_BT)
         {
-            // overide appl init_params if using H file parameters
+            // overide tMeba_poe_init_params params if using H file parameters
             if(tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->Max_POE_Ch              = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
             }
@@ -148,7 +148,7 @@ mesa_rc meba_poe_caracal_system_initialize(
         }
         else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
         {
-            // overide appl init_params if using H file parameters
+            // overide tMeba_poe_init_params params if using H file parameters
             if(tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->Max_POE_Ch              = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
             }
@@ -190,19 +190,19 @@ default:  //caracal board
         caracal_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
         tPoE_parameters.ePoE_Controller_Type_default = CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT;
 
-        // overide appl init_params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->PwrSupply_MaxPwr              = CARACAL_POE_UNIT_MAX_POWER_W_DEFAULT;
             tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = CARACAL_POE_SYSTEM_MODE_DEFAULT;
             tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (CARACAL_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
-        } else {
+        } else { // overide meba power supply by appl init_params
             caracal_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
             caracal_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
         }
 
         if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_BT)
         {
-             // overide appl init_params if using H file parameters
+             // overide tMeba_poe_init_params params if using H file parameters
              if(tPoe_init_params->use_poe_static_parameters) {
                  tPoe_init_params->Max_POE_Ch              = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
              }
@@ -231,7 +231,7 @@ default:  //caracal board
         }
         else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
         {
-             // overide appl init_params if using H file parameters
+             // overide tMeba_poe_init_params params if using H file parameters
              if(tPoe_init_params->use_poe_static_parameters) {
                  tPoe_init_params->Max_POE_Ch              = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
              }

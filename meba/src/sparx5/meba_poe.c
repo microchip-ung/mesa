@@ -96,7 +96,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
         //T_I("%s=%d", "poe_12c1", poe_12c1);
     }
 
-    // overide appl init_params if using H file parameters
+    // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->PwrSupply_MaxPwr              = SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT;
         tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = SPARX5_POE_FIRMWARE_TYPE_DEFAULT;
@@ -108,7 +108,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
 
     if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_BT)
     {
-        // overide appl init_params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->Max_POE_Ch              = sizeof(sparx5_pd69200AT_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
@@ -136,7 +136,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
                                    tPoE_parameters);
 
 
-        // overide appl init_params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->Max_POE_Ch              = sizeof(sparx5_pd69200AT_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
@@ -162,10 +162,8 @@ mesa_rc meba_poe_sparx5_system_initialize(
                                    sizeof(sparx5_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                    inst->iface.debug,
                                    tPoE_parameters);
-    }
-    else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
-    {
-	// overide appl init_params if using H file parameters
+    } else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT) {
+	// overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->Max_POE_Ch              = sizeof(sparx5_pd69200AT_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
@@ -190,7 +188,7 @@ mesa_rc meba_poe_sparx5_system_initialize(
                                    inst->iface.debug,
                                    tPoE_parameters);
 
-	// overide appl init_params if using H file parameters
+	// overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->Max_POE_Ch              = sizeof(sparx5_pd69200AT_port_map_2)/sizeof(meba_poe_port_properties_t);
         }

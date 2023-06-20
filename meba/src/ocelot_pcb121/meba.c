@@ -152,8 +152,6 @@ static uint32_t ocelot_capability(meba_inst_t inst,
             return false;
         case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
-        case MEBA_CAP_BOARD_PORT_POE_COUNT:
-            return 0;
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);

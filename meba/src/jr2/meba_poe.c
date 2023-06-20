@@ -97,13 +97,13 @@ mesa_rc meba_poe_jr2_system_initialize(
     jr2_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * jr2_pd69200_system.controller_count);
 
 
-     // overide appl init_params if using H file parameters
+    // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->Max_POE_Ch                    = sizeof(jr2_pd69200AT_port_map_1)/sizeof(meba_poe_port_properties_t);
         tPoe_init_params->PwrSupply_MaxPwr              = JR2_POE_UNIT_MAX_POWER_W_DEFAULT;
         tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = JR2_POE_FIRMWARE_TYPE_DEFAULT;
         tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (JR2_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
-    } else {
+    } else { // overide meba power supply by appl init_params
         jr2_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
         jr2_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
     }
@@ -127,6 +127,7 @@ mesa_rc meba_poe_jr2_system_initialize(
                              inst->iface.debug,
                              tPoE_parameters);
 
+    // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoE_parameters.poe_init_params.Max_POE_Ch = sizeof(jr2_pd69200AT_port_map_2)/sizeof(meba_poe_port_properties_t);
     }
