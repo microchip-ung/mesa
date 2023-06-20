@@ -791,6 +791,7 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
     }
 
     REG_WR(HSIO_SD_CFG(idx),
+           HSIO_SD_CFG_RX_LOS_EN(1) |
            HSIO_SD_CFG_PHY_RESET(1) |
            HSIO_SD_CFG_LANE_10BIT_SEL(lane_sel) |
            HSIO_SD_CFG_RX_RATE(rate) |
