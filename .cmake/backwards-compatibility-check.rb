@@ -291,11 +291,35 @@ $default_configs = "istax_multi.mk"
 #check("backwards-check",              # Name of check
 #      "b90a3945c6@poe-update", # Appl release to use
 #      $default_configs)               # Configs to build
+# Yet another round of PoE updates
+#check("backwards-check",              # Name of check
+#      "a48fc34e35@appl",   # Appl release to use
 
 #Support for I2C argument changes in read/write APIs
-check("backwards-check",              # Name of check
-      "4b8386abbf@master.viper", # Appl release to use
-      $default_configs)               # Configs to build
+#check("backwards-check",              # Name of check
+#      "4b8386abbf@master.viper", # Appl release to use
+#      $default_configs)               # Configs to build
+# Fix check to include both viper changes and poe changes
+#check("backwards-check",              # Name of check
+#      "3ecc5279ed@master", # Appl release to use
+#      $default_configs)               # Configs to build
+
+# For PoE, remove some unused fields in include/microchip/ethernet/board/api/poe_ctrl.h
+# and change a field name in include/microchip/ethernet/board/api/types.h
+#check("backwards-check",              # Name of check
+#      "88ace7432a@poe_appl_update_23_08_30", # Appl release to use
+#      $default_configs)               # Configs to build
+
+# Change in addr and value argument in i2c read/write of malibu10g to u8
+#check("backwards-check",               # Name of check
+#      "815cd80714@master_m10_i2c",     # Apl release to use
+#      $default_configs)                # Configs to build
+
+# Change in poe related types
+check("backwards-check",               # Name of check
+      "9e2477e895@poe-appl-updates-09-13-23",     # Apl release to use
+      $default_configs)                # Configs to build
+
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
