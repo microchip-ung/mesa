@@ -372,7 +372,6 @@ static mepa_rc phy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     }
 
     if (data->conf.man_neg != config->man_neg) {
-        phy_data_t *data = (phy_data_t *) dev->data;
         MEPA_RC(rc, phy_init_conf(dev, (config->man_neg == MEPA_MANUAL_NEG_REF)));
     }
 
@@ -418,7 +417,6 @@ error:
 
 static mepa_rc phy_cable_diag_start(mepa_device_t *dev, int32_t mode)
 {
-    uint16_t value = 0;
     uint16_t tempReg = 0;
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -489,9 +487,8 @@ static mepa_rc phy_cable_diag_get(mepa_device_t *const dev, mepa_cable_diag_resu
         res->status[0] = MESA_VERIPHY_STATUS_OK;
         rc = phy_read_mod_write_register(dev, LAN8770_PHY_BANK_DSP, LAN8770_DSP_CABLE_DIAG_STS_CTL, FALSE, FALSE);
     } else if (data->cdiags_start) {
-        uint16_t gainIdxHybrid = 0, posPeakTimeHybrid = 0;
         uint16_t gainIdx = 0, posPeak = 0, negPeak = 0, posPeakTime = 0, negPeakTime = 0;
-        uint16_t posPeakCycleHybrid = 0, posPeakInPhasesHybrid = 0, posPeakPhaseHybrid = 0;
+        uint16_t posPeakInPhasesHybrid = 0;
         uint16_t posPeakCycle = 0, posPeakInPhases = 0, posPeakPhase = 0, negPeakCycle = 0, negPeakInPhases = 0, negPeakPhase = 0;
         float wavePropagationVelocity = 0.6811 * 2.9979;
         uint16_t detect = 1;
@@ -664,8 +661,6 @@ static void phy_dbg_pr (mepa_device_t *dev, const mepa_debug_print_t pr,
 static mepa_rc phy_reg_dump(struct mepa_device *dev,
                             const mepa_debug_print_t pr)
 {
-    uint16_t id = 0;
-
     //Direct registers
     pr("%-45s:\tPORT\tPAGE\tREG\tVALUE \r\n", "REG_NAME");
     pr("SMI Main Registers\r\n");
@@ -731,7 +726,6 @@ static mepa_rc phy_sqi_read(mepa_device_t *const dev, uint32_t *const value)
 
     MEPA_RC(rc, phy_get_link_status_enhanced(dev, &status));
     if (status.link == LAN8770_LINKUP) {
-        uint16_t val = 0;
         // method 1 config
         MEPA_RC(rc, phy_ext_bank_reg_wr(dev, LAN8770_PHY_BANK_DSP, 0x04, 0x16D6));
 
@@ -1032,7 +1026,7 @@ static mepa_rc lan8770_ext_bank_reg_write(mepa_device_t *const dev, uint32_t con
 static mepa_rc lan8770_event_enable_set(mepa_device_t *const dev, mepa_event_t const event, mepa_bool_t const enable)
 {
     mepa_rc rc = MEPA_RC_OK;
-    uint16_t ev_mask = 0, i, val;
+    uint16_t ev_mask = 0, i;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     data->events = enable ? (data->events | event) :

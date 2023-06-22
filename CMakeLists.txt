@@ -1,9 +1,9 @@
 # Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
-project(vtss_api)
-
 cmake_minimum_required(VERSION 2.8.12)
+
+project(vtss_api)
 
 include(CMakeParseArguments)
 include(.cmake/common.cmake)

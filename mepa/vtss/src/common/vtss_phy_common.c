@@ -287,6 +287,7 @@ const char *vtss_phy_port_if_txt(vtss_port_interface_t if_type)
     return "?   ";
 }
 
+#if defined(VTSS_CHIP_CU_PHY) || defined(VTSS_CHIP_10G_PHY) || defined(VTSS_FEATURE_MACSEC) || defined(VTSS_OPT_PHY_TIMESTAMP)
 static void vtss_phy_debug_print_header_underlined(const vtss_debug_printf_t pr,
                                                    const char                *header,
                                                    BOOL layer)
@@ -318,6 +319,7 @@ static void vtss_phy_print_layer(const vtss_debug_printf_t pr,
                                                1);
     }
 }
+#endif
 
 vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
                                   const vtss_debug_printf_t pr,
@@ -325,7 +327,11 @@ vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
 {
     vtss_rc      rc;
     vtss_state_t *vtss_state;
-    int          ail, hdr;
+    int          ail;
+#if defined(VTSS_CHIP_CU_PHY) || defined(VTSS_CHIP_10G_PHY) || defined(VTSS_FEATURE_MACSEC) || defined(VTSS_OPT_PHY_TIMESTAMP)
+    int          hdr;
+#endif
+
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -335,7 +341,10 @@ vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
                 (!ail && info->layer == VTSS_DEBUG_LAYER_AIL)) {
                 continue;
             }
+#if defined(VTSS_CHIP_CU_PHY) || defined(VTSS_CHIP_10G_PHY) || defined(VTSS_FEATURE_MACSEC) || defined(VTSS_OPT_PHY_TIMESTAMP)
             hdr = 1;
+#endif
+
 #if defined(VTSS_CHIP_CU_PHY)
             if (rc == VTSS_RC_OK && vtss_phy_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PHY)) {
                 vtss_phy_print_layer(pr, ail, &hdr);
