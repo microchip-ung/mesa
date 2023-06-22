@@ -288,7 +288,7 @@ static vtss_rc lu26_sfp_i2c_read(vtss_port_no_t port_no, u8 i2c_addr, u8 addr, u
     // Dual media SFP ports - Connected to PHY i2c
     if (port_no >= 20 && port_no <= 23) {
         // Due to a hardware board issue only SFP i2c mux 0 works, so that is always used.
-        return vtss_phy_i2c_read(NULL, port_no, 0, addr, i2c_addr, data, cnt, word_acess);
+        return vtss_phy_i2c_read(NULL, port_no, 0, addr, i2c_addr, word_acess, cnt, data);
     } else {
         // Uplink ports - Connected to switch i2c
         if (i2c_read != NULL) {
@@ -304,7 +304,7 @@ static vtss_rc lu26_sfp_i2c_write(vtss_port_no_t port_no, u8 i2c_addr, u8 addr, 
     // Dual media SFP ports - Connected to PHY i2c
     if (port_no >= 20 && port_no <= 23) {
         // Due to a hardware board issue only SFP i2c mux 0 works, so that is always used.
-        return vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr, data, 2, word_acess);
+        return vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr, word_acess, 2, data);
     } else {
         // Uplink ports - Connected to switch i2c
         if (i2c_write != NULL) {

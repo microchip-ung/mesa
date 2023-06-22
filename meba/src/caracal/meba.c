@@ -700,7 +700,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t inst,
         // Dual media SFP ports - Connected to PHY i2c
         if (chip_port >= 20 && chip_port <= 23) {
             // Due to a hardware board issue only SFP i2c mux 0 works, so that is always used.
-            rc = vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr, data, 2, word_access);
+            rc = vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr, word_access, 2, data);
         } else {
             // Uplink ports - Connected to switch i2c
             uint8_t i2c_data[3];
@@ -719,7 +719,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t inst,
             // mux 0 works. However, on schematics sent to customers (rev. 2.03)
             // this has been fixed, so that it works. The cutomer may want to
             // remove the lines where MEBA_PORT_CAP_SFP_INACCESSIBLE are set.
-            rc = vtss_phy_i2c_read(NULL, port_no, port_no - 20, addr, i2c_addr, data, cnt, word_access);
+            rc = vtss_phy_i2c_read(NULL, port_no, port_no - 20, addr, i2c_addr, word_access, cnt, data);
         } else {
             // Uplink ports - Connected to switch i2c
             /* This function pointer refers to i2c_read() in vtss_appl/main/vtss_api_if.cxx,

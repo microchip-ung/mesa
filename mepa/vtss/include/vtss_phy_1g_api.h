@@ -802,7 +802,7 @@ vtss_rc vtss_phy_i2c_write(const vtss_inst_t    inst,
                            const u8             i2c_device_addr,
                            BOOL                 word_access,
                            u8                   cnt,
-                           u8                   *value);
+                           const u8            *value);
 
 
 /**

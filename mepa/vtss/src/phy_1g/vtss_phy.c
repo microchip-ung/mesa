@@ -296,7 +296,7 @@ static vtss_rc vtss_phy_i2c_clock_sel_private(vtss_state_t *vtss_state, vtss_por
 
 // Function for doing phy i2c reads
 // In: port_no - The PHY port number starting from 0.
-static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, BOOL word_access, u8 cnt, u8 *value)
+static vtss_rc vtss_phy_i2c_wr_private(vtss_state_t *vtss_state, vtss_port_no_t port_no, u8 i2c_mux, u8 i2c_reg_start_addr, u8 i2c_device_addr, BOOL word_access, u8 cnt, const u8 *value)
 {
     u16 i, count = (cnt == 0 ? 256 : cnt);
     u32 reg_val = 0;
@@ -13047,7 +13047,7 @@ vtss_rc vtss_phy_i2c_write(const vtss_inst_t    inst,
                            const u8             i2c_device_addr,
                            BOOL                 word_access,
                            u8                   cnt,
-                           u8                   *value)
+                           const u8            *value)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;

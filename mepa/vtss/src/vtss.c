@@ -900,7 +900,7 @@ static mepa_rc phy_1g_i2c_write(mepa_device_t *dev,
                                 const uint8_t i2c_dev_addr,
                                 const mepa_bool_t word_access,
                                 uint8_t cnt,
-                                uint8_t *value)
+                                const uint8_t *value)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 

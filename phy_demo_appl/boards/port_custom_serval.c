@@ -245,7 +245,7 @@ static vtss_rc serval_sfp_i2c_read(vtss_port_no_t port_no, u8 i2c_addr, u8 addr,
     port_custom_entry_t *entry = &serval_port_table[port_no];
 
     if (entry->cap & PORT_CAP_DUAL_COPPER) {
-        return vtss_phy_i2c_read(NULL, port_no, port_no, addr, i2c_addr, data, cnt, word_access);
+        return vtss_phy_i2c_read(NULL, port_no, port_no, addr, i2c_addr, word_access, cnt, data);
     } else {
         if (i2c_read != NULL) {
             return i2c_read(port_no, i2c_addr, addr, data, cnt);
@@ -258,7 +258,7 @@ static vtss_rc serval_sfp_i2c_write(vtss_port_no_t port_no, u8 i2c_addr, u8 addr
 {
     port_custom_entry_t *entry = &serval_port_table[port_no];
     if (entry->cap & PORT_CAP_DUAL_COPPER) {
-        return vtss_phy_i2c_write(NULL, port_no, port_no, addr, i2c_addr, data, 2, word_access);
+        return vtss_phy_i2c_write(NULL, port_no, port_no, addr, i2c_addr, word_access, 2, data);
     } else {
         if (i2c_write != NULL) {
             u8 i2c_data[3];
