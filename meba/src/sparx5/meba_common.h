@@ -19,6 +19,7 @@ typedef enum {
     BOARD_TYPE_SPARX5_PCB135 = 135,  /* 48x1G + 4x10G + 4x25G + NPI */
     BOARD_TYPE_SUNRISE = VTSS_BOARD_LAN9668_SUNRISE_REF,
     BOARD_TYPE_SPARX5_EMULATION = 999,
+    BOARD_TYPE_LAGUNA_PCB8398 = 8398, /* Laguna 24x1G + 4x10G port */
 } board_type_t;
 
 /* SparX-5 Ref board port configurations  */
@@ -59,6 +60,7 @@ typedef struct meba_board_state {
     fa_port_info_t        *port;
     const board_func_t    *func;
     mepa_device_t        *phy_devices[MAX_PORTS];
+    mesa_port_status_t    status[MAX_PORTS];
 } meba_board_state_t;
 
 #define PORT_2_BOARD_PORT(board, p) (board->port[p].board_port)

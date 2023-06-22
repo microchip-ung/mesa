@@ -2131,8 +2131,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
         goto error_out;
     }
 
-    if (pcb == BOARD_TYPE_SUNRISE) {
-        // Sparx-5 design on Sunrise means Laguna
+    if (pcb == BOARD_TYPE_SUNRISE || pcb == BOARD_TYPE_LAGUNA_PCB8398) {
+        // Laguna design
         return lan969x_initialize(inst, callouts);
     }
 

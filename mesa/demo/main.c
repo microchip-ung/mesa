@@ -491,8 +491,13 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         // Device-tree is expected
         break;
     case MESA_CHIP_FAMILY_LAN969X:
-        // Until Device-tree is implemented
-        type = 6849;
+        // Device-tree is expected for 'pcb' and 'target'
+        // port count is either default or controlled from UBOOT (pcb_var)
+        if (!get_env("pcb_var", &REF_BOARD_PORT_COUNT)) {
+            T_D("Using default port count\n");
+        } else {
+            board_port_cnt = REF_BOARD_PORT_COUNT;
+        }
         break;
     default:
         break;

@@ -1829,6 +1829,9 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
         /* system clock is 4 ns (250 MHz) and LOC_BASE_TICK_CNT is default 50, i.e. 200 ns */
             loc_base = 200; /* ns */
             break;
+       case VTSS_CORE_CLOCK_328MHZ:
+            loc_base = 0; /* Laguna Fixme */
+            break;
     }
 #endif
 

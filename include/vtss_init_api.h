@@ -432,6 +432,7 @@ typedef struct {
 typedef enum {
     VTSS_CORE_CLOCK_DEFAULT,  /**< Defaults to the highest supported frequency */
     VTSS_CORE_CLOCK_250MHZ,   /**< 250MHZ core clock frequency */
+    VTSS_CORE_CLOCK_328MHZ,   /**< 328.125MHZ (laguna) */
     VTSS_CORE_CLOCK_500MHZ,   /**< 500MHZ core clock frequency */
     VTSS_CORE_CLOCK_625MHZ,   /**< 625MHZ core clock frequency */
 } vtss_core_clock_freq_t;

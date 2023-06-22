@@ -237,6 +237,7 @@ vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 
 #endif /* VTSS_SDX_CNT */
 
+// Return clk period in NS
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 {
 #if defined(VTSS_ARCH_LAN969X_FPGA)
@@ -244,6 +245,7 @@ u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 #else
     switch (clock) {
     case VTSS_CORE_CLOCK_250MHZ: return 4000;
+    case VTSS_CORE_CLOCK_328MHZ: return 3048;
     case VTSS_CORE_CLOCK_500MHZ: return 2000;
     case VTSS_CORE_CLOCK_625MHZ:
     default: {};
@@ -388,15 +390,17 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9694TSN:
     case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9694:
+        return 68000;
     case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
     case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9696:
+        return 88000;
     case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
     case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
-        return 82000; // Fixme, To be updated for real silicon
+        return 106000;
 
     default: {}
     }
@@ -462,7 +466,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
         if (f == VTSS_CORE_CLOCK_DEFAULT) {
-            freq = VTSS_CORE_CLOCK_250MHZ; // Fixme. To be updated for real silicon
+            freq = VTSS_CORE_CLOCK_328MHZ; // Default laguna clock
+        } else if (f != VTSS_CORE_CLOCK_328MHZ) {
+            VTSS_E("Frequency (%d) not supported",f);
+            freq = 0; // Not supported
         }
         break;
 
@@ -474,6 +481,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
+    if (!FA_TGT) {
+        return VTSS_RC_OK; // Fix-me
+    }
+
     u32 clk_div, clk_period, pol_upd_int, val;
     if (FA_TGT) {
         switch (freq) {
@@ -732,29 +743,44 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
     if (port_no >= RT_CHIP_PORTS) {
         // Internal ports
         *port = (RT_CHIP_PORT_CPU + port_no - RT_CHIP_PORTS);
-        if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
-            return FA_CAL_SPEED_2G5; // Equals 1.25G
-        } else if (port_no == RT_CHIP_PORT_VD0) {
-            // IPMC only idle BW
-            return FA_CAL_SPEED_NONE;
-        } else if (port_no == RT_CHIP_PORT_VD1) {
-            if (max_bw - used_bw >= 25000) {
-                return FA_CAL_SPEED_25G; // OAM equals 12.5G
-            } else if (max_bw - used_bw >= 10000) {
-                return FA_CAL_SPEED_10G; // OAM equals 5G
-            } else if (max_bw - used_bw >= 5000) {
-                return FA_CAL_SPEED_5G;  // OAM equals 2G5
-            } else if (max_bw - used_bw >= 2500) {
-                return FA_CAL_SPEED_2G5;  // OAM equals 1.25G
+        if (FA_TGT) { // Fireant
+            if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
+                return FA_CAL_SPEED_2G5; // Equals 1.25G
+            } else if (port_no == RT_CHIP_PORT_VD0) {
+                // IPMC only idle BW
+                return FA_CAL_SPEED_NONE;
+            } else if (port_no == RT_CHIP_PORT_VD1) {
+                if (max_bw - used_bw >= 25000) {
+                    return FA_CAL_SPEED_25G; // OAM equals 12.5G
+                } else if (max_bw - used_bw >= 10000) {
+                    return FA_CAL_SPEED_10G; // OAM equals 5G
+                } else if (max_bw - used_bw >= 5000) {
+                    return FA_CAL_SPEED_5G;  // OAM equals 2G5
+                } else if (max_bw - used_bw >= 2500) {
+                    return FA_CAL_SPEED_2G5;  // OAM equals 1.25G
+                } else {
+                    return FA_CAL_SPEED_1G;
+                }
+            } else if (port_no == RT_CHIP_PORT_VD2) {
+                // IPinIP gets only idle BW
+                return FA_CAL_SPEED_NONE;
             } else {
-                return FA_CAL_SPEED_1G;
+                // Unknown internal port
+                return FA_CAL_SPEED_NONE;
             }
-        } else if (port_no == RT_CHIP_PORT_VD2) {
-            // IPinIP gets only idle BW
-            return FA_CAL_SPEED_NONE;
-        } else {
-            // Unknown internal port
-            return FA_CAL_SPEED_NONE;
+        } else { // Laguna
+            if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
+                return FA_CAL_SPEED_1G;
+            } else if (port_no == RT_CHIP_PORT_VD0) {
+                return FA_CAL_SPEED_10G;  // IPMC
+            } else if (port_no == RT_CHIP_PORT_VD1) {
+                return FA_CAL_SPEED_NONE; // OAM only idle
+            } else if (port_no == RT_CHIP_PORT_VD2) {
+                return FA_CAL_SPEED_10G;  // IPinIP
+            } else {
+                // Unknown internal port
+                return FA_CAL_SPEED_NONE;
+            }
         }
     }
 
@@ -797,11 +823,13 @@ static i32 clock2bw(vtss_core_clock_freq_t freq) {
     return 84210/3;
 #endif
     if (freq == VTSS_CORE_CLOCK_250MHZ) {
-        return 83000; /* 250000 / 3 */
+        return 83000; /* 250000 / 3 = 83Gb */
+    } else if (freq == VTSS_CORE_CLOCK_328MHZ) {
+        return 109375; /* 328125 / 3 = 109Gb */
     } else if (freq == VTSS_CORE_CLOCK_500MHZ) {
-        return 166000; /* 500000 / 3 */
+        return 166000; /* 500000 / 3 = 166Gb */
     } else if (freq == VTSS_CORE_CLOCK_625MHZ) {
-        return  208000; /* 625000 / 3 */
+        return  208000; /* 625000 / 3 = 208Gb */
     } else {
         VTSS_E("Core clock not supported");
     }
@@ -852,6 +880,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
         bw += this_bw;
         VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw, bw);
         cal[port/10] += (spd << ((port % 10) * 3));
+
         if (port_no < VTSS_PORTS) {
             vtss_state->port.map[port_no].max_bw = cal2bw(spd); // Update with the actual given BW.
         }
@@ -869,12 +898,10 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
     }
 
     if (FA_TGT) {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
         /* Halt the calendar while changing it (only needed on a oversubscribed calendar) */
         REG_WRM(VTSS_QSYS_CAL_CTRL,
                 VTSS_F_QSYS_CAL_CTRL_CAL_MODE(10),
                 VTSS_M_QSYS_CAL_CTRL_CAL_MODE);
-#endif
     }
 
     /* Assign device BW to auto calendar */
@@ -1531,26 +1558,22 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_7558:
         vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
         break;
+    case VTSS_TARGET_7546TSN:
+    case VTSS_TARGET_7549TSN:
+    case VTSS_TARGET_7552TSN:
+    case VTSS_TARGET_7556TSN:
+    case VTSS_TARGET_7558TSN:
+        vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
+        vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
+        vtss_state->vtss_features[FEATURE_FRER]  = TRUE;
+        vtss_state->vtss_features[FEATURE_PSFP]  = TRUE;
+        break;
     case VTSS_TARGET_LAN9694:
     case VTSS_TARGET_LAN9696:
     case VTSS_TARGET_LAN9698:
         vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
         vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
-        break;
-    case VTSS_TARGET_7546TSN:
-    case VTSS_TARGET_7549TSN:
-    case VTSS_TARGET_7552TSN:
-    case VTSS_TARGET_7556TSN:
-    case VTSS_TARGET_7558TSN:
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
-        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
-        vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
-        vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
-        vtss_state->vtss_features[FEATURE_FRER]  = TRUE;
-        vtss_state->vtss_features[FEATURE_PSFP]  = TRUE;
-        vtss_state->vtss_features[FEATURE_MRP] = TRUE;
-        vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
         break;
     case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9692VAO:
@@ -1574,7 +1597,6 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
-        vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER] = TRUE;
         vtss_state->vtss_features[FEATURE_PSFP] = TRUE;
