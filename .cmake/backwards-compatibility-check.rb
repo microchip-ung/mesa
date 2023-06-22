@@ -294,7 +294,7 @@ $default_configs = "istax_multi.mk"
 
 #Support for I2C argument changes in read/write APIs
 check("backwards-check",              # Name of check
-      "fbb3462153@master.viper", # Appl release to use
+      "4b8386abbf@master.viper", # Appl release to use
       $default_configs)               # Configs to build
 
 # This will be activated when we get to the 4.2 release
