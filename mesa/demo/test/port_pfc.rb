@@ -32,10 +32,11 @@ end
 $port_tx1      = 0
 $port_tx2      = 1
 $frame_smac    = "00:00:00:00:00:01"
-$frame_dmac    = "00:00:00:00:00:02"
+$ucast_dmac    = "00:00:00:00:00:02"
+$mcast_dmac    = "01:00:00:00:00:02"
+$bcast_dmac    = "FF:FF:FF:FF:FF:FF"
 $pause_dmac    = "01:80:C2:00:00:01"
 $pause_etype   = 0x8808
-$frame_size    = 1518
 $num_of_frames = 20000
 $num_of_pause  = 10000
 $test_list     = [
@@ -104,31 +105,65 @@ $test_list.each do |entry|
             pause_str += ((pause_frame_pfc[prio] == 1) ? "ff" : "00")
         end
 
+        if ((conf_pfc[entry[:data_frame_pcp]] == 1) && (pause_frame_pfc[entry[:data_frame_pcp]] == 1))
+          t_i "Transmitting UC + MC + BC frames to see NO pause frames are transmitted"
+          $frame_size = 5000
+          sz = $frame_size - 14 - 4 - 4
+
+          t_i"Unicast test"
+          $ts.dut.run "mesa-cmd port statis clear"
+          cmd =  "sudo ef "
+          cmd += "name f#{$port_tx1} eth dmac #{$ucast_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+          cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
+          $ts.pc.try cmd
+
+          test ("Check that no Pause frame is transmitted") do
+          cnt = $ts.dut.call "mesa_port_counters_get", $ts.dut.p[$port_tx1]
+          tx_pause_cnt = cnt['ethernet_like']['dot3OutPauseFrames']
+          if (tx_pause_cnt > 0)
+              t_e("Unexpected pause frames #{tx_pause_cnt}")
+          end
+          end
+
+          t_i"Multicast test"
+          $ts.dut.run "mesa-cmd port statis clear"
+          cmd =  "sudo ef "
+          cmd += "name f#{$port_tx1} eth dmac #{$mcast_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+          cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
+          $ts.pc.try cmd
+
+          test ("Check that no Pause frame is received") do
+          cnt = $ts.dut.call "mesa_port_counters_get", $ts.dut.p[$port_tx1]
+          tx_pause_cnt = cnt['ethernet_like']['dot3OutPauseFrames']
+          if (tx_pause_cnt > 0)
+              t_e("Unexpected pause frames #{tx_pause_cnt}")
+          end
+          end
+
+          t_i"Broad cast test"
+          $ts.dut.run "mesa-cmd port statis clear"
+          cmd =  "sudo ef "
+          cmd += "name f#{$port_tx1} eth dmac #{$bcast_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+          cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
+          $ts.pc.try cmd
+
+          test ("Check that no Pause frame is received") do
+          cnt = $ts.dut.call "mesa_port_counters_get", $ts.dut.p[$port_tx1]
+          tx_pause_cnt = cnt['ethernet_like']['dot3OutPauseFrames']
+          if (tx_pause_cnt > 0)
+              t_e("Unexpected pause frames #{tx_pause_cnt}")
+          end
+          end
+        end
+
         $ts.dut.run "mesa-cmd port statis clear"
 
-        sz = $frame_size - 14 - 4 - 4
-        cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,1000 "
-        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
-        cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
-        $ts.pc.try cmd
-
-        test ("Check that no Pause frame is received") do
-        pkts = $ts.pc.get_pcap "#{$ts.pc.p[$port_tx1]}.pcap"
-        for inx in 0..999
-            data = pkts[inx][:data].each_byte.map{|c| c.to_i}
-            if (data[12] == 0x88)
-                t_e "Unexpected Pause frame received   inx #{inx} data #{data}"
-                break
-            end
-        end
-        end
-
-        $ts.dut.run "mesa-cmd port statis clear"
-
+        t_i "Transmitting UC frames and pause frame to check pause frame transmission"
+        $frame_size    = 1518
         sz = $frame_size - 14 - 4 - 4
         cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,50 "
-        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
-        cmd += "name f#{$port_tx2} eth dmac #{$pause_dmac} smac #{$frame_dmac} et #{$pause_etype} data hex #{pause_str} "
+        cmd += "name f#{$port_tx1} eth dmac #{$ucast_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
+        cmd += "name f#{$port_tx2} eth dmac #{$pause_dmac} smac #{$ucast_dmac} et #{$pause_etype} data hex #{pause_str} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
         cmd += "tx #{$ts.pc.p[$port_tx2]} rep #{$num_of_pause} name f#{$port_tx2} "
         $ts.pc.try cmd
@@ -206,8 +241,8 @@ $test_list.each do |entry|
         end
         $ts.dut.run "mesa-cmd port statis clear"
         cmd =  "sudo ef "
-        cmd += "name f#{$port_tx1} eth dmac #{$frame_dmac} smac #{$frame_smac} "
-        cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$frame_dmac} "
+        cmd += "name f#{$port_tx1} eth dmac #{$ucast_dmac} smac #{$frame_smac} "
+        cmd += "name f#{$port_tx2} eth dmac #{$frame_smac} smac #{$ucast_dmac} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep 1000 name f#{$port_tx1} "
         cmd += "tx #{$ts.pc.p[$port_tx2]} rep 1000 name f#{$port_tx2} "
         $ts.pc.try cmd
