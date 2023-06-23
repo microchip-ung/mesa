@@ -740,6 +740,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             tx_delay += (sd_tx_delay_var * dv_factor[2].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_10G) {   /* 10 Gbps */
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
             if (vtss_state->port.kr_fec[port_no].r_fec) {
                 rx_delay = seriel_10G_kr_delay[port].rx;
                 tx_delay = seriel_10G_kr_delay[port].tx;
@@ -747,10 +748,15 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
                 rx_delay = seriel_10G_delay[port].rx;
                 tx_delay = seriel_10G_delay[port].tx;
             }
+#else
+                rx_delay = seriel_10G_delay[port].rx;
+                tx_delay = seriel_10G_delay[port].tx;
+#endif
             rx_delay += (sd_rx_delay_var * dv_factor[3].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[3].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_25G) {   /* 25 Gbps */
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
             if (vtss_state->port.kr_fec[port_no].r_fec) {
                 rx_delay = seriel_25G_kr_delay[port].rx;
                 tx_delay = seriel_25G_kr_delay[port].tx;
@@ -761,6 +767,10 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
                 rx_delay = seriel_25G_delay[port].rx;
                 tx_delay = seriel_25G_delay[port].tx;
             }
+#else
+            rx_delay = seriel_25G_delay[port].rx;
+            tx_delay = seriel_25G_delay[port].tx;
+#endif
             rx_delay += (sd_rx_delay_var * dv_factor[4].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[4].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }

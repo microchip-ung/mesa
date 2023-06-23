@@ -13954,7 +13954,7 @@ static vtss_rc malibu_phy_10g_extended2_event_poll(vtss_state_t                 
     u32 value = 0;
     u8 aggr_int;
     u32 aggr_int_chip[4], channel_int_0, channel_int_1;
-    u32 aggr_int_1, aggr_int_2, aggr_int_3, aggr_int_4;
+    u32 aggr_int_1;
 
     VTSS_D("malibu_phy_10g_extended2_event_poll %u\n", port_no);
     /*Read all the aggr_int[i], currently API only supports Malibu interrupts at aggr_intr[0]*/
@@ -13966,9 +13966,6 @@ static vtss_rc malibu_phy_10g_extended2_event_poll(vtss_state_t                 
     }
     /* There are 4 Aggegated Interrupts: Each one has INTR[0] and INTR[1]  */
     aggr_int_1 = aggr_int_chip[0];
-    aggr_int_2 = aggr_int_chip[1];
-    aggr_int_3 = aggr_int_chip[2];
-    aggr_int_4 = aggr_int_chip[3];
 
     /* Init/Clear the Events to be returned  */
     *ex2_events = 0;
