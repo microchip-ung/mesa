@@ -260,49 +260,70 @@ static vtss_rc fa_get_lane_target(vtss_state_t *vtss_state, u32 type, u32 indx)
     }
 }
 
-
 u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
+    u32 serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
-    u32 serdes_no;
-
-    serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
-
-    if (cmu_type == 0) {
-        // Main CMU of FA
-        if (serdes_no < 8 ) {
-            return 2;
-        } else if (serdes_no < 16 ) {
-            return 5;
-        } else if (serdes_no == 16) {
-            return 8;
-        } else {
-            return 11;
+    if (LA_TGT) {
+        if (serdes_no > 9) {
+            VTSS_E("illegal serdes no (%d)",serdes_no);
         }
-    } else if ( cmu_type == 1) {
-        // AUX1 CMU of FA
-        if (serdes_no < 2 ) {
-            return 0;
-        } else if (serdes_no < 10 ) {
-            return 3;
-        } else if (serdes_no < 17) {
-            return 6;
-        } else if (serdes_no < 19) {
-            return 9;
+        if (cmu_type == 0) {
+            if (serdes_no < 8) {
+                return 2;
+            } else {
+                return 5;
+            }
+        } else if (cmu_type == 1) {
+            if (serdes_no < 4) {
+                return 0;
+            } else {
+                return 3;
+            }
         } else {
-            return 12;
+            if (serdes_no < 4) {
+                return 1;
+            } else {
+                return 4;
+            }
         }
     } else {
-        // AUX2 CMU of FA
-        if (serdes_no < 4 ) {
-            return 1;
-        } else if (serdes_no < 12 ) {
-            return 4;
-        } else if (serdes_no < 17) {
-            return 7;
-        } else if (serdes_no < 21) {
-            return 10;
+        if (cmu_type == 0) {
+            // Main CMU of FA
+            if (serdes_no < 8 ) {
+                return 2;
+            } else if (serdes_no < 16) {
+                return 5;
+            } else if (serdes_no == 16) {
+                return 8;
+            } else {
+                return 11;
+            }
+        } else if (cmu_type == 1) {
+            // AUX1 CMU of FA
+            if (serdes_no < 2 ) {
+                return 0;
+            } else if (serdes_no < 10) {
+                return 3;
+            } else if (serdes_no < 17) {
+                return 6;
+            } else if (serdes_no < 19) {
+                return 9;
+            } else {
+                return 12;
+            }
         } else {
-            return 13;
+            // AUX2 CMU of FA
+            if (serdes_no < 4) {
+                return 1;
+            } else if (serdes_no < 12) {
+                return 4;
+            } else if (serdes_no < 17) {
+                return 7;
+            } else if (serdes_no < 21) {
+                return 10;
+            } else {
+                return 13;
+            }
         }
     }
 }
@@ -3851,6 +3872,10 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
 {
     u32 sd25g_tgt, sd_lane_tgt, cmu_tgt, cmu_cfg_tgt;
+
+    if (LA_TGT) {
+        return VTSS_RC_OK; // Fixme
+    }
 
     /* MESA-853: Disable reference clock termination on 25G Serdeses */
     for (u32 p = 0; p < 8; p++) {

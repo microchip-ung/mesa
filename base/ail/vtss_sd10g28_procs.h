@@ -19,6 +19,7 @@
 /** \brief Vitesse chip development name */
 typedef enum {
     VTSS_SD10G28_CHIP_ANT,
+    VTSS_SD10G28_CHIP_LAGUNA,
     VTSS_SD10G28_CHIP_LAST
 } vtss_sd10g28_chip_name_t;
 

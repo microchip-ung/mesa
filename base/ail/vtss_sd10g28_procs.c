@@ -243,7 +243,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane (const vtss_sd10g28_setup_args_t config,
     ret_val->r_pcs2pma_phymode_4_0[0]       = 0;
       
     ret_val->cfg_lane_id_2_0[0]             = 0;//  Bias Trace Selection
-    if ((config.chip_name != VTSS_SD10G28_CHIP_ANT)) {
+
+    if ((config.chip_name != VTSS_SD10G28_CHIP_ANT)||(config.chip_name != VTSS_SD10G28_CHIP_LAGUNA)) {
       if ((config.preset == VTSS_SD10G28_ZR) ||
           (config.preset == VTSS_SD10G28_DAC5M) ||
           (config.preset == VTSS_SD10G28_KR) ) {
