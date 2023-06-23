@@ -201,7 +201,8 @@ $machines = {
             {
               :file => "#{$bsp}/arm-cortex_a8-linux-gnu/standalone/release/am335x-boneblack-mscc-fpga.dtb",
               :overlays => [
-                  { :name => "6849_1@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan969x_6849_0.dtso"},
+                { :name => "6849_1@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan969x_6849_0.dtso"},
+                { :name => "8398_1@bbb", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8398_0.dtso"},
               ]
             },
 

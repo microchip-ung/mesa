@@ -19,7 +19,7 @@ typedef enum {
     BOARD_TYPE_SPARX5_PCB135 = 135,  /* 48x1G + 4x10G + 4x25G + NPI */
     BOARD_TYPE_SUNRISE = VTSS_BOARD_LAN9668_SUNRISE_REF,
     BOARD_TYPE_SPARX5_EMULATION = 999,
-    BOARD_TYPE_LAGUNA_PCB8398 = 8398, /* Laguna 24x1G + 4x10G port */
+    BOARD_TYPE_LAGUNA_PCB8398 = 0x8398, /* Laguna 24x1G + 4x10G port */
 } board_type_t;
 
 /* SparX-5 Ref board port configurations  */

@@ -313,6 +313,10 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t inst,
     mesa_sgpio_mode_t  sgmode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
 
+    if (board->type == BOARD_TYPE_SUNRISE) {
+        return rc;
+    }
+
     if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE &&
         sgport < MESA_SGPIO_PORTS && (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK)) {
         conf.port_conf[sgport].mode[2] = sgmode; // TxDisable maps to bit 2
@@ -334,6 +338,10 @@ static mesa_rc lan969x_port_led_update(meba_inst_t inst,
     mesa_sgpio_conf_t  conf;
     mesa_sgpio_mode_t  *mode = conf.port_conf[port_no].mode;
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
+
+    if (board->type == BOARD_TYPE_SUNRISE) {
+        return rc;
+    }
 
     // Only SFP ports
     if (board->port[port_no].map.map.miim_controller != MESA_MIIM_CONTROLLER_NONE
@@ -516,7 +524,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->props.target = target;
     board->port = (fa_port_info_t*) calloc(30, sizeof(fa_port_info_t));
     if (board->port == NULL) {
-        fprintf(stderr, "1Port table malloc failure\n");
+        fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
 
