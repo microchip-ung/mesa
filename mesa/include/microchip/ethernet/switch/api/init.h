@@ -300,6 +300,7 @@ typedef struct {
 typedef enum {
     MESA_CORE_CLOCK_DEFAULT,  // Defaults to the highest supported frequency
     MESA_CORE_CLOCK_250MHZ,   // 250MHZ core clock frequency
+    MESA_CORE_CLOCK_328MHZ,   // 328.125MHZ (laguna) */
     MESA_CORE_CLOCK_500MHZ,   // 500MHZ core clock frequency
     MESA_CORE_CLOCK_625MHZ,   // 625MHZ core clock frequency
 } mesa_core_clock_freq_t CAP(INIT_CORE_CLOCK);
