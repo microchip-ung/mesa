@@ -116,7 +116,7 @@ static vtss_rc lan966x_port_clause_37_control_get(vtss_state_t *vtss_state,
 
     REG_RD(DEV_PCS1G_ANEG_CFG(port), &value);
     control->enable = VTSS_BOOL(value & DEV_PCS1G_ANEG_CFG_ENA_M);
-    value = DEV_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable ? value : 0);
+    value = DEV_PCS1G_ANEG_CFG_ADV_ABILITY_X(control->enable ? value : 0);
     VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &control->advertisement));
     return VTSS_RC_OK;
 }
