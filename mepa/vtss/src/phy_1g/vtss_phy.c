@@ -9033,6 +9033,8 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
                 }
                 // Setup Reg23E3
+                // Configuring this to access MAC serdes clause 37 advertisement ability 18E3.
+                conf->media_if_pcs.force_adv_ability = 1;
                 new_reg_value = 0;
                 new_reg_value = ((conf->media_if_pcs.remote_fault << 14) |
                                  ((conf->media_if_pcs.aneg_pd_detect ? 1 : 0) << 13) |
@@ -9048,6 +9050,11 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                 /* If clearing bit is desired, Clear the bit in the Register either before or after this Write */
                 if (!vtss_state->sync_calling_private) {
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
+                    // This is setting the ANEG Advertisements for 1000BaseX mode of Operation for Fiber and CU SFP media interface.
+                    if ((conf->mode == VTSS_PHY_MODE_ANEG) && ((reset_conf->media_if == VTSS_PHY_MEDIA_IF_FI_1000BX) || (reset_conf->media_if == VTSS_PHY_MEDIA_IF_AMS_FI_1000BX) || (reset_conf->media_if == VTSS_PHY_MEDIA_IF_AMS_CU_1000BX))) {
+                        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+                        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_CL37_ADV_ABILITY, 0x0020));
+                    }
                 }
 
                 VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
@@ -9798,7 +9805,7 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                                     vtss_port_status_t   *const status)
 {
     vtss_phy_port_state_t *ps = &vtss_state->phy_state[port_no];
-    u16                   reg, reg10;
+    u16                   reg, reg10, reg17, reg24;
     u16                   revision;
     vtss_phy_reset_conf_t *conf = &ps->reset;
     revision = ps->type.revision;
@@ -9808,18 +9815,51 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
 
         /* Read link status from register 1 */
         VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_STATUS, &reg));
-        /* Set Link Down Indication based on latched in link_status in Reg01 */
-        status->link_down = (reg & (1 << 2) ? 0 : 1);
+
+        /* Read link status on host side of the phy from register 17E3 */
+        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_STATUS, &reg17));
+         /* Read link status on Media side of the phy from register 24E3 */
+        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_STATUS, &reg24));
 
         //VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_CONTROL, &reg10));
         /* Populates the Local PHY Status from Reg01 and Reg09 */
         vtss_phy_decode_status_reg(port_no, reg, status);
 
+        if((ps->family == VTSS_PHY_FAMILY_VIPER) || (ps->family == VTSS_PHY_FAMILY_TESLA)) {
+            if((conf->mac_if == VTSS_PORT_INTERFACE_QSGMII) || (conf->mac_if == VTSS_PORT_INTERFACE_SGMII)) {
+        /* Set Link Down Indication based on latched in link_status in Reg01, Reg17 and Reg24*/
+                status->link_down = (((reg & (1 << 2)) | (reg24 & (1 << 2))) & (reg17 & (1 << 2)) ? 0 : 1);
+	    }
+        }
+
+        VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
+
         if (status->link_down) {
             /* Read status again if link down (latch low field) */
             VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MODE_STATUS, &reg));
-            status->link = (reg & (1 << 2) ? 1 : 0);
+
+            VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+            VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_STATUS, &reg17));
+
+            VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+            VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MEDIA_SERDES_PCS_STATUS, &reg24));
+
+            /* Checks Family ,MAC interface and updates the link status based on Reg 01, Reg 24E3, Reg 17E3 */
+            switch(ps->family) {
+                case VTSS_PHY_FAMILY_VIPER:
+                case VTSS_PHY_FAMILY_TESLA:
+                    if((conf->mac_if == VTSS_PORT_INTERFACE_QSGMII) || (conf->mac_if == VTSS_PORT_INTERFACE_SGMII)) {
+                        status->link = (((reg & (1 << 2)) | (reg24 & (1<<2))) & (reg17 & (1<<2)) ? 1 : 0);
+                    }
+                    break;
+                default:
+                    status->link = ((reg & (1 << 2)) ? 1 : 0);
+            }
             VTSS_N("status->link = %d, port = %d, reg = 0x%X", status->link, port_no, reg);
+
+            VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
         } else {
             status->link = 1;
         }
@@ -9890,6 +9930,7 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                 }
                 break;
             case VTSS_PHY_MODE_FORCED:
+                VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
                 VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_AUXILIARY_CONTROL_AND_STATUS, &reg));
                 status->mdi_cross = ((reg & VTSS_F_PHY_AUXILIARY_CONTROL_AND_STATUS_HP_AUTO_MDIX_CROSSOVER_INDICATION) ? TRUE : FALSE);
 

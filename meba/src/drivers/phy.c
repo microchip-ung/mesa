@@ -126,12 +126,22 @@ mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
 mepa_rc meba_phy_i2c_read(meba_inst_t inst, mepa_port_no_t port_no, const uint8_t i2c_mux, const uint8_t i2c_reg_addr,
                           const uint8_t i2c_dev_addr, const mepa_bool_t word_access, uint8_t cnt, uint8_t  *const value)
 {
+   T_I(inst, "Called port %d", port_no);
+   if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+       return MESA_RC_ERR_INV_PORT_BOARD;
+   }
+
+   return mepa_i2c_read(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+}
+/* Set the PHY interface based on inputs.*/
+mepa_rc meba_phy_if_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_interface_t intf)
+{
     T_I(inst, "Called port %d", port_no);
     if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
 
-    return mepa_i2c_read(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr, word_access, cnt, value);
+    return mepa_if_set(inst->phy_devices[port_no], intf);
 }
 
 mepa_rc meba_phy_i2c_write(meba_inst_t inst, mepa_port_no_t port_no,const uint8_t i2c_mux, const uint8_t i2c_reg_addr,
