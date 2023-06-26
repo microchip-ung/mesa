@@ -789,8 +789,13 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
     /* Add additional delays found in testing. Note that rx_delay and tx_delay values are in pico seconds */
     switch (interface) {
-    case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 348) : (1000 * 49);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 348) : (1000 * 49);
+        }
+        break;
+    case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
     case VTSS_PORT_INTERFACE_SGMII_2G5:
