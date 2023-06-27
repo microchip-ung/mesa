@@ -3907,7 +3907,7 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     }
 
     /* MESA-901: Serdes's are default powered up, start with power all down */
-    for (u32 s = 0; s <= RT_SERDES_CNT; s++) {
+    for (u32 s = 0; s < RT_SERDES_CNT; s++) {
         sd_lane_tgt = VTSS_TO_SD_LANE(s);
         /* Optimal power down settings from GUC */
         if (s < RT_SERDES_25G_START) {
@@ -3918,7 +3918,7 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     }
 
     /* MESA-901: CMUs are default powered up, start with power all down */
-    for (u32 cmu = 0; cmu <= RT_CMU_CNT; cmu++) {
+    for (u32 cmu = 0; cmu < RT_CMU_CNT; cmu++) {
         cmu_tgt = VTSS_TO_SD_CMU(cmu);
         cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu);
 

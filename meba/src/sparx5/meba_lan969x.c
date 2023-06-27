@@ -475,34 +475,158 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
     return rc;
 }
 
+static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
+{
+    mesa_rc        rc = MESA_RC_OK;
+    mesa_bool_t    sgpio_events[3][MESA_SGPIO_PORTS];
+    mesa_port_no_t port_no;
+    uint32_t       sgport, bit;
+    int            event_detected, handled = 0;
+
+    if (board->type == BOARD_TYPE_SUNRISE) {
+        return MESA_RC_OK;
+    }
+
+    // Get event bits
+    for (bit = 0; bit < 3; bit++) {
+        rc = mesa_sgpio_event_poll(NULL, 0, 0, bit, sgpio_events[bit]);
+        if (rc != MESA_RC_OK) {
+            return rc;
+        }
+    }
+
+    // Check for LOS, MODDET and TXFAULT events
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        if ((sgport = meba_port_map[port_no].sgpio_port) > 0) {
+            event_detected = 0;
+            for (bit = 0; bit < 3; bit++) {
+                if (sgpio_events[bit][sgport]) {
+                    // Event detected, disable while handling it
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, bit, false);
+                    event_detected = 1;
+                }
+            }
+            if (event_detected) {
+                signal_notifier(MEBA_EVENT_LOS, port_no);
+                handled = 1;
+            }
+        }
+    }
+    return (handled ? MESA_RC_OK : MESA_RC_ERROR);
+}
+
 // IRQ Support
 static mesa_rc lan969x_event_enable(meba_inst_t inst,
                                     meba_event_t event_id,
                                     mesa_bool_t enable)
 {
     mesa_rc               rc = MESA_RC_OK;
-//    meba_board_state_t    *board = INST2BOARD(inst);
+    meba_board_state_t    *board = INST2BOARD(inst);
+    uint8_t               sgport;
+    mesa_port_no_t        port_no;
+
+    if (board->type == BOARD_TYPE_SUNRISE) {
+        return MESA_RC_OK;
+    }
+
+    return rc; //fixme
 
     T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
+
+    switch (event_id) {
+    case MEBA_EVENT_LOS:
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+            // bit 0: LOS
+            // bit 1: ModDetect
+            // bit 2: TxFault
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if ((sgport = meba_port_map[port_no].sgpio_port) > 0) {
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 0, enable); // LOS
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 2, enable); // TxFault
+                }
+            }
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (is_phy_port(board->port[port_no].map.cap)) {
+                    if ((rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, enable)) != MESA_RC_OK) {
+                        T_E(inst, "Could not enable MEPA_LINK_LOS in phy (%d)",port_no);
+                    }
+                }
+            }
+        }
+        break;
+   case MEBA_EVENT_FLNK:
+       for (port_no = 0; port_no < board->port_cnt; port_no++) {
+           if (is_phy_port(board->port[port_no].map.cap)) {
+               if ((rc = meba_phy_event_enable_set(inst, port_no, VTSS_PHY_LINK_FFAIL_EV, enable)) != MESA_RC_OK) {
+                   T_E(inst, "Could not enable VTSS_PHY_LINK_FFAIL_EV in phy (%d)",port_no);
+               }
+           }
+       }
+       break;
+     default:
+        rc = MESA_RC_NOT_IMPLEMENTED; // Will occur as part of probing
+        break;
+    }
+
     return rc;
 }
 
+static mesa_rc ext0_handler(meba_inst_t inst,
+                            meba_board_state_t *board,
+                            meba_event_signal_t signal_notifier)
+{
+    int handled = 0;
+    mesa_port_no_t port_no;
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        if (is_phy_port(board->port[port_no].map.cap)) {
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                T_D(inst, "port(%d) PHY IRQ handled", port_no);
+                handled++;
+            }
+        }
+    }
+    return handled ? MESA_RC_OK : MESA_RC_ERROR;
+}
 
 static mesa_rc lan969x_irq_handler(meba_inst_t inst,
                                    mesa_irq_t chip_irq,
                                    meba_event_signal_t signal_notifier)
 {
-//    meba_board_state_t *board = INST2BOARD(inst);
+    meba_board_state_t *board = INST2BOARD(inst);
+
     T_I(inst, "Called - irq %d", chip_irq);
+    switch (chip_irq) {
+    case MESA_IRQ_SGPIO:
+        return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_EXT0:
+        return ext0_handler(inst, board, signal_notifier);
+    default:
+        break;
+    }
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
 static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
 {
     mesa_rc rc = MESA_RC_NOT_IMPLEMENTED;
+
+    switch (chip_irq) {
+    case MESA_IRQ_SGPIO:
+    case MESA_IRQ_EXT0:
+        rc = MESA_RC_OK;
+        break;
+    default:
+        break;
+    }
     return rc;
 }
 
+static mesa_rc lan969x_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
+                                      mesa_port_speed_t speed, mesa_port_serdes_tap_enum_t tap,
+                                      uint32_t *const ret_val)
+{
+    return MESA_RC_NOT_IMPLEMENTED;
+}
 
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
@@ -569,6 +693,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_irq_handler                = lan969x_irq_handler;
     inst->api.meba_irq_requested              = lan969x_irq_requested;
     inst->api.meba_event_enable               = lan969x_event_enable;
+    inst->api.meba_serdes_tap_get             = lan969x_serdes_tap_get;
     return inst;
 
 error_out:

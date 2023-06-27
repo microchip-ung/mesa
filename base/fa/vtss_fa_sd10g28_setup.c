@@ -18,10 +18,6 @@
 #ifndef _VTSS_ANT__API_SD10G28_UTE
 #define _VTSS_ANT__API_SD10G28_UTE
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-adf
-#endif
-
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
@@ -1038,11 +1034,11 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
         rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
         cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no);
 
-        if (vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num) != VTSS_RC_OK) {
+        if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) {
             VTSS_E("Could not configure CMU %d", cmu_num);
         }
 
-        if ((rc = vtss_laguna_sd10g28_reg_cfg(vtss_state, &calc_results, port_no)) != VTSS_RC_OK) {
+        if ((rc |= vtss_laguna_sd10g28_reg_cfg(vtss_state, &calc_results, port_no)) != VTSS_RC_OK) {
             VTSS_E("Could not configure serdes %d", port_no);
         }
     }
