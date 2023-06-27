@@ -31,26 +31,33 @@ MESA_CHIP_FAMILY_SERVALT = 6
 MESA_CHIP_FAMILY_JAGUAR2 = 7
 MESA_CHIP_FAMILY_OCELOT =  8
 
-def nano_corr_lowest_measure
+def nano_corr_lowest_measure(ip="")
     $nano_corr_loewst=0xFFFFFFFFFFFFFFFF
     $nano_corr_highest=0
 
     test "nano_corr_lowest_measure" do
 
-    frame = frame_create(MC_STRING, SC_STRING)
-
     # Create the SYNC frame
-    frametx = frame.dup + sync_pdu_create(0)
-    framerx = frame.dup + sync_pdu_rx_create(0)
+    if (ip != "")
+        size = 40+28
+        off = 14+28
+        frametx = frame_create(MC_STRING, SC_STRING, "#{ip} udp") + sync_pdu_create(0)
+        framerx = frame_create(MC_STRING, SC_STRING, "#{ip} ign udp ign") + sync_pdu_rx_create(0)
+    else
+        size = 40
+        off = 14
+        frametx = frame_create(MC_STRING, SC_STRING) + sync_pdu_create(0)
+        framerx = frame_create(MC_STRING, SC_STRING) + sync_pdu_rx_create(0)
+    end
 
     for i in 0..5
         # Transmit SYNC frame into $port0
-        frame_tx(frametx, $port0, "", framerx, " ", " ", 40)
+        frame_tx(frametx, $port0, "", framerx, " ", " ", size)
         pkts = $ts.pc.get_pcap "#{$ts.links[$port1][:pc]}.pcap"
         data = pkts[0][:data].each_byte.map{|c| c.to_i}
 
         # Calculate the lowest correction value based on frame timestamp
-        nano_correction = ((data[14+8]<<40) + (data[14+9]<<32) + (data[14+10]<<24) + (data[14+11]<<16) + (data[14+12]<<8) + (data[14+13]))
+        nano_correction = ((data[off+8]<<40) + (data[off+9]<<32) + (data[off+10]<<24) + (data[off+11]<<16) + (data[off+12]<<8) + (data[14+13]))
         if (nano_correction < $nano_corr_loewst)
             $nano_corr_loewst = nano_correction
         end
@@ -157,10 +164,10 @@ def rx_ifh_extract(frame)
     ifh
 end
 
-def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0)
+def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0, proto="")
     $tx_ifh = ""
 
-    test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}  domain #{domain}  seq_idx #{seq_idx}" do
+    test "tx_ifh_create.  port = #{port}  ptp_act = #{ptp_act}  ptp_ts #{ptp_ts}  domain #{domain}  seq_idx #{seq_idx} proto #{proto}" do
 
     tx_info = $ts.dut.call("mesa_packet_tx_info_init")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
@@ -170,12 +177,17 @@ def tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ",
     end
     tx_info["switch_frm"] = false
     tx_info["masquerade_port"] = PORT_NO_NONE
-    tx_info["frm_len"] = 12+2+PTP_SYNC_MESSAGE_LENGTH
     tx_info["pdu_offset"] = 14
     tx_info["sequence_idx"] = seq_idx
     tx_info["ptp_action"] = ptp_act
     tx_info["ptp_domain"] = domain
     tx_info["ptp_timestamp"] = ptp_ts
+    if (proto == "ipv4")
+        tx_info["inj_encap"]["type"] = "MESA_PACKET_ENCAP_TYPE_IP4"
+    end
+    if (proto == "ipv6")
+        tx_info["inj_encap"]["type"] = "MESA_PACKET_ENCAP_TYPE_IP6"
+    end
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
         ifh = $ts.dut.call("mesa_packet_tx_hdr_encode", tx_info, 36)
@@ -225,12 +237,16 @@ def rx_ifh_create(port=IGNORE)
     $ifh
 end
 
-def frame_create(dmac, smac)
+def frame_create(dmac, smac, proto="")
     $frame = ""
 
-    test "frame_create.  dmac = #{dmac}  smac = #{smac}" do
+    test "frame_create.  dmac = #{dmac}  smac = #{smac}  proto #{proto}" do
 
-    $frame = "eth dmac #{dmac} smac #{smac} et 0x88F7 "
+    if (proto == "")
+        $frame = "eth dmac #{dmac} smac #{smac} et 0x88F7 "
+    else
+        $frame = "eth dmac #{dmac} smac #{smac} #{proto} "
+    end
 
     end
 
@@ -249,7 +265,7 @@ def sync_pdu_create(header_rsv=0, hdr_sequenceId=0)
     return $sync_pdu
 end
 
-def sync_pdu_rx_create(header_rsv=IGNORE, secondsField=IGNORE, sequenceId=IGNORE, cf_org=IGNORE, all=FALSE)
+def sync_pdu_rx_create(header_rsv=IGNORE, secondsField=IGNORE, sequenceId=IGNORE, cf_org=IGNORE, all=false)
     $sync_pdu = ""
 
     test "sync_pdu_rx_create  header_rsv #{header_rsv} secondsField #{secondsField}" do

@@ -21,4 +21,5 @@ run %w{./ts_external_io_rs422_1pps.rb}
 run %w{./ts_internal_mode.rb}
 run %w{./ts_tod_latency.rb}
 run %w{./ts_tx_fifo.rb}
+run %w{./ts_ptp_ipv4_ipv6.rb}
 
