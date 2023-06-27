@@ -281,6 +281,14 @@ static mesa_rc lan969x_sfp_i2c_xfer(meba_inst_t inst,
     return rc;
 }
 
+// For backwards compatibility (use lan969x_sfp_status_get())
+static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
+{
+    T_N(inst, "Called");
+    mesa_port_list_clear(present);
+    return MESA_RC_OK;
+}
+
 static mesa_rc lan969x_sfp_status_get(meba_inst_t inst,
                                       mesa_port_no_t port_no,
                                       meba_sfp_status_t *status)
@@ -554,6 +562,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_reset                      = lan969x_reset;
     inst->api.meba_sfp_i2c_xfer               = lan969x_sfp_i2c_xfer;
     inst->api.meba_sfp_status_get             = lan969x_sfp_status_get;
+    inst->api.meba_sfp_insertion_status_get   = lan969x_sfp_insertion_status_get;
     inst->api.meba_port_admin_state_set       = lan969x_port_admin_state_set;
     inst->api.meba_port_led_update            = lan969x_port_led_update;
     inst->api.meba_status_led_set             = lan969x_status_led_set;
