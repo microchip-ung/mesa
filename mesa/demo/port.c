@@ -1812,7 +1812,11 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         return;
     }
     // Read SFP ROM
-    meba_sfp_device_info_get(inst, port_no, &info);
+    if (!meba_sfp_device_info_get(inst, port_no, &info)) {
+        T_E("Port:%u SFP read failed", port_no);
+        entry->sfp_device = NULL;
+        return;
+    }
 
     // Search for pre-installed drivers (based on product name)
     // If not found then install the driver according to the MSA standard

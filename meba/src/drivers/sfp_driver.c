@@ -1261,6 +1261,7 @@ mesa_bool_t meba_sfp_device_info_get(struct meba_inst *meba_inst, mesa_port_no_t
     if (meba_inst == NULL || device_info == NULL) {
         return false;
     }
-
+    return false;
     return device_info_get(meba_inst, port_no, device_info, NULL);
 }
+

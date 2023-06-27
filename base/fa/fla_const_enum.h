@@ -5,6 +5,8 @@ enum fla_const {
     __RT_CHIP_PORTS,
     __RT_SERDES_10G_START,
     __RT_SERDES_25G_START,
+    __RT_SERDES_CNT,
+    __RT_CMU_CNT,
     __RT_BUFFER_MEMORY,
     __RT_BUFFER_REFERENCE,
     __RT_RES_CFG_MAX_PORT_IDX,
