@@ -1353,10 +1353,12 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
+        break; //fixme
         VTSS_RC(fa_afi_init(vtss_state));
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
+        break; //fixme
         // Now that the port map is set, we can use "port_no".
         // VD1 always has "link up". It is indexed with port_no == VTSS_PORT_NO_NONE
         VTSS_RC(fa_afi_port_link_up(vtss_state, VTSS_PORT_NO_NONE));

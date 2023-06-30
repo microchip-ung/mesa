@@ -1782,9 +1782,11 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->seq_cnt_get = fa_ts_seq_cnt_get;
         break;
     case VTSS_INIT_CMD_INIT:
+        break; // fixme
         VTSS_RC(fa_ts_init(vtss_state));
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+        break; // fixme
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             port = VTSS_CHIP_PORT(port_no);
 

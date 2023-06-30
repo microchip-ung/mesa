@@ -336,34 +336,34 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     /* Initialize L2 */
     VTSS_RC(vtss_fa_l2_init(vtss_state, cmd));
-#if defined(VTSS_FEATURE_LAYER3)
-    /* Initialize L3 */
-    VTSS_RC(vtss_fa_l3_init(vtss_state, cmd));
-#endif /* VTSS_FEATURE_LAYER3 */
+/* #if defined(VTSS_FEATURE_LAYER3) */
+/*     /\* Initialize L3 *\/ */
+/*     VTSS_RC(vtss_fa_l3_init(vtss_state, cmd)); */
+/* #endif /\* VTSS_FEATURE_LAYER3 *\/ */
 
-#if defined(VTSS_FEATURE_VCAP)
-    VTSS_RC(vtss_fa_vcap_init(vtss_state, cmd));
-#endif
+/* #if defined(VTSS_FEATURE_VCAP) */
+/*     VTSS_RC(vtss_fa_vcap_init(vtss_state, cmd)); */
+/* #endif */
 
-#if defined(VTSS_FEATURE_QOS)
-    VTSS_RC(vtss_fa_qos_init(vtss_state, cmd));
-#endif /* VTSS_FEATURE_QOS */
+/* #if defined(VTSS_FEATURE_QOS) */
+/*     VTSS_RC(vtss_fa_qos_init(vtss_state, cmd)); */
+/* #endif /\* VTSS_FEATURE_QOS *\/ */
 
-#if defined(VTSS_FEATURE_TIMESTAMP)
-    VTSS_RC(vtss_fa_ts_init(vtss_state, cmd));
-#endif /* VTSS_FEATURE_TIMESTAMP */
+/* #if defined(VTSS_FEATURE_TIMESTAMP) */
+/*     VTSS_RC(vtss_fa_ts_init(vtss_state, cmd)); */
+/* #endif /\* VTSS_FEATURE_TIMESTAMP *\/ */
 
-#if defined(VTSS_FEATURE_VOP)
-    VTSS_RC(vtss_fa_vop_init(vtss_state, cmd));
-#endif
+/* #if defined(VTSS_FEATURE_VOP) */
+/*     VTSS_RC(vtss_fa_vop_init(vtss_state, cmd)); */
+/* #endif */
 
-#if defined(VTSS_FEATURE_MRP)
-    VTSS_RC(vtss_lan969x_mrp_init(vtss_state, cmd));
-#endif
+/* #if defined(VTSS_FEATURE_MRP) */
+/*     VTSS_RC(vtss_lan969x_mrp_init(vtss_state, cmd)); */
+/* #endif */
 
-#if defined(VTSS_FEATURE_CLOCK)
-    VTSS_RC(vtss_es6514_clock_init(vtss_state, cmd));
-#endif
+/* #if defined(VTSS_FEATURE_CLOCK) */
+/*     VTSS_RC(vtss_es6514_clock_init(vtss_state, cmd)); */
+/* #endif */
 
     return VTSS_RC_OK;
 }
@@ -481,10 +481,6 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    if (!FA_TGT) {
-        return VTSS_RC_OK; // Fix-me
-    }
-
     u32 clk_div, clk_period, pol_upd_int, val;
     if (FA_TGT) {
         switch (freq) {
@@ -547,6 +543,13 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
     } else {
         pol_upd_int = 211; // Laguna default
+    }
+
+    if (LA_TGT) {
+        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(0, 1), 0x18624dd2);
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
+                VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1),
+                VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
     }
 
     clk_period = vtss_fa_clk_period(freq);

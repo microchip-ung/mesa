@@ -51,8 +51,8 @@
 // Laguna port devices:
 // D1-D3,D5-D7,D10-D11,D14-D15,
 // D18-D19.D22-D23,D28-D29       DEV2G5 (16)
-// D0,D4,D9,D13,D17,D21          DEV5G  (6)
-// D8,D12,D16,D20,D24-D27        DEV10G (8)
+// D9,D13,D17,D21                DEV5G  (6)
+// D0,D4,D8,D12,D16,D20,D24-D27  DEV10G (10)
 //                               -----------
 //                               30 port devices + 14 'shadow' devices
 

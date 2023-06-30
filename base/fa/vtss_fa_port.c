@@ -57,7 +57,8 @@ u32 fla_port_is_10G(vtss_state_t *vtss_state, u32 port)
     if (FA_TGT) {
         return ((port >= 12 && port <= 15) || (port >= 48 && port <= 55));
     } else {
-        return ((port == 8) || (port == 12) || (port == 16) || (port == 20) || (port >= 24 && port <= 27));
+        return ((port == 0) || (port == 4) || (port == 8) || (port == 12) ||
+                (port == 16) || (port == 20) || (port >= 24 && port <= 27));
     }
 }
 
@@ -98,23 +99,23 @@ u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
             return port;
         } else if (VTSS_PORT_IS_5G(port)) {
             switch (port) {
-            case 0:  return 0;
-            case 4:  return 1;
-            case 9:  return 2;
-            case 13: return 3;
-            case 17: return 4;
-            case 21: return 5;
+            case 9:  return 0;
+            case 13: return 1;
+            case 17: return 2;
+            case 21: return 3;
             }
         } else if (VTSS_PORT_IS_10G(port)) {
             switch (port) {
-            case 8:  return 0;
-            case 12: return 1;
-            case 16: return 2;
-            case 20: return 3;
-            case 24: return 4;
-            case 25: return 5;
-            case 26: return 6;
-            case 27: return 7;
+            case 0:  return 0;
+            case 4:  return 1;
+            case 8:  return 2;
+            case 12: return 3;
+            case 16: return 4;
+            case 20: return 5;
+            case 24: return 6;
+            case 25: return 7;
+            case 26: return 8;
+            case 27: return 9;
             }
         } else {
             VTSS_E("illegal  port number %d",port);
@@ -4959,12 +4960,11 @@ static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
     pr("Num of external ports (vtss_state->port_count)  : %d\n", vtss_state->port_count);
     pr("Num of internal ports  : %d\n", RT_CHIP_PORTS_ALL - RT_CHIP_PORT_CPU);
 
-    REG_RD(VTSS_QRES_RES_CFG(0 + RT_RES_CFG_MAX_PRIO_IDX + 0 * 1024), &val);
-    if (VTSS_X_QRES_RES_CFG_WM_HIGH(val) == VTSS_M_QRES_RES_CFG_WM_HIGH) {
-        pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n");
-    } else {
-        pr("Buffer mode: Queue Limit mode is disabled\n");
-    }
+    /* if (VTSS_X_QRES_RES_CFG_WM_HIGH(val) == VTSS_M_QRES_RES_CFG_WM_HIGH) { */
+    /*     pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n"); */
+    /* } else { */
+    /*     pr("Buffer mode: Queue Limit mode is disabled\n"); */
+    /* } */
     pr("\n");
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no]) {

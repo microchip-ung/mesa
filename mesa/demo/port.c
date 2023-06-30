@@ -49,7 +49,7 @@ static meba_sfp_driver_t *sfp_drivers = NULL;
 static port_entry_t *port_table;
 static mesa_bool_t  port_polling = 1;
 static uint32_t     port_poll_cnt;
-static mesa_bool_t  port_bulk_setup = TRUE;
+static mesa_bool_t  port_bulk_setup = FALSE;
 
 const char *mesa_port_if2txt(mesa_port_interface_t if_type)
 {
