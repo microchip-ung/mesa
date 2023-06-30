@@ -1853,7 +1853,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
     u32            tgt = fa_rb_tgt(rb_id);
-    u32            mode, ena = 1, hsr = 0, prp = 0, ct_ena = 0, hsr_sv, prp_sv;
+    u32            mode, ena = 1, hsr = 0, ct_ena = 0;
     u32            port_a = 0, port_b = 0, next_a = 0, next_b = 0, net_id, j;
     u32            age, clk_period, val, unit, mask = 0x4, port;
     u64            x64;
@@ -1861,7 +1861,6 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     switch (conf->mode) {
     case VTSS_RB_MODE_PRP_SAN:
         mode = FA_RB_MODE_PRP_SAN;
-        prp = 1;
         break;
     case VTSS_RB_MODE_HSR_SAN:
         mode = FA_RB_MODE_HSR_SAN;
@@ -1944,14 +1943,12 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
 
     // Supervision frames
-    hsr_sv = (hsr ? fa_rb_sv(conf->sv) : FA_RB_SV_FORWARD);
-    prp_sv = (prp ? fa_rb_sv(conf->sv) : FA_RB_SV_FORWARD);
     REG_WR(VTSS_RB_SPV_CFG(tgt),
-           VTSS_F_RB_SPV_CFG_DMAC_ENA(1) |
-           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(hsr_sv) |
-           VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(conf->sv_lsb) |
-           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(prp_sv) |
-           VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(conf->sv_lsb));
+           VTSS_F_RB_SPV_CFG_DMAC_ENA(0) |
+           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(fa_rb_sv(conf->sv)) |
+           VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
+           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(fa_rb_sv(conf->sv)) |
+           VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
 
     // Cut-through setup in QSYS
     REG_WRM(VTSS_RB_QSYS_CFG(tgt),

@@ -9080,7 +9080,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
         } else {
             s += VTSS_SPRINTF(s, "%u", conf->port_b);
         }
-        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%-8u%-9s0x%02x\n",
+        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%-8u%-9s\n",
            i,
            m == VTSS_RB_MODE_DISABLED ? "Disabled" :
            m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN" :
@@ -9096,8 +9096,7 @@ static void vtss_debug_print_redbox(vtss_state_t              *vtss_state,
            conf->dd_age_time,
            conf->sv == VTSS_RB_SV_FORWARD ? "Forward" :
            conf->sv == VTSS_RB_SV_DISCARD ? "Discard" :
-           conf->sv == VTSS_RB_SV_CPU_COPY ? "CpuCopy" : "CpuOnly",
-           conf->sv_lsb);
+           conf->sv == VTSS_RB_SV_CPU_COPY ? "CpuCopy" : "CpuOnly");
     }
     if (!header) {
         pr("\n");
