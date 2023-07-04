@@ -115,15 +115,10 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     }
     printf("mesa_gpio_mode_set - done\n");
 
-    /* printf("mebaux_gpio_mode_set\n"); */
-    /* mebaux_gpio_mode_set(inst, &rawio, 9, MESA_GPIO_ALT_0); */
-    /* mebaux_gpio_mode_set(inst, &rawio, 10, MESA_GPIO_ALT_0); */
-    /* printf("mebaux_gpio_mode_set - done\n"); */
-
     /* GPIOs for SGPIO Group 0  */
-    /* for (gpio_no = 5; gpio_no <= 8; gpio_no++) { */
-    /*     (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0); */
-    /* } */
+    for (gpio_no = 5; gpio_no <= 8; gpio_no++) {
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
+    }
 
     /* SGPIO group controls SFP LEDs for S6-S9  */
     if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
@@ -151,7 +146,7 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
             conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_ON;  // Turn on LEDs while booting
             conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_ON;
         }
-//        (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
 
     // Status LED
@@ -164,21 +159,6 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
     (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
     (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
-
-
-    {
-        VTSS_MSLEEP(50);
-        printf("mesa_miim_read\n");
-        u16 val;
-        if (mesa_miim_read(NULL, 0, 0, 4, 3, &val) == MESA_RC_OK) {
-            printf("Found  (reg 3) %x\n",val);
-        }
-        printf("mesa_miim_read - done\n");
-    }
-    /* printf("mebaux_miim_rd\n"); */
-    /* u16 id=0;     */
-    /* mebaux_miim_rd(inst, &rawio, 0, 4, 3, &id); */
-    /* printf("mebaux_miim_rd done\n"); */
 
     return MESA_RC_OK;
 }
@@ -320,7 +300,7 @@ static mesa_rc lan969x_sfp_status_get(meba_inst_t inst,
     meba_board_state_t     *board = INST2BOARD(inst);
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
     uint8_t                sgport = meba_port_map[port_no].sgpio_port;
-
+    return MESA_RC_OK; //fixme
     if (!is_sfp_port(board->port[port_no].map.cap)) {
         return rc;
     }
@@ -343,7 +323,7 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t inst,
     mesa_sgpio_conf_t  conf;
     mesa_sgpio_mode_t  sgmode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
-
+    return MESA_RC_OK; //fixme
     if (board->type == BOARD_TYPE_SUNRISE) {
         return rc;
     }
@@ -351,7 +331,7 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t inst,
     if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE &&
         sgport < MESA_SGPIO_PORTS && (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK)) {
         conf.port_conf[sgport].mode[2] = sgmode; // TxDisable maps to bit 2
-//        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
 
     return rc;
@@ -392,7 +372,7 @@ static mesa_rc lan969x_port_led_update(meba_inst_t inst,
                 mode[1] = MESA_SGPIO_MODE_0_ACTIVITY;
             }
         }
-//        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
     return rc;
 }

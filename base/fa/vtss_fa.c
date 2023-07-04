@@ -137,6 +137,55 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
     }
     pr("\n");
 }
+
+/* Read or write register indirectly */
+static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
+                                       u32 addr, u32 *value, BOOL is_write)
+{
+    u32 ctrl;
+    vtss_rc result;
+
+    /* The @addr is an address suitable for the read or write callout function installed by
+     * the application, i.e. it's a 32-bit address suitable for presentation on a PI
+     * address bus, i.e. it's not suitable for presentation on the VCore-III shared bus.
+     * In order to make it suitable for presentation on the VCore-III shared bus, it must
+     * be made an 8-bit address, so we multiply by 4, and it must be offset by the base
+     * address of the switch core registers, so we add VTSS_IO_ORIGIN1_OFFSET.
+     */
+
+    if ((result = vtss_fa_wr(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_ADDR), addr)) != VTSS_RC_OK) {
+        goto do_exit;
+    }
+    if (is_write) {
+        if ((result = vtss_fa_wr(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_DATA), *value)) != VTSS_RC_OK) {
+            goto do_exit;
+        }
+        // Wait for operation to complete
+        do {
+            if ((result = vtss_fa_rd(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_CTRL), &ctrl)) != VTSS_RC_OK) {
+                goto do_exit;
+            }
+        } while (ctrl & VTSS_M_DEVCPU_GCB_VA_CTRL_VA_BUSY);
+    } else {
+        // Dummy read to initiate access
+        if ((result = vtss_fa_rd(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_DATA), value)) != VTSS_RC_OK) {
+            goto do_exit;
+        }
+        // Wait for operation to complete
+        do {
+            if ((result = vtss_fa_rd(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_CTRL), &ctrl)) != VTSS_RC_OK) {
+                goto do_exit;
+            }
+        } while (ctrl & VTSS_M_DEVCPU_GCB_VA_CTRL_VA_BUSY);
+        if ((result = vtss_fa_rd(vtss_state, REG_ADDR(VTSS_DEVCPU_GCB_VA_DATA), value)) != VTSS_RC_OK) {
+            goto do_exit;
+        }
+    }
+
+do_exit:
+    return result;
+}
+
 #endif
 
 #if defined(VTSS_SDX_CNT)
@@ -336,35 +385,36 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     /* Initialize L2 */
     VTSS_RC(vtss_fa_l2_init(vtss_state, cmd));
-/* #if defined(VTSS_FEATURE_LAYER3) */
-/*     /\* Initialize L3 *\/ */
-/*     VTSS_RC(vtss_fa_l3_init(vtss_state, cmd)); */
-/* #endif /\* VTSS_FEATURE_LAYER3 *\/ */
+    printf("CMD:%d\n",cmd);
+#if defined(VTSS_FEATURE_LAYER3)
+    /* Initialize L3 */
+    VTSS_RC(vtss_fa_l3_init(vtss_state, cmd));
+#endif /* VTSS_FEATURE_LAYER3 */
 
-/* #if defined(VTSS_FEATURE_VCAP) */
-/*     VTSS_RC(vtss_fa_vcap_init(vtss_state, cmd)); */
-/* #endif */
+#if defined(VTSS_FEATURE_VCAP)
+    VTSS_RC(vtss_fa_vcap_init(vtss_state, cmd));
+#endif
 
-/* #if defined(VTSS_FEATURE_QOS) */
-/*     VTSS_RC(vtss_fa_qos_init(vtss_state, cmd)); */
-/* #endif /\* VTSS_FEATURE_QOS *\/ */
+#if defined(VTSS_FEATURE_QOS)
+    VTSS_RC(vtss_fa_qos_init(vtss_state, cmd));
+#endif /* VTSS_FEATURE_QOS */
 
-/* #if defined(VTSS_FEATURE_TIMESTAMP) */
-/*     VTSS_RC(vtss_fa_ts_init(vtss_state, cmd)); */
-/* #endif /\* VTSS_FEATURE_TIMESTAMP *\/ */
+#if defined(VTSS_FEATURE_TIMESTAMP)
+    VTSS_RC(vtss_fa_ts_init(vtss_state, cmd));
+#endif /* VTSS_FEATURE_TIMESTAMP */
 
-/* #if defined(VTSS_FEATURE_VOP) */
-/*     VTSS_RC(vtss_fa_vop_init(vtss_state, cmd)); */
-/* #endif */
+#if defined(VTSS_FEATURE_VOP)
+    VTSS_RC(vtss_fa_vop_init(vtss_state, cmd));
+#endif
 
-/* #if defined(VTSS_FEATURE_MRP) */
-/*     VTSS_RC(vtss_lan969x_mrp_init(vtss_state, cmd)); */
-/* #endif */
+#if defined(VTSS_FEATURE_MRP)
+    VTSS_RC(vtss_lan969x_mrp_init(vtss_state, cmd));
+#endif
 
-/* #if defined(VTSS_FEATURE_CLOCK) */
-/*     VTSS_RC(vtss_es6514_clock_init(vtss_state, cmd)); */
-/* #endif */
-
+#if defined(VTSS_FEATURE_CLOCK)
+    VTSS_RC(vtss_es6514_clock_init(vtss_state, cmd));
+#endif
+    printf("CMD:%d - done\n",cmd);
     return VTSS_RC_OK;
 }
 
@@ -586,7 +636,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
 {
     u32 value, pending, j, i;
-
+    printf("-->3\n");
    // Note; by design - all gazwrap init registers have the same field layout
     struct {
         BOOL gazwrap;
@@ -606,6 +656,9 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
         {TRUE,  REG_ADDR(VTSS_DSM_RAM_INIT), 0}};
 
     u32 init_cnt = (sizeof(ram_init_list)/sizeof(ram_init_list[0]));
+    printf("Read chip_id addr:%x\n",REG_ADDR(VTSS_DEVCPU_GCB_CHIP_ID));
+    REG_RD(VTSS_DEVCPU_GCB_CHIP_ID, &value);
+    printf("Read chip_id:%x\n",value);
 
     REG_WRM(VTSS_EACL_POL_EACL_CFG,
             VTSS_F_EACL_POL_EACL_CFG_EACL_FORCE_INIT(1),
@@ -617,7 +670,6 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
 
     /* Initialize memories, if not done already */
     REG_RD(VTSS_HSCH_RESET_CFG, &value);
-
     if (!(value & VTSS_M_HSCH_RESET_CFG_CORE_ENA)) {
         for (i=0; i<10; i++) {
             pending = init_cnt;
@@ -666,13 +718,18 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
         VTSS_E("Unexpected build id. Chip: 0x%08x, Header files: 0x%08x", i, FPGA_BUILDID);
     }
 #endif
-
+    // Reset switch core if using SPI from external CPU
+    if (vtss_state->init_conf.spi_bus) {
+        REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
+        VTSS_MSLEEP(100);
+        u32 val = 0;
+        lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
+    }
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
         VTSS_E("Switchcore initialization error");
         return VTSS_RC_ERROR;
     }
-
     /* Initialize the LC-PLL (core clock) and set affected registers */
     if (fa_core_clock_config(vtss_state) != VTSS_RC_OK) {
          VTSS_E("LC-PLL initialization error");
@@ -725,7 +782,6 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 
     /* Initialize function groups */
     VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
-
     return VTSS_RC_OK;
 }
 

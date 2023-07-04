@@ -5455,9 +5455,11 @@ vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif
         break;
     case VTSS_INIT_CMD_INIT:
+        break; //fixme
         VTSS_RC(fa_qos_init(vtss_state));
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+        break; //fixme
         VTSS_RC(fa_qos_port_map_set(vtss_state));
         break;
     default:

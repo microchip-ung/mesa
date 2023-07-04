@@ -1983,6 +1983,7 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SGMII_2G5:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M && speed != VTSS_SPEED_2500M) {
@@ -2257,7 +2258,7 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
 
     u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
-    if (vtss_state->port.bulk_state != VTSS_PORT_BULK_DISABLED) {
+     if (vtss_state->port.bulk_state != VTSS_PORT_BULK_DISABLED) {
         vtss_state->port.sd28_mode[indx] = serdes_mode;
         return VTSS_RC_OK;
     }
@@ -2358,7 +2359,7 @@ static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t 
               (conf->speed == VTSS_SPEED_1G)    ? 3 :
               (conf->speed == VTSS_SPEED_100M)  ? 4 :
               (conf->speed == VTSS_SPEED_10M)   ? 5 : 6;
-
+    return VTSS_RC_OK; //fixme
     for (q = 0; q < VTSS_PRIOS; q++) {
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
     }
@@ -2408,7 +2409,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     u32               fc_start    = 6; // start when fc is enabled (frames)
     u32               fc_stop     = 4; // stop when fc is enabled (frames)
     u32               atop_tot    = VTSS_M_QSYS_ATOP_TOT_CFG_ATOP_TOT;
-
+    return VTSS_RC_OK; //fixme
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
             pfc = 1;

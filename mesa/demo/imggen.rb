@@ -125,22 +125,22 @@ $machines = {
       },
 
     "lan969x" => {  # Note: Currently for building only (need to be updated for a life target)
-        :arch => "arm",
-        :kernel => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
-        :kerneladdr  => "<0x60008000>",
-        :kernelentry => "<0x60008000>",
-        :ramdiscaddr => "<0x68000000>",
+        :arch => "arm64",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/mscc-linux-kernel.bin.gz",
+        :kerneladdr  => "/bits/ 64 <0x60000000>",
+        :kernelentry => "/bits/ 64 <0x60000000>",
+        :ramdiscaddr => "/bits/ 64 <0x61000000>",
         :kcomp => "gzip",
         :dt => [
           {
-            :file => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/lan966x-mesa-pcb8291.dtb",
+            :file => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/lan969x_appl_pcb8398.dtb",
             :overlays => [
-                { :name => "lan9662_ung8291_0_at_lan966x", :file => "#{$p_mesa}/meba/dt/meba_lan966x_8291_0.dtso"},
+                { :name => "lan9698_ung8398_0_at_lan969x", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8398_0.dtso"},
             ]
           },
         ],
-        :fdtaddr => "<0x67e00000>",
-        :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
+        :fdtaddr => "/bits/ 64 <0x6fff0000>",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/rootfs.tar",
     },
 
     "fireant" => {
