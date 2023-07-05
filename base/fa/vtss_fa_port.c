@@ -1805,6 +1805,7 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
 static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
 {
     u32 res, dp, prio;
+    return VTSS_RC_OK; // fixme
     // QLIM WM setup from MOT 15/8/2019:
     // Set legacy share levels to max for src_mem and src_ref
     for (res = 0; res < 2; res++) {
@@ -1960,12 +1961,8 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         return FALSE;
 
     case VTSS_PORT_INTERFACE_SERDES:
-        if ((speed != VTSS_SPEED_1G && speed != VTSS_SPEED_2500M) || VTSS_PORT_IS_2G5(port) || !fdx) {
+        if ((speed != VTSS_SPEED_1G && speed != VTSS_SPEED_2500M) || !fdx) {
             VTSS_E("Illegal if, speed or duplex. Serdes port interface supports 1G/2G5/fdx (port:%u speed:%d fdx:%d)",port, speed, fdx);
-            return FALSE;
-        }
-        if (VTSS_PORT_IS_2G5(port)) {
-            VTSS_E("port %d does not support interface SERDES",port);
             return FALSE;
         }
         break;
@@ -1988,10 +1985,6 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
     case VTSS_PORT_INTERFACE_SGMII_2G5:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M && speed != VTSS_SPEED_2500M) {
             VTSS_E("SGMII port interface only supports 10/100/1000M/2.5G speeds (port:%u)",port);
-            return FALSE;
-        }
-        if (VTSS_PORT_IS_2G5(port)) {
-            VTSS_E("port %d does not support interface type SGMII",port);
             return FALSE;
         }
         break;
@@ -2694,7 +2687,8 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
     BOOL pd_serdes = 1;
 
-    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
+    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
         pd_serdes = 0; // Do not power down multi-port serdes
@@ -2965,7 +2959,6 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         break;
     default:{ VTSS_E("Interface type not supported"); }
     }
-
     switch (speed) {
     case VTSS_SPEED_10M:  clk_spd = 0; break;
     case VTSS_SPEED_100M: clk_spd = 1; break;
@@ -3236,7 +3229,6 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
 #endif
-
     VTSS_D("Chip port: %u (1G) is configured", port);
     return VTSS_RC_OK;
 }
@@ -3586,7 +3578,6 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
    VTSS_RC(vtss_fa_port_max_tags_set(vtss_state, port_no));
    /* Enable/disable serdes power saving mode  */
     VTSS_RC(fa_sd_power_save(vtss_state, port_no, conf->power_down));
-
     if (!conf->power_down) {
         if (use_primary_dev) {
             VTSS_RC(fa_port_conf_high_set(vtss_state, port_no));

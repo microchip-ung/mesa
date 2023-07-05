@@ -109,11 +109,9 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     }
 
     /* Configure GPIOs for MIIM/MDIO/IRQ bus 0 */
-    printf("mesa_gpio_mode_set\n");
     for (gpio_no = 9; gpio_no <= 10; gpio_no++) {
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
     }
-    printf("mesa_gpio_mode_set - done\n");
 
     /* GPIOs for SGPIO Group 0  */
     for (gpio_no = 5; gpio_no <= 8; gpio_no++) {

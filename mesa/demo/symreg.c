@@ -927,6 +927,7 @@ void symreg_cli_regs_print(symreg_func_t func, char *pattern, uint32_t value)
         // Both #the_offset and #addr are byte addresses (always jumps in steps of 4),
         // but the mesa_reg_read/write() functions expect 32-bit addresses, hence the
         // division by 4 (right-shift by 2).
+        the_offset += 0x2000000; //fixme
         uint32_t offset = the_offset >> 2, v = 0;
         int j;
         mesa_chip_no_t chip_no = 0;

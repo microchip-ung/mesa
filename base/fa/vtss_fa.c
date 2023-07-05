@@ -385,7 +385,6 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     /* Initialize L2 */
     VTSS_RC(vtss_fa_l2_init(vtss_state, cmd));
-    printf("CMD:%d\n",cmd);
 #if defined(VTSS_FEATURE_LAYER3)
     /* Initialize L3 */
     VTSS_RC(vtss_fa_l3_init(vtss_state, cmd));
@@ -414,7 +413,6 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_CLOCK)
     VTSS_RC(vtss_es6514_clock_init(vtss_state, cmd));
 #endif
-    printf("CMD:%d - done\n",cmd);
     return VTSS_RC_OK;
 }
 
@@ -596,6 +594,9 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     }
 
     if (LA_TGT) {
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
+                VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
+                VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
         REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(0, 1), 0x18624dd2);
         REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
                 VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1),
@@ -636,7 +637,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
 {
     u32 value, pending, j, i;
-    printf("-->3\n");
+
    // Note; by design - all gazwrap init registers have the same field layout
     struct {
         BOOL gazwrap;
@@ -656,9 +657,6 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
         {TRUE,  REG_ADDR(VTSS_DSM_RAM_INIT), 0}};
 
     u32 init_cnt = (sizeof(ram_init_list)/sizeof(ram_init_list[0]));
-    printf("Read chip_id addr:%x\n",REG_ADDR(VTSS_DEVCPU_GCB_CHIP_ID));
-    REG_RD(VTSS_DEVCPU_GCB_CHIP_ID, &value);
-    printf("Read chip_id:%x\n",value);
 
     REG_WRM(VTSS_EACL_POL_EACL_CFG,
             VTSS_F_EACL_POL_EACL_CFG_EACL_FORCE_INIT(1),
@@ -725,6 +723,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
         u32 val = 0;
         lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
     }
+
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
         VTSS_E("Switchcore initialization error");

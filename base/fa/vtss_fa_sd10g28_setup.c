@@ -1034,9 +1034,6 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
         rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
         cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no);
 
-        u32 indx = vtss_fa_port2sd_indx(vtss_state, port_no);
-        printf("port_no:%d ,cmu_num:%d sd_idx:%d\n",port_no,cmu_num,indx);
-
         if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) {
             VTSS_E("Could not configure CMU %d", cmu_num);
         }
