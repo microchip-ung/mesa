@@ -105,6 +105,13 @@ case $chip in
      dir=build-arm
      ;;
 
+     la2)
+     ts=dk-t36-2
+     img=arm64_lan9698RED.itb
+     dir=build-arm64
+     ;;
+
+
      ll)
      ts=dk-t35-6
      img=armv7_lan969x_sr_bbb_lm.itb
