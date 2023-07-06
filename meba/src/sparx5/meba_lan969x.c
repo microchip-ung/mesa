@@ -69,7 +69,7 @@ static port_map_t port_table_pcb8398[] = {
     {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 8},
     {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 9},
 
-    {28, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_RGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0},
+    /* {28, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_RGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0}, */
 };
 
 
@@ -664,7 +664,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     switch (board->type) {
     case BOARD_TYPE_LAGUNA_PCB8398:
         if (port_cnt == 0) {
-            port_cnt = 29; // Default for this board
+            port_cnt = sizeof(port_table_pcb8398)/sizeof(port_map_t); // whole table as default
         }
         lan966x_init_port_table(inst, port_cnt, port_table_pcb8398);
         meba_port_map = port_table_pcb8398;

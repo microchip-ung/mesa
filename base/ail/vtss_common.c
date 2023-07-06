@@ -260,6 +260,7 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode)
 const char *vtss_core_freq_to_txt(vtss_core_clock_freq_t freq)
 {
     return (freq == VTSS_CORE_CLOCK_250MHZ ? "250MHZ" :
+            freq == VTSS_CORE_CLOCK_328MHZ ? "328MHZ" :
             freq == VTSS_CORE_CLOCK_500MHZ ? "500MHZ" :
             freq == VTSS_CORE_CLOCK_625MHZ ? "625MHZ" : "?");
 }

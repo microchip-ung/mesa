@@ -1012,7 +1012,7 @@ static vtss_rc  vtss_laguna_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
     vtss_sd10g28_setup_struct_t calc_results = {};
     vtss_rc rc = 0;
-    u32 cmu_mask = 0, cmu_num, p;
+    u32 cmu_mask = 0, p;
 
     VTSS_D("This function is generated with UTE based on TAG: temp");
 
@@ -1032,11 +1032,11 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
         }
     } else {
         rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
-        cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no);
+        /* cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no); */
 
-        if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) {
-            VTSS_E("Could not configure CMU %d", cmu_num);
-        }
+        /* if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) { */
+        /*     VTSS_E("Could not configure CMU %d", cmu_num); */
+        /* } */
 
         if ((rc |= vtss_laguna_sd10g28_reg_cfg(vtss_state, &calc_results, port_no)) != VTSS_RC_OK) {
             VTSS_E("Could not configure serdes %d", port_no);

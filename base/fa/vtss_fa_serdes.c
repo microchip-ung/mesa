@@ -3874,12 +3874,15 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     u32 sd25g_tgt, sd_lane_tgt, cmu_tgt, cmu_cfg_tgt;
 
     if (LA_TGT) {
-        /* for (u32 cmu = 0; cmu < 6; cmu++) { */
-        /*     vtss_rc rc = 0; */
-        /*     if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu)) != VTSS_RC_OK) { */
-        /*         VTSS_E("Could not configure CMU %d", cmu); */
-        /*     } */
-        /* } */
+        for (u32 cmu = 0; cmu < 6; cmu++) {
+            if (cmu == 1 || cmu == 4) {
+                continue;
+            } // fixme
+            vtss_rc rc = 0;
+            if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu)) != VTSS_RC_OK) {
+                VTSS_E("Could not configure CMU %d", cmu);
+            }
+        }
 
         return VTSS_RC_OK; // Fixme
     }

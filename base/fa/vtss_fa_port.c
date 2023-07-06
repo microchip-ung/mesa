@@ -841,9 +841,9 @@ static vtss_rc fa_miim_cmd(vtss_state_t *vtss_state,
     }
 
     /* Set Start of frame field */
-    REG_WR(VTSS_DEVCPU_GCB_MII_CFG(i),
-           VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(0x32) |
-           VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_ST_CFG_FIELD(sof));
+    REG_WR(VTSS_DEVCPU_GCB_MII_CFG(i), 0x2ff); //fixme
+           /* VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(0x32) | */
+           /* VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_ST_CFG_FIELD(sof)); */
 
     /* Read command is different for Clause 22 */
     if (sof == 1 && cmd == PHY_CMD_READ) {
