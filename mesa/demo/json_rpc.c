@@ -46,6 +46,12 @@ mesa_rc json_rpc_call(json_rpc_req_t *req, mesa_rc rc)
     return rc;
 }
 
+mesa_rc json_rpc_get_idx_vtss_debug_printf_t(json_rpc_req_t *req, struct json_object *obj, int *idx, vtss_debug_printf_t *pr)
+{
+    *pr = &printf;
+    return MESA_RC_OK;
+}
+
 static mesa_rc json_rpc_obj_type_get(json_rpc_req_t *req, struct json_object *obj, const char *name, json_type type, json_object **obj_value)
 {
     if (!json_object_object_get_ex(obj, name, obj_value)) {

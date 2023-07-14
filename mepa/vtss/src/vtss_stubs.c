@@ -1974,6 +1974,27 @@ vtss_rc vtss_ewis_perf_mode_get(const vtss_inst_t inst, const vtss_port_no_t por
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
+
+vtss_rc vtss_phy_10g_extended2_event_enable_get(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_extnd2_event_t *const ex2_ev_mask)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
+vtss_rc vtss_phy_10g_extended2_event_poll(const vtss_inst_t inst, const vtss_port_no_t port_no, vtss_phy_10g_extnd2_event_t *const ex2_events)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
+vtss_rc vtss_phy_10g_extended2_event_enable_set(const vtss_inst_t inst, const vtss_port_no_t port_no, const vtss_phy_10g_extnd2_event_t ex2_ev_mask, const BOOL extnd2_enable)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
+vtss_rc vtss_phy_10g_i2c_reset(const vtss_inst_t inst, const vtss_port_no_t port_no)
+{
+    return VTSS_RC_NOT_IMPLEMENTED;
+}
+
 #endif // !defined(VTSS_FEATURE_WIS)
 
 #if !defined(VTSS_CHIP_CU_PHY)

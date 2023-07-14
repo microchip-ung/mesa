@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <microchip/ethernet/switch/api.h>
 #include "microchip/ethernet/board/api.h"
+#include <vtss_phy_api.h>
 #include <json-c/json.h>
 
 extern meba_inst_t meba_global_inst;
@@ -134,3 +135,4 @@ mesa_rc json_rpc_get2_mesa_qos_ingress_map_t(json_rpc_req_t *req, json_object *o
 mesa_rc json_rpc_add2_mesa_qos_ingress_map_t(json_rpc_req_t *req, json_object *obj, mesa_qos_ingress_map_t *parm);
 mesa_rc json_rpc_get2_mesa_qos_egress_map_t(json_rpc_req_t *req, json_object *obj, mesa_qos_egress_map_t *parm);
 mesa_rc json_rpc_add2_mesa_qos_egress_map_t(json_rpc_req_t *req, json_object *obj, mesa_qos_egress_map_t *parm);
+mesa_rc json_rpc_get_idx_vtss_debug_printf_t(json_rpc_req_t *req, struct json_object *obj, int *idx, vtss_debug_printf_t *pr);
