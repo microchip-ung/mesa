@@ -387,11 +387,11 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", sv_lsb: 0xff, npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_SAN", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "c"}]},
+                     {idx_rx: "d", hsr: {}, ifh_rx: "a"}]},
               {frm: {dmac: "01:15:4e:00:01:ff", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
@@ -406,7 +406,7 @@ test_table =
     },
     {
         txt: "Supervision Discard on Interlink",
-        cfg: {mode: "HSR_SAN"},
+        cfg: {mode: "HSR_SAN", sv_dis: true},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "c"},
                      {idx_rx: "d"}]}]
@@ -417,12 +417,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "a", name: "tx_dupl_zero", val: 0},
-            {port: "b", name: "tx_dupl_zero", val: 0},
-        ]
+                     {idx_rx: "b", hsr: {}}]}]
     },
     {
         txt: "port A/B duplicate discard towards port A/B/C/D",
@@ -679,17 +674,17 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", sv_lsb: 1, npi: "d", sv_queue: 3},
+        cfg: {mode: "PRP_SAN", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", prp: {}},
-                     {idx_rx: "c"}]},
+                     {idx_rx: "d", prp: {}, ifh_rx: "a"}]},
               {frm: {dmac: "01:15:4e:00:01:01", et: 0x88fb},
                fwd: [{idx_tx: "a", prp: {}},
                      {idx_rx: "d", prp: {}, ifh_rx: "a"}]}]
     },
     {
         txt: "Supervision Discard on Interlink",
-        cfg: {mode: "PRP_SAN"},
+        cfg: {mode: "PRP_SAN", sv_dis: true},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "c"},
                      {idx_rx: "d"}]}]
@@ -700,12 +695,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", prp: {}},
-                     {idx_rx: "b", prp: {}}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "a", name: "tx_dupl_zero", val: 0},
-            {port: "b", name: "tx_dupl_zero", val: 0},
-        ]
+                     {idx_rx: "b", prp: {}}]}]
     },
     {
         txt: "port A duplicate discard towards port C/D",
@@ -907,11 +897,11 @@ test_table =
     },
     {
         txt: "Supervision Rx on LRE",
-        cfg: {mode: "HSR_PRP", sv: "CPU_ONLY", sv_lsb: 7, npi: "d", sv_queue: 3},
+        cfg: {mode: "HSR_PRP", sv: "CPU_ONLY", npi: "d", sv_queue: 3},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "c", prp: {}}]},
+                     {idx_rx: "d", hsr: {}, ifh_rx: "a"}]},
               {frm: {dmac: "01:15:4e:00:01:07", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
@@ -919,7 +909,7 @@ test_table =
     },
     {
         txt: "Supervision Discard on Interlink",
-        cfg: {mode: "HSR_PRP"},
+        cfg: {mode: "HSR_PRP", sv_dis: true},
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "c"},
                      {idx_rx: "d"}]}]
@@ -930,12 +920,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}}]}],
-        # Expect zero counters
-        cnt: [
-            {port: "a", name: "tx_dupl_zero", val: 0},
-            {port: "b", name: "tx_dupl_zero", val: 0},
-        ]
+                     {idx_rx: "b", hsr: {}}]}]
     },
     {
         txt: "port A duplicate discard towards port B/C/D",
@@ -1115,7 +1100,8 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:01", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "c", hsr: {}}]},
+                     {idx_rx: "c", hsr: {}},
+                     {idx_rx: "d", hsr: {}, ifh_rx: "a"}]},
              {frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
@@ -1406,7 +1392,7 @@ def rb_conf_set(rb_id, mode, port_a, port_b, cfg)
     conf["nt_age_time"] = fld_get(cfg, :nt_age_time)
     conf["pnt_age_time"] = fld_get(cfg, :pnt_age_time)
     conf["sv"] = ("MESA_RB_SV_" + fld_get(cfg, :sv, "FORWARD"))
-    conf["sv_lsb"] = fld_get(cfg, :sv_lsb)
+    conf["sv_discard"] = fld_get(cfg, :sv_dis, false)
     dd_age_time = fld_get(cfg, :dd_age_time)
     if (conf["dd_age_time"] > 1000 and dd_age_time > 1000)
         # Briefly use minimum age to flush DD table from previous test

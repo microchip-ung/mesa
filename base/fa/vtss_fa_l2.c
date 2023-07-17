@@ -1742,7 +1742,6 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     u32 sv;
 
     lre = (j < 2 ? 1 : 0);
-    sv = (lre ? FA_RB_SV_FORWARD : FA_RB_SV_DISCARD); // Discard Supervision frames from Interlink
     switch (conf->mode) {
     case VTSS_RB_MODE_PRP_SAN:
         if (lre) {
@@ -1793,7 +1792,6 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
-            sv = FA_RB_SV_FORWARD;          // Forward Supervision frames from Interlink
         }
         break;
     default:
@@ -1832,6 +1830,8 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_FWD_CFG_LOCAL_SRC_FWD_MASK(prxy_smac_msk) |
            VTSS_F_RB_FWD_CFG_NODE_SRC_FWD_MASK(node_smac_msk));
 
+    // Supervision frames from Interlink may be discarded
+    sv = (lre || !conf->sv_discard ? FA_RB_SV_FORWARD : FA_RB_SV_DISCARD);
     REG_WR(VTSS_RB_PORT_CFG(tgt, j),
            VTSS_F_RB_PORT_CFG_TAG_MODE(tag_mode) |
            VTSS_F_RB_PORT_CFG_HSR_FILTER_CFG(hsr_filter) |
@@ -1855,7 +1855,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     u32            tgt = fa_rb_tgt(rb_id);
     u32            mode, ena = 1, hsr = 0, ct_ena = 0;
     u32            port_a = 0, port_b = 0, next_a = 0, next_b = 0, net_id, j;
-    u32            age, clk_period, val, unit, mask = 0x4, port;
+    u32            age, clk_period, val, unit, mask = 0x4, port, sv;
     u64            x64;
 
     switch (conf->mode) {
@@ -1943,11 +1943,12 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_NETID_CFG_NETID_MASK(0xff - (1<< net_id)));
 
     // Supervision frames
+    sv = fa_rb_sv(conf->sv);
     REG_WR(VTSS_RB_SPV_CFG(tgt),
            VTSS_F_RB_SPV_CFG_DMAC_ENA(0) |
-           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(fa_rb_sv(conf->sv)) |
+           VTSS_F_RB_SPV_CFG_HSR_SPV_INT_FWD_SEL(sv) |
            VTSS_F_RB_SPV_CFG_HSR_MAC_LSB(0) |
-           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(fa_rb_sv(conf->sv)) |
+           VTSS_F_RB_SPV_CFG_PRP_SPV_INT_FWD_SEL(sv) |
            VTSS_F_RB_SPV_CFG_PRP_MAC_LSB(0));
 
     // Cut-through setup in QSYS

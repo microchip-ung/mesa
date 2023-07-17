@@ -2855,7 +2855,8 @@ typedef struct {
     vtss_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
     vtss_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [secondss]
     vtss_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
-    vtss_rb_sv_t       sv;              // Interlink Supervision frame forwarding
+    vtss_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
+    BOOL               sv_discard;      // Interlink-to-LRE Supervision frame discard flag
 } vtss_rb_conf_t;
 
 // Get RedBox configuration.
