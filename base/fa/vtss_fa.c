@@ -590,7 +590,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA |
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
     } else {
-        pol_upd_int = 211; // Laguna default
+        pol_upd_int = 820; // Laguna default
     }
 
     if (LA_TGT) {

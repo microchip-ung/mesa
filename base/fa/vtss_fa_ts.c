@@ -1174,6 +1174,12 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     case VTSS_CORE_CLOCK_625MHZ:
         nominal_tod_increment = ((u64)(1) << 59) + (u64)0x04C6666666666666;
         break;
+    /* Assuming not fractional mode. 328.125 MHz gives 3.047619047619047 ns */
+    /* 1 ns is 0x0800000000000000. */
+    /* 0x0800000000000000 * 0.047619047619047 gives 0x00618618618616FD */
+    case VTSS_CORE_CLOCK_328MHZ:
+        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x00618618618616FD;
+        break;
     default: {};
     }
 #endif
@@ -1782,11 +1788,9 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->seq_cnt_get = fa_ts_seq_cnt_get;
         break;
     case VTSS_INIT_CMD_INIT:
-        break; // fixme
         VTSS_RC(fa_ts_init(vtss_state));
         break;
     case VTSS_INIT_CMD_PORT_MAP:
-        break; // fixme
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             port = VTSS_CHIP_PORT(port_no);
 

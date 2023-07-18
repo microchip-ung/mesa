@@ -87,7 +87,7 @@ vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] =
         .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
     },
     [VTSS_TRACE_GROUP_TS] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_DEBUG}
+        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
     },
     [VTSS_TRACE_GROUP_CLOCK] = {
         .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
