@@ -862,7 +862,7 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
             if (discard) {
                 // Discard route, ensure non-zero DMAC and use reserved router leg
                 nb->dmac.addr[5] = 0xff;
-                nb->rleg = VTSS_RLEG_DISCARD;
+                nb->rleg = vtss_state->l3.rleg_discard;
             }
         }
         I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
