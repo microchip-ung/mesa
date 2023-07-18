@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 
-/* Auto-generated content, do not edit */
+// This file has been done by merging auto-generated files vtss_fa_vcap.h and laguna/vtss_laguna_vcap.h.
 
 /* ================================================================= *
  *  VCAP CLM
@@ -639,7 +639,7 @@
 #define CLM_AO_FULL_MAP_KEY                          (CLM_AO_FULL_MAP_LOOKUP_SEL + CLM_AL_FULL_MAP_LOOKUP_SEL)
 #define CLM_AL_FULL_MAP_KEY                          3
 #define CLM_AO_FULL_MAP_IDX                          (CLM_AO_FULL_MAP_KEY + CLM_AL_FULL_MAP_KEY)
-#define CLM_AL_FULL_MAP_IDX                          (FA_TGT ? 9 : 4)
+#define CLM_AL_FULL_MAP_IDX                          (FA_TGT ? 9 : 7)
 #define CLM_AO_FULL_XVID_ADD_REPLACE_SEL             (CLM_AO_FULL_MAP_IDX + CLM_AL_FULL_MAP_IDX)
 #define CLM_AL_FULL_XVID_ADD_REPLACE_SEL             3
 #define CLM_AO_FULL_GVID_ADD_REPLACE_SEL             (CLM_AO_FULL_XVID_ADD_REPLACE_SEL + CLM_AL_FULL_XVID_ADD_REPLACE_SEL)
@@ -661,7 +661,7 @@
 #define CLM_AO_FULL_ISDX_ADD_REPLACE_SEL             (CLM_AO_FULL_VLAN_WAS_TAGGED + CLM_AL_FULL_VLAN_WAS_TAGGED)
 #define CLM_AL_FULL_ISDX_ADD_REPLACE_SEL             1
 #define CLM_AO_FULL_ISDX_VAL                         (CLM_AO_FULL_ISDX_ADD_REPLACE_SEL + CLM_AL_FULL_ISDX_ADD_REPLACE_SEL)
-#define CLM_AL_FULL_ISDX_VAL                         (FA_TGT ? 12 : 5)
+#define CLM_AL_FULL_ISDX_VAL                         (FA_TGT ? 12 : 10)
 #define CLM_AO_FULL_MASK_MODE                        (CLM_AO_FULL_ISDX_VAL + CLM_AL_FULL_ISDX_VAL)
 #define CLM_AL_FULL_MASK_MODE                        3
 #define CLM_AO_FULL_PORT_MASK_0                      (CLM_AO_FULL_MASK_MODE + CLM_AL_FULL_MASK_MODE)
@@ -675,7 +675,7 @@
 #define CLM_AO_FULL_LPM_AFFIX_ENA                    (CLM_AO_FULL_RT_SEL + CLM_AL_FULL_RT_SEL)
 #define CLM_AL_FULL_LPM_AFFIX_ENA                    1
 #define CLM_AO_FULL_LPM_AFFIX_VAL                    (CLM_AO_FULL_LPM_AFFIX_ENA + CLM_AL_FULL_LPM_AFFIX_ENA)
-#define CLM_AL_FULL_LPM_AFFIX_VAL                    (FA_TGT ? 10 : 5)
+#define CLM_AL_FULL_LPM_AFFIX_VAL                    10
 #define CLM_AO_FULL_RLEG_DMAC_CHK_DIS                (CLM_AO_FULL_LPM_AFFIX_VAL + CLM_AL_FULL_LPM_AFFIX_VAL)
 #define CLM_AL_FULL_RLEG_DMAC_CHK_DIS                1
 #define CLM_AO_FULL_TTL_DECR_DIS                     (CLM_AO_FULL_RLEG_DMAC_CHK_DIS + CLM_AL_FULL_RLEG_DMAC_CHK_DIS)
@@ -784,7 +784,7 @@
 #define CLM_AO_MLBS_MAP_KEY                          (CLM_AO_MLBS_MAP_LOOKUP_SEL + CLM_AL_MLBS_MAP_LOOKUP_SEL)
 #define CLM_AL_MLBS_MAP_KEY                          3
 #define CLM_AO_MLBS_MAP_IDX                          (CLM_AO_MLBS_MAP_KEY + CLM_AL_MLBS_MAP_KEY)
-#define CLM_AL_MLBS_MAP_IDX                          (FA_TGT ? 9 : 4)
+#define CLM_AL_MLBS_MAP_IDX                          (FA_TGT ? 9 : 7)
 #define CLM_AO_MLBS_XVID_ADD_REPLACE_SEL             (CLM_AO_MLBS_MAP_IDX + CLM_AL_MLBS_MAP_IDX)
 #define CLM_AL_MLBS_XVID_ADD_REPLACE_SEL             3
 #define CLM_AO_MLBS_GVID_ADD_REPLACE_SEL             (CLM_AO_MLBS_XVID_ADD_REPLACE_SEL + CLM_AL_MLBS_XVID_ADD_REPLACE_SEL)
@@ -794,7 +794,7 @@
 #define CLM_AO_MLBS_ISDX_ADD_REPLACE_SEL             (CLM_AO_MLBS_VID_VAL + CLM_AL_MLBS_VID_VAL)
 #define CLM_AL_MLBS_ISDX_ADD_REPLACE_SEL             1
 #define CLM_AO_MLBS_ISDX_VAL                         (CLM_AO_MLBS_ISDX_ADD_REPLACE_SEL + CLM_AL_MLBS_ISDX_ADD_REPLACE_SEL)
-#define CLM_AL_MLBS_ISDX_VAL                         (FA_TGT ? 12 : 5)
+#define CLM_AL_MLBS_ISDX_VAL                         (FA_TGT ? 12 : 10)
 #define CLM_AO_MLBS_FWD_DIS                          (CLM_AO_MLBS_ISDX_VAL + CLM_AL_MLBS_ISDX_VAL)
 #define CLM_AL_MLBS_FWD_DIS                          1
 #define CLM_AO_MLBS_CPU_ENA                          (CLM_AO_MLBS_FWD_DIS + CLM_AL_MLBS_FWD_DIS)
@@ -884,7 +884,7 @@
 #define CLM_AO_CLASSIFICATION_MAP_KEY                (CLM_AO_CLASSIFICATION_MAP_LOOKUP_SEL + CLM_AL_CLASSIFICATION_MAP_LOOKUP_SEL)
 #define CLM_AL_CLASSIFICATION_MAP_KEY                3
 #define CLM_AO_CLASSIFICATION_MAP_IDX                (CLM_AO_CLASSIFICATION_MAP_KEY + CLM_AL_CLASSIFICATION_MAP_KEY)
-#define CLM_AL_CLASSIFICATION_MAP_IDX                (FA_TGT ? 9 : 4)
+#define CLM_AL_CLASSIFICATION_MAP_IDX                (FA_TGT ? 9 : 7)
 #define CLM_AO_CLASSIFICATION_XVID_ADD_REPLACE_SEL   (CLM_AO_CLASSIFICATION_MAP_IDX + CLM_AL_CLASSIFICATION_MAP_IDX)
 #define CLM_AL_CLASSIFICATION_XVID_ADD_REPLACE_SEL   3
 #define CLM_AO_CLASSIFICATION_GVID_ADD_REPLACE_SEL   (CLM_AO_CLASSIFICATION_XVID_ADD_REPLACE_SEL + CLM_AL_CLASSIFICATION_XVID_ADD_REPLACE_SEL)
@@ -906,13 +906,13 @@
 #define CLM_AO_CLASSIFICATION_ISDX_ADD_REPLACE_SEL   (CLM_AO_CLASSIFICATION_VLAN_WAS_TAGGED + CLM_AL_CLASSIFICATION_VLAN_WAS_TAGGED)
 #define CLM_AL_CLASSIFICATION_ISDX_ADD_REPLACE_SEL   1
 #define CLM_AO_CLASSIFICATION_ISDX_VAL               (CLM_AO_CLASSIFICATION_ISDX_ADD_REPLACE_SEL + CLM_AL_CLASSIFICATION_ISDX_ADD_REPLACE_SEL)
-#define CLM_AL_CLASSIFICATION_ISDX_VAL               (FA_TGT ? 12 : 5)
+#define CLM_AL_CLASSIFICATION_ISDX_VAL               (FA_TGT ? 12 : 10)
 #define CLM_AO_CLASSIFICATION_RT_SEL                 (CLM_AO_CLASSIFICATION_ISDX_VAL + CLM_AL_CLASSIFICATION_ISDX_VAL)
 #define CLM_AL_CLASSIFICATION_RT_SEL                 2
 #define CLM_AO_CLASSIFICATION_LPM_AFFIX_ENA          (CLM_AO_CLASSIFICATION_RT_SEL + CLM_AL_CLASSIFICATION_RT_SEL)
 #define CLM_AL_CLASSIFICATION_LPM_AFFIX_ENA          1
 #define CLM_AO_CLASSIFICATION_LPM_AFFIX_VAL          (CLM_AO_CLASSIFICATION_LPM_AFFIX_ENA + CLM_AL_CLASSIFICATION_LPM_AFFIX_ENA)
-#define CLM_AL_CLASSIFICATION_LPM_AFFIX_VAL          (FA_TGT ? 10 : 5)
+#define CLM_AL_CLASSIFICATION_LPM_AFFIX_VAL          10
 #define CLM_AO_CLASSIFICATION_RLEG_DMAC_CHK_DIS      (CLM_AO_CLASSIFICATION_LPM_AFFIX_VAL + CLM_AL_CLASSIFICATION_LPM_AFFIX_VAL)
 #define CLM_AL_CLASSIFICATION_RLEG_DMAC_CHK_DIS      1
 #define CLM_AO_CLASSIFICATION_TTL_DECR_DIS           (CLM_AO_CLASSIFICATION_RLEG_DMAC_CHK_DIS + CLM_AL_CLASSIFICATION_RLEG_DMAC_CHK_DIS)
@@ -996,7 +996,7 @@
 #define CLM_AO_MLBS_REDUCED_ISDX_ADD_REPLACE_SEL     (CLM_AO_X1_MAP_LOOKUP_SEL + CLM_AL_X1_MAP_LOOKUP_SEL)
 #define CLM_AL_MLBS_REDUCED_ISDX_ADD_REPLACE_SEL     1
 #define CLM_AO_MLBS_REDUCED_ISDX_VAL                 (CLM_AO_MLBS_REDUCED_ISDX_ADD_REPLACE_SEL + CLM_AL_MLBS_REDUCED_ISDX_ADD_REPLACE_SEL)
-#define CLM_AL_MLBS_REDUCED_ISDX_VAL                 (FA_TGT ? 12 : 5)
+#define CLM_AL_MLBS_REDUCED_ISDX_VAL                 (FA_TGT ? 12 : 10)
 #define CLM_AO_MLBS_REDUCED_FWD_DIS                  (CLM_AO_MLBS_REDUCED_ISDX_VAL + CLM_AL_MLBS_REDUCED_ISDX_VAL)
 #define CLM_AL_MLBS_REDUCED_FWD_DIS                  1
 #define CLM_AO_MLBS_REDUCED_CPU_ENA                  (CLM_AO_MLBS_REDUCED_FWD_DIS + CLM_AL_MLBS_REDUCED_FWD_DIS)
@@ -1062,7 +1062,7 @@
 #define CLM_AO_CLASS_REDUCED_ISDX_ADD_REPLACE_SEL    (CLM_AO_CLASS_REDUCED_VLAN_WAS_TAGGED + CLM_AL_CLASS_REDUCED_VLAN_WAS_TAGGED)
 #define CLM_AL_CLASS_REDUCED_ISDX_ADD_REPLACE_SEL    1
 #define CLM_AO_CLASS_REDUCED_ISDX_VAL                (CLM_AO_CLASS_REDUCED_ISDX_ADD_REPLACE_SEL + CLM_AL_CLASS_REDUCED_ISDX_ADD_REPLACE_SEL)
-#define CLM_AL_CLASS_REDUCED_ISDX_VAL                (FA_TGT ? 12 : 5)
+#define CLM_AL_CLASS_REDUCED_ISDX_VAL                (FA_TGT ? 12 : 10)
 #define CLM_AO_CLASS_REDUCED_FWD_DIS                 (CLM_AO_CLASS_REDUCED_ISDX_VAL + CLM_AL_CLASS_REDUCED_ISDX_VAL)
 #define CLM_AL_CLASS_REDUCED_FWD_DIS                 1
 #define CLM_AO_CLASS_REDUCED_CPU_ENA                 (CLM_AO_CLASS_REDUCED_FWD_DIS + CLM_AL_CLASS_REDUCED_FWD_DIS)
@@ -1127,7 +1127,7 @@
 #define IS2_KO_X12_SERVICE_FRM                       (FA_TGT ? (IS2_KO_X12_VLAN_TAGGED + IS2_KL_X12_VLAN_TAGGED) : (IS2_KO_X12_RED_TAGGED + IS2_KL_X12_RED_TAGGED))
 #define IS2_KL_X12_SERVICE_FRM                       1
 #define IS2_KO_X12_ISDX                              (IS2_KO_X12_SERVICE_FRM + IS2_KL_X12_SERVICE_FRM)
-#define IS2_KL_X12_ISDX                              (FA_TGT ? 12 : 5)
+#define IS2_KL_X12_ISDX                              (FA_TGT ? 12 : 10)
 #define IS2_KO_X12_XVID                              (IS2_KO_X12_ISDX + IS2_KL_X12_ISDX)
 #define IS2_KL_X12_XVID                              13
 #define IS2_KO_X12_DEI                               (IS2_KO_X12_XVID + IS2_KL_X12_XVID)
@@ -1329,7 +1329,7 @@
 #define IS2_KO_X6_SERVICE_FRM                        (FA_TGT ? (IS2_KO_X6_VLAN_TAGGED + IS2_KL_X6_VLAN_TAGGED) : (IS2_KO_X6_RED_TAGGED + IS2_KL_X6_RED_TAGGED))
 #define IS2_KL_X6_SERVICE_FRM                        1
 #define IS2_KO_X6_ISDX                               (IS2_KO_X6_SERVICE_FRM + IS2_KL_X6_SERVICE_FRM)
-#define IS2_KL_X6_ISDX                               (FA_TGT ? 12 : 5)
+#define IS2_KL_X6_ISDX                               (FA_TGT ? 12 : 10)
 #define IS2_KO_X6_XVID                               (IS2_KO_X6_ISDX + IS2_KL_X6_ISDX)
 #define IS2_KL_X6_XVID                               13
 #define IS2_KO_X6_DEI                                (IS2_KO_X6_XVID + IS2_KL_X6_XVID)
@@ -1543,7 +1543,7 @@
 #define IS2_KO_IP6_VID_SERVICE_FRM                   (IS2_KO_X6_PAG + IS2_KL_X6_PAG)
 #define IS2_KL_IP6_VID_SERVICE_FRM                   1
 #define IS2_KO_IP6_VID_ISDX                          (IS2_KO_IP6_VID_SERVICE_FRM + IS2_KL_IP6_VID_SERVICE_FRM)
-#define IS2_KL_IP6_VID_ISDX                          (FA_TGT ? 12 : 5)
+#define IS2_KL_IP6_VID_ISDX                          (FA_TGT ? 12 : 10)
 #define IS2_KO_IP6_VID_XVID                          (IS2_KO_IP6_VID_ISDX + IS2_KL_IP6_VID_ISDX)
 #define IS2_KL_IP6_VID_XVID                          13
 #define IS2_KO_IP6_VID_L3_SMAC_SIP_MATCH             (IS2_KO_IP6_VID_XVID + IS2_KL_IP6_VID_XVID)
@@ -1579,7 +1579,7 @@
 #define IS2_KO_IP4_VID_SERVICE_FRM                   (IS2_KO_IP4_VID_PAG + IS2_KL_IP4_VID_PAG)
 #define IS2_KL_IP4_VID_SERVICE_FRM                   1
 #define IS2_KO_IP4_VID_ISDX                          (IS2_KO_IP4_VID_SERVICE_FRM + IS2_KL_IP4_VID_SERVICE_FRM)
-#define IS2_KL_IP4_VID_ISDX                          (FA_TGT ? 12 : 5)
+#define IS2_KL_IP4_VID_ISDX                          (FA_TGT ? 12 : 10)
 #define IS2_KO_IP4_VID_XVID                          (IS2_KO_IP4_VID_ISDX + IS2_KL_IP4_VID_ISDX)
 #define IS2_KL_IP4_VID_XVID                          13
 #define IS2_KO_IP4_VID_L3_SMAC_SIP_MATCH             (IS2_KO_IP4_VID_XVID + IS2_KL_IP4_VID_XVID)
@@ -1619,7 +1619,7 @@
 #define IS2_AO_BASE_TYPE_POLICE_ENA                  (IS2_AO_BASE_TYPE_RT_DIS + IS2_AL_BASE_TYPE_RT_DIS)
 #define IS2_AL_BASE_TYPE_POLICE_ENA                  1
 #define IS2_AO_BASE_TYPE_POLICE_IDX                  (IS2_AO_BASE_TYPE_POLICE_ENA + IS2_AL_BASE_TYPE_POLICE_ENA)
-#define IS2_AL_BASE_TYPE_POLICE_IDX                  (FA_TGT ? 6 : 3)
+#define IS2_AL_BASE_TYPE_POLICE_IDX                  (FA_TGT ? 6 : 5)
 #define IS2_AO_BASE_TYPE_IGNORE_PIPELINE_CTRL        (IS2_AO_BASE_TYPE_POLICE_IDX + IS2_AL_BASE_TYPE_POLICE_IDX)
 #define IS2_AL_BASE_TYPE_IGNORE_PIPELINE_CTRL        1
 #define IS2_AO_BASE_TYPE_DLB_OFFSET                  (IS2_AO_BASE_TYPE_IGNORE_PIPELINE_CTRL + IS2_AL_BASE_TYPE_IGNORE_PIPELINE_CTRL)
@@ -1635,7 +1635,7 @@
 #define IS2_AO_BASE_TYPE_RSDX_ENA                    (FA_TGT ? (IS2_AO_BASE_TYPE_PORT_MASK_2 + IS2_AL_BASE_TYPE_PORT_MASK_2) : (IS2_AO_BASE_TYPE_PORT_MASK_1 + IS2_AL_BASE_TYPE_PORT_MASK_1))
 #define IS2_AL_BASE_TYPE_RSDX_ENA                    1
 #define IS2_AO_BASE_TYPE_RSDX_VAL                    (IS2_AO_BASE_TYPE_RSDX_ENA + IS2_AL_BASE_TYPE_RSDX_ENA)
-#define IS2_AL_BASE_TYPE_RSDX_VAL                    (FA_TGT ? 12 : 5)
+#define IS2_AL_BASE_TYPE_RSDX_VAL                    (FA_TGT ? 12 : 10)
 #define IS2_AO_BASE_TYPE_MIRROR_PROBE                (IS2_AO_BASE_TYPE_RSDX_VAL + IS2_AL_BASE_TYPE_RSDX_VAL)
 #define IS2_AL_BASE_TYPE_MIRROR_PROBE                2
 #define IS2_AO_BASE_TYPE_REW_CMD                     (IS2_AO_BASE_TYPE_MIRROR_PROBE + IS2_AL_BASE_TYPE_MIRROR_PROBE)
@@ -1655,7 +1655,7 @@
 #define IS2_AO_BASE_TYPE_MATCH_ID_MASK               (IS2_AO_BASE_TYPE_MATCH_ID + IS2_AL_BASE_TYPE_MATCH_ID)
 #define IS2_AL_BASE_TYPE_MATCH_ID_MASK               16
 #define IS2_AO_BASE_TYPE_CNT_ID                      (IS2_AO_BASE_TYPE_MATCH_ID_MASK + IS2_AL_BASE_TYPE_MATCH_ID_MASK)
-#define IS2_AL_BASE_TYPE_CNT_ID                      (FA_TGT ? 12 : 5)
+#define IS2_AL_BASE_TYPE_CNT_ID                      (FA_TGT ? 12 : 10)
 #define IS2_AO_BASE_TYPE_SWAP_MAC_ENA                (IS2_AO_BASE_TYPE_CNT_ID + IS2_AL_BASE_TYPE_CNT_ID)
 #define IS2_AL_BASE_TYPE_SWAP_MAC_ENA                1
 #define IS2_AO_BASE_TYPE_ACL_RT_MODE                 (FA_TGT ? (IS2_AO_BASE_TYPE_SWAP_MAC_ENA + IS2_AL_BASE_TYPE_SWAP_MAC_ENA) : (IS2_AO_BASE_TYPE_MAC_REW_SEL + IS2_AL_BASE_TYPE_MAC_REW_SEL))
@@ -1685,7 +1685,7 @@
 
 /* LPM X6 DBL_IP6 key fields */
 #define LPM_KO_DBL_IP6_AFFIX                         0
-#define LPM_KL_DBL_IP6_AFFIX                         (FA_TGT ? 10 : 5)
+#define LPM_KL_DBL_IP6_AFFIX                         10
 #define LPM_KO_DBL_IP6_IP6_SIP_0                     (LPM_KO_DBL_IP6_AFFIX + LPM_KL_DBL_IP6_AFFIX)
 #define LPM_KL_DBL_IP6_IP6_SIP_0                     32
 #define LPM_KO_DBL_IP6_IP6_SIP_1                     (LPM_KO_DBL_IP6_IP6_SIP_0 + LPM_KL_DBL_IP6_IP6_SIP_0)
@@ -1707,7 +1707,7 @@
 #define LPM_KO_SGL_IP6_DST_FLAG                      0
 #define LPM_KL_SGL_IP6_DST_FLAG                      1
 #define LPM_KO_SGL_IP6_AFFIX                         (LPM_KO_SGL_IP6_DST_FLAG + LPM_KL_SGL_IP6_DST_FLAG)
-#define LPM_KL_SGL_IP6_AFFIX                         (FA_TGT ? 10 : 5)
+#define LPM_KL_SGL_IP6_AFFIX                         10
 #define LPM_KO_SGL_IP6_IP6_XIP_0                     (LPM_KO_SGL_IP6_AFFIX + LPM_KL_SGL_IP6_AFFIX)
 #define LPM_KL_SGL_IP6_IP6_XIP_0                     32
 #define LPM_KO_SGL_IP6_IP6_XIP_1                     (LPM_KO_SGL_IP6_IP6_XIP_0 + LPM_KL_SGL_IP6_IP6_XIP_0)
@@ -1726,7 +1726,7 @@
 #define LPM_KL_X2_TYPE                               1
 /* LPM X2 DBL_IP4 key fields */
 #define LPM_KO_DBL_IP4_AFFIX                         (LPM_KO_X2_TYPE + LPM_KL_X2_TYPE)
-#define LPM_KL_DBL_IP4_AFFIX                         (FA_TGT ? 10 : 5)
+#define LPM_KL_DBL_IP4_AFFIX                         10
 #define LPM_KO_DBL_IP4_IP4_SIP                       (LPM_KO_DBL_IP4_AFFIX + LPM_KL_DBL_IP4_AFFIX)
 #define LPM_KL_DBL_IP4_IP4_SIP                       32
 #define LPM_KO_DBL_IP4_IP4_DIP                       (LPM_KO_DBL_IP4_IP4_SIP + LPM_KL_DBL_IP4_IP4_SIP)
@@ -1736,7 +1736,7 @@
 #define LPM_KO_IP6PFX_ID_DST_FLAG                    (LPM_KO_X2_TYPE + LPM_KL_X2_TYPE)
 #define LPM_KL_IP6PFX_ID_DST_FLAG                    1
 #define LPM_KO_IP6PFX_ID_AFFIX                       (LPM_KO_IP6PFX_ID_DST_FLAG + LPM_KL_IP6PFX_ID_DST_FLAG)
-#define LPM_KL_IP6PFX_ID_AFFIX                       (FA_TGT ? 10 : 5)
+#define LPM_KL_IP6PFX_ID_AFFIX                       10
 #define LPM_KO_IP6PFX_ID_IP6PFX_ID                   (LPM_KO_IP6PFX_ID_AFFIX + LPM_KL_IP6PFX_ID_AFFIX)
 #define LPM_KL_IP6PFX_ID_IP6PFX_ID                   (FA_TGT ? 9 : 2)
 #define LPM_KO_IP6PFX_ID_IP6_XIP_0_2                 (LPM_KO_IP6PFX_ID_IP6PFX_ID + LPM_KL_IP6PFX_ID_IP6PFX_ID)
@@ -1748,7 +1748,7 @@
 #define LPM_KO_SGL_IP4_DST_FLAG                      0
 #define LPM_KL_SGL_IP4_DST_FLAG                      1
 #define LPM_KO_SGL_IP4_AFFIX                         (LPM_KO_SGL_IP4_DST_FLAG + LPM_KL_SGL_IP4_DST_FLAG)
-#define LPM_KL_SGL_IP4_AFFIX                         (FA_TGT ? 10 : 5)
+#define LPM_KL_SGL_IP4_AFFIX                         10
 #define LPM_KO_SGL_IP4_IP4_XIP                       (LPM_KO_SGL_IP4_AFFIX + LPM_KL_SGL_IP4_AFFIX)
 #define LPM_KL_SGL_IP4_IP4_XIP                       32
 
@@ -1762,7 +1762,7 @@
 #define LPM_AL_X1_TYPE                               2
 /* LPM X1 ARP_PTR action fields */
 #define LPM_AO_ARP_PTR_ARP_PTR                       (LPM_AO_X1_TYPE + LPM_AL_X1_TYPE)
-#define LPM_AL_ARP_PTR_ARP_PTR                       (FA_TGT ? 11 : 6)
+#define LPM_AL_ARP_PTR_ARP_PTR                       (FA_TGT ? 11 : 10)
 #define LPM_AO_ARP_PTR_ARP_PTR_REMAP_ENA             (LPM_AO_ARP_PTR_ARP_PTR + LPM_AL_ARP_PTR_ARP_PTR)
 #define LPM_AL_ARP_PTR_ARP_PTR_REMAP_ENA             1
 #define LPM_AO_ARP_PTR_ECMP_CNT                      (LPM_AO_ARP_PTR_ARP_PTR_REMAP_ENA + LPM_AL_ARP_PTR_ARP_PTR_REMAP_ENA)
@@ -1772,7 +1772,7 @@
 
 /* LPM X1 L3MC_PTR action fields */
 #define LPM_AO_L3MC_PTR_L3MC_PTR                     (LPM_AO_X1_TYPE + LPM_AL_X1_TYPE)
-#define LPM_AL_L3MC_PTR_L3MC_PTR                     (FA_TGT ? 11 : 5)
+#define LPM_AL_L3MC_PTR_L3MC_PTR                     (FA_TGT ? 11 : 10)
 
 /* LPM X1 ARP_ENTRY action fields */
 #define LPM_AO_ARP_ENTRY_MAC_MSB                     (LPM_AO_X1_TYPE + LPM_AL_X1_TYPE)
@@ -1780,7 +1780,7 @@
 #define LPM_AO_ARP_ENTRY_MAC_LSB                     (LPM_AO_ARP_ENTRY_MAC_MSB + LPM_AL_ARP_ENTRY_MAC_MSB)
 #define LPM_AL_ARP_ENTRY_MAC_LSB                     32
 #define LPM_AO_ARP_ENTRY_ARP_VMID                    (LPM_AO_ARP_ENTRY_MAC_LSB + LPM_AL_ARP_ENTRY_MAC_LSB)
-#define LPM_AL_ARP_ENTRY_ARP_VMID                    (FA_TGT ? 9 : 4)
+#define LPM_AL_ARP_ENTRY_ARP_VMID                    (FA_TGT ? 9 : 7)
 #define LPM_AO_ARP_ENTRY_ZERO_DMAC_CPU_QU            (LPM_AO_ARP_ENTRY_ARP_VMID + LPM_AL_ARP_ENTRY_ARP_VMID)
 #define LPM_AL_ARP_ENTRY_ZERO_DMAC_CPU_QU            3
 #define LPM_AO_ARP_ENTRY_SIP_RPF_ENA                 (LPM_AO_ARP_ENTRY_ZERO_DMAC_CPU_QU + LPM_AL_ARP_ENTRY_ZERO_DMAC_CPU_QU)
@@ -1794,7 +1794,7 @@
 #define LPM_AO_ARP_ENTRY_ENCAP_ID                    (LPM_AO_ARP_ENTRY_ARP_ENA + LPM_AL_ARP_ENTRY_ARP_ENA)
 #define LPM_AL_ARP_ENTRY_ENCAP_ID                    (FA_TGT ? 10 : 8)
 #define LPM_AO_ARP_ENTRY_RSDX                        (LPM_AO_ARP_ENTRY_ENCAP_ID + LPM_AL_ARP_ENTRY_ENCAP_ID)
-#define LPM_AL_ARP_ENTRY_RSDX                        (FA_TGT ? 12 : 5)
+#define LPM_AL_ARP_ENTRY_RSDX                        (FA_TGT ? 12 : 10)
 
 /* ================================================================= *
  *  VCAP ES0
@@ -1830,7 +1830,7 @@
 
 /* ES0 X1 ISDX key fields */
 #define ES0_KO_ISDX_ISDX                             (ES0_KO_X1_OAM_MEL_FLAGS + ES0_KL_X1_OAM_MEL_FLAGS)
-#define ES0_KL_ISDX_ISDX                             (FA_TGT ? 12 : 5)
+#define ES0_KL_ISDX_ISDX                             (FA_TGT ? 12 : 10)
 
 /* ES0 X1 VID key fields */
 #define ES0_KO_VID_GVID                              (ES0_KO_X1_OAM_MEL_FLAGS + ES0_KL_X1_OAM_MEL_FLAGS)
@@ -1980,19 +1980,19 @@
 #define ES0_AO_ES0_POP_CNT                           (ES0_AO_ES0_ENCAP_ID_P + ES0_AL_ES0_ENCAP_ID_P)
 #define ES0_AL_ES0_POP_CNT                           5
 #define ES0_AO_ES0_ESDX_BASE                         (ES0_AO_ES0_POP_CNT + ES0_AL_ES0_POP_CNT)
-#define ES0_AL_ES0_ESDX_BASE                         (FA_TGT ? 13 : 5)
+#define ES0_AL_ES0_ESDX_BASE                         (FA_TGT ? 13 : 10)
 #define ES0_AO_ES0_ESDX_BASE_P                       (ES0_AO_ES0_ESDX_BASE + ES0_AL_ES0_ESDX_BASE)
-#define ES0_AL_ES0_ESDX_BASE_P                       (FA_TGT ? 13 : 5)
+#define ES0_AL_ES0_ESDX_BASE_P                       (FA_TGT ? 13 : 10)
 #define ES0_AO_ES0_ESDX_COSID_OFFSET                 (ES0_AO_ES0_ESDX_BASE_P + ES0_AL_ES0_ESDX_BASE_P)
 #define ES0_AL_ES0_ESDX_COSID_OFFSET                 24
 #define ES0_AO_ES0_MAP_0_IDX                         (ES0_AO_ES0_ESDX_COSID_OFFSET + ES0_AL_ES0_ESDX_COSID_OFFSET)
-#define ES0_AL_ES0_MAP_0_IDX                         (FA_TGT ? 9 : 8)
+#define ES0_AL_ES0_MAP_0_IDX                         (FA_TGT ? 9 : 10)
 #define ES0_AO_ES0_MAP_1_IDX                         (ES0_AO_ES0_MAP_0_IDX + ES0_AL_ES0_MAP_0_IDX)
-#define ES0_AL_ES0_MAP_1_IDX                         (FA_TGT ? 9 : 8)
+#define ES0_AL_ES0_MAP_1_IDX                         (FA_TGT ? 9 : 10)
 #define ES0_AO_ES0_MAP_2_IDX                         (ES0_AO_ES0_MAP_1_IDX + ES0_AL_ES0_MAP_1_IDX)
-#define ES0_AL_ES0_MAP_2_IDX                         (FA_TGT ? 9 : 8)
+#define ES0_AL_ES0_MAP_2_IDX                         (FA_TGT ? 9 : 10)
 #define ES0_AO_ES0_MAP_3_IDX                         (ES0_AO_ES0_MAP_2_IDX + ES0_AL_ES0_MAP_2_IDX)
-#define ES0_AL_ES0_MAP_3_IDX                         (FA_TGT ? 9 : 8)
+#define ES0_AL_ES0_MAP_3_IDX                         (FA_TGT ? 9 : 10)
 #define ES0_AO_ES0_MAP_0_KEY                         (ES0_AO_ES0_MAP_3_IDX + ES0_AL_ES0_MAP_3_IDX)
 #define ES0_AL_ES0_MAP_0_KEY                         4
 #define ES0_AO_ES0_MAP_1_KEY                         (ES0_AO_ES0_MAP_0_KEY + ES0_AL_ES0_MAP_0_KEY)
@@ -2004,15 +2004,15 @@
 #define ES0_AO_ES0_OAM_MEP_IDX_VLD                   (ES0_AO_ES0_MAP_3_KEY + ES0_AL_ES0_MAP_3_KEY)
 #define ES0_AL_ES0_OAM_MEP_IDX_VLD                   1
 #define ES0_AO_ES0_OAM_MEP_IDX                       (ES0_AO_ES0_OAM_MEP_IDX_VLD + ES0_AL_ES0_OAM_MEP_IDX_VLD)
-#define ES0_AL_ES0_OAM_MEP_IDX                       (FA_TGT ? 10 : 3)
+#define ES0_AL_ES0_OAM_MEP_IDX                       (FA_TGT ? 10 : 5)
 #define ES0_AO_ES0_OAM_MEP_IDX_P                     (ES0_AO_ES0_OAM_MEP_IDX + ES0_AL_ES0_OAM_MEP_IDX)
-#define ES0_AL_ES0_OAM_MEP_IDX_P                     (FA_TGT ? 10 : 3)
+#define ES0_AL_ES0_OAM_MEP_IDX_P                     (FA_TGT ? 10 : 5)
 #define ES0_AO_ES0_OAM_LM_COSID_COLOR_SEL            (ES0_AO_ES0_OAM_MEP_IDX_P + ES0_AL_ES0_OAM_MEP_IDX_P)
 #define ES0_AL_ES0_OAM_LM_COSID_COLOR_SEL            2
 #define ES0_AO_ES0_INDEPENDENT_MEL_ENA               (ES0_AO_ES0_OAM_LM_COSID_COLOR_SEL + ES0_AL_ES0_OAM_LM_COSID_COLOR_SEL)
 #define ES0_AL_ES0_INDEPENDENT_MEL_ENA               1
 #define ES0_AO_ES0_MIP_IDX                           (ES0_AO_ES0_INDEPENDENT_MEL_ENA + ES0_AL_ES0_INDEPENDENT_MEL_ENA)
-#define ES0_AL_ES0_MIP_IDX                           (FA_TGT ? 10 : 3)
+#define ES0_AL_ES0_MIP_IDX                           (FA_TGT ? 10 : 5)
 #define ES0_AO_ES0_FWD_SEL                           (ES0_AO_ES0_MIP_IDX + ES0_AL_ES0_MIP_IDX)
 #define ES0_AL_ES0_FWD_SEL                           2
 #define ES0_AO_ES0_CPU_QU                            (ES0_AO_ES0_FWD_SEL + ES0_AL_ES0_FWD_SEL)
@@ -2022,7 +2022,7 @@
 #define ES0_AO_ES0_PIPELINE_ACT                      (ES0_AO_ES0_PIPELINE_PT + ES0_AL_ES0_PIPELINE_PT)
 #define ES0_AL_ES0_PIPELINE_ACT                      1
 #define ES0_AO_ES0_MAC_IDX                           (ES0_AO_ES0_PIPELINE_ACT + ES0_AL_ES0_PIPELINE_ACT)
-#define ES0_AL_ES0_MAC_IDX                           (FA_TGT ? 7 : 5)
+#define ES0_AL_ES0_MAC_IDX                           7
 #define ES0_AO_ES0_REPLACE_DMAC_ENA                  (ES0_AO_ES0_MAC_IDX + ES0_AL_ES0_MAC_IDX)
 #define ES0_AL_ES0_REPLACE_DMAC_ENA                  1
 #define ES0_AO_ES0_SWAP_MACS_ENA                     (ES0_AO_ES0_REPLACE_DMAC_ENA + ES0_AL_ES0_REPLACE_DMAC_ENA)
@@ -2050,7 +2050,7 @@
 #define ES2_KO_IP_7TUPLE_SERVICE_FRM                 (ES2_KO_IP_7TUPLE_L2_BC + ES2_KL_IP_7TUPLE_L2_BC)
 #define ES2_KL_IP_7TUPLE_SERVICE_FRM                 1
 #define ES2_KO_IP_7TUPLE_ISDX                        (ES2_KO_IP_7TUPLE_SERVICE_FRM + ES2_KL_IP_7TUPLE_SERVICE_FRM)
-#define ES2_KL_IP_7TUPLE_ISDX                        (FA_TGT ? 12 : 5)
+#define ES2_KL_IP_7TUPLE_ISDX                        (FA_TGT ? 12 : 10)
 #define ES2_KO_IP_7TUPLE_VLAN_TAGGED                 (ES2_KO_IP_7TUPLE_ISDX + ES2_KL_IP_7TUPLE_ISDX)
 #define ES2_KL_IP_7TUPLE_VLAN_TAGGED                 1
 #define ES2_KO_IP_7TUPLE_XVID                        (FA_TGT ? (ES2_KO_IP_7TUPLE_VLAN_TAGGED + ES2_KL_IP_7TUPLE_VLAN_TAGGED) : (ES2_KO_IP_7TUPLE_RED_TAGGED + ES2_KL_IP_7TUPLE_RED_TAGGED))
@@ -2062,7 +2062,7 @@
 #define ES2_KO_IP_7TUPLE_IGR_PORT_SEL                (ES2_KO_IP_7TUPLE_EGR_PORT_MASK + ES2_KL_IP_7TUPLE_EGR_PORT_MASK)
 #define ES2_KL_IP_7TUPLE_IGR_PORT_SEL                1
 #define ES2_KO_IP_7TUPLE_IGR_PORT                    (ES2_KO_IP_7TUPLE_IGR_PORT_SEL + ES2_KL_IP_7TUPLE_IGR_PORT_SEL)
-#define ES2_KL_IP_7TUPLE_IGR_PORT                    (FA_TGT ? 9 : 4)
+#define ES2_KL_IP_7TUPLE_IGR_PORT                    (FA_TGT ? 9 : 7)
 #define ES2_KO_IP_7TUPLE_PCP                         (ES2_KO_IP_7TUPLE_IGR_PORT + ES2_KL_IP_7TUPLE_IGR_PORT)
 #define ES2_KL_IP_7TUPLE_PCP                         3
 #define ES2_KO_IP_7TUPLE_DEI                         (ES2_KO_IP_7TUPLE_PCP + ES2_KL_IP_7TUPLE_PCP)
@@ -2164,7 +2164,7 @@
 #define ES2_KO_X6_SERVICE_FRM                        (ES2_KO_X6_L2_BC + ES2_KL_X6_L2_BC)
 #define ES2_KL_X6_SERVICE_FRM                        1
 #define ES2_KO_X6_ISDX                               (ES2_KO_X6_SERVICE_FRM + ES2_KL_X6_SERVICE_FRM)
-#define ES2_KL_X6_ISDX                               (FA_TGT ? 12 : 5)
+#define ES2_KL_X6_ISDX                               (FA_TGT ? 12 : 10)
 #define ES2_KO_X6_VLAN_TAGGED                        (ES2_KO_X6_ISDX + ES2_KL_X6_ISDX)
 #define ES2_KL_X6_VLAN_TAGGED                        1
 #define ES2_KO_X6_XVID                               (FA_TGT ? (ES2_KO_X6_VLAN_TAGGED + ES2_KL_X6_VLAN_TAGGED) : (ES2_KO_X6_RED_TAGGED + ES2_KL_X6_RED_TAGGED))
@@ -2176,7 +2176,7 @@
 #define ES2_KO_X6_IGR_PORT_SEL                       (ES2_KO_X6_EGR_PORT_MASK + ES2_KL_X6_EGR_PORT_MASK)
 #define ES2_KL_X6_IGR_PORT_SEL                       1
 #define ES2_KO_X6_IGR_PORT                           (ES2_KO_X6_IGR_PORT_SEL + ES2_KL_X6_IGR_PORT_SEL)
-#define ES2_KL_X6_IGR_PORT                           (FA_TGT ? 9 : 4)
+#define ES2_KL_X6_IGR_PORT                           (FA_TGT ? 9 : 7)
 #define ES2_KO_X6_PCP                                (ES2_KO_X6_IGR_PORT + ES2_KL_X6_IGR_PORT)
 #define ES2_KL_X6_PCP                                3
 #define ES2_KO_X6_DEI                                (ES2_KO_X6_PCP + ES2_KL_X6_PCP)
@@ -2357,7 +2357,7 @@
 #define ES2_KO_IP4_VID_SERVICE_FRM                   (ES2_KO_IP4_VID_L2_BC + ES2_KL_IP4_VID_L2_BC)
 #define ES2_KL_IP4_VID_SERVICE_FRM                   1
 #define ES2_KO_IP4_VID_ISDX                          (ES2_KO_IP4_VID_SERVICE_FRM + ES2_KL_IP4_VID_SERVICE_FRM)
-#define ES2_KL_IP4_VID_ISDX                          (FA_TGT ? 12 : 5)
+#define ES2_KL_IP4_VID_ISDX                          (FA_TGT ? 12 : 10)
 #define ES2_KO_IP4_VID_VLAN_TAGGED                   (ES2_KO_IP4_VID_ISDX + ES2_KL_IP4_VID_ISDX)
 #define ES2_KL_IP4_VID_VLAN_TAGGED                   1
 #define ES2_KO_IP4_VID_XVID                          (FA_TGT ? (ES2_KO_IP4_VID_VLAN_TAGGED + ES2_KL_IP4_VID_VLAN_TAGGED) : (ES2_KO_IP4_VID_RED_TAGGED + ES2_KL_IP4_VID_RED_TAGGED))
@@ -2423,7 +2423,7 @@
 #define IP6PFX_KO_IP6PFX_DST_FLAG                    0
 #define IP6PFX_KL_IP6PFX_DST_FLAG                    1
 #define IP6PFX_KO_IP6PFX_AFFIX                       (IP6PFX_KO_IP6PFX_DST_FLAG + IP6PFX_KL_IP6PFX_DST_FLAG)
-#define IP6PFX_KL_IP6PFX_AFFIX                       (FA_TGT ? 10 : 5)
+#define IP6PFX_KL_IP6PFX_AFFIX                       10
 #define IP6PFX_KO_IP6PFX_IP6_XIP_2                   (IP6PFX_KO_IP6PFX_AFFIX + IP6PFX_KL_IP6PFX_AFFIX)
 #define IP6PFX_KL_IP6PFX_IP6_XIP_2                   32
 #define IP6PFX_KO_IP6PFX_IP6_XIP_3                   (IP6PFX_KO_IP6PFX_IP6_XIP_2 + IP6PFX_KL_IP6PFX_IP6_XIP_2)
@@ -2431,7 +2431,7 @@
 
 /* IP6PFX X1 IP6PFX_ID action fields */
 #define IP6PFX_AO_IP6PFX_ID_IP6PFX_ID                0
-#define IP6PFX_AL_IP6PFX_ID_IP6PFX_ID                (FA_TGT ? 9 : 2)
+#define IP6PFX_AL_IP6PFX_ID_IP6PFX_ID                (FA_TGT ? 9 : 8)
 
 /* ======================================= */
 /* Laguna only defines */
@@ -2484,6 +2484,8 @@
 #define IS2_AL_BASE_TYPE_RB_FWD_SEL                  2
 #define IS2_AO_BASE_TYPE_RB_TC0_ENA                  (IS2_AO_BASE_TYPE_RB_FWD_SEL + IS2_AL_BASE_TYPE_RB_FWD_SEL)
 #define IS2_AL_BASE_TYPE_RB_TC0_ENA                  1
+#define IS2_AO_BASE_TYPE_RB_PTP_ENA                  (IS2_AO_BASE_TYPE_RB_TC0_ENA + IS2_AL_BASE_TYPE_RB_TC0_ENA)
+#define IS2_AL_BASE_TYPE_RB_PTP_ENA                  1
 #define ES0_AO_ES0_RB_RTAG_ENA                       (ES0_AO_ES0_QS_INFO + ES0_AL_ES0_QS_INFO)
 #define ES0_AL_ES0_RB_RTAG_ENA                       1
 #define ES2_KO_IP_7TUPLE_RED_TAGGED                  (ES2_KO_IP_7TUPLE_VLAN_TAGGED + ES2_KL_IP_7TUPLE_VLAN_TAGGED)
