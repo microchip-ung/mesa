@@ -77,7 +77,6 @@ static unsigned int la_chip_const[] = {
     [__RT_TAS_NUMBER_OF_LISTS] = 60,
     [__RT_TAS_NUMBER_OF_PROFILES] = 60,
     [__RT_TAS_NUMBER_OF_ENTRIES] = (0x1FFF+1),
-    [__RT_EVC_POL_CNT] = (0x1FFF+1),
     [__RT_EVC_POL_CNT] = 1024,
     [__RT_EVC_STAT_CNT] = 1024,
     [__RT_SDX_CNT] = 1023,
