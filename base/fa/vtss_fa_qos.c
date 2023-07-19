@@ -28,6 +28,12 @@
 #define CFGRATIO 4
 #endif
 
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+#define RT_QUEUE_POL_IDX(port, queue) VTSS_QUEUE_POL_IDX(port, queue)
+#else
+#define RT_QUEUE_POL_IDX(port, queue) (RT_EVC_POL_CNT + (port * 8) + queue)
+#endif
+
 static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
 {
@@ -666,7 +672,7 @@ static vtss_rc fa_qos_policer_init(vtss_state_t *vtss_state)
     /* Setup queue policer indexes */
     for (port = 0; port < RT_CHIP_PORTS; port++) {
         REG_WRM(VTSS_ANA_L2_PORT_DLB_CFG(port),
-                VTSS_F_ANA_L2_PORT_DLB_CFG_QUEUE_DLB_IDX(VTSS_QUEUE_POL_IDX(port, 0)),
+                VTSS_F_ANA_L2_PORT_DLB_CFG_QUEUE_DLB_IDX(RT_QUEUE_POL_IDX(port, 0)),
                 VTSS_M_ANA_L2_PORT_DLB_CFG_QUEUE_DLB_IDX);
     }
 
@@ -845,7 +851,7 @@ static vtss_rc fa_queue_policer_set(vtss_state_t *vtss_state,
                                     u32 port, u32 queue, vtss_policer_t *conf)
 {
     if (port < RT_CHIP_PORTS) {
-        u32                     pol_idx = VTSS_QUEUE_POL_IDX(port, queue);
+        u32                     pol_idx = RT_QUEUE_POL_IDX(port, queue);
         vtss_dlb_policer_conf_t dlb_conf;
 
         VTSS_MEMSET(&dlb_conf, 0, sizeof(dlb_conf));
