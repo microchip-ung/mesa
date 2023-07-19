@@ -90,7 +90,7 @@ static vtss_rc fa_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t 
     // TTI Table
     pr("\nTTI Table\n");
     fa_afi_debug_frame_hdr(pr, "Idx  TickIdx TmrLen Period [us] Jit ", "---- ------- ------ ----------- --- ");
-    for (idx = 0; idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); idx++) {
+    for (idx = 0; idx < vtss_state->afi.slow_inj_cnt; idx++) {
         u32  tick_idx, tmr_len;
 
         REG_RD(VTSS_AFI_TTI_TIMER(idx), &val);
@@ -530,7 +530,7 @@ static vtss_rc fa_afi_up_flows_pause_resume(vtss_state_t *vtss_state, vtss_port_
     }
 
     // Pause or resume all TTIs egressing VD1 (ingressing #port_no).
-    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); tti_idx++) {
+    for (tti_idx = 0; tti_idx < vtss_state->afi.slow_inj_cnt; tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
         if (tti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
@@ -1169,7 +1169,7 @@ static vtss_rc fa_afi_qu_ref_update(vtss_state_t *vtss_state, vtss_port_no_t por
     }
 
     // Update the queue number for all TTIs egressing #port_no (down-flows)
-    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); tti_idx++) {
+    for (tti_idx = 0; tti_idx < vtss_state->afi.slow_inj_cnt; tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
         if (tti->state != VTSS_AFI_ENTRY_STATE_FREE && tti->port_no == port_no) {
@@ -1301,7 +1301,7 @@ static vtss_rc fa_afi_init(vtss_state_t *vtss_state)
     // with the required amount of time.
     // To make sure that this very first frame isn't transmitted
     // by accident, we therefore disable all TTI timers during boot.
-    for (idx = 0; idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); idx++) {
+    for (idx = 0; idx < vtss_state->afi.slow_inj_cnt; idx++) {
         REG_WRM(VTSS_AFI_TTI_TIMER(idx), VTSS_F_AFI_TTI_TIMER_TIMER_ENA(0), VTSS_M_AFI_TTI_TIMER_TIMER_ENA);
     }
 
@@ -1344,6 +1344,9 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         state->slow_inj_cnt      = RT_AFI_SLOW_INJ_CNT;
         state->fast_inj_bps_min  = RT_AFI_FAST_INJ_BPS_MIN;
         state->fast_inj_bps_max  = RT_AFI_FAST_INJ_BPS_MAX;
+        if (LA_TGT) {
+            state->frm_cnt = 512;
+        }
 
         // Initialize ports to started = 1. This corresponds to
         // calling fa_afi_port_admin_start() during boot.
@@ -1353,12 +1356,10 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
-        break; //fixme
         VTSS_RC(fa_afi_init(vtss_state));
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
-        break; //fixme
         // Now that the port map is set, we can use "port_no".
         // VD1 always has "link up". It is indexed with port_no == VTSS_PORT_NO_NONE
         VTSS_RC(fa_afi_port_link_up(vtss_state, VTSS_PORT_NO_NONE));
