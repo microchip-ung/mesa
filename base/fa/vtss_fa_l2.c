@@ -1964,7 +1964,8 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
         // Calculate PERIOD_VAL, avoiding u32 overflow
         x64 = 1000000;
         x64 *= x64;
-        x64 /= (fa_rb_age_unit(unit) * FA_RB_AGE_CNT * FA_HT_ROW_CNT * clk_period);
+        x64 = VTSS_DIV64(x64, FA_RB_AGE_CNT);
+        x64 = VTSS_DIV64(x64, fa_rb_age_unit(unit) * FA_HT_ROW_CNT * clk_period);
         val = (x64 * age);
         REG_WR(VTSS_RB_HOST_AUTOAGE_CFG(tgt, j),
                VTSS_F_RB_HOST_AUTOAGE_CFG_UNIT_SIZE(unit) |
@@ -1977,7 +1978,7 @@ static vtss_rc fa_rb_conf_set(vtss_state_t *vtss_state,
     age = (conf->dd_age_time ? conf->dd_age_time : 4); // Milliseconds
     unit = 0; // 16 clock cycles
     val = 1000000000;
-    val /= (fa_rb_age_unit(unit) * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
+    val = VTSS_DIV64(val, fa_rb_age_unit(unit) * FA_DT_ROW_CNT * FA_RB_AGE_CNT * clk_period);
     val *= age;
     REG_WR(VTSS_RB_DISC_AUTOAGE_CFG(tgt),
            VTSS_F_RB_DISC_AUTOAGE_CFG_UNIT_SIZE(unit) |
@@ -3078,13 +3079,13 @@ static void fa_debug_rb_age(const vtss_debug_printf_t pr,
     unit = fa_rb_age_unit(unit);
     x64 *= unit;
     x64 *= (FA_RB_AGE_CNT * row_cnt * clk);
-    x64 /= 1000000;  // psec -> usec
+    x64 = VTSS_DIV64(x64, 1000000);  // psec -> usec
     if (x64 > 100000) {
-        x64 /= 1000; // usec -> msec
+        x64 = VTSS_DIV64(x64, 1000); // usec -> msec
         str = "msec";
     }
     if (x64 > 100000) {
-        x64 /= 1000; // msec -> sec
+        x64 = VTSS_DIV64(x64, 1000); // msec -> sec
         str = "sec";
     }
     age = x64;
