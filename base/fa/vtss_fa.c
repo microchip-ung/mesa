@@ -137,7 +137,9 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
     }
     pr("\n");
 }
+#endif
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 /* Read or write register indirectly */
 static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
                                        u32 addr, u32 *value, BOOL is_write)
@@ -185,7 +187,6 @@ static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
 do_exit:
     return result;
 }
-
 #endif
 
 #if defined(VTSS_SDX_CNT)
@@ -715,7 +716,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
     if (i != FPGA_BUILDID) {
         VTSS_E("Unexpected build id. Chip: 0x%08x, Header files: 0x%08x", i, FPGA_BUILDID);
     }
-#endif
+#else
     // Reset switch core if using SPI from external CPU
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
@@ -723,6 +724,7 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
         u32 val = 0;
         lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
     }
+#endif
 
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
