@@ -657,9 +657,6 @@ def jira_appl_4898_test
 end
 
 def jira_appl_3433_test
-if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-    t_e("This test must be checked for passing without large MAXSDU size")
-end
     ig = 0
     eg = $loop_port0
     eg_measure = 1

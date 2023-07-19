@@ -90,8 +90,8 @@ qconf["shaper"]["rate"] = 990000
 qconf["shaper"]["mode"] = "MESA_SHAPER_MODE_LINE"
 $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], qconf)
 
-if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT")) || ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-# For some reason on Ocelot and Laguna if flooding is not prevented tests will - by far - not pass
+if ($chip_family == chip_family_to_id("MESA_CHIP_FAMILY_OCELOT"))
+# For some reason on Ocelot if flooding is not prevented tests will - by far - not pass
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
 end
 
