@@ -121,7 +121,6 @@ test "Strict scheduling test from #{ig_list} to #{$ts.dut.p[eg]}" do
     end
     end
 end
-exit 0
 
 test "Weighted scheduling with equal weights test from #{ig_list} to #{$ts.dut.p[eg]}" do
     # Expect equal distribution of frames in queue 0..2
