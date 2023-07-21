@@ -2827,7 +2827,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
     char buf[80];
     BOOL first = TRUE;
 
-    for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
+    for (i = 0; i < vtss_state->l2.psfp.max_filter_cnt; i++) {
         vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[i];
         if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
             if (first) {
@@ -2842,7 +2842,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
+    for (i = 0; i < vtss_state->l2.psfp.max_gate_cnt; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
             id = fa_psfp_sgid(i);
             VTSS_SPRINTF(buf, "PSFP Gate %u (%u)", i, id);
@@ -3816,6 +3816,10 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->psfp_filter_conf_set = fa_filter_conf_set;
             state->psfp_filter_status_get = fa_filter_status_get;
             state->policer_status_get = fa_policer_status_get;
+            if (LA_TGT) {
+                VTSS_RT_SET(state->psfp.max_filter_cnt, 255);
+                VTSS_RT_SET(state->psfp.max_gate_cnt, 255);
+            }
         }
 #endif
 #if defined(VTSS_FEATURE_XSTAT)

@@ -764,15 +764,24 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L2_PSFP_GATE_CNT:
+    case MESA_CAP_L2_PSFP_GATE_CNT: {
 #if defined(VTSS_FEATURE_PSFP)
-        c = VTSS_PSFP_GATE_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l2.psfp.max_gate_cnt;
+        }
 #endif
+    }
         break;
-    case MESA_CAP_L2_PSFP_FILTER_CNT:
+
+    case MESA_CAP_L2_PSFP_FILTER_CNT: {
 #if defined(VTSS_FEATURE_PSFP)
-        c = VTSS_PSFP_FILTER_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->l2.psfp.max_filter_cnt;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_L2_VCL_KEY_DMAC:

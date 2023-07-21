@@ -2856,9 +2856,10 @@ vtss_rc vtss_vce_del(const vtss_inst_t    inst,
 #endif // VTSS_FEATURE_VCAP
 
 #if defined(VTSS_FEATURE_PSFP)
-static vtss_rc vtss_psfp_gate_id_check(const vtss_psfp_gate_id_t id)
+static vtss_rc vtss_psfp_gate_id_check(vtss_state_t *vtss_state,
+                                       const vtss_psfp_gate_id_t id)
 {
-    if (id < VTSS_PSFP_GATE_CNT) {
+    if (id < vtss_state->l2.psfp.max_gate_cnt) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal gate id: %u", id);
@@ -2876,9 +2877,9 @@ vtss_rc vtss_psfp_gcl_conf_get(const vtss_inst_t         inst,
     vtss_psfp_gcl_t *admin_gcl;
     u32             i;
 
-    VTSS_RC(vtss_psfp_gate_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK) {
         admin_gcl = &vtss_state->l2.psfp.admin_gcl[id];
         for (i = 0; i < max_cnt && i < VTSS_PSFP_GCL_CNT; i++) {
             gcl[i] = admin_gcl->gce[i];
@@ -2899,13 +2900,13 @@ vtss_rc vtss_psfp_gcl_conf_set(const vtss_inst_t         inst,
     vtss_psfp_gcl_t *admin_gcl;
     u32             i;
 
-    VTSS_RC(vtss_psfp_gate_id_check(id));
     if (gce_cnt > VTSS_PSFP_GCL_CNT) {
         VTSS_E("illegal gcl_length: %u, maximum: %u", gce_cnt, VTSS_PSFP_GCL_CNT);
         return VTSS_RC_ERROR;
     }
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK) {
         admin_gcl = &vtss_state->l2.psfp.admin_gcl[id];
         for (i = 0; i < gce_cnt; i++) {
             admin_gcl->gce[i] = gcl[i];
@@ -2923,9 +2924,9 @@ vtss_rc vtss_psfp_gate_conf_get(const vtss_inst_t         inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_psfp_gate_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK) {
         *conf = vtss_state->l2.psfp.gate[id];
     }
     VTSS_EXIT();
@@ -2957,9 +2958,9 @@ vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t           inst,
     vtss_state_t            *vtss_state;
     vtss_psfp_gate_status_t status;
 
-    VTSS_RC(vtss_psfp_gate_id_check(id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK &&
         (rc = vtss_gate_status_get(vtss_state, id, &status)) == VTSS_RC_OK) {
         vtss_state->l2.psfp.gate[id] = *conf;
         rc = VTSS_FUNC(l2.psfp_gate_conf_set, id);
@@ -2975,18 +2976,19 @@ vtss_rc vtss_psfp_gate_status_get(const vtss_inst_t         inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_psfp_gate_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK) {
         rc = vtss_gate_status_get(vtss_state, id, status);
     }
     VTSS_EXIT();
     return rc;
 }
 
-static vtss_rc vtss_psfp_filter_id_check(const vtss_psfp_filter_id_t id)
+static vtss_rc vtss_psfp_filter_id_check(vtss_state_t *vtss_state,
+                                         const vtss_psfp_filter_id_t id)
 {
-    if (id < VTSS_PSFP_FILTER_CNT) {
+    if (id < vtss_state->l2.psfp.max_filter_cnt) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal filter id: %u", id);
@@ -3000,9 +3002,9 @@ vtss_rc vtss_psfp_filter_conf_get(const vtss_inst_t           inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_psfp_filter_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_filter_id_check(vtss_state, id)) == VTSS_RC_OK) {
         *conf = vtss_state->l2.psfp.filter[id];
     }
     VTSS_EXIT();
@@ -3016,9 +3018,9 @@ vtss_rc vtss_psfp_filter_conf_set(const vtss_inst_t             inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_psfp_filter_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_filter_id_check(vtss_state, id)) == VTSS_RC_OK) {
         vtss_state->l2.psfp.filter[id] = *conf;
         rc = VTSS_FUNC(l2.psfp_filter_conf_set, id);
     }
@@ -3033,9 +3035,9 @@ vtss_rc vtss_psfp_filter_status_get(const vtss_inst_t           inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_RC(vtss_psfp_filter_id_check(id));
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
+        (rc = vtss_psfp_filter_id_check(vtss_state, id)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(l2.psfp_filter_status_get, id, status);
     }
     VTSS_EXIT();
@@ -5239,6 +5241,10 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
         state->max_cstream_cnt = VTSS_CSTREAM_CNT;
         state->max_mstream_cnt = VTSS_MSTREAM_CNT;
 #endif
+#if defined(VTSS_FEATURE_PSFP)
+        state->psfp.max_filter_cnt = VTSS_PSFP_FILTER_CNT;
+        state->psfp.max_gate_cnt = VTSS_PSFP_GATE_CNT;
+#endif
         return VTSS_RC_OK;
     }
 
@@ -6861,7 +6867,7 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
     char buf[64];
     vtss_psfp_state_t *psfp = &vtss_state->l2.psfp;
 
-    for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
+    for (i = 0; i < vtss_state->l2.psfp.max_filter_cnt; i++) {
         vtss_psfp_filter_conf_t   *conf = &psfp->filter[i];
         vtss_psfp_filter_status_t status;
         if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
@@ -6881,7 +6887,7 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
+    for (i = 0; i < vtss_state->l2.psfp.max_gate_cnt; i++) {
         vtss_psfp_gate_conf_t   *conf = &psfp->gate[i];
         vtss_psfp_gate_status_t status;
         if (info->full || conf->enable) {

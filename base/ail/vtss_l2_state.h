@@ -305,6 +305,8 @@ typedef struct {
     vtss_psfp_gcl_t         oper_gcl[VTSS_PSFP_GATE_CNT];
     vtss_psfp_gcl_conf_t    oper_conf[VTSS_PSFP_GATE_CNT];
     vtss_psfp_filter_conf_t filter[VTSS_PSFP_FILTER_CNT];
+    u32                     max_filter_cnt;
+    u32                     max_gate_cnt;
 } vtss_psfp_state_t;
 #endif
 
