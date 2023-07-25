@@ -4248,9 +4248,13 @@ vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_print
 
     // Print shared SRC-MEM, because up-flows with CL_DP == 1 are counted here
     // and not in the masquerade port counters.
-    addr = res_stat_cur ? VTSS_QRES_RES_STAT_CUR(511) : VTSS_QRES_RES_STAT(511);
+
+    // The index of the shared SRC-MEM is given by 9 * total-number-of-ports + 8
+    // which amounts to 638 on SparX5 and 323 on LAN969x.
+    idx = 9 * VTSS_CHIP_PORTS_ALL + 8;
+    addr = res_stat_cur ? VTSS_QRES_RES_STAT_CUR(idx) : VTSS_QRES_RES_STAT(idx);
     REG_RD(addr, &val);
-    fa_debug_qres_print(vtss_state, pr, 511, -1, 0, 7, val);
+    fa_debug_qres_print(vtss_state, pr, idx, -1, 0, 7, val);
 
     for (resource = 0; resource < 4; resource++) {
         resource_base = resource * 1024;

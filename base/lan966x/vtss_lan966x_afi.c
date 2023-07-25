@@ -138,6 +138,12 @@ static vtss_rc lan966x_afi_debug(vtss_state_t *vtss_state, const vtss_debug_prin
             }
         }
     }
+
+#if VTSS_OPT_DEBUG_PRINT
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, FALSE));
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, TRUE));
+#endif
+
     return VTSS_RC_OK;
 }
 

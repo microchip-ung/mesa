@@ -1869,6 +1869,106 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+static char *lan966x_chip_port_to_str(vtss_state_t *vtss_state, vtss_phys_port_no_t chip_port, char *buf)
+{
+    vtss_port_no_t port_no;
+
+    switch (chip_port) {
+    case -1:
+       // Special case just to get the print function print something special
+       VTSS_STRCPY(buf, "SHARED");
+       break;
+
+    case VTSS_CHIP_PORT_CPU_0:
+       VTSS_STRCPY(buf, "CPU0");
+       break;
+
+    case VTSS_CHIP_PORT_CPU_1:
+       VTSS_STRCPY(buf, "CPU1");
+       break;
+
+    default:
+        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
+        if (port_no != VTSS_PORT_NO_NONE) {
+            VTSS_SPRINTF(buf, "%u", port_no);
+        } else {
+            // Port is not in port map. Odd.
+            VTSS_E("chip_port = %u not in port map", chip_port);
+            VTSS_STRCPY(buf, "N/A");
+        }
+
+        break;
+    }
+
+    return buf;
+}
+
+static const char *lan966x_qsys_resource_to_str(u32 resource)
+{
+    switch (resource) {
+    case 0:
+        return "SRC-MEM";
+
+    case 1:
+        return "SRC-REF";
+
+    case 2:
+        return "DST-MEM";
+
+    case 3:
+        return "DST-REF";
+
+    default:
+        VTSS_E("Invalid resource (%u)", resource);
+        break;
+    }
+
+    return "INVALID";
+}
+
+static void lan966x_debug_qres_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, u32 idx, vtss_phys_port_no_t chip_port, u32 resource, u32 prio, u32 val)
+{
+    char buf[20];
+
+    pr("%4u %-8s %7s %9d %4u %10u\n", idx, lan966x_qsys_resource_to_str(resource), lan966x_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
+}
+
+vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, BOOL res_stat_cur)
+{
+    vtss_phys_port_no_t chip_port;
+    u32                 resource, resource_base, port_base, idx, prio, val;
+
+    pr("\nQSYS Resource table (QSYS:RES_CTRL[idx]:RES_STAT.%s)\n", res_stat_cur ? "INUSE" : "MAXUSE");
+    pr("Idx  Resource Port No Chip Port Prio Value\n");
+    pr("---- -------- ------- --------- ---- ----------\n");
+
+    // Print shared SRC-MEM, because up-flows with CL_DP == 1 are counted here
+    // and not in the masquerade port counters.
+    REG_RD(QSYS_RES_STAT(255), &val);
+    val = res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
+    lan966x_debug_qres_print(vtss_state, pr, 255, -1, 0, 7, val);
+
+    for (resource = 0; resource < 4; resource++) {
+        resource_base = resource * 256;
+        for (chip_port = 0; chip_port < VTSS_CHIP_PORTS_ALL; chip_port++) {
+            port_base = resource_base + chip_port * VTSS_PRIOS;
+            for (prio = 0; prio < VTSS_PRIOS; prio++) {
+                idx = port_base + prio;
+                REG_RD(QSYS_RES_STAT(idx), &val);
+                val = res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
+                if (val) {
+                    // Only print non-zero values or we will be flooded.
+                    lan966x_debug_qres_print(vtss_state, pr, idx, chip_port, resource, prio, val);
+                }
+            }
+        }
+    }
+
+    pr("\n");
+
+    return VTSS_RC_OK;
+}
+
 static void lan966x_debug_wm_dump(const vtss_debug_printf_t pr,
                                   const char *reg_name, u32 *value, u32 i, BOOL bytes)
 {
@@ -2050,6 +2150,10 @@ static vtss_rc lan966x_debug_wm(vtss_state_t *vtss_state,
             }
         }
     }
+
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, FALSE));
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, TRUE));
+
     return VTSS_RC_OK;
 }
 
