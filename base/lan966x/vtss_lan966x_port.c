@@ -1966,6 +1966,13 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_
 
     pr("\n");
 
+    if (res_stat_cur) {
+        // Also print current number of (about-to-be) free words
+        REG_RD(SYS_MMGT, &val);
+        pr("MMGT.RELCNT  = %u\n",   SYS_MMGT_RELCNT_X(val));
+        pr("MMGT.FREECNT = %u\n\n", SYS_MMGT_FREECNT_X(val));
+    }
+
     return VTSS_RC_OK;
 }
 

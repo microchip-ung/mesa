@@ -4274,6 +4274,13 @@ vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_print
 
     pr("\n");
 
+    if (res_stat_cur) {
+        // Also print current number of (about-to-be) free words
+        REG_RD(VTSS_HSCH_MMGT, &val);
+        pr("MMGT.RELCNT  = %u\n",   VTSS_X_HSCH_MMGT_RELCNT(val));
+        pr("MMGT.FREECNT = %u\n\n", VTSS_X_HSCH_MMGT_FREECNT(val));
+    }
+
     return VTSS_RC_OK;
 }
 
