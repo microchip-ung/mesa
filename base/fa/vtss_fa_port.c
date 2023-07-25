@@ -48,7 +48,7 @@ u32 fla_port_is_5G(vtss_state_t *vtss_state, u32 port)
     if (FA_TGT) {
         return (port <= 11 || port == 64);
     } else {
-        return ((port == 0) || (port == 4) || (port == 9) || (port == 13) || (port == 17) || (port == 21));
+        return ((port == 9) || (port == 13) || (port == 17) || (port == 21));
     }
 }
 
@@ -72,7 +72,7 @@ u32 fla_port_is_25G(vtss_state_t *vtss_state, u32 port)
 }
 
 // Port nr (0-65) to DEV id e.g. DEV2G5_<id>, DEV10G_<id>
-u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
+static u32 fla_port_dev_index(vtss_state_t *vtss_state, u32 port, BOOL modes)
 {
     if (FA_TGT) {
         if (VTSS_PORT_IS_2G5(port)) {
@@ -98,6 +98,10 @@ u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
         if (VTSS_PORT_IS_2G5(port)) {
             return port;
         } else if (VTSS_PORT_IS_5G(port)) {
+            if (modes) {
+                // DEV5G_MODES mapping
+                return port;
+            }
             switch (port) {
             case 9:  return 0;
             case 13: return 1;
@@ -105,6 +109,10 @@ u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
             case 21: return 3;
             }
         } else if (VTSS_PORT_IS_10G(port)) {
+            if (modes) {
+                // DEV10G_MODES mapping
+                return (port == 0 ? 12 : port == 4 ? 13 : port == 8 ? 14 : port == 12 ? 0 : port);
+            }
             switch (port) {
             case 0:  return 0;
             case 4:  return 1;
@@ -123,6 +131,12 @@ u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
     }
     return 0;
 }
+
+u32 vtss_port_dev_index(vtss_state_t *vtss_state, u32 port)
+{
+    return fla_port_dev_index(vtss_state, port, FALSE);
+}
+
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
 u32 vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port)
 {
@@ -624,7 +638,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port)
     } else if (VTSS_PORT_IS_25G(port)) {
         REG_RD(VTSS_PORT_CONF_DEV25G_MODES, &value);
     }
-    mask = VTSS_BIT(vtss_port_dev_index(vtss_state, port));
+    mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
     return (value & mask ? FALSE : TRUE);
 }
 
@@ -2121,7 +2135,7 @@ static vtss_rc fa_enable_usx_extender(vtss_state_t *vtss_state, const vtss_port_
 static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 p = VTSS_CHIP_PORT(port_no), Q,X,U,F,S,bt;
+    u32 p = VTSS_CHIP_PORT(port_no), Q,X,U,F,S,mask;
 
     if (vtss_state->port.current_if_type[port_no] == vtss_state->port.conf[port_no].if_type) {
         return VTSS_RC_OK; // Nothing to do
@@ -2149,14 +2163,14 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         break;
     case VTSS_PORT_INTERFACE_QXGMII:     /* QXGMII:    4x2G5 devices. Mode 'R'. Use 2G5 device. */
         if (VTSS_PORT_IS_5G(p)) {
-            bt = (p < 12) ? p : 12;
-            REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, p, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, mask, mask);
         } else if (VTSS_PORT_IS_10G(p)) {
-            bt = (p < 16) ? (p - 12) : (p - 48 + 4);
-            REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, p, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, mask, mask);
         } else if (VTSS_PORT_IS_25G(p)) {
-            bt = p - 56;
-            REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, VTSS_BIT(bt), VTSS_BIT(bt));
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, p, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, mask, mask);
         }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_5G:  /* DXGMII_5G: 2x2G5 devices. Mode 'F'. Use 2G5 device. */
@@ -3529,7 +3543,7 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
 static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
-    u32                   port = VTSS_CHIP_PORT(port_no), bt_indx;
+    u32                   port = VTSS_CHIP_PORT(port_no), mask;
     BOOL                  use_primary_dev = fa_is_high_speed_device(vtss_state, port_no);
 #if defined(VTSS_FEATURE_PORT_DYNAMIC)
     u32                   sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -3562,23 +3576,15 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 #endif
         /* Enable/disable shadow device */
         if (VTSS_PORT_IS_5G(port)) {
-            if (FA_TGT) {
-                bt_indx = VTSS_BIT((port <= 11) ? port : 12);
-            } else {
-                bt_indx = port;
-            }
-            REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : mask, mask);
         } else if (VTSS_PORT_IS_10G(port)) {
-            if (FA_TGT) {
-                bt_indx = VTSS_BIT(vtss_port_dev_index(vtss_state, port));
-            } else {
-                bt_indx = VTSS_BIT((port == 0) ? 12 : (port == 4) ? 13 : (port == 8) ? 14 : port);
-            }
-            REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : mask, mask);
         } else if (VTSS_PORT_IS_25G(port)) {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-            bt_indx = VTSS_BIT(port - 56);
-            REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, use_primary_dev ? 0 : bt_indx, bt_indx);
+            mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
+            REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, use_primary_dev ? 0 : mask, mask);
 #endif
         }
         REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
