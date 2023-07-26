@@ -1495,7 +1495,8 @@ vtss_rc phy_10g_mac_conf(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL 
                 rx_rd_thres = 127;
             }
         }
-        if (vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_LAN_MODE) {
+        if ((vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_LAN_MODE) ||
+            (vtss_state->phy_10g_state[port_no].mode.oper_mode == VTSS_PHY_LAN_SYNCE_MODE)) {
             if (vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU) {
                 tx_rd_thres = 5;
                 rx_rd_thres = 6;
