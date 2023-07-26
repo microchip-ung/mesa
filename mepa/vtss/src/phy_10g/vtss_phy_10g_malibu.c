@@ -1404,6 +1404,9 @@ static vtss_rc phy_10g_kr_conf_init(vtss_state_t *vtss_state,
     int i;
     vtss_rc rc = VTSS_RC_OK;
     vtss_phy_10g_base_kr_conf_t *kr_conf = &vtss_state->phy_10g_state[port_no].kr_conf;
+    vtss_phy_10g_base_kr_conf_t *host_kr_conf = &vtss_state->phy_10g_state[port_no].host_kr_conf;
+
+    /* LINE Side output buffer settings */
     CSR_RD(port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0, &cfg0);
     CSR_RD(port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1, &cfg1);
     CSR_RD(port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG2, &cfg2);
@@ -1436,22 +1439,22 @@ static vtss_rc phy_10g_kr_conf_init(vtss_state_t *vtss_state,
         v[i] = cfg2>>(6*i) & 0x3f;
         if (v[i] & 0x20) v[i] |= ~0x3f; /* sign extension */
     }
-    kr_conf->cm1 = (-v[3]- v[0] - 1)/2;
-    kr_conf->c0 = (v[3] - v[1] -1)/2;
-    kr_conf->c1 = (v[1] - v[0])/2;
-    kr_conf->ampl = 1275 - 25*VTSS_X_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_LEVN(cfg0) -
+    host_kr_conf->cm1 = (-v[3]- v[0] - 1)/2;
+    host_kr_conf->c0 = (v[3] - v[1] -1)/2;
+    host_kr_conf->c1 = (v[1] - v[0])/2;
+    host_kr_conf->ampl = 1275 - 25*VTSS_X_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_LEVN(cfg0) -
         200*((cfg0 & VTSS_F_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN) ? 1 : 0);
 
     r_ctrl = VTSS_X_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL(cfg1);
     c_ctrl = VTSS_X_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL(cfg1);
-    kr_conf->slewrate = VTSS_SLEWRATE_INVALID;
+    host_kr_conf->slewrate = VTSS_SLEWRATE_INVALID;
     for (i = 0; i < VTSS_SLEWRATE_INVALID; i++) {
         if ((r_ctrl == predrv_ctrl_table[i] [1]) && (c_ctrl == predrv_ctrl_table[i] [0])) {
-            kr_conf->slewrate = i;
+            host_kr_conf->slewrate = i;
         }
     }
-    kr_conf->en_ob = ( cfg0 & VTSS_F_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_EN_OB) ? TRUE : FALSE;
-    kr_conf->ser_inv = ( cfg0 & VTSS_F_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SER_INV) ? TRUE : FALSE;
+    host_kr_conf->en_ob = ( cfg0 & VTSS_F_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_EN_OB) ? TRUE : FALSE;
+    host_kr_conf->ser_inv = ( cfg0 & VTSS_F_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0_SER_INV) ? TRUE : FALSE;
 
     return rc;
 }
