@@ -4477,11 +4477,11 @@ static vtss_rc vtss_macsec_tx_sa_status_get_priv(vtss_state_t                *vt
 
     if (xpn) {
         if (aes_128) {
-            MACSEC_CNT64_RD(port.port_no, VTSS_MACSEC_INGR_XFORM_RECORD_REGS_XFORM_REC_DATA10(record),
-                            VTSS_MACSEC_INGR_XFORM_RECORD_REGS_XFORM_REC_DATA11(record), value);
+            MACSEC_CNT64_RD(port.port_no, VTSS_MACSEC_EGR_XFORM_RECORD_REGS_XFORM_REC_DATA10(record),
+                                                  VTSS_MACSEC_EGR_XFORM_RECORD_REGS_XFORM_REC_DATA11(record), value);
         } else {
-            MACSEC_CNT64_RD(port.port_no, VTSS_MACSEC_INGR_XFORM_RECORD_REGS_XFORM_REC_DATA14(record),
-                            VTSS_MACSEC_INGR_XFORM_RECORD_REGS_XFORM_REC_DATA15(record), value);
+            MACSEC_CNT64_RD(port.port_no, VTSS_MACSEC_EGR_XFORM_RECORD_REGS_XFORM_REC_DATA14(record),
+                                                  VTSS_MACSEC_EGR_XFORM_RECORD_REGS_XFORM_REC_DATA15(record), value);
         }
         /* Workaround for Packet Number Transmit (i.e. NextPN - 1) */
         value += 1;
@@ -4500,7 +4500,6 @@ static vtss_rc vtss_macsec_tx_sa_status_get_priv(vtss_state_t                *vt
 
     return VTSS_RC_OK;
 }
-
 
 static vtss_rc vtss_macsec_secy_port_status_get_priv(vtss_state_t                      *vtss_state,
                                                      const vtss_macsec_port_t          port,
