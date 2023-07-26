@@ -477,6 +477,7 @@ typedef struct vtss_state_s {
     u32                           phy_chip_no;     /* Support counter for determining chip number */
     vtss_phy_10g_port_state_t     phy_10g_state[VTSS_PORT_ARRAY_SIZE];
     void                          *phy_10g_generic;    /* Generic pointer, Refer to bug#18201 */
+    ioreg_blk mal_io_var; /* temporary structures used in Malibu register read/write in phys */
 #endif
     vtss_cil_func_t               cil;
 } vtss_phy_state_t;

@@ -1,6 +1,9 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifndef _VTSS_VENICE_C_INC
+#define _VTSS_VENICE_C_INC
+
 #include "vtss_phy_api.h"
 #include "../common/vtss_phy_common.h"
 #include "../phy_10g/vtss_sd10g65_procs.h"
@@ -465,3 +468,4 @@
 
 
 #define VTSS_F_VENICE_GLOBAL32_F2DF_RX_SYNTH_F2DF_CFG_STAT_F2DF_SAMPLE_MODE  VTSS_BIT(1)
+#endif

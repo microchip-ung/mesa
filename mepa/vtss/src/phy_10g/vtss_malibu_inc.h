@@ -1,6 +1,9 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifndef _VTSS_MALIBU_INC_UTE
+#define _VTSS_MALIBU_INC_UTE
+
 #if defined(VTSS_CHIP_10G_PHY)
 #include "vtss_phy_api.h"
 #include "../common/vtss_phy_common.h"
@@ -13,7 +16,7 @@
 #undef VTSS_IOREG
 #endif
 
-#define VTSS_IOREG(dev, is32, off)  _ioreg(&vtss_state->io_var, (dev), (is32), (off))
+#define VTSS_IOREG(dev, is32, off)  _ioreg(&vtss_state->mal_io_var, (dev), (is32), (off))
 #include "chips/malibu/vtss_malibu_regs.h"
 
 /* some of the register definitions which are missing in register files */
@@ -535,4 +538,5 @@
 #define  VTSS_M_F2DF_DF2F_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT     VTSS_ENCODE_BITMASK(0,4)
 #define  VTSS_X_F2DF_DF2F_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT(x)  VTSS_EXTRACT_BITFIELD(x,0,4)
 
+#endif
 #endif
