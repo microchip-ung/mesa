@@ -12541,25 +12541,43 @@ static vtss_rc malibu_phy_10g_clause_37_control_set(vtss_state_t *vtss_state,
 
     if (!vtss_state->sync_calling_private) {
         for (i = l_h; i < pcs_cnt_max; i++) {
+            //  i=0 ==> Line Side
+            //  i=1 ==> Host Side
             if(i) {
                 control = &vtss_state->phy_10g_state[port_no].clause_37;
             } else {
                 control = &vtss_state->phy_10g_state[port_no].host_clause_37;
             }
 
-            VTSS_I(" port %u clause 37 aneg is being configured on 1G PCS of %s \n",port_no,i? "LINE" : "HOST");
+            VTSS_I(" port %u clause 37 aneg is being configured on 1G PCS of %s \n",port_no, i? "LINE" : "HOST");
             /* Aneg capabilities for this port */
             VTSS_RC(phy_10g_clause_37_adv_set(&value, &control->advertisement, control->enable));
             CSR_WARM_WRM(port_no, PST(VTSS, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG2),
                     PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG2_ADV_ABILITY(value)),
                     PST(VTSS_M, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG2_ADV_ABILITY));
 
-            /* Restart aneg */
-            CSR_COLD_WRM(port_no, PST(VTSS, i,PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG),
+            CSR_RD(port_no, PST(VTSS, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG), &value);
+
+            /* Per PCSC1G_ANEG_CFG2, If PCS1G_MODE_CFG is in SGMII Mode, Must set SW_Resolve_ENA in PCS1G_ANEG_CFG */
+            if (value & PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG_SGMII_MODE_ENA)) {
+                VTSS_I(" port %u clause 37 1G PCS of %s   Restart ANEG - SGMII MODE \n",port_no,i? "LINE" : "HOST");
+                /* Restart aneg */
+                CSR_COLD_WRM(port_no, PST(VTSS, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG),
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT) |
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA) |
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA),
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT) |
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA) |
+                    PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA));
+            } else {
+                VTSS_I(" port %u clause 37 1G PCS of %s   Restart ANEG - NOT SGMII MODE\n",port_no,i? "LINE" : "HOST");
+                /* Restart aneg */
+                CSR_COLD_WRM(port_no, PST(VTSS, i,PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG),
                     PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT) |
                     PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA),
                     PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT) |
                     PST(VTSS_F, i, PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA));
+            }
 
             if (!control->enable) {
                 /* Disable Aneg */
