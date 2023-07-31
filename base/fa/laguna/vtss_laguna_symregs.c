@@ -8716,7 +8716,7 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
 vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
     data->targets = vtss_symreg_targets;
     data->targets_cnt = sizeof(vtss_symreg_targets) / sizeof(vtss_symreg_targets[0]);
-    data->io_origin1_offset = VTSS_IO_ORIGIN1_OFFSET;
+    data->io_origin1_offset = VTSS_IO_ORIGIN2_OFFSET;
     data->repl_cnt_max = SYMREG_REPL_CNT_MAX;
     data->name_len_max = SYMREG_NAME_LEN_MAX;
     return VTSS_RC_OK;

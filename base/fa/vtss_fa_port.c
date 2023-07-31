@@ -823,15 +823,6 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
  *  MIIM control
  * ================================================================= */
 
-static BOOL fa_laguna_fixme(vtss_state_t *vtss_state)
-{
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    return FALSE;
-#else
-    return LA_TGT;
-#endif
-}
-
 /* PHY commands */
 #define PHY_CMD_ADDRESS  0 /* 10G: Address */
 #define PHY_CMD_WRITE    1 /* 1G/10G: Write */
@@ -864,13 +855,9 @@ static vtss_rc fa_miim_cmd(vtss_state_t *vtss_state,
     }
 
     /* Set Start of frame field */
-    if (fa_laguna_fixme(vtss_state)) {
-        REG_WR(VTSS_DEVCPU_GCB_MII_CFG(i), 0x2ff); //fixme
-    } else {
-        REG_WR(VTSS_DEVCPU_GCB_MII_CFG(i),
-               VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(0x32) |
-               VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_ST_CFG_FIELD(sof));
-    }
+    REG_WRM(VTSS_DEVCPU_GCB_MII_CFG(i),
+            VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_ST_CFG_FIELD(sof),
+            VTSS_M_DEVCPU_GCB_MII_CFG_MIIM_ST_CFG_FIELD);
 
     /* Read command is different for Clause 22 */
     if (sof == 1 && cmd == PHY_CMD_READ) {
@@ -1833,9 +1820,6 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
 {
     u32 res, dp, prio;
 
-    if (fa_laguna_fixme(vtss_state)) {
-        return VTSS_RC_OK; // fixme
-    }
     // QLIM WM setup from MOT 15/8/2019:
     // Set legacy share levels to max for src_mem and src_ref
     for (res = 0; res < 2; res++) {
@@ -1852,6 +1836,7 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
     REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), QLIM_WM(90));
     REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), QLIM_WM(95));
     REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0),  QLIM_WM(100));
+
     return VTSS_RC_OK;
 }
 
@@ -2383,9 +2368,6 @@ static vtss_rc fa_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t 
               (conf->speed == VTSS_SPEED_100M)  ? 4 :
               (conf->speed == VTSS_SPEED_10M)   ? 5 : 6;
 
-    if (fa_laguna_fixme(vtss_state)) {
-        return VTSS_RC_OK; //fixme
-    }
     for (q = 0; q < VTSS_PRIOS; q++) {
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
     }
@@ -2436,9 +2418,6 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     u32               fc_stop     = 4; // stop when fc is enabled (frames)
     u32               atop_tot    = VTSS_M_QSYS_ATOP_TOT_CFG_ATOP_TOT;
 
-    if (fa_laguna_fixme(vtss_state)) {
-        return VTSS_RC_OK; //fixme
-    }
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
             pfc = 1;

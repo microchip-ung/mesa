@@ -147,7 +147,7 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
 
-    // Status LED
+    // Status LED fixme
     /* gpio_no = 61; */
     /* (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT); */
     /* (void)mesa_gpio_write(NULL, 0, gpio_no, 0); */
@@ -158,41 +158,11 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
     (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
 
+    // MIIM frequency needs to be reduced on this board: DEVCPU_GCB:MIIM[0]:MII_CFG = 0x2ff
+    (void)mesa_reg_write(NULL, 0, 0x80406e, 0x2ff);
+
     return MESA_RC_OK;
 }
-
-
-/* typedef struct meba_board_state { */
-/*     board_type_t          type; */
-/*     board_port_cfg_t      port_cfg; */
-/*     const mesa_fan_conf_t *fan_spec; */
-/*     mesa_bool_t           beaglebone; */
-/*     mesa_bool_t           ls1046; */
-/*     uint32_t              port_cnt; */
-/*     int                   cpu_port_cnt; */
-/*     fa_port_info_t       *port; */
-/*     const board_func_t    *func; */
-/*      mepa_device_t        *phy_devices[MAX_PORTS]; */
-/* } meba_board_state_t; */
-
-
-/** \brief Board instance struct */
-/* struct meba_inst { */
-/*     int                      api_version;            /\**< The MEBA version of the board implementation *\/ */
-/*     size_t                   instance_size;          /\**< The size of this structure (for compatibility checking) *\/ */
-/*     void                     *private_data;          /\**< Private (implementation) state data; *\/ */
-/*     meba_board_interface_t   iface;                  /\**< Board interface functions *\/ */
-/*     meba_board_props_t       props;                  /\**< Public board properties *\/ */
-/*     meba_api_t               api;                    /\**< Board API entrypoints *\/ */
-/*     meba_api_synce_t         *api_synce;             /\**< SyncE board API entrypoints *\/ */
-/*     meba_api_tod_t           *api_tod;               /\**< TOD board API entrypoints *\/ */
-/*     meba_api_poe_t           *api_poe;               /\**< PoE board API entrypoints *\/ */
-/*     int                      synce_spi_if_fd;        /\**< File descriptor of SyncE SPI interface.  *\/ */
-/*     meba_api_cpu_port_t      *api_cpu_port;          /\**< CPU Port API entrypoints *\/ */
-/*     int                      phy_device_cnt;         /\**< Total number of phy devices/ports available in board (needed for phy API) *\/ */
-/*     mepa_device_t            **phy_devices;          /\**< Entry point to phy driver devices. *\/ */
-/* }; */
-
 
 static uint32_t lan969x_capability(meba_inst_t inst, int cap)
 {
@@ -298,7 +268,7 @@ static mesa_rc lan969x_sfp_status_get(meba_inst_t inst,
     meba_board_state_t     *board = INST2BOARD(inst);
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
     uint8_t                sgport = meba_port_map[port_no].sgpio_port;
-    return MESA_RC_OK; //fixme
+
     if (!is_sfp_port(board->port[port_no].map.cap)) {
         return rc;
     }
@@ -319,9 +289,9 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t inst,
     mesa_rc            rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_sgpio_conf_t  conf;
-    mesa_sgpio_mode_t  sgmode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+    mesa_sgpio_mode_t  sgmode = (state->enable ? MESA_SGPIO_MODE_OFF: MESA_SGPIO_MODE_ON);
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
-    return MESA_RC_OK; //fixme
+
     if (board->type == BOARD_TYPE_SUNRISE) {
         return rc;
     }
