@@ -70,19 +70,19 @@ typedef struct {
     uint8_t indv_mask_BT_led_stream_type_default;
 
     // HOCPP - high_over Current Pulse Protection
-    uint8_t indv_mask_HOCPP_default;
+    uint8_t indv_mask_BT_HOCPP_default;
 
     // PSE powering PSE checking
-    uint8_t indv_mask_PSE_powering_PSE_checking_default;
+    uint8_t indv_mask_BT_PSE_powering_PSE_checking_default;
 
     // Layer2 Power Allocation Limit
-    uint8_t indv_mask_layer2_power_allocation_limit_default;
+    uint8_t indv_mask_BT_layer2_power_allocation_limit_default;
 
     // Port LED Blinks at invalid signature or connection-check error
-    uint8_t indv_mask_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
+    uint8_t indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
 
     // Support adding lldp half priority
-    uint8_t indv_mask_support_adding_lldp_half_priority_default;
+    uint8_t indv_mask_BT_support_adding_lldp_half_priority_default;
 
 
     // -----------  AT Power Management mode of operation  ----------------------//
