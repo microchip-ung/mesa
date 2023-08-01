@@ -31,6 +31,8 @@ typedef struct {
     uint8_t                miim_addr;
     mesa_port_interface_t  mac_if;
     meba_port_cap_t        cap;
+    mesa_bool_t            poe_support;
+    int32_t                poe_port;
 } port_map_t;
 
 typedef meba_port_entry_t lan966x_port_info_t;
@@ -93,14 +95,17 @@ static port_map_t port_table_8port[] = {
     // Front port view:
     // 3 1 7 5
     // 2 0 6 4
-    {2, MESA_MIIM_CONTROLLER_0,  9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {0, MESA_MIIM_CONTROLLER_0,  7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_0,  8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+
+// chip                    miim  mac                                                         cap poe  poe
+// port                    addr  intf                                                        support  port
+    {2, MESA_MIIM_CONTROLLER_0,  9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 0},
+    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 1},
+    {0, MESA_MIIM_CONTROLLER_0,  7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 2},
+    {1, MESA_MIIM_CONTROLLER_0,  8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 3},
+    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 4},
+    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 5},
+    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 6},
+    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 7},
 };
 
 static port_map_t port_table_endnode[] = {
@@ -132,6 +137,8 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
     mesa_sgpio_conf_t      conf;
     mesa_sgpio_port_conf_t *pc;
     uint32_t               gpio_no, port;
+
+    T_D(inst, "board type=%d", board->type);
 
     switch (board->type) {
     case BOARD_TYPE_SUNRISE:
@@ -285,6 +292,8 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->map.miim_addr = map->miim_addr;
     entry->mac_if = map->mac_if;
     entry->cap = map->cap;
+    entry->poe_support = map->poe_support;
+    entry->poe_chip_port = map->poe_port;
 }
 
 static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
@@ -300,6 +309,8 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
         if (board->type == BOARD_TYPE_8PORT) {
             board->entry[port_no].phy_base_port = map[port_no].chip_port >= 4 && map[port_no].chip_port <= 7 ? 4 : 0;
         }
+
+        T_I(inst, "port_no= %d, poe_support=%d", port_no, board->entry->poe_support);
     }
 }
 
@@ -337,8 +348,10 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
     switch (cap) {
         case MEBA_CAP_1588_CLK_ADJ_DAC:
         case MEBA_CAP_1588_REF_CLK_SEL:
-        case MEBA_CAP_POE:
             return false;
+
+        case MEBA_CAP_POE:
+            return true;
 
         case MEBA_CAP_TEMP_SENSORS:
             return 0;
@@ -347,6 +360,7 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             // On this platform port count and port map count are identical (no loop ports)
             return board->port_cnt;
+
         case MEBA_CAP_LED_MODES:
             return 1;    /* No alternate led mode support */
 
@@ -385,11 +399,16 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
             } else {
                 return 0;
             }
+
         case MEBA_CAP_POE_BT:
+            return true;
+
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
             return false;
+
         case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
+
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -419,6 +438,7 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
+
     T_I(inst, "Called - %d", reset);
     switch (reset) {
     case MEBA_BOARD_INITIALIZE:
@@ -717,7 +737,7 @@ static mesa_rc lan966x_irq_handler(meba_inst_t inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
 
-    T_I(inst, "Called - irq %d", chip_irq);
+    T_D(inst, "Called - irq %d", chip_irq);
     switch (chip_irq) {
     case MESA_IRQ_PTP_SYNC:
         return meba_generic_ptp_handler(inst, signal_notifier);
@@ -870,6 +890,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     meba_inst_t        inst;
     meba_board_state_t *board;
     int                pcb;
+
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
                 sizeof(*callouts), callouts_size);
@@ -901,6 +922,8 @@ meba_inst_t meba_initialize(size_t callouts_size,
     } else {
         board->type = BOARD_TYPE_ADARO;   // Default
     }
+
+    T_D(inst, "board type=%d", board->type);
 
     /* Fill out port mapping table */
     inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
@@ -954,6 +977,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api_synce                           = meba_synce_get();
     inst->api_tod                             = meba_tod_get();
     inst->api.meba_ptp_external_io_conf_get   = lan966x_ptp_external_io_conf_get;
+    inst->api_poe = meba_poe_get();
 
     return inst;
 
