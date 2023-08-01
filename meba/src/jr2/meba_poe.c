@@ -28,11 +28,11 @@ meba_poe_parameters_t tPoE_parameters =
     .indv_mask_BT_support_high_res_detection_default = JR2_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT, // expand Resistor detection range up to range to 55 K.
     .indv_mask_BT_i2c_restart_enable_default         = JR2_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,         // Initialization of the I2C module system after 10 seconds of inactivity.
     .indv_mask_BT_led_stream_type_default            = JR2_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,            // led stream type
-    .indv_mask_HOCPP_default                         = JR2_INDV_MASK_BT_HOCPP_DEFAULT,                      // HOCPP - high_over Current Pulse Protection
-    .indv_mask_PSE_powering_PSE_checking_default     = JR2_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT,               // PSE powering PSE checking
-    .indv_mask_layer2_power_allocation_limit_default = JR2_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT,           // Layer2 Power Allocation Limit
-    .indv_mask_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default = JR2_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT,  // Port LED Blinks at invalid signature or connection-check error
-    .indv_mask_support_adding_lldp_half_priority_default = JR2_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,   // Support adding lldp half priority
+    .indv_mask_BT_HOCPP_default                      = JR2_INDV_MASK_BT_HOCPP_DEFAULT,                      // HOCPP - high_over Current Pulse Protection
+    .indv_mask_BT_PSE_powering_PSE_checking_default  = JR2_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT,               // PSE powering PSE checking
+    .indv_mask_BT_layer2_power_allocation_limit_default = JR2_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT,           // Layer2 Power Allocation Limit
+    .indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default = JR2_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT,  // Port LED Blinks at invalid signature or connection-check error
+    .indv_mask_BT_support_adding_lldp_half_priority_default = JR2_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,   // Support adding lldp half priority
 
     // -----------  AT Power Management mode of operation  ----------------------//
     .AT_pm1_default = JR2_PM1_AT_DEFAULT,     // Selects the method of calculating total power consumption.
@@ -213,5 +213,3 @@ meba_api_poe_t *meba_poe_get()
     return &public_functions;
 }
 
-
-#undef _JR2_MEBA_POE_C_
