@@ -76,6 +76,7 @@
 #define SPARX5_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT  0x21  // Lagacy + IGNORE_PD_CLASS 60W
 #define SPARX5_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT  0x26  // Lagacy + IGNORE_PD_CLASS 90W
 
+//-- BT individual masks --//
 
 // '0' The allocation logic before classification sums the delivering power ports with
 //     lower priority and adds the result to the available power. After classification, the
@@ -83,7 +84,7 @@
 //     power for the higher priority port.
 // '1' If power is not available for powering-up any port, any new connected port
 //     power-up is denied, regardless of its priority.
-#define SPARX5_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
+#define SPARX5_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
@@ -91,7 +92,7 @@
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
-#define SPARX5_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 1
+#define SPARX5_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 0
 
 
 // '0' Do not initialize the I2C module in case of inactivity.
@@ -122,7 +123,7 @@
 // 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
 // 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
-#define SPARX5_INDV_MASK_BT_HOCPP_DEFAULT                 2
+#define SPARX5_INDV_MASK_BT_HOCPP_DEFAULT                      2
 
 
 //PSE powering PSE checking
