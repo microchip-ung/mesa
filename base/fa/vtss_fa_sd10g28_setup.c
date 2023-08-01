@@ -29,6 +29,9 @@ vtss_rc  vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) 
 	u32 cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 	u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
 
+    if (vtss_state->port.cmu_enable_mask & VTSS_BIT(cmu_num)) {
+        return VTSS_RC_OK; // Already enabled
+    }
 
     REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
                 VTSS_F_SD_CMU_TERM_TARGET_SD_CMU_CFG_EXT_CFG_RST(1),
@@ -132,8 +135,9 @@ vtss_rc  vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) 
                 VTSS_F_SD10G_CMU_TARGET_CMU_0D_CFG_PMA_TX_CK_PD(0),
                 VTSS_M_SD10G_CMU_TARGET_CMU_0D_CFG_PMA_TX_CK_PD);
 
+    vtss_state->port.cmu_enable_mask |= VTSS_BIT(cmu_num);
 
-  return rc;
+    return rc;
 }
 
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
@@ -1008,7 +1012,6 @@ static vtss_rc  vtss_laguna_sd10g28_reg_cfg(vtss_state_t *vtss_state, vtss_sd10g
   return rc;
 }
 
-
 vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28_setup_args_t config, vtss_port_no_t port_no) {
     vtss_sd10g28_setup_struct_t calc_results = {};
     vtss_rc rc = 0;
@@ -1031,12 +1034,13 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
             rc |= vtss_ant_sd10g28_reg_cfg(vtss_state, &calc_results, port_no);
         }
     } else {
+        u32 cmu_num;
         rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
-        /* cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no); */
+        cmu_num = vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], port_no);
 
-        /* if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) { */
-        /*     VTSS_E("Could not configure CMU %d", cmu_num); */
-        /* } */
+        if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu_num)) != VTSS_RC_OK) {
+            VTSS_E("Could not configure CMU %d", cmu_num);
+        }
 
         if ((rc |= vtss_laguna_sd10g28_reg_cfg(vtss_state, &calc_results, port_no)) != VTSS_RC_OK) {
             VTSS_E("Could not configure serdes %d", port_no);

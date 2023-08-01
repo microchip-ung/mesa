@@ -260,7 +260,7 @@ static vtss_rc fa_get_lane_target(vtss_state_t *vtss_state, u32 type, u32 indx)
     }
 }
 
-u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
+u32 vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
     u32 serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     if (LA_TGT) {
@@ -274,7 +274,7 @@ u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_ty
                 return 5;
             }
         } else if (cmu_type == 1) {
-            if (serdes_no < 4) {
+            if (serdes_no < 2) {
                 return 0;
             } else {
                 return 3;
@@ -3874,17 +3874,7 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     u32 sd25g_tgt, sd_lane_tgt, cmu_tgt, cmu_cfg_tgt;
 
     if (LA_TGT) {
-        for (u32 cmu = 0; cmu < 6; cmu++) {
-            if (cmu == 1 || cmu == 4) {
-                continue;
-            } // fixme
-            vtss_rc rc = 0;
-            if ((rc |= vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state, cmu)) != VTSS_RC_OK) {
-                VTSS_E("Could not configure CMU %d", cmu);
-            }
-        }
-
-        return VTSS_RC_OK; // Fixme
+        return VTSS_RC_OK; // fixme (Add serdes power down)
     }
 
     if (FA_TGT) {
