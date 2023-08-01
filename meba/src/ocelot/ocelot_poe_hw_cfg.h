@@ -114,6 +114,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 #define OCELOT_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT  0x21  // Lagacy + IGNORE_PD_CLASS 60W
 #define OCELOT_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT  0x26  // Lagacy + IGNORE_PD_CLASS 90W
 
+//-- BT individual masks --//
 
 // '0' The allocation logic before classification sums the delivering power ports with
 //     lower priority and adds the result to the available power. After classification, the
@@ -121,7 +122,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 //     power for the higher priority port.
 // '1' If power is not available for powering-up any port, any new connected port
 //     power-up is denied, regardless of its priority.
-#define OCELOT_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
+#define OCELOT_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
@@ -129,7 +130,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
-#define OCELOT_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 1
+#define OCELOT_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 0
 
 
 // '0' Do not initialize the I2C module in case of inactivity.
@@ -151,7 +152,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 // 7 Direct led function from PD69208 LED ports (for 1 port Midspan products).
 //   1 package for 2P and 4P LED operation.
 //   Another package for SYS OK pin.
-#define OCELOT_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT            2
+#define OCELOT_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT            0
 
 
 // HOCPP - High Over Current Pulse Protection
@@ -160,7 +161,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 // 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
 // 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
-#define OCELOT_INDV_MASK_BT_HOCPP_DEFAULT                 2
+#define OCELOT_INDV_MASK_BT_HOCPP_DEFAULT                      2
 
 
 //PSE powering PSE checking
@@ -178,7 +179,7 @@ meba_poe_port_properties_t ocelot_pd69200AT_port_map[] =
 // Port LED Blinks at invalid signature or connection-check error
 // 0 = When port detects invalid signature or connection-check error, LED stays off.
 // 1 = When port detects invalid signature or connection-check error, LED blinks.
-#define OCELOT_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT 0
+#define OCELOT_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT 1
 
 
 // Support_adding lldp_half_priority
