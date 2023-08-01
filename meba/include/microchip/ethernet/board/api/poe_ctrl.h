@@ -312,7 +312,6 @@ typedef struct {
     uint8_t bt_support_lldp_half_priority;
     uint8_t bt_led_stream_type;
     uint8_t bt_blinks_at_invalid_signature;
-    uint8_t bt_xSystem_OK_pin_behavior;
 } meba_poe_indv_mask_bt_t;
 
 //------ AT individual masks ------ //
@@ -325,7 +324,6 @@ typedef struct {
     uint8_t at_supports_backoff;
     uint8_t at_led_stream_type;
     uint8_t at_pse_powering_pse_checking;
-    uint8_t at_xSystem_OK_pin_behavior;
     uint8_t at_enable_asic_refresh;
     uint8_t at_layer2_lldp_enable;
     uint8_t at_class_0_equal_af;
