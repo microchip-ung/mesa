@@ -1836,6 +1836,8 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
     REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), QLIM_WM(90));
     REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), QLIM_WM(95));
     REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0),  QLIM_WM(100));
+    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), 20);
+    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), 50);
 
     return VTSS_RC_OK;
 }
@@ -1867,6 +1869,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         REG_WR(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(shr_id), 0);
         REG_WR(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), 0);
     }
+    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &value);
     pr("QLIMIT_SHR_TOP      %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
     REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &value);
     pr("QLIMIT_SHR_ATOP     %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
@@ -5052,6 +5055,7 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
         REG_WR(VTSS_PORT_CONF_USGMII_ENA,   0);
 #endif
     }
+
     return VTSS_RC_OK;
 }
 
