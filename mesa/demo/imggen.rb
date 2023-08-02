@@ -126,21 +126,21 @@ $machines = {
 
     "lan969x" => {  # Note: Currently for building only (need to be updated for a life target)
         :arch => "arm64",
-        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/mscc-linux-kernel.bin.gz",
+        :kernel => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/mscc-linux-kernel.bin.gz",
         :kerneladdr  => "/bits/ 64 <0x60000000>",
         :kernelentry => "/bits/ 64 <0x60000000>",
         :ramdiscaddr => "/bits/ 64 <0x61000000>",
         :kcomp => "gzip",
         :dt => [
           {
-            :file => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/lan969x_appl_pcb8398.dtb",
+            :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/lan969x_appl_ev23x71a.dtb",
             :overlays => [
-                { :name => "lan9698_ung8398_0_at_lan969x", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8398_0.dtso"},
+                { :name => "lan9698_ev23x71a_0_at_lan969x", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8398_0.dtso"},
             ]
           },
         ],
         :fdtaddr => "/bits/ 64 <0x6fff0000>",
-        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/standalone_lan969x/release/rootfs.tar",
+        :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",
     },
 
     "fireant" => {
