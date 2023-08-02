@@ -5183,9 +5183,6 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
 
 /* - Initialization ------------------------------------------------ */
 #if defined(VTSS_FEATURE_QOS_OT)
-        VTSS_RC(fa_share_config(vtss_state, 0, 50, 500, 2000));
-        /* Configure share 1 */
-        VTSS_RC(fa_share_config(vtss_state, 1, 50, 1000, 0));
 static vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent, u32 queue_size, u32 se_total)
 {
     if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
