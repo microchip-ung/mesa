@@ -5183,6 +5183,9 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
 
 /* - Initialization ------------------------------------------------ */
 #if defined(VTSS_FEATURE_QOS_OT)
+        VTSS_RC(fa_share_config(vtss_state, 0, 50, 500, 2000));
+        /* Configure share 1 */
+        VTSS_RC(fa_share_config(vtss_state, 1, 50, 1000, 0));
 static vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent, u32 queue_size, u32 se_total)
 {
     if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
@@ -5195,9 +5198,10 @@ static vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent,
     REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(share), VTSS_F_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP((max_m * 90) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM((max_m * 60) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(0));
-    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(VTSS_DIV_ROUND_UP((queue_size * 2), 184)));
+//    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(VTSS_DIV_ROUND_UP((queue_size * 2), 184)));
+    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(20));
 //    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(VTSS_DIV_ROUND_UP((se_total * 2), 184)));
-    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(5));
+    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(50));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(0));
     return VTSS_RC_OK;
 }
