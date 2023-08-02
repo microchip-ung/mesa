@@ -1213,10 +1213,10 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         sgmii = 1;
-        if ((port % 4) == 0) {
+        u32 p = (port / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
             // BZ23738
-            for (u32 p = port + 1; p <= port + 3; ++p)
-                L26_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(p)), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
+            L26_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(p + cnt)), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
         }
         vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QSGMII; // The serdes mode is already configured
         break;
