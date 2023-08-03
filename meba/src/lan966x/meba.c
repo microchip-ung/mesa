@@ -77,18 +77,26 @@ static const uint32_t pin_conf_lan9668[VTSS_TS_IO_ARRAY_SIZE] = {
 
 // NB: No SFP support!
 static port_map_t port_table_adaro[] = {
-    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
+    //---------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller         | MII |            MAC          |              CAP              | PoE    | PoE  |
+    //Port |                        | Addr|            INTERFACE    |                               | Support| Port |
+    //---------------------------------------------------------------------------------------------------------------
+    { 0    , MESA_MIIM_CONTROLLER_0 , 0   , MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_0 , 1   , MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 1    },
+    { 2    , MESA_MIIM_CONTROLLER_0 , 2   , MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 2    },
+    { 3    , MESA_MIIM_CONTROLLER_0 , 3   , MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 3    }
 };
 
 static port_map_t port_table_sunrise[] = {
-    {0, MESA_MIIM_CONTROLLER_0, 4, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_0, 5, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_0, 6, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {3, MESA_MIIM_CONTROLLER_0, 7, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
+    //--------------------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller           | MII |            MAC                   |            CAP                | PoE    | PoE  |
+    //Port |                          | Addr|            INTERFACE             |                               | Support| Port |
+    //--------------------------------------------------------------------------------------------------------------------------
+    { 0    , MESA_MIIM_CONTROLLER_0   , 4   , MESA_PORT_INTERFACE_GMII         , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_0   , 5   , MESA_PORT_INTERFACE_GMII         , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 1    },
+    { 2    , MESA_MIIM_CONTROLLER_0   , 6   , MESA_PORT_INTERFACE_GMII         , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 2    },
+    { 3    , MESA_MIIM_CONTROLLER_0   , 7   , MESA_PORT_INTERFACE_GMII         , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 3    },
+    { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE            , false  , 4    }
 };
 
 static port_map_t port_table_8port[] = {
@@ -96,39 +104,53 @@ static port_map_t port_table_8port[] = {
     // 3 1 7 5
     // 2 0 6 4
 
-// chip                    miim  mac                                                         cap poe  poe
-// port                    addr  intf                                                        support  port
-    {2, MESA_MIIM_CONTROLLER_0,  9, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 0},
-    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 1},
-    {0, MESA_MIIM_CONTROLLER_0,  7, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 2},
-    {1, MESA_MIIM_CONTROLLER_0,  8, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 3},
-    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 4},
-    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 5},
-    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 6},
-    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 7},
+    //----------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller        | MII |            MAC            |             CAP               | PoE    | PoE  |
+    //Port |                       | Addr|            INTERFACE      |                               | Support| Port |
+    //----------------------------------------------------------------------------------------------------------------
+    { 2    , MESA_MIIM_CONTROLLER_0, 9   , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 0    },
+    { 3    , MESA_MIIM_CONTROLLER_0, 10  , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 1    },
+    { 0    , MESA_MIIM_CONTROLLER_0, 7   , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 2    },
+    { 1    , MESA_MIIM_CONTROLLER_0, 8   , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 3    },
+    { 6    , MESA_MIIM_CONTROLLER_0, 17  , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 4    },
+    { 7    , MESA_MIIM_CONTROLLER_0, 18  , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 5    },
+    { 4    , MESA_MIIM_CONTROLLER_0, 15  , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 6    },
+    { 5    , MESA_MIIM_CONTROLLER_0, 16  , MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true   , 7    }
 };
 
 static port_map_t port_table_endnode[] = {
-    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
+    //--------------------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller           | MII |            MAC                   |              CAP              | PoE    | PoE  |
+    //Port |                          | Addr|            INTERFACE             |                               | Support| Port |
+    //--------------------------------------------------------------------------------------------------------------------------
+    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER, false  , 1    },
+    { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE            , false  , 2    },
 };
 
 #define CAP_SFP (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
 
 static port_map_t port_table_endnode_carrier[] = {
-    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE},
+    //-------------------------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller           | MII |            MAC                   |              CAP                   | PoE    | PoE  |
+    //Port |                          | Addr|            INTERFACE             |                                    | Support| Port |
+    //-------------------------------------------------------------------------------------------------------------------------------
+    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 1    },
+    { 2    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH, false  , 2    },
+    { 3    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH, false  , 3    },
+    { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE                 , false  , 4    }
 };
 
 static port_map_t port_table_svb[] = {
-    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT},
+    //---------------------------------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller           | MII |            MAC                 |              CAP                             | PoE    | PoE  |
+    //Port |                          | Addr|            INTERFACE           |                                              | Support| Port |
+    //---------------------------------------------------------------------------------------------------------------------------------------
+    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII      , MEBA_PORT_CAP_TRI_SPEED_COPPER               , false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII      , MEBA_PORT_CAP_TRI_SPEED_COPPER               , false  , 1    },
+    { 3    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT, false  , 2    },
+    { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SGMII_CISCO, CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT, false  , 3    }
 };
 
 static mesa_rc lan966x_board_init(meba_inst_t inst)
@@ -293,7 +315,7 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->mac_if = map->mac_if;
     entry->cap = map->cap;
     entry->poe_support = map->poe_support;
-    entry->poe_chip_port = map->poe_port;
+    entry->poe_port = map->poe_port;
 }
 
 static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
