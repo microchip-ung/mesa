@@ -554,7 +554,7 @@ static void port_map_pcb120(void) {
         entry->map.chip_port = map[port_no].chip_port;
         entry->map.miim_addr = map[port_no].miim_addr;
 #ifdef VTSS_SW_OPTION_POE
-        entry->poe_chip_port = map[port_no].poe_port;
+        entry->poe_port = map[port_no].poe_port;
 #endif
         if (port_no < 8) {
             entry->mac_if = VTSS_PORT_INTERFACE_SGMII;

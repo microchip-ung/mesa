@@ -408,8 +408,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_24x1G_4x10G_NPI:
         if (port_no < 24) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
-            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
-            entry->poe_support         = true;
+            entry->poe_port    = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support = true;
         } else if (port_no < 28) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 24); // 10G: 56-59
         } else if (port_no == 28) {
@@ -421,8 +421,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_4x10G_NPI:
         if (port_no < 48) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
-            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
-            entry->poe_support         = true;
+            entry->poe_port    = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support = true;
             if (board->gpy241_present) {
                 // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
                 entry->phy_base_port = (port_no / 4)*4;
@@ -452,8 +452,8 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 bw = MESA_BW_1G;
             }
             update_entry(inst, entry, if_type, bw, port_no);
-            entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
-            entry->poe_support         = true;
+            entry->poe_port    = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+            entry->poe_support = true;
         } else if (port_no < 52) {
             chip_port = 56 + port_no - 48;
             if (board->gpy241_present && board->gpy241_usxgmii_mode && (chip_port % 16 == 8)) {

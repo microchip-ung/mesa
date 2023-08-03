@@ -103,7 +103,7 @@ typedef struct {
 #ifdef VTSS_SW_OPTION_POE
     // The chip_port and the poe channel number does not necessary match.
     // So far only for PCB120.
-    vtss_chip_no_t         poe_chip_port; /**< Chip port number */
+    vtss_chip_no_t         poe_port;      /**< Chip port number */
     BOOL                   poe_support;   /**< PoE support for this port */
 #endif
 } port_custom_entry_t;

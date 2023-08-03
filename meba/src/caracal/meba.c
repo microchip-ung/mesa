@@ -332,8 +332,8 @@ static mesa_rc caracal_port_entry_get(meba_inst_t inst, mesa_port_no_t port_no, 
 
             if (caracal_capability(inst, MEBA_CAP_POE)) {
                 if (port_no < PDS_408G_NUM_POE_PORT) { // port 0-7 support PoE
-                    entry->poe_support   = true;
-                    entry->poe_chip_port = entry->map.chip_port;
+                    entry->poe_support = true;
+                    entry->poe_port    = entry->map.chip_port;
                 }
             }
         }
@@ -419,7 +419,7 @@ static mesa_rc caracal_port_entry_get(meba_inst_t inst, mesa_port_no_t port_no, 
 
         if (caracal_capability(inst, MEBA_CAP_POE)) {
             entry->poe_support = true;
-            entry->poe_chip_port = entry->map.chip_port;
+            entry->poe_port    = entry->map.chip_port;
         }
     }
     return MESA_RC_OK;

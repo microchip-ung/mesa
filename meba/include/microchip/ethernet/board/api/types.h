@@ -544,7 +544,7 @@ typedef struct {
     // shared resources.
     mesa_port_no_t         phy_base_port;
     // Chip port number (may be different than poe channel number)
-    mesa_chip_no_t         poe_chip_port;
+    mesa_chip_no_t         poe_port;
     mesa_bool_t            poe_support;
 } meba_port_entry_t;
 

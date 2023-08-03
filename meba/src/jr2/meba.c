@@ -400,7 +400,7 @@ static void init_port_cu48(meba_inst_t inst, mesa_port_no_t port_no, meba_port_e
         entry->map.max_bw          = MESA_BW_1G;
         entry->mac_if              = MESA_PORT_INTERFACE_QSGMII;
         entry->cap                 = MEBA_PORT_CAP_TRI_SPEED_COPPER;
-        entry->poe_chip_port       = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
+        entry->poe_port            = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
         entry->poe_support         = true;
     } else if (port_no < 50 &&
                (inst->props.target == MESA_TARGET_SPARX_IV_90 ||
