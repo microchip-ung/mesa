@@ -1830,8 +1830,9 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
             REG_WR(VTSS_QRES_RES_CFG(dp + RT_RES_CFG_MAX_COLOUR_IDX + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
         }
     }
-    printf("vtss_state->vtss_features[FEATURE_QOS_OT]:%d\n",vtss_state->vtss_features[FEATURE_QOS_OT]);
+
     if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
+        // Apply 100% to share 0
         if (fa_share_config(vtss_state, 0, 100) != VTSS_RC_OK) {
             VTSS_E("Could not setup WMs");
         }
