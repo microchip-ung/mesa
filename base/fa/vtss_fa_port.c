@@ -1813,8 +1813,8 @@ static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#define QLIM_WM(fraction) \
-    ((RT_BUFFER_MEMORY/FA_BUFFER_CELL_SZ-100) * fraction / 100)
+/* #define QLIM_WM(fraction) \ */
+/*     ((RT_BUFFER_MEMORY/FA_BUFFER_CELL_SZ-100) * fraction / 100) */
 
 static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
 {
@@ -1830,14 +1830,12 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
             REG_WR(VTSS_QRES_RES_CFG(dp + RT_RES_CFG_MAX_COLOUR_IDX + res * 1024), VTSS_M_QRES_RES_CFG_WM_HIGH);
         }
     }
-
-    // Set 80,90,95,100 % of memory size for qlim,qdiv,ctop,atop,top watermarks
-    REG_WR(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), QLIM_WM(80));
-    REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), QLIM_WM(90));
-    REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), QLIM_WM(95));
-    REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0),  QLIM_WM(100));
-    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), 20);
-    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), 50);
+    printf("vtss_state->vtss_features[FEATURE_QOS_OT]:%d\n",vtss_state->vtss_features[FEATURE_QOS_OT]);
+    if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
+        if (fa_share_config(vtss_state, 0, 100) != VTSS_RC_OK) {
+            VTSS_E("Could not setup WMs");
+        }
+    }
 
     return VTSS_RC_OK;
 }
@@ -1848,7 +1846,7 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t  *const info)
 {
-    u32 value, q, shr_id, qinf, srcport, dstport, prio, port_no, ports[100] = {0}, killed, qsz;
+    u32 value, val1, val2, q, shr_id, qinf, srcport, dstport, prio, port_no, ports[100] = {0}, killed, qsz;
     // FA_CORE_QUEUE_CNT = 40460; // 70 ports * 8 prio * 72 scheduling elements + 2 * 70 (superprio)
 
     pr ("\nQueue limitation check/status\n");
@@ -1869,34 +1867,51 @@ static vtss_rc fa_debug_wm_qlim(vtss_state_t *vtss_state,
         REG_WR(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(shr_id), 0);
         REG_WR(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(shr_id), 0);
     }
-    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &value);
-    pr("QLIMIT_SHR_TOP      %u\n", VTSS_X_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &value);
-    pr("QLIMIT_SHR_ATOP     %u\n", VTSS_X_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), &value);
-    pr("QLIMIT_SHR_CTOP     %u\n", VTSS_X_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), &value);
-    pr("QLIMIT_SHR_QLIM     %u\n", VTSS_X_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(0), &value);
-    pr("QLIMIT_SHR_QDIV     %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(value));
-    REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), &value);
-    pr("QLIMIT_QUE_CONG     %u\n", VTSS_X_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(value));
-    REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), &value);
-    pr("QLIMIT_SE_CONG      %u\n", VTSS_X_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(0), &value);
-    pr("QLIMIT_SHR_QDIVMAX  %u\n", VTSS_X_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(value));
-    REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(0), &value);
-    pr("QLIMIT_SE_EIR       %u\n", VTSS_X_XQS_QLIMIT_SE_EIR_CFG_QLIMIT_SE_EIR(value));
-    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(0), &value);
-    pr("QLIMIT_CONG_CNT     %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_STAT_QLIMIT_CONG_CNT(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(0), &value);
-    pr("QLIMIT_SHR_FILL     %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_STAT_QLIMIT_SHR_FILL(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(0), &value);
-    pr("QLIMIT_SHR_WM       %u\n", VTSS_X_XQS_QLIMIT_SHR_WM_STAT_QLIMIT_SHR_WM(value));
-    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(0), &value);
-    pr("QLIMIT_CONG_CNT_MAX %u\n", VTSS_X_XQS_QLIMIT_CONG_CNT_MAX_STAT_QLIMIT_CONG_CNT_MAX(value));
-    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(0), &value);
-    pr("QLIMIT_SHR_FILL_MAX %u\n", VTSS_X_XQS_QLIMIT_SHR_FILL_MAX_STAT_QLIMIT_SHR_FILL_MAX(value));
+
+    pr("                    %5u        %5u\n", 0, 1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_TOP_CFG(1), &val2);
+    pr("QLIMIT_SHR_TOP      %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(1), &val2);
+    pr("QLIMIT_SHR_ATOP     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(1), &val2);
+    pr("QLIMIT_SHR_CTOP     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(1), &val2);
+    pr("QLIMIT_SHR_QLIM     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(1), &val2);
+    pr("QLIMIT_SHR_QDIV     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_QUE_CONG_CFG(1), &val2);
+    pr("QLIMIT_QUE_CONG     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SE_CONG_CFG(1), &val2);
+    pr("QLIMIT_SE_CONG      %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(1), &val2);
+    pr("QLIMIT_SHR_QDIVMAX  %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SE_EIR_CFG(1), &val2);
+    pr("QLIMIT_SE_EIR       %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_STAT(1), &val2);
+    pr("QLIMIT_CONG_CNT     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_STAT(1), &val2);
+    pr("QLIMIT_SHR_FILL     %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_WM_STAT(1), &val2);
+    pr("QLIMIT_SHR_WM       %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_CONG_CNT_MAX_STAT(1), &val2);
+    pr("QLIMIT_CONG_CNT_MAX %5u        %5u\n", val1, val2);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(0), &val1);
+    REG_RD(VTSS_XQS_QLIMIT_SHR_FILL_MAX_STAT(1), &val2);
+    pr("QLIMIT_SHR_FILL_MAX %5u        %5u\n", val1, val2);
+
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         ports[VTSS_CHIP_PORT(port_no)] = 1;
@@ -4962,11 +4977,6 @@ static vtss_rc fa_debug_wm(vtss_state_t *vtss_state,
     pr("Num of external ports (vtss_state->port_count)  : %d\n", vtss_state->port_count);
     pr("Num of internal ports  : %d\n", RT_CHIP_PORTS_ALL - RT_CHIP_PORT_CPU);
 
-    /* if (VTSS_X_QRES_RES_CFG_WM_HIGH(val) == VTSS_M_QRES_RES_CFG_WM_HIGH) { */
-    /*     pr("Buffer mode: Queue Limit mode = All ports are serviced equally\n"); */
-    /* } else { */
-    /*     pr("Buffer mode: Queue Limit mode is disabled\n"); */
-    /* } */
     pr("\n");
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no]) {

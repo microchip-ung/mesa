@@ -482,6 +482,7 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
 
 
 /* QoS functions */
+vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);

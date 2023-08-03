@@ -5182,27 +5182,21 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t *vtss_state,
 #endif
 
 /* - Initialization ------------------------------------------------ */
-#if defined(VTSS_FEATURE_QOS_OT)
-static vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent, u32 queue_size, u32 se_total)
+vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent)
 {
-    if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
-        VTSS_E("Not supported");
-    }
-    u32 max_m = (PMEMTOT * percent) / 100;
+    u32 max_m = (RT_BUFFER_REFERENCE * percent) / 100;
 
     REG_WR(VTSS_XQS_QLIMIT_SHR_TOP_CFG(share), VTSS_F_XQS_QLIMIT_SHR_TOP_CFG_QLIMIT_SHR_TOP((max_m * 100) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_ATOP_CFG(share), VTSS_F_XQS_QLIMIT_SHR_ATOP_CFG_QLIMIT_SHR_ATOP((max_m * 95) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_CTOP_CFG(share), VTSS_F_XQS_QLIMIT_SHR_CTOP_CFG_QLIMIT_SHR_CTOP((max_m * 90) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QLIM_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QLIM_CFG_QLIMIT_SHR_QLIM((max_m * 60) / 100));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QDIV_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QDIV_CFG_QLIMIT_SHR_QDIV(0));
-//    REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(VTSS_DIV_ROUND_UP((queue_size * 2), 184)));
     REG_WR(VTSS_XQS_QLIMIT_QUE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_QUE_CONG_CFG_QLIMIT_QUE_CONG(20));
-//    REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(VTSS_DIV_ROUND_UP((se_total * 2), 184)));
     REG_WR(VTSS_XQS_QLIMIT_SE_CONG_CFG(share), VTSS_F_XQS_QLIMIT_SE_CONG_CFG_QLIMIT_SE_CONG(50));
     REG_WR(VTSS_XQS_QLIMIT_SHR_QDIVMAX_CFG(share), VTSS_F_XQS_QLIMIT_SHR_QDIVMAX_CFG_QLIMIT_SHR_QDIVMAX(0));
+
     return VTSS_RC_OK;
 }
-#endif
 
 static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
 {
@@ -5296,11 +5290,10 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
             REG_WR(VTSS_XQS_MAP_CFG_CFG, (se/CFGRATIO));
             REG_WR(VTSS_XQS_QLIMIT_SE_SHR(0, (se%CFGRATIO)), 1);
         }
-
         /* Configure share 0 */
-        VTSS_RC(fa_share_config(vtss_state, 0, 50, 500, 2000));
+        VTSS_RC(fa_share_config(vtss_state, 0, 50));
         /* Configure share 1 */
-        VTSS_RC(fa_share_config(vtss_state, 1, 50, 1000, 0));
+        VTSS_RC(fa_share_config(vtss_state, 1, 50));
     }
 #endif
 
