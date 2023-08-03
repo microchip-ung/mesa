@@ -5291,9 +5291,9 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
             REG_WR(VTSS_XQS_QLIMIT_SE_SHR(0, (se%CFGRATIO)), 1);
         }
         /* Configure share 0 */
-        VTSS_RC(fa_share_config(vtss_state, 0, 50));
+        VTSS_RC(fa_share_config(vtss_state, 0, 75));
         /* Configure share 1 */
-        VTSS_RC(fa_share_config(vtss_state, 1, 50));
+        VTSS_RC(fa_share_config(vtss_state, 1, 25));
     }
 #endif
 

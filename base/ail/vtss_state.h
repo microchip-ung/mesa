@@ -199,17 +199,17 @@ typedef struct {
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 typedef enum {
-    FEATURE_VLAN_COUNTERS,
-    FEATURE_QOS_FRAME_PREEMPTION,
-    FEATURE_SYNCE,
-    FEATURE_FRER,
-    FEATURE_PSFP,
-    FEATURE_REDBOX,
-    FEATURE_QOS_OT,
-    FEATURE_MRP,
-    FEATURE_MRP_V1,
-    FEATURE_PORT_DYNAMIC,
-    FEATURE_MAC_INDEX_TABLE,
+    FEATURE_VLAN_COUNTERS,        // VLAN counters are only supported for SMB devices
+    FEATURE_QOS_FRAME_PREEMPTION, // Frame Preemption support (802.1Qbu and 802.3br)
+    FEATURE_SYNCE,                // SYNCE - L1 syncronization feature
+    FEATURE_FRER,                 // IEEE 802.1CB: Frame Replication and Elimination for Reliability
+    FEATURE_PSFP,                 // IEEE 802.1Qci: Per-Stream Filtering and Policing
+    FEATURE_REDBOX,               // PRP/HSR RedBox
+    FEATURE_QOS_OT,               // Operational Technology traffic handling
+    FEATURE_MRP,                  // IEC 62439-2 MRP
+    FEATURE_MRP_V1,               // Version 1 MRP implementation
+    FEATURE_PORT_DYNAMIC,         // Dynamic port reconfiguration
+    FEATURE_MAC_INDEX_TABLE,      // Index-based MAC address table
     FEATURE_LAST
 } vtss_feature_t;
 #endif
