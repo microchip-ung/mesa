@@ -657,6 +657,7 @@
 #define FA_GRP_XQS_QLIMIT_CFG 1910
 #define FA_GRP_XQS_QLIMIT_SHR 1984
 #define FA_GRP_XQS_QLIMIT_MON 2032
+#define FA_GRP_PTP_PTP_PIN_CNT 5
 
 /* Unstable register addresses */
 #define FA_REG_ANA_AC_PS_COMMON_OWN_UPSID_CNT 3
@@ -1513,6 +1514,7 @@
 #define LA_GRP_XQS_QLIMIT_CFG 1654
 #define LA_GRP_XQS_QLIMIT_SHR 1728
 #define LA_GRP_XQS_QLIMIT_MON 1776
+#define LA_GRP_PTP_PTP_PIN_CNT 8
 
 /* Unstable register addresses */
 #define LA_REG_CPU_RESET 33
