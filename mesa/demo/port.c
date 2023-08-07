@@ -234,8 +234,10 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
         if ((mac_if != MESA_PORT_INTERFACE_SGMII_CISCO) &&
             (p_conf->speed == MESA_SPEED_1G || p_conf->speed == MESA_SPEED_2500M)) {
             mac_if = MESA_PORT_INTERFACE_SERDES;
+        } else if (p_conf->speed == MESA_SPEED_100M) {
+            mac_if = MESA_PORT_INTERFACE_100FX;
         } else {
-        // Fallback to MEBA interface type
+            // Fallback to MEBA interface type
         }
     }
     conf->if_type = mac_if;

@@ -260,7 +260,7 @@ static vtss_rc fa_get_lane_target(vtss_state_t *vtss_state, u32 type, u32 indx)
     }
 }
 
-u32 vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, vtss_sd10g28_cmu_t cmu_type, vtss_port_no_t port_no) {
+u32 vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, u8 cmu_type, vtss_port_no_t port_no) {
     u32 serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
     if (LA_TGT) {

@@ -5290,9 +5290,9 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
             REG_WR(VTSS_XQS_MAP_CFG_CFG, (se/CFGRATIO));
             REG_WR(VTSS_XQS_QLIMIT_SE_SHR(0, (se%CFGRATIO)), 1);
         }
-        /* Configure share 0 */
+        /* Configure share 0 (IT) */
         VTSS_RC(fa_share_config(vtss_state, 0, 75));
-        /* Configure share 1 */
+        /* Configure share 1 (OT) */
         VTSS_RC(fa_share_config(vtss_state, 1, 25));
     }
 #endif
