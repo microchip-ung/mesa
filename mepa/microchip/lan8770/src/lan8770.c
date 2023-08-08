@@ -11,133 +11,6 @@
 static mepa_device_t lan8770_device[MAX_LAN8770_PHY];
 static phy_data_t lan8770_data[MAX_LAN8770_PHY];
 
-// LAN8770 Driver Register Access APIs
-
-static mepa_rc phy_direct_reg_rd(mepa_device_t *const dev, uint16_t const offset, uint16_t *const value)
-{
-    mepa_rc rc = MEPA_RC_NOT_IMPLEMENTED;
-
-    if (dev->callout->miim_read != NULL) {
-        rc = dev->callout->miim_read(dev->callout_ctx, offset, value);
-    }
-
-    return rc;
-}
-
-static mepa_rc phy_direct_reg_wr(mepa_device_t *const dev, uint16_t const offset, uint16_t const value)
-{
-    mepa_rc rc = MEPA_RC_NOT_IMPLEMENTED;
-
-    if (dev->callout->miim_write != NULL) {
-        rc = dev->callout->miim_write(dev->callout_ctx, offset, value);
-    }
-
-    return rc;
-}
-
-static mepa_rc phy_direct_read_mod_write_register(mepa_device_t *const dev, uint16_t const offset, uint16_t const value, uint16_t const mask)
-{
-    uint16_t val = 0x0;
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    MEPA_RC(rc, phy_direct_reg_rd(dev, offset, &val));
-    val = (val & (mask ^ 0xFFFF)) | value;
-    MEPA_RC(rc, phy_direct_reg_wr(dev, offset, val));
-    T_D( MEPA_TRACE_GRP_GEN, "modify_register addr=0x%x, set=0x%x,"
-         "clr=0x%x, reg_val=0x%x, ret_code=%d \r\n",
-         offset, value, mask, val, rc);
-error:
-    return rc;
-}
-
-static mepa_rc phy_ext_bank_reg_rd(mepa_device_t *const dev, uint16_t const bank, uint16_t const offset, uint16_t *const value)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    if (bank == LAN8770_PHY_BANK_SMI) {
-        MEPA_RC(rc, phy_direct_reg_rd(dev, offset, value));
-    } else if (bank <= LAN8770_PHY_BANK_INSTRUMENT) {
-        uint16_t regdata = 0, timeout = 200;
-
-        regdata = offset;
-        regdata |= LAN8770_EXT_REG_CTRL_REG_BANK_SET(bank);
-        regdata |= LAN8770_EXT_REG_CTRL_WRT_CTRL;
-        MEPA_RC(rc, phy_direct_reg_wr(dev, LAN8770_EXT_REG_CTRL_OFFSET, regdata));
-        MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_EXT_REG_CTRL_OFFSET, &regdata));
-        while (regdata & LAN8770_EXT_REG_CTRL_READ_CTRL) {
-            MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_EXT_REG_CTRL_OFFSET, &regdata));
-            timeout--;
-            if (timeout) {
-                MEPA_NSLEEP(10);
-            }
-        };
-
-        if (!timeout) {
-            T_E(MEPA_TRACE_GRP_GEN, "PHY bank register read timeout\r\n");
-            rc = MEPA_RC_ERROR;
-            goto error;
-        }
-
-        MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_EXT_REG_RD_DATA, value));
-    } else {
-        rc = MEPA_RC_ERR_PARM;
-    }
-
-error:
-    return rc;
-}
-
-static mepa_rc phy_ext_bank_reg_wr(mepa_device_t *const dev, uint16_t const bank, uint16_t const offset, uint16_t const value)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    if (bank == LAN8770_PHY_BANK_SMI) {
-        MEPA_RC(rc, phy_direct_reg_wr(dev, offset, value));
-    } else if (bank <= LAN8770_PHY_BANK_INSTRUMENT) {
-        uint16_t regdata = 0, timeout = 200;
-
-        regdata = offset;
-        regdata |= LAN8770_EXT_REG_CTRL_REG_BANK_SET(bank);
-        regdata |= LAN8770_EXT_REG_CTRL_WRT_CTRL;
-        MEPA_RC(rc, phy_direct_reg_wr(dev, LAN8770_EXT_REG_WR_DATA, value));
-        MEPA_RC(rc, phy_direct_reg_wr(dev, LAN8770_EXT_REG_CTRL_OFFSET, regdata));
-
-        MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_EXT_REG_CTRL_OFFSET, &regdata));
-        while (regdata & LAN8770_EXT_REG_CTRL_WRT_CTRL) {
-            MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_EXT_REG_CTRL_OFFSET, &regdata));
-            timeout--;
-            if (timeout) {
-                MEPA_NSLEEP(10);
-            }
-        };
-
-        if (!timeout) {
-            T_E(MEPA_TRACE_GRP_GEN, "PHY bank register write timeout\r\n");
-            rc = MEPA_RC_ERROR;
-            goto error;
-        }
-
-    } else {
-        rc = MEPA_RC_ERR_PARM;
-    }
-
-error:
-    return rc;
-}
-
-static mepa_rc phy_read_mod_write_register(mepa_device_t *const dev, uint16_t const phy_bank, uint16_t const offset, uint16_t const value, uint16_t const mask)
-{
-    uint16_t val = 0x0;
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    MEPA_RC(rc, phy_ext_bank_reg_rd(dev, phy_bank, offset, &val));
-    val = (val & (mask ^ 0xFFFF)) | value;
-    MEPA_RC(rc, phy_ext_bank_reg_wr(dev, phy_bank, offset, val));
-
-error:
-    return rc;
-}
-
 // LAN8770 Driver Helper APIs
 
 static mepa_rc phy_init_conf(mepa_device_t *const dev, mepa_bool_t master)
@@ -847,6 +720,7 @@ static mepa_rc lan8770_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
     data->init_done = TRUE;
     MEPA_RC(rc, phy_get_device_info(dev));
     MEPA_RC(rc, phy_conf_set(dev, &data->conf));
+    MEPA_RC(rc, phy_tc10_set_config(dev, &data->tc10));
 
 error:
     MEPA_EXIT(dev);
@@ -961,6 +835,14 @@ static mepa_device_t *lan8770_probe(mepa_driver_t *drv,
         lan8770_data[pidx].conf.mac_if_aneg_ena = FALSE;
         lan8770_data[pidx].media_intf = MESA_PHY_MEDIA_IF_T1_100FX;
         lan8770_data[pidx].mac_if = MESA_PORT_INTERFACE_INTERNAL;
+
+        lan8770_data[pidx].tc10.sleep_enable = TRUE;
+        lan8770_data[pidx].tc10.wakeup_mode = MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE;
+        lan8770_data[pidx].tc10.wakeup_fwd_mode = MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE;
+        lan8770_data[pidx].tc10.wake_in_pol = MEPA_GPIO_MODE_ACTIVE_HIGH;
+        lan8770_data[pidx].tc10.wake_out_pol = MEPA_GPIO_MODE_ACTIVE_HIGH;
+        lan8770_data[pidx].tc10.wake_out_mode = MEPA_GPIO_MODE_PUSH_PULL;
+        lan8770_data[pidx].tc10.inh_mode = MEPA_GPIO_MODE_OPEN_SOURCE;
 
         T_I(MEPA_TRACE_GRP_GEN, "LAN8770 driver probed for port %u  \r\n", lan8770_data[pidx].port_no);
 
@@ -1271,6 +1153,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
             .id = LAN8770_PHY_ID_LAN938X,   // LAN8770 PHY in LAN938X switch
@@ -1298,6 +1181,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
             .id = LAN8770_PHY_ID_LAN937X,   // LAN8770 PHY in LAN937X switch
@@ -1325,6 +1209,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
             .id = LAN8770_PHY_ID_LAN937X_TC10,   // LAN8770 PHY in LAN937X switch with TC10 support
@@ -1352,6 +1237,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_tc10                      = &lan8770_tc10_drivers
         },
     };
 

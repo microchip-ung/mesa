@@ -2818,3 +2818,189 @@ uint32_t mepa_capability(struct mepa_device *dev, uint32_t capability)
     }
     return dev->drv->mepa_capability(dev, capability);
 }
+
+mepa_rc mepa_tc10_set_sleep_support(struct mepa_device          *dev,
+                                    const mepa_bool_t           enable)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_set_sleep_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_set_sleep_support(dev, enable);
+}
+
+mepa_rc mepa_tc10_get_sleep_support(struct mepa_device        *dev,
+                                    mepa_bool_t               *const enable)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_sleep_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_sleep_support(dev, enable);
+}
+
+mepa_rc mepa_tc10_set_wakeup_support(struct mepa_device                 *dev,
+                                     const mepa_tc10_wakeup_mode_t      mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_set_wakeup_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_set_wakeup_support(dev, mode);
+}
+
+mepa_rc mepa_tc10_get_wakeup_support(struct mepa_device                 *dev,
+                                     mepa_tc10_wakeup_mode_t            *const mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_wakeup_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_wakeup_support(dev, mode);
+}
+
+
+mepa_rc mepa_tc10_set_wakeup_fwd_support(struct mepa_device                     *dev,
+                                         const mepa_tc10_wakeup_fwd_mode_t      mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_set_wakeup_fwd_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_set_wakeup_fwd_support(dev, mode);
+}
+
+mepa_rc mepa_tc10_get_wakeup_fwd_support(struct mepa_device                     *dev,
+                                         mepa_tc10_wakeup_fwd_mode_t            *const mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_wakeup_fwd_support) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_wakeup_fwd_support(dev, mode);
+}
+
+mepa_rc mepa_tc10_set_wake_pin_polarity(struct mepa_device              *dev,
+                                        const mepa_tc10_pin_t           pin,
+                                        const mepa_gpio_mode_t          polarity)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_set_wake_pin_polarity) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_set_wake_pin_polarity(dev, pin, polarity);
+}
+
+mepa_rc mepa_tc10_get_wake_pin_polarity(struct mepa_device              *dev,
+                                        const mepa_tc10_pin_t           pin,
+                                        mepa_gpio_mode_t                *const polarity)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_wake_pin_polarity) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_wake_pin_polarity(dev, pin, polarity);
+}
+
+mepa_rc mepa_tc10_set_pin_mode(struct mepa_device           *dev,
+                               const mepa_tc10_pin_t        pin,
+                               const mepa_gpio_mode_t       mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_set_pin_mode) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_set_pin_mode(dev, pin, mode);
+}
+
+mepa_rc mepa_tc10_get_pin_mode(struct mepa_device           *dev,
+                               const mepa_tc10_pin_t        pin,
+                               mepa_gpio_mode_t             *const mode)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_pin_mode) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_pin_mode(dev, pin, mode);
+}
+
+mepa_rc mepa_tc10_send_sleep_request(struct mepa_device                     *dev,
+                                     const mepa_tc10_sleep_request_t        req)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_send_sleep_request) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_send_sleep_request(dev, req);
+}
+
+mepa_rc mepa_tc10_get_state(struct mepa_device      *dev,
+                            mepa_tc10_state_t       *const state)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_state) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_state(dev, state);
+}
+
+mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_send_wake_request) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_send_wake_request(dev);
+}

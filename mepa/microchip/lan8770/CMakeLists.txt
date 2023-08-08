@@ -3,6 +3,8 @@
 
 MEPA_DRV(LIB_NAME mepa_drv_lan8770
          SRCS     src/lan8770.c
+                  src/lan8770_private.c
+                  src/lan8770_tc10.c
          INCL_PUB ../../../me/include ../../include
          INCL_PRI lan8770)
 

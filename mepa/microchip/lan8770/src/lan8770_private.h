@@ -59,6 +59,16 @@ typedef struct {
 } phy_dev_info_t;
 
 typedef struct {
+    mepa_bool_t                     sleep_enable;
+    mepa_tc10_wakeup_mode_t         wakeup_mode;
+    mepa_tc10_wakeup_fwd_mode_t     wakeup_fwd_mode;
+    mepa_gpio_mode_t                wake_in_pol;
+    mepa_gpio_mode_t                wake_out_pol;
+    mepa_gpio_mode_t                wake_out_mode;
+    mepa_gpio_mode_t                inh_mode;
+} phy_tc10_data_t;
+
+typedef struct {
     mepa_bool_t             init_done;
     mepa_bool_t             phy_aneg_dis;
     mepa_bool_t             link_status;
@@ -71,6 +81,76 @@ typedef struct {
     phy_dev_info_t          dev;
     mepa_bool_t             ctx_status;
     mepa_bool_t             cdiags_start;
+    phy_tc10_data_t         tc10;
 } phy_data_t;
+
+extern mepa_tc10_driver_t lan8770_tc10_drivers;
+
+mepa_rc phy_direct_reg_rd(mepa_device_t *const dev, uint16_t const offset,
+                          uint16_t *const value);
+
+mepa_rc phy_direct_reg_wr(mepa_device_t *const dev, uint16_t const offset,
+                          uint16_t const value);
+
+mepa_rc phy_direct_read_mod_write_register(mepa_device_t *const dev,
+                                           uint16_t const offset,
+                                           uint16_t const value,
+                                           uint16_t const mask);
+
+mepa_rc phy_ext_bank_reg_rd(mepa_device_t *const dev, uint16_t const bank,
+                            uint16_t const offset, uint16_t *const value);
+
+mepa_rc phy_ext_bank_reg_wr(mepa_device_t *const dev, uint16_t const bank,
+                            uint16_t const offset, uint16_t const value);
+
+mepa_rc phy_read_mod_write_register(mepa_device_t *const dev,
+                                    uint16_t const phy_bank,
+                                    uint16_t const offset,
+                                    uint16_t const value,
+                                    uint16_t const mask);
+
+mepa_rc phy_tc10_set_sleep_support(struct mepa_device          *dev,
+                                   const mepa_bool_t           enable);
+
+mepa_rc phy_tc10_get_sleep_support(struct mepa_device       *dev,
+                                   mepa_bool_t              *const enable);
+
+mepa_rc phy_tc10_set_wakeup_support(struct mepa_device                  *dev,
+                                    const mepa_tc10_wakeup_mode_t       mode);
+
+mepa_rc phy_tc10_get_wakeup_support(struct mepa_device          *dev,
+                                    mepa_tc10_wakeup_mode_t     *const mode);
+
+mepa_rc phy_tc10_set_wakeup_fwd_support(struct mepa_device                      *dev,
+                                        const mepa_tc10_wakeup_fwd_mode_t       mode);
+
+mepa_rc phy_tc10_get_wakeup_fwd_support(struct mepa_device              *dev,
+                                        mepa_tc10_wakeup_fwd_mode_t     *const mode);
+
+mepa_rc phy_tc10_set_wake_pin_polarity(struct mepa_device               *dev,
+                                       const mepa_tc10_pin_t            pin,
+                                       const mepa_gpio_mode_t           polarity);
+
+mepa_rc phy_tc10_get_wake_pin_polarity(struct mepa_device               *dev,
+                                       const mepa_tc10_pin_t            pin,
+                                       mepa_gpio_mode_t                 *const polarity);
+
+mepa_rc phy_tc10_set_pin_mode(struct mepa_device            *dev,
+                              const mepa_tc10_pin_t         pin,
+                              const mepa_gpio_mode_t        mode);
+
+mepa_rc phy_tc10_get_pin_mode(struct mepa_device            *dev,
+                              const mepa_tc10_pin_t         pin,
+                              mepa_gpio_mode_t              *const polarity);
+
+mepa_rc phy_tc10_send_sleep_request(struct mepa_device                      *dev,
+                                    const mepa_tc10_sleep_request_t         req);
+
+mepa_rc phy_tc10_get_state(struct mepa_device       *dev,
+                           mepa_tc10_state_t        *const state);
+
+mepa_rc phy_tc10_send_wake_request(struct mepa_device *dev);
+
+mepa_rc phy_tc10_set_config(struct mepa_device *dev, phy_tc10_data_t *cfg);
 
 #endif //LAN8770_PRIVATE_H

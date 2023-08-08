@@ -7,6 +7,7 @@
 #include <mepa_os.h>
 #include <mepa_ts_driver.h>
 #include <mepa_macsec_driver.h>
+#include <mepa_tc10_driver.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
@@ -784,6 +785,7 @@ typedef struct mepa_driver {
     mepa_driver_prbs_monitor_get_t     mepa_driver_prbs_monitor_get;
     mepa_ts_driver_t                   *mepa_ts;
     mepa_macsec_driver_t               *mepa_macsec;
+    mepa_tc10_driver_t                 *mepa_tc10;
     uint32_t id;                  /**< Id of the driver */
     uint32_t mask;                /**< Mask of the driver */
     struct mepa_driver *next; /**< Pointer to the next driver */

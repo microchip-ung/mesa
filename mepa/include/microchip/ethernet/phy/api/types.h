@@ -10,6 +10,7 @@
 struct mepa_callout_ctx;
 
 struct mepa_ts_driver;
+struct mepa_tc10_driver;
 
 /** \brief Contains methods that are specific to each phy. */
 struct mepa_driver;
@@ -274,6 +275,11 @@ typedef enum {
     MEPA_GPIO_MODE_LED_DISABLE_EXTENDED,
     MEPA_GPIO_MODE_RCVRD_CLK_OUT1,
     MEPA_GPIO_MODE_RCVRD_CLK_OUT2,
+    MEPA_GPIO_MODE_PUSH_PULL,
+    MEPA_GPIO_MODE_OPEN_SOURCE,
+    MEPA_GPIO_MODE_OPEN_DRAIN,
+    MEPA_GPIO_MODE_ACTIVE_LOW,
+    MEPA_GPIO_MODE_ACTIVE_HIGH,
 } mepa_gpio_mode_t;
 
 /** \brief Led id */
