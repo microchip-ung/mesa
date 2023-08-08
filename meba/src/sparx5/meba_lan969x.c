@@ -14,7 +14,9 @@
 
 #define STATUSLED_G_GPIO 61
 #define STATUSLED_R_GPIO 61
+#define VTSS_GPIOS_MAX 67
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
+
 /* Local mapping table */
 typedef struct {
     int32_t                chip_port;
@@ -67,6 +69,26 @@ static port_map_t port_table_pcb8398[] = {
     {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 9},
     {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 6},
     {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 7},
+};
+
+#define PCB8398_GPIO_FUNC_INFO_SIZE 8
+static const mesa_gpio_func_info_t pcb8398_gpio_func_info[PCB8398_GPIO_FUNC_INFO_SIZE] = {
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_0
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_1
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_2
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_3
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = 58,             //MESA_GPIO_FUNC_PTP_4
+     .alt = MESA_GPIO_FUNC_ALT_3},
+    {.gpio_no = 59,             //MESA_GPIO_FUNC_PTP_5
+     .alt = MESA_GPIO_FUNC_ALT_3},
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_6
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, //MESA_GPIO_FUNC_PTP_7
+     .alt = MESA_GPIO_FUNC_ALT_0},
 };
 
 
@@ -141,6 +163,16 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
             conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF;  // Turn on LEDs while booting
             conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
         }
+
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+            /* Enable port 1 and set bit 2 and 3 to high. This set the RS422 1PPS driver output to tristate */
+            conf.port_conf[1].enabled = true;
+            conf.port_conf[1].mode[2] = MESA_SGPIO_MODE_ON;
+            conf.port_conf[1].mode[3] = MESA_SGPIO_MODE_ON;
+            /* Port 0 must also be enabled */
+            conf.port_conf[0].enabled = true;
+        }
+
         (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
 
@@ -601,6 +633,27 @@ static mesa_rc lan969x_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
+static mesa_rc lan969x_gpio_func_info_get(meba_inst_t inst,
+                                          mesa_gpio_func_t gpio_func,  mesa_gpio_func_info_t *info)
+{
+    mesa_rc rc = MESA_RC_OK;
+    meba_board_state_t *board = INST2BOARD(inst);
+
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+        if (gpio_func < PCB8398_GPIO_FUNC_INFO_SIZE) {
+            *info = pcb8398_gpio_func_info[gpio_func];
+        } else {
+            T_E(inst, "Invalid gpio_func %u", gpio_func);
+            rc = MESA_RC_ERROR;
+        }
+    } else {
+        memset(info, 0, sizeof(*info));
+        T_E(inst, "Unknown Board Type %u", board->type);
+        rc = MESA_RC_ERROR;
+    }
+    return rc;
+}
+
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
     meba_board_state_t *board;
@@ -667,6 +720,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_irq_requested              = lan969x_irq_requested;
     inst->api.meba_event_enable               = lan969x_event_enable;
     inst->api.meba_serdes_tap_get             = lan969x_serdes_tap_get;
+    inst->api.meba_gpio_func_info_get         = lan969x_gpio_func_info_get;
     return inst;
 
 error_out:

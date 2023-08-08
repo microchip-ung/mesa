@@ -444,7 +444,8 @@ typedef enum
 {
     MESA_GPIO_FUNC_ALT_0,  // Alternate function 0
     MESA_GPIO_FUNC_ALT_1,  // Alternate function 1
-    MESA_GPIO_FUNC_ALT_2  // Alternate function 2
+    MESA_GPIO_FUNC_ALT_2,  // Alternate function 2
+    MESA_GPIO_FUNC_ALT_3,  // Alternate function 3
 } mesa_gpio_func_alt_t;
 
 // GPIO functionality information

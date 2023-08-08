@@ -57,5 +57,9 @@ enum fla_const {
     __RT_MAC_INDEX_CNT,
     __RT_DSM_CAL_MAX_DEVS_PER_TAXI,
     __RT_DSM_CAL_TAXIS,
+    __RT_EXT_CLK_PIN,
+    __RT_ALT_LDST_PIN,
+    __RT_ALT_PPS_PIN,
+    __RT_TOD_ACC_PIN,
     __FLA_CONT_LAST,
 };

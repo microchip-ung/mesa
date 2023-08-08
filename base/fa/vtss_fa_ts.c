@@ -9,17 +9,8 @@
 /* - CIL functions ------------------------------------------------- */
 
 /* GPIO configuration */
-#define PCB134_GPIO_FUNC_INFO_SIZE 4
-static vtss_gpio_func_info_t ptp_gpio[PCB134_GPIO_FUNC_INFO_SIZE] = {   /* PCB134 is default */
-    {.gpio_no = 8, //PTP_0
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 9, //PTP_1
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 24, //PTP_2
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-    {.gpio_no = 25, //PTP_3
-     .alt = VTSS_GPIO_FUNC_ALT_0},
-};
+#define GPIO_FUNC_INFO_SIZE 8
+static vtss_gpio_func_info_t ptp_gpio[GPIO_FUNC_INFO_SIZE] = {};
 
 static u64 nominal_tod_increment;
 
@@ -27,7 +18,7 @@ static u64 nominal_tod_increment;
 #define HW_PS_PR_SEC 1000000000000LL
 #define HW_PS_PR_NS  1000
 #define ADJ_UNITS_PR_NS 10
-#define PPS_WIDTH 200 /* Width of 1PPS pulse in ns */
+#define PPS_WIDTH 1000000 /* Width of 1PPS pulse in ns */
 
 
 /* Actions on PTP pins */
@@ -69,8 +60,8 @@ static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss
 
 static vtss_rc fa_ts_timeofday_read(vtss_state_t *vtss_state, u32 domain, vtss_timestamp_t *ts, u64 *tc)
 {
-    FA_PTP_PIN_ACTION(TOD_ACC_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, domain);
-    return fa_ts_io_pin_timeofday_get(vtss_state, TOD_ACC_PIN, ts, tc);
+    FA_PTP_PIN_ACTION(RT_TOD_ACC_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, domain);
+    return fa_ts_io_pin_timeofday_get(vtss_state, RT_TOD_ACC_PIN, ts, tc);
 }
 
 static vtss_rc fa_ts_timeofday_sample(vtss_state_t *vtss_state)
@@ -125,15 +116,15 @@ static vtss_rc fa_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_times
 static vtss_rc fa_ts_domain_timeofday_set(vtss_state_t *vtss_state, u32 domain, const vtss_timestamp_t *ts)
 {
     /* must be in IDLE mode before the time can be loaded */
-    FA_PTP_PIN_ACTION (TOD_ACC_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, domain);
-    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(TOD_ACC_PIN),
+    FA_PTP_PIN_ACTION (RT_TOD_ACC_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, domain);
+    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(RT_TOD_ACC_PIN),
            VTSS_F_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(ts->sec_msb));
-    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(TOD_ACC_PIN), ts->seconds);
-    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(TOD_ACC_PIN),
+    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(RT_TOD_ACC_PIN), ts->seconds);
+    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_TOD_ACC_PIN),
            VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(ts->nanoseconds));
-    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(TOD_ACC_PIN),
+    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_TOD_ACC_PIN),
            VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(ts->nanosecondsfrac));
-    FA_PTP_PIN_ACTION (TOD_ACC_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, domain);
+    FA_PTP_PIN_ACTION (RT_TOD_ACC_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, domain);
 
     VTSS_D("domain %u, sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", domain, ts->sec_msb, ts->seconds, ts->nanoseconds, ts->nanosecondsfrac);
     return VTSS_RC_OK;
@@ -148,10 +139,10 @@ static vtss_rc fa_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 d
 {
     VTSS_D("offset before: %d", offset);
     /* must be in IDLE mode before the time can be loaded */
-    FA_PTP_PIN_ACTION (TOD_ACC_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, domain);
-    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(TOD_ACC_PIN),
+    FA_PTP_PIN_ACTION (RT_TOD_ACC_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, domain);
+    REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_TOD_ACC_PIN),
            VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(-offset));
-    FA_PTP_PIN_ACTION (TOD_ACC_PIN, PTP_PIN_ACTION_DELTA, PTP_PIN_ACTION_NOSYNC, domain);
+    FA_PTP_PIN_ACTION (RT_TOD_ACC_PIN, PTP_PIN_ACTION_DELTA, PTP_PIN_ACTION_NOSYNC, domain);
 
     return VTSS_RC_OK;
 }
@@ -246,7 +237,7 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
     vtss_ts_ext_clock_mode_t *ext_clock_mode = &vtss_state->ts.conf.ext_clock_mode;
 
     VTSS_D("one_pps_mode: %u, enable: %u, freq: %u", ext_clock_mode->one_pps_mode, ext_clock_mode->enable, ext_clock_mode->freq);
-    FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    FA_PTP_PIN_ACTION (RT_EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 	/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled, */
 	/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
@@ -256,23 +247,23 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
         u32 dividers = HW_NS_PR_SEC/ext_clock_mode->freq;
         u32 high_div = dividers/2;
         u32 low_div  = (dividers+1)/2;
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(EXT_CLK_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(high_div));
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(EXT_CLK_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_LOW_PERIOD_PIN_WFL(low_div));
 
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, ptp_gpio[EXT_CLK_PIN].alt);
-        FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, 0);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, ptp_gpio[RT_EXT_CLK_PIN].alt);
+        FA_PTP_PIN_ACTION (RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, 0);
 
     } else if (ext_clock_mode->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, ptp_gpio[EXT_CLK_PIN].alt);
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(EXT_CLK_PIN),
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, ptp_gpio[RT_EXT_CLK_PIN].alt);
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(EXT_CLK_PIN), 0);
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_EXT_CLK_PIN), 0);
 
-        FA_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
+        FA_PTP_PIN_ACTION (RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
 #if defined(VTSS_ARCH_LAN969X_FPGA)
 		/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled, */
 		/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
@@ -290,21 +281,21 @@ static vtss_rc fa_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const sa
     u32                       nsec, nsec_frac;
     vtss_ts_alt_clock_mode_t  *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
-    REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(ALT_LDST_PIN), &nsec);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN), &nsec);
     nsec = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(nsec);
     if (nsec >= 0x3ffffff0 && nsec <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
         nsec = 999999984 + (nsec & 0xf);
     }
-    REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(ALT_LDST_PIN), &nsec_frac);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN), &nsec_frac);
     nsec_frac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(nsec_frac);
     *saved = ((u64)nsec << 16) + ((u64)nsec_frac << 8);
     if (alt_clock_mode->one_pps_in) {
         if (alt_clock_mode->save && alt_clock_mode->load) {
             VTSS_E("save and load cannot be enabled at the same time");
         } else if (alt_clock_mode->save) {
-            FA_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, 0);
+            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, 0);
         } else if (alt_clock_mode->load) {
-            FA_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, 0);
+            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, 0);
         }
     }
     return VTSS_RC_OK;
@@ -321,32 +312,32 @@ static vtss_rc fa_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
-    FA_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
     if (alt_clock_mode->one_pps_out) {
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(ALT_PPS_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_ALT_PPS_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
-        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(ALT_PPS_PIN), 0);
+        REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_ALT_PPS_PIN), 0);
 
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[ALT_PPS_PIN].gpio_no, ptp_gpio[ALT_PPS_PIN].alt);
-        FA_PTP_PIN_ACTION (ALT_PPS_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, ptp_gpio[RT_ALT_PPS_PIN].alt);
+        FA_PTP_PIN_ACTION (RT_ALT_PPS_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
     }
 
-    FA_PTP_PIN_ACTION (ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    FA_PTP_PIN_ACTION (RT_ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
     if (alt_clock_mode->one_pps_in) {
         if (alt_clock_mode->save && alt_clock_mode->load) {
             VTSS_E("save and load cannot be enabled at the same time");
             return VTSS_RC_ERROR;
         } else if (alt_clock_mode->save) {
-            (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[ALT_LDST_PIN].gpio_no, ptp_gpio[ALT_LDST_PIN].alt);
-            FA_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
+            (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, ptp_gpio[RT_ALT_LDST_PIN].alt);
+            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
         } else if (alt_clock_mode->load) {
-            (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[ALT_LDST_PIN].gpio_no, ptp_gpio[ALT_LDST_PIN].alt);
-            FA_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
+            (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, ptp_gpio[RT_ALT_LDST_PIN].alt);
+            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
         }
     } else {
-        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[ALT_LDST_PIN].gpio_no, VTSS_GPIO_IN);
+        (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, VTSS_GPIO_IN);
     }
     return VTSS_RC_OK;
 }
@@ -356,12 +347,12 @@ static vtss_rc fa_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 static vtss_rc fa_ts_timeofday_next_pps_set(vtss_state_t *vtss_state, const vtss_timestamp_t *const ts)
 {
     if (vtss_state->ts.conf.alt_clock_mode.one_pps_in) {
-        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(ALT_LDST_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(RT_ALT_LDST_PIN),
                VTSS_F_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(ts->sec_msb));
-        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(ALT_LDST_PIN), ts->seconds-1);
-        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(ALT_LDST_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(RT_ALT_LDST_PIN), ts->seconds-1);
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN),
                VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(ts->nanoseconds));
-        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(ALT_LDST_PIN),
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN),
                VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(ts->nanosecondsfrac));
     }
 
@@ -1210,8 +1201,14 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     REG_WR(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(7));
 
     /* Configure the PTP pin to GPIO selection */
-    for (i = 0; i < 4; ++i) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+    if (FA_TGT) {
+        for (i = 0; i < 4; ++i) {
+            REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+        }
+    }
+    if (LA_TGT) {
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
     }
 
     /* Get the GPIO functionality information */
@@ -1223,6 +1220,12 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_1, &ptp_gpio[1]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_2, &ptp_gpio[2]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_3, &ptp_gpio[3]);
+        if (LA_TGT) {
+            rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
+            rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_5, &ptp_gpio[5]);
+            rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_6, &ptp_gpio[6]);
+            rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_7, &ptp_gpio[7]);
+        }
         if (rc != VTSS_RC_OK) {
             VTSS_E("Not able to get valid GPIO functionallity information");
         }
@@ -1230,11 +1233,12 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         VTSS_E("gpio_func_info_get is NULL");
     }
 #endif
-    for (i = 0; i < PCB134_GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
+    for (i = 0; i < GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
         switch (ptp_gpio[i].alt) {
             case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;
             case VTSS_GPIO_FUNC_ALT_1: ptp_gpio[i].alt = VTSS_GPIO_ALT_1; break;
             case VTSS_GPIO_FUNC_ALT_2: ptp_gpio[i].alt = VTSS_GPIO_ALT_2; break;
+            case VTSS_GPIO_FUNC_ALT_3: ptp_gpio[i].alt = VTSS_GPIO_ALT_3; break;
         }
     }
 

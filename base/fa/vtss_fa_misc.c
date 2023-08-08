@@ -679,16 +679,24 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
                             const vtss_gpio_mode_t mode)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 mask, alt_0 = 0, alt_1 = 0;
+    u32 mask, alt_0 = 0, alt_1 = 0, alt_2 = 0;
 
-    if (gpio_no >= 32) {
+    if (gpio_no > VTSS_GPIOS) {
+        VTSS_E("Invalid GPIO number %u", gpio_no);
+    }
+
+    if (gpio_no >= 64) {
+        mask = VTSS_BIT(gpio_no - 64);
+    } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
     } else {
         mask = VTSS_BIT(gpio_no);
     }
 
     // Disable IRQ
-    if (gpio_no >= 32) {
+    if (gpio_no >= 64) {
+        REG_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, mask);
+    } else if (gpio_no >= 32) {
         REG_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, mask);
     } else {
         REG_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_INTR_ENA, mask);
@@ -697,7 +705,9 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
     case VTSS_GPIO_OUT:
     case VTSS_GPIO_IN:
     case VTSS_GPIO_IN_INT:
-        if (gpio_no >= 32) {
+        if (gpio_no >= 64) {
+            REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_OE2, mode == VTSS_GPIO_OUT, mask);
+        } else if (gpio_no >= 32) {
             REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_OE1, mode == VTSS_GPIO_OUT, mask);
         } else {
             REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_OE, mode == VTSS_GPIO_OUT, mask);
@@ -713,19 +723,40 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
         alt_0 = mask;
         alt_1 = mask;
         break;
+    case VTSS_GPIO_ALT_3:
+        if (FA_TGT) {
+            VTSS_E("illegal mode");
+            return VTSS_RC_ERROR;
+        }
+        alt_2 = mask;
+        break;
     default:
         VTSS_E("illegal mode");
         return VTSS_RC_ERROR;
     }
-    if (gpio_no >= 32) {
+    if (gpio_no >= 64) {
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(0), alt_0, mask);
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(1), alt_1, mask);
+        if (LA_TGT) {
+            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(2), alt_2, mask);
+        }
+    } else if (gpio_no >= 32) {
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(0), alt_0, mask);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(1), alt_1, mask);
+        if (LA_TGT) {
+            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(2), alt_2, mask);
+        }
     } else {
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(0), alt_0, mask);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(1), alt_1, mask);
+        if (LA_TGT) {
+            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(2), alt_2, mask);
+        }
     }
     if (mode == VTSS_GPIO_IN_INT) {
-        if (gpio_no >= 32) {
+        if (gpio_no >= 64) {
+            REG_WRM_SET(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, mask);
+        } else if (gpio_no >= 32) {
             REG_WRM_SET(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, mask);
         } else {
             REG_WRM_SET(VTSS_DEVCPU_GCB_GPIO_INTR_ENA, mask);
@@ -743,7 +774,14 @@ static vtss_rc fa_gpio_read(vtss_state_t *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 val, mask;
 
-    if (gpio_no >= 32) {
+    if (gpio_no > VTSS_GPIOS) {
+        VTSS_E("Invalid GPIO number %u", gpio_no);
+    }
+
+    if (gpio_no >= 64) {
+        mask = VTSS_BIT(gpio_no - 64);
+        REG_RD(VTSS_DEVCPU_GCB_GPIO_IN2, &val);
+    } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
         REG_RD(VTSS_DEVCPU_GCB_GPIO_IN1, &val);
     } else {
@@ -762,9 +800,20 @@ static vtss_rc fa_gpio_write(vtss_state_t *vtss_state,
                                const BOOL            value)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 mask;
+    u32 mask, value1;
 
-    if (gpio_no >= 32) {
+    if (gpio_no > VTSS_GPIOS) {
+        VTSS_E("Invalid GPIO number %u", gpio_no);
+    }
+
+    if (gpio_no >= 64) {
+        mask = VTSS_BIT(gpio_no - 64);
+        if (value) {
+            REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_SET2, mask);
+        } else {
+            REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_CLR2, mask);
+        }
+    } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
         if (value) {
             REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_SET1, mask);
@@ -804,8 +853,19 @@ static vtss_rc fa_gpio_event_poll(vtss_state_t          *vtss_state,
     pending &= mask;
     REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR1, pending);
 
-    for (i = 32; i < VTSS_GPIOS; i++) {
+    for (i = 32; i < 64; i++) {
         events[i] = (pending & 1 << (i - 32)) ? TRUE : FALSE;
+    }
+
+    if (LA_TGT) {
+        REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR2, &pending);
+        REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, &mask);
+        pending &= mask;
+        REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
+
+        for (i = 64; i < VTSS_GPIOS; i++) {
+            events[i] = (pending & 1 << (i - 64)) ? TRUE : FALSE;
+        }
     }
 #endif
     return VTSS_RC_OK;
@@ -819,7 +879,14 @@ static vtss_rc fa_gpio_event_enable(vtss_state_t          *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 mask;
 
-    if (gpio_no >= 32) {
+    if (gpio_no > VTSS_GPIOS) {
+        VTSS_E("Invalid GPIO number %u", gpio_no);
+    }
+
+    if (gpio_no >= 64) {
+        mask = VTSS_BIT(gpio_no - 64);
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, enable << (gpio_no - 64), mask);
+    } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, enable << (gpio_no - 32), mask);
     } else {

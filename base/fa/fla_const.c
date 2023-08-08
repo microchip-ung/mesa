@@ -58,7 +58,11 @@ static unsigned int fa_chip_const[] = {
     [__RT_PGID_FA] = (2048 + 65),
     [__RT_MAC_INDEX_CNT] = 2048,
     [__RT_DSM_CAL_MAX_DEVS_PER_TAXI] = 13,
-    [__RT_DSM_CAL_TAXIS] = 8
+    [__RT_DSM_CAL_TAXIS] = 8,
+    [__RT_EXT_CLK_PIN] = 1,
+    [__RT_ALT_LDST_PIN] = 2,
+    [__RT_ALT_PPS_PIN] = 3,
+    [__RT_TOD_ACC_PIN] = 4
 };
 
 
@@ -116,7 +120,11 @@ static unsigned int la_chip_const[] = {
     [__RT_PGID_FA] = (1024 + 30),
     [__RT_MAC_INDEX_CNT] = 4096,
     [__RT_DSM_CAL_MAX_DEVS_PER_TAXI] = 10,
-    [__RT_DSM_CAL_TAXIS] = 5
+    [__RT_DSM_CAL_TAXIS] = 5,
+    [__RT_EXT_CLK_PIN] = 4,
+    [__RT_ALT_LDST_PIN] = 2,
+    [__RT_ALT_PPS_PIN] = 3,
+    [__RT_TOD_ACC_PIN] = 7
 };
 
 // Register assignment _END_

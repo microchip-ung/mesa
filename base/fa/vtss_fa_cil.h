@@ -137,6 +137,13 @@
 #define RT_QOS_EGRESS_MAP_ROWS              RT_QOS_EGRESS_MAP_IDS
 #define RT_QOS_INGRESS_MAP_ROWS             (RT_QOS_INGRESS_MAP_IDS * 2)
 #define RT_QOS_INGRESS_MAP_IX_RESERVED      (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN)
+// PIN configuration for external clock
+#define RT_EXT_CLK_PIN                      fla_get_const(vtss_state, __RT_EXT_CLK_PIN)
+// PIN configuration for alternative clock
+#define RT_ALT_LDST_PIN                     fla_get_const(vtss_state, __RT_ALT_LDST_PIN)
+#define RT_ALT_PPS_PIN                      fla_get_const(vtss_state, __RT_ALT_PPS_PIN)
+// The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_TOD_ACC_PIN                      fla_get_const(vtss_state, __RT_TOD_ACC_PIN)
 
 // FA/LA runtimes macros
 #define VTSS_PORT_IS_2G5(port)  fla_port_is_2G5(vtss_state, port)
@@ -158,16 +165,6 @@
 #define VTSS_TO_SD10G_LANE(indx) vtss_to_sd10g_lane(vtss_state, indx)
 #define VTSS_TO_SD25G_LANE(indx) vtss_to_sd25g_lane(vtss_state, indx)
 #define VTSS_TO_SD_LANE(indx) vtss_to_sd_lane(vtss_state, indx)
-
-// Fireant has 4 PTP PIN connected to GPIO that can be used for different purposes,
-// the defines below defines the default usage of the 4 pins.
-// PIN configuration for external clock
-#define EXT_CLK_PIN 1               // external clock 1 pps output
-// PIN configuration for alternative clock
-#define ALT_LDST_PIN 2              // alternative clock 1 pps input (Load/Store)
-#define ALT_PPS_PIN  3              // alternative clock 1pps pulse
-// The last PTP pin is not connected to GPIO but can be used for TOD access
-#define TOD_ACC_PIN 4               // pin used for timeofday get/set
 
 /* ================================================================= *
  *  Register access

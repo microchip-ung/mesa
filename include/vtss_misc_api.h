@@ -519,7 +519,13 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #define VTSS_GPIOS         64
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
+/** \brief Number of GPIOs */
+#undef VTSS_GPIOS
+#define VTSS_GPIOS         64
+#endif /* VTSS_ARCH_SPARX5 */
+
+#if defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #if defined(VTSS_ARCH_LAN969X_FPGA)
@@ -527,7 +533,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #else
 #define VTSS_GPIOS         67
 #endif
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */
@@ -661,7 +667,10 @@ typedef enum {
     VTSS_GPIO_FUNC_PTP_1,   // PTP 1 GPIO functionality
     VTSS_GPIO_FUNC_PTP_2,   // PTP 2 GPIO functionality
     VTSS_GPIO_FUNC_PTP_3,   // PTP 3 GPIO functionality
-    VTSS_GPIO_FUNC_PTP_4    // PTP 4 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_4,   // PTP 4 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_5,   // PTP 5 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_6,   // PTP 6 GPIO functionality
+    VTSS_GPIO_FUNC_PTP_7    // PTP 7 GPIO functionality
 } vtss_gpio_func_t;
 
 // GPIO functionality ALT mode
@@ -669,7 +678,8 @@ typedef enum
 {
     VTSS_GPIO_FUNC_ALT_0,  // Alternate function 0
     VTSS_GPIO_FUNC_ALT_1,  // Alternate function 1
-    VTSS_GPIO_FUNC_ALT_2   // Alternate function 2
+    VTSS_GPIO_FUNC_ALT_2,  // Alternate function 2
+    VTSS_GPIO_FUNC_ALT_3,  // Alternate function 3
 } vtss_gpio_func_alt_t;
 
 // GPIO functionality information

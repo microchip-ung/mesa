@@ -74,7 +74,7 @@ extern "C" {
 
 #if defined (VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock output/input. */
-#define VTSS_TS_IO_ARRAY_SIZE       4
+#define VTSS_TS_IO_ARRAY_SIZE       8
 /** \brief Number of separate clock domains in Jaguar2 */
 #define VTSS_TS_DOMAIN_ARRAY_SIZE   3
 #elif defined (VTSS_ARCH_LAN966X)
