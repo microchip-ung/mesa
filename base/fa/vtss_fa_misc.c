@@ -800,7 +800,7 @@ static vtss_rc fa_gpio_write(vtss_state_t *vtss_state,
                                const BOOL            value)
 {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32 mask, value1;
+    u32 mask;
 
     if (gpio_no > VTSS_GPIOS) {
         VTSS_E("Invalid GPIO number %u", gpio_no);

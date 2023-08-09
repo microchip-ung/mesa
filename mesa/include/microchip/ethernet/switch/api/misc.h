@@ -436,7 +436,10 @@ typedef enum {
     MESA_GPIO_FUNC_PTP_1,   // PTP 1 GPIO functionality
     MESA_GPIO_FUNC_PTP_2,   // PTP 2 GPIO functionality
     MESA_GPIO_FUNC_PTP_3,   // PTP 3 GPIO functionality
-    MESA_GPIO_FUNC_PTP_4    // PTP 4 GPIO functionality
+    MESA_GPIO_FUNC_PTP_4,   // PTP 4 GPIO functionality
+    MESA_GPIO_FUNC_PTP_5,   // PTP 5 GPIO functionality
+    MESA_GPIO_FUNC_PTP_6,   // PTP 6 GPIO functionality
+    MESA_GPIO_FUNC_PTP_7    // PTP 7 GPIO functionality
 } mesa_gpio_func_t;
 
 // GPIO functionality ALT mode
