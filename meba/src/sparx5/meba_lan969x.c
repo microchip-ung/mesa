@@ -65,10 +65,10 @@ static port_map_t port_table_pcb8398[] = {
     {21, MESA_MIIM_CONTROLLER_0, 25, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0},
     {22, MESA_MIIM_CONTROLLER_0, 26, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0},
     {23, MESA_MIIM_CONTROLLER_0, 27, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0},
-    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 8},
-    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 9},
-    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 6},
-    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 7},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 6},
+    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 7},
+    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 8},
+    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, LAGUNA_CAP_10G_FDX, MESA_BW_10G, 9},
 };
 
 #define PCB8398_GPIO_FUNC_INFO_SIZE 8
@@ -160,8 +160,8 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
 
         for (port = 6; port <= 9; port++) {
             conf.port_conf[port].enabled = 1;
-            conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF;  // Turn on LEDs while booting
-            conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF;
+            conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF; // Turn on Green SFP LED while booting
+            conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF; // Turn on Red SFP LED while booting
         }
 
         if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
@@ -345,7 +345,6 @@ static mesa_rc lan969x_port_led_update(meba_inst_t inst,
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_status_t *old_status = &board->status[port_no];
     mesa_sgpio_conf_t  conf;
-    mesa_sgpio_mode_t  *mode = conf.port_conf[port_no].mode;
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
 
     if (board->type == BOARD_TYPE_SUNRISE) {
@@ -361,13 +360,14 @@ static mesa_rc lan969x_port_led_update(meba_inst_t inst,
     if ((status->link != old_status->link || status->speed != old_status->speed) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         *old_status = *status; // Save status
-        mode[0] = MESA_SGPIO_MODE_ON; // P0_GR/P1_GR/SFP0_GR/SFP1_GR
-        mode[1] = MESA_SGPIO_MODE_ON; // P0_YEL/P1_YEL/SFP0_RD/SFP1_RD
+        conf.port_conf[sgport].mode[0] =  MESA_SGPIO_MODE_ON; // Green off */
+        conf.port_conf[sgport].mode[1] =  MESA_SGPIO_MODE_ON; // Red off */
+
         if (status->link) {
             if (status->speed >= MESA_SPEED_1G) {
-                mode[0] = MESA_SGPIO_MODE_0_ACTIVITY;
+                conf.port_conf[sgport].mode[0] = MESA_SGPIO_MODE_0_ACTIVITY; // Green on/blinking */
             } else {
-                mode[1] = MESA_SGPIO_MODE_0_ACTIVITY;
+                conf.port_conf[sgport].mode[1] = MESA_SGPIO_MODE_0_ACTIVITY; // Red on/blinking */
             }
         }
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);

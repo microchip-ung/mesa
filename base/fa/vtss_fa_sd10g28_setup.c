@@ -26,6 +26,7 @@
 vtss_rc  vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) {
     vtss_rc rc = VTSS_RC_OK;
     u32 value;
+    u32 spd10g = 1;
 	u32 cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 	u32 cmu_cfg_tgt = VTSS_TO_SD_CMU_CFG(cmu_num);
 
@@ -85,8 +86,12 @@ vtss_rc  vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num) 
                 VTSS_F_SD10G_CMU_TARGET_CMU_30_R_PLL_DLOL_EN(1),
                 VTSS_M_SD10G_CMU_TARGET_CMU_30_R_PLL_DLOL_EN);
 
+    if (cmu_num == 1 || cmu_num == 4) {
+        spd10g = 0;
+    }
+
     REG_WRM(VTSS_SD10G_CMU_TARGET_CMU_09(cmu_tgt),
-                VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_SW_10G(1),
+                VTSS_F_SD10G_CMU_TARGET_CMU_09_CFG_SW_10G(spd10g),
                 VTSS_M_SD10G_CMU_TARGET_CMU_09_CFG_SW_10G);
 
     REG_WRM(VTSS_SD_CMU_TERM_TARGET_SD_CMU_CFG(cmu_cfg_tgt),
