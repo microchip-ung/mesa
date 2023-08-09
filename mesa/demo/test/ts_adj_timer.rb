@@ -38,6 +38,10 @@ if ($pcb == "8290")
     $external_io_in = 0
     $external_io_out = 3
 end
+if ($pcb == "8398")
+    $external_io_out = 4
+    $external_io_in = 5
+end
 t_i "external_io_in #{$external_io_in}  external_io_out #{$external_io_out}"
 
 
@@ -73,6 +77,11 @@ def tod_adj_timer_test(domain_out, domain_in)
             adj_max = 9499999
             diff_high = 951500
             diff_low = 948000
+        end
+        if (misc["core_clock_freq"] == "MESA_CORE_CLOCK_328MHZ")
+            adj_max = 6231998
+            diff_high = 624184
+            diff_low = 621888
         end
         if (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ")
             adj_max = 4749999

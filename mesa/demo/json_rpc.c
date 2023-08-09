@@ -1348,6 +1348,7 @@ static const char *string_mesa_core_clock_freq_t(mesa_core_clock_freq_t *parm)
     return (
             *parm == MESA_CORE_CLOCK_DEFAULT ? "MESA_CORE_CLOCK_DEFAULT" :
             *parm == MESA_CORE_CLOCK_250MHZ ? "MESA_CORE_CLOCK_250MHZ" :
+            *parm == MESA_CORE_CLOCK_328MHZ ? "MESA_CORE_CLOCK_328MHZ" :
             *parm == MESA_CORE_CLOCK_500MHZ ? "MESA_CORE_CLOCK_500MHZ" :
             *parm == MESA_CORE_CLOCK_625MHZ ? "MESA_CORE_CLOCK_625MHZ" :
             "MESA_CORE_CLOCK_DEFAULT");
