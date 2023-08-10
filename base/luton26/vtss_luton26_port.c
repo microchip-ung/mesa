@@ -1213,16 +1213,10 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         sgmii = 1;
-        if (vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_NO_CONNECTION) {
-            u32 p = (port / 4) * 4;
-            for (u32 cnt = 0; cnt < 4; cnt++) {
-                // APPL-5321
-                L26_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((p + cnt))),
-                            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
-                L26_WRM(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((p + cnt))),
-                        VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1),
-                        VTSS_M_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED);
-            }
+        u32 p = (port / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            // BZ23738
+            L26_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(p + cnt)), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
         }
         vtss_state->port.serdes_mode[port_no] = VTSS_SERDES_MODE_QSGMII; // The serdes mode is already configured
         break;
@@ -1324,8 +1318,7 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_RX_RST |
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_TX_RST |
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_RX_RST |
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST |
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1);
+            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST;
         L26_WR(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt), value);
     } else {
         value =
@@ -1525,8 +1518,6 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
             }
         }
     }
-    vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
-
     return VTSS_RC_OK;
 }
 
