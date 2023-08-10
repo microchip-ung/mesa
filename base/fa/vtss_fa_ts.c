@@ -620,6 +620,60 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
+{
+    u32  value;
+    u32  delay;
+    u32  tx_port;
+    u32  mess_id;
+    BOOL overflow = FALSE;
+    u32  sub_ns;
+    REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
+    while (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value)) {
+        /* Read TX timestamp */
+        if (!VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+            VTSS_E("TX timestamp expected but RX timestamp found");
+            REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+            REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
+            continue;
+        }
+        overflow |= VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC, &delay);
+        tx_port = api_port(vtss_state, VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_PORT(value));
+        REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS, &sub_ns);
+        /* Read RX timestamp */
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+        REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
+        if (!VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value) ||
+            VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+            VTSS_E("RX timestamp not found");
+            REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+            REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
+            continue;
+        }
+        overflow |= VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC, &mess_id);
+
+        if (mess_id >= VTSS_TS_ID_SIZE) {
+            VTSS_D("skip mess_id %u", mess_id);
+        } else if (tx_port < VTSS_PORT_ARRAY_SIZE) {
+            vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)delay << 16) | (sub_ns & 0xff) << 8;
+            vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
+            vtss_state->ts.status[mess_id].valid_mask |= 1LL<<tx_port;
+        } else {
+            VTSS_E("invalid port (%u)", tx_port);
+        }
+
+        VTSS_I("value %x, delay %u, tx_port %u, mess_id %u", value, delay, tx_port, mess_id);
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+        REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
+    }
+    if (overflow) {
+        VTSS_E("Timestamp fifo overflow occurred");
+    }
+    return VTSS_RC_OK;
+}
+
 typedef struct {
     u32 rx;
     u32 tx;
@@ -630,6 +684,7 @@ static io_delay_t seriel_2dot5G_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_25G_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_5G_delay[VTSS_PORT_COUNT];
 static io_delay_t qsgmii_1G_delay[VTSS_PORT_COUNT];
+static io_delay_t rgmii_1G_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_10G_kr_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_25G_kr_delay[VTSS_PORT_COUNT];
 static io_delay_t seriel_25G_rs_delay[VTSS_PORT_COUNT];
@@ -734,6 +789,16 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             tx_delay += (sd_tx_delay_var * dv_factor[1].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         }
         break;
+    case VTSS_PORT_INTERFACE_RGMII:
+        /* Multi-Lane SerDes at 1 */
+        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
+            /* According to Morten this is not relevant */
+        }
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay = rgmii_1G_delay[port].rx;
+            tx_delay = rgmii_1G_delay[port].tx;
+        }
+        break;
     case VTSS_PORT_INTERFACE_100FX:
         /* Single-Lane SerDes at 100 Mbps */
         /* According to Morten this is not relevant */
@@ -827,6 +892,16 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         if (speed == VTSS_SPEED_2500M) {   /* 2.5 Gbps */
             rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
             tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
+        }
+        break;
+    case VTSS_PORT_INTERFACE_RGMII:
+        /* Single-Lane SerDes at 1 Gbps */
+        if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
+            /* According to Morten this is not relevant */
+        }
+        if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
+            rx_delay += (1000 * 49);
+            tx_delay += (1000 * 49);
         }
         break;
     case VTSS_PORT_INTERFACE_100FX:
@@ -1038,9 +1113,16 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
 
     /* REW:PTP_CTRL */
     vtss_fa_debug_reg_header(pr, "REW:PTP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+    if (FA_TGT) {
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+    }
+    if (LA_TGT) {
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC), "PTP_TWOSTEP_STAMP");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+    }
 
     /* DEVCPU_PTP:PTP_CFG */
     vtss_fa_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
@@ -1207,6 +1289,8 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         }
     }
     if (LA_TGT) {
+        /* The PTP pin clock generator will only work when the PTP_PIN number is the same as PTPSYNC number. */
+        /* The 1PPS out is PTPSYNC4 so only PTP_PIN number 4 can be used */
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
     }
@@ -1736,6 +1820,83 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         seriel_25G_rs_delay[63].rx = 448318;  seriel_25G_rs_delay[63].tx = 155254;
     }
 
+    if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_328MHZ) {
+        /* The below is based on numbers from front end simulation and is only valid for 328 MHZ. (Laguna) */
+        seriel_1G_delay[ 0].rx = 150666;    seriel_1G_delay[ 0].tx = 162490;
+        seriel_1G_delay[ 4].rx = 150666;    seriel_1G_delay[ 4].tx = 162490;
+        seriel_1G_delay[ 8].rx = 150666;    seriel_1G_delay[ 8].tx = 162490;
+        seriel_1G_delay[12].rx = 150666;    seriel_1G_delay[12].tx = 162490;
+        seriel_1G_delay[16].rx = 150666;    seriel_1G_delay[16].tx = 162490;
+        seriel_1G_delay[20].rx = 150666;    seriel_1G_delay[20].tx = 162490;
+        seriel_1G_delay[24].rx = 150666;    seriel_1G_delay[24].tx = 162490;
+        seriel_1G_delay[25].rx = 150666;    seriel_1G_delay[25].tx = 162490;
+        seriel_1G_delay[26].rx = 150666;    seriel_1G_delay[26].tx = 162490;
+        seriel_1G_delay[27].rx = 150666;    seriel_1G_delay[27].tx = 162490;
+
+        seriel_2dot5G_delay[ 0].rx = 55163;    seriel_2dot5G_delay[ 0].tx = 70010;
+        seriel_2dot5G_delay[ 4].rx = 55163;    seriel_2dot5G_delay[ 4].tx = 70010;
+        seriel_2dot5G_delay[ 8].rx = 55163;    seriel_2dot5G_delay[ 8].tx = 70010;
+        seriel_2dot5G_delay[12].rx = 55163;    seriel_2dot5G_delay[12].tx = 70010;
+        seriel_2dot5G_delay[16].rx = 55163;    seriel_2dot5G_delay[16].tx = 70010;
+        seriel_2dot5G_delay[20].rx = 55163;    seriel_2dot5G_delay[20].tx = 70010;
+        seriel_2dot5G_delay[24].rx = 55163;    seriel_2dot5G_delay[24].tx = 70010;
+        seriel_2dot5G_delay[25].rx = 55163;    seriel_2dot5G_delay[25].tx = 70010;
+        seriel_2dot5G_delay[26].rx = 55163;    seriel_2dot5G_delay[26].tx = 70010;
+        seriel_2dot5G_delay[27].rx = 55163;    seriel_2dot5G_delay[27].tx = 70010;
+
+        seriel_5G_delay[ 0].rx = 221389;    seriel_5G_delay[ 0].tx = 295367;
+        seriel_5G_delay[ 4].rx = 221389;    seriel_5G_delay[ 4].tx = 295367;
+        seriel_5G_delay[ 8].rx = 221389;    seriel_5G_delay[ 8].tx = 295367;
+        seriel_5G_delay[12].rx = 221389;    seriel_5G_delay[12].tx = 295367;
+        seriel_5G_delay[16].rx = 221389;    seriel_5G_delay[16].tx = 295367;
+        seriel_5G_delay[20].rx = 221389;    seriel_5G_delay[20].tx = 295367;
+        seriel_5G_delay[24].rx = 221389;    seriel_5G_delay[24].tx = 295367;
+        seriel_5G_delay[25].rx = 221389;    seriel_5G_delay[25].tx = 295367;
+        seriel_5G_delay[26].rx = 221389;    seriel_5G_delay[26].tx = 295367;
+        seriel_5G_delay[27].rx = 221389;    seriel_5G_delay[27].tx = 295367;
+
+        seriel_10G_delay[ 0].rx = 102946;    seriel_10G_delay[ 0].tx = 155386;
+        seriel_10G_delay[ 4].rx = 102946;    seriel_10G_delay[ 4].tx = 155386;
+        seriel_10G_delay[ 8].rx = 102946;    seriel_10G_delay[ 8].tx = 155386;
+        seriel_10G_delay[12].rx = 102946;    seriel_10G_delay[12].tx = 155386;
+        seriel_10G_delay[16].rx = 102946;    seriel_10G_delay[16].tx = 155386;
+        seriel_10G_delay[20].rx = 102946;    seriel_10G_delay[20].tx = 155386;
+        seriel_10G_delay[24].rx = 102958;    seriel_10G_delay[24].tx = 155434;
+        seriel_10G_delay[25].rx = 102958;    seriel_10G_delay[25].tx = 155434;
+        seriel_10G_delay[26].rx = 102958;    seriel_10G_delay[26].tx = 155434;
+        seriel_10G_delay[27].rx = 102958;    seriel_10G_delay[27].tx = 155434;
+
+        qsgmii_1G_delay[ 0].rx = 195352;    qsgmii_1G_delay[ 0].tx = 176949;
+        qsgmii_1G_delay[ 1].rx = 203353;    qsgmii_1G_delay[ 1].tx = 184950;
+        qsgmii_1G_delay[ 2].rx = 203353;    qsgmii_1G_delay[ 2].tx = 184950;
+        qsgmii_1G_delay[ 3].rx = 203353;    qsgmii_1G_delay[ 3].tx = 184950;
+        qsgmii_1G_delay[ 4].rx = 195352;    qsgmii_1G_delay[ 4].tx = 176949;
+        qsgmii_1G_delay[ 5].rx = 203353;    qsgmii_1G_delay[ 5].tx = 184950;
+        qsgmii_1G_delay[ 6].rx = 203353;    qsgmii_1G_delay[ 6].tx = 184950;
+        qsgmii_1G_delay[ 7].rx = 203353;    qsgmii_1G_delay[ 7].tx = 184950;
+        qsgmii_1G_delay[ 8].rx = 195352;    qsgmii_1G_delay[ 8].tx = 176949;
+        qsgmii_1G_delay[ 9].rx = 195352;    qsgmii_1G_delay[ 9].tx = 176949;
+        qsgmii_1G_delay[10].rx = 203353;    qsgmii_1G_delay[10].tx = 184950;
+        qsgmii_1G_delay[11].rx = 203353;    qsgmii_1G_delay[11].tx = 184950;
+        qsgmii_1G_delay[12].rx = 195352;    qsgmii_1G_delay[12].tx = 176949;
+        qsgmii_1G_delay[13].rx = 195352;    qsgmii_1G_delay[13].tx = 176949;
+        qsgmii_1G_delay[14].rx = 203353;    qsgmii_1G_delay[14].tx = 184950;
+        qsgmii_1G_delay[15].rx = 203353;    qsgmii_1G_delay[15].tx = 184950;
+        qsgmii_1G_delay[16].rx = 195352;    qsgmii_1G_delay[16].tx = 176949;
+        qsgmii_1G_delay[17].rx = 195352;    qsgmii_1G_delay[17].tx = 176949;
+        qsgmii_1G_delay[18].rx = 203353;    qsgmii_1G_delay[18].tx = 184950;
+        qsgmii_1G_delay[19].rx = 203353;    qsgmii_1G_delay[19].tx = 184950;
+        qsgmii_1G_delay[20].rx = 195352;    qsgmii_1G_delay[20].tx = 176949;
+        qsgmii_1G_delay[21].rx = 195352;    qsgmii_1G_delay[21].tx = 176949;
+        qsgmii_1G_delay[22].rx = 203353;    qsgmii_1G_delay[22].tx = 184950;
+        qsgmii_1G_delay[23].rx = 203353;    qsgmii_1G_delay[23].tx = 184950;
+
+        rgmii_1G_delay[28].rx = 171936;    qsgmii_1G_delay[22].tx = 105058;
+        rgmii_1G_delay[29].rx = 171936;    qsgmii_1G_delay[23].tx = 105058;
+
+//        seriel_10G_kr_delay[48].rx = 347816;   seriel_10G_kr_delay[48].tx = 265473;
+    }
+
     return VTSS_RC_OK;
 }
 
@@ -1778,7 +1939,12 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->delay_asymmetry_set = fa_ts_delay_asymmetry_set;
         state->operation_mode_set = fa_ts_operation_mode_set;
         state->internal_mode_set = fa_ts_internal_mode_set;
-        state->timestamp_get = fa_ts_timestamp_get;
+        if (FA_TGT) {
+            state->timestamp_get = fa_ts_timestamp_get;
+        }
+        if (LA_TGT) {
+            state->timestamp_get = la_ts_timestamp_get;
+        }
         state->status_change = fa_ts_status_change;
         state->timestamp_id_release = fa_ts_timestamp_id_release;
         state->external_io_mode_set = fa_ts_external_io_mode_set;

@@ -13,7 +13,6 @@ check_capabilities do
     assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) || ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x).")
     $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
-    assert(($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) || ($cap_fpga != 0), "This test must be checked on Laguna chip")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_phy_ts = $ts.dut.call("mesa_capability", "MESA_CAP_PHY_TS")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
@@ -260,11 +259,6 @@ def tod_domain_test(domain, seconds)
             min = -200      #External PHY
             max = -200+75   #External PHY
         end
-    end
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
-        # This is FPGA values
-        min = 710
-        max = 840
     end
     if (diff > max)
         t_e("Difference between TX TC and RX TC is unexpected high.  max: #{max}")
