@@ -56,6 +56,11 @@ if ($pcb == "6813-Adaro")
     $diff_high = 10
     $diff_low = 10
 end
+if ($pcb == "8398")
+    $external_io_in = 5
+    $external_io_out = 4
+end
+
 t_i "$external_io_out #{$external_io_out} $external_io_in #{$external_io_in}"
 
 def tod_external_io_1pps_test
