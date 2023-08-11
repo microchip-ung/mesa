@@ -706,7 +706,118 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
     VTSS_I("Resetting switch core and memories - done");
     return VTSS_RC_OK;
 }
+#if 0
+static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
+{
+    u32 chip_id = vtss_state->misc.chip_id.part_number;
 
+    if (!LA_TGT) {
+        return VTSS_RC_OK;
+    }
+
+    switch (vtss_state->create.target) {
+    case VTSS_TARGET_LAN9698RED:
+        if (chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9696RED:
+        if (chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9694RED:
+        if (chip_id == VTSS_TARGET_LAN9694RED ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9698TSN:
+        if (chip_id == VTSS_TARGET_LAN9698TSN ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9696TSN:
+        if (chip_id == VTSS_TARGET_LAN9696TSN ||
+            chip_id == VTSS_TARGET_LAN9698TSN ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9694TSN:
+        if (chip_id == VTSS_TARGET_LAN9694TSN ||
+            chip_id == VTSS_TARGET_LAN9696TSN ||
+            chip_id == VTSS_TARGET_LAN9698TSN ||
+            chip_id == VTSS_TARGET_LAN9694RED ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9693VAO:
+        if (chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9698RED ||
+            chip_id == VTSS_TARGET_LAN9698TSN) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9692VAO:
+        if (chip_id == VTSS_TARGET_LAN9692VAO ||
+            chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED ||
+            chip_id == VTSS_TARGET_LAN9696TSN ||
+            chip_id == VTSS_TARGET_LAN9698TSN) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9691VAO:
+        if (chip_id == VTSS_TARGET_LAN9691VAO ||
+            chip_id == VTSS_TARGET_LAN9692VAO ||
+            chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9696TSN ||
+            chip_id == VTSS_TARGET_LAN9698TSN ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9698:
+        if (chip_id == VTSS_TARGET_LAN9698 ||
+            chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9698RED ||
+            chip_id == VTSS_TARGET_LAN9698TSN) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9696:
+        if (chip_id == VTSS_TARGET_LAN9696 ||
+            chip_id == VTSS_TARGET_LAN9698 ||
+            chip_id == VTSS_TARGET_LAN9692VAO ||
+            chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9696RED ||
+            chip_id == VTSS_TARGET_LAN9698RED ||
+            chip_id == VTSS_TARGET_LAN9696TSN ||
+            chip_id == VTSS_TARGET_LAN9698TSN) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
+    case VTSS_TARGET_LAN9694:
+        return VTSS_RC_OK;
+    default:
+        VTSS_E("Target (%x) not supported",vtss_state->create.target);
+        return VTSS_RC_ERROR;
+    }
+
+err_exit:
+    VTSS_E("Chip (%x) does not support the target (%x)",chip_id, vtss_state->create.target);
+    return VTSS_RC_ERROR;
+}
+#endif
 static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
@@ -780,7 +891,10 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
-
+#if 0 // disabling as chip is default at 0x969A and needs to be programmed
+    /* Compare API target with chip part number */
+    VTSS_RC(vtss_fa_verify_target(vtss_state));
+#endif
     /* Initialize function groups */
     VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
     return VTSS_RC_OK;
