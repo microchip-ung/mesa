@@ -1551,19 +1551,19 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         mode = VTSS_SERDES_MODE_QSGMII;
-        if ((port % 4) == 0) {
-            // BZ23738
-            BOOL p3_in_map = FALSE;
-            SRVL_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((port + 1))), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
-            SRVL_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((port + 2))), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
-            for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-                if (vtss_state->port.map[p].chip_port == port + 3)
-                    p3_in_map = TRUE;
-            }
-            if (!p3_in_map) {
-                SRVL_WR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((port + 3))), 0x1);
-            } else {
-                SRVL_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV((port + 3))), VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
+        if (vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_NO_CONNECTION) {
+            // APPL-5321
+            u32 t, p = (port / 4) * 4;
+            for (u32 cnt = 0; cnt < 4; cnt++) {
+                t = p + cnt;
+                SRVL_RD(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(t)), &value);
+                if (value == 0xFC) {
+                    SRVL_WRM_CLR(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(t)),
+                                 VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_TX_RST);
+                    SRVL_WRM(VTSS_DEV_PORT_MODE_CLOCK_CFG(VTSS_TO_DEV(t)),
+                             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1),
+                             VTSS_M_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED);
+                }
             }
         }
         break;
@@ -1695,6 +1695,7 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
     SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_TX_RST |
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_RX_RST |
+            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1) |
             VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST);
 
     /* 12: Clear flushing */
@@ -1882,6 +1883,8 @@ static vtss_rc srvl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t
         /* Notify QoS module about port configuration change */
         VTSS_RC(vtss_srvl_qos_port_conf_change(vtss_state, port_no, port, link_speed));
     }
+
+    vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
 
     return VTSS_RC_OK;
 }
