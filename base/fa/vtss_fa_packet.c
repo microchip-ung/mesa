@@ -1008,6 +1008,9 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
         if (info->rb_dd_disable) {
             IFH_ENCODE_BITFIELD(bin_hdr, 1, 275, 1); // Disable RedBox Duplicate Discard processing
         }
+        if (info->rb_ring_netid_enable) {
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 276, 1); // Enable use of ring_netid rather than netid in HSR tag
+        }
     }
 #endif
 

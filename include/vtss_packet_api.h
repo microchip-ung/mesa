@@ -585,9 +585,10 @@ typedef struct {
 #if defined(VTSS_FEATURE_PACKET_PIPELINE_PT)
     vtss_packet_pipeline_pt_t pipeline_pt;
 #endif /* defined(VTSS_FEATURE_PACKET_PIPELINE_PT) */
-    BOOL                 rb_tag_disable; // RedBox HSR/PRP tag disable
-    BOOL                 rb_dd_disable;  // RedBox HSR duplicate discard disable
-    vtss_packet_rb_fwd_t rb_fwd;         // RedBox forwarding selection
+    BOOL                 rb_tag_disable;       // RedBox HSR/PRP tag disable
+    BOOL                 rb_dd_disable;        // RedBox HSR duplicate discard disable
+    BOOL                 rb_ring_netid_enable; // RedBox inserts ring_netid (always 0) rather than its configured NetId in HSR tag
+    vtss_packet_rb_fwd_t rb_fwd;               // RedBox forwarding selection
 } vtss_packet_tx_info_t;
 
 /**

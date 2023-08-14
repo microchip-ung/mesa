@@ -536,6 +536,10 @@ typedef struct {
     // RedBox HSR duplicate discard disable
     mesa_bool_t rb_dd_disable;
 
+    // RedBox inserts ring_netid (always 0) rather than its configred NetId in
+    // HSR tag
+    mesa_bool_t rb_ring_netid_enable;
+
     // RedBox forwarding selection
     mesa_packet_rb_fwd_t rb_fwd;
 } mesa_packet_tx_info_t;
