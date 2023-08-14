@@ -620,6 +620,7 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32  value;
@@ -673,6 +674,7 @@ static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
+#endif
 
 typedef struct {
     u32 rx;
@@ -1119,9 +1121,15 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
     }
     if (LA_TGT) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC), "PTP_TWOSTEP_STAMP");
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+#else
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
+        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+#endif
     }
 
     /* DEVCPU_PTP:PTP_CFG */
@@ -1943,7 +1951,11 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->timestamp_get = fa_ts_timestamp_get;
         }
         if (LA_TGT) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
             state->timestamp_get = la_ts_timestamp_get;
+#else
+            state->timestamp_get = fa_ts_timestamp_get;
+#endif
         }
         state->status_change = fa_ts_status_change;
         state->timestamp_id_release = fa_ts_timestamp_id_release;
