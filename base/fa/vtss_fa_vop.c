@@ -1496,7 +1496,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
                 }
                 D_VOE_I(pr, SLM_CONFIG, i);
                 D_VOE_I(pr, SLM_TEST_ID, i);
-                for (k = 0; k < 12; ++k) {
+                for (k = 0; k < 8; ++k) {
                     D_VOE_II(pr, SLM_PEER_LIST, i, k);
                 }
                 if (w & VTSS_M_VOP_VOE_CTRL_G_8113_1_ENA) {
@@ -1829,8 +1829,9 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
         /* system clock is 4 ns (250 MHz) and LOC_BASE_TICK_CNT is default 50, i.e. 200 ns */
             loc_base = 200; /* ns */
             break;
-       case VTSS_CORE_CLOCK_328MHZ:
-            loc_base = 0; /* Laguna Fixme */
+        case VTSS_CORE_CLOCK_328MHZ:
+        /* system clock is 3,0487 ns (328 MHz) and LOC_BASE_TICK_CNT is default 50, i.e. 152,439 ns */
+            loc_base = 152; /* ns */
             break;
     }
 #endif
