@@ -1453,7 +1453,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         for (i = 0; i < (FA_TGT ? 2 : 1); ++i) {
             D_COM_I(pr, VOE32_INTR, i);
         }
-        for (i = 0; i < 7; ++i) {
+        for (i = 0; i < (FA_TGT ? 7 : 2); ++i) {
             D_COM_I(pr, INTR, i);
         }
         D_COM(pr, COMMON_MEP_MC_MAC_LSB);
