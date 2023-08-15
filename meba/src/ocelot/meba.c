@@ -1421,7 +1421,7 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst,
     mesa_rc               rc = MESA_RC_OK;
     mesa_port_no_t        port_no;
 
-    T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
+    T_D(inst, "%sable event %d", enable ? "en" : "dis", event_id);
 
     switch (event_id) {
         case MEBA_EVENT_VOE:
@@ -1675,7 +1675,7 @@ static mesa_rc ocelot_irq_handler(meba_inst_t inst,
                                meba_event_signal_t signal_notifier)
 {
     meba_board_state_t *board = INST2BOARD(inst);
-    T_I(inst, "Called - irq %d", chip_irq);
+    T_D(inst, "Called - irq %d", chip_irq);
 
     switch (chip_irq) {
         case MESA_IRQ_PTP_SYNC:

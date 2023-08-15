@@ -461,7 +461,7 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
 
-    T_I(inst, "Called - %d", reset);
+    T_D(inst, "Called - %d", reset);
     switch (reset) {
     case MEBA_BOARD_INITIALIZE:
         rc = lan966x_board_init(inst);

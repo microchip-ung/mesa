@@ -263,7 +263,7 @@ static mesa_rc ocelot_reset(meba_inst_t inst,
     mesa_rc rc = MESA_RC_OK;
     mesa_port_no_t int_phy_base_port = 4, ext_phy_base_port = 0;
 
-    T_I(inst, "Called - %d", reset);
+    T_D(inst, "Called - %d", reset);
     switch (reset) {
         case MEBA_BOARD_INITIALIZE:
             rc = ocelot_pcb121_init_board(inst);

@@ -1301,7 +1301,7 @@ static mesa_rc caracal_irq_handler(meba_inst_t inst,
                                    mesa_irq_t chip_irq,
                                    meba_event_signal_t signal_notifier)
 {
-    T_I(inst, "Called - irq %d", chip_irq);
+    T_D(inst, "Called - irq %d", chip_irq);
 
     switch (chip_irq) {
         case MESA_IRQ_PTP_SYNC:

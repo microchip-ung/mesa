@@ -1835,7 +1835,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
     mesa_port_no_t        port_no;
     mesa_ptp_event_type_t ptp_event;
 
-    T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
+    T_D(inst, "%sable event %d", enable ? "en" : "dis", event_id);
 
     switch (event_id) {
     case MEBA_EVENT_SYNC:
