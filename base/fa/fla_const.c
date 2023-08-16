@@ -63,7 +63,6 @@ static unsigned int fa_chip_const[] = {
     [__RT_ALT_LDST_PIN] = 2,
     [__RT_ALT_PPS_PIN] = 3,
     [__RT_TOD_ACC_PIN] = 4,
-    [__RT_GPIOS] = 64
 };
 
 
@@ -126,7 +125,6 @@ static unsigned int la_chip_const[] = {
     [__RT_ALT_LDST_PIN] = 2,
     [__RT_ALT_PPS_PIN] = 3,
     [__RT_TOD_ACC_PIN] = 7,
-    [__RT_GPIOS] = 67
 };
 
 // Register assignment _END_
