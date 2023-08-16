@@ -144,6 +144,7 @@
 #define RT_ALT_PPS_PIN                      fla_get_const(vtss_state, __RT_ALT_PPS_PIN)
 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #define RT_TOD_ACC_PIN                      fla_get_const(vtss_state, __RT_TOD_ACC_PIN)
+#define RT_GPIOS                            fla_get_const(vtss_state, __RT_GPIOS)
 
 // FA/LA runtimes macros
 #define VTSS_PORT_IS_2G5(port)  fla_port_is_2G5(vtss_state, port)

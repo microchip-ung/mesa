@@ -61,5 +61,6 @@ enum fla_const {
     __RT_ALT_LDST_PIN,
     __RT_ALT_PPS_PIN,
     __RT_TOD_ACC_PIN,
+    __RT_GPIOS,
     __FLA_CONT_LAST,
 };

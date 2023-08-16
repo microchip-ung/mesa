@@ -519,13 +519,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #define VTSS_GPIOS         64
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5)
-/** \brief Number of GPIOs */
-#undef VTSS_GPIOS
-#define VTSS_GPIOS         64
-#endif /* VTSS_ARCH_SPARX5 */
-
-#if defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #if defined(VTSS_ARCH_LAN969X_FPGA)
@@ -533,7 +527,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #else
 #define VTSS_GPIOS         67
 #endif
-#endif /* VTSS_ARCH_LAN969X */
+#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */

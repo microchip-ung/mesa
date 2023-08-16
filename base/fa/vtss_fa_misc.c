@@ -681,7 +681,7 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 mask, alt_0 = 0, alt_1 = 0, alt_2 = 0;
 
-    if (gpio_no > VTSS_GPIOS) {
+    if (gpio_no > RT_GPIOS) {
         VTSS_E("Invalid GPIO number %u", gpio_no);
     }
 
@@ -774,7 +774,7 @@ static vtss_rc fa_gpio_read(vtss_state_t *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 val, mask;
 
-    if (gpio_no > VTSS_GPIOS) {
+    if (gpio_no > RT_GPIOS) {
         VTSS_E("Invalid GPIO number %u", gpio_no);
     }
 
@@ -802,7 +802,7 @@ static vtss_rc fa_gpio_write(vtss_state_t *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 mask;
 
-    if (gpio_no > VTSS_GPIOS) {
+    if (gpio_no > RT_GPIOS) {
         VTSS_E("Invalid GPIO number %u", gpio_no);
     }
 
@@ -863,7 +863,7 @@ static vtss_rc fa_gpio_event_poll(vtss_state_t          *vtss_state,
         pending &= mask;
         REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
 
-        for (i = 64; i < VTSS_GPIOS; i++) {
+        for (i = 64; i < RT_GPIOS; i++) {
             events[i] = (pending & 1 << (i - 64)) ? TRUE : FALSE;
         }
     }
@@ -879,7 +879,7 @@ static vtss_rc fa_gpio_event_enable(vtss_state_t          *vtss_state,
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 mask;
 
-    if (gpio_no > VTSS_GPIOS) {
+    if (gpio_no > RT_GPIOS) {
         VTSS_E("Invalid GPIO number %u", gpio_no);
     }
 
