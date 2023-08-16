@@ -31,7 +31,6 @@ extern json_rpc_method_t json_rpc_table[];
 #define MESA_RC(expr) { mesa_rc _rc = (expr); if (_rc != MESA_RC_OK) { req->error = 1; return _rc; } }
 
 mesa_rc json_rpc_call(json_rpc_req_t *req, mesa_rc rc);
-
 // Any object
 mesa_rc json_rpc_get_idx_json_object(json_rpc_req_t *req, json_object *obj, int *idx, json_object **obj_value);
 mesa_rc json_rpc_get_name_json_object(json_rpc_req_t *req, json_object *obj, const char *name, json_object **obj_value);

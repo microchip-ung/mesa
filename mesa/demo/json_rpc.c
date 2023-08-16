@@ -1476,6 +1476,30 @@ static mesa_rc mesa_rpc_meba_phy_ts_fifo_read_install(json_rpc_req_t *req)
     return MESA_RC_OK;
 }
 
+static mesa_rc mesa_rpc_meba_phy_macsec_frame_get(json_rpc_req_t *req)
+{
+    mepa_port_no_t port_no;
+    uint32_t buf_length;
+    uint32_t return_length;
+
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &port_no));
+    MESA_RC(json_rpc_get_idx_uint32_t(req, req->params, &req->idx, &buf_length));
+    uint8_t *frame;
+    frame = (uint8_t *)malloc(sizeof(uint8_t) * buf_length);
+    MESA_RC(json_rpc_call(req, meba_phy_macsec_frame_get(meba_global_inst, port_no, buf_length, &return_length, frame)));
+    json_object_array_add(req->result, NULL);
+    json_object_array_add(req->result, NULL);
+    MESA_RC(json_rpc_add_uint32_t(req, req->result, &return_length));
+    {
+        json_object *obj;
+        MESA_RC(json_rpc_array_new(req, &obj));
+        MESA_RC(json_rpc_add_json_array(req, req->result, obj));
+        for (uint32_t i = 0; i < return_length; i++)
+            MESA_RC(json_rpc_add_uint8_t(req, obj, &frame[i]));
+    }
+    free(frame);
+    return MESA_RC_OK;
+}
 
 static json_rpc_method_t json_rpc_static_table[] = {
     { "mesa_qos_dscp_dpl_conf_get", mesa_rpc_mesa_qos_dscp_dpl_conf_get },
@@ -1493,6 +1517,7 @@ static json_rpc_method_t json_rpc_static_table[] = {
 
 static json_rpc_method_t json_rpc_phy_static_table[] = {
     { "meba_phy_ts_fifo_read_install" , mesa_rpc_meba_phy_ts_fifo_read_install },
+    {"meba_phy_macsec_frame_get",mesa_rpc_meba_phy_macsec_frame_get},
     { NULL , NULL }
 };
 
