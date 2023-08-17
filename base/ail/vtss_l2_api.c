@@ -1892,7 +1892,7 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t          inst,
     return rc;
 }
 
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 vtss_rc vtss_vlan_tx_tag_get(const vtss_inst_t  inst,
                              const vtss_vid_t   vid,
                              vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE])
@@ -1929,7 +1929,7 @@ vtss_rc vtss_vlan_tx_tag_set(const vtss_inst_t        inst,
     VTSS_EXIT();
     return rc;
 }
-#endif // VTSS_FEATURE_VCAP
+#endif // VTSS_FEATURE_VLAN_TX_TAG
 
 /* - Port Isolation------------------------------------------------- */
 
@@ -5590,6 +5590,7 @@ static void vtss_cmn_es0_data_set(vtss_state_t *vtss_state,
     }
 }
 
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 static vtss_vcap_id_t vtss_tx_tag_vcap_id(vtss_vid_t vid, vtss_port_no_t port_no)
 {
     vtss_vcap_id_t id = vid;
@@ -5669,6 +5670,7 @@ vtss_rc vtss_cmn_vlan_tx_tag_set(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_VLAN_TX_TAG
 #endif // VTSS_FEATURE_ES0
 
 static BOOL vtss_cmn_vlan_enabled(vtss_vlan_entry_t *vlan_entry)

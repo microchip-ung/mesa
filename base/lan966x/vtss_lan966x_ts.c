@@ -30,6 +30,8 @@ static vtss_gpio_mode_t to_vtss_gpio_mode(vtss_gpio_func_alt_t alt) {
             return VTSS_GPIO_ALT_1;
         case VTSS_GPIO_FUNC_ALT_2:
             return VTSS_GPIO_ALT_2;
+        default:
+            break;
     }
     return VTSS_GPIO_ALT_0;
 }

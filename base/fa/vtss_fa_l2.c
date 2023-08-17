@@ -3784,8 +3784,10 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->vlan_counters_clear         = fa_vlan_counters_clear;
         }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
         state->vlan_tx_tag_set          = vtss_cmn_vlan_tx_tag_set;
+#endif
+#if defined(VTSS_FEATURE_VCAP)
         state->vcl_port_conf_set        = fa_vcl_port_conf_set;
         state->vce_add                  = vtss_cmn_vce_add;
         state->vce_del                  = vtss_cmn_vce_del;

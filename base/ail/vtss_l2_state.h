@@ -170,7 +170,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_HW_PROT)
     u8          hw_prot_disable[VTSS_PORT_BF_SIZE]; /* Inactive HW protection ports */
 #endif /* VTSS_FEATURE_HW_PROT */
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
     u8          tx_tag[VTSS_PORT_ARRAY_SIZE]; /* Tx tagging */
 #endif
 #if defined(VTSS_FEATURE_L2_ERPS)

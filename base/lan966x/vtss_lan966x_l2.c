@@ -1975,8 +1975,10 @@ vtss_rc vtss_lan966x_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->eps_port_set = vtss_cmn_eps_port_set;
         state->sflow_port_conf_set = lan966x_sflow_port_conf_set;
         state->sflow_sampling_rate_convert = lan966x_sflow_sampling_rate_convert;
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
         state->vlan_tx_tag_set = vtss_cmn_vlan_tx_tag_set;
+#endif
+#if defined(VTSS_FEATURE_VCAP)
         state->vcl_port_conf_set = vtss_lan966x_vcap_port_conf_set;
         state->vce_add = vtss_cmn_vce_add;
         state->vce_del = vtss_cmn_vce_del;
