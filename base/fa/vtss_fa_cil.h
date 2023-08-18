@@ -398,6 +398,9 @@ u32 vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx);
 u32 vtss_to_dev25g(vtss_state_t *vtss_state, u32 port);
 u32 vtss_to_sd25g_lane(vtss_state_t *vtss_state, u32 indx);
 vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
+u32 vtss_to_pcs5g(vtss_state_t *vtss_state, u32 port);
+u32 vtss_to_pcs10g(vtss_state_t *vtss_state, u32 port);
+u32 vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
 
 /* Serdes functions */
 #define FA_SERDES_TYPE_UNKNOWN  0
