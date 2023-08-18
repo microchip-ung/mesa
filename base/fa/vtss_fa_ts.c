@@ -748,7 +748,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
         sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
         sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-        if ((speed == VTSS_SPEED_5G) && (sd_indx > 12)) {   /* 5 Gbps and lane > 12. The delay factor must be corrected */
+        if ((speed == VTSS_SPEED_5G) && (LA_TGT || (sd_indx > 12))) {   /* 5 Gbps and (on FA) lane > 12. The delay factor must be corrected */
             delay_var_factor[2].rx = 37200;
             delay_var_factor[2].tx = 49600;
         }
@@ -818,6 +818,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             if (vtss_state->port.kr_fec[port_no].r_fec) {
                 rx_delay = seriel_10G_kr_delay[port].rx;
                 tx_delay = seriel_10G_kr_delay[port].tx;
+                REG_RD(VTSS_PCS_10GBASE_R_KR_FEC_STATUS(VTSS_TO_PCS_TGT(port)), &value);
+                rx_delay += ((VTSS_X_PCS_10GBASE_R_KR_FEC_STATUS_FEC_RX_SHIFT_CNT(value) - 1) % 66) * -97;
             } else {
                 rx_delay = seriel_10G_delay[port].rx;
                 tx_delay = seriel_10G_delay[port].tx;
@@ -853,6 +855,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         /* Single-Lane SerDes at 4 Gbps (QSGMII) */
         rx_delay = qsgmii_1G_delay[port].rx;
         tx_delay = qsgmii_1G_delay[port].tx;
+
+        REG_RD(VTSS_PORT_CONF_QSGMII_STAT((port - port % 4) / 4), &value);
+        rx_delay += (VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value) * 200) - ((port % 4) * 2000);
+        tx_delay += (port % 4) * 2000;
+
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
@@ -1902,7 +1909,16 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         rgmii_1G_delay[28].rx = 171936;    qsgmii_1G_delay[22].tx = 105058;
         rgmii_1G_delay[29].rx = 171936;    qsgmii_1G_delay[23].tx = 105058;
 
-//        seriel_10G_kr_delay[48].rx = 347816;   seriel_10G_kr_delay[48].tx = 265473;
+        seriel_10G_kr_delay[0].rx = 345538;    seriel_10G_kr_delay[0].tx = 180780;
+        seriel_10G_kr_delay[4].rx = 345538;    seriel_10G_kr_delay[4].tx = 180780;
+        seriel_10G_kr_delay[8].rx = 345538;    seriel_10G_kr_delay[8].tx = 180780;
+        seriel_10G_kr_delay[12].rx = 345538;   seriel_10G_kr_delay[12].tx = 180780;
+        seriel_10G_kr_delay[16].rx = 345538;   seriel_10G_kr_delay[16].tx = 180780;
+        seriel_10G_kr_delay[20].rx = 345538;   seriel_10G_kr_delay[20].tx = 180780;
+        seriel_10G_kr_delay[24].rx = 345538;   seriel_10G_kr_delay[24].tx = 180780;
+        seriel_10G_kr_delay[25].rx = 345538;   seriel_10G_kr_delay[25].tx = 180780;
+        seriel_10G_kr_delay[26].rx = 345538;   seriel_10G_kr_delay[26].tx = 180780;
+        seriel_10G_kr_delay[27].rx = 345538;   seriel_10G_kr_delay[27].tx = 180780;
     }
 
     return VTSS_RC_OK;
