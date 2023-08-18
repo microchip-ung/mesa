@@ -689,10 +689,16 @@ static vtss_rc vtss_macsec_verify_port(const vtss_inst_t                inst,
 static vtss_rc is_sci_valid(vtss_state_t *vtss_state, vtss_port_no_t port_no, const vtss_macsec_sci_t *sci)
 {
     vtss_mac_t boardcast = {.addr = MAC_ADDR_BROADCAST};
+    vtss_mac_t zeromac = {.addr = MAC_ADDR_ZERO};
 
     // IEEE 802.1AE-2006, section 9.9 - The 64-bit value FF-FF-FF-FF-FF-FF is never used as an SCI and is reserved for use by implementations to indicate the absence of an SC or an SCI in contexts where an SC can be present */
     if (memcmp(&sci->mac_addr, &boardcast, sizeof(boardcast)) == 0) {
         VTSS_I("Broadcast MAC address should not be used");
+        return dbg_counter_incr(vtss_state, port_no, VTSS_RC_ERR_MACSEC_INVALID_SCI_MACADDR);
+    }
+    // The MACaddress of the Port can't be zero
+    if (memcmp(&sci->mac_addr, &zeromac, sizeof(zeromac)) == 0) {
+        VTSS_I("MACaddress of the Port can't be zero");
         return dbg_counter_incr(vtss_state, port_no, VTSS_RC_ERR_MACSEC_INVALID_SCI_MACADDR);
     }
 

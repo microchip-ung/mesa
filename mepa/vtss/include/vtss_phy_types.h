@@ -154,6 +154,7 @@ typedef mepa_mac_t vtss_mac_t;
 typedef u8 vtss_mac_addr_t[VTSS_MAC_ADDR_SZ_BYTES]; /**< MAC address (SMAC/DMAC) */
 
 #define MAC_ADDR_BROADCAST {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}  /**< Broadcast address used for addr in the vtss_mac_t struct */
+#define MAC_ADDR_ZERO {0x00, 0x00, 0x00, 0x00, 0x00, 0x00} /**< Port MAC address can't be zero */
 
 /** \brief Ethernet Type **/
 typedef mepa_etype_t vtss_etype_t;
