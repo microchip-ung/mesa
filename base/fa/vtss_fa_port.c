@@ -2487,9 +2487,16 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
     REG_WR(VTSS_DSM_MAC_ADDR_BASE_LOW_CFG(port),  (smac[3]<<16) | (smac[4]<<8) | smac[5]);
 
     /* Set HDX flowcontrol */
+#if defined(VTSS_ARCH_LAN969X_FPGA)
+    // Register spelling different on FPGA
+    REG_WRM(VTSS_DSM_MAC_CFG(port),
+            VTSS_F_DSM_MAC_CFG_HDX_BACKPRESSURE(!conf->fdx),
+            VTSS_M_DSM_MAC_CFG_HDX_BACKPRESSURE);
+#else
     REG_WRM(VTSS_DSM_MAC_CFG(port),
             VTSS_F_DSM_MAC_CFG_HDX_BACKPREASSURE(!conf->fdx),
             VTSS_M_DSM_MAC_CFG_HDX_BACKPREASSURE);
+#endif
 
     /* Obey flowcontrol  */
     REG_WRM(VTSS_DSM_RX_PAUSE_CFG(port),
