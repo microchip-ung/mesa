@@ -17,8 +17,8 @@
 #endif /* VTSS_ARCH_OCELOT */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X)  /* TBD_HENRIKB */
-#define VTSS_TS_ID_SIZE  3 // tbd
-#define TS_IDS_RESERVED_FOR_SW 3
+#define VTSS_TS_ID_SIZE  10
+#define TS_IDS_RESERVED_FOR_SW 10
 #define TS_PORT_ID_PORT_NUMBER_DEFAULT 0x9ABC
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
