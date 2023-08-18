@@ -2488,8 +2488,8 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
 
     /* Set HDX flowcontrol */
     REG_WRM(VTSS_DSM_MAC_CFG(port),
-            VTSS_F_DSM_MAC_CFG_HDX_BACKPREASSURE(!conf->fdx),
-            VTSS_M_DSM_MAC_CFG_HDX_BACKPREASSURE);
+            VTSS_F_DSM_MAC_CFG_HDX_BACKPRESSURE(!conf->fdx),
+            VTSS_M_DSM_MAC_CFG_HDX_BACKPRESSURE);
 
     /* Obey flowcontrol  */
     REG_WRM(VTSS_DSM_RX_PAUSE_CFG(port),
