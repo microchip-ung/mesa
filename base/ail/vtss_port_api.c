@@ -1898,6 +1898,8 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
                 kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);
                 krs->ignore_fail = TRUE;
             } else {
+                // Init the status channel
+                kr_send_sts_report(vtss_state, port_no, 0);
                 (void)kr_ber_training(vtss_state, port_no, KR_TRAIN);
             }
         } else {
@@ -2017,7 +2019,6 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // KR_MW_DONE (Max wait timer expired (72.6.10.3.2))
     if (irq & KR_MW_DONE) {
-        kr_send_sts_report(vtss_state, port_no, 0); // Workaround to avoid IRQ failures
         if (krs->training_started) {
             vtss_port_kr_fw_req_t req_msg = {0};
             req_msg.training_failure = TRUE;
