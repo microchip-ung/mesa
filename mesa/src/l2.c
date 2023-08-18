@@ -109,7 +109,7 @@ mesa_rc mesa_vlan_tx_tag_get(const mesa_inst_t  inst,
                              const uint32_t     cnt,
                              mesa_vlan_tx_tag_t *const tx_tag)
 {
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
     mesa_rc            rc;
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
@@ -133,7 +133,7 @@ mesa_rc mesa_vlan_tx_tag_set(const mesa_inst_t        inst,
                              const uint32_t           cnt,
                              const mesa_vlan_tx_tag_t *const tx_tag)
 {
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
     vtss_port_no_t     port_no;
     vtss_vlan_tx_tag_t tag[VTSS_PORT_ARRAY_SIZE];
 
