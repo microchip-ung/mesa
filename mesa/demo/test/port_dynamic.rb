@@ -32,22 +32,29 @@ cap_check_exit("PORT_DYNAMIC")
 
 #---------- Configuration and Test -----------------------------------------------------
 
-$p1 = $ts.dut.p[0] + 1
-$p2 = $ts.dut.p[1] + 1
-$p3 = $ts.dut.p[2] + 1
-$p4 = $ts.dut.p[3] + 1
+# Always take the first 4 ports
+$p1 = 1
+$p2 = 2
+$p3 = 3
+$p4 = 4
+$is_fpga = 0
 
 $test_with_traffic = false
 
 check_capabilities do
-    [$ts.dut.p[0], $ts.dut.p[1], $ts.dut.p[2], $ts.dut.p[3]].each do |port_tx|
+    [$p1-1, $p2-1, $p3-1, $p4-1].each do |port_tx|
         conf = $ts.dut.call "mesa_port_conf_get", port_tx
+    $ts.dut.run "mesa-cmd deb api port #{$p2} full"
+
         if conf["if_type"].include? "QSGMII"
         else
             assert(0==1, "all 4 interfaces must be QSGMII")
         end
     end
+    $is_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
 end
+
+
 
 # PCB-135 Test config:
 # p1 = 16
@@ -147,7 +154,8 @@ test "Test with traffic" do
 end
 
 test "Change-To-1x10G" do
-    cmd_res = $ts.dut.run "mesa-cmd deb port dynamic #{$p1} 5g force"
+    $ts.dut.run "mesa-cmd deb api port #{$p2} full"
+    cmd_res = $ts.dut.run "mesa-cmd deb port dynamic #{$p1} 10g force"
     if (cmd_res[:out].include?("Error"))
         t_e "Could not perfom command in API"
     end
@@ -155,7 +163,7 @@ test "Change-To-1x10G" do
     res2 = $ts.dut.run "mesa-cmd deb port dynamic #{$p2} force"
     res3 = $ts.dut.run "mesa-cmd deb port dynamic #{$p3} force"
     res4 = $ts.dut.run "mesa-cmd deb port dynamic #{$p4} force"
-    if !res1[:out].include?("BW-5G") || !res2[:out].include?("BW-None") || !res3[:out].include?("BW-None") || !res4[:out].include?("BW-None")
+    if !res1[:out].include?("BW-10") || !res2[:out].include?("BW-None") || !res3[:out].include?("BW-None") || !res4[:out].include?("BW-None")
         t_e("Error in SW-core BW")
     end
     if !res1[:out].include?("No-Phy") || !res2[:out].include?("No-Phy") || !res3[:out].include?("No-Phy") || !res4[:out].include?("No-Phy")
@@ -194,11 +202,12 @@ test "Change-To-4xQSGMII" do
     if !res2[:out].include?("QSGMII") || !res3[:out].include?("QSGMII") || !res4[:out].include?("QSGMII")
         t_e("Error in interface mode")
     end
+    $ts.dut.run "mesa-cmd deb api port #{$p2} full"
     $ts.dut.run "mesa-cmd deb port dynamic force"
 end
-# Skipping for now as the xilinx FPGA serdes needs a reset before forwarding is possible
-# test "Verify frame forwarding" do
-#     $ts.dut.run "mesa-cmd deb api port #{$p2} full"
-#     sleep (5)
-#     test_frame_fwd()
-# end
+if $is_fpga == 0
+    test "Verify frame forwarding" do
+        sleep (5)
+        test_frame_fwd()
+    end
+end
