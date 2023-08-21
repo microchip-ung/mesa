@@ -363,7 +363,7 @@ def response_pdu_rx_create(controlField=IGNORE, secondsField=IGNORE, reqClockId=
 
     if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
         ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
-        $response_pdu += "data repeat 6 0 "
+        $response_pdu += "data repeat 2 0 "
     end
 
     return $response_pdu

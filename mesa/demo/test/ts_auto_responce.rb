@@ -36,12 +36,6 @@ def tod_auto_responce_test(domain)
     conf["domain"] = domain
     $ts.dut.call("mesa_ts_operation_mode_set", $ts.dut.port_list[$port0], conf)
 
-    # Set TOD to 5 seconds
-    tod  = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-    tod[0]["seconds"] = 5
-    tod[0]["nanoseconds"] = 0
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
-
     test "Create IS2 to automatic Delay Response" do
     $ace_conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
     $ace_conf["id"] = $acl_id
@@ -68,6 +62,12 @@ def tod_auto_responce_test(domain)
     $frameHdrRx = frame_create("00:08:09:0a:0b:0c", "00:02:03:04:05:06")
     #response_pdu_rx_create(controlField=IGNORE, secondsField=IGNORE, reqClockId=IGNORE, srcClockId=IGNORE, reqPortNumber=IGNORE, srcPortNumber=IGNORE, flagField=IGNORE)
     framerx = $frameHdrRx.dup + response_pdu_rx_create(3, 5, $requestClockId, 0, $requestPortNumber, DEFAULT_PORT_ID_PORT, IGNORE)
+
+    # Set TOD to 5 seconds
+    tod  = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    tod[0]["seconds"] = 5
+    tod[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     # Transmit Delay Request on front port
     frame_tx($frametx, $port0, framerx, "", "", "")
