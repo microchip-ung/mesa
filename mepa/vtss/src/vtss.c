@@ -1148,6 +1148,37 @@ static uint32_t malibu_10g_capability(struct mepa_device *dev , uint32_t capabil
     return c;
 }
 
+/* In 10G Malibu PHY's the arguments i2c_dev_addr and word_access of API i2c_read/write have no functionality,
+ * so the value for these arguments can be given as zero
+ */
+static mepa_rc malibu_10g_i2c_read(struct mepa_device *dev,
+                                   uint8_t      i2c_mux,
+                                   uint8_t      i2c_reg_addr,
+                                   uint8_t      i2c_dev_addr,
+                                   mepa_bool_t  word_access,
+                                   uint8_t      cnt,
+                                   uint8_t      *const value)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    rc = vtss_phy_10g_i2c_read(data->vtss_instance, data->port_no, i2c_reg_addr, value);
+    return rc;
+}
+
+static mepa_rc malibu_10g_i2c_write(struct mepa_device *dev,
+                                    uint8_t     i2c_mux,
+                                    uint8_t     i2c_reg_addr,
+                                    uint8_t     i2c_dev_addr,
+                                    mepa_bool_t word_access,
+                                    uint8_t     cnt,
+                                    const uint8_t     *const value)
+{
+    mepa_rc rc =MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    rc = vtss_phy_10g_i2c_write(data->vtss_instance, data->port_no, i2c_reg_addr, value);
+    return rc;
+}
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -1361,6 +1392,8 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_clause45_write = phy_10g_clause45_write,
             .mepa_driver_event_enable_set = malibu_10g_event_enable_set,
             .mepa_driver_event_enable_get = malibu_10g_event_enable_get,
+            .mepa_driver_phy_i2c_read = malibu_10g_i2c_read,
+            .mepa_driver_phy_i2c_write = malibu_10g_i2c_write,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,

@@ -3063,8 +3063,8 @@ vtss_rc vtss_phy_10g_i2c_reset(const vtss_inst_t                inst,
 
 vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t                inst,
                               const vtss_port_no_t             port_no,
-                              const u16                        addr,
-                              u16                              *value);
+                              const u8                         addr,
+                              u8                               *const value);
 /**
  * \brief  Write to i2c device
  *
@@ -3078,8 +3078,8 @@ vtss_rc vtss_phy_10g_i2c_read(const vtss_inst_t                inst,
 
 vtss_rc vtss_phy_10g_i2c_write(const vtss_inst_t                inst,
                                const vtss_port_no_t             port_no,
-                               const u16                        addr,
-                               const u16                        *value);
+                               const u8                         addr,
+                               const u8                         *const value);
 
 /** \brief 10G Phy I2C Master Interface for SFP Module Configuration */
 typedef struct {
