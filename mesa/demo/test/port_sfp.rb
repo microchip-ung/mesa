@@ -57,7 +57,9 @@ end
 # Merge looped_port_list and looped_port_list_10g
 if $ts.dut.looped_port_list_10g
     $ts.dut.looped_port_list_10g.each do |idx|
-        $ts.dut.looped_port_list << idx
+        if !$ts.dut.looped_port_list.include?(idx)
+            $ts.dut.looped_port_list << idx
+        end
     end
 end
 
@@ -111,7 +113,6 @@ test "Test SFP loop" do
         $vlan3ports += ',' + $loop1.to_s
         vlan_add(2, $vlan2ports)
         vlan_add(3, $vlan3ports)
-
         spds.each {|spd|
             if (type != "MESA_PORT_INTERFACE_SGMII" && type != "MESA_PORT_INTERFACE_QSGMII")
                 $ts.dut.run "mesa-cmd port mode #{cli_ports} #{spd}"

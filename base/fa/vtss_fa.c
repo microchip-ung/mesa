@@ -598,7 +598,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
                 VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
                 VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
-        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(0, 1), 0x18624dd2);
+
+        // Time of day clock configuration (is re-written in TS module)
+        // CLK_PERIOD * 2^27 / 1000 = 409095634
+        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(0, 1), 409095634);
         REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
                 VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1),
                 VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
