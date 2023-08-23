@@ -4938,9 +4938,9 @@ vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, const vtss_debug_print
 
     // The index of the shared SRC-MEM is given by 9 * total-number-of-ports + 8
     // which amounts to 638 on SparX5 and 323 on LAN969x.
-    idx = 9 * VTSS_CHIP_PORTS_ALL + 8;
-    addr = res_stat_cur ? VTSS_QRES_RES_STAT_CUR(idx) : VTSS_QRES_RES_STAT(idx);
-    REG_RD(addr, &val);
+    idx = 9 * RT_CHIP_PORTS_ALL + 8;
+    addr = res_stat_cur ? REG_ADDR(VTSS_QRES_RES_STAT_CUR(idx)) : REG_ADDR(VTSS_QRES_RES_STAT(idx));
+    vtss_fa_rd(vtss_state, addr, &val);
     fa_debug_qres_print(vtss_state, pr, idx, -1, 0, 7, val);
 
     for (resource = 0; resource < 4; resource++) {
