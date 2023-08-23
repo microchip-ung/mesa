@@ -53,6 +53,7 @@ typedef struct meba_board_state {
     mesa_bool_t           gpy241_present;
     mesa_bool_t           viper_present;
     mesa_bool_t           malibu_present;
+    mesa_bool_t           tesla_present;
     mesa_bool_t           gpy241_usxgmii_mode;
     uint16_t              gpy241_leds[4];
     uint32_t              port_cnt;
