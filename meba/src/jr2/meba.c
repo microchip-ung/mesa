@@ -2072,7 +2072,7 @@ static mesa_rc jr2_sfp_i2c_xfer(meba_inst_t inst,
 {
     mesa_rc rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
-    uint16_t value;
+    uint8_t value;
     uint8_t idx;
     T_N(inst, "Called");
     if (board->malibu_present && (port_no >= 24 && port_no < 28)) {
