@@ -708,36 +708,6 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
 }
 
 
-static mesa_rc fa_phy_event_enable(meba_inst_t inst,
-                                    meba_board_state_t *board,
-                                    vtss_phy_event_t phy_event,
-                                    mesa_bool_t enable)
-{
-    mesa_port_no_t     port_no;
-    mesa_rc            rc = MESA_RC_OK;
-
-    T_D(inst, "%sable phy event %d on all ports", enable ? "en" : "dis", phy_event);
-
-    for (port_no = 0; port_no < board->port_cnt; port_no++) {
-        if (is_phy_port(board->port[port_no].map.cap)) {
-            // We do not need/expect any event configuration to be done for AQR/ML.
-            // Currently the feature is not implemented in the MEPA layer, and
-            // MEBA will therefore return MESA_RC_NOT_IMPLEMENTED.
-            rc = meba_phy_event_enable_set(inst, port_no, phy_event, enable);
-            if (rc == MESA_RC_OK) {
-                T_I(inst, "%sable phy event %d on phy:%d", enable ? "en" : "dis", phy_event, port_no);
-            }
-            if (rc == MESA_RC_OK || rc == MESA_RC_NOT_IMPLEMENTED) {
-                continue;
-            } else {
-                T_E(inst, "meba_phy_event_enable = %d, port %d", rc, port_no);
-                break;
-            }
-        }
-    }
-    return rc;
-}
-
 static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_event_signal_t signal_notifier)
 {
     uint32_t gpio;
@@ -1795,15 +1765,25 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
                 if ((rc = mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, hack_bit, enable)) != MESA_RC_OK) {
                     T_E(inst, "Could not enable event for sgpio #%d", sgpio_port);
                 }
+            } else if (is_phy_port(board->port[port_no].map.cap)) {
+                uint32_t sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+                uint32_t sgpio_bit  = PORT_2_SGPIO_BIT(board, port_no);
+                if (sgpio_port < MESA_SGPIO_PORTS) {
+                    rc = mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, sgpio_bit, enable);
+                    if (rc != MESA_RC_OK) {
+                        T_E(inst, "Failed mesa_sgpio_event_enable. port_no = %d", port_no);
+                    }
+                    rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, enable);
+                    if (rc != MESA_RC_OK) {
+                        T_E(inst, "Failed meba_phy_event_enable_set. port_no = %d", port_no);
+                    }
+                }
             }
         }
         break;
 
     case MEBA_EVENT_FLNK: // Phy link down event
-        rc = fa_phy_event_enable(inst, board, VTSS_PHY_LINK_FFAIL_EV, enable);
         if (board->type == BOARD_TYPE_SPARX5_PCB135) {
-            uint32_t sgpio_port_old = 0xff;
-            uint32_t sgpio_bit_old  = 0xff;
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (is_phy_port(board->port[port_no].map.cap)) {
                     uint32_t sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
@@ -1811,15 +1791,12 @@ static mesa_rc fa_event_enable(meba_inst_t inst,
                     if (sgpio_port >= MESA_SGPIO_PORTS) {
                         continue;
                     }
-                    if (sgpio_port == sgpio_port_old &&
-                        sgpio_bit  == sgpio_bit_old) {
-                        continue;
-                    }
                     if ((rc += mesa_sgpio_event_enable(NULL, 0, 2, sgpio_port, sgpio_bit, enable)) != MESA_RC_OK) {
                         T_E(inst, "Could not enable event for sgpio #%d", sgpio_port);
                     }
-                    sgpio_port_old = sgpio_port;
-                    sgpio_bit_old = sgpio_bit;
+                    if ((rc += meba_phy_event_enable_set(inst, port_no, MEPA_FAST_LINK_FAIL, enable)) != MESA_RC_OK) {
+                        T_E(inst, "Could not enable FLNK for port %d", port_no);
+                    }
                 }
             }
         }
@@ -1957,6 +1934,9 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
             if (sgpio_events_bit[sgpio_bit][sgpio_port]) {
                 // Check for Cu Phy events
                 if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
+                    handled++;
+                }
+                if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                     handled++;
                 }
             }
