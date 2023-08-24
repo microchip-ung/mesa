@@ -788,7 +788,7 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
             }
             dt = krs->irq_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-10s%-10s%-30s%-22s%-16s%-16s\n","","us","delta","KR IRQs","SM","LP BP ability","LP NP ability");
+                cli_printf("%-4s%-10s%-10s%-40s%-22s%-16s%-16s\n","","us","delta","KR IRQs","SM","LP BP ability","LP NP ability");
                 cli_printf("    -------------------------------------------------------------------------------------------------------\n");
                 first = FALSE;
             }
@@ -838,7 +838,7 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
                 b2 += sprintf(b2, "Aneg results: %s / %s",mesa_port_spd2txt(krs->speed),krs->rfec ? "RFEC" : krs->rsfec ? "RSFEC" : "No FEC");
             }
 
-            cli_printf("%-4d%-10d%-10d%-30s%-22s%-32s\n",
+            cli_printf("%-4d%-10d%-10d%-40s%-22s%-32s\n",
                        indx, dt, delta, buf, kr_aneg_sm_2_txt(krs->irq_hist[indx].sm), buf2);
 
         }
@@ -1271,6 +1271,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
             kr->rfec = status.aneg.r_fec_enable;
             kr->rsfec = status.aneg.rs_fec_enable;
         } else {
+            kr->speed = pconf.speed;
             printf("Port:%d - Aneg completed (%s) in %d ms\n",uport, mesa_port_spd2txt(pconf.speed), get_time_ms(&kr->time_start_aneg));
         }
         kr_conf_state[iport].next_parallel_spd = MESA_SPEED_2500M;

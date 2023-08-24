@@ -1677,7 +1677,12 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
         REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
     } else {
         // Link pass inihibit timer (in AN_GOOD_CHECK)
-        REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500*3); // 30 ms
+        REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500 * 3); // 3 * 10ms
+        if (LA_TGT) {
+            // FA: LFLONG_TMR (default 50ms) is enough)
+            // Link fail inihibit timer (in AN_GOOD_CHECK)
+           REG_WR(VTSS_IP_KRANEG_LF_TMR(tgt), 4101049 * 3); // 3 * 50ms
+        }
     }
 
     // Store the cuurnet TxEq values
