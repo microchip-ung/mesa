@@ -2183,15 +2183,17 @@ static mepa_rc indy_ts_event_set (mepa_device_t *dev, const mepa_bool_t enable, 
         mask_changed = (0 != (data->ts_state.ts_port_conf.event_mask & ev_mask));
         data->ts_state.ts_port_conf.event_mask &= ~ev_mask;
     }
-    EP_RD(dev, INDY_PTP_TSU_INT_EN, &mask);
     if (mask_changed) {
-        if (ev_mask & MEPA_TS_EGR_FIFO_OVERFLOW) {
+        EP_RD(dev, INDY_PTP_TSU_INT_EN, &mask);
+        if (data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_FIFO_OVERFLOW) {
             mask |= INDY_PTP_TSU_INT_TX_TS_OVRFL_EN;
-            data->ts_state.ts_port_conf.event_mask = data->ts_state.ts_port_conf.event_mask | MEPA_TS_EGR_FIFO_OVERFLOW;
+        } else {
+            mask &= ~INDY_PTP_TSU_INT_TX_TS_OVRFL_EN;
         }
-        if (ev_mask & MEPA_TS_EGR_TIMESTAMP_CAPTURED) {
-            mask |=  INDY_PTP_TSU_INT_TX_TS_EN;
-            data->ts_state.ts_port_conf.event_mask = data->ts_state.ts_port_conf.event_mask | MEPA_TS_EGR_TIMESTAMP_CAPTURED;
+        if (data->ts_state.ts_port_conf.event_mask & MEPA_TS_EGR_TIMESTAMP_CAPTURED) {
+            mask |= INDY_PTP_TSU_INT_TX_TS_EN;
+        } else {
+            mask &= ~INDY_PTP_TSU_INT_TX_TS_EN;
         }
         EP_WRM(dev, INDY_PTP_TSU_INT_EN, mask, INDY_DEF_MASK);
     }
