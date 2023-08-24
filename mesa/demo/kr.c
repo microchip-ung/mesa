@@ -50,6 +50,8 @@ static char *ber2txt(mesa_ber_stage_t st)
 static char *irq2txt(u32 irq)
 {
     switch (irq) {
+    case MESA_KR_NP_REQ:     return  "NP_REQ";
+    case MESA_KR_ACK_FINISH: return  "ACK_FINISH";
     case MESA_KR_ACTV:       return  "KR_ACTV";
     case MESA_KR_LPSVALID:   return  "KR_LPS";
     case MESA_KR_LPCVALID:   return  "KR_LPC";

@@ -690,6 +690,8 @@ mesa_rc mesa_port_kr_status_get(const mesa_inst_t inst,
     CAP(PORT_KR);
 
 #define MESA_KR_AN_RATE         (0xF)
+#define MESA_KR_NP_REQ          (1 << 31)
+#define MESA_KR_ACK_FINISH      (1 << 30)
 #define MESA_KR_ACTV            (1 << 29)
 #define MESA_KR_LPSVALID        (1 << 28)
 #define MESA_KR_LPCVALID        (1 << 27)

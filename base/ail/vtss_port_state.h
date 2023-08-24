@@ -350,6 +350,8 @@ typedef struct {
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 // Interrupt defines
+#define KR_NP_REQ          (1 << 31)
+#define KR_ACK_FINISH      (1 << 30)
 #define KR_ACTV            (1 << 29)
 #define KR_LPSVALID        (1 << 28)
 #define KR_LPCVALID        (1 << 27)

@@ -1465,6 +1465,8 @@ static char *fa_kr_aneg_rate(u32 reg)
 static char *irq2txt(u32 irq)
 {
     switch (irq) {
+    case KR_NP_REQ:     return  "NP_REQ";
+    case KR_ACK_FINISH  return  "ACK_FIN";
     case KR_ACTV:       return  "KR_ACTV";
     case KR_LPSVALID:   return  "KR_LPS";
     case KR_LPCVALID:   return  "KR_LPC";
@@ -1509,8 +1511,6 @@ static void dump_irq(u32 p, u32 irq)
     if ((irq & 0xf) > 0) {
         b += VTSS_SPRINTF(b, "%s ",fa_kr_aneg_rate(irq & 0xf));
     }
-
-    printf("%s \n",buf);
 }
 
 
@@ -1523,7 +1523,7 @@ static vtss_port_speed_t kr_irq2spd(u32 irq)
     case KR_ANEG_RATE_2G5: return VTSS_SPEED_2500M;
     case KR_ANEG_RATE_1G:  return VTSS_SPEED_1G;
     default:
-        printf("KR speed not supported\n");
+        T_E("KR speed not supported\n");
     }
     return VTSS_SPEED_10G;
 }
