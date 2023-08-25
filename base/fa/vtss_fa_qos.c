@@ -3099,12 +3099,19 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
     vtss_tas_profile_t  *tas_profiles = vtss_state->qos.tas.tas_profiles;
 
     /* This must be done when the link comes up and link speed has been negotiated. */
-    /* The profile used on this port must be configured to actual speed */
-    for (i = 0; i < RT_TAS_NUMBER_OF_PROFILES; ++i) {
-        if (tas_profiles[i].in_use && tas_profiles[i].port_no == port_no) {
-            REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(i), VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),
-                                                     VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
+    if (FA_TGT) {
+        /* The profile used on this port must be configured to actual speed */
+        for (i = 0; i < RT_TAS_NUMBER_OF_PROFILES; ++i) {
+            if (tas_profiles[i].in_use && tas_profiles[i].port_no == port_no) {
+                REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(i), VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),
+                                                         VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
+            }
         }
+    }
+    if (LA_TGT) {
+        REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(VTSS_CHIP_PORT(port_no)),
+                VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port.conf[port_no].speed)),
+                VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
     }
 
     return VTSS_RC_OK;

@@ -109,6 +109,53 @@ def nano_delay_measure(port0, port1)
     $nano_delay
 end
 
+def tx_two_step_sync(port0, port1)
+    $nano_delay
+
+    test "tx_two_step_sync" do
+
+    # Allocate a timestamp id
+    conf = {port_mask: 1<<port0, context: 0, cb: 0}
+    idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
+
+    t_i ("transmit SYNC frame on NPI against loop port and receive again on NPI port")
+    frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
+    frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
+    framerx = rx_ifh_create(port1) + frameHdrTx.dup + sync_pdu_rx_create()
+    frame_tx(frametx, $npi_port, " ", " ", " ", " ")
+    end
+end
+
+def tx_fifo_print(port0)
+    $ts.dut.run ("mesa-cmd deb sym write HSCH:SYSTEM:PORT_MODE[#{port0}] 0x00")
+    sleep 1
+
+    t_i ("Update the TX FIFO in AIL. This will cause callback to Jason with the TX timestamp")
+    $ts.dut.call("mesa_tx_timestamp_update")
+
+    t_i ("Get the TX timestamps. This is not a MESA API function, only a Jason implementation to get the TX timestamp delivered through callback")
+    tod_nano_tx = []
+    loop do
+        ts_tx = $ts.dut.call("mesa_tx_timestamp_get")
+        if (ts_tx["ts_valid"] != true)
+            t_i("Not valid")
+            break;
+        end
+        tod_nano_tx << (ts_tx["ts"] >> 16)
+    end
+    t_i ("tod_nano_tx #{tod_nano_tx}")
+
+    tod_nano_diff = []
+    value = 0
+    for i in tod_nano_tx do
+        if value != 0
+            tod_nano_diff << (i - value)
+        end
+        value = i
+    end
+    t_i ("tod_nano_diff #{tod_nano_diff}")
+end
+
 def multiple_measure(port0, port1)
     delays = []
     20.times {
@@ -143,12 +190,6 @@ def tod_latency_test(port0, port1)
     conf["freq"] = 0
     $ts.dut.call("mesa_ts_external_clock_mode_set", conf)
 
-    # Update default ingress and egress latency in the API. This is based on register values potentially different after link up
-    # Delay after call to mesa_ts_status_change should be smaller as the default delay (that is added) is calculated internally in the API
-    # This is only the case the first run of the test after boot as this default delay is remembered in the API
-    $ts.dut.call("mesa_ts_status_change", port0)
-    $ts.dut.call("mesa_ts_status_change", port1)
-
     # Set Port egress latency to zero on loop TX port
     latency = $ts.dut.call("mesa_ts_egress_latency_get", port0)
     latency = 0
@@ -159,9 +200,21 @@ def tod_latency_test(port0, port1)
     latency = 0
     $ts.dut.call("mesa_ts_ingress_latency_set", port1, latency)
 
-    t_i "Measure nanosecond delay with egress latency 0 and ingress latency 0"
+    # Update default ingress and egress latency in the API. This is based on register values potentially different after link up
+    # Delay after call to mesa_ts_status_change should be smaller as the default delay (that is added) is calculated internally in the API
+    # This is only the case the first run of the test after boot as this default delay is remembered in the API
+    $ts.dut.call("mesa_ts_status_change", port0)
+    $ts.dut.call("mesa_ts_status_change", port1)
+
+#8.times {
+#    tx_two_step_sync(port0, port1)
+#}
+#tx_fifo_print(port0)
+#exit 0
+
 #multiple_measure(port0, port1)
 #return
+    t_i "Measure nanosecond delay with egress latency 0 and ingress latency 0"
     nano_delay_0 = nano_delay_measure(port0, port1)
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
     min = -2
@@ -329,7 +382,8 @@ test "test_run" do
             next
         end
 
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") ||
+            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")))
             t_i("------------ Measuring 5G mode -----------------")
             if $meba_cap[:out].include?("5G_FDX")
                 t_i "Supports 5G"
@@ -350,11 +404,13 @@ test "test_run" do
                 if (conf["speed"] == "MESA_SPEED_10G")
                     tod_latency_test(port0, port1)
 
-                    t_i "Run test with KR RS-FEC"
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
-                    sleep 0.5
-                    tod_latency_test(port0, port1)
+                    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+                        t_i "Run test with KR RS-FEC"
+                        $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
+                        $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
+                        sleep 0.5
+                        tod_latency_test(port0, port1)
+                    end
 
                     t_i "Run test with KR R-FEC"
                     $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-10g rfec train")

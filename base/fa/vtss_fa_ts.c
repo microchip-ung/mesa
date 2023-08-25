@@ -393,7 +393,7 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
         rx_delay = 0xFFFFFF;
     }
 
-    VTSS_I("rx_delay %d  egress_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_igr_latency);
+    VTSS_I("rx_delay %d  ingr_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(conf->ingress_latency), conf->default_igr_latency);
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32                   port;
     port = VTSS_CHIP_PORT(port_no);
@@ -698,7 +698,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 {
     vtss_port_interface_t interface;
     vtss_port_speed_t     speed;
-    u32                   port, value;
+    u32                   port, value, i;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
@@ -941,6 +941,17 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
     default:
         break;
+    }
+
+    /* Configure TS phase detection */
+    for(i=0; i<2; ++i) {
+        DEV_RD_IDX(PHAD_CTRL, i, port, &value);
+        DEV_WRM_IDX(PHAD_CTRL, i, port,
+                VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG((VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(value) + 1)),
+                VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG);
+        DEV_WRM_IDX(PHAD_CTRL, i, port,
+                VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1),
+                VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
     }
 
     /* rx_delay and tx_delay are in picoseconds.  */

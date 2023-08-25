@@ -263,6 +263,23 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
         }                                                                     \
     }
 
+#define DEV_RD_IDX(name, index, port, value)                                  \
+    {                                                                         \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                   \
+            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value); \
+        } else {                                                              \
+            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value);    \
+        }                                                                     \
+    }
+
+#define DEV_WRM_IDX(name, index, port, value, mask)                                  \
+    {                                                                                \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value, mask);        \
+        if (!VTSS_PORT_IS_2G5(port)) {                                               \
+            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value, mask); \
+        }                                                                            \
+    }
+
 /* Decode register bit field */
 #define REG_BF(name, value) ((VTSS_M_##name & value) ? 1 : 0)
 
