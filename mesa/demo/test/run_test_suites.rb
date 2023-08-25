@@ -29,8 +29,8 @@ $systems = [
     { name: "dk-t35-6", image: "armv7_lan969x_sr_bbb.itb",   branch:"master", parallel: "no", server: "35", started: "no" },
 
     # dk-t36, Laguna systems
-    { name: "dk-t36-2", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
-    { name: "dk-t36-3", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
+    # { name: "dk-t36-2", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
+    # { name: "dk-t36-3", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
 
 #   { name: "dk-t31",   image: "arm64_vsc7546TSN.itb",       branch:"master", parallel: "no", server: "35", started: "no" },
 #   { name: "dk-t35-6", image: "mipsel_vsc7468_48.mfi",      branch:"master", parallel: "no", server: "35", started: "no" }, MESA-428 / Atom issue
