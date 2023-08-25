@@ -80,7 +80,7 @@ test "Test SFP loop" do
         if conf["serdes"]["media_type"].include? "DAC"
             dac = 1
             if conf["speed"].include? "25G" then spds = ["25g","10g","5g","2500","1000fdx","100fdx"] end
-            if conf["speed"].include? "10G" then spds = ["10g","5g","2500","1000fdx","100fdx"] end
+            if conf["speed"].include? "10G" then spds = ["10g","5g","2500","1000fdx","100fdx","1000fdx","2500","5g","10g"] end
             if conf["speed"].include? "2500" then spds = ["2500","1000fdx","100fdx"] end
             if conf["speed"].include? "1G" then spds = ["1000fdx","100fdx"] end
 
