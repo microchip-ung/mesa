@@ -698,7 +698,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 {
     vtss_port_interface_t interface;
     vtss_port_speed_t     speed;
-    u32                   port, value, i;
+    u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0;
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
@@ -945,7 +945,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         break;
     }
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (LA_TGT) {
+        uint32_t i;
         /* Configure TS phase detection */
         for(i=0; i<2; ++i) {
             DEV_RD_IDX(PHAD_CTRL, i, port, &value);
@@ -957,6 +959,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
                     VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
         }
     }
+#endif
 
     /* rx_delay and tx_delay are in picoseconds.  */
     VTSS_I(" port_no %d speed %d interface %d rx_dly %u tx_dly %u", port_no, speed, interface, rx_delay, tx_delay);

@@ -267,6 +267,16 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
     {                                                                  \
         REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask); \
     }
+#define DEV_RD_IDX(name, index, port, value)                           \
+    {                                                                  \
+        REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value); \
+    }
+
+#define DEV_WRM_IDX(name, index, port, value, mask)                    \
+    {                                                                  \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask); \
+    }
+
 #else
 #define DEV_RD(name, port, value)                                      \
     {                                                                  \
@@ -291,6 +301,23 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
         if (!VTSS_PORT_IS_2G5(port)) {                                        \
             REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask); \
         }                                                                     \
+    }
+
+#define DEV_RD_IDX(name, index, port, value)                                  \
+    {                                                                         \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                   \
+            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value); \
+        } else {                                                              \
+            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value);    \
+        }                                                                     \
+    }
+
+#define DEV_WRM_IDX(name, index, port, value, mask)                                  \
+    {                                                                                \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value, mask);        \
+        if (!VTSS_PORT_IS_2G5(port)) {                                               \
+            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value, mask); \
+        }                                                                            \
     }
 #endif
 
