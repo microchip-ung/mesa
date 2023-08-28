@@ -794,8 +794,20 @@ mepa_rc mepa_fefi_detect(struct mepa_device *dev,
                           mepa_bool_t *const fefi_detect);
 
 /**
- * \brief PHY write SOF value
+ *  \brief Read Chip temperature API for supported PHYs.
+ *  \The temperature of the chip is obtained in degree celsius.
  *
+ *  \param dev     [IN]    Driver instance.
+ *  \temp          [OUT]   Stored chip temperature value.
+ *
+ *  \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_chip_temp_get(struct mepa_device *dev, int16_t *const temp);
+
+/**
+ * \brief PHY write SOF value
  * \param dev   [IN]   Driver instance.
  * \param conf [IN]   SOF value to be Configured
  *

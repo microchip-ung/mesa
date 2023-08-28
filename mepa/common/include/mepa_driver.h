@@ -472,6 +472,16 @@ typedef mepa_rc (*mepa_driver_phy_info_get_t)(struct mepa_device *dev, mepa_phy_
 typedef mepa_rc (*mepa_driver_isolate_mode_conf_t)(struct mepa_device *dev, const mepa_bool_t iso_en);
 
 /**
+ *  \brief Read Chip temperature API for supported PHYs.
+ *  \param dev     [IN]    Driver instance.
+ *  \temp  [OUT]   Stored chip temperature value.
+ *
+ *  \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
+typedef mepa_rc (*mepa_driver_chip_temp_get_t)(struct mepa_device *dev, i16 *const temp);
+/**
  * \brief  Debug dump API for PHY.
  *
  * \param dev  [IN]   Driver instance.
@@ -766,6 +776,7 @@ typedef struct mepa_driver {
     mepa_driver_link_base_port_t       mepa_driver_link_base_port;
     mepa_driver_phy_info_get_t         mepa_driver_phy_info_get;
     mepa_driver_isolate_mode_conf_t    mepa_driver_isolate_mode_conf;
+    mepa_driver_chip_temp_get_t        mepa_driver_chip_temp_get;
     mepa_debug_info_dump_t             mepa_debug_info_dump;
     mepa_driver_phy_i2c_read_t         mepa_driver_phy_i2c_read;
     mepa_driver_phy_i2c_write_t        mepa_driver_phy_i2c_write;

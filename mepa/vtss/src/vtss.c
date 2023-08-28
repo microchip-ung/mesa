@@ -206,7 +206,7 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
     vtss_phy_reset_conf_t conf = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
     mepa_rc rc = MEPA_RC_OK;
-
+    data->temp_init_flag = false;
     if (rst_conf->reset_point == MEPA_RESET_POINT_PRE) {
         // pre reset api should be called on base port
         rc = vtss_phy_pre_reset(data->vtss_instance, data->port_no);
@@ -674,6 +674,20 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
         phy_info->ts_base_port = phy_id.phy_api_base_no;
     }
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
+}
+
+static mepa_rc phy_1g_chip_temp_get(mepa_device_t *dev,
+                                    i16 *const temp)
+{
+    phy_data_t *data = (phy_data_t*)(dev->data);
+    mesa_rc rc = MESA_RC_OK;
+    if (!(data->temp_init_flag)) {
+        if ((rc = vtss_phy_chip_temp_init(data->vtss_instance, data->port_no)) != MESA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+        data->temp_init_flag = true;
+    }
+    return vtss_phy_chip_temp_get(data->vtss_instance,data->port_no,temp);
 }
 
 static mepa_rc phy_10g_delete(mepa_device_t *dev)
@@ -1235,6 +1249,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_link_base_port = phy_1g_link_base_port,
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
+            .mepa_driver_chip_temp_get = phy_1g_chip_temp_get,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
         },
@@ -1277,6 +1292,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_fefi_set = phy_1g_fefi_set,
             .mepa_driver_phy_fefi_get = phy_1g_fefi_get,
             .mepa_driver_phy_fefi_detect = phy_1g_fefi_detect,
+            .mepa_driver_chip_temp_get = phy_1g_chip_temp_get,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },

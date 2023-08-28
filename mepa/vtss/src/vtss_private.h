@@ -83,5 +83,6 @@ typedef struct {
     mepa_device_t *ts_base_dev;
     mepa_device_t *ts_alt_dev;
     vtss_inst_t    vtss_instance;
+    mepa_bool_t    temp_init_flag;// Used for initializing temperature only once for a port.
 } phy_data_t;
 

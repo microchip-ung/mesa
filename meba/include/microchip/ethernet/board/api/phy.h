@@ -132,7 +132,10 @@ mepa_rc meba_phy_debug_info_print(const meba_inst_t         inst,
 mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info);
 
 // Enable/Disable isolate mode
-mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no,            const mepa_bool_t iso_en);
+mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no, const mepa_bool_t iso_en);
+
+// Read Chip Temperature
+mepa_rc meba_phy_chip_temp_get(meba_inst_t inst, mepa_port_no_t port_no, int16_t *const temp);
 
 // Get the SQI value
 mepa_rc meba_phy_sqi_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value);

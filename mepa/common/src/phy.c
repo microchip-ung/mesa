@@ -616,6 +616,14 @@ mepa_rc mepa_fefi_detect(struct mepa_device *dev, mepa_bool_t *const detect)
     return dev->drv->mepa_driver_phy_fefi_detect(dev, detect);
 }
 
+mepa_rc mepa_chip_temp_get(struct mepa_device *dev, i16 *const temp)
+{
+    if (!dev || !dev->drv->mepa_driver_chip_temp_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return dev->drv->mepa_driver_chip_temp_get(dev, temp);
+}
+
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {
