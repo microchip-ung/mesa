@@ -241,11 +241,13 @@ static vtss_rc fa_vop_conf_set(vtss_state_t            *vtss_state,
     REG_WR(VTSS_VOP_CPU_EXTR_CFG_1, value);
 
 #if defined(VTSS_FEATURE_MRP)
-    value = VTSS_F_VOP_CPU_EXTR_MRP_REM_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_OWN_CPU_QU(conf->mrp_queue) |
-            VTSS_F_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU(conf->mrp_queue) |
-            VTSS_F_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU(conf->mrp_queue) |
-            VTSS_F_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU(conf->mrp_queue);
-    REG_WR(VTSS_VOP_CPU_EXTR_MRP, value);
+    if (LA_TGT) {
+        value = VTSS_F_VOP_CPU_EXTR_MRP_REM_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_OWN_CPU_QU(conf->mrp_queue) |
+                VTSS_F_VOP_CPU_EXTR_MRP_MRP_OTHER_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_TST_CPU_QU(conf->mrp_queue) |
+                VTSS_F_VOP_CPU_EXTR_MRP_MRP_CTRL_CPU_QU(conf->mrp_queue) | VTSS_F_VOP_CPU_EXTR_MRP_MRP_ITST_CPU_QU(conf->mrp_queue) |
+                VTSS_F_VOP_CPU_EXTR_MRP_MRP_ICTRL_CPU_QU(conf->mrp_queue);
+        REG_WR(VTSS_VOP_CPU_EXTR_MRP, value);
+    }
 #endif
 
     for (i = 0; i < RT_DOWN_VOI_CNT; ++i) {   /* The number of Down and Up MIPs are the same in HW */
