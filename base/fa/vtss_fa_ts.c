@@ -700,7 +700,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     vtss_port_speed_t     speed;
     u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
-    u32                   rx_delay = 0, tx_delay = 0;
+    u32                   rx_delay = 0, tx_delay = 0, delay_var = 0;
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
     io_delay_t            *dv_factor;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
@@ -856,17 +856,42 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         rx_delay = qsgmii_1G_delay[port].rx;
         tx_delay = qsgmii_1G_delay[port].tx;
 
-        if (port < 24) {
-            REG_RD(VTSS_PORT_CONF_QSGMII_STAT((port - port % 4) / 4), &value);
-            rx_delay += (VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value) * 200) - ((port % 4) * 2000);
-            tx_delay += (port % 4) * 2000;
+        if (LA_TGT) {
+            REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4), &value);
+            delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
         }
+
+        if (FA_TGT) {
+            if ((port % 8) < 4) {
+                /* USGMII */
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+                REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
+                delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
+#endif
+            } else {
+                /* QSGMII */
+                REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 8), &value);
+                delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
+            }
+        }
+        rx_delay += (delay_var * 200) - ((port % 4) * 2000);
+        tx_delay += (port % 4) * 2000;
+
+        rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
+        tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
+        break;
+    case VTSS_PORT_INTERFACE_USGMII:
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+        REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
+        delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
+#endif
+        rx_delay += (delay_var * 100) - ((port % 4) * 1000);
+        tx_delay += (port % 4) * 1000;
 
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
     case VTSS_PORT_INTERFACE_SXGMII:
-    case VTSS_PORT_INTERFACE_USGMII:
     case VTSS_PORT_INTERFACE_QXGMII:
     case VTSS_PORT_INTERFACE_DXGMII_5G:
     case VTSS_PORT_INTERFACE_DXGMII_10G:
