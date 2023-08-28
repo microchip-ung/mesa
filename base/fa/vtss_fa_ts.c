@@ -856,9 +856,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         rx_delay = qsgmii_1G_delay[port].rx;
         tx_delay = qsgmii_1G_delay[port].tx;
 
-        REG_RD(VTSS_PORT_CONF_QSGMII_STAT((port - port % 4) / 4), &value);
-        rx_delay += (VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value) * 200) - ((port % 4) * 2000);
-        tx_delay += (port % 4) * 2000;
+        if (port < 24) {
+            REG_RD(VTSS_PORT_CONF_QSGMII_STAT((port - port % 4) / 4), &value);
+            rx_delay += (VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value) * 200) - ((port % 4) * 2000);
+            tx_delay += (port % 4) * 2000;
+        }
 
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
@@ -943,15 +945,17 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         break;
     }
 
-    /* Configure TS phase detection */
-    for(i=0; i<2; ++i) {
-        DEV_RD_IDX(PHAD_CTRL, i, port, &value);
-        DEV_WRM_IDX(PHAD_CTRL, i, port,
-                VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG((VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(value) + 1)),
-                VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG);
-        DEV_WRM_IDX(PHAD_CTRL, i, port,
-                VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1),
-                VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
+    if (LA_TGT) {
+        /* Configure TS phase detection */
+        for(i=0; i<2; ++i) {
+            DEV_RD_IDX(PHAD_CTRL, i, port, &value);
+            DEV_WRM_IDX(PHAD_CTRL, i, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG((VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(value) + 1)),
+                    VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG);
+            DEV_WRM_IDX(PHAD_CTRL, i, port,
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1),
+                    VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
+        }
     }
 
     /* rx_delay and tx_delay are in picoseconds.  */
