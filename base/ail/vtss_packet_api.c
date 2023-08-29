@@ -631,6 +631,7 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t          *const state,
                                            vtss_packet_rx_info_t *const info)
 {
     const vtss_vlan_port_conf_t *vlan_port_conf = &state->l2.vlan_port_conf[info->port_no];
+    const vtss_vlan_entry_t     *vlan_entry = &state->l2.vlan_table[info->tag.vid];
 
     if (info->port_no == VTSS_PORT_NO_NONE) {
         VTSS_EG(trc_grp, "Internal error");
@@ -673,7 +674,8 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t          *const state,
         info->hints |= VTSS_PACKET_RX_HINTS_VLAN_FRAME_MISMATCH;
     }
 
-    if (!VTSS_PORT_BF_GET(state->l2.vlan_table[info->tag.vid].member, info->port_no)) {
+    if (!VTSS_PORT_BF_GET(vlan_entry->member, info->port_no) &&
+        (vlan_port_conf->ingress_filter || (vlan_entry->flags & VLAN_FLAGS_FILTER))) {
         info->hints |= VTSS_PACKET_RX_HINTS_VID_MISMATCH;
     }
 
