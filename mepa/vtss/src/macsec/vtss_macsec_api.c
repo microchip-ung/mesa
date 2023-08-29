@@ -1523,7 +1523,9 @@ static vtss_rc vtss_mac_block_mtu_set_priv(vtss_state_t *vtss_state,
     u32 mac_maxlen_cfg = 0;
 
     VTSS_D("Port:%d, MTU:%d, Tag_check:%d", port_no, mtu_value, mtu_tag_check);
-
+    if (mtu_value < 64) {
+        return VTSS_RC_ERR_PARM;
+    }
     vtss_state->macsec_conf[port_no].glb.mac_block_mtu = mtu_value;
 
     if (mtu_tag_check) {
