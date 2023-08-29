@@ -3475,6 +3475,10 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
     vtss_port_interface_t cur_if;
     u32 st;
 
+    if (!vtss_state->vtss_features[FEATURE_PORT_DYNAMIC]) {
+        return VTSS_RC_OK;
+    }
+
     if (new_sd == old_sd || old_sd == VTSS_SERDES_MODE_DISABLE) {
         return VTSS_RC_OK; /* no calendar change needed */
     }
