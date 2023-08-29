@@ -96,10 +96,10 @@ def nano_delay_measure(port0, port1)
     if ((ts_tx["id"] != idx["ts_id"]) || (ts_tx["ts_valid"] != true))
         t_e("Not the expected TX timestamp. ts_tx[id] = #{ts_tx["id"]}  idx[ts_id] = #{idx["ts_id"]}  ts_tx[ts_valid] = #{ts_tx["ts_valid"]}")
     end
-    tod_nano_tx = ts_tx["ts"] >> 16
+    tod_nano_tx = ts_tx["ts"] / 65536.0
 
     #Calculate the RX TOD nanoseconds based on IFH RX tc
-    tod_nano_rx = frame_info["hw_tstamp"] >> 16
+    tod_nano_rx = frame_info["hw_tstamp"] / 65536.0
 
     # Calculate the delay as the difference between RX and TX TOD nanoseconds
     $nano_delay = tod_nano_rx - tod_nano_tx
@@ -158,7 +158,7 @@ end
 
 def multiple_measure(port0, port1)
     delays = []
-    20.times {
+    10.times {
         nano_delay = nano_delay_measure(port0, port1)
 
         delays << nano_delay
@@ -170,6 +170,16 @@ def multiple_measure(port0, port1)
         $ts.dut.call("mesa_ts_status_change", port1)
     }
     t_i("delays = #{delays}")
+
+    delays_diff = []
+    value = 0
+    for i in delays do
+        if value != 0
+            delays_diff << (i - value)
+        end
+        value = i
+    end
+    t_i ("delays_diff #{delays_diff}")
 end
 
 def tod_latency_test(port0, port1)
@@ -353,47 +363,9 @@ test "test_run" do
         $meba_cap = $ts.dut.run "mesa-cmd deb port cap #{port0+1}"
 
         # Test egress and ingress latency
-        t_i("------------ Measuring 1G mode -----------------")
-        if $meba_cap[:out].include?("1G_FDX")
-            t_i "Supports 1G"
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
-            tod_latency_test(port0, port1)
-        else
-            t_i "Do not Supports 1G"
-        end
 
-        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) &&
-            ($ts.dut.pcb != "8309"))
-            next
-        end
-
-        t_i("------------ Measuring 2.5G mode -----------------")
-        if $meba_cap[:out].include?("2_5G_FDX")
-            t_i "Supports 2.5G"
-            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
-            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
-            tod_latency_test(port0, port1)
-        else
-            t_i "Do not Supports 2.5G"
-        end
-
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-            next
-        end
-
-        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") ||
-            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")))
-            t_i("------------ Measuring 5G mode -----------------")
-            if $meba_cap[:out].include?("5G_FDX")
-                t_i "Supports 5G"
-                $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
-                $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
-                tod_latency_test(port0, port1)
-            else
-                t_i "Do not Supports 5G"
-            end
-
+#        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") ||
+#            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")))
             t_i("------------ Measuring 10G mode -----------------")
             if $meba_cap[:out].include?("10G_FDX")
                 t_i "Supports 10G"
@@ -422,29 +394,61 @@ test "test_run" do
                 t_i "Do not Supports 10G"
             end
 
-            t_i("------------ Measuring 25G mode -----------------")
-            if ($meba_cap[:out].include?("25G_FDX"))
-                t_i "Supports 25G"
-                $ts.dut.run("mesa-cmd port mode #{port0+1} 25g")
-                $ts.dut.run("mesa-cmd port mode #{port1+1} 25g")
-                sleep 0.5
-                conf = $ts.dut.call("mesa_port_conf_get", port0)
-                if (conf["speed"] == "MESA_SPEED_25G")
-                    tod_latency_test(port0, port1)
-
-                    t_i "Run test with KR RS-FEC"
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
-                    sleep 0.5
-                    tod_latency_test(port0, port1)
-
-                    t_i "Run test with KR R-FEC"
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-25g rfec train")
-                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-25g rfec train")
-                    sleep 0.5
-                    tod_latency_test(port0, port1)
-                end
+            t_i("------------ Measuring 5G mode -----------------")
+            if $meba_cap[:out].include?("5G_FDX")
+                t_i "Supports 5G"
+                $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
+                $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
+                tod_latency_test(port0, port1)
+            else
+                t_i "Do not Supports 5G"
             end
+#        end
+
+        t_i("------------ Measuring 2.5G mode -----------------")
+        if $meba_cap[:out].include?("2_5G_FDX")
+            t_i "Supports 2.5G"
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 2500")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 2500")
+            tod_latency_test(port0, port1)
+        else
+            t_i "Do not Supports 2.5G"
+        end
+
+        t_i("------------ Measuring 1G mode -----------------")
+        if $meba_cap[:out].include?("1G_FDX")
+            t_i "Supports 1G"
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 1000fdx")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 1000fdx")
+            tod_latency_test(port0, port1)
+        else
+            t_i "Do not Supports 1G"
+        end
+
+        t_i("------------ Measuring 25G mode -----------------")
+        if ($meba_cap[:out].include?("25G_FDX"))
+            t_i "Supports 25G"
+            $ts.dut.run("mesa-cmd port mode #{port0+1} 25g")
+            $ts.dut.run("mesa-cmd port mode #{port1+1} 25g")
+            sleep 0.5
+            conf = $ts.dut.call("mesa_port_conf_get", port0)
+            if (conf["speed"] == "MESA_SPEED_25G")
+                tod_latency_test(port0, port1)
+
+                t_i "Run test with KR RS-FEC"
+                $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
+                $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
+                sleep 0.5
+                tod_latency_test(port0, port1)
+
+                t_i "Run test with KR R-FEC"
+                $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-25g rfec train")
+                $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-25g rfec train")
+                sleep 0.5
+                tod_latency_test(port0, port1)
+            end
+        else
+            t_i "Do not Supports 25G"
         end
     end
 
