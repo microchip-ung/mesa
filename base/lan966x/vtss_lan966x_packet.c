@@ -664,6 +664,7 @@ static vtss_rc lan966x_rx_frame(struct vtss_state_s  *vtss_state,
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
+        meta.etype = (data[12] << 8) | data[13];
         rc = lan966x_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
