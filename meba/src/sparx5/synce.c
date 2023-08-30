@@ -1662,6 +1662,16 @@ mesa_rc meba_synce_mux_set(meba_inst_t  inst,
         return MESA_RC_OK;
     }
 
+    if (dev_id >= 250 && dev_id <= 299) {
+        // this is a divider (in). Not an actual device - ok
+        return MESA_RC_OK;
+    }
+
+    if (dev_id == 600) {
+        // this is a divider (out). Not an actual device - ok
+        return MESA_RC_OK;
+    }
+
     if (dev_id >= 900 && dev_id < 1000) {
         // this is a pseudo mux. Only used to make the graph unambigous. Nothing to configure
         return MESA_RC_OK;
