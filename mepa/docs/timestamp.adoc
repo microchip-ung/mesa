@@ -375,10 +375,10 @@ The following APIs will be used to read/empty the TSFIFO timestamp:
 Install callback to read data (signature + timestamp) from TX TSFIFO.
 
 From 2023.06 release, new API `mepa_ts_fifo_get()` is added to retrieve up to
-8 timestamp entries in single call without using callback functions of
-'mepa_ts_fifo_empty()' API. Each timestamp entry contains a timestamp having
+8 timestamp entries in single call without using callback functions of 
+'mepa_ts_fifo_empty()' API. Each timestamp entry contains a timestamp having 
 seconds and nano seconds values and also a signature for correlating timestamp
-with specific message. All VSC phys save 10-byte timestamp into FIFO. LAN8814 phy
+with specific message. All VSC phys save 10-byte timestamp into FIFO. LAN8814 phy 
 saves 8-byte timestamp into FIFO with 4-byte seconds field.
 
 === TS Reset

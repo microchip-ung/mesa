@@ -9,6 +9,7 @@
 #include <microchip/ethernet/phy/api/phy_ts.h>
 
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
+#define MEPA_RC_ERR(expr, str) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) {T_E(MEPA_TRACE_GRP_GEN, str); return __rc__; }}
 #define MEPA_ASSERT(x) if((x)) { return MESA_RC_ERROR;}
 
 #define TRUE  1

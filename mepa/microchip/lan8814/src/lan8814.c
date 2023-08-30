@@ -52,10 +52,10 @@ mepa_rc indy_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, ui
 mepa_rc indy_ext_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t *value)
 {
     // Set-up to access extended page register.
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL, page, INDY_DEF_MASK));
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL,
-                               INDY_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page, INDY_DEF_MASK));
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL,
+                INDY_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
 
     // Read the value
     MEPA_RC(indy_direct_reg_rd(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, value));
@@ -64,10 +64,10 @@ mepa_rc indy_ext_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16
 mepa_rc indy_ext_reg_wr(mepa_device_t *dev, uint16_t page, uint16_t addr, uint16_t value, uint16_t mask)
 {
     // Set-up to access extended page register.
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL, page, INDY_DEF_MASK));
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
-    MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL,
-                               INDY_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page, INDY_DEF_MASK));
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
+    MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL,
+                INDY_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
 
     // write the value
     MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, value, mask));
@@ -80,10 +80,10 @@ mepa_rc indy_ext_incr_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, u
 {
     if (start_addr) {
         // Set-up to access extended page register.
-        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL, page, INDY_DEF_MASK));
-        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
-        MEPA_RC(indy_direct_reg_wr(dev, INDY_EXT_PAGE_ACCESS_CTRL,
-                INDY_F_EXT_PAGE_ACCESS_CTRL_INCR_RD_WR | page, INDY_DEF_MASK));
+        MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
+        MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
+        MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, INDY_EXT_PAGE_ACCESS_CTRL,
+                    INDY_F_EXT_PAGE_ACCESS_CTRL_INCR_RD_WR | page), " PHY MIIM write error");
     }
     // Read the value
     MEPA_RC(indy_direct_reg_rd(dev, INDY_EXT_PAGE_ACCESS_ADDR_DATA, value));
