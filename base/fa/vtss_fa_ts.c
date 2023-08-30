@@ -1352,11 +1352,13 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
 
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         for (i = 0; i < RT_CHIP_PORTS_ALL; i++) {
             if (VTSS_PORT_IS_5G(i) || VTSS_PORT_IS_10G(i)) {
                 REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5);
             }
         }
+#endif
     }
 
     /* Get the GPIO functionality information */
