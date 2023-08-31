@@ -838,6 +838,12 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
     }
 
     if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
+        if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP4) {
+            return 6;
+        }
+        if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP6) {
+            return 7;
+        }
         return 5;
     }
 

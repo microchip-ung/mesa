@@ -142,6 +142,7 @@
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
 #define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
+#define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
 #define VTSS_FEATURE_PACKET_PIPELINE_PT           /**< Packet Tx supports injection at specific chip pipeline points */
 #define VTSS_FEATURE_QOS                          /**< QoS */
