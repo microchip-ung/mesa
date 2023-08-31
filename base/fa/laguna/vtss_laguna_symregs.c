@@ -5382,19 +5382,6 @@ static const vtss_symreg_reg_t regs_within_DEV1G_DEV_CFG_STATUS[] = {
     {"EEE_CFG"                              , 0x00000008, 0x00000001, 0x00000001},
     {NULL, 0, 0, 0}
 };
-static const vtss_symreg_reg_t regs_within_RGMII_DEV_CFG_STATUS[] = {
-    //reg name                              , addr      , repl_cnt  , repl_width
-    {"DEV_RST_CTRL"                         , 0x00000000, 0x00000001, 0x00000001},
-    {"DEV_STICKY"                           , 0x00000001, 0x00000001, 0x00000001},
-    {"DEV_DBG_CFG"                          , 0x00000002, 0x00000001, 0x00000001},
-    {"DEV_PORT_PROTECT"                     , 0x00000003, 0x00000001, 0x00000001},
-    {"DEV_LB_CFG"                           , 0x00000004, 0x00000001, 0x00000001},
-    {"EEE_CFG"                              , 0x00000005, 0x00000001, 0x00000001},
-    {"RGMII_AC_TEST_MODE"                   , 0x00000006, 0x00000001, 0x00000001},
-    {"RGMII_AC_TEST_STAT"                   , 0x00000007, 0x00000001, 0x00000001},
-    {"RGMII_AC_TEST_PATTERNS"               , 0x00000008, 0x00000001, 0x00000001},
-    {NULL, 0, 0, 0}
-};
 static const vtss_symreg_reg_t regs_within_DEV1G_USXGMII_ANEG_CFG_STATUS[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"USXGMII_ANEG_CFG"                     , 0x00000000, 0x00000001, 0x00000001},
@@ -5513,17 +5500,6 @@ static const vtss_symreg_reggrp_t reggrps_within_DEV1G[] = {
     {"DEV2G5U_INTR_CFG_STATUS"              , 0x0000003e, 0x00000001, 0x00000003, regs_within_DEV1G_DEV2G5U_INTR_CFG_STATUS},
     {NULL, 0, 0, 0, NULL}
 };
-static const vtss_symreg_reggrp_t reggrps_within_DEVRGMII[] = {
-    //reggrp name                           , base_addr , repl_cnt  , repl_width, reg list
-    {"DEV_CFG_STATUS"                       , 0x00000000, 0x00000001, 0x00000009, regs_within_RGMII_DEV_CFG_STATUS},
-    {"MAC_CFG_STATUS"                       , 0x00000009, 0x00000001, 0x00000009, regs_within_DEV1G_MAC_CFG_STATUS},
-    {"PTP_CFG_STATUS"                       , 0x00000012, 0x00000001, 0x00000007, regs_within_DEV1G_PTP_CFG_STATUS},
-    {"PHASE_DETECTOR_CTRL"                  , 0x00000019, 0x00000002, 0x00000003, regs_within_DEV1G_PHASE_DETECTOR_CTRL},
-    {"MM_CONFIG"                            , 0x0000001F, 0x00000001, 0x00000002, regs_within_DEV1G_MM_CONFIG},
-    {"MM_STATISTICS"                        , 0x00000021, 0x00000001, 0x00000001, regs_within_DEV1G_MM_STATISTICS},
-    {NULL, 0, 0, 0, NULL}
-};
-
 static const vtss_symreg_reg_t regs_within_DEV10G_MAC_CFG_STATUS[] = {
     //reg name                              , addr      , repl_cnt  , repl_width
     {"MAC_ENA_CFG"                          , 0x00000000, 0x00000001, 0x00000001},
@@ -8616,8 +8592,8 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
     {"DEV2G5"             ,   19, 0x00000424, VTSS_IO_OFFSET1(0x01090000), reggrps_within_DEV1G},
     {"DEV2G5"             ,   22, 0x0000042b, VTSS_IO_OFFSET1(0x010ac000), reggrps_within_DEV1G},
     {"DEV2G5"             ,   23, 0x0000042c, VTSS_IO_OFFSET1(0x010b0000), reggrps_within_DEV1G},
-    {"DEVRGMII"           ,    0, 0x00000439, VTSS_IO_OFFSET1(0x010e4000), reggrps_within_DEVRGMII},
-    {"DEVRGMII"           ,    1, 0x0000043a, VTSS_IO_OFFSET1(0x010e8000), reggrps_within_DEVRGMII},
+    {"DEVRGMII"           ,    0, 0x00000439, VTSS_IO_OFFSET1(0x010e4000), reggrps_within_DEV1G},
+    {"DEVRGMII"           ,    1, 0x0000043a, VTSS_IO_OFFSET1(0x010e8000), reggrps_within_DEV1G},
     {"DEV2G5"             ,    9, 0x00000410, VTSS_IO_OFFSET1(0x01040000), reggrps_within_DEV1G},
     {"DEV2G5"             ,   13, 0x00000418, VTSS_IO_OFFSET1(0x01060000), reggrps_within_DEV1G},
     {"DEV2G5"             ,   17, 0x00000420, VTSS_IO_OFFSET1(0x01080000), reggrps_within_DEV1G},
