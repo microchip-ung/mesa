@@ -448,15 +448,6 @@ u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     return (vtss_state->port.conf[port_no].speed <= VTSS_SPEED_2500M) ? VTSS_TO_DEV2G5(p) : VTSS_TO_HIGH_DEV(p);
 }
 
-static BOOL port_is_rgmii(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
-    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII) ||
-        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_ID) ||
-        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_RXID) ||
-        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_TXID)) {
-        return TRUE;
-    }
-    return FALSE;
-}
 
 static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
                                                const vtss_port_no_t port_no,
@@ -2619,7 +2610,6 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
     u32 tgt = high_speed_dev ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
     vtss_port_speed_t spd = vtss_state->port.current_speed[port_no];
     u32 spd_prm = spd == VTSS_SPEED_10M ? 1000 : spd == VTSS_SPEED_100M ? 100 : 10;
-    BOOL rgmii = port_is_rgmii(vtss_state, port_no);
 
     VTSS_I("Flush chip port: %u (%s device)", port, high_speed_dev ? "5/10/25G" : "2G5");
 
@@ -2634,18 +2624,12 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
                     VTSS_M_DEV10G_MAC_ENA_CFG_RX_ENA);
 #endif
     } else {
-        if (rgmii) {
-            REG_WRM_CLR(VTSS_DEVRGMII_MAC_ENA_CFG(tgt),
-                        VTSS_M_DEVRGMII_MAC_ENA_CFG_RX_ENA);
-
-        } else {
-            /* 1: Reset the PCS Rx clock domain  */
-            REG_WRM_SET(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                        VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST);
-            /* 2: Disable MAC frame reception */
-            REG_WRM_CLR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
-                        VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA);
-        }
+        /* 1: Reset the PCS Rx clock domain  */
+        REG_WRM_SET(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST);
+        /* 2: Disable MAC frame reception */
+        REG_WRM_CLR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
+                    VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA);
     }
     /* 3: Disable traffic being sent to or from switch port */
     REG_WRM_CLR(VTSS_QFWD_SWITCH_PORT_MODE(port),
@@ -2696,23 +2680,21 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
                 VTSS_M_DEV10G_DEV_RST_CTRL_MAC_TX_RST);
 #endif
     } else {
-        if (!rgmii) {
-            REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                    VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(3)    |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(1) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(1) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(1) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(1),
-                    VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
-        }
+        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+                VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(3)    |
+                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(1) |
+                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(1),
+                VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
+                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
+                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
     }
 
     /* 11: Clear flushing */
@@ -2734,12 +2716,10 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
         }
     }
 #endif
-    if (!rgmii) {
-        REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt),
-                    VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-        REG_WRM_CLR(VTSS_DEV1G_PCS_FX100_CFG(tgt),
-                    VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA);
-    }
+    REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt),
+                VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+    REG_WRM_CLR(VTSS_DEV1G_PCS_FX100_CFG(tgt),
+                VTSS_M_DEV1G_PCS_FX100_CFG_PCS_ENA);
 
     /* The port is now flushed and disabled  */
 
@@ -2923,8 +2903,11 @@ static vtss_rc fa_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no,
         return VTSS_RC_OK; // Delay already set
     }
 
-    if (mode == VTSS_PORT_INTERFACE_RGMII ||
-        mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst),
+            VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1),
+            VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
+
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
         mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
         tx_delay = TRUE;
     }
@@ -2933,31 +2916,27 @@ static vtss_rc fa_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no,
         mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
         rx_delay = TRUE;
     }
-    // RX:
-    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 0),
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(rx_delay),
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
 
-    // TX:
-    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 1),
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) |
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(tx_delay),
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST |
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
+    // Setup DLL configuration, RX=0 TX=1
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(0, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(rx_delay) |
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(!rx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA |
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST);
 
-    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(!inst), // XMII_CFG index is swapped
-            VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1),
-            VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(0, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(rx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA);
+
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(1, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(tx_delay) |
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(!tx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA |
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST);
+
+    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(1, inst),
+            VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(tx_delay),
+            VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA);
 #endif //defined(VTSS_ARCH_LAN969X)
     return VTSS_RC_OK;
 }
@@ -3062,20 +3041,11 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     REG_WRM_CTL(VTSS_HSCH_PORT_MODE(port), !fdx, VTSS_M_HSCH_PORT_MODE_AGE_DIS);
 
     /* GIG/FDX mode */
-    if (rgmii) {
-        REG_WRM(VTSS_DEVRGMII_MAC_MODE_CFG(tgt),
-                VTSS_F_DEVRGMII_MAC_MODE_CFG_GIGA_MODE_ENA(1) |
-                VTSS_F_DEVRGMII_MAC_MODE_CFG_FDX_ENA(fdx),
-                VTSS_M_DEVRGMII_MAC_MODE_CFG_GIGA_MODE_ENA |
-                VTSS_M_DEVRGMII_MAC_MODE_CFG_FDX_ENA);
-
-    } else {
-        REG_WRM(VTSS_DEV1G_MAC_MODE_CFG(tgt),
-                VTSS_F_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA(1) |
-                VTSS_F_DEV1G_MAC_MODE_CFG_FDX_ENA(fdx),
-                VTSS_M_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA |
-                VTSS_M_DEV1G_MAC_MODE_CFG_FDX_ENA);
-    }
+    REG_WRM(VTSS_DEV1G_MAC_MODE_CFG(tgt),
+            VTSS_F_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA(1) |
+            VTSS_F_DEV1G_MAC_MODE_CFG_FDX_ENA(fdx),
+            VTSS_M_DEV1G_MAC_MODE_CFG_GIGA_MODE_ENA |
+            VTSS_M_DEV1G_MAC_MODE_CFG_FDX_ENA);
 
     /* HDX gap 1 */
     if (conf->frame_gaps.hdx_gap_1 == VTSS_FRAME_GAP_DEFAULT) {
@@ -3095,33 +3065,19 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     } else {
         tx_gap = conf->frame_gaps.fdx_gap;
     }
-    if (rgmii) {
-        /* Set MAC IFG Gaps */
-        REG_WR(VTSS_DEVRGMII_MAC_IFG_CFG(tgt),
-               VTSS_F_DEVRGMII_MAC_IFG_CFG_TX_IFG(tx_gap) |
-               VTSS_F_DEVRGMII_MAC_IFG_CFG_RX_IFG1(hdx_gap_1) |
-               VTSS_F_DEVRGMII_MAC_IFG_CFG_RX_IFG2(hdx_gap_2));
 
-        /* Set MAC HDX late collision */
-        REG_WRM(VTSS_DEVRGMII_MAC_HDX_CFG(tgt),
-                VTSS_F_DEVRGMII_MAC_HDX_CFG_LATE_COL_POS(67) |
-                VTSS_F_DEVRGMII_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(conf->exc_col_cont),
-                VTSS_M_DEVRGMII_MAC_HDX_CFG_LATE_COL_POS |
-                VTSS_M_DEVRGMII_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA);
-    } else {
-        /* Set MAC IFG Gaps */
-        REG_WR(VTSS_DEV1G_MAC_IFG_CFG(tgt),
-               VTSS_F_DEV1G_MAC_IFG_CFG_TX_IFG(tx_gap) |
-               VTSS_F_DEV1G_MAC_IFG_CFG_RX_IFG1(hdx_gap_1) |
-               VTSS_F_DEV1G_MAC_IFG_CFG_RX_IFG2(hdx_gap_2));
+    /* Set MAC IFG Gaps */
+    REG_WR(VTSS_DEV1G_MAC_IFG_CFG(tgt),
+            VTSS_F_DEV1G_MAC_IFG_CFG_TX_IFG(tx_gap) |
+            VTSS_F_DEV1G_MAC_IFG_CFG_RX_IFG1(hdx_gap_1) |
+            VTSS_F_DEV1G_MAC_IFG_CFG_RX_IFG2(hdx_gap_2));
 
-        /* Set MAC HDX late collision */
-        REG_WRM(VTSS_DEV1G_MAC_HDX_CFG(tgt),
-                VTSS_F_DEV1G_MAC_HDX_CFG_LATE_COL_POS(67) |
-                VTSS_F_DEV1G_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(conf->exc_col_cont),
-                VTSS_M_DEV1G_MAC_HDX_CFG_LATE_COL_POS |
-                VTSS_M_DEV1G_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA);
-    }
+    /* Set MAC HDX late collision */
+    REG_WRM(VTSS_DEV1G_MAC_HDX_CFG(tgt),
+            VTSS_F_DEV1G_MAC_HDX_CFG_LATE_COL_POS(67) |
+            VTSS_F_DEV1G_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(conf->exc_col_cont),
+            VTSS_M_DEV1G_MAC_HDX_CFG_LATE_COL_POS |
+            VTSS_M_DEV1G_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA);
 
     /* PCS settings for 100fx/USX/SGMII/SERDES */
     if (pcs_100fx) {
@@ -3193,43 +3149,20 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 
      /* Update vtss_state database accordingly */
     fa_port_clause_37_control_get(vtss_state,port_no, &vtss_state->port.clause_37[port_no]);
-    if (!rgmii) {
-        REG_WRM_CTL(VTSS_DEV1G_PCS1G_LB_CFG(tgt),
-                    conf->loop == VTSS_PORT_LOOP_PCS_HOST,
-                    VTSS_M_DEV1G_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
-    }
 
-    if (rgmii) {
-        /* Set Max Length */
-        REG_WRM(VTSS_DEVRGMII_MAC_MAXLEN_CFG(tgt),
-                VTSS_F_DEVRGMII_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
-                VTSS_M_DEVRGMII_MAC_MAXLEN_CFG_MAX_LEN);
+    REG_WRM_CTL(VTSS_DEV1G_PCS1G_LB_CFG(tgt),
+                conf->loop == VTSS_PORT_LOOP_PCS_HOST,
+                VTSS_M_DEV1G_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
 
-        /* Configure frame length check (from ethertype / length field) */
-        REG_WRM(VTSS_DEVRGMII_MAC_ADV_CHK_CFG(tgt),
-                VTSS_F_DEVRGMII_MAC_ADV_CHK_CFG_LEN_DROP_ENA(conf->frame_length_chk),
-                VTSS_M_DEVRGMII_MAC_ADV_CHK_CFG_LEN_DROP_ENA);
+    /* Set Max Length */
+    REG_WRM(VTSS_DEV1G_MAC_MAXLEN_CFG(tgt),
+            VTSS_F_DEV1G_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
+            VTSS_M_DEV1G_MAC_MAXLEN_CFG_MAX_LEN);
 
-        REG_WRM(VTSS_DEVRGMII_DEV_DBG_CFG(tgt),
-            VTSS_F_DEVRGMII_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
-            VTSS_M_DEVRGMII_DEV_DBG_CFG_FCS_UPDATE_CFG);
-
-    } else {
-        /* Set Max Length */
-        REG_WRM(VTSS_DEV1G_MAC_MAXLEN_CFG(tgt),
-                VTSS_F_DEV1G_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
-                VTSS_M_DEV1G_MAC_MAXLEN_CFG_MAX_LEN);
-
-        /* Configure frame length check (from ethertype / length field) */
-        REG_WRM(VTSS_DEV1G_MAC_ADV_CHK_CFG(tgt),
-                VTSS_F_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA(conf->frame_length_chk),
-                VTSS_M_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA);
-
-        REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
-            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
-            VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
-
-    }
+    /* Configure frame length check (from ethertype / length field) */
+    REG_WRM(VTSS_DEV1G_MAC_ADV_CHK_CFG(tgt),
+            VTSS_F_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA(conf->frame_length_chk),
+            VTSS_M_DEV1G_MAC_ADV_CHK_CFG_LEN_DROP_ENA);
 
     /* Set DSM Watermark */
     VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
@@ -3243,6 +3176,9 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         }
     }
 #endif
+    REG_WRM(VTSS_DEV1G_DEV_DBG_CFG(tgt),
+            VTSS_F_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
+            VTSS_M_DEV1G_DEV_DBG_CFG_FCS_UPDATE_CFG);
 
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
@@ -3255,46 +3191,32 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     /* Update policer flow control configuration */
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
 
+    /* Enable MAC module */
+    REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
+           VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA |
+           VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
+
     if (rgmii) {
         /* Enable RGMII mode */
         VTSS_RC(fa_rgmii_setup(vtss_state, port_no, conf->if_type, speed));
-
-        /* Enable MAC module */
-        REG_WR(VTSS_DEVRGMII_MAC_ENA_CFG(tgt),
-               VTSS_M_DEVRGMII_MAC_ENA_CFG_RX_ENA |
-               VTSS_M_DEVRGMII_MAC_ENA_CFG_TX_ENA);
-
-        /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
-        REG_WRM(VTSS_DEVRGMII_DEV_RST_CTRL(tgt),
-                VTSS_F_DEVRGMII_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
-                VTSS_F_DEVRGMII_DEV_RST_CTRL_MAC_TX_RST(0) |
-                VTSS_F_DEVRGMII_DEV_RST_CTRL_MAC_RX_RST(0),
-                VTSS_M_DEVRGMII_DEV_RST_CTRL_SPEED_SEL |
-                VTSS_M_DEVRGMII_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEVRGMII_DEV_RST_CTRL_MAC_RX_RST);
-    } else {
-        /* Enable MAC module */
-        REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
-               VTSS_M_DEV1G_MAC_ENA_CFG_RX_ENA |
-               VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
-
-        /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
-        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx || rgmii) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx || rgmii) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
-                VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
-                VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
     }
+
+    /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
+    REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
+            VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd)    |
+            VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx || rgmii) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx || rgmii) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
+            VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
+            VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
+            VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
 
     /* Must take the PCS out of reset for all 4 QSGMII instances */
     if (conf->if_type == VTSS_PORT_INTERFACE_QSGMII) {
