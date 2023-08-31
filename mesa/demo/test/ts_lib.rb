@@ -70,7 +70,7 @@ def nano_corr_lowest_measure(ip="")
     t_i("nano_corr_highest = #{$nano_corr_highest}")
     end
 
-    $nano_corr_loewst
+    return $nano_corr_loewst,($nano_corr_highest-$nano_corr_loewst)
 end
 
 def tc_to_tod_nano(tc)

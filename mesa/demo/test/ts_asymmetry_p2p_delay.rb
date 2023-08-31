@@ -28,23 +28,9 @@ $pcb = $ts.dut.pcb
 def tod_asymmetry_p2p_delay_test
     test "tod_asymmetry_p2p_delay_test" do
 
-    diff_max = 100
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        diff_max = 520
-    end
-    if ($pcb == 135)    #Test on Copper PHY
-        diff_max = 810 # This is the biggest difference seen between highest and lowest measurement without asymmetry
-    end
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))    #Test on internal Copper PHY
-        diff_max = 185
-    end
-    if ($ts.dut.pcb == "6849-Sunrise")
-        diff_max = 930
-    end
-
     if ($cap_core_clock != 0)
         misc = $ts.dut.call("mesa_misc_get")
-        exp_corr = (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") ? 2 : 1
+        exp_corr = ((misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") || (misc["core_clock_freq"] == "MESA_CORE_CLOCK_328MHZ")) ? 2 : 1
     else
         exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
     end
@@ -57,7 +43,7 @@ def tod_asymmetry_p2p_delay_test
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
-    lowest_corr_none = nano_corr_lowest_measure
+    lowest_corr_none,range = nano_corr_lowest_measure
 
     test ("No asymmetry delay check of correction field") do
     if ($pcb == 135)    #Test on Copper PHY
@@ -82,7 +68,7 @@ def tod_asymmetry_p2p_delay_test
     end
 
     t_i("Configure asymmetry delay. It is selected to be as large as possible but smaller than the lowest measured correction")
-    asymmetry = lowest_corr_none-100
+    asymmetry = lowest_corr_none-200
     $ts.dut.call("mesa_ts_delay_asymmetry_set", $ts.dut.port_list[$port0], asymmetry<<16)
     $ts.dut.call("mesa_ts_delay_asymmetry_set", $ts.dut.port_list[$port1], asymmetry<<16)
 
@@ -90,11 +76,13 @@ def tod_asymmetry_p2p_delay_test
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
-    lowest_corr_eg = nano_corr_lowest_measure  #Measure lowest with asymmetry deducted
+    lowest_corr_eg,range1 = nano_corr_lowest_measure  #Measure lowest with asymmetry deducted
     diff0 = (lowest_corr_eg - (lowest_corr_none - asymmetry))
 
+    range = (range1 > range) ? range1 : range
+    diff_max = range / 2
     test ("The asymmetry delay is subtracted from correction on egress") do
-    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}")
+    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}  diff_max #{diff_max}")
     if ((lowest_corr_none < lowest_corr_eg) || (diff0 < -diff_max) || (diff0 > diff_max))
         t_e("Unexpected correction field including egress delay.")
     else
@@ -106,11 +94,13 @@ def tod_asymmetry_p2p_delay_test
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
-    lowest_corr_in1 = nano_corr_lowest_measure
+    lowest_corr_in1,range1 = nano_corr_lowest_measure
     diff1 = (lowest_corr_in1 - (lowest_corr_none + asymmetry))
 
+    range = (range1 > range) ? range1 : range
+    diff_max = range / 2
     test ("The asymmetry delay is added to correction on ingress") do
-    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in1 = #{lowest_corr_in1}  diff #{diff1}")
+    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in1 = #{lowest_corr_in1}  diff #{diff1}  diff_max #{diff_max}")
     if ((lowest_corr_in1 < lowest_corr_none) || (diff1 < -diff_max) || (diff1 > diff_max))
         t_e("Unexpected correction field including egress delay.")
     else
@@ -122,11 +112,13 @@ def tod_asymmetry_p2p_delay_test
     action["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_2"
     $ts.dut.call("mesa_ace_add", 0, conf)
 
-    lowest_corr_in2 = nano_corr_lowest_measure
+    lowest_corr_in2,range1 = nano_corr_lowest_measure
     diff2 = (lowest_corr_in2 - (lowest_corr_none + asymmetry))
 
+    range = (range1 > range) ? range1 : range
+    diff_max = range / 2
     test ("The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.") do
-    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff2}")
+    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff2}  diff_max #{diff_max}")
     if ((lowest_corr_in2 < lowest_corr_none) || (diff2 < -diff_max) || (diff2 > diff_max))
         t_e("Unexpected correction field including egress delay.")
     else
@@ -137,11 +129,13 @@ def tod_asymmetry_p2p_delay_test
     # Configure p2p delay. It is selected to be as large as possible but smaller than the lowest measured correction
     $ts.dut.call("mesa_ts_p2p_delay_set", $ts.dut.port_list[$port0], asymmetry<<16)
 
-    lowest_corr_in2 = nano_corr_lowest_measure
+    lowest_corr_in2,range1 = nano_corr_lowest_measure
     diff3 = (lowest_corr_in2 - (lowest_corr_none + 2*asymmetry))
 
+    range = (range1 > range) ? range1 : range
+    diff_max = range / 2
     test ("The asymmetry + p2p delay is added to correction on ingress") do
-    t_i("lowest_corr_in1 = #{lowest_corr_in1}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff3}")
+    t_i("lowest_corr_in1 = #{lowest_corr_in1}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff3}  diff_max #{diff_max}")
     if ((lowest_corr_in2 < lowest_corr_in1) || (diff3 < -diff_max) || (diff3 > diff_max))
         t_e("Unexpected correction field including egress delay.")
     else

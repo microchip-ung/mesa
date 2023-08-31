@@ -44,11 +44,11 @@ test "test_run" do
     t_i("Time Stamp transparent clock test")
 
     t_i("Measure the lowest correction value")
-    lowest_corr_none = nano_corr_lowest_measure
+    lowest_corr_none,range = nano_corr_lowest_measure
 
     if ($cap_core_clock != 0)
         misc = $ts.dut.call("mesa_misc_get")
-        exp_corr = (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") ? 2 : 1
+        exp_corr = ((misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") || (misc["core_clock_freq"] == "MESA_CORE_CLOCK_328MHZ")) ? 2 : 1
     else
         exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
     end
@@ -72,18 +72,6 @@ test "test_run" do
     end
     end
 
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        diff_max = 520
-    else
-        diff_max = 100
-    end
-    if ($pcb == 135)    #Test on Copper PHY
-        diff_max = 500
-    end
-    if ($ts.dut.pcb == "6849-Sunrise")
-        diff_max = 930
-    end
-
     t_i("Clean up the test by calling the example code command")
     $ts.dut.run("mesa-cmd example uninit")
 
@@ -92,7 +80,8 @@ test "test_run" do
     $ts.dut.run("mesa-cmd example init transparent_clock ing-port #{$ts.dut.p[ig]+1} eg-port #{$ts.dut.p[eg]+1} delay_mode 1 asymmetry #{asymmetry}")
 
     t_i("Measure the lowest correction value with added asymmetry delay")
-    lowest_corr_add = nano_corr_lowest_measure
+    lowest_corr_add,range = nano_corr_lowest_measure
+    diff_max = range / 2
 
     t_i("Check that the correction value has the added asymmetry delay")
     diff = (lowest_corr_add - (lowest_corr_none - asymmetry))
