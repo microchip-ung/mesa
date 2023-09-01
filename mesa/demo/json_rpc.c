@@ -232,7 +232,7 @@ static mesa_rc json_rpc_array_int_get(json_rpc_req_t *req, json_object *obj, int
     char        name[32];
 
     MESA_RC(json_rpc_array_type_get(req, obj, idx, json_type_int, &obj_value));
-    sprintf(name, "array index %u", *idx);
+    sprintf(name, "array index %u", (*idx) - 1);
     return json_rpc_int_range_check(req, name, obj_value, value, min, max);
 }
 
