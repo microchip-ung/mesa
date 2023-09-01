@@ -2029,6 +2029,9 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_RGMII:
+    case VTSS_PORT_INTERFACE_RGMII_ID:
+    case VTSS_PORT_INTERFACE_RGMII_RXID:
+    case VTSS_PORT_INTERFACE_RGMII_TXID:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
     case VTSS_PORT_INTERFACE_SGMII_2G5:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M && speed != VTSS_SPEED_2500M) {
@@ -2635,8 +2638,10 @@ static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port
 #endif
     } else {
         if (rgmii) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
             REG_WRM_CLR(VTSS_DEVRGMII_MAC_ENA_CFG(tgt),
                         VTSS_M_DEVRGMII_MAC_ENA_CFG_RX_ENA);
+#endif
 
         } else {
             /* 1: Reset the PCS Rx clock domain  */
@@ -2753,7 +2758,7 @@ static vtss_rc fa_sd_power_save(vtss_state_t *vtss_state, const vtss_port_no_t p
     u32 indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
     BOOL pd_serdes = 1;
 
-    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII) ||
+    if (port_is_rgmii(vtss_state, port_no) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
@@ -3063,11 +3068,13 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 
     /* GIG/FDX mode */
     if (rgmii) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         REG_WRM(VTSS_DEVRGMII_MAC_MODE_CFG(tgt),
                 VTSS_F_DEVRGMII_MAC_MODE_CFG_GIGA_MODE_ENA(1) |
                 VTSS_F_DEVRGMII_MAC_MODE_CFG_FDX_ENA(fdx),
                 VTSS_M_DEVRGMII_MAC_MODE_CFG_GIGA_MODE_ENA |
                 VTSS_M_DEVRGMII_MAC_MODE_CFG_FDX_ENA);
+#endif
 
     } else {
         REG_WRM(VTSS_DEV1G_MAC_MODE_CFG(tgt),
@@ -3096,6 +3103,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         tx_gap = conf->frame_gaps.fdx_gap;
     }
     if (rgmii) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Set MAC IFG Gaps */
         REG_WR(VTSS_DEVRGMII_MAC_IFG_CFG(tgt),
                VTSS_F_DEVRGMII_MAC_IFG_CFG_TX_IFG(tx_gap) |
@@ -3108,6 +3116,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_F_DEVRGMII_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(conf->exc_col_cont),
                 VTSS_M_DEVRGMII_MAC_HDX_CFG_LATE_COL_POS |
                 VTSS_M_DEVRGMII_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA);
+#endif
     } else {
         /* Set MAC IFG Gaps */
         REG_WR(VTSS_DEV1G_MAC_IFG_CFG(tgt),
@@ -3200,6 +3209,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
     if (rgmii) {
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Set Max Length */
         REG_WRM(VTSS_DEVRGMII_MAC_MAXLEN_CFG(tgt),
                 VTSS_F_DEVRGMII_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
@@ -3213,6 +3223,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         REG_WRM(VTSS_DEVRGMII_DEV_DBG_CFG(tgt),
             VTSS_F_DEVRGMII_DEV_DBG_CFG_FCS_UPDATE_CFG(value),
             VTSS_M_DEVRGMII_DEV_DBG_CFG_FCS_UPDATE_CFG);
+#endif
 
     } else {
         /* Set Max Length */
@@ -3258,7 +3269,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     if (rgmii) {
         /* Enable RGMII mode */
         VTSS_RC(fa_rgmii_setup(vtss_state, port_no, conf->if_type, speed));
-
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Enable MAC module */
         REG_WR(VTSS_DEVRGMII_MAC_ENA_CFG(tgt),
                VTSS_M_DEVRGMII_MAC_ENA_CFG_RX_ENA |
@@ -3272,6 +3283,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                 VTSS_M_DEVRGMII_DEV_RST_CTRL_SPEED_SEL |
                 VTSS_M_DEVRGMII_DEV_RST_CTRL_MAC_TX_RST |
                 VTSS_M_DEVRGMII_DEV_RST_CTRL_MAC_RX_RST);
+#endif
     } else {
         /* Enable MAC module */
         REG_WR(VTSS_DEV1G_MAC_ENA_CFG(tgt),
