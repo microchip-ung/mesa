@@ -1586,6 +1586,13 @@ static int json_cli(int argc, const char **argv)
     m_str = argv[1];
     p_str = argv[2];
 
+    for(;(isspace(*p_str));p_str++);
+    if(*p_str != '[') {
+        snprintf(req.buf, 1024, "Input should be given in array");
+        req.error = 1;
+        goto OUT;
+    }
+
     req.params = json_tokener_parse(p_str);
     if (req.params == NULL) {
         snprintf(req.buf, 1024, "Could not parse parameters");
