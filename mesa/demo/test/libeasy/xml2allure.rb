@@ -406,6 +406,9 @@ class Sample < ::Ox::Sax
 
         when :run, :try
             # TODO, make head-line easier to read
+            if a[:on] == nil
+              return "error"
+            end
 
             where = ""
             case a[:on]
