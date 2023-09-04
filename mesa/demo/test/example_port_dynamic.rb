@@ -32,6 +32,17 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 #---------- Capabilities -----------------------------------------------------
 cap_check_exit("PORT_DYNAMIC")
 
+
+check_capabilities do
+    [$ts.dut.p[0], $ts.dut.p[1], $ts.dut.p[2], $ts.dut.p[3]].each do |port_tx|
+        conf = $ts.dut.call "mesa_port_conf_get", port_tx
+        if conf["if_type"].include? "QSGMII"
+        else
+            assert(0==1, "all 4 interfaces must be QSGMII")
+        end
+    end
+end
+
 def test_frame_fwd()
     test "Frame-Forwarding" do
         $port_tx1      = 0
