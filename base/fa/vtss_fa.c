@@ -1691,11 +1691,115 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
 }
 #endif
 
+typedef struct {
+    int active;
+    int compensate;
+} port_comp_t;
+
+static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar, u8 *changed)
+
+{
+    int taxis[5] = {16, 16, 16, 8, 8};
+    port_comp_t port_comp[FA_CHIP_PORTS_ALL] = {};
+    int candidates[FA_CHIP_PORTS_ALL] = {};
+    int inv, k, j, port_i, port_j, evicted, i, port;
+    int cand_idx = 0, p_prev, p_next, rnd_idx;
+    u32 cal_len = dsm_cal_len(vtss_state, calendar);
+
+    *changed = 0;
+    k = taxis[taxi_num];
+
+    for (int i = 0; i < cal_len; i++) {
+        port_comp[calendar[i]].active = 1;
+    }
+
+    inv = RT_DSM_CAL_MAX_DEVS_PER_TAXI;
+
+    for (i = 0; i < cal_len; i++) {
+        j = (i + k) % cal_len;
+        port_i = calendar[i];
+        port_j = calendar[j];
+
+        if ((port_i < inv) && (port_i == port_j)) {
+            if (i == j) {
+                VTSS_E("There is no calendar solution (jira482), change calender length (%d)\n",cal_len);
+                return VTSS_RC_ERROR;
+            } else if (i < j) {
+                VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",j,port_i);
+                port_comp[port_i].compensate++;
+                calendar[j] = inv;
+                *changed = 1;
+            } else {
+                VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",i,port_i);
+                port_comp[port_i].compensate++;
+                calendar[i] = inv;
+                *changed = 1;
+            }
+        }
+    }
+
+    evicted = 1;
+
+    while(evicted) {
+        for (port = 0; port < FA_CHIP_PORTS_ALL; port++) {
+            if (!port_comp[port].active) {
+                continue;
+            }
+            i = 0;
+            evicted = 0;
+            while(port_comp[port].compensate > 0 && i < cal_len) {
+                port_i = calendar[i];
+                p_prev = calendar[(i + cal_len - k) % cal_len];
+                p_next = calendar[(i + k) % cal_len];
+                if ((port_i == inv) && (port != p_prev) && (port != p_next)) {
+                    calendar[i] = port;
+                    port_comp[port].compensate--;
+                    *changed = 1;
+                }
+                i++;
+            }
+
+            for (i = 0; i < FA_CHIP_PORTS_ALL; i++) {
+                candidates[i] = -1;
+            }
+            cand_idx = 0;
+
+            while (port_comp[port].compensate > 0 && 0) {
+                for (i = 0; i < cal_len; i++) {
+                    port_i = calendar[i];
+                    p_prev = calendar[(i + cal_len - k) % cal_len];
+                    p_next = calendar[(i + k) % cal_len];
+                    if (!((port_i == port) || (p_prev == port) || (p_next == port))) {
+                        candidates[cand_idx] = port;
+                        cand_idx++;
+                    }
+                }
+                if (cand_idx == 0) {
+                    VTSS_E("There is no calendar solution (jira482), change calender length (%d)\n",cal_len);
+                    return VTSS_RC_ERROR;
+                } else {
+                    rnd_idx = rand() % cand_idx + 1;
+                    i = candidates[rnd_idx];
+                    port_i = calendar[i];
+                    calendar[i] = port;
+                    *changed = 1;
+                    port_comp[port].compensate--;
+                    port_comp[port_i].compensate++;
+                    evicted = 1;
+                }
+            }
+        }
+    }
+
+    return VTSS_RC_OK;
+}
+
 // Configure the DSM calendar based on port-map
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
 {
     u32 calendar[FA_DSM_CAL_LEN];
     i32 avg_len[FA_DSM_CAL_LEN];
+    u8 changed;
 
     for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
         VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
@@ -1704,6 +1808,17 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
             VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
         }
     }
+
+    // JIRA-482
+    for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+        VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
+        VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed));
+        if (changed) {
+            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
+        }
+    }
+
+
     return VTSS_RC_OK;
 }
 
