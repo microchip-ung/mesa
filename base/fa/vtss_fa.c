@@ -1810,14 +1810,13 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
     }
 
     // JIRA-482
-    for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
-        VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
-        VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed));
-        if (changed) {
-            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
-        }
-    }
-
+    /* for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) { */
+    /*     VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len)); */
+    /*     VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed)); */
+    /*     if (changed) { */
+    /*         VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar)); */
+    /*     } */
+    /* } */
 
     return VTSS_RC_OK;
 }
