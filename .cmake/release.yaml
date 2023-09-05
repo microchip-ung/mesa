@@ -135,8 +135,8 @@ bugs:
   #
   # OPTIONAL. No bugs will be removed if not specified.
   del:
-    - MESA-909
-    - MESA-2023 # Not a bug, but the name of the release
+    - AA-482   # Should have been UNG_LAGUNA-482
+    - MESA-911 # Still open
 
   # See the 'del' section above for a description
   #
