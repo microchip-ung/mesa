@@ -1695,7 +1695,7 @@ typedef struct {
     int active;
     int compensate;
 } port_comp_t;
-
+#if 0
 static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar, u8 *changed)
 
 {
@@ -1793,13 +1793,12 @@ static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar, 
 
     return VTSS_RC_OK;
 }
-
+#endif
 // Configure the DSM calendar based on port-map
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
 {
     u32 calendar[FA_DSM_CAL_LEN];
     i32 avg_len[FA_DSM_CAL_LEN];
-    u8 changed;
 
     for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
         VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
