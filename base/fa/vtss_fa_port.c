@@ -3207,6 +3207,15 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
                     conf->loop == VTSS_PORT_LOOP_PCS_HOST,
                     VTSS_M_DEV1G_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
     }
+    /* Always update FCS, needed for Frame Preemption */
+    value = 1;
+#if !defined(VTSS_ARCH_LAN969X_FPGA)
+    if (FA_TGT) {
+        if (vtss_state->misc.chip_id.revision == 0) {
+            value = 0;
+        }
+    }
+#endif
 
     if (rgmii) {
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
@@ -3244,16 +3253,6 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
 
     /* Set DSM Watermark */
     VTSS_RC(fa_dsm_wm_set(vtss_state, port_no));
-
-    /* Always update FCS, needed for Frame Preemption */
-    value = 1;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
-    if (FA_TGT) {
-        if (vtss_state->misc.chip_id.revision == 0) {
-            value = 0;
-        }
-    }
-#endif
 
     /* Setup QoS - in reset */
     VTSS_RC(vtss_fa_qos_port_change(vtss_state, port_no, TRUE));
