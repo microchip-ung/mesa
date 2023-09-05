@@ -3557,6 +3557,32 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
 }
 
 #if defined(VTSS_FEATURE_PORT_DYNAMIC)
+static int fa_multi_serdes_chk(vtss_serdes_mode_t new_sd, vtss_serdes_mode_t old_sd)
+{
+    vtss_serdes_mode_t a,b;
+
+    if (new_sd == old_sd || old_sd == VTSS_SERDES_MODE_DISABLE) {
+        return 0;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        a = i == 0 ? old_sd : new_sd;
+        b = i == 0 ? new_sd : old_sd;
+
+        if ((a == VTSS_SERDES_MODE_QXGMII  ||
+             a == VTSS_SERDES_MODE_USGMII  ||
+             a == VTSS_SERDES_MODE_QSGMII) &&
+            (b != VTSS_SERDES_MODE_QXGMII  &&
+             b != VTSS_SERDES_MODE_USGMII  &&
+             b != VTSS_SERDES_MODE_QSGMII)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
 static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_serdes_mode_t old_sd)
 {
     vtss_port_interface_t new_if_type = vtss_state->port.conf[port_no].if_type;
@@ -3565,20 +3591,10 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
     vtss_port_interface_t cur_if;
     u32 st;
 
-    if (!vtss_state->vtss_features[FEATURE_PORT_DYNAMIC]) {
+    if (!vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] ||
+        !fa_multi_serdes_chk(new_sd, old_sd)) {
+        // Calender check only needed for single to multi port serdes change
         return VTSS_RC_OK;
-    }
-
-    if (new_sd == old_sd || old_sd == VTSS_SERDES_MODE_DISABLE) {
-        return VTSS_RC_OK; /* no calendar change needed */
-    }
-    if (new_sd == VTSS_SERDES_MODE_QXGMII ||
-        new_sd == VTSS_SERDES_MODE_QSGMII ||
-        new_sd == VTSS_SERDES_MODE_SFI    ||
-        new_sd == VTSS_SERDES_MODE_DXGMII_10G) {
-        /* when going from multi device to single device serdes (or vice versa) then calendar change is needed */
-    } else {
-        return VTSS_RC_OK; /* no calendar change needed */
     }
 
     /* Run through all ports for this serdes and reset BW to zero */
