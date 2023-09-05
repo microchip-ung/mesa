@@ -1696,7 +1696,7 @@ typedef struct {
     int compensate;
 } port_comp_t;
 
-static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar)
+static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar, u8 *changed)
 
 {
     int taxis[5] = {16, 16, 16, 8, 8};
@@ -1706,6 +1706,7 @@ static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar)
     int cand_idx = 0, p_prev, p_next, rnd_idx;
     u32 cal_len = dsm_cal_len(vtss_state, calendar);
 
+    *changed = 0;
     k = taxis[taxi_num];
 
     for (int i = 0; i < cal_len; i++) {
@@ -1727,10 +1728,12 @@ static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar)
                 VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",j,port_i);
                 port_comp[port_i].compensate++;
                 calendar[j] = inv;
+                *changed = 1;
             } else {
                 VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",i,port_i);
                 port_comp[port_i].compensate++;
                 calendar[i] = inv;
+                *changed = 1;
             }
         }
     }
@@ -1751,6 +1754,7 @@ static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar)
                 if ((port_i == inv) && (port != p_prev) && (port != p_next)) {
                     calendar[i] = port;
                     port_comp[port].compensate--;
+                    *changed = 1;
                 }
                 i++;
             }
@@ -1778,6 +1782,7 @@ static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar)
                     i = candidates[rnd_idx];
                     port_i = calendar[i];
                     calendar[i] = port;
+                    *changed = 1;
                     port_comp[port].compensate--;
                     port_comp[port_i].compensate++;
                     evicted = 1;
@@ -1794,24 +1799,24 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
 {
     u32 calendar[FA_DSM_CAL_LEN];
     i32 avg_len[FA_DSM_CAL_LEN];
+    u8 changed;
 
     for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
         VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
         VTSS_RC(fa_dsm_chk_calendar(vtss_state, calendar, avg_len));
-//        VTSS_RC(jira482_check(vtss_state, taxi, calendar));
         if (!fa_dsm_cmp_calendar(vtss_state, taxi, calendar)) {
             VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
         }
     }
 
     // JIRA-482
-    /* for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) { */
-    /*     VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len)); */
-    /*     VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed)); */
-    /*     if (changed) { */
-    /*         VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar)); */
-    /*     } */
-    /* } */
+    for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+        VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
+        VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed));
+        if (changed) {
+            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
+        }
+    }
 
 
     return VTSS_RC_OK;
