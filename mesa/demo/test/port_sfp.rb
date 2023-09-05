@@ -20,11 +20,27 @@ $ts = get_test_setup("mesa_pc_b2b_2x", {}, "", "loop")
 # 6. Repeat for each supported speed.
 # 7. Repeat for each looped port pair in the setup.
 #--------------------------------------------------------------------------------
+plist = []
+if $ts.dut.looped_port_list != nil && $ts.dut.looped_port_list_10g != nil
+    plist = $ts.dut.looped_port_list + $ts.dut.looped_port_list_10g
+elsif $ts.dut.looped_port_list != nil
+    plist = $ts.dut.looped_port_list
+    $ts.dut.looped_port_list_10g = []
+elsif $ts.dut.looped_port_list_10g != nil
+    plist = $ts.dut.looped_port_list_10g
+    $ts.dut.looped_port_list = []
+end
 
 check_capabilities do
-    assert(($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1),
+    assert((plist != nil) && (plist.length > 1),
            "Two front ports must be looped")
 end
+
+# check_capabilities do
+#     assert(($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1) ||
+#            ($ts.dut.looped_port_list_10g= nil) && ($ts.dut.looped_port_list_10g.length > 1),
+#            "Two front ports must be looped")
+# end
 
 $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
 
