@@ -144,7 +144,7 @@ def frame_tx(frame, port, frame0, frame1, frame2, framenpi, capture_size=0)
         end
     end
 
-    $ts.pc.run cmd
+    $ts.pc.try cmd
 end
 
 def rx_ifh_extract(frame)

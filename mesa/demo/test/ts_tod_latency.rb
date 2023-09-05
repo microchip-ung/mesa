@@ -34,9 +34,18 @@ check_capabilities do
     assert(($cap_fpga == 0), "This test cannot pass on FPGA")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
     $cap_port_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_PORT_CNT")
-    assert((($ts.dut.looped_port_list != nil) && (($ts.dut.looped_port_list.length % 2) == 0)),
+    $loop_ports = []
+    if (($ts.dut.looped_port_list != nil) && (($ts.dut.looped_port_list.length % 2) == 0))
+        assert(dut_port_state_up($ts.dut.looped_port_list), "Loop ports must be up")
+        $loop_ports += $ts.dut.looped_port_list
+    end
+    if (($ts.dut.looped_port_list_10g != nil) && (($ts.dut.looped_port_list_10g.length % 2) == 0))
+        assert(dut_port_state_up($ts.dut.looped_port_list_10g), "Loop ports must be up")
+        $loop_ports += $ts.dut.looped_port_list_10g
+    end
+    t_i ("*********$loop_ports #{$loop_ports}  #{$loop_ports.length}*********")
+    assert((($loop_ports != nil) && (($loop_ports.length % 2) == 0)),
            "Number of looped front ports must be multiples of two")
-    assert(dut_port_state_up($ts.dut.looped_port_list), "Loop ports must be up")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         assert(($ts.dut.looped_port_list_10g != nil) && ($ts.dut.looped_port_list_10g.length > 1),
             "On Jaguar2 two 10G front ports must be looped")
@@ -44,8 +53,6 @@ check_capabilities do
         $loop_port1_10g = $ts.dut.looped_port_list_10g[1]
     end
 end
-
-loop_pair_check
 
 $npi_port = 1
 $cpu_queue = 7
@@ -77,11 +84,18 @@ def nano_delay_measure(port0, port1)
     idx = $ts.dut.call("mesa_tx_timestamp_idx_alloc", conf)
 
     t_i ("transmit SYNC frame on NPI against loop port and receive again on NPI port")
+    $ts.dut.run "mesa-cmd port statis clear"
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create(port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
     framerx = rx_ifh_create(port1) + frameHdrTx.dup + sync_pdu_rx_create()
     frame_tx(frametx, $npi_port, " ", " ", " ", framerx, 60)
     pkts = $ts.pc.get_pcap "#{$ts.links[$npi_port][:pc]}.pcap"
+
+    if (pkts[1] == nil)
+        t_e("get_pcap did not return any received frame")
+        $ts.dut.run "mesa-cmd port statis #{port1+1}"
+        return 10000
+    end
 
     t_i ("Calculate the IFH and decode it")
     ifh = rx_ifh_extract(pkts[1])   # both transmitted and received frame is in 'pkts'
@@ -303,30 +317,7 @@ test "test_conf" do
     conf["port_no"] = $ts.dut.port_list[$npi_port]
     $ts.dut.call("mesa_npi_conf_set", conf)
 
-    # External clock mode save
-    $external_clock_mode_restore = $ts.dut.call("mesa_ts_external_clock_mode_get")
-
-    $egress_latency_restore = []
-    $ingress_latency_restore = []
-    $operation_mode_restore = []
-    $ts.dut.looped_port_list.each do |port|
-        if (port >= $cap_port_cnt)
-            next
-        end
-        $egress_latency_restore << $ts.dut.call("mesa_ts_egress_latency_get", port)
-        $ingress_latency_restore << $ts.dut.call("mesa_ts_ingress_latency_get", port)
-        $operation_mode_restore << $ts.dut.call("mesa_ts_operation_mode_get", port)
-    end
-
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        $egress_latency_10g_restore = $ts.dut.call("mesa_ts_egress_latency_get", $loop_port0_10g)
-        $ingress_latency_10g_restore = $ts.dut.call("mesa_ts_ingress_latency_get", $loop_port1_10g)
-        $operation_mode_l0_10g_restore = $ts.dut.call("mesa_ts_operation_mode_get", $loop_port0_10g)
-        $operation_mode_l1_10g_restore = $ts.dut.call("mesa_ts_operation_mode_get", $loop_port1_10g)
-    end
-
-    $npi_learn_restore = $ts.dut.call("mesa_learn_port_mode_get", $ts.dut.port_list[$npi_port])
-    conf = $npi_learn_restore.dup
+    conf = $ts.dut.call("mesa_learn_port_mode_get", $ts.dut.port_list[$npi_port])
     conf["automatic"] = false
     $ts.dut.call("mesa_learn_port_mode_set", $ts.dut.port_list[$npi_port], conf)
 
@@ -346,10 +337,10 @@ end
 
 test "test_run" do
     i = 0
-    while (i < $ts.dut.looped_port_list.length) do
+    while (i < $loop_ports.length) do
         if ((i % 2) != 0)
-            port0 = $ts.dut.looped_port_list[i-1]
-            port1 = $ts.dut.looped_port_list[i]
+            port0 = $loop_ports[i-1]
+            port1 = $loop_ports[i]
             i = i + 1
         else
             i = i + 1
@@ -361,6 +352,14 @@ test "test_run" do
         end
 
         $meba_cap = $ts.dut.run "mesa-cmd deb port cap #{port0+1}"
+        unless $meba_cap[:out].include?("SFP_ONLY")
+            t_i("Port #{port0+1} is not a SFP port")
+            next
+        end
+
+        t_i("*****************************************")
+        t_i("*****Testing on loop ports #{port0+1} and #{port1+1}*****")
+        t_i("*****************************************")
 
         # Test egress and ingress latency
 
@@ -380,14 +379,14 @@ test "test_run" do
                         t_i "Run test with KR RS-FEC"
                         $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} all")
                         $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} all")
-                        sleep 0.5
+                        sleep 2
                         tod_latency_test(port0, port1)
                     end
 
                     t_i "Run test with KR R-FEC"
                     $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} adv-10g rfec train")
                     $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-10g rfec train")
-                    sleep 0.5
+                    sleep 2
                     tod_latency_test(port0, port1)
                 end
             else
@@ -464,39 +463,4 @@ test "test_run" do
         end
     end
 
-end
-
-test "test_clean_up" do
-    # CPU queue configuration restore
-    $ts.dut.call("mesa_packet_rx_conf_set", $packet_rx_conf_restore)
-
-    # NPI port configuration restore
-    $ts.dut.call("mesa_npi_conf_set", $npi_conf_restore)
-
-    # Remove static mac entries
-    entry = { vid: 1, mac: { addr: [0x00,0x02,0x03,0x04,0x05,0x06] } }
-    $ts.dut.call("mesa_mac_table_del", entry)
-
-    # External clock mode restore
-    $ts.dut.call("mesa_ts_external_clock_mode_set", $external_clock_mode_restore)
-
-    # Egress and ingress latency and Operation mode restore
-    $ts.dut.looped_port_list.each_with_index do |port, idx|
-        if (port >= $cap_port_cnt)
-            next
-        end
-        $ts.dut.call("mesa_ts_egress_latency_set", port, $egress_latency_restore[idx])
-        $ts.dut.call("mesa_ts_ingress_latency_set", port, $ingress_latency_restore[idx])
-        $ts.dut.call("mesa_ts_operation_mode_set", port, $operation_mode_restore[idx])
-    end
-
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        # Egress and ingress latency restore
-        $ts.dut.call("mesa_ts_egress_latency_set", $loop_port0_10g, $egress_latency_10g_restore)
-        $ts.dut.call("mesa_ts_ingress_latency_set", $loop_port1_10g, $ingress_latency_10g_restore)
-
-        # Operation mode restore
-        $ts.dut.call("mesa_ts_operation_mode_set", $loop_port0_10g, $operation_mode_l0_10g_restore)
-        $ts.dut.call("mesa_ts_operation_mode_set", $loop_port1_10g, $operation_mode_l1_10g_restore)
-    end
 end
