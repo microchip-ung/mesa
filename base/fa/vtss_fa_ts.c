@@ -722,7 +722,10 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     port = VTSS_CHIP_PORT(port_no);
 
     /* Calculate the lane information based on the port */
-    (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
+    if (vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type) != VTSS_RC_OK) {
+        VTSS_E("vtss_fa_port2sd() failed. port_no %u  if_type %u", port_no, vtss_state->port.conf[port_no].if_type);
+        return VTSS_RC_ERROR;
+    }
     if (sd_type == FA_SERDES_TYPE_10G) {
         sd_indx = sd_indx + RT_SERDES_10G_START;
     } else if (sd_type == FA_SERDES_TYPE_25G) {
