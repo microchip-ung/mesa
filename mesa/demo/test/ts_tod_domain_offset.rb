@@ -5,6 +5,7 @@
 
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
+require 'time'
 
 $ts = get_test_setup("mesa_pc_b2b_2x")
 
@@ -33,6 +34,7 @@ def tod_domain_offset_test(domain, seconds)
     tod  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = seconds
     tod[0]["nanoseconds"] = 0
+    tod[0]["nanosecondsfrac"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     t_i("Set TOD delta 10 seconds - positive")
@@ -59,63 +61,83 @@ def tod_domain_offset_test(domain, seconds)
 
     t_i("Test delta TOD in nanoseconds")
 
-    # Clear TOD seconds and nanoseconds
-    tod[0]["seconds"] = 0
-    domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
+    tod_get  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    a = Time.now()
 
     t_i ("Set TOD delta 0.5 seconds - positive")
+    tod[0]["seconds"] = 0
     tod[0]["nanoseconds"] = 500000000
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], false) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], false)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if ((tod_new[0]["seconds"] > 1) ||
-        ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 200000000)) ||
-        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 500000000)))  #Accepting approx 700 ms in execution time
-        t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    get_f = tod_get[0]["seconds"].to_f + (tod_get[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - get_f - execution
+    t_i("diff_f = #{diff_f}  get_f = #{get_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f > 0.6) || (diff_f < 0.4))
+        t_e("TOD in domain #{domain} was not read as expected")
     end
 
+    tod_get  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    a = Time.now()
+
     t_i("Set TOD delta 0.5 seconds - negative")
-    tod[0]["nanoseconds"] = 500000000
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set_delta", tod[0], true) : $ts.dut.call("mesa_ts_domain_timeofday_set_delta", domain, tod[0], true)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if ((tod_new[0]["seconds"] > 1) ||
-        ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 400000000)) ||
-        ((tod_new[0]["seconds"] == 0) && (tod_new[0]["nanoseconds"] < 100000000)))  #Accepting approx 2*700 ms in execution time
-        t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    get_f = tod_get[0]["seconds"].to_f + (tod_get[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - get_f - execution
+    t_i("diff_f = #{diff_f}  get_f = #{get_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f > -0.4) || (diff_f < -0.6))
+        t_e("TOD in domain #{domain} was not read as expected")
     end
 
     t_i("Test TOD offset in nanoseconds")
 
-    # Clear TOD seconds and nanoseconds
-    tod[0]["seconds"] = 0
-    tod[0]["nanoseconds"] = 0
-    domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
-
     t_i("Set TOD offset 0.5 seconds - positive. Its weired - offset parameter is signed but always subtracted in the API, so in order to add an offset it has to be negative :-)")
+    tod_get  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    a = Time.now()
     domain_def ? $ts.dut.call("mesa_ts_timeofday_offset_set", -500000000) : $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain, -500000000)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if ((tod_new[0]["seconds"] > 1) || ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 200000000)))  #Accepting approx 700 ms in execution time
-        t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    get_f = tod_get[0]["seconds"].to_f + (tod_get[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - get_f - execution
+    t_i("diff_f = #{diff_f}  get_f = #{get_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f > 0.6) || (diff_f < 0.4))
+        t_e("TOD in domain #{domain} was not read as expected")
     end
 
     t_i("Set TOD offset 0.5 seconds - negative. Its weired - offset parameter is signed but always subtracted in the API, so in order to subtract an offset it has to be positive :-)")
+    tod_get  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    a = Time.now()
     domain_def ? $ts.dut.call("mesa_ts_timeofday_offset_set", 500000000) : $ts.dut.call("mesa_ts_domain_timeofday_offset_set", domain, 500000000)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if ((tod_new[0]["seconds"] > 1) || ((tod_new[0]["seconds"] == 1) && (tod_new[0]["nanoseconds"] > 400000000)))  #Accepting approx 2*700 ms in execution time
-        t_e("TOD in domain #{domain} was not read as expected.  tod_new[seconds] = #{tod_new[0]["seconds"]}  tod_new[nanoseconds] = #{tod_new[0]["nanoseconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    get_f = tod_get[0]["seconds"].to_f + (tod_get[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - get_f - execution
+    t_i("diff_f = #{diff_f}  get_f = #{get_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f > -0.4) || (diff_f < -0.6))
+        t_e("TOD in domain #{domain} was not read as expected")
     end
-
     end
 end
 
