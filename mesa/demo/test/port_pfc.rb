@@ -161,7 +161,7 @@ $test_list.each do |entry|
         t_i "Transmitting UC frames and pause frame to check pause frame transmission"
         $frame_size    = 1518
         sz = $frame_size - 14 - 4 - 4
-        cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,50 "
+        cmd =  "sudo ef -c #{$ts.pc.p[$port_tx1]},20,adapter_unsynced,,200 "
         cmd += "name f#{$port_tx1} eth dmac #{$ucast_dmac} smac #{$frame_smac} #{tag} data pattern cnt #{sz} "
         cmd += "name f#{$port_tx2} eth dmac #{$pause_dmac} smac #{$ucast_dmac} et #{$pause_etype} data hex #{pause_str} "
         cmd += "tx #{$ts.pc.p[$port_tx1]} rep #{$num_of_frames} name f#{$port_tx1} "
@@ -172,7 +172,7 @@ $test_list.each do |entry|
             # Pause frames are transmitted
             test ("Check the Pause frame source MAC") do
             pkts = $ts.pc.get_pcap "#{$ts.pc.p[$port_tx1]}.pcap"
-            for inx in 0..49
+            for inx in 0..199
                 data = pkts[inx][:data].each_byte.map{|c| c.to_i}
                 if (data[12] == 0x88)
                     t_i "inx #{inx} data #{data}"
