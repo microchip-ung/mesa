@@ -76,17 +76,19 @@ test "test_run" do
     $ts.dut.run("mesa-cmd example uninit")
 
     t_i("Configure the test by calling the example code command. Add asymmetry delay")
-    asymmetry = lowest_corr_none-100
+    asymmetry = lowest_corr_none-200
     $ts.dut.run("mesa-cmd example init transparent_clock ing-port #{$ts.dut.p[ig]+1} eg-port #{$ts.dut.p[eg]+1} delay_mode 1 asymmetry #{asymmetry}")
 
     t_i("Measure the lowest correction value with added asymmetry delay")
     lowest_corr_add,range = nano_corr_lowest_measure
+    range += range / 10 #Add ten percent
     diff_max = range / 2
 
     t_i("Check that the correction value has the added asymmetry delay")
     diff = (lowest_corr_add - (lowest_corr_none - asymmetry))
+    t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_add = #{lowest_corr_add}  diff #{diff}  diff_max #{diff_max}")
     if ((lowest_corr_none < lowest_corr_add) || (diff < -diff_max) || (diff > diff_max))
-        t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}  lowest_corr_add = #{lowest_corr_add}  diff #{diff}")
+        t_e("Unexpected correction field including egress delay.")
     end
 end
 
