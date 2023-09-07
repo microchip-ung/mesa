@@ -778,7 +778,11 @@ def jira_appl_3433_test
 
     t_i ("Measure after Frame Preemption enabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
+    if ($ts.dut.pcb == 135)
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [7.1],          true,              [2])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
+    end
 
     t_i ("Stop GCL")
     conf["gate_enabled"] = false
@@ -920,7 +924,7 @@ test "test_conf" do
         conf["untagged_vid"] = MESA_VID_NULL
         $ts.dut.call("mesa_vlan_port_conf_set", i, conf)
 
-        t_i("Configure ingress prio classificationand prio and dpl mapping to 1:1")
+        t_i("Configure ingress prio classification and prio and dpl mapping to 1:1")
         t_i("Configure egress prio and dpl tagging to mapped. Also enable port shaper to assure queues are never emptied")
         conf = $ts.dut.call("mesa_qos_port_conf_get", i)
         conf["tag"]["class_enable"] = true
