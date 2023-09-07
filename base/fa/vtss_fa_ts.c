@@ -702,7 +702,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0, tx_delay = 0, delay_var = 0;
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
-    io_delay_t            *dv_factor;
+    io_delay_t            *dv_factor = NULL;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
@@ -722,43 +722,47 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     port = VTSS_CHIP_PORT(port_no);
 
     /* Calculate the lane information based on the port */
-    if (vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type) != VTSS_RC_OK) {
-        VTSS_E("vtss_fa_port2sd() failed. port_no %u  if_type %u", port_no, vtss_state->port.conf[port_no].if_type);
-        return VTSS_RC_ERROR;
-    }
+    (void) vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
     if (sd_type == FA_SERDES_TYPE_10G) {
         sd_indx = sd_indx + RT_SERDES_10G_START;
     } else if (sd_type == FA_SERDES_TYPE_25G) {
         sd_indx = sd_indx + RT_SERDES_25G_START;
     } else if (sd_type == FA_SERDES_TYPE_6G) {
         sd_indx = sd_indx;
+    } else if (sd_type == FA_SERDES_TYPE_UNKNOWN) {
+        /* Interface without SERDES */
+        sd_indx = 0;
     } else {
         VTSS_E("Unknown SERDES type %u", sd_type);
         return VTSS_RC_ERROR;
     }
-    sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx);
+    if (sd_type != FA_SERDES_TYPE_UNKNOWN) {
+        /* Interface has a SERDES */
+        sd_lane_tgt = VTSS_TO_SD_LANE(sd_indx);
 
-    VTSS_D("chip_port %u  interface %u  speed %u  sd_type %u  sd_lane_tgt %u  sd_indx %u", port, interface, speed, sd_type, sd_lane_tgt, sd_indx);
+        VTSS_D("chip_port %u  interface %u  speed %u  sd_type %u  sd_lane_tgt %u  sd_indx %u", port, interface, speed, sd_type, sd_lane_tgt, sd_indx);
 
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
-    if (sd_type == FA_SERDES_TYPE_25G) {
-        REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
-        sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
-        sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-        dv_factor = delay_var_factor_25G;
-    } else {
-        REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
-        sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
-        sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-        if ((speed == VTSS_SPEED_5G) && (LA_TGT || (sd_indx > 12))) {   /* 5 Gbps and (on FA) lane > 12. The delay factor must be corrected */
-            delay_var_factor[2].rx = 37200;
-            delay_var_factor[2].tx = 49600;
+        /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
+        if (sd_type == FA_SERDES_TYPE_25G) {
+            REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
+            sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
+            sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
+            dv_factor = delay_var_factor_25G;
+        } else {
+            REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
+            sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
+            sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
+            if ((speed == VTSS_SPEED_5G) && (LA_TGT || (sd_indx > 12))) {   /* 5 Gbps and (on FA) lane > 12. The delay factor must be corrected */
+                delay_var_factor[2].rx = 37200;
+                delay_var_factor[2].tx = 49600;
+            }
+            dv_factor = delay_var_factor;
         }
-        dv_factor = delay_var_factor;
-    }
-    VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
+        VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
 #endif
+    }
+
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
@@ -795,6 +799,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         }
         break;
     case VTSS_PORT_INTERFACE_RGMII:
+    case VTSS_PORT_INTERFACE_RGMII_ID:
+    case VTSS_PORT_INTERFACE_RGMII_RXID:
+    case VTSS_PORT_INTERFACE_RGMII_TXID:
         /* Multi-Lane SerDes at 1 */
         if ((speed == VTSS_SPEED_10M) || (speed == VTSS_SPEED_100M)) {   /* 10 Mbps - 100 Mbps */
             /* According to Morten this is not relevant */

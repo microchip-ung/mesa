@@ -1761,6 +1761,9 @@ static void port_init(meba_inst_t inst)
                 }
             }
         }
+        if (MESA_RC_OK != mesa_ts_status_change(NULL, port_no)) {
+            cli_printf("mesa_ts_status_change(%u) failed\n", port_no);
+        }
     } // Port loop
     if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
         // Apply config to HW
@@ -1959,6 +1962,7 @@ void port_poll(meba_inst_t inst)
             if (port_is_aneg_mode(entry)) {
                 port_setup(port_no, TRUE, FALSE);
             }
+            mesa_ts_status_change(NULL, port_no);
         }
 
         /* Get port counters from the API */
