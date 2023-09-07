@@ -51,7 +51,6 @@ def ip_test(ip)
     $tod_ts  = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     $tod_ts[0]["seconds"] = seconds
     $tod_ts[0]["nanoseconds"] = 0
-    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
 
     test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the origin timestamp" do
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c", "#{ip} udp")
@@ -60,6 +59,7 @@ def ip_test(ip)
     frameHdrRx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c", "#{ip} ign udp ign")
     framerx = frameHdrRx + sync_pdu_rx_create(IGNORE, seconds)
 
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
