@@ -1005,7 +1005,7 @@ static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
                                  NULL,
 #endif
-                                 port_no, TRUE, &ctle->vga, &ctle->edc, &ctle->eqr);
+                                 port_no, TRUE, &ctle->vga, &ctle->eqr, &ctle->edc);
 }
 
 #define PORT_IS_KR_CAP(p) (VTSS_PORT_IS_2G5(VTSS_CHIP_PORT(p)) || VTSS_PORT_IS_5G(VTSS_CHIP_PORT(p))) ? FALSE : TRUE
@@ -1440,8 +1440,8 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     }
 
     VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &val1, &val2, &val3));
-    status->train.cm_ob_tap_result = (u8)val1;
-    status->train.cp_ob_tap_result = (u8)val2;
+    status->train.cp_ob_tap_result = (u8)val1;
+    status->train.cm_ob_tap_result = (u8)val2;
     status->train.c0_ob_tap_result = (u8)val3;
     status->train.complete = krs->current_state == VTSS_TR_SEND_DATA;
 

@@ -536,7 +536,7 @@ vtss_rc fa_port_kr_tap_get(vtss_state_t *vtss_state, const vtss_port_no_t port_n
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 
-
+    // CM = tap_adv, CP = tap_dly, C0 = ampl
     if (VTSS_PORT_IS_25G(port)) {
         VTSS_RC(fa_port_25g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
     } else {
@@ -1121,7 +1121,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef
             status = VTSS_COEF_NOT_UPDATED;
             break;
         }
-        if (0 <= _tap_adv && _tap_adv <= 31) {
+        if (0 <= _tap_adv && _tap_adv <= 15) {
             if (!verify_only) {
                 if (action == VTSS_COEF_INCR) {
                     _tap_adv -= 2;

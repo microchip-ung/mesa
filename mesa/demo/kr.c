@@ -677,8 +677,8 @@ static void kr_dump_tr_eq_history(cli_req_t *req)
             c0 = krs->ld_hist[indx].res.c0;
             dt = krs->ld_hist[indx].time;
             if (first) {
-                cli_printf("%-4s%-12s%-12s%-12s%-12s%-12s%-15s%-8s\n","","TAP","CMD","CM1","Ampl","CP1","Status","Time (ms)");
-                cli_printf("    ----------------------------------------------------------------------\n");
+                cli_printf("%-4s%-12s%-12s%-12s%-12s%-12s%-15s%-8s\n","","TAP","CMD","CM1","C0","CP1","Status","ms since train start");
+                cli_printf("    ---------------------------------------------------------------------------------------------\n");
                 first = FALSE;
             }
             if (!mreq->all && (krs->ld_hist[indx].res.coef == 0)) {
@@ -920,9 +920,9 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             cli_printf("  Training          : Disabled\n");
         } else {
             cli_printf("\n  Training Results:\n");
-            cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1]);
-            cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0]);
-            cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1]);
+            cli_printf("  LP CM1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CM1],krs->lp_tap_end_cnt[CM1] + 1);
+            cli_printf("  LP C0  MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[C0], krs->lp_tap_end_cnt[C0] + 1);
+            cli_printf("  LP CP1 MAX/END    : %d/%d\n",krs->lp_tap_max_cnt[CP1],krs->lp_tap_end_cnt[CP1] + 1);
             cli_printf("  BER_COUNT CM1     : ");
             for (u32 i = 0; i < krs->lp_tap_max_cnt[CM1]; i++) {
                 cli_printf("%d ",krs->ber_cnt[0][i]);
@@ -949,9 +949,9 @@ static void cli_cmd_port_kr_status(cli_req_t *req)
             }
 
             cli_printf("\n\n  This port Tx Equalizer settings:\n");
-            cli_printf("  LD CM (tap_dly)   : %d\n",sts.train.cm_ob_tap_result);
+            cli_printf("  LD CM1 (tap_adv)  : %d\n",sts.train.cm_ob_tap_result);
             cli_printf("  LD C0 (amplitude) : %d\n",sts.train.c0_ob_tap_result);
-            cli_printf("  LD CP (tap_adv)   : %d\n",sts.train.cp_ob_tap_result);
+            cli_printf("  LD CP1 (tap_dly)  : %d\n",sts.train.cp_ob_tap_result);
 
             (void)mesa_port_kr_ctle_get(NULL, iport, &ctle);
             cli_printf("\n  This port Rx CTLE settings:\n");
