@@ -5,6 +5,7 @@
 
 require_relative 'libeasy/et'
 require_relative 'ts_lib'
+require 'time'
 
 $ts = get_test_setup("mesa_pc_b2b_2x")
 
@@ -35,6 +36,7 @@ def tod_external_clock_frequence_test
         tod_ts["seconds"] = 10
         tod_ts["nanoseconds"] = 0
         $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod_ts)
+        a = Time.now()
 
         # Get TOD after to check configuration
         tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
@@ -47,10 +49,15 @@ def tod_external_clock_frequence_test
 
         # Get TOD to check TOD incremented
         tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
-        tod_ts = tod[0]
+        b = Time.now()
+        execution = b-a
 
-        if (tod_ts["seconds"] != 11)
-            t_e("TOD in domain #{domain} was not configured as expected.  tod_ts[seconds] = #{tod_ts["seconds"]}  expected_seconds = 11")
+        tod_f = tod[0]["seconds"].to_f + (tod[0]["nanoseconds"].to_f / 1000000000.0)
+        diff_f = tod_f - 10.0 - execution
+        t_i "tod_f #{tod_f}  diff_f #{diff_f}  diff_f.to_i #{diff_f.to_i}  execution #{execution}"
+
+        if (diff_f.to_i != 0)
+            t_e("TOD in domain #{domain} was not configured as expected.")
         end
     end
 
