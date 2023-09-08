@@ -31,9 +31,20 @@ def send_and_verify(tx, rx)
     $ts.pc.try cmd
 end
 
+plist = []
+if $ts.dut.looped_port_list != nil && $ts.dut.looped_port_list_10g != nil
+    plist = $ts.dut.looped_port_list + $ts.dut.looped_port_list_10g
+elsif $ts.dut.looped_port_list != nil
+    plist = $ts.dut.looped_port_list
+    $ts.dut.looped_port_list_10g = []
+elsif $ts.dut.looped_port_list_10g != nil
+    plist = $ts.dut.looped_port_list_10g
+    $ts.dut.looped_port_list = []
+end
+
 $kr_ports = []
 test "Config" do
-    $ts.dut.looped_port_list.each do |idx|
+    plist.each do |idx|
         conf = $ts.dut.call "mesa_port_conf_get", idx
         if conf["serdes"]["media_type"].include? "DAC"
             $kr_ports << idx
