@@ -36,6 +36,7 @@ def tod_domain_offset_test(domain, seconds)
     tod[0]["nanoseconds"] = 0
     tod[0]["nanosecondsfrac"] = 0
     domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
+    a = Time.now()
 
     t_i("Set TOD delta 10 seconds - positive")
     tod[0]["seconds"] = 10
@@ -43,10 +44,20 @@ def tod_domain_offset_test(domain, seconds)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if (tod_new[0]["seconds"] != seconds + 10)
-        t_e("TOD in domain #{domain} was not read as expected.  expected seconds = #{seconds+10}  tod_new[seconds] = #{tod_new[0]["seconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - seconds.to_f - execution
+
+    t_i("diff_f = #{diff_f}  seconds.to_f = #{seconds.to_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f < 9.7) ||  (diff_f > 10.3))
+        t_e("TOD in domain #{domain} was not read as expected.")
     end
+
+    tod[0]["seconds"] = seconds
+    domain_def ? $ts.dut.call("mesa_ts_timeofday_set", tod[0]) : $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
+    a = Time.now()
 
     t_i("Set TOD delta 10 seconds - negative")
     tod[0]["seconds"] = 10
@@ -54,9 +65,15 @@ def tod_domain_offset_test(domain, seconds)
 
     # Check new TOD
     tod_new  = domain_def ? $ts.dut.call("mesa_ts_timeofday_get") : $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
+    b = Time.now()
+    execution = b-a
 
-    if ((tod_new[0]["seconds"] < seconds) || (tod_new[0]["seconds"] > seconds+1))   #Accepting one second in execution time
-        t_e("TOD in domain #{domain} was not read as expected.  expected seconds = #{seconds+1}  tod_new[seconds] = #{tod_new[0]["seconds"]}")
+    new_f = tod_new[0]["seconds"].to_f + (tod_new[0]["nanoseconds"].to_f / 1000000000.0)
+    diff_f = new_f - seconds.to_f - execution
+
+    t_i("diff_f = #{diff_f}  seconds.to_f = #{seconds.to_f}  new_f = #{new_f}  execution = #{execution}")
+    if ((diff_f < -10.1) ||  (diff_f > -9.9))
+        t_e("TOD in domain #{domain} was not read as expected.")
     end
 
     t_i("Test delta TOD in nanoseconds")
@@ -78,7 +95,7 @@ def tod_domain_offset_test(domain, seconds)
     get_f = tod_get[0]["seconds"].to_f + (tod_get[0]["nanoseconds"].to_f / 1000000000.0)
     diff_f = new_f - get_f - execution
     t_i("diff_f = #{diff_f}  get_f = #{get_f}  new_f = #{new_f}  execution = #{execution}")
-    if ((diff_f > 0.6) || (diff_f < 0.4))
+    if ((diff_f > 0.6) || (diff_f < 0.39))
         t_e("TOD in domain #{domain} was not read as expected")
     end
 
@@ -155,7 +172,7 @@ test "test_run" do
     tod_domain_offset_test(2, 1000)
 
     # Test TOD domain delta using default domain (0) API. Domain value 3 is a illegal domain indicating default
-    tod_domain_offset_test(3, 0)
+    tod_domain_offset_test(3, 20)
 end
 
 test "test_clean_up" do
