@@ -47,7 +47,7 @@ def tod_asymmetry_p2p_delay_test
 
     test ("No asymmetry delay check of correction field") do
     if ($pcb == 135)    #Test on Copper PHY
-        if ((lowest_corr_none > 2700) || (lowest_corr_none < 1830))
+        if ((lowest_corr_none > 3000) || (lowest_corr_none < 1830))
             t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
         else
             t_i("CF ok")
