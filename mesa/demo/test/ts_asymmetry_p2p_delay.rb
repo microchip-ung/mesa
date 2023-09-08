@@ -30,7 +30,14 @@ def tod_asymmetry_p2p_delay_test
 
     if ($cap_core_clock != 0)
         misc = $ts.dut.call("mesa_misc_get")
-        exp_corr = ((misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ") || (misc["core_clock_freq"] == "MESA_CORE_CLOCK_328MHZ")) ? 2 : 1
+        if (misc["core_clock_freq"] == "MESA_CORE_CLOCK_250MHZ")
+            exp_corr = 2
+        else if (misc["core_clock_freq"] == "MESA_CORE_CLOCK_328MHZ")
+            exp_corr = 3
+        else
+            exp_corr = 1
+        end
+        end
     else
         exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
     end
