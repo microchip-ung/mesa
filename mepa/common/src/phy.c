@@ -3012,3 +3012,33 @@ mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
 
     return dev->drv->mepa_tc10->mepa_tc10_send_wake_request(dev);
 }
+
+mepa_rc mepa_warmstart_conf_end(struct mepa_device *dev)
+{
+    if (!dev->drv->mepa_driver_warmrestart_conf_end) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_warmrestart_conf_end(dev);
+
+}
+
+mepa_rc mepa_warmstart_conf_get(struct mepa_device *dev, mepa_restart_t *const restart)
+{
+    if (!dev->drv->mepa_driver_warmrestart_conf_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_warmrestart_conf_get(dev, restart);
+
+}
+
+mepa_rc mepa_warmstart_conf_set(struct mepa_device *dev, const mepa_restart_t restart)
+{
+    if (!dev->drv->mepa_driver_warmrestart_conf_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_warmrestart_conf_set(dev, restart);
+
+}

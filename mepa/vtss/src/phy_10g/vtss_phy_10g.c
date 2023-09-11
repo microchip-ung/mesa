@@ -1500,7 +1500,7 @@ vtss_rc vtss_phy_10g_init_conf_set(vtss_state_t *vtss_state)
 }
 
 #if defined(VTSS_FEATURE_WARM_START)
-vtss_rc vtss_phy_10g_restart_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_phy_10g_restart_conf_set(struct vtss_state_s *vtss_state)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
     vtss_port_no_t   port_no = conf->restart_info_port;

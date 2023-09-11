@@ -39,6 +39,7 @@ pages:
         - src: "mepa/docs/events.adoc"
         - src: "mepa/docs/timestamp.adoc"
         - src: "mepa/docs/macsec.adoc"
+        - src: "mepa/docs/warm-restart-phy.adoc"
 
     - name: "MEPA API Reference"
       pages:

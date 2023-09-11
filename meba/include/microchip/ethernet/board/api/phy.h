@@ -171,5 +171,14 @@ mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy
 //To get error status of PRBS
 mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
 
+//Warmstart PHY
+mepa_rc meba_warmrestart_conf_end(meba_inst_t inst, mepa_port_no_t port_no);
+
+//Warmstart conf get
+mepa_rc meba_warmrestart_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_restart_t *const restart);
+
+//set PHY for warmstart
+mepa_rc meba_warmrestart_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_restart_t restart);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H

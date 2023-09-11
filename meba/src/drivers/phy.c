@@ -697,3 +697,28 @@ uint32_t meba_capability(meba_inst_t inst , mepa_port_no_t port_no ,uint32_t cap
     }
     return mepa_capability(inst->phy_devices[port_no], capability);
 }
+
+mepa_rc meba_warmrestart_conf_end(meba_inst_t inst, mepa_port_no_t port_no)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_warmstart_conf_end(inst->phy_devices[port_no]);
+}
+
+
+mepa_rc meba_warmrestart_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_restart_t *const restart)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_warmstart_conf_get(inst->phy_devices[port_no], restart);
+}
+
+mepa_rc meba_warmrestart_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_restart_t restart)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_warmstart_conf_set(inst->phy_devices[port_no], restart);
+}

@@ -97,7 +97,7 @@ typedef struct _vtss_phy_10g_port_state_info_t {
 
 vtss_rc vtss_phy_10g_init_conf_set(struct vtss_state_s *vtss_state);
 vtss_rc vtss_phy_10g_restart_conf_set(struct vtss_state_s *vtss_state);
-
+vtss_rc vtss_phy_ewis_sync(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_phy_10g_sync(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 
 vtss_rc vtss_phy_10g_debug_info_print(struct vtss_state_s *vtss_state,

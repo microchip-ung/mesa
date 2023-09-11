@@ -1,0 +1,89 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+
+== Warmstart in PHYs
+
+The purpose of a warmstart is to allow CPU restart/failover without affecting the traffic flow (High Availability).  The following are the example use cases for the warm start feature.
+
+* Explicit warm start requested by the system administrator
+* Warm start done after upgrading the system software
+* Warm start done due to failover to another CPU system
+
+
+
+== Root Cause
+
+In a High Availability or Non-Stop environment, the PHY Hardware must continue to operate while the Software Application may be reset, updated, and restarted.  During this time, traffic continues to flow through the PHY, but there is no Application monitoring the PHY.
+
+The PHY API has a configuration known as WARMSTART which covers this High Availability or Non-Stop environment requirement.
+
+
+== Solution/Workaround
+
+Hardware High Availability or Non-Stop capability is achieved by using a capability described as WARMSTART.  WARMSTART operations occur in two steps,
+
+* Populate PHY Instance: Populates state without updating the Hardware.
+* Synchronize PHY Instance with HW: Once the PHY Instance is populated,
+  update the PHY register set as needed to match the PHY Instance
+
+
+
+=== Phase 1: Populate PHY Instance
+
+During this phase, `mepa_warmstart_conf_set` reads the HW Registers which were set on the previous initialization and sets the
+current configuration for either a warmstart or a coldstart. If the configuration is set for coldstart, the write-thru to the
+registers is allowed and as the PHY_INST is being populated with each "conf_set" API call for a specified functionality, the PHY
+Registers are also updated. However, If the configuration is set for warmstart, then the write-thru to the registers is prevented
+for each "conf_set" API call for a specified functionality, until the entire PHY_INST has been fully populated.
+
+Note: This configures only one set of PHY registers for the entire PHY, so the port_no used in this operation should be the
+base_port_no for the PHY. At this point, the various MEPA API's can be called to configure the PHY, which is populating the MEPA
+Instance.Once all the PHY functionalities have been fully configured, ie. all API's have been called to configure the PHY, this
+includes all ports of the PHY are fully configured, the next step is Synchronization of the Hardware with the MEPA PHY Instance,
+which is the step where the configuration contained in the PHY_INST is then applied to the PHY Hardware.
+
+
+
+=== Phase 2: Synchronize the PHY Instance with the Hardware
+
+Synchronizing the MEPA PHY Instance with the PHY Hardware is accomplished using the MEPA API: `mepa_warmstart_conf_end`. This API
+will validate the current settings of the PHY registers using the configuration in the MEPA Instance and update the PHY Registers,
+if there are differences, to the configuration that has been written to the MEPA Instance and flag those differences as errors.
+Therefore, when configuring for a WARMSTART, it is highly recommended to read and capture the configuration from the MEPA Instance
+prior to executing a warm restart sequence using the "conf_get" functions for the particular functionality that was previously configured using a "conf_set". This is so the same configuration can be applied after the Application restart so there are no differences in PHY configurations.
+
+Since the PHY Registers that are being used to store the warmstart configuration in the PHY may be used for other functionalities,
+it is also highly recommended to reconfigure the MEPA API for warmstart just prior to executing the warmstart sequence. This ensures
+that the HW registers have not been overwritten since the time it was previously configured. As an example, the VSC 1G PHY's use the
+ Packet Generator Registers to store WarmStart configuration. Therefore, if the Application configured for warmstart on the next
+restart, but used the Packet Generator functions, then the Warmstart configuration was overwritten.
+
+
+To synchronize the instance, in the next initialization/application restart the following optios are available
+
+* MEPA_RESTART_COLD
+* MEPA_RESTART_WARM
+
+The following configuration will update the PHY INST and  PHY HW registers simultaneously based on the configurations passed in to
+the API in the next initialization/application restart.
+
+   mepa_restart_t restart;
+   mepa_warmstart_conf_get(dev, &restart);
+   restart = MEPA_RESTART_COLD;
+   mepa_warmstart_conf_set(dev, restart);
+   mepa_warmstart_conf_end(dev);
+
+
+
+The following configuration will update the PHY register containing the warmstart config which is used in the next
+initialization/application restart to determine if this is a warmstart. The user has to  perform a complete update of the PHY INST
+by passing the PHY configurations via API calls. Updating the PHY registers does not occur utill the PHY INST is completely populated
+, and then the PHY INST configuration is applied to the PHY registers with the `mepa_warmstart_conf_end`.
+
+   mepa_restart_t restart;
+   mepa_warmstart_conf_get(dev, &restart);
+   restart = MEPA_RESTART_WARM;
+   mepa_warmstart_conf_set(dev, restart);
+   mepa_warmstart_conf_end(dev);

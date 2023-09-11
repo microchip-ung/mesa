@@ -493,12 +493,9 @@ typedef uint16_t mepa_restart_version_t;
 
 /** \brief Restart type */
 typedef enum {
-    /**< Cold: Chip and CPU restart, e.g. power cycling */
-    MEPA_RESTART_COLD,
-    /**< Cool: Chip and CPU restart done by CPU */
-    MEPA_RESTART_COOL,
-    /**< Warm: CPU restart only */
-    MEPA_RESTART_WARM
+    MEPA_RESTART_COLD, /**< Cold: Chip and CPU restart, e.g. power cycling */
+    MEPA_RESTART_COOL, /**< Cool: Chip and CPU restart done by CPU */
+    MEPA_RESTART_WARM  /**< Warm: CPU restart only */
 } mepa_restart_t;
 
 /** \brief Restart status */

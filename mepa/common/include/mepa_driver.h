@@ -794,6 +794,9 @@ typedef struct mepa_driver {
     mepa_driver_prbs_get_t             mepa_driver_prbs_get;
     mepa_driver_prbs_monitor_set_t     mepa_driver_prbs_monitor_set;
     mepa_driver_prbs_monitor_get_t     mepa_driver_prbs_monitor_get;
+    mepa_driver_warmrestart_conf_get_t mepa_driver_warmrestart_conf_get;
+    mepa_driver_warmrestart_conf_end_t mepa_driver_warmrestart_conf_end;
+    mepa_driver_warmrestart_conf_set_t mepa_driver_warmrestart_conf_set;
     mepa_ts_driver_t                   *mepa_ts;
     mepa_macsec_driver_t               *mepa_macsec;
     mepa_tc10_driver_t                 *mepa_tc10;

@@ -1182,6 +1182,67 @@ static mepa_rc malibu_10g_i2c_write(struct mepa_device *dev,
     return rc;
 }
 
+static mepa_rc phy_10g_warmrestart_conf_end(struct mepa_device *dev) {
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    data->vtss_instance->init_conf.restart_info_port = data->port_no;
+    data->vtss_instance->init_conf.warm_start_enable = TRUE;
+    data->vtss_instance->init_conf.restart_info_src = VTSS_RESTART_INFO_SRC_10G_PHY;
+    if(data->vtss_instance->warm_start_cur) {
+        data->vtss_instance->warm_start_cur = 0; /* To sync up the registers with the previous instance */
+
+    /* Apply sync configurations */
+        if((rc = vtss_phy_10g_sync(data->vtss_instance, data->port_no) != MEPA_RC_OK)) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_phy_10g_sync port(%d) return rc(0x%04X)", data->port_no, rc);
+            return rc;
+        }
+#if defined(VTSS_FEATURE_WIS)
+        if ((rc = vtss_phy_ewis_sync(data->vtss_instance, data->port_no)) != MEPA_RC_OK) {
+            return rc;
+        }
+#endif /* VTSS_FEATURE_WIS */
+#if defined (VTSS_FEATURE_PHY_TIMESTAMP)
+        if((rc = vtss_phy_ts_sync(data->vtss_instance, data->port_no)) != MEPA_RC_OK) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_phy_ts_sync port(%d) return rc(0x%04X)", data->port_no, rc);
+            return rc;
+        }
+#endif /* VTSS_FEATURE_PHY_TIMESTAMP */
+#if defined (VTSS_FEATURE_MACSEC)
+        if((rc = vtss_macsec_sync(data->vtss_instance, data->port_no)) != MEPA_RC_OK) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_macsec_sync port(%d) return rc(0x%04X)", data->port_no, rc);
+            return rc;
+        }
+#endif /* VTSS_FEATURE_MACSEC */
+    }
+    if((rc = vtss_phy_10g_restart_conf_set(data->vtss_instance)) != MEPA_RC_OK ) {
+        return rc;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc phy_10g_warmrestart_conf_set(struct mepa_device *dev, const mepa_restart_t restart) {
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    data->vtss_instance->restart_cur = restart;
+    data->vtss_instance->init_conf.restart_info_port = data->port_no;
+    data->vtss_instance->init_conf.warm_start_enable = TRUE;
+    data->vtss_instance->init_conf.restart_info_src = VTSS_RESTART_INFO_SRC_10G_PHY;
+    if((rc = vtss_phy_10g_restart_conf_set(data->vtss_instance)) != MEPA_RC_OK) {
+        return rc;
+    }
+    return MEPA_RC_OK;
+}
+
+
+static mepa_rc phy_10g_warmrestart_conf_get(struct mepa_device *dev, mepa_restart_t *const restart) {
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    *restart = data->vtss_instance->restart_cur;
+    return rc;
+}
+
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -1399,6 +1460,9 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_event_enable_get = malibu_10g_event_enable_get,
             .mepa_driver_phy_i2c_read = malibu_10g_i2c_read,
             .mepa_driver_phy_i2c_write = malibu_10g_i2c_write,
+            .mepa_driver_warmrestart_conf_get = phy_10g_warmrestart_conf_get,
+            .mepa_driver_warmrestart_conf_end = phy_10g_warmrestart_conf_end,
+            .mepa_driver_warmrestart_conf_set = phy_10g_warmrestart_conf_set,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,

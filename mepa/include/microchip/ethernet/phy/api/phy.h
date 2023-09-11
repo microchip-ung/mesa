@@ -925,5 +925,44 @@ mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_con
 
 uint32_t mepa_capability(struct mepa_device *dev , uint32_t capability);
 
+/**
+ * \brief To End  Warm restart configuration
+ *
+ * \param dev        [IN]  Driver instance.
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+
+mepa_rc mepa_warmstart_conf_end(struct mepa_device *dev);
+
+/**
+ * \brief To Get  Warm restart configuration
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param restrt     [OUT] warmstart status
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+
+mepa_rc mepa_warmstart_conf_get(struct mepa_device *dev, mepa_restart_t *const restart);
+
+
+/**
+ * \brief Set PHY for warm restart
+ *
+ * \param dev        [IN]  Driver instance.
+ * \param restrt     [IN] warmstart status
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+
+mepa_rc mepa_warmstart_conf_set(struct mepa_device *dev, const mepa_restart_t restart);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif

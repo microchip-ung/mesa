@@ -1994,9 +1994,19 @@ vtss_rc vtss_phy_10g_i2c_reset(const vtss_inst_t inst, const vtss_port_no_t port
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }
-
 #endif // !defined(VTSS_FEATURE_WIS)
 
+#if !defined(VTSS_CHIP_10G_PHY)
+vtss_rc vtss_phy_10g_sync(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
+{
+   return VTSS_RC_NOT_IMPLEMENTED;
+}
+
+vtss_rc vtss_phy_10g_restart_conf_set(struct vtss_state_s *vtss_state)
+{
+   return VTSS_RC_NOT_IMPLEMENTED;
+}
+#endif
 #if !defined(VTSS_CHIP_CU_PHY)
 vtss_rc vtss_phy_patch_settings_get(const vtss_inst_t    inst,
                                     const vtss_port_no_t port_no,
