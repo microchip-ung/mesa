@@ -46,7 +46,6 @@ def tod_asymmetry_p2p_delay_test
         else
             exp_corr = 1
         end
-        end
     end
 
     t_i("Create IS2 to ONE-STEP SYNC frame")
