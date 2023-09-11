@@ -1127,13 +1127,15 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
     mepa_rc rc = MEPA_RC_OK;
     uint16_t ev_mask = 0, i, val;
     phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_event_t ev_in = event;
     data->events = enable ? (data->events | event) :
                    (data->events & ~event);
     MEPA_ENTER(dev);
     for (i = 0; i < sizeof(mepa_event_t) * 8; i++) {
-        switch (event & (1 << i)) {
+        switch (ev_in & (1 << i)) {
         case MEPA_LINK_LOS:
             ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN;
+            ev_in = ev_in & ~MEPA_LINK_LOS;
             break;
         case MEPA_FAST_LINK_FAIL:
             // Enable Fast link config
@@ -1141,9 +1143,14 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
             EP_WRM(dev, INDY_FLF_CONFIG_STATUS, enable ? val : 0, val);
 
             ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR;
+            ev_in = ev_in & ~MEPA_FAST_LINK_FAIL;
             break;
         default:
             // Not yet implemented
+            break;
+        }
+        // If all events are processed, break.
+        if (!ev_in) {
             break;
         }
     }
