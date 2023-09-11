@@ -1081,13 +1081,22 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT);
 
-    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(FA_TGT ? group : 0),
-            // Configuring the denominator of the system clock frequency:
-            // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
-            // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
-            // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
-            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50),
-            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+    if (FA_TGT) {
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(FA_TGT ? group : 0),
+                // Configuring the denominator of the system clock frequency:
+                // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
+                // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
+                // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
+                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(328),
+                VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+    }
+    if (LA_TGT) {
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(FA_TGT ? group : 0),
+                // Configuring the denominator of the system clock frequency:
+                // VTSS_CORE_CLOCK_328MHZ -> SIO clock = 328MHz / 328 =  1   MHz
+                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(328),
+                VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+    }
 #endif
     /*
      * Configuration of output data values
