@@ -375,10 +375,6 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
         }
     }
 
-    // Enable Fast link config
-    val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
-    EP_WRM(dev, INDY_FLF_CONFIG_STATUS, val, val);
-
     // Clear all GPHY interrupts during initialisation
     WR(dev, INDY_GPHY_INTR_ENA, 0);
     EP_WRM(dev, INDY_PTP_TSU_INT_EN, 0, INDY_DEF_MASK);
@@ -1129,7 +1125,7 @@ static mepa_rc indy_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint
 static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable)
 {
     mepa_rc rc = MEPA_RC_OK;
-    uint16_t ev_mask = 0, i;
+    uint16_t ev_mask = 0, i, val;
     phy_data_t *data = (phy_data_t *)dev->data;
     data->events = enable ? (data->events | event) :
                    (data->events & ~event);
@@ -1140,6 +1136,10 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
             ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN;
             break;
         case MEPA_FAST_LINK_FAIL:
+            // Enable Fast link config
+            val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
+            EP_WRM(dev, INDY_FLF_CONFIG_STATUS, enable ? val : 0, val);
+
             ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR;
             break;
         default:
