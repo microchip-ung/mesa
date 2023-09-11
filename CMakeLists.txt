@@ -1,7 +1,7 @@
 # Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 project(vtss_api)
 
@@ -188,7 +188,9 @@ macro(API_TARGET)
   set(multiValueArgs DEFS)
 
   cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-  option(${A_LIB}        "Build the API for ${A_CHIP} (${A_LIB})" OFF)
+  if (${BUILD_SHARED_LIBS})
+      option(${A_LIB}        "Build the API for ${A_CHIP} (${A_LIB})" OFF)
+  endif()
   option(${A_LIB}_static "Build the static API for ${A_CHIP} (${A_LIB})" OFF)
   if (${BUILD_MESA_ALL} OR ${BUILD_ALL})
       if (${BUILD_SHARED_LIBS})
@@ -202,19 +204,21 @@ macro(API_TARGET)
 
   set(DEFS ${GLOBAL_DEFS} -DVTSS_CHIP_${A_CHIP} ${A_DEFS})
 
-  add_library(${A_LIB} SHARED ${API_UNI_SRC} ${API_MESA_SRC})
-  target_compile_options(${A_LIB} PUBLIC ${DEFS})
+  if (${BUILD_SHARED_LIBS})
+      add_library(${A_LIB} SHARED ${API_UNI_SRC} ${API_MESA_SRC})
+      target_compile_options(${A_LIB} PUBLIC ${DEFS})
+
+      if (${A_LIB})
+          message(STATUS "Adding ${A_LIB} (${A_CHIP}) MESA=${has_mesa} Defines: [${DEFS}]")
+          set_target_properties(${A_LIB} PROPERTIES EXCLUDE_FROM_ALL FALSE)
+      else()
+          set_target_properties(${A_LIB} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+      endif()
+  endif()
 
   add_library(${A_LIB}_static STATIC ${API_UNI_SRC} ${API_MESA_SRC})
   set_target_properties(${A_LIB}_static PROPERTIES OUTPUT_NAME "${A_LIB}")
   target_compile_options(${A_LIB}_static PUBLIC ${DEFS})
-
-  if (${A_LIB})
-      message(STATUS "Adding ${A_LIB} (${A_CHIP}) MESA=${has_mesa} Defines: [${DEFS}]")
-      set_target_properties(${A_LIB} PROPERTIES EXCLUDE_FROM_ALL FALSE)
-  else()
-      set_target_properties(${A_LIB} PROPERTIES EXCLUDE_FROM_ALL TRUE)
-  endif()
 
   if (${A_LIB}_static)
       message(STATUS "Adding ${A_LIB}_static (${A_CHIP}) MESA=${has_mesa} Defines: [${DEFS}]")
