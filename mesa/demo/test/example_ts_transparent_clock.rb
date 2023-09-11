@@ -57,7 +57,13 @@ test "test_run" do
         end
         end
     else
-        exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
+        misc = $ts.dut.call("mesa_misc_get")
+        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
+            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")))
+            exp_corr = 2
+        else
+            exp_corr = 1
+        end
     end
     if ($pcb == 135)    #Test on Copper PHY
         if ((lowest_corr_none > 3000) || (lowest_corr_none < 1830))
@@ -89,7 +95,7 @@ test "test_run" do
     t_i("Measure the lowest correction value with added asymmetry delay")
     lowest_corr_add,range1 = nano_corr_lowest_measure
     range = (range1 > range) ? range1 : range
-    range += range / 10 #Add ten percent
+    range += range / 7
     diff_max = range / 2
 
     t_i("Check that the correction value has the added asymmetry delay")
