@@ -39,7 +39,14 @@ def tod_asymmetry_p2p_delay_test
         end
         end
     else
-        exp_corr = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ? 2 : 1
+        misc = $ts.dut.call("mesa_misc_get")
+        if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
+            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")))
+            exp_corr = 2
+        else
+            exp_corr = 1
+        end
+        end
     end
 
     t_i("Create IS2 to ONE-STEP SYNC frame")
