@@ -225,21 +225,6 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
     return rc;
 }
 
-static mepa_rc mscc_1g_atom_reset(mepa_device_t *dev,
-                                  const mepa_reset_param_t *rst_conf)
-{
-    vtss_phy_reset_conf_t conf = {};
-    phy_data_t *data = (phy_data_t *)(dev->data);
-
-    vtss_phy_reset_get(data->vtss_instance, data->port_no, &conf);
-    conf.force = VTSS_PHY_FORCE_RESET;
-    conf.mac_if = data->mac_if;
-    conf.media_if = rst_conf->media_intf;
-    conf.i_cpu_en = 0;
-
-    return reset_phy(data, &conf);
-}
-
 static mepa_rc mscc_1g_poll(mepa_device_t *dev,
                             mepa_status_t *status)
 {
@@ -1192,7 +1177,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .id = 0x000706e0,
             .mask = 0xffffffe0,
             .mepa_driver_delete = mscc_1g_delete,
-            .mepa_driver_reset = mscc_1g_atom_reset,
+            .mepa_driver_reset = mscc_1g_reset,
             .mepa_driver_poll = mscc_1g_poll,
             .mepa_driver_conf_set = mscc_1g_conf_set,
             .mepa_driver_conf_get = phy_1g_conf_get,
