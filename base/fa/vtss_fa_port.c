@@ -2924,10 +2924,6 @@ static vtss_rc fa_rgmii_setup(vtss_state_t *vtss_state, vtss_port_no_t port_no,
             VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST |
             VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST);
 
-    if (vtss_state->port.current_if_type[port_no] == mode) {
-        return VTSS_RC_OK; // Delay already set
-    }
-
     if (mode == VTSS_PORT_INTERFACE_RGMII ||
         mode == VTSS_PORT_INTERFACE_RGMII_ID ||
         mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
