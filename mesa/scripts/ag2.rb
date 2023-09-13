@@ -95,6 +95,7 @@ $methods_impl_no_auto = []
 $struct_blacklist = [
     "vtss_phy_init_conf_t",
     "vtss_phy_10g_pkt_gen_conf_t",
+    "mepa_phy_cap_t",
 ]
 
 $methods_blacklist = [
@@ -1104,34 +1105,34 @@ $el.each do |e|
     $c_src.puts "    MESA_RC(json_rpc_get_name_json_string(req, obj, name, &str)); /* #{__LINE__} */"
     $c_src.puts "    MESA_RC(json_rpc_enum_name_#{x[:type_name]}(req, str, parm)); /* #{__LINE__} */"
     end_func
-
-    $c_src.puts "// Convert enumeration to string"
-    add_func "const char *json_rpc_string_#{x[:type_name]}(#{x[:type_name]} *parm) /* #{__LINE__} */"
-    $c_src.puts "    return ("
-    n_def = nil
-    x[:members].each do |e|
-        n = e[:enum_name]
-        $c_src.puts "            *parm == #{n} ? \"#{n}\" :"
-        if n_def.nil?
-            n_def = n
+    if (x[:type_name] != "mepa_phy_cap_t" )
+        $c_src.puts "// Convert enumeration to string"
+        add_func "const char *json_rpc_string_#{x[:type_name]}(#{x[:type_name]} *parm) /* #{__LINE__} */"
+        $c_src.puts "    return ("
+        n_def = nil
+        x[:members].each do |e|
+            n = e[:enum_name]
+            $c_src.puts "            *parm == #{n} ? \"#{n}\" :"
+            if n_def.nil?
+                n_def = n
+            end
         end
+        $c_src.puts "            \"#{n_def}\");"
+        $c_src.puts "}"
+        $c_src.puts ""
+        $c_src.puts "// Add enumeration to array"
+        add_func "mesa_rc json_rpc_add_#{x[:type_name]}(json_rpc_req_t *req, json_object *obj, #{x[:type_name]} *parm) /* #{__LINE__} */"
+        $c_src.puts "    return json_rpc_add_json_string(req, obj, json_rpc_string_#{x[:type_name]}(parm));"
+        $c_src.puts "}"
+        $c_src.puts ""
+
+        $c_src.puts "// Add enumeration to object"
+        add_func "mesa_rc json_rpc_add_name_#{x[:type_name]}(json_rpc_req_t *req, json_object *obj, const char *name, #{x[:type_name]} *parm) /* #{__LINE__} */"
+        $c_src.puts "    return json_rpc_add_name_json_string(req, obj, name, json_rpc_string_#{x[:type_name]}(parm));"
+        $c_src.puts "}"
+        $c_src.puts ""
+        $c_hdr.puts ""
     end
-    $c_src.puts "            \"#{n_def}\");"
-    $c_src.puts "}"
-    $c_src.puts ""
-
-    $c_src.puts "// Add enumeration to array"
-    add_func "mesa_rc json_rpc_add_#{x[:type_name]}(json_rpc_req_t *req, json_object *obj, #{x[:type_name]} *parm) /* #{__LINE__} */"
-    $c_src.puts "    return json_rpc_add_json_string(req, obj, json_rpc_string_#{x[:type_name]}(parm));"
-    $c_src.puts "}"
-    $c_src.puts ""
-
-    $c_src.puts "// Add enumeration to object"
-    add_func "mesa_rc json_rpc_add_name_#{x[:type_name]}(json_rpc_req_t *req, json_object *obj, const char *name, #{x[:type_name]} *parm) /* #{__LINE__} */"
-    $c_src.puts "    return json_rpc_add_name_json_string(req, obj, name, json_rpc_string_#{x[:type_name]}(parm));"
-    $c_src.puts "}"
-    $c_src.puts ""
-    $c_hdr.puts ""
 end
 
 def member_array m

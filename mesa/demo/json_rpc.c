@@ -64,6 +64,39 @@ static mesa_rc json_rpc_obj_type_get(json_rpc_req_t *req, struct json_object *ob
     return MESA_RC_OK;
 }
 
+
+mesa_rc json_rpc_add_name_mepa_phy_cap_t(json_rpc_req_t *req, json_object *obj, const char *name, mepa_phy_cap_t *parm)
+{
+    json_object *obj_value;
+    MESA_RC(json_rpc_array_new(req, &obj_value));
+    MESA_RC(json_rpc_add_name_json_object(req, obj, "caps", obj_value));
+    if (*parm & MEPA_CAP_SPEED_MASK_1G) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_SPEED_MASK_1G");
+    }
+    if (*parm & MEPA_CAP_SPEED_MASK_2G5) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_SPEED_MASK_2G5");
+    }
+    if (*parm & MEPA_CAP_SPEED_MASK_10G) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_SPEED_MASK_10G");
+    }
+    if (*parm & MEPA_CAP_TS_MASK_GEN_1) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_TS_MASK_GEN_1");
+    }
+    if (*parm & MEPA_CAP_TS_MASK_GEN_2) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_TS_MASK_GEN_2");
+    }
+    if (*parm & MEPA_CAP_TS_MASK_GEN_3) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_TS_MASK_GEN_3");
+    }
+    if (*parm & MEPA_CAP_TS_MASK_NONE) {
+        json_rpc_add_json_string(req, obj_value, "MEPA_CAP_TS_MASK_NONE");
+    }
+    return MESA_RC_OK;
+}
+
+
+
+
 static mesa_rc json_rpc_array_type_get(json_rpc_req_t *req, json_object *obj, int *idx, json_type type, json_object **obj_value)
 {
     *obj_value = json_object_array_get_idx(obj, *idx);
