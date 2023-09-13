@@ -70,6 +70,7 @@ typedef struct {
     uint16_t lp_np1;
     uint16_t lp_np2;
     uint32_t port;
+    uint32_t link;
 } kr_irq_t;
 
 typedef struct {
@@ -117,6 +118,7 @@ typedef struct {
     mesa_bool_t global_stop;
     mesa_bool_t mesa_kr_an_good;
     mesa_bool_t link_break;
+    mesa_bool_t link;
 } kr_appl_conf_t;
 
 #endif /* _MSCC_APPL_PORT_H_ */

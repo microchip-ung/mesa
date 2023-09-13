@@ -1409,6 +1409,7 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     vtss_port_kr_state_t *krs = &vtss_state->port.train_state[port_no];
     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
     BOOL spd25g = vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G;
+    u32 port = VTSS_CHIP_PORT(port_no), reg, reg2;
 
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1502,7 +1503,6 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     if (spd25g) {
         u32 *rs_fec_cc = &vtss_state->port.kr_store[port_no].rs_fec_cc;
         u32 *rs_fec_uc = &vtss_state->port.kr_store[port_no].rs_fec_uc;
-        u32 port = VTSS_CHIP_PORT(port_no), reg, reg2;
 
         if (status->fec.r_fec_enable) {
             u32 dev_tgt = VTSS_TO_HIGH_DEV(port);
@@ -1546,14 +1546,13 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_AN_CFG1_AN_SM_HIST_CLR);
     }
 
-    if (fa_is_high_speed_device(vtss_state, port_no)) {
-        status->aneg.block_lock = VTSS_X_IP_KRANEG_AN_STS1_SYNC10G(sts1);
-    } else {
-        status->aneg.block_lock = VTSS_X_IP_KRANEG_AN_STS1_SYNC8B10B(sts1);
-        if (!VTSS_X_IP_KRANEG_AN_STS1_SYNC8B10B(sts1)) {
-            REG_WRM(VTSS_IP_KRANEG_AN_CFG0(tgt),
-                    VTSS_F_IP_KRANEG_AN_CFG0_AN_ENABLE(1),
-                    VTSS_M_IP_KRANEG_AN_CFG0_AN_ENABLE);
+    if (spd25g) {
+        u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
+        REG_RD(VTSS_DEV10G_PCS25G_STATUS(tgt), &reg);
+        if (status->fec.rs_fec_enable) {
+            status->aneg.block_lock = VTSS_X_DEV10G_PCS25G_STATUS_ALIGN_DONE(reg);
+        } else {
+            status->aneg.block_lock = VTSS_X_DEV10G_PCS25G_STATUS_BLOCK_LOCK(reg);
         }
     }
 
@@ -1682,7 +1681,8 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     REG_WR(VTSS_IP_KRANEG_GEN0_TMR(tgt), 0x04a817c8); // 500 ms
 
     if (kr->train.enable) {
-        // Link pass inihibit timer (in AN_GOOD_CHECK)
+        // Link PASS inihibit timer (LP_TMR) in AN_GOOD_CHECK: 10ms
+        // Link FAIL inihibit timer (LF_TMR) in AN_GOOD_CHECK: 50ms (default)
         REG_WR(VTSS_IP_KRANEG_LP_TMR(tgt), 1562500); // 10 ms
     } else {
         // Link pass inihibit timer (in AN_GOOD_CHECK)
@@ -1692,6 +1692,23 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             // Link fail inihibit timer (in AN_GOOD_CHECK)
            REG_WR(VTSS_IP_KRANEG_LF_TMR(tgt), 4101049 * 3); // 3 * 50ms
         }
+    }
+
+    if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+         // PRBS values are defined in clause 92 (25G/100G)
+        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(0) |
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(0x57e),
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
+    } else {
+        // PRBS values are defined in clause 72 (10G)
+        int seed = rand() % 1024; // 1024 = 2^10;
+        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(4) |
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(seed),
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
     }
 
     // Store the cuurnet TxEq values

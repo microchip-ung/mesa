@@ -831,11 +831,11 @@ static void kr_dump_irq_history(cli_req_t *req, mesa_bool_t all)
                 }
             }
 
-            if (krs->irq_hist[indx].irq & MESA_KR_AN_GOOD) {
+            if (krs->irq_hist[indx].irq & MESA_KR_AN_GOOD || krs->irq_hist[indx].sm == 6 || krs->irq_hist[indx].sm == 7) {
                 b2 = &buf2[0];
                 mesa_port_kr_status_t sts;
                 mesa_port_kr_status_get(NULL, iport, &sts);
-                b2 += sprintf(b2, "Aneg results: %s / %s",mesa_port_spd2txt(krs->speed),krs->rfec ? "RFEC" : krs->rsfec ? "RSFEC" : "No FEC");
+                b2 += sprintf(b2, "Aneg results: %s / %s. Link:%d",mesa_port_spd2txt(krs->speed),krs->rfec ? "RFEC" : krs->rsfec ? "RSFEC" : "No FEC", krs->irq_hist[indx].link);
             }
 
             cli_printf("%-4d%-10d%-10d%-40s%-22s%-32s\n",
@@ -1015,6 +1015,7 @@ static void kr_add_to_irq_history(mesa_port_no_t p, uint32_t irq, mesa_port_kr_s
         krs->irq_hist[krs->irq_hist_index].lp_np0 = status->aneg.lp_np0;
         krs->irq_hist[krs->irq_hist_index].lp_np1 = status->aneg.lp_np1;
         krs->irq_hist[krs->irq_hist_index].lp_np2 = status->aneg.lp_np2;
+        krs->irq_hist[krs->irq_hist_index].link = status->aneg.block_lock;
         krs->irq_hist_index++;
     }
     krs = &kr_conf_state[0].tr;
@@ -1137,9 +1138,11 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
     }
 
     if (irq == 0) {
-        if (kr_conf_state[iport].aneg_sm_state != status.aneg.sm) {
+        if (kr_conf_state[iport].aneg_sm_state != status.aneg.sm ||
+            kr_conf_state[iport].link != status.aneg.block_lock) {
             kr_add_to_irq_history(iport, irq, &status);
             kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
+            kr_conf_state[iport].link = status.aneg.block_lock;
         }
         return;
     }
@@ -1149,6 +1152,7 @@ static void kr_poll_v3(meba_inst_t inst, mesa_port_no_t iport)
     }
 
     kr_conf_state[iport].aneg_sm_state = status.aneg.sm;
+    kr_conf_state[iport].link = status.aneg.block_lock;
 
     // Add IRQs to history
     kr_add_to_irq_history(iport, irq, &status);
