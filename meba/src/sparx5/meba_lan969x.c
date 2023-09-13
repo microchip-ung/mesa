@@ -29,6 +29,15 @@ typedef struct {
     uint8_t                i2c_port;
 } port_map_t;
 
+static const meba_ptp_rs422_conf_t other_rs422_conf = {
+    .gpio_rs422_1588_mstoen = -1,
+    .gpio_rs422_1588_slvoen = -1,
+    .ptp_pin_ldst           = 2,
+    .ptp_pin_ppso           = 3,
+    .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
+};
+
 #define LAGUNA_CAP_10G_FDX (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH)
 static port_map_t *meba_port_map = NULL;
 
@@ -638,6 +647,15 @@ static mesa_rc lan969x_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
     return MESA_RC_NOT_IMPLEMENTED;
 }
 
+static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
+{
+    T_N(inst, "Called");
+
+    // HENRIKBTBD
+    *conf = other_rs422_conf;
+    return VTSS_RC_OK;
+}
+
 static mesa_rc lan969x_gpio_func_info_get(meba_inst_t inst,
                                           mesa_gpio_func_t gpio_func,  mesa_gpio_func_info_t *info)
 {
@@ -725,6 +743,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_irq_requested              = lan969x_irq_requested;
     inst->api.meba_event_enable               = lan969x_event_enable;
     inst->api.meba_serdes_tap_get             = lan969x_serdes_tap_get;
+    inst->api.meba_ptp_rs422_conf_get         = lan969x_ptp_rs422_conf_get;
     inst->api.meba_gpio_func_info_get         = lan969x_gpio_func_info_get;
     return inst;
 
