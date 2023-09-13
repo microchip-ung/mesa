@@ -826,6 +826,8 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (qsgmii_aneg != data->conf.mac_if_aneg_ena) {
             indy_qsgmii_aneg(dev, qsgmii_aneg);
         }
+        // Disable fast link failure during link configure to prevent false alarm.
+        WRM(dev, INDY_GPHY_INTR_ENA, 0, INDY_F_GPHY_INTR_ENA_FLF_INTR);
         if (config->speed == MEPA_SPEED_AUTO || config->speed == MEPA_SPEED_1G) {
             if ((data->conf.speed == MEPA_SPEED_10M || data->conf.speed == MEPA_SPEED_100M) &&
                 !data->conf.fdx) {
@@ -892,10 +894,15 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         // set soft power down bit
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
+    // Poll before enabling interrupt events again.
+    RD(dev, INDY_GPHY_INTR_STATUS, &new_value);
+    T_D(MEPA_TRACE_GRP_GEN, "events during configuration 0x%x\n", new_value);
     data->conf = *config;
     data->conf.mac_if_aneg_ena = qsgmii_aneg;
     MEPA_EXIT(dev);
 
+    // Enable events again.
+    indy_event_enable_set(dev, data->events, TRUE);
     return MEPA_RC_OK;
 }
 
