@@ -21,7 +21,7 @@
 
 #define MAX_STR_SIZE  100
 
-// poe adc pin reading - will be defined from version 3.57 and above
+// poe adc pin reading - appllicable only on poe firmware version 3.57 and above
 //#define POE_READ_ADC_PIN
 
 // The sequence number is updated by the transmit function, but we have to insert a dummy seq number when building the data structure.
@@ -36,9 +36,9 @@
 #define INDV_MASK_BT_I2C_RESTART_ENABLE         0x1B
 #define INDV_MASK_BT_LED_STREAM_TYPE            0x20
 #define INDV_MASK_BT_HOCPP                      0x50
-#define INDV_MASK_BT_PSE_POWERING_PSE_CHECKING               0x1F
-#define INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT           0x2C
-#define INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY       0x4F
+#define INDV_MASK_BT_PSE_POWERING_PSE_CHECKING  0x1F
+#define INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT     0x2C
+#define INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY 0x4F
 
 // BT individual masks - configuration depends on product
 #define INDV_MASK_BT_LED_STREAM_TYPE             0x20
@@ -335,6 +335,9 @@ enum port_operation_mode_e
     eBT_Compliant_4P_30w_2P_30w = 2,
     eBT_Compliant_4P_15w_2P_15w = 3,
 
+    // 4Pair/2Pair AF/AT Compliant Mode
+    eAFAT_Compliant_30w         = 9,
+
     // 4Pair/2Pair Non Compliant Modes
     eBT_Non_Compliant_4P_90w_2P_30w_Legacy = 0x10,
     eBT_Non_Compliant_4P_60w_2P_30w_Legacy = 0x11,
@@ -554,7 +557,7 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t* const inst,
 
         private_data->status.global.i2c_tx_error_counter++;
 
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
+        DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
               inst->adapter_name, data_description, size, cnt, private_data->status.global.i2c_tx_error_counter,
               print_as_hex_string(data, size, buf, sizeof(buf)));
 
@@ -2394,6 +2397,11 @@ mesa_rc meba_poe_pd69200_ctrl_get_adc_value(
     const meba_poe_ctrl_inst_t* const inst,
     uint16_t* sensor_reading)
 {
+#ifndef POE_READ_ADC_PIN
+    *sensor_reading = 0;
+    return MESA_RC_OK;
+#endif
+
     // Send request to get adc value
     uint8_t buf[PD_BUFFER_SIZE] = {
         REQUEST_KEY,
@@ -2412,11 +2420,6 @@ mesa_rc meba_poe_pd69200_ctrl_get_adc_value(
         DUMMY_BYTE,
         DUMMY_BYTE
     };
-
-    #ifndef POE_READ_ADC_PIN
-    *sensor_reading = 0;
-    return MESA_RC_OK;
-    #endif
 
     char *fname = "GET_ADC_VALUE";
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf, fname));
@@ -3173,15 +3176,15 @@ mesa_rc meba_poe_pd69200_ctrl_globals_cfg_set(
     current_global_cfg->global_ignore_pd_auto_class_request = cfg_global->global_ignore_pd_auto_class_request;
     current_global_cfg->global_legacy_pd_class_mode = cfg_global->global_legacy_pd_class_mode;
 
-    if (//cfg_global->primary_max_power_w                    != 0 &&
-        current_global_cfg->primary_max_power_w            == cfg_global->primary_max_power_w &&
-        current_global_cfg->legacy_detect                  == cfg_global->legacy_detect)
+    if (//cfg_global->power_supply_poe_limit_w       != 0 &&
+        current_global_cfg->power_supply_poe_limit_w == cfg_global->power_supply_poe_limit_w &&
+        current_global_cfg->legacy_detect            == cfg_global->legacy_detect)
     {
         return MESA_RC_OK;
     }
 
-    current_global_cfg->primary_max_power_w    = cfg_global->primary_max_power_w;
-    current_global_cfg->legacy_detect          = cfg_global->legacy_detect;
+    current_global_cfg->power_supply_poe_limit_w = cfg_global->power_supply_poe_limit_w;
+    current_global_cfg->legacy_detect           = cfg_global->legacy_detect;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "AF-AT Update configuration for controller");
 
@@ -3207,8 +3210,8 @@ mesa_rc meba_poe_pd69200_ctrl_globals_cfg_set(
                 &bank,
                 &power_limit_w));
 
-    if ((guard_band != 0x2) || (power_limit_w != cfg_global->primary_max_power_w)) {
-        power_limit_w = cfg_global->primary_max_power_w;
+    if ((guard_band != 0x2) || (power_limit_w != cfg_global->power_supply_poe_limit_w)) {
+        power_limit_w = cfg_global->power_supply_poe_limit_w;
         guard_band = 0x2;           // We set guard to 2W in order to get priority to take over as soon as possible.
 
         MESA_RC(meba_poe_pd69200_set_power_banks(
@@ -3960,7 +3963,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
                 &power_limit_w));
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: PwrSupply_MaxPwr=%d , power_limit_w=%d", __FUNCTION__, tPoE_parameters.poe_init_params.PwrSupply_MaxPwr, power_limit_w);
-    current_global_cfg->primary_max_power_w = power_limit_w;
+    current_global_cfg->power_supply_poe_limit_w = power_limit_w;
 
     // Read active matrix and compare with intended matrix before programming it.
     // Get physical port number from active matrix
@@ -5152,7 +5155,7 @@ void meba_pd69200_driver_init(
         private_data->cfg.ports[i].cable_length = 255;
     }
 
-    private_data->cfg.global.primary_max_power_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr;; // Make sure initial value is different from configured value as configuration only is applied when values are different.
+    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr; // Make sure initial value is different from configured value as configuration only is applied when values are different.
     inst->api = &meba_pd69200_api;
     inst->private_data = private_data;
     inst->adapter_name = adapter_name;
@@ -5319,7 +5322,7 @@ void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t* inst)
     prod.port_type_operation_mode[0][3] = eBT_Non_Compliant_4P_15w_2P_15w_Legacy;    // ignore-pd-class - BT 15W legacy
 
     // 30W
-    prod.port_type_operation_mode[1][0] = eBT_Compliant_4P_30w_2P_30w;               // BT 30W standard
+    prod.port_type_operation_mode[1][0] = eAFAT_Compliant_30w;                       // AF/AT 30W standard
     prod.port_type_operation_mode[1][1] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // BT 30W legacy
     prod.port_type_operation_mode[1][2] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // poh - BT 30W legacy
     prod.port_type_operation_mode[1][3] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // ignore-pd-class - BT 30W legacy
@@ -5968,14 +5971,14 @@ mesa_rc meba_poe_pd69200bt_ctrl_globals_cfg_set(
     current_global_cfg->global_ignore_pd_auto_class_request = cfg_global->global_ignore_pd_auto_class_request;
     current_global_cfg->global_legacy_pd_class_mode = cfg_global->global_legacy_pd_class_mode;
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "meba_poe_pd69200bt_ctrl_globals_cfg_set, current_global_cfg->primary_max_power_w= %d , cfg_global->primary_max_power_w=%d",
-          current_global_cfg->primary_max_power_w , cfg_global->primary_max_power_w);
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "meba_poe_pd69200bt_ctrl_globals_cfg_set, current_global_cfg->power_supply_poe_limit_w= %d , cfg_global->power_supply_poe_limit_w=%d",
+          current_global_cfg->power_supply_poe_limit_w, cfg_global->power_supply_poe_limit_w);
 
-    if ((current_global_cfg->primary_max_power_w == cfg_global->primary_max_power_w)) {
+    if ((current_global_cfg->power_supply_poe_limit_w == cfg_global->power_supply_poe_limit_w)) {
         return MESA_RC_OK;
     }
 
-    current_global_cfg->primary_max_power_w = cfg_global->primary_max_power_w;
+    current_global_cfg->power_supply_poe_limit_w = cfg_global->power_supply_poe_limit_w;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "Update globals configuration for controller");
 
@@ -5995,8 +5998,8 @@ mesa_rc meba_poe_pd69200bt_ctrl_globals_cfg_set(
                 &power_bank,
                 &power_limit_w));
 
-    if (power_limit_w != cfg_global->primary_max_power_w) {
-        power_limit_w = cfg_global->primary_max_power_w;
+    if (power_limit_w != cfg_global->power_supply_poe_limit_w) {
+        power_limit_w = cfg_global->power_supply_poe_limit_w;
 
         MESA_RC(meba_poe_pd69200_set_power_banks(
                 inst,
@@ -6810,10 +6813,10 @@ mesa_rc meba_poe_pd69200bt_chip_initialization(
                 &bank,
                 &power_limit_w));
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): Prod_PwrSupply_MaxPwr=%d ,power_limit_w=%d ,current_global_cfg->primary_max_power_w=%d",
-           __FUNCTION__, inst->adapter_name ,tPoE_parameters.poe_init_params.PwrSupply_MaxPwr ,power_limit_w,current_global_cfg->primary_max_power_w);
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): Prod_PwrSupply_MaxPwr=%d ,power_limit_w=%d ,current_global_cfg->power_supply_poe_limit_w=%d",
+           __FUNCTION__, inst->adapter_name ,tPoE_parameters.poe_init_params.PwrSupply_MaxPwr ,power_limit_w,current_global_cfg->power_supply_poe_limit_w);
 
-    current_global_cfg->primary_max_power_w = power_limit_w;
+    current_global_cfg->power_supply_poe_limit_w = power_limit_w;
 
     //--- individual_masks ---//
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing BT individual masks parameters", __FUNCTION__, inst->adapter_name);
@@ -7017,7 +7020,7 @@ void meba_pd69200bt_driver_init(
         private_data->cfg.ports[i].cable_length = 255;
     }
 
-    private_data->cfg.global.primary_max_power_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr; // Make sure initial value is different from configured value as configuration only is applied when values are different.
+    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr; // Make sure initial value is different from configured value as configuration only is applied when values are different.
     inst->api = &meba_pd69200bt_api;
     inst->private_data = private_data;
     inst->adapter_fd = adapter_fd;
