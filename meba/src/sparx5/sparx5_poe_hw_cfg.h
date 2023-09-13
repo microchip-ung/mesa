@@ -23,39 +23,43 @@
 // MEBA_POE_PD69200_CONTROLLER_TYPE ,
 // MEBA_POE_PD69210_CONTROLLER_TYPE ,
 // MEBA_POE_PD69220_CONTROLLER_TYPE ,
-#define SPARX5_POE_PD692x0_CONTROLLER_TYPE_DEFAULT           MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+#define SPARX5_POE_PD692x0_CONTROLLER_TYPE_DEFAULT     MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_AT - AF/AT mode
 // MEBA_POE_FIRMWARE_TYPE_BT - BT mode
-#define SPARX5_POE_FIRMWARE_TYPE_DEFAULT                      MEBA_POE_FIRMWARE_TYPE_BT
+#define SPARX5_POE_FIRMWARE_TYPE_DEFAULT     MEBA_POE_FIRMWARE_TYPE_BT
 
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define SPARX5_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT         1
+#define SPARX5_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     1
 
 
 // Power Suply maximum Power (W)
-#define SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT                   5000
+#define SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT     5000
 
 
 // Power Suply default-Capability Power (W)
-#define SPARX5_POE_UNIT_DEF_POWER_W_DEFAULT                   10
+#define SPARX5_POE_UNIT_DEF_POWER_W_DEFAULT     10
+
+
+// the max power that can be consumed by system itself (W)
+#define SPARX5_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     0
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
-#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS                  0x14
-#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS                  0x28
-        
-       
+#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS     0x14
+#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS     0x28
+
+
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
-#define SPARX5_RESET_POE_GPIO_NUMBER                          0xFF
-       
-        
+#define SPARX5_RESET_POE_GPIO_NUMBER     0xFF
+
+
 //--------------------------------------------------------------------------------------//
 //-------------------------------   BT parameters   ------------------------------------//
 //--------------------------------------------------------------------------------------//
@@ -88,7 +92,7 @@
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
-// '1' Open the upper range to 55 K? at 2-pair logical port only.
+// '1' Open the upper range to 55 KOhm at 2-pair logical port only.
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
@@ -141,7 +145,7 @@
 // Port LED Blinks at invalid signature or connection-check error
 // 0 = When port detects invalid signature or connection-check error, LED stays off.
 // 1 = When port detects invalid signature or connection-check error, LED blinks.
-#define SPARX5_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT 0
+#define SPARX5_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT     0
 
 
 // Support_adding lldp_half_priority
@@ -158,15 +162,15 @@
 //     a lowest priority port will be disconnected instead.
 // '1' If power is not available for powering up any port,
 //     any new connected port power up will be denied, regardless of its priority.
-#define SPARX5_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
+#define SPARX5_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
-// '0' Don?t support legacy detection.
+// '0' Don't support legacy detection.
 // '1' Support legacy detection.
-#define SPARX5_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT  0
+#define SPARX5_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
-// '0' Disables notification.
+// '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is ready.
 //     Refer to PD69200 datasheet or PD69200M shared memory documentation.
 #define SPARX5_INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT       0
@@ -207,7 +211,7 @@
 
 //PM-2 Port Power Limit
 //  0 - Table set by the user (PPL)
-//  1 - Class power Limit ? (*)
+//  1 - Class power Limit (*)
 //      Port Behavior Equal AF: Class 1 power = 5w or 4w
 //          Class 2 power = 8w or 7w
 //          Class 0,3,4 power = 16.4w or 15.4w Port Behavior Equal AT:
@@ -216,10 +220,10 @@
 //          Class 0 to 4 power = 48.7w
 // Note: 1. In 4-pair delivering port, the above power values are doubled.
 //       2. The power values are pre-defined as part of the release and may change between releases.
-//  2 - ICUT Max (According to port behavior) ? (*)
+//  2 - ICUT Max (According to port behavior) (*)
 //      AF - 375mA
-//      AT ? 644mA
-//      POH ? 995mA
+//      AT - 644mA
+//      POH - 995mA
 // Note: (*). In 4-pair delivering port, the above power values are doubled.
 //  3 - PPL_Class_Max (The maximum value between PPL and Class).
 //  0x80 - User defined per port (See 4.3.12, PortPM2 nibble field).
@@ -232,7 +236,7 @@
 //  2 - Condition on Classes 0 to 3
 //  3 - Condition on Classes 1 to 4
 //  4 - Condition on Classes 0 to 4
-//  0x80 ? User defined per port (See 4.3.12, PortPM3 nibble field)
+//  0x80 - User defined per port (See 4.3.12, PortPM3 nibble field)
 //Note: 1. Class power for startup condition is according to the class power
 //         parameters in the release_DB regardless of other masks settings.
 //      2. Other values for this field will be ignored, maintaining the last configuration.

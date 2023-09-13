@@ -24,36 +24,40 @@
 // MEBA_POE_PD69200_CONTROLLER_TYPE ,
 // MEBA_POE_PD69210_CONTROLLER_TYPE ,
 // MEBA_POE_PD69220_CONTROLLER_TYPE ,
-#define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT            MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+#define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT     MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
 // MEBA_POE_FIRMWARE_TYPE_AT
 // MEBA_POE_FIRMWARE_TYPE_BT
-#define JR2_POE_FIRMWARE_TYPE_DEFAULT                      MEBA_POE_FIRMWARE_TYPE_AT
+#define JR2_POE_FIRMWARE_TYPE_DEFAULT     MEBA_POE_FIRMWARE_TYPE_AT
 
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define JR2_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT         1
+#define JR2_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     1
 
 
 // Power Suply maximum Power (W)
-#define JR2_POE_UNIT_MAX_POWER_W_DEFAULT                   100
+#define JR2_POE_UNIT_MAX_POWER_W_DEFAULT     100
 
 
 // Power Suply default-Capability Power (W)
-#define JR2_POE_UNIT_DEF_POWER_W_DEFAULT                   100
+#define JR2_POE_UNIT_DEF_POWER_W_DEFAULT     100
+
+
+// the max power that can be consumed by system itself (W)
+#define JR2_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     0
 
 
 // set the PoE MCU controllers I2C address (0x1 - 0xFE)
-#define JR2_POE_CONTROLLER_1_I2C_ADDRESS                   0x14
-#define JR2_POE_CONTROLLER_2_I2C_ADDRESS                   0x28
+#define JR2_POE_CONTROLLER_1_I2C_ADDRESS     0x14
+#define JR2_POE_CONTROLLER_2_I2C_ADDRESS     0x28
 
 
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
-#define JR2_RESET_POE_GPIO_NUMBER                          0xFF
+#define JR2_RESET_POE_GPIO_NUMBER     0xFF
 
 
 //--------------------------------------------------------------------------------------//
@@ -89,7 +93,7 @@
 
 
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
-// '1' Open the upper range to 55 K? at 2-pair logical port only.
+// '1' Open the upper range to 55 KOhm at 2-pair logical port only.
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
@@ -115,7 +119,7 @@
 // 7 Direct led function from PD69208 LED ports (for 1 port Midspan products).
 //   1 package for 2P and 4P LED operation.
 //   Another package for SYS OK pin.
-#define JR2_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT            0
+#define JR2_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT     2
 
 
 // HOCPP - High Over Current Pulse Protection
@@ -124,31 +128,31 @@
 // 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
 // 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
-#define JR2_INDV_MASK_BT_HOCPP_DEFAULT                      2
+#define JR2_INDV_MASK_BT_HOCPP_DEFAULT     2
 
 
 //PSE powering PSE checking
 // 0 = PSE powering PSE condition does not deny powering new valid ports.
 // 1 = In case PSE powering PSE condition occurs, no additional ports are poweredup, until this problem is resolved.
-#define JR2_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT          1
+#define JR2_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT     1
 
 
 // Layer2 Power Allocation Limit
 // 0 = Power allocation limit up to requested class (non-BT compliant).
 // 1 = Power allocation limit up to minimum between the requested class and the operation mode (BT compliant).
-#define JR2_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT      1
+#define JR2_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT     1
 
 
 // Port LED Blinks at invalid signature or connection-check error
 // 0 = When port detects invalid signature or connection-check error, LED stays off.
 // 1 = When port detects invalid signature or connection-check error, LED blinks.
-#define JR2_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT 1
+#define JR2_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT     0
 
 
 // Support_adding lldp_half_priority
 // 0 = Port at LLDP does not have additional half priority.
 // 1 = Port at LLDP has additional half priority compared to non LLDP port at the same priority settings.
-#define JR2_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT   1
+#define JR2_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT     1
 
 
 //--------------------------------------------------------------------------------------//
@@ -160,15 +164,15 @@
 //     a lowest priority port will be disconnected instead.
 // '1' If power is not available for powering up any port,
 //     any new connected port power up will be denied, regardless of its priority.
-#define JR2_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
+#define JR2_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
-// '0' Don?t support legacy detection.
+// '0' Don't support legacy detection.
 // '1' Support legacy detection.
-#define JR2_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT  0
+#define JR2_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
-// '0' Disables notification.
+// '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is ready.
 //     Refer to PD69200 datasheet or PD69200M shared memory documentation.
 #define JR2_INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT       0
@@ -209,7 +213,7 @@
 
 //PM-2 Port Power Limit
 //  0 - Table set by the user (PPL)
-//  1 - Class power Limit ? (*)
+//  1 - Class power Limit (*)
 //      Port Behavior Equal AF: Class 1 power = 5w or 4w
 //          Class 2 power = 8w or 7w
 //          Class 0,3,4 power = 16.4w or 15.4w Port Behavior Equal AT:
@@ -218,10 +222,10 @@
 //          Class 0 to 4 power = 48.7w
 // Note: 1. In 4-pair delivering port, the above power values are doubled.
 //       2. The power values are pre-defined as part of the release and may change between releases.
-//  2 - ICUT Max (According to port behavior) ? (*)
+//  2 - ICUT Max (According to port behavior) (*)
 //      AF - 375mA
-//      AT ? 644mA
-//      POH ? 995mA
+//      AT - 644mA
+//      POH - 995mA
 // Note: (*). In 4-pair delivering port, the above power values are doubled.
 //  3 - PPL_Class_Max (The maximum value between PPL and Class).
 //  0x80 - User defined per port (See 4.3.12, PortPM2 nibble field).
@@ -234,7 +238,7 @@
 //  2 - Condition on Classes 0 to 3
 //  3 - Condition on Classes 1 to 4
 //  4 - Condition on Classes 0 to 4
-//  0x80 ? User defined per port (See 4.3.12, PortPM3 nibble field)
+//  0x80 - User defined per port (See 4.3.12, PortPM3 nibble field)
 //Note: 1. Class power for startup condition is according to the class power
 //         parameters in the release_DB regardless of other masks settings.
 //      2. Other values for this field will be ignored, maintaining the last configuration.
