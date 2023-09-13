@@ -431,8 +431,8 @@ typedef struct
 
 // PoE global configuration
 typedef struct {
-    // PoE primary power in watt
-    uint32_t        primary_max_power_w;
+    // power supply limit applied only for PoE in watt
+    uint32_t                    power_supply_poe_limit_w;
 
     // If true, legacy detect is supported
     mesa_poe_legacy_detect_t    legacy_detect;
@@ -679,7 +679,7 @@ typedef struct {
 
     // If the system (switch) is powered by the same PSU as is used for PoE,
     // then we need to reserve the power consumed by the system.
-    uint32_t        system_consumed_w;
+    uint32_t        system_pwr_usage_w;
 
     // Signal if the end user is allowed to configure the PSU capacity. If set
     // to false, then the 'def - system_consumed' will be used, and the user can
