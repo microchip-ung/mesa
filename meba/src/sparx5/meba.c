@@ -270,7 +270,9 @@ static void update_entry(meba_inst_t inst, meba_port_entry_t *entry, mesa_port_i
         entry->map.miim_addr       = chip_port == 64 ? 28 : (chip_port - 56); // NPI or GPY-241 x 4
         entry->map.max_bw          = bw;
         entry->mac_if              = if_type;
-        entry->cap                 = chip_port == 64 ? MEBA_PORT_CAP_TRI_SPEED_COPPER : (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_10M_FDX);
+        // PCB135 rev 5 has 4 x 2.5G CU Phys that do not support forced mode
+        entry->cap                 = chip_port == 64 ? MEBA_PORT_CAP_TRI_SPEED_COPPER : (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_10M_FDX | MEBA_PORT_CAP_NO_FORCE);
+
     }
     entry->cap &= ~MEBA_PORT_CAP_SD_INTERNAL; // Signal detect (LOS) comes from SFP module (and not from Serdes)
     entry->cap &= ~MEBA_PORT_CAP_SD_HIGH;     // The polarity is inversed
