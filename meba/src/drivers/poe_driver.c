@@ -554,7 +554,7 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t* const inst,
 
         private_data->status.global.i2c_tx_error_counter++;
 
-        DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
               inst->adapter_name, data_description, size, cnt, private_data->status.global.i2c_tx_error_counter,
               print_as_hex_string(data, size, buf, sizeof(buf)));
 
@@ -2044,23 +2044,23 @@ mesa_rc check_for_poe_firmware_errors(const meba_poe_ctrl_inst_t* const inst,
  *              MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED - poe firmware update needed
  *---------------------------------------------------------------------*/
 mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t* const inst,
-                   uint8_t* rx_data,
-                   uint8_t byTxEcho,
-                   mesa_bool_t *pePOE_BOOL_Is_system_status,
-                   Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
+                                         uint8_t* rx_data,
+                                         uint8_t byTxEcho,
+                                         mesa_bool_t *pePOE_BOOL_Is_system_status,
+                                         Telemetry_at_Boot_Up_Error_e *peTelemetry_at_Boot_Up_Error)
 {
-	uint8_t      bRxMsg[PD_BUFFER_SIZE];
+    uint8_t      bRxMsg[PD_BUFFER_SIZE];
 
     iFF_byte_count = 0;   // no i2c response
     i00_byte_count = 0;   // poe data buffer empty
 
-	memset(rx_data, 0, sizeof(PD_BUFFER_SIZE));
+    memset(rx_data, 0, sizeof(PD_BUFFER_SIZE));
 
     VTSS_MSLEEP(50); // Wait 50ms
 
-	while ((iFF_byte_count < 30) && (i00_byte_count < 30)) /* 30 bytes with value 0 means that I2C driver has no data to send */
-	{
-		/* Read the 1 first byte from PoE Device */
+    while ((iFF_byte_count < 30) && (i00_byte_count < 30)) /* 30 bytes with value 0 means that I2C driver has no data to send */
+    {
+        /* Read the 1 first byte from PoE Device */
         MESA_RC(pd69200_rd(inst, bRxMsg, 1));
 
         check_reading_byte(bRxMsg[0]);
@@ -2076,9 +2076,9 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t* const inst,
 
 	    /* second msg byte - echo */
 	    if ((bRxMsg[0] == byTxEcho) ||     									     	  /* original messsage */
-	       ((rx_data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))  /* system status on startup */
+                ((rx_data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))  /* system status on startup */
 	    {
-		    rx_data[1] = bRxMsg[0];     /* store echo */
+                rx_data[1] = bRxMsg[0];     /* store echo */
 
                 /* Read the last 13 bytes from PoE Device */
                 char size = PD_BUFFER_SIZE - 2;
@@ -2089,27 +2089,27 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t* const inst,
 
                 memcpy(rx_data + 2 , bRxMsg , PD_BUFFER_SIZE - 2);
 
-		    // checksum check
-		    if (!pd69200_check_sum_ok(rx_data)) {
+                // checksum check
+                if (!pd69200_check_sum_ok(rx_data)) {
                     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "RX checksum is not valid");
-		        continue; //see if we have other valid data bytes in the buffer
-		    }
-
-                if (rx_data[1] == 0xFF) // it's a system status telemetry with echo 255 - system status on startup or firmware damage...
-		    {
-		        if (pePOE_BOOL_Is_system_status)
-                            *pePOE_BOOL_Is_system_status = true;
-
-                        return check_for_poe_firmware_errors(inst, rx_data, peTelemetry_at_Boot_Up_Error);
+                    continue; //see if we have other valid data bytes in the buffer
                 }
 
-			if (rx_data[1] == byTxEcho) // ECHO ok
-			{
-					return MESA_RC_OK;
-			}
-			}
-		}
-	}
+                if (rx_data[1] == 0xFF) // it's a system status telemetry with echo 255 - system status on startup or firmware damage...
+                {
+                    if (pePOE_BOOL_Is_system_status)
+                        *pePOE_BOOL_Is_system_status = true;
+
+                    return check_for_poe_firmware_errors(inst, rx_data, peTelemetry_at_Boot_Up_Error);
+                }
+
+                if (rx_data[1] == byTxEcho) // ECHO ok
+                {
+                    return MESA_RC_OK;
+                }
+            }
+        }
+    }
 
     if(i00_byte_count >= 15) {
         // Empty I2C buffer in controller, just continue
@@ -2120,7 +2120,7 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t* const inst,
         return MESA_RC_ERROR;
     }
 
-	return MESA_RC_ERROR;
+    return MESA_RC_ERROR;
 }
 
 
@@ -4937,10 +4937,10 @@ mesa_rc meba_poe_pd69200_ctrl_port_capabilities_get(
     meba_poe_port_handle_t          handle,
     meba_poe_port_cap_t             *capabilities)
 {
-//    if (meba_poe_pd69200_get_chipset(inst) != MEBA_POE_CHIPSET_FOUND) {
-//        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Device not ready for reading", __FUNCTION__);
-//        return MESA_RC_ERROR;
-//    }
+    if (meba_poe_pd69200_get_chipset(inst) == MEBA_POE_NO_CHIPSET_FOUND) {
+        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Device not ready for reading", __FUNCTION__);
+        return MESA_RC_ERROR;
+    }
 
     if (handle >= inst->port_map_length) {
         DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s Invalid handle: %d", __FUNCTION__, handle);
