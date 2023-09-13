@@ -44,12 +44,12 @@ meba_poe_parameters_t tPoE_parameters =
 meba_poe_psu_input_prob_t sparx5_power_supplies[] =
 {
     {
-        .id = MEBA_POE_CTRL_PSU_ALL,               // PowerSupply-ID
-        .min_w = 0,                                // PwrSuply Min-Pwr
+        .id = MEBA_POE_CTRL_PSU_ALL,                  // PowerSupply-ID
+        .min_w = 0,                                   // PwrSuply Min-Pwr
         .max_w = SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT, // PwrSuply Max-Pwr
         .def_w = SPARX5_POE_UNIT_DEF_POWER_W_DEFAULT, // PwrSuply Def-Capab
-        .system_consumed_w = 0,                    // System PwrUsage
-        .user_configurable = SPARX5_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT // User Conig 1=Yes,0=No
+        .system_pwr_usage_w = SPARX5_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT,   // System PwrUsage
+        .user_configurable  = SPARX5_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT // User Conig 1=Yes,0=No
     }
 };
 

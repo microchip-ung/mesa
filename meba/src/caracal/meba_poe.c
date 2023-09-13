@@ -48,8 +48,8 @@ meba_poe_psu_input_prob_t caracal_power_supplies[] =
         .min_w = 0,                                     // PwrSuply Min-Pwr
         .max_w = CARACAL_POE_UNIT_MAX_POWER_W_DEFAULT,  // PwrSuply Max-Pwr
         .def_w = CARACAL_POE_UNIT_DEF_POWER_W_DEFAULT,  // PwrSuply Def-Capab
-        .system_consumed_w = 0,                         // System PwrUsage
-        .user_configurable = CARACAL_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT  // User Conig 1=Yes,0=No
+        .system_pwr_usage_w = CARACAL_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT,    // System PwrUsage
+        .user_configurable  = CARACAL_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT  // User Conig 1=Yes,0=No
     }
 };
 
@@ -60,8 +60,8 @@ meba_poe_psu_input_prob_t pds408g_power_supplies[] =
         .min_w = 0,                                     // PwrSuply Min-Pwr
         .max_w = PDS408G_POE_UNIT_MAX_POWER_W_DEFAULT,  // PwrSuply Max-Pwr
         .def_w = PDS408G_POE_UNIT_DEF_POWER_W_DEFAULT,  // PwrSuply Def-Capab
-        .system_consumed_w = 0,                         // System PwrUsage
-        .user_configurable = PDS408G_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT  // User Conig 1=Yes,0=No
+        .system_pwr_usage_w = PDS408G_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT,    // System PwrUsage
+        .user_configurable  = PDS408G_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT  // User Conig 1=Yes,0=No
     }
 };
 

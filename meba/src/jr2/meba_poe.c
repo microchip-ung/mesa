@@ -46,10 +46,10 @@ meba_poe_psu_input_prob_t jr2_power_supplies[] =
     {
         .id = MEBA_POE_CTRL_PSU_ALL,                // PowerSupply-ID
         .min_w = 0,                                 // PwrSuply Min-Pwr
-        .max_w = JR2_POE_UNIT_MAX_POWER_W_DEFAULT,      // PwrSuply Max-Pwr
-        .def_w = JR2_POE_UNIT_DEF_POWER_W_DEFAULT,      // PwrSuply Def-Capab
-        .system_consumed_w = 0,                     // System PwrUsage
-        .user_configurable = JR2_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     // User Conig 1=Yes,0=No
+        .max_w = JR2_POE_UNIT_MAX_POWER_W_DEFAULT,  // PwrSuply Max-Pwr
+        .def_w = JR2_POE_UNIT_DEF_POWER_W_DEFAULT,  // PwrSuply Def-Capab
+        .system_pwr_usage_w = JR2_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT,    // System PwrUsage
+        .user_configurable  = JR2_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT  // User Conig 1=Yes,0=No
     }
 };
 

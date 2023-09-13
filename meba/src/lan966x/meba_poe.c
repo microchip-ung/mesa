@@ -48,8 +48,8 @@ meba_poe_psu_input_prob_t lan9668_power_supplies[] =
         .min_w = 0,                                     // PwrSuply Min-Pwr
         .max_w = LAN9668_POE_UNIT_MAX_POWER_W_DEFAULT,  // PwrSuply Max-Pwr
         .def_w = LAN9668_POE_UNIT_DEF_POWER_W_DEFAULT,  // PwrSuply Def-Capab
-        .system_consumed_w = 10,                        // System PwrUsage
-        .user_configurable = LAN9668_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     // User Conig 1=Yes,0=No
+        .system_pwr_usage_w = LAN9668_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT,   // System PwrUsage
+        .user_configurable  = LAN9668_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT // User Conig 1=Yes,0=No
     }
 };
 
