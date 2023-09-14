@@ -788,6 +788,7 @@ typedef struct {
     BOOL use_ber_cnt;       /**< Use BER count instead of eye height */
     BOOL test_mode;         /**< Debug only */
     u32  test_repeat;       /**< Debug only */
+    BOOL pcs_flap;          /**< mesa-837 */
 } vtss_port_kr_train_t;
 
 /** \brief  KR configuration structures */

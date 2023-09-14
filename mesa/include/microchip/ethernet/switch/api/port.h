@@ -655,6 +655,7 @@ typedef struct {
     mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ);  // Use BER count instead of eye height
     mesa_bool_t test_mode   CAP(PORT_KR_IRQ);  // Debug only
     uint32_t test_repeat    CAP(PORT_KR_IRQ);  // Debug only
+    mesa_bool_t pcs_flap    CAP(PORT_KR_IRQ);  // mesa-837
 } mesa_port_kr_train_t      CAP(PORT_KR);
 
 // KR configuration structures
