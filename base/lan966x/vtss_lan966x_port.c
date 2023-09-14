@@ -1294,20 +1294,49 @@ static vtss_rc lan966x_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no
     return VTSS_RC_OK;
 }
 
+static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    port_type_t pt;
+    u32 id;
+    vtss_serdes_mode_t m = 0;
+
+    if (lan966x_port_type_calc(vtss_state, port_no, &pt, &id, &m) != VTSS_RC_OK) {
+        return VTSS_RC_ERROR;
+    }
+
+    REG_WRM(HSIO_SD_CFG(id),
+            HSIO_SD_CFG_RX_RESET(1),
+            HSIO_SD_CFG_RX_RESET_M);
+    VTSS_MSLEEP(3); // reset time
+    REG_WRM(HSIO_SD_CFG(id),
+            HSIO_SD_CFG_RX_RESET(0),
+            HSIO_SD_CFG_RX_RESET_M);
+    VTSS_MSLEEP(3); // wait to clear the stickies
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_port_status_get(vtss_state_t *vtss_state,
                                        const vtss_port_no_t  port_no,
                                        vtss_port_status_t    *const status)
 {
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
-    u32              val, port = VTSS_CHIP_PORT(port_no);
+    u32              val, sticky, port = VTSS_CHIP_PORT(port_no);
 
     if (conf->if_type == VTSS_PORT_INTERFACE_VAUI) {
         REG_RD(DEV_PCS1G_LINK_STATUS(port), &val);
         status->link = DEV_PCS1G_LINK_STATUS_LINK_STATUS_X(val);
-        REG_RD(DEV_PCS1G_STICKY(port), &val);
-        status->link_down = DEV_PCS1G_STICKY_LINK_DOWN_STICKY_X(val);
-        if (status->link_down) {
-            REG_WR(DEV_PCS1G_STICKY(port), DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M);
+        REG_RD(DEV_PCS1G_STICKY(port), &sticky);
+        status->link_down = DEV_PCS1G_STICKY_LINK_DOWN_STICKY_X(sticky);
+        if (status->link_down || DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_X(sticky)) {
+            if (DEV_PCS1G_LINK_STATUS_SIGNAL_DETECT_X(val) &&
+                DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_X(sticky)) {
+                if (lan966x_sd_rx_rst(vtss_state,  port_no) != VTSS_RC_OK) {
+                    VTSS_E("Could reset serdesfor port %d\n", port_no);
+                }
+            }
+
+            REG_WR(DEV_PCS1G_STICKY(port), DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M |
+                   DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_M);
         }
         status->speed = VTSS_SPEED_2500M;
         status->fdx = 1;
