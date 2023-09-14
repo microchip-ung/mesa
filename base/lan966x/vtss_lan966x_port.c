@@ -1296,6 +1296,7 @@ static vtss_rc lan966x_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no
 
 static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+#if !defined(VTSS_OPT_FPGA)
     port_type_t pt;
     u32 id;
     vtss_serdes_mode_t m = 0;
@@ -1312,6 +1313,7 @@ static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t 
             HSIO_SD_CFG_RX_RESET(0),
             HSIO_SD_CFG_RX_RESET_M);
     VTSS_MSLEEP(3); // wait to clear the stickies
+#endif
     return VTSS_RC_OK;
 }
 
