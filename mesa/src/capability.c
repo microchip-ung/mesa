@@ -1817,7 +1817,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     // TOD
     case MESA_CAP_TOD_SAMPLES_PR_SEC:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2)
         c = 2;
 #else
         c = 1;
