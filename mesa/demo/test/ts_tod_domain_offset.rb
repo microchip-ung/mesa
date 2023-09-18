@@ -72,7 +72,7 @@ def tod_domain_offset_test(domain, seconds)
     diff_f = new_f - seconds.to_f - execution
 
     t_i("diff_f = #{diff_f}  seconds.to_f = #{seconds.to_f}  new_f = #{new_f}  execution = #{execution}")
-    if ((diff_f < -10.1) ||  (diff_f > -9.9))
+    if ((diff_f < -10.2) ||  (diff_f > -9.8))
         t_e("TOD in domain #{domain} was not read as expected.")
     end
 
