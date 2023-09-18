@@ -133,10 +133,12 @@ def tod_domain_test(domain, seconds)
 
     # Get previous PPS TOD. Only default domain call possible - there is no domain interface for this !!!
     if (domain_def)
+        $tod_ts[0]["seconds"] = seconds
+        $tod_ts[0]["nanoseconds"] = 100
         $ts.dut.call("mesa_ts_timeofday_set", $tod_ts[0])
         prev_ts = $ts.dut.call("mesa_ts_timeofday_prev_pps_get")
-        if (prev_ts["seconds"] != seconds)
-            t_e("Previous TOD in domain #{domain} was not configured as expected.  seconds = #{seconds}  prev_ts[seconds] = #{prev_ts["seconds"]}")
+        if (prev_ts["seconds"] != seconds) || (prev_ts["nanoseconds"] != 0)
+            t_e("Previous TOD in domain #{domain} was not configured as expected.  seconds = #{seconds}  seconds = #{prev_ts["seconds"]}  nanoseconds = #{prev_ts["nanoseconds"]}")
         end
     end
 
