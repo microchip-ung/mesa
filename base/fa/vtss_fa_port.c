@@ -1082,7 +1082,7 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
                 VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
     } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
         // 10G PRBS values are defined in clause 72 (10G)
-        int seed = rand() % 1024; // 1024 = 2^10;
+        int seed = VTSS_OS_RAND() % 1024; // 1024 = 2^10;
         REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
                 VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(4) |
                 VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(seed),
