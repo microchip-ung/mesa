@@ -1069,6 +1069,23 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
+    if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
+        // 25G PRBS values are defined in clause 92 (25G/100G)
+        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(0) |
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(0x57e),
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
+    } else if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G) {
+        // 10G PRBS values are defined in clause 72 (10G)
+        int seed = rand() % 1024; // 1024 = 2^10;
+        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(4) |
+                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(seed),
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
+                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
+    }
+
     REG_WRM(VTSS_IP_KRANEG_AN_CFG1(tgt),
             VTSS_F_IP_KRANEG_AN_CFG1_RATE(spd),
             VTSS_M_IP_KRANEG_AN_CFG1_RATE);
@@ -1695,23 +1712,6 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
             // Link fail inihibit timer (in AN_GOOD_CHECK)
            REG_WR(VTSS_IP_KRANEG_LF_TMR(tgt), 4101049 * 3); // 3 * 50ms
         }
-    }
-
-    if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-         // PRBS values are defined in clause 92 (25G/100G)
-        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
-                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(0) |
-                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(0x57e),
-                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
-                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
-    } else {
-        // PRBS values are defined in clause 72 (10G)
-        int seed = rand() % 1024; // 1024 = 2^10;
-        REG_WRM(VTSS_IP_KRANEG_TR_CFG0(tgt),
-                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEL(4) |
-                VTSS_F_IP_KRANEG_TR_CFG0_PRBS_SEED(seed),
-                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEL |
-                VTSS_M_IP_KRANEG_TR_CFG0_PRBS_SEED);
     }
 
     // Store the cuurnet TxEq values
