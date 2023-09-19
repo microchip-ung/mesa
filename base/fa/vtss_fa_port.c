@@ -3798,7 +3798,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t  port_no,
                                   vtss_port_status_t    *const status)
 {
-    u32              value, val2;
+    u32              value, val2, rx_link;
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
@@ -3890,6 +3890,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
         }
         /* MAC10G Tx Monitor Sticky bit Register */
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
+        rx_link = value & ~VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY;
         if (value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) {
             /* The link is or has been down. Clear the sticky bit */
             status->link_down = 1;
@@ -3920,7 +3921,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
 #endif
         /* Perform CTLE training at link-up for 10G/25G when KR-Aneg is not enabled */
         if (!kr_aneg_ena && (conf->speed == VTSS_SPEED_10G || conf->speed == VTSS_SPEED_25G)) {
-            if (status->link_down) {
+            if (rx_link != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) {
                 vtss_state->port.ctle_done[port_no] = FALSE;
             }
             if (status->link && !vtss_state->port.ctle_done[port_no]) {
