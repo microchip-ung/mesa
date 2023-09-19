@@ -119,6 +119,7 @@ static void get_clk_from_action(mepa_device_t *dev, const vtss_phy_ts_ptp_engine
         clk_conf->ptp_class_conf.domain.match.value.mask = action->ptp_conf.domain.value.mask;
     }
     clk_conf->ptp_class_conf.sdoid = sdoid; // unused
+    clk_conf->cf_update = action->cf_update;
 }
 
 static mesa_rc mepa_to_vtss_encap(mepa_ts_pkt_encap_t encap, vtss_phy_ts_encap_t *vsc_encap)
@@ -969,6 +970,9 @@ static mepa_rc vtss_ts_rx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         action->channel_map |= get_vs_channel_mask(dev);
         action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
         action->delaym_type = get_mesa_delay_type(ptpclock_conf->delaym_type);
+        if(!ptpclock_conf->cf_update) {
+            T_I(data, MEPA_TRACE_GRP_TS, "Cannot update correction feild for Ingress %d",ptpclock_conf->cf_update);
+        }
         action->cf_update = false;
         action->delay_req_recieve_timestamp = data->ts.dly_req_recv_10byte_ts;
     }
@@ -1034,7 +1038,11 @@ static mepa_rc vtss_ts_tx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         action->channel_map |= get_vs_channel_mask(dev);
         action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
         action->delaym_type = get_mesa_delay_type(ptpclock_conf->delaym_type);
-        action->cf_update = false;
+        if (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP) {
+            action->cf_update = ptpclock_conf->cf_update;
+        } else {
+            action->cf_update = false;
+        }
         action->delay_req_recieve_timestamp = false;
     }
     if (action->enable && ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
