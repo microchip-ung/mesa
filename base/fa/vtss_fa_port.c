@@ -3805,11 +3805,11 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                                   const vtss_port_no_t  port_no,
                                   vtss_port_status_t    *const status)
 {
-    u32              value, val2;
+    u32              value, val2, rx_link;
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = vtss_fa_dev_tgt(vtss_state, port_no);
 #if !defined(VTSS_ARCH_LAN969X_FPGA)
-    u32              sd_indx = 0, sd_type, sd_tgt, rx_link;
+    u32              sd_indx = 0, sd_type, sd_tgt;
     BOOL             analog_sd = TRUE, kr_aneg_ena = FALSE;
 #endif
 
