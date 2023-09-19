@@ -57,7 +57,7 @@ def nano_corr_lowest_measure(ip="")
         data = pkts[0][:data].each_byte.map{|c| c.to_i}
 
         # Calculate the lowest correction value based on frame timestamp
-        nano_correction = ((data[off+8]<<40) + (data[off+9]<<32) + (data[off+10]<<24) + (data[off+11]<<16) + (data[off+12]<<8) + (data[14+13]))
+        nano_correction = ((data[off+8]<<40) + (data[off+9]<<32) + (data[off+10]<<24) + (data[off+11]<<16) + (data[off+12]<<8) + (data[off+13]))
         if (nano_correction < $nano_corr_loewst)
             $nano_corr_loewst = nano_correction
         end

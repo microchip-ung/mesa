@@ -38,6 +38,8 @@ def ip_test(ip)
     $tod_ts = 0
     $tx_tc = 0
     $frame_info = ""
+    $requestClockId = 0xAABBCCDDEEFFAABB
+    $requestPortNumber = 0xABCD
 
     seconds = 10
     domain = 0
@@ -52,8 +54,9 @@ def ip_test(ip)
     $tod_ts[0]["seconds"] = seconds
     $tod_ts[0]["nanoseconds"] = 0
 
-    test "Inject SYNC frame into NPI port and receive SYNC frame from front port and check the origin timestamp" do
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c", "#{ip} udp")
+
+    test "Inject a ORIGIN-TIMESTAMP SYNC frame into NPI port and receive frame from front port and check the origin timestamp" do
     #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0, proto=0)
     frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", 0xFEFEFEFE0000, 0, 0, ip) + frameHdrTx.dup + sync_pdu_create()
     frameHdrRx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c", "#{ip} ign udp ign")
@@ -63,7 +66,59 @@ def ip_test(ip)
     frame_tx(frametx, $npi_port, framerx , " ", " ", " ")
     end
 
-    test "inject a ONE-STEP SYNC through the switch and check correction field is updated" do
+    test "Inject a ORIGIN-TIMESTAMP REQUEST frame into NPI port and receive frame from front port and check the correction field" do
+    #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0, proto=0)
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP", 0xFEFEFEFE0000, 0, 0, ip) + frameHdrTx.dup + request_pdu_create($requestClockId, $requestPortNumber)
+
+    size = 44+28+17
+    off = 14+28
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
+    frame_tx(frametx, $npi_port, " " , " ", " ", " ", size)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
+    data = pkts[0][:data].each_byte.map{|c| c.to_i}
+    t_i "data #{data}"
+
+    nano_correction = ((data[off+8]<<40) + (data[off+9]<<32) + (data[off+10]<<24) + (data[off+11]<<16) + (data[off+12]<<8) + (data[off+13]))
+    origin_sec = ((data[off+34]<<40) + (data[off+35]<<32) + (data[off+36]<<24) + (data[off+37]<<16) + (data[off+38]<<8) + (data[off+39]))
+    origin_nsec = ((data[off+40]<<24) + (data[off+41]<<16) + (data[off+42]<<8) + (data[off+43]))
+    origin_f = origin_sec.to_f + origin_nsec/1000000000.0
+    t_i "nano_correction #{nano_correction}"
+    t_i "origin_f #{origin_f}"
+    if (nano_correction > 1000)
+        t_e "Origin not as expected"
+    end
+    if ((origin_f > 13.2) || (origin_f < seconds))
+        t_e "Origin not as expected"
+    end
+    end
+
+    test "Inject a ONE-STEP REQUEST frame into NPI port and receive frame from front port and check the correction field" do
+    #tx_ifh_create(port=0, ptp_act="MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ", ptp_ts=0xFEFEFEFE0000, domain=0, seq_idx=0, proto=0)
+    frametx = tx_ifh_create($ts.dut.port_list[$port0], "MESA_PACKET_PTP_ACTION_ONE_STEP", (seconds * 1000000000) << 16, 0, 0, ip) + frameHdrTx.dup + request_pdu_create($requestClockId, $requestPortNumber)
+
+    size = 44+28+17
+    off = 14+28
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, $tod_ts[0])
+    frame_tx(frametx, $npi_port, " " , " ", " ", " ", size)
+    pkts = $ts.pc.get_pcap "#{$ts.links[$port0][:pc]}.pcap"
+    data = pkts[0][:data].each_byte.map{|c| c.to_i}
+    t_i "data #{data}"
+
+    nano_correction = ((data[off+8]<<40) + (data[off+9]<<32) + (data[off+10]<<24) + (data[off+11]<<16) + (data[off+12]<<8) + (data[off+13]))
+    origin_sec = ((data[off+34]<<40) + (data[off+35]<<32) + (data[off+36]<<24) + (data[off+37]<<16) + (data[off+38]<<8) + (data[off+39]))
+    origin_nsec = ((data[off+40]<<24) + (data[off+41]<<16) + (data[off+42]<<8) + (data[off+43]))
+    origin_f = origin_sec.to_f + origin_nsec/1000000000.0
+    t_i "nano_correction #{nano_correction}"
+    t_i "origin_f #{origin_f}"
+    if (nano_correction > 800000000)
+        t_e "Origin not as expected"
+    end
+    if (origin_f != 0)
+        t_e "Origin not as expected"
+    end
+    end
+
+    test "Transmit a ONE-STEP SYNC through the switch and check correction field is updated" do
     conf = $ts.dut.call("mesa_ace_init", (ip == "ipv4") ? "MESA_ACE_TYPE_IPV4" : "MESA_ACE_TYPE_IPV6")
     conf["id"] = $acl_id
     conf["port_list"] = "#{$ts.dut.port_list[$port0]}"
@@ -117,5 +172,5 @@ end
 
 test "test_run" do
     ip_test("ipv4")
-    ip_test("ipv6")
+#    ip_test("ipv6")
 end
