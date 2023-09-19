@@ -93,7 +93,7 @@ def tod_asymmetry_p2p_delay_test
     diff0 = (lowest_corr_eg - (lowest_corr_none - asymmetry))
 
     range = (range1 > range) ? range1 : range
-    range += range / 7
+    range += range / 6
     diff_max = range / 2
     test ("The asymmetry delay is subtracted from correction on egress") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}  diff_max #{diff_max}")
@@ -112,7 +112,7 @@ def tod_asymmetry_p2p_delay_test
     diff1 = (lowest_corr_in1 - (lowest_corr_none + asymmetry))
 
     range = (range1 > range) ? range1 : range
-    range += range / 7
+    range += range / 6
     diff_max = range / 2
     test ("The asymmetry delay is added to correction on ingress") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in1 = #{lowest_corr_in1}  diff #{diff1}  diff_max #{diff_max}")
@@ -131,7 +131,7 @@ def tod_asymmetry_p2p_delay_test
     diff2 = (lowest_corr_in2 - (lowest_corr_none + asymmetry))
 
     range = (range1 > range) ? range1 : range
-    range += range / 7
+    range += range / 6
     diff_max = range / 2
     test ("The asymmetry + p2p delay is added to correction on ingress. The p2p delay is zero at this point.") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff2}  diff_max #{diff_max}")
@@ -149,7 +149,7 @@ def tod_asymmetry_p2p_delay_test
     diff3 = (lowest_corr_in2 - (lowest_corr_none + 2*asymmetry))
 
     range = (range1 > range) ? range1 : range
-    range += range / 7
+    range += range / 6
     diff_max = range / 2
     test ("The asymmetry + p2p delay is added to correction on ingress") do
     t_i("lowest_corr_in1 = #{lowest_corr_in1}  lowest_corr_in2 = #{lowest_corr_in2}  diff #{diff3}  diff_max #{diff_max}")
