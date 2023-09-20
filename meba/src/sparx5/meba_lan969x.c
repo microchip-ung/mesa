@@ -455,10 +455,10 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
                         continue;
                     }
                     conf.led_num = MEPA_LED0;
-                    conf.mode = MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY;
+                    conf.mode = MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY;
                     (void)meba_phy_gpio_mode_set(inst, p, &conf);
                     conf.led_num = MEPA_LED1;
-                    conf.mode = MEPA_GPIO_MODE_LED_LINK1000_ACTIVITY;
+                    conf.mode = MEPA_GPIO_MODE_LED_LINK10_100_ACTIVITY;
                     (void)meba_phy_gpio_mode_set(inst, p, &conf);
                 }
             } else if (board->type == BOARD_TYPE_SUNRISE) {
