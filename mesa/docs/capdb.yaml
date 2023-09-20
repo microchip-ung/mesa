@@ -44,6 +44,10 @@ libvsc*.so:
   :int: 10
   :val: 
   :chip: libvsc*.so
+- :str: MESA_CAP_MISC_FPGA
+  :int: 11
+  :val:
+  :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
   :val: 
@@ -123,6 +127,14 @@ libvsc*.so:
 - :str: MESA_CAP_PORT_PCS_CONF
   :int: 119
   :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_PORT_DYNAMIC
+  :int: 120
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_PORT_CONF_BULK
+  :int: 121
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
   :int: 200
@@ -335,6 +347,10 @@ libvsc*.so:
 - :str: MESA_CAP_L2_MAC_INDEX_TABLE
   :int: 427
   :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_L2_REDBOX_CNT
+  :int: 428
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L3
   :int: 500
@@ -692,6 +708,10 @@ libvsc*.so:
   :int: 684
   :val: 
   :chip: libvsc*.so
+- :str: MESA_CAP_QOS_OT
+  :int: 685
+  :val:
+  :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_CNT
   :int: 800
   :val: 
@@ -771,6 +791,10 @@ libvsc*.so:
 - :str: MESA_CAP_ACL_EXT_MAC
   :int: 819
   :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_ACL_MAC_IGR
+  :int: 820
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_EVC_CNT
   :int: 900
@@ -1271,4 +1295,12 @@ libvsc*.so:
 - :str: MESA_CAP_MRP_CNT
   :int: 2201
   :val: 
+  :chip: libvsc*.so
+- :str: MESA_CAP_MRP_V0
+  :int: 2202
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_MRP_V1
+  :int: 2203
+  :val:
   :chip: libvsc*.so
