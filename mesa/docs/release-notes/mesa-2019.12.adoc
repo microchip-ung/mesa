@@ -68,7 +68,7 @@ synchronize the time of all the switches in the network, to ensure that the
 gates are managed synchronously in the network.
 
 The TAS API can be found in the `tsn.h` header file, where the relevant
-functions are prefixed with `mesa_qos_tas_`.
+functions are prefixed with 'mesa_qos_tas_'.
 
 TAS was renamed to Enhancements for Scheduled Traffic (ST) before merged into
 the 802.1Q-2018 standard. It goes under both names. TAS/ST was originally
@@ -157,9 +157,9 @@ implementation is not part of MESA, it is kept in the Linux kernel (part of the
 BSP). In this release, these functions has been deleted from MESA, and instead
 added to the Linux kernel which also implements the DMA function.
 
-- `mesa_packet_dma_conf_get`
-- `mesa_packet_dma_conf_set`
-- `mesa_packet_dma_offset`
+- 'mesa_packet_dma_conf_get'
+- 'mesa_packet_dma_conf_set'
+- 'mesa_packet_dma_offset'
 
 Application which used to call these functions shall be updated to not call
 them. No further workaround is needed, as BSP takes care of the configuration.
@@ -169,14 +169,14 @@ them. No further workaround is needed, as BSP takes care of the configuration.
 A number of functions has been deleted, because the functionality they provide
 is better covered by other functions.
 
-`mesa_packet_rx_frame_get`, `mesa_packet_rx_frame_get_raw` and
-`mesa_packet_rx_frame_discard` has been deleted. Instead of these functions a
-new functions `mesa_packet_rx_frame` has been added, which provides the same
+'mesa_packet_rx_frame_get', 'mesa_packet_rx_frame_get_raw' and
+'mesa_packet_rx_frame_discard' has been deleted. Instead of these functions a
+new functions 'mesa_packet_rx_frame' has been added, which provides the same
 functionality.
 
-`mesa_packet_tx_frame_port`, `mesa_packet_tx_frame_port_vlan`, and
-`mesa_packet_tx_frame_vlan` functions has been deleted, and the signature of
-`mesa_packet_tx_frame` has been slightly changed.
+'mesa_packet_tx_frame_port', 'mesa_packet_tx_frame_port_vlan', and
+'mesa_packet_tx_frame_vlan' functions has been deleted, and the signature of
+'mesa_packet_tx_frame' has been slightly changed.
 
 The result is 2 clean function to do register based frame RX/TX (none-DMA frame
 IO):
@@ -206,9 +206,9 @@ any of the chips supported by the API.
 
 Following is the stacking related functions which has been deleted.
 
-- `mesa_packet_tx_frame_vstax`
-- `mesa_packet_vstax_frame2header`
-- `mesa_packet_vstax_header2frame`
+- 'mesa_packet_tx_frame_vstax'
+- 'mesa_packet_vstax_frame2header'
+- 'mesa_packet_vstax_header2frame'
 
 The associated types are also deleted.
 

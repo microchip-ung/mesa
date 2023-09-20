@@ -188,8 +188,8 @@ The API provides functions to read and clear counters for each port (`mesa_port_
 `mesa_port_mmd_masked_write()` +
 `mesa_mmd_read()` +
 `mesa_mmd_write()` +
-`mesa_port_10g_kr_conf_set()` +
-`mesa_port_10g_kr_conf_get()` +
-`mesa_port_10g_kr_status_get()` +
+`mesa_port_kr_conf_set()` +
+`mesa_port_kr_conf_get()` +
+`mesa_port_kr_status_get()` +
 `mesa_port_test_conf_get()` +
 `mesa_port_test_conf_set()` +
