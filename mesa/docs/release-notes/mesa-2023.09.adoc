@@ -1,0 +1,147 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2023.09
+
+== MESA-2023.09
+
+|===
+|Version:          |MESA-2023.09
+|Previous Version: |MESA-2023.06
+|Date:             |2023-09-29
+|Description:      |Roadmap release
+|===
+
+=== Adding support for LAN969x (BETA)
+
+This is the first release introducing the LAN969x family.
+
+The LAN969x family consist of the following SKUs:
+
+[cols="1,1,4"]
+|===
+|NAME         |Chip ID   |Description
+
+|LAN9694      |`0x9694`  |40G Ethernet switch
+|LAN9696      |`0x9696`  |60G Ethernet switch
+|LAN9698      |`0x9698`  |100G Ethernet switch
+
+|LAN9694TSN   |`0x9695`  |40G TSN Ethernet switch
+|LAN9696TSN   |`0x9697`  |60G TSN Ethernet switch
+|LAN9698TSN   |`0x9699`  |100G TSN Ethernet switch
+
+|LAN9694RED   |`0x969A`  |40G TSN Ethernet switch with PRP/HSR
+|LAN9696RED   |`0x969B`  |60G TSN Ethernet switch with PRP/HSR
+|LAN9698RED   |`0x969C`  |100G TSN Ethernet switch with PRP/HSR
+
+|LAN9691VAO   |`0x9691`  |40G Automotive TSN Ethernet switch
+|LAN9692VAO   |`0x9692`  |65G Automotive TSN Ethernet switch
+|LAN9693VAO   |`0x9693`  |100G Automotive TSN Ethernet switch
+|===
+
+LAN969x-family in this release can be used for early access to evaluate the
+features and/or start SW integration. It is not suitable for production use.
+Only a limited amount of testing has been done, and all testing has been focused
+on the LAN9698RED variant (highest bandwidth and superset of features). This
+means that the capability system may advertise capabilities not
+available on lower SKUs. This will be addressed in future releases.
+
+==== Build configurations
+
+All 12 SKUs in the LAN969x family are supported by a single build configuration
+called `lan969x`.
+
+NOTE: The system also includes a `lan969x_lm` which is only
+supported in the context of LMStaX. Do not use this in other applications than
+LMStaX as the SW feature-set here may be changed in a non-backwards compatible
+way.
+
+The LAN969x family of chips has been designed to be as binary compatible with
+SparX-5 as possible, and initial steps have been taken to support both families
+with the same build target (`lan969x`). This is however still not fully tested,
+and we recommend SparX-5 designs to stay with the designated `vsc754x` and
+`vsc755x` build targets.
+
+=== Feature: HSR/PRP support (`MESA_CAP_L2_REDBOX_CNT`)
+
+The LAN969xRED variants include a new hardware block called `RedBox` (look up
+the datasheet for additional details), which is designed to support HSR and PRP
+handling in HW.
+
+The HSR/PRP offering is designed against the IEC 62439-3 standard. Both HSR and PRP are
+redundancy technologies which at the TX side will replicate all frames in two
+copies and at the RX side do the elimination of the additional frames. HSR is
+used to build rings where frames are sent and received in both directions in the
+ring, and PRP is used to build parallel network trees.
+
+See more in link:#mesa/docs/l2/l2@_prphsr_redbox[L2 Redbox documentation].
+
+=== Feature: OT/IT support (`MESA_CAP_QOS_OT`)
+
+The LAN969x family of SKUs introduces a new feature called OT/IT (advertised by
+the `MESA_CAP_QOS_OT` capability).
+
+This is a feature to allow serving the normal IT network and the industrial OT
+(operational technology - fieldbus and friends) on the same physical switches.
+
+To support this, the ingress classifier has been extended with a flag allowing
+classification of certain traffic as `OT`. This can either be done with VLANs using
+`mesa_vlan_vid_conf_t::ot` or TCAMs using `mesa_iflow_conf_t::ot`.
+
+Once traffic is classified, it will end up in two different queue systems, and the
+`mesa_qos_port_conf_t` structure has been extended to control the OT and IT
+scheduling elements individually.
+
+See the documentation in link:#mesa/docs/qos/qos@_qos_egress_detailed[QOS
+Scheduler] for more details.
+
+=== Feature: Dynamic serdes/port configuration (`MESA_CAP_PORT_DYNAMIC`)
+
+The LAN969x family of SKUs introduce a new feature called `PORT_DYNAMIC` (advertised by
+the `MESA_CAP_PORT_DYNAMIC` capability).
+
+This allow to reconfigure a serdes at runtime to different port configurations
+(example a 10G serdes can be used as a QSGMII providing 4 ports, or it can be
+used as a single 10G interfaces).
+
+This is intended for modular designs where different types of port/interface
+cards can be plugged/unplugged without rebooting the switch, and without
+impacting the traffic flows on the other ports.
+
+See additional details in link:#mesa/docs/examples/dynamic-port.adoc[Dynamic
+Port example] and link:#mesa/demo/examples/port_dynamic.c[port_dynamic.c].
+
+=== Feature: Bulk port configuration (`MESA_CAP_PORT_CONF_BULK`)
+
+SparX-5 and LAN969x families of SKUs now supports bulk port configurations.
+
+This is supported to optimize the boot-time. Bringing up serdes and ports
+requires many steps of interaction with the HW. Some of these steps requires the
+API to sleep and poll for a given status. By bringing up multiple ports in
+parallel multiple serdes can then be _sleep_ in parallel, which improve the boot
+time.
+
+To use this feature call the `mesa_port_conf_bulk_set` function before and after
+configuring the ports. See link:#mesa/docs/examples/port_conf_bulk[DOC] and
+link:#mesa/demo/examples/port_conf_bulk.c[port_conf_bulk.c] for more details.
+
+
+=== Feature: EtherCAT segment adaptation (`MESA_CAP_ACL_MAC_IGR`)
+
+This capability indicates whether the device supports ACL actions for ingress
+MAC address updates.
+
+These actions can be used for EtherCAT segment adaptation support.
+
+=== Variant: MRP API extensions
+
+Two new capabilities: `MESA_CAP_MRP_V0` and `MESA_CAP_MRP_V1` has been
+introduced in the MRP API to advertise changes introduced in LAN969x family.
+
+Most of the APIs are shared, but a few differences in the chip architecture from
+LAN966x to LAN969x needs to be addressed at application level. `MESA_CAP_MRP_V0`
+is marking the behavioral equal to what we have in earlier releases supported by
+LAN966x, and the `MESA_CAP_MRP_V1` indicates the needed changes to support
+LAN969x.
+
+See link:#mesa/docs/mrp/mrp[mrp feature description] for more details.
