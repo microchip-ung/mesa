@@ -416,7 +416,6 @@ mepa_rc phy_tc10_send_sleep_request(struct mepa_device                  *dev,
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_ERR_PARM;
-    phy_data_t *data = (phy_data_t *) dev->data;
 
     if (req == MEPA_TC10_LPS) {
         MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_MDIO_CTRL2_OFFSET, &reg_data));
@@ -433,7 +432,6 @@ mepa_rc phy_tc10_get_state(struct mepa_device       *dev,
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_ERROR;
-    phy_data_t *data = (phy_data_t *) dev->data;
 
     MEPA_RC(rc, phy_ext_bank_reg_rd(dev, LAN8770_PHY_BANK_MISC, LAN8770_MISC_WKP_DBG_STS_OFFSET, &reg_data));
 
@@ -471,7 +469,6 @@ mepa_rc phy_tc10_send_wake_request(struct mepa_device *dev)
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_ERROR;
-    phy_data_t *data = (phy_data_t *) dev->data;
 
     MEPA_RC(rc, phy_direct_reg_rd(dev, LAN8770_MDIO_CTRL2_OFFSET, &reg_data));
     reg_data |=  LAN8770_MDIO_CTRL2_WAKE_REQ;
@@ -483,7 +480,6 @@ error:
 
 mepa_rc phy_tc10_set_config(struct mepa_device *dev, phy_tc10_data_t *cfg)
 {
-    uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_ERROR;
 
     MEPA_RC(rc, phy_tc10_set_sleep_support(dev, cfg->sleep_enable));
