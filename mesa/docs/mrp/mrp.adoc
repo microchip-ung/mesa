@@ -66,14 +66,14 @@ There can only be one MRP instance on a port. +
 A MRP instance can be deleted.
 
 === Getting allocated MRP-VOE indices.
-If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+If MESA capability `MESA_CAP_MRP_V1` is not zero the following applies::
 `mesa_mrp_voe_index_get()` +
 +
 When a MRP instance has been added, calling this function will return (`mesa_mrp_voe_idx_t`) the allocated VOE indices to
 be used when doing additional configuration required for MRP frames to hit MRP-VOE.
 
 ==== Ingress Port VCE and IFLOW.
-If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+If MESA capability `MESA_CAP_MRP_V1` is not zero the following applies::
 `mesa_vce_add` +
 `mesa_iflow_alloc` +
 +
@@ -82,7 +82,7 @@ The IFLOW is configured (`mesa_iflow_conf_t`) to point to the allocated MRP-VOE 
 The IFLOW is also used as the Egress IFLOW.
 
 ==== Egress Port TCE and EFLOW.
-If MESA capability `MESA_CAP_MRP_V2` is not zero the following applies::
+If MESA capability `MESA_CAP_MRP_V1` is not zero the following applies::
 `mesa_tce_add` +
 `mesa_eflow_alloc` +
 +
@@ -93,8 +93,8 @@ The IFLOW is the same as the one used as Ingress IFLOW.
 
 === Changing MRP role
 `mesa_mrp_ring_role_set()` +
-`mesa_mrp_in_ring_role_set()` +
-The active MRP can have its ring role and interconnected ring role changed (`mesa_mrp_ring_role_t`).
+The active MRP can have its ring role changed (`mesa_mrp_ring_role_t`). +
+This is required when MRA nodes has to change roles.
 
 .The role has influence on how MRP PDUs are handled regarding:
 * Detection of MRP_Test and MRP_InTest Loss Of Continuity
@@ -103,10 +103,10 @@ The active MRP can have its ring role and interconnected ring role changed (`mes
 This is done according to IEC 62439-2. Required frame are copied to CPU for Protocol Machine implementation. +
 
 === Swapping Ring Ports
-`mesa_mrp_ports_set()`
-The active MRP can have its ring ports configuration (`mesa_mrp_ports_t`) changed +
-This means swapping of the primary and secondary port. The roles of the ports are automatically inserted
-into any transmitted MRP_Test PDU.
+`mesa_mrp_primary_port_set()` +
+The active MRP can have its ring ports configuration changed +
+This function gives the primary port and the other port in `mesa_mrp_conf_t` becomes secondary port. +
+The roles of the ports are automatically inserted into any transmitted MRP_Test PDU.
 
 === Changing Ring State
 `mesa_mrp_ring_state_set()` +
@@ -117,15 +117,15 @@ The state of the ring is automatically inserted into any transmitted MRP_Test PD
 === Media Redundancy Auto manager
 `mesa_mrp_add()` +
 `mesa_mrp_ring_role_set()` +
-`mesa_mrp_best_set()` +
-`mesa_mrp_copy_tst_set()` +
+`mesa_mrp_best_mrm_set()` +
+`mesa_mrp_tst_copy_conf_set()` +
 When the MRP instance is added it can be configured (`mesa_mrp_conf_t`) that it will act as an MRA.
 When this is enabled it can either be in Manager or Client ring role. +
  +
 Manager Role: +
 Any MRP_Test frame received with lower (worse) priority (according to IEC 62439-2) will be copied to CPU for protocol processing. +
-The copying of lower (worse) priority frames is enabled by default and can be controlled (`mesa_mrp_copy_tst_t`) by `mesa_mrp_copy_tst_set()` +
-If a better Manager is seen the MAC must be configured using `mesa_mrp_best_set()`. +
+The copying of lower (worse) priority frames is enabled by default and can be controlled (`mesa_mrp_tst_copy_conf_t`) by `mesa_mrp_tst_copy_conf_set()` +
+If a better Manager is seen the MAC must be configured using `mesa_mrp_best_mrm_set()`. +
 Any received MRP_TestMgrNAck PDU is copied to CPU. +
  +
 Client Role: +
@@ -139,22 +139,30 @@ MRP frames between ring ports. +
 According to IEC 62439-2 no forwarding should happen.
 
 === Test PDU Loss Of Continuity
-`mesa_mrp_tst_loc_set()` +
+`mesa_mrp_tst_loc_conf_set()` +
 `mesa_mrp_status_get()` +
 `mesa_mrp_event_mask_set()` +
 `mesa_mrp_event_get()` +
 The MRP_Test and MRP_InTest frame Loss Of continuity is calculated according to IEC 62439-2
-and configured (`mesa_mrp_tst_loc_t`) by `mesa_mrp_tst_loc_set()`. +
+and configured (`mesa_mrp_tst_loc_conf_t`) by `mesa_mrp_tst_loc_conf_set()`. +
 The current LOC status (`mesa_mrp_port_status_t`) is fetched by `mesa_mrp_status_get()`. +
 The LOC event interrupts can be enabled by `mesa_mrp_event_mask_set()`. +
 The latest LOC event pending can be fetched by `mesa_mrp_event_get()`. +
 Any pending events are cleared during call to this get(). +
 
+
+=== Test PDU Copy To CPU when LOC clears
+`mesa_mrp_tst_hitme_once` +
+`mesa_mrp_itst_hitme_once` +
+The receive MRP_Test and MRP_InTest frame that clears active LOC can be copied to CPU.
+This is a Hit Me Once that needs to be called after each copy to get the next.
+
+
 === Test PDU Copy To CPU
-`mesa_mrp_copy_tst_set()` +
-The receive MRP_Test and MRP_InTest frame (`mesa_mrp_copy_tst_t`) that clears active LOC can be copied to CPU
-by `mesa_mrp_copy_tst_set()`. +
-This is a Hit Me Once that needs to be called after each copy to get the next. +
+`mesa_mrp_tst_copy_conf_set()` +
+The receive MRP_Test and MRP_InTest frame (`mesa_mrp_tst_copy_conf_t`) can be copied to CPU
+by `mesa_mrp_tst_copy_conf_set()`. +
+In order not to be overwhelmed with remote MRP_[In]Test PDUs this can be turned on and off periodically.
 
 === Status
 `mesa_mrp_status_get()` +
@@ -175,16 +183,19 @@ Any pending events are cleared during call to this get(). +
 
 === MESA functions.
 `mesa_mrp_add()` +
+`mesa_mrp_get()` +
 `mesa_mrp_del()` +
+`mesa_mrp_voe_index_get()` +
 `mesa_mrp_ring_role_set()` +
-`mesa_mrp_in_ring_role_set()` +
-`mesa_mrp_ports_set()` +
+`mesa_mrp_primary_port_set()` +
 `mesa_mrp_ring_state_set()` +
 `mesa_mrp_in_ring_state_set()` +
-`mesa_mrp_best_set()` +
+`mesa_mrp_best_mrm_set()` +
 `mesa_mrp_port_state_set()` +
-`mesa_mrp_tst_loc_set()` +
-`mesa_mrp_copy_tst_set()` +
+`mesa_mrp_tst_loc_conf_set()` +
+`mesa_mrp_tst_hitme_once()` +
+`mesa_mrp_itst_hitme_once()` +
+`mesa_mrp_tst_copy_conf_set()` +
 `mesa_mrp_status_get()` +
 `mesa_mrp_counters_get()` +
 `mesa_mrp_counters_clear()` +
