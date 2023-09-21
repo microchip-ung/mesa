@@ -1793,7 +1793,9 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
             u32  pcs = vtss_fa_dev_tgt(vtss_state, port_no);
             if (kr->train.pcs_flap) {
-                // Make sure that link is down when AN_GOOD_CHECK is entered (to avoid link flaps)
+                // Make sure that link is down when AN_GOOD_CHECK is entered by disabling the PCS.
+                // This will force LP to obey 73.10.2 link_fail_inhibit_timer
+                // which gives us time to change to 40bit mode
                 REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(pcs),
                             VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
                 VTSS_MSLEEP(5);
@@ -1803,6 +1805,7 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
 
             if (kr->train.pcs_flap) {
                 // Enable the PCS again
+                VTSS_MSLEEP(1);
                 REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(pcs),
                             VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
             }
