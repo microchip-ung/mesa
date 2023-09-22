@@ -557,7 +557,7 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t* const inst,
 
         private_data->status.global.i2c_tx_error_counter++;
 
-        DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
               inst->adapter_name, data_description, size, cnt, private_data->status.global.i2c_tx_error_counter,
               print_as_hex_string(data, size, buf, sizeof(buf)));
 
