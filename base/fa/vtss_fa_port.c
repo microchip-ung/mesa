@@ -541,6 +541,7 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     u32 tgt = VTSS_TO_DEV2G5(port);
     vtss_port_sgmii_aneg_t *sgmii_adv = &status->autoneg.partner.sgmii;
     vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    BOOL in_sync = 0;
 
     if (vtss_state->port.conf[port_no].power_down) {
         status->link = 0;
@@ -573,6 +574,7 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
         REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(tgt), &value);
         status->link = REG_BF(DEV1G_PCS1G_LINK_STATUS_LINK_STATUS, value) &&
                        REG_BF(DEV1G_PCS1G_LINK_STATUS_SYNC_STATUS, value);
+        in_sync = REG_BF(DEV1G_PCS1G_LINK_STATUS_SYNC_STATUS, value);
     }
 
     /* Get PCS ANEG status register */
@@ -581,17 +583,19 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
     /* Get 'Aneg complete'   */
     status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
 
-    /* Workaround for a Serdes issue (TN1395), when aneg completes with FDX capability=0 */
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
-        if (status->autoneg.complete) {
-            if (((value >> 21) & 0x1) == 0) {
-                REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-                REG_WRM_SET(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-                (void)fa_port_clause_37_control_set(vtss_state, port_no);
-                VTSS_MSLEEP(50);
-                REG_RD(VTSS_DEV1G_PCS1G_ANEG_STATUS(tgt), &value);
-                status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
-            }
+    /* Workaround for a Clause 37 Aneg issue (TN1395)
+       1) When aneg completes with FDX capability=0
+       2) PCS in in sync and ACK is received but we cannot complete aneg. */
+    if (in_sync && vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
+        if ((status->autoneg.complete && (((value >> 21) & 0x1) == 0)) ||  /* aneg-complete && !FDX */
+            (!status->autoneg.complete && (((value >> 30) & 0x1) == 1)) ) {/* !aneg-complete && ACK */
+            /* Reset PCS and restart Aneg */
+            REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+            REG_WRM_SET(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
+            (void)fa_port_clause_37_control_set(vtss_state, port_no);
+            VTSS_MSLEEP(50);
+            REG_RD(VTSS_DEV1G_PCS1G_ANEG_STATUS(tgt), &value);
+            status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
         }
     }
 
