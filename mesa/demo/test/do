@@ -51,7 +51,7 @@ case $chip in
      ;;
 
      fa)
-     ts=dk-t34-4
+     ts=dk-t34-5
      img=arm64_vsc7558TSN.itb     # 625MHz
 #     img=arm64_vsc7546TSN.itb     # 250MHZ
 #     img=arm64_vsc7552TSN.itb     # 500MHz

@@ -86,6 +86,7 @@ $vlan2ports = $p0.to_s
 $vlan3ports = $p1.to_s
 $bulk_frames = 1000000
 
+
 #---------- Now the test--------------------------------------------------------------
 i = 0
 dac = 0
@@ -102,7 +103,7 @@ test "Test SFP loop" do
 
             if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5") && $ts.dut.looped_port_list[i] > 11) ||
                 ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")))
-                spds.pop # Remove 100fdx
+                spds.delete("100fdx") # Remove 100fdx
             end
         else
             dac = 0
