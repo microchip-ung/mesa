@@ -356,8 +356,26 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             update_entry(inst, entry, MESA_PORT_INTERFACE_QSGMII, MESA_BW_1G, port_no);
             entry->poe_port    = entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
             entry->poe_support = true;
+            if (board->gpy241_present) {
+                // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
+                entry->phy_base_port = (port_no / 4)*4;
+            }
         } else if (port_no < 28) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 24); // 10G: 56-59
+            chip_port = 56 + port_no - 24;
+            if (board->gpy241_present && board->gpy241_usxgmii_mode && (chip_port % 16 == 8)) {
+                if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
+                bw = MESA_BW_2G5;
+            } else if (board->gpy241_present && board->gpy241_usxgmii_mode) {
+                if_type = MESA_PORT_INTERFACE_NO_CONNECTION;
+                bw = MESA_BW_1G;
+            } else if (board->gpy241_present) {
+                if_type = MESA_PORT_INTERFACE_SGMII_2G5;
+                bw = MESA_BW_2G5;
+            } else {
+                if_type = MESA_PORT_INTERFACE_SFI;
+                bw = MESA_BW_10G;
+            }
+            update_entry(inst, entry, if_type, bw, chip_port); // 10G: 56-59
         } else if (port_no == 28) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G, 64);
         } else {
@@ -374,7 +392,21 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 entry->phy_base_port = (port_no / 4)*4;
             }
         } else if (port_no < 52) {
-            update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, MESA_BW_10G, 56 + port_no - 48); // 10G: 56-59
+            chip_port = 56 + port_no - 48;
+            if (board->gpy241_present && board->gpy241_usxgmii_mode && (chip_port % 16 == 8)) {
+                if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
+                bw = MESA_BW_2G5;
+            } else if (board->gpy241_present && board->gpy241_usxgmii_mode) {
+                if_type = MESA_PORT_INTERFACE_NO_CONNECTION;
+                bw = MESA_BW_1G;
+            } else if (board->gpy241_present) {
+                if_type = MESA_PORT_INTERFACE_SGMII_2G5;
+                bw = MESA_BW_2G5;
+            } else {
+                if_type = MESA_PORT_INTERFACE_SFI;
+                bw = MESA_BW_10G;
+            }
+            update_entry(inst, entry, if_type, bw, chip_port); // 10G: 56-59
         } else if (port_no == 52) {
             update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G, 64);
         } else {
