@@ -906,6 +906,10 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
         if (mreq->full) {
             MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, iport, FALSE, 0x50, 0, rom, sizeof(rom), FALSE);
             cli_printf("Rom content at A0h:\n%s\n", misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
+            if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) {
+                MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, iport, FALSE, 0x56, 0, rom, 128, FALSE);
+                cli_printf("Phy content:\n%s\n", misc_mem_print(rom, 128, out_buf, 128));
+            }
         }
 
     }
