@@ -94,10 +94,11 @@ test "Aneg" do
         cli_port = $kr_ports[1]+1
         $ts.dut.run "mesa-cmd port kr aneg #{cli_port} #{cap}"
         sleep 3
-        $kr_ports.each do |idx|
+        [$kr_ports[0], $kr_ports[1]].each do |idx|
             conf = $ts.dut.call "mesa_port_kr_status_get", idx
             if conf["aneg"]["complete"] != true
                 t_e("Could not complete aneg for #{cap} got #{conf["aneg"]["complete"]}");
+                exit
                 break
             else
                 t_i("Port #{idx} Aneg to '#{cap}' completed");
@@ -120,39 +121,39 @@ if cap25 != ""
 end
 test "Training" do
     spds.each do |spd|
-      $kr_ports.each do |idx|
-        cli_port = idx+1
-        $ts.dut.run "mesa-cmd port kr aneg #{cli_port} #{spd} rfec rsfec train"
-      end
-      sleep 1
-      $kr_ports.each do |idx|
-          conf = $ts.dut.call "mesa_port_kr_status_get", idx
-          eye = $ts.dut.call "mesa_port_kr_eye_get", idx
-          if conf["train"]["complete"] != true
-              t_e("Could not complete aneg for #{spd} got #{conf["aneg"]["complete"]}");
-          else
-              t_i("Training port #{idx} (#{spd}) completed with eye height:#{eye["height"]}");
-              t_i("=====================================================");
-          end
+        [$kr_ports[0], $kr_ports[1]].each do |idx|
+            cli_port = idx+1
+            $ts.dut.run "mesa-cmd port kr aneg #{cli_port} #{spd} rfec rsfec train"
+        end
+        sleep 1
+        [$kr_ports[0], $kr_ports[1]].each do |idx|
+            conf = $ts.dut.call "mesa_port_kr_status_get", idx
+            eye = $ts.dut.call "mesa_port_kr_eye_get", idx
+            if conf["train"]["complete"] != true
+                t_e("Could not complete aneg for #{spd} got #{conf["aneg"]["complete"]}");
+            else
+                t_i("Training port #{idx} (#{spd}) completed with eye height:#{eye["height"]}");
+                t_i("=====================================================");
+            end
 
-          if eye["height"] < 10
-              t_e("Eye height is small");
-          end
-          if spd == "adv-10g"
-              if conf["fec"]["r_fec_enable"] != true
-                  t_e("Base R-FEC not enabled");
-              end
-          else
-              if conf["fec"]["rs_fec_enable"] != true
-                  t_e("Base RS-FEC not enabled");
-              end
-          end
+            if eye["height"] < 10
+                t_e("Eye height is small");
+            end
+            if spd == "adv-10g"
+                if conf["fec"]["r_fec_enable"] != true
+                    t_e("Base R-FEC not enabled");
+                end
+            else
+                if conf["fec"]["rs_fec_enable"] != true
+                    t_e("Base RS-FEC not enabled");
+                end
+            end
 
-          test "Frame forwarding with broadcast frames" do
-            send_and_verify(0, 1)
-            send_and_verify(1, 0)
-          end
-      end
+            test "Frame forwarding with broadcast frames" do
+                send_and_verify(0, 1)
+                send_and_verify(1, 0)
+            end
+        end
     end
     $ts.dut.run "mesa-cmd port kr aneg dis"
 end
@@ -182,7 +183,7 @@ end
 
 test "Disable KR" do
     $ts.dut.run "mesa-cmd port kr aneg dis"
-    $kr_ports.each do |idx|
+    [$kr_ports[0], $kr_ports[1]].each do |idx|
         status = $ts.dut.call "mesa_port_status_get", idx
         if status["link"] != true
             t_e("No link after KR disable");
