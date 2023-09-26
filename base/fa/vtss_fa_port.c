@@ -5258,6 +5258,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_PORT_CONF_BULK)
         state->conf_set_bulk = fa_port_conf_set_bulk;
 #endif
+        if (LA_TGT) {
+            state->miim_ctrl_cnt = 2;
+        }
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
         state->kr_conf_set = fa_port_kr_conf_set;
         state->kr_status = fa_port_kr_status;

@@ -250,10 +250,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_PORT_MIIM_CTRL_CNT:
-        c = VTSS_MIIM_CONTROLLERS;
-        break;
+    case MESA_CAP_PORT_MIIM_CTRL_CNT: {
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->port.miim_ctrl_cnt;
+        }
 
+        break;
+    }
     case MESA_CAP_PORT_BW:
 #if defined(VTSS_ARCH_JAGUAR_2)
         c = 1;

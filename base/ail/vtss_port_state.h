@@ -624,6 +624,7 @@ typedef struct {
 #if defined(VTSS_CALENDAR_CALC)
     vtss_calendar_t               calendar;
 #endif /* defined(VTSS_CALENDAR_CALC) */
+    u8                            miim_ctrl_cnt;
 } vtss_port_state_t;
 
 vtss_rc vtss_port_inst_create(struct vtss_state_s *vtss_state);
