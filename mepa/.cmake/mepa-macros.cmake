@@ -60,6 +60,7 @@ macro(mepa_merge_static_libs)
     )
 
     add_custom_target(${A_TARGET}_target DEPENDS ${A_FILENAME})
+    add_dependencies(${A_TARGET}_target ${A_LIBRARIES})
     add_library(${A_TARGET} STATIC IMPORTED GLOBAL)
     add_dependencies(${A_TARGET} ${A_TARGET}_target)
 
