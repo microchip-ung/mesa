@@ -7,10 +7,6 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#include "vtss_fa_fpga_cil.h"
-#endif
-
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_ARCH_FA
 #endif
@@ -27,13 +23,10 @@
 #include "../ail/vtss_sd25g28_procs.h"
 #include "vtss_fa_reg.h"
 #include "fla_const_enum.h"
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #include "fla_regs_def.h"
 #include "fla_merged_regs.h" // New FA/LA merged header files
 #include "fla_vcap_regs.h"   // New FA/LA merged VCAP header files
-#endif
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
 #include "vtss_fa_fdma.h"
 #endif
@@ -630,6 +623,5 @@ vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
                                  vtss_voe_function_t  function,
                                  vtss_voe_idx_t       voe_idx);
 #endif
-#endif /* VTSS_FPGA_FA */
 #endif /* VTSS_ARCH_FA */
 #endif /* _VTSS_FA_CIL_H_ */

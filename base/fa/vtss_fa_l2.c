@@ -3537,14 +3537,6 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
             VTSS_F_ANA_L2_LRN_CFG_VSTAX_BASIC_LRN_MODE_ENA(1),
             VTSS_M_ANA_L2_LRN_CFG_VSTAX_BASIC_LRN_MODE_ENA);
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    /* Setup own UPSIDs */
-    REG_WR(VTSS_ANA_AC_PS_COMMON_OWN_UPSID, 0);
-    REG_WR(VTSS_ANA_ACL_OWN_UPSID, 0);
-    REG_WR(VTSS_ANA_CL_OWN_UPSID, 0);
-    REG_WR(VTSS_ANA_L2_OWN_UPSID, 0);
-    REG_WR(VTSS_REW_OWN_UPSID, 0);
-#else
     /* Setup own UPSIDs */
     for(u8 i = 0; i < (FA_TGT ? 3 : 1); i++) {
         REG_WR(VTSS_ANA_AC_PS_COMMON_OWN_UPSID(i), i);
@@ -3553,7 +3545,6 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_ANA_L2_OWN_UPSID(i), i);
         REG_WR(VTSS_REW_OWN_UPSID(i), i);
     }
-#endif
 
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {

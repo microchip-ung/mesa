@@ -21,9 +21,6 @@
 
 #if defined(VTSS_CHIP_969X)
 #define VTSS_ARCH_LAN969X                         /**< LAN969X architecture (Laguna) */
-#if defined(VTSS_OPT_FPGA)
-#define VTSS_ARCH_LAN969X_FPGA                    /**< LAN969X FPGA */
-#endif // VTSS_OPT_FPGA
 #endif // VTSS_CHIP_969X
 
 #if defined(VTSS_CHIP_966X)

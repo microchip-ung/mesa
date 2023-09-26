@@ -63,13 +63,8 @@
 #define VTSS_FEATURE_ES2             /* VCAP ES2 */
 #define VTSS_FEATURE_LPM             /* VCAP LPM */
 #endif
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_VCAP_SUPER_BLK_CNT  6   /* Number of VCAP_SUPER blocks */
-#define VTSS_VCAP_SUPER_ROW_CNT  4   /* Number of rows in one block (full rules) */
-#else
 #define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
-#endif
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_VCAP_SUPER_RULE_CNT VTSS_STREAM_CNT // Full rules assumed
 #else
@@ -1208,10 +1203,6 @@ typedef struct {
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 4096
-#elif defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
-#define VTSS_ACL_CNT_SIZE 32 /* IS2_A/IS2_B */
-#define VTSS_ES2_CNT_SIZE 32 /* ES2 */
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 4096 /* IS2_A/IS2_B */
@@ -1255,8 +1246,6 @@ typedef struct {
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_FA_ES0_CNT VTSS_STREAM_CNT
-#elif defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_FA_ES0_CNT 8
 #else
 #define VTSS_FA_ES0_CNT 4096
 #endif
@@ -1276,11 +1265,7 @@ typedef struct {
 #endif /* VTSS_FEATURE_ES0 */
 
 #if defined(VTSS_FEATURE_ES2)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_FA_ES2_CNT 8    /* 4 rows allowing 8 half rules */
-#else
 #define VTSS_FA_ES2_CNT 2048 /* 1024 rows allowing 2048 half rules */
-#endif
 #define VTSS_ES2_CNT    VTSS_FA_ES2_CNT
 
 /* ES2 information */

@@ -139,7 +139,6 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
 }
 #endif
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 /* Read or write register indirectly */
 static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
                                        u32 addr, u32 *value, BOOL is_write)
@@ -187,7 +186,6 @@ static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
 do_exit:
     return result;
 }
-#endif
 
 #if defined(VTSS_SDX_CNT)
 static void fa_evc_counter_update(u32 frames, u32 lsb, u32 msb, vtss_chip_counter_pair_t *chip_counter,
@@ -290,9 +288,6 @@ vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 // Return clk period in NS
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    return 11875; // Core clk freq: 84210526 hz
-#else
     switch (clock) {
     case VTSS_CORE_CLOCK_250MHZ: return 4000;
     case VTSS_CORE_CLOCK_328MHZ: return 3048;
@@ -301,7 +296,6 @@ u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
     default: {};
     }
     return 1600; // Default
-#endif
 }
 
 BOOL fa_is_target(vtss_state_t *vtss_state)
@@ -529,7 +523,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
     u32 clk_div, clk_period, pol_upd_int, val;
     if (FA_TGT) {
         switch (freq) {
@@ -634,7 +628,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(pol_upd_int),
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT);
     VTSS_I("Setting Core Clock - done");
-#endif //!defined(VTSS_ARCH_LAN969X_FPGA)
+
     return VTSS_RC_OK;
 }
 
@@ -824,13 +818,6 @@ err_exit:
 static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
-
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    REG_RD(VTSS_DEVCPU_GCB_BUILDID, &i);
-    if (i != FPGA_BUILDID) {
-        VTSS_E("Unexpected build id. Chip: 0x%08x, Header files: 0x%08x", i, FPGA_BUILDID);
-    }
-#else
     // Reset switch core if using SPI from external CPU
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
@@ -838,7 +825,6 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
         u32 val = 0;
         lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
     }
-#endif
 
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
@@ -859,11 +845,9 @@ static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
 
     /* Set ASM/DSM watermarks for cpu traffic (see JR2) - needed here or handled by wm function ? TBD-BJO */
 #if !defined(VTSS_OPT_EMUL)
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 value;
     REG_RD(VTSS_CPU_GENERAL_STAT, &value);
     vtss_state->sys_config.vcore_cfg = VTSS_X_CPU_GENERAL_STAT_VCORE_CFG(value);
-#endif
 
     /* DS1241: 5 (8-12) available VCORE boot modes */
     vtss_state->sys_config.using_vcoreiii = (vtss_state->sys_config.vcore_cfg >= 8 &&
@@ -996,9 +980,6 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
 }
 
 static i32 clock2bw(vtss_core_clock_freq_t freq) {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    return 84210/3;
-#endif
     if (freq == VTSS_CORE_CLOCK_250MHZ) {
         return 83000; /* 250000 / 3 = 83Gb */
     } else if (freq == VTSS_CORE_CLOCK_328MHZ) {
@@ -1925,16 +1906,13 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
     VTSS_RC(vtss_fa_emul_init(vtss_state));
 #endif
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    vtss_state->chip_design = 2; // Laguna
-#else
     /* FA: chip_design = 1,  LA: chip_design = 2 */
     vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
     /* Initilize Firenat or Laguna registers  */
     fla_init_regs(vtss_state, FA_TGT);
     /* Initilize Firenat and lagunas constants  */
     fla_init_const(vtss_state, FA_TGT);
-#endif
+
     /* Create function groups */
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }

@@ -28,11 +28,7 @@
 #define CFGRATIO 4
 #endif
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define RT_QUEUE_POL_IDX(port, queue) VTSS_QUEUE_POL_IDX(port, queue)
-#else
 #define RT_QUEUE_POL_IDX(port, queue) (RT_EVC_POL_CNT + (port * 8) + queue)
-#endif
 
 static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
@@ -2629,10 +2625,6 @@ static void tas_stop_port_conf_calc(vtss_state_t *vtss_state,
 
 static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_qos_tas_port_conf_t *current_port_conf)
 {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    return lan969x_tas_current_port_conf_calc(vtss_state, port_no, current_port_conf);
-#else
-
     u32                   i, msb, profile_idx, store, value;
     u8                    gate_state, scheduled;
     vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
@@ -2692,7 +2684,7 @@ static vtss_rc tas_current_port_conf_calc(vtss_state_t *vtss_state, vtss_port_no
 
     /* Re-store the currently selected list */
     REG_WR(VTSS_HSCH_TAS_CFG_CTRL, store);
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -2912,7 +2904,7 @@ static vtss_rc tas_list_cancel(vtss_state_t *vtss_state, u32 list_index)
 
     return VTSS_RC_OK;
 }
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
 static vtss_rc hold_qmaxsdu_configure(vtss_state_t *vtss_state,  u32 profile_idx,  const vtss_port_no_t port_no)
 {
     vtss_port_no_t  chip_port = VTSS_CHIP_PORT(port_no);
@@ -2981,15 +2973,11 @@ static vtss_rc gcl_port_profile_configure(vtss_state_t *vtss_state, u32 list_idx
     }
     return VTSS_RC_OK;
 }
-#endif
+
 static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-        return lan969x_tas_list_start(vtss_state, port_no, list_idx, obsolete_list_idx, port_conf, startup_time);
-#else
-
     u32                 i, value, time_interval_sum = 0, scheduled, maxsdu;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32                 hold_profile_idx = vtss_state->qos.tas.tas_lists[list_idx].hold_profile_idx;
@@ -3088,7 +3076,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     /* Start the list */
     tas_list_state_write(vtss_state, list_idx, TAS_LIST_STATE_ADVANCING);
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -3117,7 +3105,7 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)  && !defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
 static vtss_rc fa_qos_tas_update(struct vtss_state_s   *vtss_state,
                                  const vtss_port_no_t  port_no)
 {
@@ -3627,7 +3615,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
                VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_SE_IDX(FA_HSCH_L0_SE(port, i)) |
                VTSS_F_HSCH_HSCH_FORCE_CTRL_HFORCE_1SHOT(1));
     }
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
     if (FA_TGT) {
         if (vtss_state->misc.chip_id.revision == 0) {
             /* Avoid forced FCS update for revision 0 if preemption is enabled */
@@ -3646,7 +3634,7 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
         (void)fa_qos_tas_update(vtss_state, port_no);
 #endif
     }
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -4025,9 +4013,7 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
 {
     u32 value;
     u32 value1;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32 i, profile_idx = 0;
-#endif
 
     pr("    Enty Index: %u\n", *entry_idx);
     pr("    ----------------\n");
@@ -4037,10 +4023,8 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
 
     /* Read the gate state */
     if (FA_TGT) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG, &value);
         profile_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG_PORT_PROFILE(value);
-#endif
     } else {
         REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG, &value);
         REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG2, &value1);
@@ -4049,10 +4033,8 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
 
     pr("        %s: 0x%X\n", "GATE_STATE", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(value));
     if (FA_TGT) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         pr("        %s: %u\n", "PORT_PROFILE", profile_idx);
         pr("        %s: %u\n", "HSCH_POS", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_HSCH_POS(value));
-#endif
     } else {
         pr("        %s: %u\n", "OP_TYPE", VTSS_X_HSCH_TAS_GCL_CTRL_CFG_OP_TYPE(value));
     }
@@ -4060,7 +4042,6 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
     REG_RD(VTSS_HSCH_TAS_GCL_TIME_CFG, &value);
     pr("        %s: %u\n", "TIME_INTERVAL", value);
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (FA_TGT) {
         /* Read max SDU configuration in the profile */
         pr("        %s: ", "QMAXSDU_VAL");
@@ -4076,7 +4057,6 @@ static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,  const vtss_debug
         pr("        %s: %u\n", "LINK_SPEED", VTSS_X_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(value));
         pr("        %s: 0x%X\n", "SCH_TRAFFIC_QUEUES", VTSS_X_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(value));
     }
-#endif
 
     return VTSS_RC_OK;
 }
@@ -5002,12 +4982,10 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                 VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
                 vtss_fa_debug_reg_header(pr, buf);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
                     tgt = VTSS_TO_HIGH_DEV(port);
                     vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV10G_ENABLE_CONFIG(tgt)), port, "DEV10G:ENABLE_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV10G_VERIF_CONFIG(tgt)), port, "DEV10G:VERIF_CONFIG");
                     vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV10G_MM_STATUS(tgt)), port, "DEV10G:MM_STATUS");
-#endif
                 } else {
                     tgt = VTSS_TO_DEV2G5(port);
                     vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_DEV1G_ENABLE_CONFIG(tgt)), port, "DEV1G:ENABLE_CONFIG");
@@ -5226,12 +5204,10 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM_MAX(RT_TAS_NUMBER_OF_LISTS-1), VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM_MAX);
 
     if (FA_TGT) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         // The maximum length of a GCL must be a multiple number of blocks
         if (VTSS_QOS_TAS_GCL_LEN_MAX % RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK) {
             VTSS_E("VTSS_QOS_TAS_GCL_LEN_MAX %u is invalid", VTSS_QOS_TAS_GCL_LEN_MAX);
         }
-#endif
     }
 
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
@@ -5303,65 +5279,6 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
     }
 #endif
 
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    /* Init layer 0 SE DWRR to be disabled */
-    REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-            VTSS_F_HSCH_HSCH_CFG_CFG_HSCH_LAYER(0),
-            VTSS_M_HSCH_HSCH_CFG_CFG_HSCH_LAYER);
-
-    for (u32 se = 0; se < RT_HSCH_L0_SES; se++) {
-        REG_WRM(VTSS_HSCH_SE_CFG(se),
-                VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(0),
-                VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
-        REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-                VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
-                VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (u32 i = 0; i < 8; i++) {
-            REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
-                    VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
-                    VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
-        }
-    }
-
-    /* Init layer 1 SE DWRR to be disabled */
-    REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-            VTSS_F_HSCH_HSCH_CFG_CFG_HSCH_LAYER(1),
-            VTSS_M_HSCH_HSCH_CFG_CFG_HSCH_LAYER);
-
-    for (u32 se = 0; se < RT_HSCH_L1_SES; se++) {
-        REG_WRM(VTSS_HSCH_SE_CFG(se),
-                VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(0),
-                VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
-        REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-                VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
-                VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (u32 i = 0; i < 8; i++) {
-            REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
-                    VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
-                    VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
-        }
-    }
-
-    /* Init layer 2 SE DWRR to be disabled */
-    REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-            VTSS_F_HSCH_HSCH_CFG_CFG_HSCH_LAYER(2),
-            VTSS_M_HSCH_HSCH_CFG_CFG_HSCH_LAYER);
-
-    for (u32 se = 0; se < RT_HSCH_L2_SES; se++) {
-        REG_WRM(VTSS_HSCH_SE_CFG(se),
-                VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(0),
-                VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
-        REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
-                VTSS_F_HSCH_HSCH_CFG_CFG_CFG_SE_IDX(se),
-                VTSS_M_HSCH_HSCH_CFG_CFG_CFG_SE_IDX);
-        for (u32 i = 0; i < 8; i++) {
-            REG_WRM(VTSS_HSCH_DWRR_ENTRY(i),
-                    VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(0),
-                    VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
-        }
-    }
-#endif
-
     VTSS_D("Exit");
     return VTSS_RC_OK;
 }
@@ -5390,13 +5307,11 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
                     VTSS_F_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(12),
                     VTSS_M_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG);
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
             if (!VTSS_PORT_IS_2G5(port)) {
                 REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
                         VTSS_F_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA(0),
                         VTSS_M_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA);
             }
-#endif
         }
 #endif // VTSS_FEATURE_QOS_FRAME_PREEMPTION
     }

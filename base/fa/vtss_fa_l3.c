@@ -92,15 +92,11 @@ static vtss_rc fa_l3_rleg_hw_stat_poll(vtss_state_t *vtss_state,
                                        &prev->ipv4mc_transmitted_octets, &counter->ipv4mc_transmitted_octets));
 
     /* IPv6 counters */
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    rleg += 16;
-#else
     if (FA_TGT) {
         rleg += 512;
     } else {
         rleg += 128;
     }
-#endif
 
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv6uc_received_frames, &counter->ipv6uc_received_frames));
@@ -599,14 +595,12 @@ vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->mc_rt_rleg_add = fa_l3_mc_rt_rleg_add;
         state->arp_set = fa_l3_arp_set;
         state->debug_sticky_clear = fa_l3_debug_sticky_clear;
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         if (LA_TGT) {
             // Reduced L3 scale for Laguna
             state->rleg_cnt = 126;
             state->arp_cnt = 1024;
             state->mc_tbl_cnt = 1024;
         }
-#endif
         vtss_l3_integrity_update(vtss_state);
         break;
     case VTSS_INIT_CMD_INIT:

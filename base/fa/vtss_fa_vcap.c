@@ -2460,11 +2460,7 @@ vtss_rc vtss_fa_debug_lpm(vtss_state_t *vtss_state,
 #define FA_RLEG_STAT_ERACL 1
 
 /* The first counters are used for port default actions. For convenience, ACE counters start from 100 */
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define FA_ACE_CNT_ID_BASE 10
-#else
 #define FA_ACE_CNT_ID_BASE 100
-#endif
 #define FA_ACE_CNT_ID_IPMC (FA_ACE_CNT_ID_BASE - 1)
 #define FA_ACE_CNT_ID_DEF  (FA_ACE_CNT_ID_BASE - 4)
 

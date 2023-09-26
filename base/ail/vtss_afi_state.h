@@ -116,15 +116,9 @@ typedef struct {
 // FireAnt/Laguna
 // ----------------------------------------
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_AFI_FRM_CNT  512
-#define VTSS_AFI_FP_WID   10
-#define VTSS_AFI_DSTP_WID 6
-#else
 #define VTSS_AFI_FRM_CNT  4096
 #define VTSS_AFI_FP_WID   (FA_TGT ? 15 : 14)
 #define VTSS_AFI_DSTP_WID (FA_TGT ? 7 : 6)
-#endif
 
 // Layout of AFI:MISC:NEW_FRM_INFO.FRM_INFO
 #define VTSS_AFI_FRM_INFO_FP_POS    0

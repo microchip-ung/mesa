@@ -2803,11 +2803,7 @@ vtss_rc vtss_rce_del(const vtss_inst_t   inst,
 /* - PRP/HSR RedBox ------------------------------------------------ */
 
 // Number of RedBox instances
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_REDBOX_CNT 2
-#else
 #define VTSS_REDBOX_CNT 5
-#endif
 
 // RedBox ID, zero-based
 typedef u8 vtss_rb_id_t;

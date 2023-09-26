@@ -243,8 +243,6 @@ typedef u16 vtss_psfp_filter_id_t;
 // Number of PSFP filters */
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_PSFP_FILTER_CNT VTSS_STREAM_CNT
-#elif defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_PSFP_FILTER_CNT 31
 #elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_PSFP_FILTER_CNT 256
 #else

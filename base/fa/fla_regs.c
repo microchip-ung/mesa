@@ -5,7 +5,7 @@
 // Commit ID: 0ae094c5beb24bfb82787768bce4e6f969c0175c (dirty)
 
 #include "vtss_fa_cil.h"
-#if defined(VTSS_ARCH_FA) && !defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_FA)
 #include "fla_regs_def.h"
 static unsigned int fla_grp_regs[GRP_OFFSET_LAST];
 static unsigned int fla_grp_regs_sz[GRP_OFFSET_SZ_LAST];

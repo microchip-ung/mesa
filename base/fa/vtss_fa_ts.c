@@ -238,11 +238,6 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 
     VTSS_D("one_pps_mode: %u, enable: %u, freq: %u", ext_clock_mode->one_pps_mode, ext_clock_mode->enable, ext_clock_mode->freq);
     FA_PTP_PIN_ACTION (RT_EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-	/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled, */
-	/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
-    REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(2), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(2), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
-#endif
     if (ext_clock_mode->enable) {
         u32 dividers = HW_NS_PR_SEC/ext_clock_mode->freq;
         u32 high_div = dividers/2;
@@ -264,12 +259,6 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
         FA_PTP_PIN_ACTION (RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
         (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-		/* This is only for test of Laguna FPGA. In order to test that TOD is not saved when 1PPS generation is disabled, */
-		/* the input PTP PIN must be connected to a FPGA pin that is tied/not floating */
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(2), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(3), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
-#endif
-
     }
 
     return VTSS_RC_OK;
@@ -394,13 +383,12 @@ static vtss_rc fa_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     }
 
     VTSS_I("rx_delay %d  ingr_latency %u  default_igr_latency %u", rx_delay, VTSS_INTERVAL_NS(conf->ingress_latency), conf->default_igr_latency);
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32                   port;
     port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_RXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY(rx_delay),
             VTSS_M_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY);
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -445,13 +433,13 @@ static vtss_rc fa_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
         tx_delay = 0xFFFFFF;
     }
     VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay, VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
     u32 port;
     port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_TXDLY_CFG, port,
             VTSS_F_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY(tx_delay),
             VTSS_M_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY);
-#endif
+
     return VTSS_RC_OK;
 }
 
@@ -514,12 +502,10 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1<<domain));
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     // Set domain in DEV_xxx
     DEV_WRM(PTP_CFG, port,
             VTSS_F_DEV1G_PTP_CFG_PTP_DOM(domain),
             VTSS_M_DEV1G_PTP_CFG_PTP_DOM);
-#endif
     // enable central counters in DEVCPU
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
             VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1<<domain),
@@ -620,7 +606,6 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32  value;
@@ -674,7 +659,6 @@ static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
-#endif
 
 typedef struct {
     u32 rx;
@@ -704,10 +688,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
     io_delay_t            *dv_factor = NULL;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
-#endif
-
 
     VTSS_D("Enter  port_no %d", port_no);
     (void)delay_var_factor;
@@ -742,7 +723,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
         VTSS_D("chip_port %u  interface %u  speed %u  sd_type %u  sd_lane_tgt %u  sd_indx %u", port, interface, speed, sd_type, sd_lane_tgt, sd_indx);
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
         if (sd_type == FA_SERDES_TYPE_25G) {
             REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
@@ -760,7 +740,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             dv_factor = delay_var_factor;
         }
         VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var, sd_tx_delay_var);
-#endif
     }
 
     switch (interface) {
@@ -874,10 +853,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         if (FA_TGT) {
             if ((port % 8) < 4) {
                 /* USGMII */
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
                 REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
                 delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
-#endif
             } else {
                 /* QSGMII */
                 REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 8), &value);
@@ -891,10 +868,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
     case VTSS_PORT_INTERFACE_USGMII:
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
         delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
-#endif
         rx_delay += (delay_var * 100) - ((port % 4) * 1000);
         tx_delay += (port % 4) * 1000;
 
@@ -980,7 +955,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         break;
     }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     if (LA_TGT) {
         uint32_t i;
         /* Configure TS phase detection */
@@ -994,7 +968,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
                     VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
         }
     }
-#endif
 
     /* rx_delay and tx_delay are in picoseconds.  */
     VTSS_I(" port_no %d speed %d interface %d rx_dly %u tx_dly %u", port_no, speed, interface, rx_delay, tx_delay);
@@ -1181,15 +1154,9 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
     }
     if (LA_TGT) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC), "PTP_TWOSTEP_STAMP");
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
-#else
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
-#endif
     }
 
     /* DEVCPU_PTP:PTP_CFG */
@@ -1230,7 +1197,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
         VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CFG(idx)), buf);
     }
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
+
     vtss_port_no_t port_no;
     /* DEV1G:DEV_CFG_STATUS / DEV10G:DEV_CFG_STATUS */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
@@ -1268,7 +1235,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
             break;
         }
     }
-#endif
+
     pr("\n");
 
     return VTSS_RC_OK;
@@ -1293,7 +1260,6 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     REG_WRM(VTSS_ANA_ACL_PTP_MISC_CTRL,
             VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA(1) | VTSS_F_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52(0),
             VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_ALLOW_ACL_REW_ENA | VTSS_M_ANA_ACL_PTP_MISC_CTRL_PTP_DELAY_REQ_UDP_LEN52);
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     /* Configure the nominal TOD increment per clock cycle */
     switch (vtss_state->init_conf.core_clock.freq) {
     /* 250 MHz gives 4.0 ns */
@@ -1323,21 +1289,6 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         break;
     default: {};
     }
-#endif
-
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-    u64 residue, nom_ns, nom_01_ns, nom_001_ns, nom_0001_ns, clk_in_ps;
-    clk_in_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
-    /* The TOD increment is a 64 bit value with 59 bits as the nano second fragment. This give a nano second resolution of 0x08000000 00000000 */
-    nom_ns = ((clk_in_ps/1000) * 0x0800000000000000);   /* Nominel nanoseconds */
-    residue =  (clk_in_ps%1000);
-    nom_01_ns =  (((residue/100) * 0x0800000000000000)/10);   /* Nominel 0.1 nanoseconds */
-    residue =  (residue%100);
-    nom_001_ns =  (((residue/10) * 0x0800000000000000)/100);   /* Nominel 0.01 nanoseconds */
-    residue =  (residue%10);
-    nom_0001_ns =  (((residue/1) * 0x0800000000000000)/1000);   /* Nominel 0.001 nanoseconds */
-    nominal_tod_increment = nom_ns + nom_01_ns + nom_001_ns + nom_0001_ns;
-#endif
 
     /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
@@ -1362,17 +1313,14 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5), VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
         for (i = 0; i < RT_CHIP_PORTS_ALL; i++) {
             if (VTSS_PORT_IS_5G(i) || VTSS_PORT_IS_10G(i)) {
                 REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5);
             }
         }
-#endif
     }
 
     /* Get the GPIO functionality information */
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     vtss_rc rc = VTSS_RC_OK;
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
         VTSS_MEMSET(ptp_gpio, 0, sizeof(ptp_gpio));
@@ -1392,7 +1340,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     } else {
         VTSS_E("gpio_func_info_get is NULL");
     }
-#endif
+
     for (i = 0; i < GPIO_FUNC_INFO_SIZE; ++i) {  // Convert ALT enumerate to vtss_gpio_mode_t. This is not so nice but it works.
         switch (ptp_gpio[i].alt) {
             case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;
@@ -2028,11 +1976,7 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             state->timestamp_get = fa_ts_timestamp_get;
         }
         if (LA_TGT) {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
             state->timestamp_get = la_ts_timestamp_get;
-#else
-            state->timestamp_get = fa_ts_timestamp_get;
-#endif
         }
         state->status_change = fa_ts_status_change;
         state->timestamp_id_release = fa_ts_timestamp_id_release;

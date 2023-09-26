@@ -20,7 +20,6 @@
 
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #include "vtss_fa_inc.h"
 
 vtss_rc  vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask) {
@@ -576,6 +575,6 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd10g28
 
     return rc;
 }
-#endif /* !defined(VTSS_ARCH_LAN969X_FPGA) */
 #endif /* _VTSS_ANT__API_SD10G28_UTE */
 #endif /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */
+

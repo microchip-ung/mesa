@@ -7,7 +7,7 @@
 #include "vtss_fa_sd10g28_setup.h"
 #include "vtss_fa_sd25g28_setup.h"
 
-#if defined(VTSS_ARCH_FA) && !defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_FA)
 
 u32 vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx)
 {

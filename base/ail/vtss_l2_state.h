@@ -42,8 +42,6 @@ typedef struct {
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if VTSS_OPT_LIGHT
 #define VTSS_PGID_FA 128
-#elif defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_PGID_FA (512 + 30)
 #else
 #define VTSS_PGID_FA (2048 + 65)
 #endif
@@ -92,9 +90,7 @@ void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
 
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
 #define VTSS_MAC_INDEX_VID_CNT 4
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#define VTSS_MAC_INDEX_CNT     16
-#elif defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_MAC_INDEX_CNT     4096
 #elif defined(VTSS_ARCH_LAN966X_FPGA)
 #define VTSS_MAC_INDEX_CNT     512

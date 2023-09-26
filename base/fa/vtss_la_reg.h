@@ -14,14 +14,8 @@
 #endif
 
 #if defined(VTSS_ARCH_LAN969X)
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-#include "fpga/vtss_laguna_regs.h"
-#include "fpga/vtss_laguna_vcap.h"
-#include "fpga/vtss_laguna_buildid.h"
-#else
 #include "laguna/vtss_laguna_regs.h"
 #include "laguna/vtss_laguna_vcap.h"
-#endif
 #endif
 
 

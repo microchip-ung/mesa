@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "../vtss_fa_cil.h"
-#if defined(VTSS_ARCH_LAN969X) && !defined(VTSS_ARCH_LAN969X_FPGA)
+#if defined(VTSS_ARCH_LAN969X)
 #ifdef VTSS_OPT_SYMREG
 #define VTSS_IO_ORIGIN1_OFFSET 0x0e2000000 /*! default region*/
 #ifndef VTSS_IO_ORIGIN1_SIZE

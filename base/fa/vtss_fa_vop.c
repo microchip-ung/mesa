@@ -1342,7 +1342,6 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
     return (VTSS_RC_OK);
 }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
 /* - Debug print --------------------------------------------------- */
@@ -1362,13 +1361,10 @@ static vtss_rc fa_voi_conf_set(vtss_state_t            *vtss_state,
 #define D_D_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_CL_##name),  "DOWN_MIP:"#name)
 #define D_U_MIP_S(pr, name)       vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_##name),  "UP_MIP:"#name)
 
-#endif
-
 static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
                              const vtss_debug_printf_t  pr,
                              const vtss_debug_info_t    *const info)
 {
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
     u32               i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt, dmip_cnt;
     char              buf[32];
     BOOL              show, vop, voe, status, clm, es0, isdx, lm_counters, d_mip, u_mip, mip_status, resources;
@@ -1679,7 +1675,7 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         vtss_fa_debug_reg_header(pr, buf);
         D_U_MIP_S(pr, MIP_STICKY_EVENT);
     }
-#endif //!defined(VTSS_ARCH_LAN969X_FPGA)
+
     return VTSS_RC_OK;
 }
 
@@ -1690,7 +1686,6 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, fa_debug_vop, vtss_state, pr, info);
 }
 
-#if !defined(VTSS_ARCH_LAN969X_FPGA)
 #undef D_COM
 #undef D_COM_I
 #undef D_VOE_I
@@ -1705,7 +1700,6 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t *vtss_state,
 /* - Initialization ------------------------------------------------ */
 /* - Initialization ------------------------------------------------ */
 /* - Initialization ------------------------------------------------ */
-#endif
 
 static vtss_rc voe_default_set(vtss_state_t          *vtss_state,
                                const vtss_voe_idx_t  voe_idx)
@@ -1813,10 +1807,7 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     REG_WR(VTSS_VOP_VOP_CTRL, 0);
 
     service_voe_alloc_idx = 0;
-#if defined(VTSS_ARCH_LAN969X_FPGA)
-        /* system clock is 11,875 ns (84210526 hz) and LOC_BASE_TICK_CNT is default 50, i.e. 594 ns */
-    loc_base = 594; /* ns */
-#else
+
     switch (vtss_state->init_conf.core_clock.freq) {
         case VTSS_CORE_CLOCK_625MHZ:
         case VTSS_CORE_CLOCK_DEFAULT:
@@ -1836,7 +1827,6 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
             loc_base = 152; /* ns */
             break;
     }
-#endif
 
     /* Configure LOC periods used for CCM LOC: */
     REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)), (     3333ULL * 1000) / loc_base);
