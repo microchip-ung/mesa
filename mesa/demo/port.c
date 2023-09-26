@@ -455,6 +455,10 @@ typedef struct {
     mesa_bool_t compact;
     mesa_bool_t full;
     mesa_bool_t force;
+    mesa_bool_t ctrl0;
+    mesa_bool_t ctrl1;
+    mesa_bool_t ctrl2;
+    mesa_bool_t ctrl3;
 } port_cli_req_t;
 
 static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
@@ -922,7 +926,29 @@ static void cli_cmd_phy_scan(cli_req_t *req)
 {
     uint16_t value, adr;
     mesa_bool_t found = FALSE, found_mmd = FALSE;
-    for (mesa_miim_controller_t miim_ctrl = MESA_MIIM_CONTROLLER_0; miim_ctrl < MESA_MIIM_CONTROLLERS; miim_ctrl++) {
+    port_cli_req_t *mreq = req->module_req;
+    mesa_miim_controller_t miim_ctrl, miim_start = MESA_MIIM_CONTROLLER_0, miim_end = MESA_MIIM_CONTROLLERS;
+    int ctrl_cnt = mesa_capability(NULL, MESA_CAP_PORT_MIIM_CTRL_CNT);
+
+    if (mreq->ctrl0) {
+        miim_start = MESA_MIIM_CONTROLLER_0;
+        miim_end = MESA_MIIM_CONTROLLER_0;
+    } else if (mreq->ctrl1) {
+        miim_start = MESA_MIIM_CONTROLLER_1;
+        miim_end = MESA_MIIM_CONTROLLER_1;
+    } else if (mreq->ctrl2) {
+        miim_start = MESA_MIIM_CONTROLLER_2;
+        miim_end = MESA_MIIM_CONTROLLER_2;
+    } else if (mreq->ctrl3) {
+        miim_start = MESA_MIIM_CONTROLLER_3;
+        miim_end = MESA_MIIM_CONTROLLER_3;
+    }
+
+    for (miim_ctrl = miim_start; miim_ctrl <= miim_end; miim_ctrl++) {
+        if (miim_ctrl >= ctrl_cnt) {
+            return;
+        }
+
         for (adr = 0; adr < 32; adr++) {
             if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &value) == MESA_RC_OK) {
                 cli_printf("Clause 28: Ctrl:%d MIIM addr:%-2d - Found Phy 0x%x (reg 3)\n",miim_ctrl, adr, value);
@@ -1359,7 +1385,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_sfp_dump
     },
     {
-        "Debug phy scan",
+        "Debug phy scan [ctrl0|ctrl1|ctrl2|ctrl3]",
         "Shows all detected phys (over all controllers)",
         cli_cmd_phy_scan
     },
@@ -1458,6 +1484,14 @@ static int cli_parm_keyword(cli_req_t *req)
         mreq->adv_dis = MEPA_ADV_DIS_100M;
     } else if (!strncasecmp(found, "10", 2)) {
         mreq->adv_dis = MEPA_ADV_DIS_10M;
+    } else if (!strncasecmp(found, "ctrl0", 5)) {
+        mreq->ctrl0 = 1;
+    } else if (!strncasecmp(found, "ctrl1", 5)) {
+        mreq->ctrl1 = 1;
+    } else if (!strncasecmp(found, "ctrl2", 5)) {
+        mreq->ctrl2 = 1;
+    } else if (!strncasecmp(found, "ctrl3", 5)) {
+        mreq->ctrl3 = 1;
     } else {
         cli_printf("no match: %s\n", found);
     }
@@ -1561,7 +1595,16 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NONE,
         cli_parm_keyword
     },
-
+    {
+        "ctrl0|ctrl1|ctrl2|ctrl3",
+        "ctrl0      : miim controller 0\n"
+        "ctrl1      : miim controller 1\n"
+        "ctrl2      : miim controller 2\n"
+        "ctrl3      : miim controller 3\n"
+        "(default: all controllers)",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_keyword
+    },
 };
 
 static void port_cli_init(void)
