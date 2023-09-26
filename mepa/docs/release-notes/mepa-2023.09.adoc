@@ -1,0 +1,51 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2023.09
+
+== MEPA-2023.09
+
+|===
+|Version:          |MEPA-2023.09
+|Previous Version: |MEPA-2023.06
+|Date:             |2023-09-29
+|Description:      |Release Notes
+|===
+
+=== Disclaimers
+
+=== General
+
+This release contains following contents:
+
+* vsc8574 support and new feature
+* VSC8584 new feature
+* VSC8512/22 bug fix
+* VSC8258 new feature
+* LAN8770 driver support
+
+=== API Enhancements
+
+
+=== New Features
+
+==== VSC8574
+
+* MEPA-365    VSC8574 support
+* MEPA-376    Temperature Sensor support
+
+==== VSC8584
+
+* MEPA-314    FEFI feature support with MAC and Media link status handling for 1G PHYs
+
+==== LAN8770
+
+* LAN87-87    Add MEPA API support
+* LAN87-107   Add MEPA TC10 support
+
+=== Bug Fixes
+
+==== VSC8512
+
+* MEPA-428    Using MEPA, unable to get VSC8512/22 to initialize properly
+

@@ -21,6 +21,9 @@ pages:
           src:  "mepa/docs/release-notes/mepa-2022.12.adoc"
         - name: "MEPA-2023.03"
           src:  "mepa/docs/release-notes/mepa-2023.03.adoc"
+        - name: "MEPA-2023.09"
+          src:  "mepa/docs/release-notes/mepa-2023.09.adoc"
+
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"
