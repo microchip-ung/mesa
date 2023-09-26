@@ -2321,7 +2321,7 @@ static vtss_rc fa_serdes_ctle_read(vtss_state_t *vtss_state, const vtss_debug_pr
 
     if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_0D(sd_tgt), &val);
-        pr("CTLE in manuel mode  :%d\n",VTSS_X_SD10G_LANE_TARGET_LANE_0D_CFG_EQR_BYP(val));
+        pr("CTLE in manual mode  :%d\n",VTSS_X_SD10G_LANE_TARGET_LANE_0D_CFG_EQR_BYP(val));
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_2F(sd_tgt), &val);
         pr("VGA resistor set to  :%d\n",VTSS_X_SD10G_LANE_TARGET_LANE_2F_CFG_VGA_CTRL_3_0(val));
         pr("VGA capacitor set to :%d\n",VTSS_X_SD10G_LANE_TARGET_LANE_2F_CFG_VGA_CP_2_0(val));
@@ -2331,9 +2331,9 @@ static vtss_rc fa_serdes_ctle_read(vtss_state_t *vtss_state, const vtss_debug_pr
         pr("CTLE GAIN set to     :%d\n",VTSS_X_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(val));
     } else {
         REG_RD(VTSS_SD25G_TARGET_LANE_23(sd_tgt), &val);
-        pr("VGA in manuel mode  :%d\n",VTSS_X_SD25G_TARGET_LANE_23_LN_CFG_VGA_BYP(val));
+        pr("VGA in manual mode  :%d\n",VTSS_X_SD25G_TARGET_LANE_23_LN_CFG_VGA_BYP(val));
         REG_RD(VTSS_SD25G_TARGET_LANE_1F(sd_tgt), &val);
-        pr("CTLE in manuel mode  :%d\n",VTSS_X_SD25G_TARGET_LANE_1F_LN_CFG_EQR_BYP(val));
+        pr("CTLE in manual mode  :%d\n",VTSS_X_SD25G_TARGET_LANE_1F_LN_CFG_EQR_BYP(val));
         REG_RD(VTSS_SD25G_TARGET_LANE_21(sd_tgt), &val);
         pr("VGA set to           :%d\n",VTSS_X_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0(val));
         REG_RD(VTSS_SD25G_TARGET_LANE_22(sd_tgt), &val);

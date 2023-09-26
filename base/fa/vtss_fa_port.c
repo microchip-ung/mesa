@@ -4318,7 +4318,7 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
         FA_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
         FA_DEBUG_10G_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
        pr("\nLink status (MAC/PCS):\n");
-        pr("port          local_fault   remote_fault  idle_state    rx_blk_lock   rx_hi_ber\n");
+        pr("port          local_fault   remote_fault  idle_state    rx_blk_lock   rx_hi_ber   rsfec/rfec\n");
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
         REG_RD(VTSS_DEV10G_PCS25G_STATUS(tgt), &val2);
         REG_RD(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), &pcs_st);
@@ -4329,12 +4329,12 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
             lock = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st);
             hi_ber = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_HI_BER(pcs_st);
         }
-        pr("%-13d %-13d %-13d %-13d %-13d %-13d %-13d\n",
+        pr("%-13d %-13d %-13d %-13d %-13d %-13d %d/%-13d\n",
            port,
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
-           lock, hi_ber, vtss_state->port.kr_fec[port_no].rs_fec);
+           lock, hi_ber, vtss_state->port.kr_fec[port_no].rs_fec, vtss_state->port.kr_fec[port_no].r_fec);
         // Clear the stickies
         REG_WR(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), 0xFFFFFFFF);
     } else {
