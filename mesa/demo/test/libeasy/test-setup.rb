@@ -1047,8 +1047,8 @@ class Mesa_Pc_b2b
         t_i "Reached to UBoot console"
         return true
 
-      rescue => e
-        t_backtrace e
+      rescue
+        t_i "Could not reach uboot prompt"
         return false
       end
     end
