@@ -867,8 +867,8 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
     port_entry_t           *entry;
     meba_sfp_device_info_t *info;
     int                    found = 0, pre;
-    uint8_t                rom[255];
-    char                   out_buf[4096];
+    uint8_t                rom[255] = {};
+    char                   out_buf[4096] = {};
     port_cli_req_t         *mreq = req->module_req;
 
     for (iport = 0; iport < port_cnt; iport++) {
@@ -908,11 +908,17 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
                    ps.link ? "yes" : "no");
 
         if (mreq->full) {
-            MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, iport, FALSE, 0x50, 0, rom, sizeof(rom), FALSE);
-            cli_printf("Rom content at A0h:\n%s\n", misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
-            if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) {
-                MEBA_WRAP(meba_sfp_i2c_xfer, meba_global_inst, iport, FALSE, 0x56, 0, rom, 128, FALSE);
-                cli_printf("Phy content:\n%s\n", misc_mem_print(rom, 128, out_buf, 128));
+            if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE, 0x50, 0, rom, sizeof(rom), FALSE) == MESA_RC_OK) {
+                cli_printf("Rom content at A0h:\n%s\n", misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
+                if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) {
+                    if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE, 0x56, 0, rom, 128, FALSE) == MESA_RC_OK) {
+                        cli_printf("Phy content:\n%s\n", misc_mem_print(rom, 128, out_buf, 128));
+                    } else {
+                        cli_printf("Could i2c read SFP PHY\n");
+                    }
+                }
+            } else {
+                cli_printf("Could i2c read SFP ROM\n");
             }
         }
 
@@ -1869,13 +1875,13 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         entry->sfp_status.los = TRUE;
         return;
     }
-    meba_sfp_device_info_get(inst, port_no, &info);
-    /* // Read SFP ROM */
-    /* if (!meba_sfp_device_info_get(inst, port_no, &info)) { */
-    /*     T_E("Port:%u SFP read failed", port_no); */
-    /*     entry->sfp_device = NULL; */
-    /*     return; */
-    /* } */
+
+    // Read SFP ROM
+    if (!meba_sfp_device_info_get(inst, port_no, &info)) {
+        T_E("Port:%u SFP read (i2c) failed", port_no);
+        entry->sfp_device = NULL;
+        return;
+    }
 
     // Search for pre-installed drivers (based on product name)
     // If not found then install the driver according to the MSA standard

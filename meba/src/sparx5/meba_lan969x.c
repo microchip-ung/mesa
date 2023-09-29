@@ -152,15 +152,24 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
     }
 
-    /* SGPIO group controls SFP LEDs for S6-S9  */
+    /* SGPIO group controls:
+       sgpio port 0  : i2c mux
+       sgpio port 1  : RS422
+       sgpio port 6-9: SFP LEDs and SFP signals */
     if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 4;
 
-        /* MUX_SELx (I2C) is controlled by the BSP driver */
+        /* MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
         for (uint32_t i = 0; i < 4; i++) {
             conf.port_conf[0].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
         }
+        conf.port_conf[0].enabled = 1;
+
+        /* Set bit 2 and 3 to high. This sets the RS422 1PPS driver output to tristate */
+        conf.port_conf[1].enabled = 1;
+        conf.port_conf[1].mode[2] = MESA_SGPIO_MODE_ON;
+        conf.port_conf[1].mode[3] = MESA_SGPIO_MODE_ON;
 
         // SGPIO Output port 6-9:
         // bit 0: LED1
@@ -177,15 +186,6 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
             conf.port_conf[port].enabled = 1;
             conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF; // Turn on Green SFP LED while booting
             conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF; // Turn on Red SFP LED while booting
-        }
-
-        if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
-            /* Enable port 1 and set bit 2 and 3 to high. This set the RS422 1PPS driver output to tristate */
-            conf.port_conf[1].enabled = true;
-            conf.port_conf[1].mode[2] = MESA_SGPIO_MODE_ON;
-            conf.port_conf[1].mode[3] = MESA_SGPIO_MODE_ON;
-            /* Port 0 must also be enabled */
-            conf.port_conf[0].enabled = true;
         }
 
         (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
