@@ -146,7 +146,7 @@ mesa_rc meba_poe_caracal_system_initialize(
                                        inst->iface.debug,
                                        tPoE_parameters);
         }
-        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
+        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_PREBT)
         {
             // overide tMeba_poe_init_params params if using H file parameters
             if(tPoe_init_params->use_poe_static_parameters) {
@@ -229,7 +229,7 @@ default:  //caracal board
                                      inst->iface.debug,
                                      tPoE_parameters);
         }
-        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT)
+        else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_PREBT)
         {
              // overide tMeba_poe_init_params params if using H file parameters
              if(tPoe_init_params->use_poe_static_parameters) {

@@ -557,7 +557,7 @@ mesa_rc pd69200_wr(const meba_poe_ctrl_inst_t* const inst,
 
         private_data->status.global.i2c_tx_error_counter++;
 
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
+        DEBUG(inst, MEBA_TRACE_LVL_ERROR, "%s: %s Wrote(%d/%d. TxErrCnt=%lu) %s ",
               inst->adapter_name, data_description, size, cnt, private_data->status.global.i2c_tx_error_counter,
               print_as_hex_string(data, size, buf, sizeof(buf)));
 
@@ -2670,7 +2670,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             case ePD69200_AT:
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_AT;
+                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 AT firmware.");
                 break;
             }
@@ -2684,7 +2684,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             case ePD69210_AT:
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_AT;
+                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 AT firmware.");
                 break;
             }
@@ -2698,7 +2698,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             case ePD69220_AT:
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
-                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_AT;
+                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 AT firmware.");
                 break;
             }
@@ -2711,7 +2711,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             }
             case ePD69200M_AT:
             {
-                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_AT;
+                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M AT firmware.");
                 break;
             }
@@ -3788,7 +3788,7 @@ mesa_rc meba_poe_pd69200_do_detection(
             case ePD69220_AT:
             case ePD69200M_AT:
             {
-                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_AT;
+                private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,"poe mcu type detected: AT firmware=%d", poe_mcu_type);
 
                 uint16_t pInterrupt_register;

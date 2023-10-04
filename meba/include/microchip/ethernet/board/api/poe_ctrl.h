@@ -385,7 +385,7 @@ typedef enum {
 
 
 typedef enum {
-    MEBA_POE_FIRMWARE_TYPE_AT = 0,
+    MEBA_POE_FIRMWARE_TYPE_PREBT = 0,
     MEBA_POE_FIRMWARE_TYPE_BT
 } meba_poe_firmware_type_t;
 
@@ -572,16 +572,8 @@ typedef struct {
 //        PoE init parameters
 //---------------------------------------------------
 
-
-#define MAX_SW_TYPE_LEN                    3   // max char len of SNMP MIB-II SysObjID (1.3.6.1.....)
 #define MAX_PORD_NAME_STR_LEN              32   // max string size of product name
-#define MAX_SNMP_SYS_OID_LEN               64   // max char len of SNMP MIB-II SysObjID (1.3.6.1.....)
-#define MAX_DEF_VAL_OVERRIDE_STR_LEN       200  // max str len for the entire def values to be over written
-#define MAX_WEB_URL_NAME_LEN               80   // max length of WEB page url as 'view_system_status_r_sp.htm'
-#define MAX_DB_SINGLE_PRM_SIZE             350  // max size that a single param can occupy in the data base
-
-
-// Parameter [PROD_xyzm_POE_PORT_MAX_POWER_W] value in file products.db must match one of the enum values
+// Parameter [PROD_xyzm_POE_DEF_PORT_MAX_POWER_W] value in file products.db must match one of the enum values
 typedef enum
 {
     MEBA_POE_PORT_MAX_POWER_15W = 15,
@@ -596,7 +588,7 @@ typedef struct   // parameters taken from DB according to PN read from PoEMCU se
     mesa_bool_t              use_poe_static_parameters              ;
     uint8_t                  Max_POE_Ch                             ; // Max number of POE channels ( 6/12/24/48) based on product det (serial number)
     uint16_t                 PwrSupply_MaxPwr                       ; // Midspan Power Supply Max-Power(Watt) - after decrementing internal power consumption ( 450 -> 430,etc )
-    char                     product_name[ MAX_PORD_NAME_STR_LEN+1] ; // Product name - retrieved from DB according to product being detected
+    char                     product_name[MAX_PORD_NAME_STR_LEN+1]  ; // Product name - retrieved from DB according to product being detected
     meba_poe_software_power_type_t eMEBA_POE_SOFTWARE_POWER_TYPE    ; // AF-15W ,AT-30W ,BT-60W/90W
     meba_poe_firmware_type_t       eMEBA_POE_FIRMWARE_TYPE          ; // AF/AT ,BT
 }meba_poe_init_params_t;

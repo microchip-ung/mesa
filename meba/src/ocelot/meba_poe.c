@@ -122,7 +122,7 @@ mesa_rc meba_poe_system_initialize(
                                  sizeof(ocelot_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                  inst->iface.debug,
                                  tPoE_parameters);
-    } else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_AT) {
+    } else if(tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE == MEBA_POE_FIRMWARE_TYPE_PREBT) {
         // Do poe chip detection and fill
         /* ocelot_ctrl.api = ....; */
         /* ocelot_ctrl.private_data = ....; */
