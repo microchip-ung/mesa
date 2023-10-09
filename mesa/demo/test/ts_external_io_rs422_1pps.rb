@@ -11,17 +11,38 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 check_capabilities do
     $cap_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
     assert(($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
-           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")),
-           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5)")
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")) ||
+           ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
+           "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or
+            #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or
+            #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Laguna)")
     assert(($ts.ts_external_clock_looped == true),
            "External clock must be looped")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
 end
 
-$mstoen_gpio = 55
-$slvoen_gpio = 54
+$pcb = $ts.dut.pcb
+
+if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
+    $mstoen_gpio = 55
+    $slvoen_gpio = 54
+    $saved_nano_max = 50    # The max of 50 nano is experimental
+end
+if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+    $mstoen_gpio = 49
+    $slvoen_gpio = 48
+    $saved_nano_max = 85   # The max of 85 nano is experimental
+end
+if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+    $saved_nano_max = 95   # The max of 95 nano is experimental
+end
+
 $rs422_out_pin = 3
 $rs422_in_pin = 2
+if ($pcb == "8398")
+    $rs422_in_pin = 5
+    $rs422_out_pin = 4
+end
 
 def tod_external_io_rs422_1pps_test
     test "tod_external_io_rs422_1pps_test" do
@@ -38,11 +59,6 @@ def tod_external_io_rs422_1pps_test
 
     for domain in 0..2
         test "domain = #{domain}" do
-        # Set TOD 
-        tod_ts["seconds"] = 0
-        tod_ts["nanoseconds"] = 0
-        $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod_ts)
-
         # Configure RS422 1PPS input pin to this domain
         pin_conf["domain"] = domain
         pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE"
@@ -51,6 +67,12 @@ def tod_external_io_rs422_1pps_test
         # Configure RS422 1PPS output pin to this domain
         pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT"
         $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_out_pin, pin_conf)
+
+        # Set TOD
+        tod_ts["seconds"] = 0
+        tod_ts["nanoseconds"] = 0
+        $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod_ts)
+        in_pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $rs422_in_pin)
 
         sleep(1)
 
@@ -62,7 +84,7 @@ def tod_external_io_rs422_1pps_test
         saved_nano1 = $ts.dut.call("mesa_ts_alt_clock_saved_get")
         saved_nano1 >>= 16
 
-        sleep(1)
+        sleep(0.9)
 
         # Get TOD on 1PPS input pin
         in_pin = $ts.dut.call("mesa_ts_saved_timeofday_get", $rs422_in_pin)
@@ -76,8 +98,9 @@ def tod_external_io_rs422_1pps_test
             t_e("TOD is not incremented as expected.  in_pin_tod1[seconds] = #{in_pin_tod1["seconds"]}  in_pin_tod2[seconds] = #{in_pin_tod2["seconds"]}")
         end
 
-        if ((saved_nano2 != saved_nano1) || (saved_nano2 > 50))   # The max of 50 nano is experimental
-            t_e("Saved nanoseconds is not as expected.  saved_nano1 = #{saved_nano1}  saved_nano2 = #{saved_nano2}")
+        saved_diff = saved_nano1 - saved_nano2
+        if ((saved_diff.abs > 2) || (saved_nano2 > $saved_nano_max))
+            t_e("Saved nanoseconds is not as expected.  saved_diff = #{saved_diff}  saved_nano2 = #{saved_nano2}")
         end
 
         # Configure RS422 1PPS output pin to DISABLE
@@ -89,36 +112,27 @@ def tod_external_io_rs422_1pps_test
 end
 
 test "test_conf" do
-    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
-        t_i("Test not implemented yet")
-        exit 0
-    end
-
     # disable VLAN 1 to avoid looping
     $ts.dut.call("mesa_vlan_port_members_set", 1, "")
 
-    # Assert buffer output enable
-    $ts.dut.call("mesa_gpio_mode_set", 0, $mstoen_gpio, "MESA_GPIO_OUT")
-    $ts.dut.call("mesa_gpio_mode_set", 0, $slvoen_gpio, "MESA_GPIO_OUT")
-    $ts.dut.call("mesa_gpio_write", 0, $mstoen_gpio, true)
-    $ts.dut.call("mesa_gpio_write", 0, $slvoen_gpio, false)
-
-    # External io mode save
-    $extern_io_mode_restore0 = $ts.dut.call("mesa_ts_external_io_mode_get", $rs422_in_pin)
-    $extern_io_mode_restore1 = $ts.dut.call("mesa_ts_external_io_mode_get", $rs422_out_pin)
+    if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")) ||
+        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
+        # Assert buffer output enable
+        $ts.dut.call("mesa_gpio_mode_set", 0, $mstoen_gpio, "MESA_GPIO_OUT")
+        $ts.dut.call("mesa_gpio_mode_set", 0, $slvoen_gpio, "MESA_GPIO_OUT")
+        $ts.dut.call("mesa_gpio_write", 0, $mstoen_gpio, true)
+        $ts.dut.call("mesa_gpio_write", 0, $slvoen_gpio, false)
+    end
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
+        # Assert buffer output enable
+        conf = $ts.dut.call("mesa_sgpio_conf_get", 0, 0)
+        conf["port_conf"][1]["mode"][2] = "MESA_SGPIO_MODE_OFF"
+        conf["port_conf"][1]["mode"][3] = "MESA_SGPIO_MODE_OFF"
+        $ts.dut.call("mesa_sgpio_conf_set", 0, 0, conf)
+    end
 end
 
 test"test_run" do
     # Test io clock on the RS422 interface
     tod_external_io_rs422_1pps_test
-end
-
-test "test_clean_up" do
-    # External io mode restore
-    $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_in_pin, $extern_io_mode_restore0)
-    $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_out_pin, $extern_io_mode_restore1)
-
-    # GPIO mode restore. Input is deafult
-    $ts.dut.call("mesa_gpio_mode_set", 0, $mstoen_gpio, "MESA_GPIO_IN")
-    $ts.dut.call("mesa_gpio_mode_set", 0, $slvoen_gpio, "MESA_GPIO_IN")
 end

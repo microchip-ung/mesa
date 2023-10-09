@@ -122,7 +122,7 @@ static unsigned int la_chip_const[] = {
     [__RT_DSM_CAL_MAX_DEVS_PER_TAXI] = 10,
     [__RT_DSM_CAL_TAXIS] = 5,
     [__RT_EXT_CLK_PIN] = 4,
-    [__RT_ALT_LDST_PIN] = 2,
+    [__RT_ALT_LDST_PIN] = 5,
     [__RT_ALT_PPS_PIN] = 3,
     [__RT_TOD_ACC_PIN] = 7,
 };
