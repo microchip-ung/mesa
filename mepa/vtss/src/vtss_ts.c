@@ -132,6 +132,9 @@ static mesa_rc mepa_to_vtss_encap(mepa_ts_pkt_encap_t encap, vtss_phy_ts_encap_t
     case MEPA_TS_ENCAP_ETH_IP_PTP:
         *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
         break;
+    case MEPA_TS_ENCAP_ETH_HSR_PTP:
+        *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
+        break;
     case MEPA_TS_ENCAP_NONE:
         *vsc_encap = VTSS_PHY_TS_ENCAP_NONE;
         break;
@@ -1144,6 +1147,7 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
     vtss_phy_ts_engine_t eng_id;
     uint16_t flow_id, i;
     uint8_t flow_start, flow_end;
+    vtss_phy_ts_gen_conf_t *gen;
     vtss_phy_ts_eth_conf_t *eth;
     vtss_phy_ts_eth_flow_conf_t *eth_flow;
     vtss_phy_ts_ip_conf_t *ip;
@@ -1238,6 +1242,12 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         eth_flow = &eth->flow_opt[flow_id];
         ip = &flow_conf.flow_conf.ptp.ip1_opt;
         ip_flow = &ip->flow_opt[flow_id];
+        if (encap == VTSS_PHY_TS_ENCAP_ETH_HSR_PTP) {
+            gen = &flow_conf.flow_conf.gen.gen_opt;
+            gen->comm_opt.flow_offset = 0;
+            gen->comm_opt.next_prot_offset = 6;
+            memset(gen->flow_opt[flow_id].mask, 0, sizeof(gen->flow_opt[flow_id].mask));
+        }
         if (encap == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) {
             // ip common options
             if (ip_in->ip_ver == MEPA_TS_IP_VER_6) {
@@ -1333,6 +1343,7 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
     vtss_phy_ts_engine_t eng_id;
     uint16_t flow_id, i;
     uint8_t flow_start, flow_end;
+    vtss_phy_ts_gen_conf_t *gen;
     vtss_phy_ts_eth_conf_t *eth;
     vtss_phy_ts_eth_flow_conf_t *eth_flow;
     vtss_phy_ts_ip_conf_t *ip;
@@ -1428,6 +1439,14 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         eth_flow = &eth->flow_opt[flow_id];
         ip = &flow_conf.flow_conf.ptp.ip1_opt;
         ip_flow = &ip->flow_opt[flow_id];
+        if (encap == VTSS_PHY_TS_ENCAP_ETH_HSR_PTP) {
+            gen = &flow_conf.flow_conf.gen.gen_opt;
+            gen->comm_opt.flow_offset = 0;
+            gen->comm_opt.next_prot_offset = 6;
+            gen->flow_opt[flow_id].flow_en = true;
+            memset(gen->flow_opt[flow_id].mask, 0, sizeof(gen->flow_opt[flow_id].mask));
+        }
+
         if (encap == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) {
             // ip common options
             if (ip_in->ip_ver == MEPA_TS_IP_VER_6) {

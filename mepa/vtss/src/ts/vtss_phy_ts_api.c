@@ -9383,7 +9383,7 @@ static vtss_rc vtss_phy_ts_ip1_generic_conf_priv(
     }
 
     value = VTSS_F_ANA_IP1_NXT_PROTOCOL_IP1_MODE_IP1_FLOW_OFFSET(new_gen_conf->comm_opt.flow_offset);
-    value |= VTSS_F_ANA_IP1_NXT_PROTOCOL_IP1_MODE_IP1_MODE(3);
+    value |= VTSS_F_ANA_IP1_NXT_PROTOCOL_IP1_MODE_IP1_MODE(2);
     VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, blk_id, VTSS_ANA_IP1_NXT_PROTOCOL_IP1_MODE, &value));
 
     for (i = eng_conf->flow_st_index; i <= eng_conf->flow_end_index; i++) {
@@ -11081,6 +11081,43 @@ static vtss_rc vtss_phy_ts_engine_init_priv(
             break;
         }
         break;
+    case VTSS_PHY_TS_ENCAP_ETH_HSR_PTP:
+        VTSS_RC(VTSS_RC_COLD(vtss_phy_ts_eth1_next_comp_etype_set_priv(vtss_state, port_no, blk_id,
+                                                                    eng_id, VTSS_PHY_TS_NEXT_COMP_IP1, 0x892f)));
+        /* set eth1 conf */
+        VTSS_RC(VTSS_RC_COLD(vtss_phy_ts_eth1_def_conf_priv(vtss_state, eng_parm,
+                                                         &vtss_phy_ts_def_inner_eth_conf_for_ptp)));
+        memset(&flow_conf->flow_conf.gen.eth1_opt, 0, sizeof(vtss_phy_ts_eth_conf_t));
+        memcpy(&flow_conf->flow_conf.gen.eth1_opt.comm_opt,
+               &vtss_phy_ts_def_inner_eth_conf_for_ptp.comm_opt,
+               sizeof(vtss_phy_ts_def_inner_eth_conf_for_ptp.comm_opt));
+        /* copy flow_opt at flow_st_index as it is the start index for the engine */
+        memcpy(&flow_conf->flow_conf.gen.eth1_opt.flow_opt[flow_st_index],
+               &vtss_phy_ts_def_inner_eth_conf_for_ptp.flow_opt[0],
+               sizeof(vtss_phy_ts_def_inner_eth_conf_for_ptp.flow_opt[0]));
+        flow_conf->flow_conf.gen.eth1_opt.comm_opt.etype = 0x892f;
+
+        /* set IP1 next comparator */
+        VTSS_RC(VTSS_RC_COLD(vtss_phy_ts_ip1_next_comp_set_priv(vtss_state, port_no, blk_id,
+                                                             VTSS_PHY_TS_NEXT_COMP_PTP_OAM, 6)));
+        VTSS_RC(VTSS_RC_COLD(vtss_phy_ts_generic_def_conf_priv(vtss_state, eng_parm, &vtss_phy_ts_def_gen_conf)));
+        memset(&flow_conf->flow_conf.gen.gen_opt, 0, sizeof(vtss_phy_ts_gen_conf_t));
+        memcpy(&flow_conf->flow_conf.gen.gen_opt.comm_opt,
+               &vtss_phy_ts_def_gen_conf.comm_opt,
+               sizeof(vtss_phy_ts_def_gen_conf.comm_opt));
+        /* copy flow_opt at flow_st_index as it is the start index for the engine */
+        memcpy(&flow_conf->flow_conf.gen.gen_opt.flow_opt[flow_st_index],
+               &vtss_phy_ts_def_gen_conf.flow_opt[0], sizeof(vtss_phy_ts_def_gen_conf.flow_opt[0]));
+
+        memset(action_conf, 0, sizeof(vtss_phy_ts_engine_action_t));
+        action_conf->action_ptp = TRUE;
+        action_conf->action_gen = FALSE;
+        memcpy(&action_conf->action.ptp_conf[0],&vtss_phy_ts_def_ptp_action, sizeof(vtss_phy_ts_ptp_engine_action_t));
+        rc = vtss_phy_ts_ptp_def_conf_priv(vtss_state, ingress, eng_parm);
+        //memcpy(&action_conf->action.gen_conf[0],
+        //       &vtss_phy_ts_def_gen_action, sizeof(vtss_phy_ts_generic_action_t));
+        //rc = VTSS_RC_COLD(vtss_phy_ts_gen_action_def_conf_priv(vtss_state, ingress, eng_parm));
+        break;
 
     default:
         VTSS_N("Port(%u) engine_init:: invalid encapsulation type: %u", (u32)port_no, encap_type);
@@ -12207,9 +12244,10 @@ static vtss_rc vtss_phy_ts_engine_flow_set_priv(
         rc = VTSS_RC_COLD(vtss_phy_ts_ptp_ts_all_conf_priv(vtss_state, eng_parm));
         break;
     case VTSS_PHY_TS_ENCAP_ETH_GEN:
+    case VTSS_PHY_TS_ENCAP_ETH_HSR_PTP:
         if ((rc = VTSS_RC_COLD(vtss_phy_ts_eth1_next_comp_etype_set_priv(vtss_state, port_no, eng_parm->blk_id,
                                                                          eng_id, VTSS_PHY_TS_NEXT_COMP_IP1,
-                                                                         new_flow_conf->flow_conf.gen.eth1_opt.comm_opt.etype))) != VTSS_RC_OK) {
+                                                                         0x892f))) != VTSS_RC_OK) {
             break;
         }
         if ((rc = vtss_phy_ts_eth1_conf_priv(vtss_state, eng_parm,

@@ -171,7 +171,8 @@ typedef struct {
 typedef enum {
     MEPA_TS_ENCAP_NONE,
     MEPA_TS_ENCAP_ETH_PTP,
-    MEPA_TS_ENCAP_ETH_IP_PTP
+    MEPA_TS_ENCAP_ETH_IP_PTP,
+    MEPA_TS_ENCAP_ETH_HSR_PTP,
 } mepa_ts_pkt_encap_t;
 
 /** \brief Match PTP Packet MAC types */

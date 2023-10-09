@@ -692,6 +692,7 @@ typedef enum {
 
     VTSS_PHY_TS_ENCAP_ANY, /* Timestamp all packets */
     VTSS_PHY_TS_ENCAP_ETH_GEN, /* Generic timestamping */
+    VTSS_PHY_TS_ENCAP_ETH_HSR_PTP,/* HSR encap */
     VTSS_PHY_TS_ENCAP_NONE,
 } vtss_phy_ts_encap_t;
 
