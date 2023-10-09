@@ -45,24 +45,24 @@
 #define INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR 0x30
 
 // AT individual masks - stay with defaults
-#define INDV_MASK_AT_IGNORE_HIGHER_PRIORITY     0x00
-#define INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION  0x01
-#define INDV_MASK_AT_MESSAGE_READY_NOTIFY       0x1E
-#define INDV_MASK_AT_LAYER2_LLDP_ENABLE         0x2E
-#define INDV_MASK_AT_LAYER2_PRIORITY_BY_PD      0x2F
-#define INDV_MASK_AT_MATRIX_SUPPORT_4P          0x34
+#define INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY     0x00
+#define INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION  0x01
+#define INDV_MASK_PREBT_MESSAGE_READY_NOTIFY       0x1E
+#define INDV_MASK_PREBT_LAYER2_LLDP_ENABLE         0x2E
+#define INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD      0x2F
+#define INDV_MASK_PREBT_MATRIX_SUPPORT_4P          0x34
 
 // AT individual masks - configuration depends on product
-#define INDV_MASK_AT_SUPPORTS_BACKOFF           0x11
-#define INDV_MASK_AT_LED_STREAM_TYPE            0x16
-#define INDV_MASK_AT_PSE_POWERING_PSE_CHECKING  0x1F
-#define INDV_MASK_AT_ENABLE_ASIC_REFRESH        0x2A
-#define INDV_MASK_AT_LAYER2_LLDP_ENABLE         0x2E
-#define INDV_MASK_AT_CLASS_0_EQUAL_AF	        0x38
-#define INDV_MASK_AT_CLASS_1_2_3_EQUAL_AF       0x39
-#define INDV_MASK_AT_LLDP_BEST_EFFORT	        0x47
-#define INDV_MASK_AT_AUTO_ZONE2_PORT_ACTIVATION 0x49
-#define INDV_MASK_AT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION	 0x50
+#define INDV_MASK_PREBT_SUPPORTS_BACKOFF           0x11
+#define INDV_MASK_PREBT_LED_STREAM_TYPE            0x16
+#define INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING  0x1F
+#define INDV_MASK_PREBT_ENABLE_ASIC_REFRESH        0x2A
+#define INDV_MASK_PREBT_LAYER2_LLDP_ENABLE         0x2E
+#define INDV_MASK_PREBT_CLASS_0_EQUAL_AF	        0x38
+#define INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF       0x39
+#define INDV_MASK_PREBT_LLDP_BEST_EFFORT	        0x47
+#define INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION 0x49
+#define INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION	 0x50
 
 #define LINE_SIZE_MAX         100 // PoE firmware file line max size in bytes
 #define POE_FIRMWARE_SIZE_MAX 2000000 // Maximum size of the PoE firmware in bytes (file mscc_firmware.txt)
@@ -1654,8 +1654,8 @@ mesa_rc meba_poe_pd69200_ctrl_total_power_get(
 
 mesa_rc meba_poe_pd69200_ctrl_port_4Pair_Port_Parameters_get(
     const meba_poe_ctrl_inst_t* const inst,
-    uint8_t                         channel,
-    uint8_t* port_type_af_at_poh)
+    uint8_t                           channel,
+    uint8_t                           *port_type_prebt_af_at_poh)
 {
 
     // Send request to get status
@@ -1680,13 +1680,13 @@ mesa_rc meba_poe_pd69200_ctrl_port_4Pair_Port_Parameters_get(
     char *fname = "GET PORT 4PAIR_PORT_PARAMS";
     MESA_RC(pd69200_tx(inst, __FUNCTION__, __LINE__, buf, fname));
 
-    *port_type_af_at_poh = buf[6];
+    *port_type_prebt_af_at_poh = buf[6];
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
-         "[%s] CH=%d ,port_type_af_at_poh=%d",
+         "[%s] CH=%d ,port_type_prebt_af_at_poh=%d",
           fname,
           channel,
-         *port_type_af_at_poh);
+         *port_type_prebt_af_at_poh);
 
     return MESA_RC_OK;
 }
@@ -3189,9 +3189,9 @@ mesa_rc meba_poe_pd69200_ctrl_globals_cfg_set(
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "AF-AT Update configuration for controller");
 
     uint8_t supports_legacy_detection;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "supports_legacy_detection"));      // Supports Legacy detection.
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "supports_legacy_detection"));      // Supports Legacy detection.
     if (supports_legacy_detection != cfg_global->legacy_detect) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION, cfg_global->legacy_detect));
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, cfg_global->legacy_detect));
     }
 
     uint16_t  power_consumption_w;
@@ -3420,60 +3420,60 @@ mesa_rc meba_poe_pd69200_ctrl_version_get(
 }
 
 
-mesa_rc print_indv_masks_at(const meba_poe_ctrl_inst_t* const inst, meba_poe_indv_mask_at_t *im_AT)
+mesa_rc print_indv_masks_prebt(const meba_poe_ctrl_inst_t* const inst, meba_poe_indv_mask_prebt_t *im_prebt)
 {
     // --------------------- individual mask configure by defaults -------------------- //
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "AF/AT individual masks:");
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PREBT individual masks:");
 
     // Turn off lowest priority port, when a higher priority has a PD connected, see section 4.5.10
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_IGNORE_HIGHER_PRIORITY, &im_AT->at_ignore_higher_priority, "AT- ignore_higher_priority"));      // Ignore higher priority
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- ignore_higher_priority=%d", im_AT->at_ignore_higher_priority);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, &im_prebt->prebt_ignore_higher_priority, "PREBT- ignore_higher_priority"));      // Ignore higher priority
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- ignore_higher_priority=%d", im_prebt->prebt_ignore_higher_priority);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION, &im_AT->at_supports_legacy_detection, "AT- supports_legacy_detection"));      // Supports Legacy detection.
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- supports_legacy_detection=%d", im_AT->at_supports_legacy_detection);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &im_prebt->prebt_supports_legacy_detection, "PREBT- supports_legacy_detection"));      // Supports Legacy detection.
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- supports_legacy_detection=%d", im_prebt->prebt_supports_legacy_detection);
 
     // Disable i2c ready interrupt
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_MESSAGE_READY_NOTIFY, &im_AT->at_message_ready_notify, "AT- message_ready_notify"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- message_ready_notify=%d", im_AT->at_message_ready_notify);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY, &im_prebt->prebt_message_ready_notify, "PREBT- message_ready_notify"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- message_ready_notify=%d", im_prebt->prebt_message_ready_notify);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LAYER2_PRIORITY_BY_PD, &im_AT->at_layer2_priority_by_PD, "AT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- layer2_priority_by_PD=%d", im_AT->at_layer2_priority_by_PD);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, &im_prebt->prebt_layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- layer2_priority_by_PD=%d", im_prebt->prebt_layer2_priority_by_PD);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_MATRIX_SUPPORT_4P, &im_AT->at_matrix_support_4p, "AT- matrix_support_4p")); // get matrix support 4p
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- matrix_support_4p=%d", im_AT->at_matrix_support_4p);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, &im_prebt->prebt_matrix_support_4p, "PREBT- matrix_support_4p")); // get matrix support 4p
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- matrix_support_4p=%d", im_prebt->prebt_matrix_support_4p);
 
     // --------------------- individual mask configure by product -------------------- //
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_SUPPORTS_BACKOFF, &im_AT->at_supports_backoff, "AT- Supports_backoff")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Supports_backoff=%d", im_AT->at_supports_backoff);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF, &im_prebt->prebt_supports_backoff, "PREBT- Supports_backoff")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Supports_backoff=%d", im_prebt->prebt_supports_backoff);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LED_STREAM_TYPE, &im_AT->at_led_stream_type, "AT- LED_stream_type")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- LED_stream_type=%d", im_AT->at_led_stream_type);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LED_STREAM_TYPE, &im_prebt->prebt_led_stream_type, "PREBT- LED_stream_type")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- LED_stream_type=%d", im_prebt->prebt_led_stream_type);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_PSE_POWERING_PSE_CHECKING, &im_AT->at_pse_powering_pse_checking, "AT- PSE_powering_PSE_checking")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- PSE_powering_PSE_checking=%d", im_AT->at_pse_powering_pse_checking);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING, &im_prebt->prebt_pse_powering_pse_checking, "PREBT- PSE_powering_PSE_checking")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- PSE_powering_PSE_checking=%d", im_prebt->prebt_pse_powering_pse_checking);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_ENABLE_ASIC_REFRESH, &im_AT->at_enable_asic_refresh, "AT- Enable_ASIC_Refresh")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Enable_ASIC_Refresh=%d", im_AT->at_enable_asic_refresh);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_ENABLE_ASIC_REFRESH, &im_prebt->prebt_enable_asic_refresh, "PREBT- Enable_ASIC_Refresh")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Enable_ASIC_Refresh=%d", im_prebt->prebt_enable_asic_refresh);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LAYER2_LLDP_ENABLE, &im_AT->at_layer2_lldp_enable, "AT- Layer2_LLDP_enable")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Layer2_LLDP_enable=%d", im_AT->at_layer2_lldp_enable);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, &im_prebt->prebt_layer2_lldp_enable, "PREBT- Layer2_LLDP_enable")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Layer2_LLDP_enable=%d", im_prebt->prebt_layer2_lldp_enable);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_CLASS_0_EQUAL_AF, &im_AT->at_class_0_equal_af, "AT- Class_0_equal_AF")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Class_0_equal_AF=%d", im_AT->at_class_0_equal_af);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF, &im_prebt->prebt_class_0_equal_af, "PREBT- Class_0_equal_AF")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Class_0_equal_AF=%d", im_prebt->prebt_class_0_equal_af);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_CLASS_1_2_3_EQUAL_AF, &im_AT->at_class_1_2_3_equal_af, "AT- Class_1_2_3_equal_AF")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Class_1_2_3_equal_AF=%d", im_AT->at_class_1_2_3_equal_af);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF, &im_prebt->prebt_class_1_2_3_equal_af, "PREBT- Class_1_2_3_equal_AF")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Class_1_2_3_equal_AF=%d", im_prebt->prebt_class_1_2_3_equal_af);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LLDP_BEST_EFFORT, &im_AT->at_lldp_best_effort, "AT- LLDP_best_effort")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- LLDP_best_effort=%d", im_AT->at_lldp_best_effort);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LLDP_BEST_EFFORT, &im_prebt->prebt_lldp_best_effort, "PREBT- LLDP_best_effort")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- LLDP_best_effort=%d", im_prebt->prebt_lldp_best_effort);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_AUTO_ZONE2_PORT_ACTIVATION, &im_AT->at_auto_zone2_port_activation, "AT- Auto_Zone2_port_activation")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- Auto_Zone2_port_activation=%d", im_AT->at_auto_zone2_port_activation);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION, &im_prebt->prebt_auto_zone2_port_activation, "PREBT- Auto_Zone2_port_activation")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Auto_Zone2_port_activation=%d", im_prebt->prebt_auto_zone2_port_activation);
 
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION, &im_AT->at_hocpp_high_over_current_pulse_protection, "AT- HOCPP_high_over_current_pulse_protection")); // get
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"AT- HOCPP_high_over_current_pulse_protection=%d", im_AT->at_hocpp_high_over_current_pulse_protection);
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION, &im_prebt->prebt_hocpp_high_over_current_pulse_protection, "PREBT- HOCPP_high_over_current_pulse_protection")); // get
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- HOCPP_high_over_current_pulse_protection=%d", im_prebt->prebt_hocpp_high_over_current_pulse_protection);
 
     return MESA_RC_OK;
 }
@@ -3615,7 +3615,7 @@ static mesa_rc meba_poe_pd69200_ctrl_globals_status_get(
 
         if (bRunIndvMAskOnce) {
             bRunIndvMAskOnce = false;
-            MESA_RC(print_indv_masks_at(inst, &(current_status->tPoe_individual_mask_info.im_AT)));
+            MESA_RC(print_indv_masks_prebt(inst, &(current_status->tPoe_individual_mask_info.im_prebt)));
         }
     }
 
@@ -3889,47 +3889,47 @@ mesa_rc meba_poe_pd69200_chip_initialization(
 
     // Disable i2c ready interrupt
     uint8_t message_ready_notify;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_MESSAGE_READY_NOTIFY, &message_ready_notify, "AT- message_ready_notify"));
-    if (message_ready_notify != tPoE_parameters.indv_mask_AT_message_ready_notify_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_MESSAGE_READY_NOTIFY  ,tPoE_parameters.indv_mask_AT_message_ready_notify_default));
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY, &message_ready_notify, "PREBT- message_ready_notify"));
+    if (message_ready_notify != tPoE_parameters.indv_mask_prebt_message_ready_notify_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY  ,tPoE_parameters.indv_mask_prebt_message_ready_notify_default));
         bChangedFlag = true;
     }
 
     // Turn off lowest priority port, when a higher priority has a PD connected, see section 4.5.10
     uint8_t ignore_higher_priority;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_IGNORE_HIGHER_PRIORITY, &ignore_higher_priority, "AT- ignore_higher_priority"));      // Ignore higher priority
-    if (ignore_higher_priority != tPoE_parameters.indv_mask_AT_ignore_higher_priority_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_IGNORE_HIGHER_PRIORITY, tPoE_parameters.indv_mask_AT_ignore_higher_priority_default));
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, &ignore_higher_priority, "PREBT- ignore_higher_priority"));      // Ignore higher priority
+    if (ignore_higher_priority != tPoE_parameters.indv_mask_prebt_ignore_higher_priority_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, tPoE_parameters.indv_mask_prebt_ignore_higher_priority_default));
         bChangedFlag = true;
     }
 
     uint8_t supports_legacy_detection;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "AT- supports_legacy_detection"));      // Supports Legacy detection.
-    if (supports_legacy_detection != tPoE_parameters.indv_mask_AT_supports_legact_detection_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION, tPoE_parameters.indv_mask_AT_supports_legact_detection_default));
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "PREBT- supports_legacy_detection"));      // Supports Legacy detection.
+    if (supports_legacy_detection != tPoE_parameters.indv_mask_prebt_supports_legact_detection_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, tPoE_parameters.indv_mask_prebt_supports_legact_detection_default));
         bChangedFlag = true;
     }
 
         // See table in section 4.5.9 in PD69200 user guide
     uint8_t enable_LLDP_mode;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LAYER2_LLDP_ENABLE, &enable_LLDP_mode, "AT- enable_LLDP_mode"));      // get Enable LLDP mode.
-    if (enable_LLDP_mode != tPoE_parameters.indv_mask_AT_layer2_lldp_enable_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_LAYER2_LLDP_ENABLE, tPoE_parameters.indv_mask_AT_layer2_lldp_enable_default)); // Enable LLDP mode.
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, &enable_LLDP_mode, "PREBT- enable_LLDP_mode"));      // get Enable LLDP mode.
+    if (enable_LLDP_mode != tPoE_parameters.indv_mask_prebt_layer2_lldp_enable_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, tPoE_parameters.indv_mask_prebt_layer2_lldp_enable_default)); // Enable LLDP mode.
         bChangedFlag = true;
     }
 
     uint8_t layer2_priority_by_PD;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_LAYER2_PRIORITY_BY_PD, &layer2_priority_by_PD, "AT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
-    if (layer2_priority_by_PD != tPoE_parameters.indv_mask_AT_layer2_priority_by_PD_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_LAYER2_PRIORITY_BY_PD, tPoE_parameters.indv_mask_AT_layer2_priority_by_PD_default)); // Allow the priority to be fetched from lldp
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, &layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
+    if (layer2_priority_by_PD != tPoE_parameters.indv_mask_prebt_layer2_priority_by_PD_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, tPoE_parameters.indv_mask_prebt_layer2_priority_by_PD_default)); // Allow the priority to be fetched from lldp
         bChangedFlag = true;
     }
 
 
     uint8_t matrix_support_4p;
-    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_AT_MATRIX_SUPPORT_4P, &matrix_support_4p, "AT- matrix_support_4p")); // get matrix support 4p
-    if (matrix_support_4p != tPoE_parameters.indv_mask_AT_matrix_support_4P_default) {
-        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_AT_MATRIX_SUPPORT_4P, tPoE_parameters.indv_mask_AT_matrix_support_4P_default)); // Allow matrix to support 4p
+    MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, &matrix_support_4p, "PREBT- matrix_support_4p")); // get matrix support 4p
+    if (matrix_support_4p != tPoE_parameters.indv_mask_prebt_matrix_support_4P_default) {
+        MESA_RC(meba_poe_pd69200_individual_mask_set(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, tPoE_parameters.indv_mask_prebt_matrix_support_4P_default)); // Allow matrix to support 4p
         bChangedFlag = true;
     }
 
@@ -3940,8 +3940,8 @@ mesa_rc meba_poe_pd69200_chip_initialization(
     uint8_t pm3;
     MESA_RC(meba_poe_pd69200_get_pm_method(inst, &pm1, &pm2, &pm3));
 
-    if ((pm1 != tPoE_parameters.AT_pm1_default) || (pm2 != tPoE_parameters.AT_PM2_default) || (pm3 != tPoE_parameters.AT_PM3_default)) {
-        MESA_RC(meba_poe_pd69200_set_pm_method(inst, tPoE_parameters.AT_pm1_default, tPoE_parameters.AT_PM2_default, tPoE_parameters.AT_PM3_default));
+    if ((pm1 != tPoE_parameters.prebt_pm1_default) || (pm2 != tPoE_parameters.prebt_pm2_default) || (pm3 != tPoE_parameters.prebt_pm3_default)) {
+        MESA_RC(meba_poe_pd69200_set_pm_method(inst, tPoE_parameters.prebt_pm1_default, tPoE_parameters.prebt_pm2_default, tPoE_parameters.prebt_pm3_default));
         bChangedFlag = true;
     }
 
@@ -3997,7 +3997,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
 }
 
 
-char* get_AT_title_by_ports_status(uint8_t bt_port_status)
+char* get_prebt_title_by_ports_status(uint8_t bt_port_status)
 {
     switch (bt_port_status)
     {
@@ -4193,7 +4193,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     port_status->assigned_pd_class_b = -1;
 
     if (port_status->poe_internal_port_status != port_state) {
-        strncpy( port_status->poe_port_status_description , get_AT_title_by_ports_status(port_state), MAX_STR_SIZE-1);
+        strncpy( port_status->poe_port_status_description , get_prebt_title_by_ports_status(port_state), MAX_STR_SIZE-1);
     }
 
     port_status->poe_internal_port_status = port_state;
@@ -4447,7 +4447,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     uint16_t port_power_consumption = 0;
     uint16_t port_voltage = 0;
 
-    uint8_t port_type_af_at_poh = 0;
+    uint8_t port_type_prebt_af_at_poh = 0;
     if (port_status->meba_poe_ieee_port_state == MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER) {
         meba_poe_pd69200_ctrl_port_measurements_get(
             inst,
@@ -4461,7 +4461,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
     meba_poe_pd69200_ctrl_port_4Pair_Port_Parameters_get(
     inst,
     handle,
-    &port_type_af_at_poh);
+    &port_type_prebt_af_at_poh);
 
     uint16_t pse_allocated_power;
     uint16_t pd_requested_power;
@@ -4491,13 +4491,13 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
                 &port_power_consumption_dw
                 ));
 
-    port_status->pse_data.pse_allocated_power_mw = pse_allocated_power;
-    port_status->pse_data.pd_requested_power_mw  = pd_requested_power;
-    port_status->pse_data.pse_power_type         = pse_power_type;
-    port_status->pse_data.power_class            = power_class;
-    port_status->pse_data.cable_len              = cable_len;
-    port_status->pse_data.pse_power_pair         = pse_power_pair;
-    port_status->pse_data.port_type_af_at_poh    = port_type_af_at_poh;
+    port_status->prebt_pse_data.pse_allocated_power_mw    = pse_allocated_power;
+    port_status->prebt_pse_data.pd_requested_power_mw     = pd_requested_power;
+    port_status->prebt_pse_data.pse_power_type            = pse_power_type;
+    port_status->prebt_pse_data.power_class               = power_class;
+    port_status->prebt_pse_data.cable_len                 = cable_len;
+    port_status->prebt_pse_data.pse_power_pair            = pse_power_pair;
+    port_status->prebt_pse_data.port_type_prebt_af_at_poh = port_type_prebt_af_at_poh;
 
     port_status->power_mw = port_power_consumption;
     port_status->current_ma = calculated_current;
@@ -5176,16 +5176,8 @@ void meba_pd69200_driver_init(
     return;
 }
 
+
 //-------- PoE BT driver functions ---------//
-
-
-mesa_rc meba_poe_pd69200_ctrl_port_dummy_method(
-    const meba_poe_ctrl_inst_t* const inst,
-    meba_poe_port_handle_t          handle,
-    meba_poe_pse_data_t* pse_data)
-{
-    return MESA_RC_OK;
-}
 
 
 static
@@ -6562,40 +6554,40 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
                 &cable_length_in_use,
                 &l2_cfg));
 
-    port_status->pse_data.power_pairs_control_ability = false;  // TODO assign real value
-    port_status->pse_data.pse_max_avail_power_mw      = pse_max_power_dw * 100;
-    port_status->pse_data.power_status                = (power_bits & 0x3) << 10 | (power_bits & 0xC) << 12;
+    port_status->prebt_pse_data.power_pairs_control_ability = false;  // TODO assign real value
+    port_status->prebt_pse_data.pse_max_avail_power_mw      = pse_max_power_dw * 100;
+    port_status->prebt_pse_data.power_status                = (power_bits & 0x3) << 10 | (power_bits & 0xC) << 12;
 
     // update alt a,b and single allocated fields
-    port_status->pse_data.pse_alloc_power_alt_a_mw = pse_allocated_power_a_or_single_dw * 100;
-    port_status->pse_data.pse_alloc_power_alt_b_mw = pse_allocated_power_b_dw * 100;
-    port_status->pse_data.pse_allocated_power_mw   = pse_allocated_power_a_or_single_dw * 100;
+    port_status->prebt_pse_data.pse_alloc_power_alt_a_mw = pse_allocated_power_a_or_single_dw * 100;
+    port_status->prebt_pse_data.pse_alloc_power_alt_b_mw = pse_allocated_power_b_dw * 100;
+    port_status->prebt_pse_data.pse_allocated_power_mw   = pse_allocated_power_a_or_single_dw * 100;
 
     // here we take the original requested power values we got from the lldp pd request packet
-    port_status->pse_data.requested_power_mode_a_mw      = current_port_status->requested_power_mode_a_mw;
-    port_status->pse_data.requested_power_mode_b_mw      = current_port_status->requested_power_mode_b_mw;
-    port_status->pse_data.pd_requested_power_mw          = current_port_status->requested_power_single_mw;
+    port_status->prebt_pse_data.requested_power_mode_a_mw      = current_port_status->requested_power_mode_a_mw;
+    port_status->prebt_pse_data.requested_power_mode_b_mw      = current_port_status->requested_power_mode_b_mw;
+    port_status->prebt_pse_data.pd_requested_power_mw          = current_port_status->requested_power_single_mw;
 
     // These values are used to fill basic fields of LLDP frame
     switch (power_bits & 0x3) {
         case 0: // Undefined
-            port_status->pse_data.pse_power_pair = 1;
+            port_status->prebt_pse_data.pse_power_pair = 1;
             break;
         case 1: // Alternative A
-            port_status->pse_data.pse_power_pair = 1;
+            port_status->prebt_pse_data.pse_power_pair = 1;
             break;
         case 2: // Alternative B
-            port_status->pse_data.pse_power_pair = 2;
+            port_status->prebt_pse_data.pse_power_pair = 2;
             break;
         case 3: // Both alternatives
-            port_status->pse_data.pse_power_pair = 1;
+            port_status->prebt_pse_data.pse_power_pair = 1;
             break;
     }
 
     if (port_status->assigned_pd_class_a >= 4) {
-        port_status->pse_data.power_class = 5; // Note: value 1:class=0. value 2:class=1, etc. 5 = Class 4 and above
+        port_status->prebt_pse_data.power_class = 5; // Note: value 1:class=0. value 2:class=1, etc. 5 = Class 4 and above
     } else if (port_status->assigned_pd_class_a  < 0) {
-        port_status->pse_data.power_class = 1;
+        port_status->prebt_pse_data.power_class = 1;
     }
 
     // these values are used to fill DLL classification fields of LLDP frame
@@ -6604,12 +6596,12 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
     uint8_t type = 1; // alvays a PSE
     uint8_t source = 1; // Primary Power Souce
 
-    port_status->pse_data.pse_power_type        =  type << 6 | source << 4 | port_cfg->priority;
+    port_status->prebt_pse_data.pse_power_type        =  type << 6 | source << 4 | port_cfg->priority;
 
     // I am not sure what to put here, so we use the sum
 
     // Proprietary parameter. Cable len in meters
-    port_status->pse_data.cable_len             = cable_length_in_use;
+    port_status->prebt_pse_data.cable_len             = cable_length_in_use;
 
 //    Layer2 usage: Bits[3..0]
 //        0x0 ? Port is not deliver power
@@ -6622,13 +6614,13 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_status_get(
 //        0x7 ? Port is not deliver power and at reserve mode
 //        0x8 ? Port deliver power, using reserve mode power
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "port_status->reserved_power_mw %d   port_status->power_mw=%d  port_status->pse_data.requested_power_single_mw =%d", port_status->reserved_power_mw ,port_status->power_mw , port_status->pse_data.pd_requested_power_mw);
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "port_status->reserved_power_mw %d   port_status->power_mw=%d  port_status->pse_data.requested_power_single_mw =%d", port_status->reserved_power_mw ,port_status->power_mw , port_status->prebt_pse_data.pd_requested_power_mw);
     if ((layer2_status & 0xF) >= 3) {
         if(port_status->pd_type_sspd_dspd == 2) { // DSPD
-            port_status->power_requested_mw = port_status->pse_data.requested_power_mode_a_mw + port_status->pse_data.requested_power_mode_b_mw;
+            port_status->power_requested_mw = port_status->prebt_pse_data.requested_power_mode_a_mw + port_status->prebt_pse_data.requested_power_mode_b_mw;
             //printf("\n\r port_status->power_requested_mw=%d\n\r", port_status->power_requested_mw);
         } else { //(port_status->pd_type_sspd_dspd == 1) // SSPD
-             port_status->power_requested_mw = port_status->pse_data.pd_requested_power_mw;
+             port_status->power_requested_mw = port_status->prebt_pse_data.pd_requested_power_mw;
              //printf("\n\r port_status->pse_data.requested_power_single_mw=%d\n\r", port_status->pse_data.requested_power_single_mw);
         }
     }

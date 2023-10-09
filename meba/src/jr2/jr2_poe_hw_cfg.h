@@ -10,7 +10,7 @@
 #include "poe_driver.h"
 
 
-// jr2 has AT implementation
+// jr2 2pairs 2pairs has PREBT implementation
 
 //--------------------------------------------------------------------------------------//
 //------------------------------    general parameters   -------------------------------//
@@ -21,9 +21,9 @@
 // please choose 'ePoE_Controller_Type_Unknown' for automatic firmware detection or force specific PD692x0 PoE controller
 //
 // MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// MEBA_POE_PD69200_CONTROLLER_TYPE ,
-// MEBA_POE_PD69210_CONTROLLER_TYPE ,
-// MEBA_POE_PD69220_CONTROLLER_TYPE ,
+// MEBA_POE_PD69200_CONTROLLER_TYPE
+// MEBA_POE_PD69210_CONTROLLER_TYPE
+// MEBA_POE_PD69220_CONTROLLER_TYPE
 #define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT     MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
@@ -70,7 +70,7 @@
 // MEBA_POE_PORT_MAX_POWER_30W
 // MEBA_POE_PORT_MAX_POWER_60W
 // MEBA_POE_PORT_MAX_POWER_90W
-#define JR2_BT_PORT_MAX_POWER_DEFAULT                     MEBA_POE_PORT_MAX_POWER_60W
+#define JR2_BT_PORT_MAX_POWER_DEFAULT     MEBA_POE_PORT_MAX_POWER_60W
 
 
 // Port Operation Mode for legacy
@@ -98,12 +98,12 @@
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
-#define JR2_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 0
+#define JR2_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT     0
 
 
 // '0' Do not initialize the I2C module in case of inactivity.
 // '1' Initializes the I2C module system after 10 seconds of inactivity.
-#define JR2_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT         1
+#define JR2_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT     1
 
 
 // 0 LED stream is disabled.
@@ -157,7 +157,7 @@
 
 
 //--------------------------------------------------------------------------------------//
-//-------------------------    AT parameters    ----------------------------------------//
+//-------------------------    PREBT parameters    -------------------------------------//
 //--------------------------------------------------------------------------------------//
 
 
@@ -165,33 +165,33 @@
 //     a lowest priority port will be disconnected instead.
 // '1' If power is not available for powering up any port,
 //     any new connected port power up will be denied, regardless of its priority.
-#define JR2_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
+#define JR2_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
 // '0' Don't support legacy detection.
 // '1' Support legacy detection.
-#define JR2_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
+#define JR2_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
 // '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is ready.
 //     Refer to PD69200 datasheet or PD69200M shared memory documentation.
-#define JR2_INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT       0
+#define JR2_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT     0
 
 
 // '0' Layer 2 PD commands will be Ignored and Layer 2 PSE requests will return with zero allocation.
 // '1' Layer 2 operation is enabled. Layer 2 commands are processed.
-#define JR2_INDV_MASK_AT_LAYER2_LLDP_ENABLE_DEFAULT         1
+#define JR2_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT     1
 
 
 // '0' Priority information received from LLDP/CDP PD message is ignored. (Mask 0x2E must be '1').
 // '1' Port Priority can be defined by PD. (Mask 0x2E must be '1').
-#define JR2_INDV_MASK_AT_LAYER2_PRIORITY_BY_PD_DEFAULT      1
+#define JR2_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT     1
 
 
 // '0' Uses old matrix command (2-pair).
 // '1' Uses new 4-pair matrix commands.
-#define JR2_INDV_MASK_AT_MATRIX_SUPPORT_4P_DEFAULT          1
+#define JR2_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT     1
 
 
 // -----------  Legacy Power Management mode of operation  ----------------------//
@@ -209,7 +209,7 @@
 //  0x05 - LLDP = Static power (TPPL), Non LLDP = Dynamic.
 //  0x06 - LLDP & classes 4 = Static power (TPPL), Classes 0 to 3 = Dynamic.
 //  0x80 - User defined per port (See 4.3.12, Sum_as_TPPL field).
-#define JR2_PM1_AT_DEFAULT             0x05
+#define JR2_PM1_PREBT_DEFAULT     0x05
 
 
 //PM-2 Port Power Limit
@@ -230,7 +230,7 @@
 // Note: (*). In 4-pair delivering port, the above power values are doubled.
 //  3 - PPL_Class_Max (The maximum value between PPL and Class).
 //  0x80 - User defined per port (See 4.3.12, PortPM2 nibble field).
-#define JR2_PM2_AT_DEFAULT             0x01
+#define JR2_PM2_PREBT_DEFAULT     0x01
 
 
 //PM-3 Start up conditions: The port will not start up in case detected class power is higher than PPL Value
@@ -243,79 +243,87 @@
 //Note: 1. Class power for startup condition is according to the class power
 //         parameters in the release_DB regardless of other masks settings.
 //      2. Other values for this field will be ignored, maintaining the last configuration.
-#define JR2_PM3_AT_DEFAULT             0x00
+#define JR2_PM3_PREBT_DEFAULT     0x00
 
 
-//--------------- AT cap and port map Customizations starts here ---------------//
+//--------------- prebt cap and port map Customizations starts here ---------------//
 
-#define PD69200AT_CAP MEBA_POE_PORT_CAP_POE  | \
-                    MEBA_POE_PORT_CAP_TYPE_1 | \
-                    MEBA_POE_PORT_CAP_TYPE_2 | \
-                    MEBA_POE_PORT_CAP_TYPE_3 | \
-                    MEBA_POE_PORT_CAP_FORCE_ON
+//Type 1(IEEE 802.3af) 2P 15W
+//Type 2(IEEE 802.3at) 2P 30W
+//Type 3(IEEE 802.3bt) 4P 60W
+//Type 4(IEEE 802.3bt) 4P 90W
 
-meba_poe_port_properties_t jr2_pd69200AT_port_map_1[] =
+// PREBT AT capability
+#define PD69200_PREBT_CAP MEBA_POE_PORT_CAP_POE    | \
+                          MEBA_POE_PORT_CAP_TYPE_1 | \
+                          MEBA_POE_PORT_CAP_TYPE_2 | \
+                          MEBA_POE_PORT_CAP_FORCE_ON
+
+//Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
+//      this parameters is the port power limit when using poe PREBT mode.
+
+meba_poe_port_properties_t jr2_pd69200_port_map_1[] =
 {
-//  PoE-Capability   | Max   | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
-//                   | PWR   | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
-// --------------------------------------------------------------------------
-  { PD69200AT_CAP    , 24000 , 0       , 0       , 0            , 255         },
-  { PD69200AT_CAP    , 24000 , 1       , 1       , 1            , 255         },
-  { PD69200AT_CAP    , 24000 , 2       , 2       , 2            , 255         },
-  { PD69200AT_CAP    , 24000 , 3       , 3       , 3            , 255         },
-  { PD69200AT_CAP    , 24000 , 4       , 4       , 4            , 255         },
-  { PD69200AT_CAP    , 24000 , 5       , 5       , 5            , 255         },
-  { PD69200AT_CAP    , 24000 , 6       , 6       , 6            , 255         },
-  { PD69200AT_CAP    , 24000 , 7       , 7       , 7            , 255         },
-  { PD69200AT_CAP    , 24000 , 8       , 8       , 8            , 255         },
-  { PD69200AT_CAP    , 24000 , 9       , 9       , 9            , 255         },
-  { PD69200AT_CAP    , 24000 , 10      , 10      , 10           , 255         },
-  { PD69200AT_CAP    , 24000 , 11      , 11      , 11           , 255         },
-  { PD69200AT_CAP    , 24000 , 12      , 12      , 12           , 255         },
-  { PD69200AT_CAP    , 24000 , 13      , 13      , 13           , 255         },
-  { PD69200AT_CAP    , 24000 , 14      , 14      , 14           , 255         },
-  { PD69200AT_CAP    , 24000 , 15      , 15      , 15           , 255         },
-  { PD69200AT_CAP    , 24000 , 16      , 16      , 16           , 255         },
-  { PD69200AT_CAP    , 24000 , 17      , 17      , 17           , 255         },
-  { PD69200AT_CAP    , 24000 , 18      , 18      , 18           , 255         },
-  { PD69200AT_CAP    , 24000 , 19      , 19      , 19           , 255         },
-  { PD69200AT_CAP    , 24000 , 20      , 20      , 20           , 255         },
-  { PD69200AT_CAP    , 24000 , 21      , 21      , 21           , 255         },
-  { PD69200AT_CAP    , 24000 , 22      , 22      , 22           , 255         },
-  { PD69200AT_CAP    , 24000 , 23      , 23      , 23           , 255         },
+//  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
+//                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
+// ----------------------------------------------------------------------------
+  { PD69200_PREBT_CAP , 24000   , 0       , 0       , 0            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 1       , 1       , 1            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 2       , 2       , 2            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 3       , 3       , 3            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 4       , 4       , 4            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 5       , 5       , 5            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 6       , 6       , 6            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 7       , 7       , 7            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 8       , 8       , 8            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 9       , 9       , 9            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 10      , 10      , 10           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 11      , 11      , 11           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 12      , 12      , 12           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 13      , 13      , 13           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 14      , 14      , 14           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 15      , 15      , 15           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 16      , 16      , 16           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 17      , 17      , 17           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 18      , 18      , 18           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 19      , 19      , 19           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 20      , 20      , 20           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 21      , 21      , 21           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 22      , 22      , 22           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 23      , 23      , 23           , 255       },
 };
 
 
 
-meba_poe_port_properties_t jr2_pd69200AT_port_map_2[] =
+meba_poe_port_properties_t jr2_pd69200_port_map_2[] =
 {
-//  PoE-Capability   | Max  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
-//                   | PWR  | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
-//--------------------------------------------------------------------------
-  { PD69200AT_CAP    , 24000, 24      , 0       , 0            , 255         },
-  { PD69200AT_CAP    , 24000, 25      , 1       , 1            , 255         },
-  { PD69200AT_CAP    , 24000, 26      , 2       , 2            , 255         },
-  { PD69200AT_CAP    , 24000, 27      , 3       , 3            , 255         },
-  { PD69200AT_CAP    , 24000, 28      , 4       , 4            , 255         },
-  { PD69200AT_CAP    , 24000, 29      , 5       , 5            , 255         },
-  { PD69200AT_CAP    , 24000, 30      , 6       , 6            , 255         },
-  { PD69200AT_CAP    , 24000, 31      , 7       , 7            , 255         },
-  { PD69200AT_CAP    , 24000, 32      , 8       , 8            , 255         },
-  { PD69200AT_CAP    , 24000, 33      , 9       , 9            , 255         },
-  { PD69200AT_CAP    , 24000, 34      , 10      , 10           , 255         },
-  { PD69200AT_CAP    , 24000, 35      , 11      , 11           , 255         },
-  { PD69200AT_CAP    , 24000, 36      , 12      , 12           , 255         },
-  { PD69200AT_CAP    , 24000, 37      , 13      , 13           , 255         },
-  { PD69200AT_CAP    , 24000, 38      , 14      , 14           , 255         },
-  { PD69200AT_CAP    , 24000, 39      , 15      , 15           , 255         },
-  { PD69200AT_CAP    , 24000, 40      , 16      , 16           , 255         },
-  { PD69200AT_CAP    , 24000, 41      , 17      , 17           , 255         },
-  { PD69200AT_CAP    , 24000, 42      , 18      , 18           , 255         },
-  { PD69200AT_CAP    , 24000, 43      , 19      , 19           , 255         },
-  { PD69200AT_CAP    , 24000, 44      , 20      , 20           , 255         },
-  { PD69200AT_CAP    , 24000, 45      , 21      , 21           , 255         },
-  { PD69200AT_CAP    , 24000, 46      , 22      , 22           , 255         },
-  { PD69200AT_CAP    , 24000, 47      , 23      , 23           , 255         },
+//  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
+//                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
+//------------------------------------------------------------------------------
+  { PD69200_PREBT_CAP , 24000   , 24      , 0       , 0            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 25      , 1       , 1            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 26      , 2       , 2            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 27      , 3       , 3            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 28      , 4       , 4            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 29      , 5       , 5            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 30      , 6       , 6            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 31      , 7       , 7            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 32      , 8       , 8            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 33      , 9       , 9            , 255       },
+  { PD69200_PREBT_CAP , 24000   , 34      , 10      , 10           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 35      , 11      , 11           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 36      , 12      , 12           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 37      , 13      , 13           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 38      , 14      , 14           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 39      , 15      , 15           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 40      , 16      , 16           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 41      , 17      , 17           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 42      , 18      , 18           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 43      , 19      , 19           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 44      , 20      , 20           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 45      , 21      , 21           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 46      , 22      , 22           , 255       },
+  { PD69200_PREBT_CAP , 24000   , 47      , 23      , 23           , 255       },
 };
 
 //--------------- AT cap and port map Customizations ends here ---------------//

@@ -18,26 +18,26 @@ meba_poe_parameters_t tPoE_parameters =
 
     .reset_poe_gpio_number                           = LAN9668_RESET_POE_GPIO_NUMBER,
 
-    .indv_mask_AT_ignore_higher_priority_default     = LAN9668_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
-    .indv_mask_AT_supports_legact_detection_default  = LAN9668_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
-    .indv_mask_AT_message_ready_notify_default       = LAN9668_INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT,       // en/Dis MESSAGE_READY pin notification.
-    .indv_mask_AT_layer2_lldp_enable_default         = LAN9668_INDV_MASK_AT_LAYER2_LLDP_ENABLE_DEFAULT,         // En/Dis Layer 2 PD commands.
-    .indv_mask_AT_layer2_priority_by_PD_default      = LAN9668_INDV_MASK_AT_LAYER2_PRIORITY_BY_PD_DEFAULT,      // accept/ignored Port Priority recived from the PD
-    .indv_mask_AT_matrix_support_4P_default          = LAN9668_INDV_MASK_AT_MATRIX_SUPPORT_4P_DEFAULT,          // use 4-pair matrix commands.
-    .indv_mask_BT_ignore_higher_priority_default     = LAN9668_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
-    .indv_mask_BT_support_high_res_detection_default = LAN9668_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT, // expand Resistor detection range up to range to 55 K.
-    .indv_mask_BT_i2c_restart_enable_default         = LAN9668_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,         // Initialization of the I2C module system after 10 seconds of inactivity.
-    .indv_mask_BT_led_stream_type_default            = LAN9668_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,            // led stream type
+    .indv_mask_prebt_ignore_higher_priority_default     = LAN9668_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
+    .indv_mask_prebt_supports_legact_detection_default  = LAN9668_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
+    .indv_mask_prebt_message_ready_notify_default       = LAN9668_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT,       // en/Dis MESSAGE_READY pin notification.
+    .indv_mask_prebt_layer2_lldp_enable_default         = LAN9668_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT,         // En/Dis Layer 2 PD commands.
+    .indv_mask_prebt_layer2_priority_by_PD_default      = LAN9668_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT,      // accept/ignored Port Priority recived from the PD
+    .indv_mask_prebt_matrix_support_4P_default          = LAN9668_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT,          // use 4-pair matrix commands.
+    .indv_mask_BT_ignore_higher_priority_default        = LAN9668_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
+    .indv_mask_BT_support_high_res_detection_default    = LAN9668_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT, // expand Resistor detection range up to range to 55 K.
+    .indv_mask_BT_i2c_restart_enable_default            = LAN9668_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,         // Initialization of the I2C module system after 10 seconds of inactivity.
+    .indv_mask_BT_led_stream_type_default               = LAN9668_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,            // led stream type
     .indv_mask_BT_HOCPP_default                         = LAN9668_INDV_MASK_BT_HOCPP_DEFAULT,                      // HOCPP - high_over Current Pulse Protection
     .indv_mask_BT_PSE_powering_PSE_checking_default     = LAN9668_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT,               // PSE powering PSE checking
     .indv_mask_BT_layer2_power_allocation_limit_default = LAN9668_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT,           // Layer2 Power Allocation Limit
     .indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default = LAN9668_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT,  // Port LED Blinks at invalid signature or connection-check error
     .indv_mask_BT_support_adding_lldp_half_priority_default = LAN9668_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,   // Support adding lldp half priority
 
-    // -----------  AT Power Management mode of operation  ----------------------//
-    .AT_pm1_default = LAN9668_PM1_AT_DEFAULT,     // Selects the method of calculating total power consumption.
-    .AT_PM2_default = LAN9668_PM2_AT_DEFAULT,     // Selects the power limit at the port (maximum or according to class or predefined).
-    .AT_PM3_default = LAN9668_PM3_AT_DEFAULT      // Selects the start condition. (Not recommended for new designs, keep 0x00).
+    // -----------  PREBT Power Management mode of operation  ----------------------//
+    .prebt_pm1_default = LAN9668_PM1_PREBT_DEFAULT,     // Selects the method of calculating total power consumption.
+    .prebt_pm2_default = LAN9668_PM2_PREBT_DEFAULT,     // Selects the power limit at the port (maximum or according to class or predefined).
+    .prebt_pm3_default = LAN9668_PM3_PREBT_DEFAULT      // Selects the start condition. (Not recommended for new designs, keep 0x00).
 };
 
 
@@ -98,7 +98,7 @@ mesa_rc meba_poe_system_initialize(
 
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
-            tPoe_init_params->Max_POE_Ch              = sizeof(lan9668_pd69200BT_port_map)/sizeof(meba_poe_port_properties_t);
+            tPoe_init_params->Max_POE_Ch              = sizeof(lan9668_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
@@ -116,8 +116,8 @@ mesa_rc meba_poe_system_initialize(
                                  MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                  MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
                                  MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                 lan9668_pd69200BT_port_map,
-                                 sizeof(lan9668_pd69200BT_port_map)/sizeof(meba_poe_port_properties_t),
+                                 lan9668_pd69200_port_map,
+                                 sizeof(lan9668_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
                                  lan9668_power_supplies,
                                  sizeof(lan9668_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                  inst->iface.debug,
@@ -131,7 +131,7 @@ mesa_rc meba_poe_system_initialize(
 
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
-            tPoe_init_params->Max_POE_Ch              = sizeof(lan9668_pd69200BT_port_map)/sizeof(meba_poe_port_properties_t);
+            tPoe_init_params->Max_POE_Ch              = sizeof(lan9668_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
@@ -147,8 +147,8 @@ mesa_rc meba_poe_system_initialize(
                                  meba_pd69200_i2c_adapter_open(lan9668_i2c_config.i2c_device, poe_12c0),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                  MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
-                                 lan9668_pd69200BT_port_map,
-                                 sizeof(lan9668_pd69200BT_port_map)/sizeof(meba_poe_port_properties_t),
+                                 lan9668_pd69200_port_map,
+                                 sizeof(lan9668_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
                                  lan9668_power_supplies,
                                  sizeof(lan9668_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                  inst->iface.debug,

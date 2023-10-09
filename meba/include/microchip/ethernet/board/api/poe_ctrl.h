@@ -264,7 +264,7 @@ typedef enum {
     MEBA_POE_PORT_PSE_IEEE802_3AF_operation = 0,
     MEBA_POE_PORT_PSE_IEEE802_3AF_AT_operation,
     MEBA_POE_PORT_PSE_POH_operation
-} meba_poe_port_pse_port_type_t;
+} meba_poe_port_pse_prebt_port_type_t;
 
 
 // ID/handle used by the PoE controller to identify a given port. The
@@ -316,28 +316,28 @@ typedef struct {
 
 //------ AT individual masks ------ //
 typedef struct {
-    uint8_t at_ignore_higher_priority;
-    uint8_t at_supports_legacy_detection;
-    uint8_t at_message_ready_notify;
-    uint8_t at_layer2_priority_by_PD;
-    uint8_t at_matrix_support_4p;
-    uint8_t at_supports_backoff;
-    uint8_t at_led_stream_type;
-    uint8_t at_pse_powering_pse_checking;
-    uint8_t at_enable_asic_refresh;
-    uint8_t at_layer2_lldp_enable;
-    uint8_t at_class_0_equal_af;
-    uint8_t at_class_1_2_3_equal_af;
-    uint8_t at_lldp_best_effort;
-    uint8_t at_auto_zone2_port_activation;
-    uint8_t at_hocpp_high_over_current_pulse_protection;
-} meba_poe_indv_mask_at_t;
+    uint8_t prebt_ignore_higher_priority;
+    uint8_t prebt_supports_legacy_detection;
+    uint8_t prebt_message_ready_notify;
+    uint8_t prebt_layer2_priority_by_PD;
+    uint8_t prebt_matrix_support_4p;
+    uint8_t prebt_supports_backoff;
+    uint8_t prebt_led_stream_type;
+    uint8_t prebt_pse_powering_pse_checking;
+    uint8_t prebt_enable_asic_refresh;
+    uint8_t prebt_layer2_lldp_enable;
+    uint8_t prebt_class_0_equal_af;
+    uint8_t prebt_class_1_2_3_equal_af;
+    uint8_t prebt_lldp_best_effort;
+    uint8_t prebt_auto_zone2_port_activation;
+    uint8_t prebt_hocpp_high_over_current_pulse_protection;
+} meba_poe_indv_mask_prebt_t;
 
 
 typedef struct
 {
-     meba_poe_indv_mask_at_t im_AT ;
-     meba_poe_indv_mask_bt_t im_BT;
+     meba_poe_indv_mask_prebt_t im_prebt;
+     meba_poe_indv_mask_bt_t    im_BT;
 } poe_individual_mask_info_t;
 
 
@@ -513,10 +513,9 @@ typedef struct {
     // controller type PD69200,PD69210,PD69220
     meba_poe_controller_type_t  ePoE_Controller_Type;
 
-    // detected poe firmware type - ports mode BT or AF/AT
+    // detected poe firmware type - ports mode BT or PREBT
     meba_poe_firmware_type_t     eDetected_poe_firmware_type;
-    // detected poe software type - ports mode BT or AF or AT
-    //meba_poe_software_power_type_t  eDetected_poe_software_power_type;
+
     // max number of poe ports using by poe driver
     uint8_t                      max_number_of_poe_ports;
 
@@ -648,12 +647,12 @@ typedef struct {
     // PoE port power pair.
     meba_poe_port_pse_power_pair_t pse_power_pair;
 
-    meba_poe_port_pse_port_type_t port_type_af_at_poh;
+    meba_poe_port_pse_prebt_port_type_t port_type_prebt_af_at_poh;
 
     // PoE port cable length in meters.
     mesa_poe_meters_t           cable_len;
 
-} meba_poe_pse_data_t;
+} meba_poe_pse_prebt_data_t;
 
 // Power supply properties
 typedef struct {
@@ -825,7 +824,7 @@ typedef struct {
     mesa_poe_millivolt_t        voltage_mv;
 
     // PoE port PSE data.
-    meba_poe_pse_data_t         pse_data;
+    meba_poe_pse_prebt_data_t   prebt_pse_data;
 } meba_poe_port_status_t;
 
 // Get PoE controller firmware version.

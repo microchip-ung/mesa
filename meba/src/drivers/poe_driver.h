@@ -39,62 +39,62 @@ typedef struct {
     // the final (from appl or from api h file) init parameters to init poe module
     meba_poe_init_params_t  poe_init_params;
 
-    // power higher priority port.
-    uint8_t indv_mask_AT_ignore_higher_priority_default;
+    // prebt - power higher priority port.
+    uint8_t indv_mask_prebt_ignore_higher_priority_default;
 
-    // En/Dis support of legacy detection.
-    uint8_t indv_mask_AT_supports_legact_detection_default;
+    // prebt - En/Dis support of legacy detection.
+    uint8_t indv_mask_prebt_supports_legact_detection_default;
 
-    // en/Dis MESSAGE_READY pin notification.
-    uint8_t indv_mask_AT_message_ready_notify_default;
+    // prebt - en/Dis MESSAGE_READY pin notification.
+    uint8_t indv_mask_prebt_message_ready_notify_default;
 
-    // En/Dis Layer 2 PD commands.
-    uint8_t indv_mask_AT_layer2_lldp_enable_default;
+    // prebt - En/Dis Layer 2 PD commands.
+    uint8_t indv_mask_prebt_layer2_lldp_enable_default;
 
-    // accept/ignored Port Priority recived from the PD
-    uint8_t indv_mask_AT_layer2_priority_by_PD_default;
+    // prebt - accept/ignored Port Priority recived from the PD
+    uint8_t indv_mask_prebt_layer2_priority_by_PD_default;
 
-    // use 4-pair matrix commands.
-    uint8_t indv_mask_AT_matrix_support_4P_default;
+    // prebt - use 4-pair matrix commands.
+    uint8_t indv_mask_prebt_matrix_support_4P_default;
 
-    // power higher priority port.
+    // bt - power higher priority port.
     uint8_t indv_mask_BT_ignore_higher_priority_default;
 
-    // expand Resistor detection range up to range to 55 K.
+    // bt - expand Resistor detection range up to range to 55 K.
     uint8_t indv_mask_BT_support_high_res_detection_default;
 
-    // Initialization of the I2C module system after 10 seconds of inactivity.
+    // bt - Initialization of the I2C module system after 10 seconds of inactivity.
     uint8_t indv_mask_BT_i2c_restart_enable_default;
 
-    // led stream type
+    // bt - led stream type
     uint8_t indv_mask_BT_led_stream_type_default;
 
-    // HOCPP - high_over Current Pulse Protection
+    // bt - HOCPP - high_over Current Pulse Protection
     uint8_t indv_mask_BT_HOCPP_default;
 
-    // PSE powering PSE checking
+    // bt - PSE powering PSE checking
     uint8_t indv_mask_BT_PSE_powering_PSE_checking_default;
 
-    // Layer2 Power Allocation Limit
+    // bt - Layer2 Power Allocation Limit
     uint8_t indv_mask_BT_layer2_power_allocation_limit_default;
 
-    // Port LED Blinks at invalid signature or connection-check error
+    // bt - Port LED Blinks at invalid signature or connection-check error
     uint8_t indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
 
-    // Support adding lldp half priority
+    // bt - Support adding lldp half priority
     uint8_t indv_mask_BT_support_adding_lldp_half_priority_default;
 
 
-    // -----------  AT Power Management mode of operation  ----------------------//
+    // -----------  PREBT Power Management mode of operation  ----------------------//
 
     // Selects the method of calculating total power consumption.
-    uint8_t AT_pm1_default;
+    uint8_t prebt_pm1_default;
 
     // Selects the power limit at the port (maximum or according to class or predefined).
-    uint8_t AT_PM2_default;
+    uint8_t prebt_pm2_default;
 
     // Selects the start condition. (Not recommended for new designs, keep 0x00).
-    uint8_t AT_PM3_default;
+    uint8_t prebt_pm3_default;
 } meba_poe_parameters_t;
 
 

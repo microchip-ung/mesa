@@ -9,7 +9,7 @@
 #include "meba_poe_generic.h"
 #include "poe_driver.h"
 
-// lan966x has both BT and AT implementations
+// lan966x 4pairs has both PREBT and BT implementations
 
 //--------------------------------------------------------------------------------------//
 //------------------------------    general parameters   -------------------------------//
@@ -46,7 +46,7 @@
 
 
 // the max power that can be consumed by system itself (W)
-#define LAN9668_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT        20
+#define LAN9668_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     20
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
@@ -61,8 +61,13 @@
 
 //----------------- port map Customizations starts here ------------------//
 
+//Type 1(IEEE 802.3af) 2P 15W
+//Type 2(IEEE 802.3at) 2P 30W
+//Type 3(IEEE 802.3bt) 4P 60W
+//Type 4(IEEE 802.3bt) 4P 90W
+
 // BT capability
-#define PD69200BT_CAP  MEBA_POE_PORT_CAP_POE    | \
+#define PD69200_BT_CAP MEBA_POE_PORT_CAP_POE    | \
                        MEBA_POE_PORT_CAP_TYPE_1 | \
                        MEBA_POE_PORT_CAP_TYPE_2 | \
                        MEBA_POE_PORT_CAP_TYPE_3 | \
@@ -71,28 +76,30 @@
                        MEBA_POE_PORT_CAP_FORCE_ON
 
 // AT capability
-#define PD69200AT_CAP   MEBA_POE_PORT_CAP_POE    | \
-                        MEBA_POE_PORT_CAP_TYPE_1 | \
-                        MEBA_POE_PORT_CAP_TYPE_2 | \
-                        MEBA_POE_PORT_CAP_TYPE_3 | \
-                        MEBA_POE_PORT_CAP_FORCE_ON
+#define PD69200_PREBT_AT_CAP MEBA_POE_PORT_CAP_POE    | \
+                             MEBA_POE_PORT_CAP_TYPE_1 | \
+                             MEBA_POE_PORT_CAP_TYPE_2 | \
+                             MEBA_POE_PORT_CAP_FORCE_ON
 
-#define PD69200_CAP ((LAN9668_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PD69200BT_CAP : PD69200AT_CAP)
+#define PD69200_CAP ((LAN9668_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PD69200_BT_CAP : PD69200_PREBT_AT_CAP)
 
-// pd69200 - AT mapping - 8 PoE ports 2-pairs
-meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
+//Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
+//      this parameters is the port power limit when using poe PREBT mode.
+
+// pd69200 - BT mapping - 8 PoE ports 4-pairs
+meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 {
-//  PoE           | Max   | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
-//  Capability    | PWR   | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
-//---------------------------------------------------------------------------
-  { PD69200BT_CAP , 24000 , 0       , 7       , 4            , 12         },
-  { PD69200BT_CAP , 24000 , 1       , 6       , 2            , 10         },
-  { PD69200BT_CAP , 24000 , 2       , 5       , 6            , 15         },
-  { PD69200BT_CAP , 24000 , 3       , 4       , 0            , 9          },
-  { PD69200BT_CAP , 24000 , 4       , 3       , 7            , 14         },
-  { PD69200BT_CAP , 24000 , 5       , 2       , 1            , 8          },
-  { PD69200BT_CAP , 24000 , 6       , 1       , 5            , 13         },
-  { PD69200BT_CAP , 24000 , 7       , 0       , 3            , 11         }
+//  PoE         | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
+//  Capability  | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
+//-------------------------------------------------------------------------
+  { PD69200_CAP , 24000   , 0       , 7       , 4            , 12         },
+  { PD69200_CAP , 24000   , 1       , 6       , 2            , 10         },
+  { PD69200_CAP , 24000   , 2       , 5       , 6            , 15         },
+  { PD69200_CAP , 24000   , 3       , 4       , 0            , 9          },
+  { PD69200_CAP , 24000   , 4       , 3       , 7            , 14         },
+  { PD69200_CAP , 24000   , 5       , 2       , 1            , 8          },
+  { PD69200_CAP , 24000   , 6       , 1       , 5            , 13         },
+  { PD69200_CAP , 24000   , 7       , 0       , 3            , 11         }
 };
 
 //------------------- cap and port map Customizations ends here --------------------//
@@ -108,7 +115,7 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 // MEBA_POE_PORT_MAX_POWER_30W
 // MEBA_POE_PORT_MAX_POWER_60W
 // MEBA_POE_PORT_MAX_POWER_90W
-#define LAN9668_BT_PORT_MAX_POWER_DEFAULT                     MEBA_POE_PORT_MAX_POWER_60W
+#define LAN9668_BT_PORT_MAX_POWER_DEFAULT     MEBA_POE_PORT_MAX_POWER_60W
 
 
 // Port Operation Mode for legacy
@@ -135,12 +142,12 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 //     Notes:
 //     - This feature will not operate on any 4-pair logical port.
 //     - When this mask is set, the capability of PSE Connected to PSE Protection function is reduced.
-#define LAN9668_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT 0
+#define LAN9668_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT     0
 
 
 // '0' Do not initialize the I2C module in case of inactivity.
 // '1' Initializes the I2C module system after 10 seconds of inactivity.
-#define LAN9668_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT         1
+#define LAN9668_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT     1
 
 
 // 0 LED stream is disabled.
@@ -157,7 +164,7 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 // 7 Direct led function from PD69208 LED ports (for 1 port Midspan products).
 //   1 package for 2P and 4P LED operation.
 //   Another package for SYS OK pin.
-#define LAN9668_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT            1
+#define LAN9668_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT     1
 
 
 // HOCPP - High Over Current Pulse Protection
@@ -166,19 +173,19 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 // 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
 // 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
-#define LAN9668_INDV_MASK_BT_HOCPP_DEFAULT                      2
+#define LAN9668_INDV_MASK_BT_HOCPP_DEFAULT     2
 
 
 //PSE powering PSE checking
 // 0 = PSE powering PSE condition does not deny powering new valid ports.
 // 1 = In case PSE powering PSE condition occurs, no additional ports are poweredup, until this problem is resolved.
-#define LAN9668_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT          1
+#define LAN9668_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT     1
 
 
 // Layer2 Power Allocation Limit
 // 0 = Power allocation limit up to requested class (non-BT compliant).
 // 1 = Power allocation limit up to minimum between the requested class and the operation mode (BT compliant).
-#define LAN9668_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT      1
+#define LAN9668_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT     1
 
 
 // Port LED Blinks at invalid signature or connection-check error
@@ -190,11 +197,11 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 // Support_adding lldp_half_priority
 // 0 = Port at LLDP does not have additional half priority.
 // 1 = Port at LLDP has additional half priority compared to non LLDP port at the same priority settings.
-#define LAN9668_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT   1
+#define LAN9668_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT     1
 
 
 //--------------------------------------------------------------------------------------//
-//-------------------------    AT parameters    ----------------------------------------//
+//-------------------------    PREBT parameters    -------------------------------------//
 //--------------------------------------------------------------------------------------//
 
 
@@ -202,33 +209,33 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 //     a lowest priority port will be disconnected instead.
 // '1' If power is not available for powering up any port,
 //     any new connected port power up will be denied, regardless of its priority.
-#define LAN9668_INDV_MASK_AT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
+#define LAN9668_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
 
 
 // '0' Don't support legacy detection.
 // '1' Support legacy detection.
-#define LAN9668_INDV_MASK_AT_SUPPORTS_LEGACY_DETECTION_DEFAULT  0
+#define LAN9668_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
 // '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is ready.
 //     Refer to PD69200 datasheet or PD69200M shared memory documentation.
-#define LAN9668_INDV_MASK_AT_MESSAGE_READY_NOTIFY_DEFAULT       0
+#define LAN9668_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT     0
 
 
 // '0' Layer 2 PD commands will be Ignored and Layer 2 PSE requests will return with zero allocation.
 // '1' Layer 2 operation is enabled. Layer 2 commands are processed.
-#define LAN9668_INDV_MASK_AT_LAYER2_LLDP_ENABLE_DEFAULT         1
+#define LAN9668_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT     1
 
 
 // '0' Priority information received from LLDP/CDP PD message is ignored. (Mask 0x2E must be '1').
 // '1' Port Priority can be defined by PD. (Mask 0x2E must be '1').
-#define LAN9668_INDV_MASK_AT_LAYER2_PRIORITY_BY_PD_DEFAULT      1
+#define LAN9668_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT     1
 
 
 // '0' Uses old matrix command (2-pair).
 // '1' Uses new 4-pair matrix commands.
-#define LAN9668_INDV_MASK_AT_MATRIX_SUPPORT_4P_DEFAULT          1
+#define LAN9668_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT     1
 
 
 // -----------  Legacy Power Management mode of operation  ----------------------//
@@ -246,7 +253,7 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 //  0x05 - LLDP = Static power (TPPL), Non LLDP = Dynamic.
 //  0x06 - LLDP & classes 4 = Static power (TPPL), Classes 0 to 3 = Dynamic.
 //  0x80 - User defined per port (See 4.3.12, Sum_as_TPPL field).
-#define LAN9668_PM1_AT_DEFAULT             0x05
+#define LAN9668_PM1_PREBT_DEFAULT     0x05
 
 
 //PM-2 Port Power Limit
@@ -267,11 +274,11 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 // Note: (*). In 4-pair delivering port, the above power values are doubled.
 //  3 - PPL_Class_Max (The maximum value between PPL and Class).
 //  0x80 - User defined per port (See 4.3.12, PortPM2 nibble field).
-#define LAN9668_PM2_AT_DEFAULT             0x01
+#define LAN9668_PM2_PREBT_DEFAULT     0x01
 
 
 //PM-3 Start up conditions: The port will not start up in case detected class power is higher than PPL Value
-//  0 - No Condition   Capability
+//  0 - No Condition
 //  1 - Condition on Classes 1 to 3
 //  2 - Condition on Classes 0 to 3
 //  3 - Condition on Classes 1 to 4
@@ -280,6 +287,6 @@ meba_poe_port_properties_t lan9668_pd69200BT_port_map[] =
 //Note: 1. Class power for startup condition is according to the class power
 //         parameters in the release_DB regardless of other masks settings.
 //      2. Other values for this field will be ignored, maintaining the last configuration.
-#define LAN9668_PM3_AT_DEFAULT             0x00
+#define LAN9668_PM3_PREBT_DEFAULT     0x00
 
 #endif // _LAN9668_POE_HW_CFG_H_

@@ -485,17 +485,17 @@ static void pcb123_init_porttable(meba_inst_t inst)
                     //Port | Port | Chip | MII-Controller           | MII |            MAC                   |        CAP                                                                        |
                     //     | dual | Port |                          | Addr|            IF                    |                                                                                   |
                     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                    { 0    ,  6    ,  2    , MESA_MIIM_CONTROLLER_0   ,     2   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 1    ,  7    ,  3    , MESA_MIIM_CONTROLLER_0   ,     3   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 2    ,  4    ,  0    , MESA_MIIM_CONTROLLER_0   ,     0   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 3    ,  5    ,  1    , MESA_MIIM_CONTROLLER_0   ,     1   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 8    , -1   ,  4    , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_SERDES       ,        (MEBA_PORT_CAP_SFP_1G   | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
-                    { 9    , -1   , 10   , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_SERDES       ,        (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_SFP_SD_HIGH)                              },
-                    { 12   , -1   ,  5    , MESA_MIIM_CONTROLLER_1   ,    28  , MESA_PORT_INTERFACE_SGMII        ,         MEBA_PORT_CAP_TRI_SPEED_COPPER                                                    },
-                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
-                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
-                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
-                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE,  0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 }
+                    { 0    , 6    , 2    , MESA_MIIM_CONTROLLER_0   , 2   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 1    , 7    , 3    , MESA_MIIM_CONTROLLER_0   , 3   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 2    , 4    , 0    , MESA_MIIM_CONTROLLER_0   , 0   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 3    , 5    , 1    , MESA_MIIM_CONTROLLER_0   , 1   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 8    , -1   , 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
+                    { 9    , -1   , 10   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , (MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_SFP_SD_HIGH)                              },
+                    { 12   , -1   , 5    , MESA_MIIM_CONTROLLER_1   , 28  , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER                                                    },
+                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
+                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
+                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
+                    { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 }
                 }
             };
             break;
@@ -507,12 +507,12 @@ static void pcb123_init_porttable(meba_inst_t inst)
                     //Port | Port | Chip | MII-Controller           | MII |            MAC                   |        CAP                                                                        |
                     //     | dual | Port |                          | Addr|            IF                    |                                                                                   |
                     //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                    { 0    ,  6    ,  2    , MESA_MIIM_CONTROLLER_0   ,    2   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 1    ,  7    ,  3    , MESA_MIIM_CONTROLLER_0   ,    3   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 2    ,  4    ,  0    , MESA_MIIM_CONTROLLER_0   ,    0   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 3    ,  5    ,  1    , MESA_MIIM_CONTROLLER_0   ,    1   , MESA_PORT_INTERFACE_SGMII        ,         (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
-                    { 8    , -1   ,  4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       ,        (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
-                    { 9    , -1   ,  5    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       ,        (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
+                    { 0    , 6    , 2    , MESA_MIIM_CONTROLLER_0   , 2   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 1    , 7    , 3    , MESA_MIIM_CONTROLLER_0   , 3   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 2    , 4    , 0    , MESA_MIIM_CONTROLLER_0   , 0   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 3    , 5    , 1    , MESA_MIIM_CONTROLLER_0   , 1   , MESA_PORT_INTERFACE_SGMII        , (CAP_SFP_SD_HIGH | MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY)},
+                    { 8    , -1   , 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
+                    { 9    , -1   , 5    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , (MEBA_PORT_CAP_SFP_1G | MEBA_PORT_CAP_SFP_SD_HIGH)                                },
                     { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
                     { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
                     { -1   , -1   , -1   , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, 0                                                                                 },
