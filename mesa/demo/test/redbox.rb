@@ -221,12 +221,9 @@ test_table =
                      {idx_rx: "d", hsr: {}}]}]
     },
     {
-        txt: "redirect non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_SAN", npi: "d", non_hsr_queue: 1},
-        tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counter
-        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
+        tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
         txt: "VLANs, port A to port B/C",
@@ -832,12 +829,9 @@ test_table =
                      {idx_rx: "d", hsr: {}}]}]
     },
     {
-        txt: "redirect non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_PRP", npi: "d", non_hsr_queue: 1},
-        tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
+        tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -1025,12 +1019,9 @@ test_table =
                      {idx_rx: "d", hsr: {}}]}]
     },
     {
-        txt: "redirect non-HSR-tagged on LRE ports",
+        txt: "discard non-HSR-tagged on LRE ports",
         cfg: {mode: "HSR_HSR", npi: "d", non_hsr_queue: 1},
-        tab: [{fwd: [{idx_tx: "a"},
-                     {idx_rx: "d", ifh_rx: "a"}]}],
-        # Expect zero counters
-        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
+        tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
         txt: "DMAC-NT-STATIC filtering on LRE->interlink",
