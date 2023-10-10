@@ -1761,7 +1761,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_aware = 1;
             prxy_smac_msk = FA_RB_MSK_AB;   // Discard on Interlink if SMAC is proxy
             ht = FA_HT_DAN;                 // Learn nodes on LREs
-            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             prxy_dmac_msk = FA_RB_MSK_NONE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
@@ -1774,7 +1774,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_aware = 1;
             prxy_smac_msk = FA_RB_MSK_AB;   // Discard on Interlink if SMAC is proxy
             ht = FA_HT_DAN;                 // Learn nodes on LREs
-            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             tag_mode = FA_RB_TAG_PRP;
             prp_aware = 1;
@@ -1789,7 +1789,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         hsr_aware = 1;
         if (lre) {
             ht = FA_HT_DAN;                 // Learn nodes on LREs
-            hsr_filter = FA_RB_FLT_REDIR;   // Redirect non-HSR-tagged frames on LRE
+            hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
         }
