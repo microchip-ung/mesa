@@ -770,7 +770,6 @@ void vtss_packet_debug_print(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
         vtss_debug_print_value(pr, "SV",       conf->map.sv_queue);
-        vtss_debug_print_value(pr, "NON_HSR",  conf->map.non_hsr_queue);
     }
 #endif
     pr("\n");

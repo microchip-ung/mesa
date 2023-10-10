@@ -91,7 +91,6 @@ typedef struct
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_REDBOX)
     vtss_packet_rx_queue_t sv_queue;          /**< Supervision frames */
-    vtss_packet_rx_queue_t non_hsr_queue;     /**< Non-HSR frames on HSR ports */
 #endif
 } vtss_packet_rx_queue_map_t;
 

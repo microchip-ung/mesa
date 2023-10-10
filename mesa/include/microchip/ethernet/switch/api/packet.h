@@ -84,7 +84,6 @@ typedef struct
     mesa_packet_rx_queue_t l3_uc_queue CAP(L3);    // L3 routing unicast queue
     mesa_packet_rx_queue_t l3_other_queue CAP(L3); // L3 routing other frames queue
     mesa_packet_rx_queue_t sv_queue CAP(L2_REDBOX_CNT);      // Supervision frames
-    mesa_packet_rx_queue_t non_hsr_queue CAP(L2_REDBOX_CNT); // Non-HSR frames on HSR ports
 } mesa_packet_rx_queue_map_t;
 
 // CPU Rx configuration
