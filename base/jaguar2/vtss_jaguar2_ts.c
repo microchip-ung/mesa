@@ -332,7 +332,6 @@ static vtss_rc jr2_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 static vtss_rc jr2_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const saved)
 {
     u32                       nsec;
-    vtss_ts_alt_clock_mode_t  *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
     JR2_RD(VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(ALT_LDST_PIN), &nsec);
     nsec = VTSS_X_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC_PTP_TOD_NSEC(nsec);
@@ -340,15 +339,6 @@ static vtss_rc jr2_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const s
         nsec = 999999984 + (nsec & 0xf);
     }
     *saved = (u64)nsec << 16;
-    if (alt_clock_mode->one_pps_in) {
-        if (alt_clock_mode->save && alt_clock_mode->load) {
-            VTSS_E("save and load cannot be enabled at the same time");
-        } else if (alt_clock_mode->save) {
-            JR2_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, 0);
-        } else if (alt_clock_mode->load) {
-            JR2_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, 0);
-        }
-    }
     return VTSS_RC_OK;
 }
 
@@ -363,7 +353,8 @@ static vtss_rc jr2_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
-    JR2_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    JR2_PTP_PIN_ACTION (ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+
     if (alt_clock_mode->one_pps_out) {
         JR2_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(ALT_PPS_PIN),
                VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
@@ -375,7 +366,7 @@ static vtss_rc jr2_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
         (void) vtss_jr2_gpio_mode(vtss_state, 0, ptp_gpio[ALT_PPS_PIN], VTSS_GPIO_IN);
     }
 
-    JR2_PTP_PIN_ACTION (ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    JR2_PTP_PIN_ACTION (ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
     if (alt_clock_mode->one_pps_in) {
         if (alt_clock_mode->save && alt_clock_mode->load) {
             VTSS_E("save and load cannot be enabled at the same time");
@@ -1099,7 +1090,7 @@ static vtss_rc jr2_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
         JR2_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(io),
                VTSS_F_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
-        JR2_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(EXT_CLK_PIN), 0);     /* TBD_henrikb Why is this register write to EXT_CLK_PIN? Should it have been 'io' as all other operations in this function. */
+        JR2_WR(VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(io), 0);
         JR2_PTP_PIN_ACTION (io, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
     } else  if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_LOAD) {
         JR2_PTP_PIN_ACTION (io, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
@@ -1120,14 +1111,18 @@ static vtss_rc jr2_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io, vtss
 {
     vtss_rc rc ;
     vtss_ts_ext_io_mode_t *ext_io_mode;
+    vtss_ts_alt_clock_mode_t *alt_clock_mode;
+
     if (io >= VTSS_TS_IO_ARRAY_SIZE) {
         VTSS_E("invalid io pin: %u", io);
         return VTSS_RC_ERROR;
     }
     ext_io_mode = &vtss_state->ts.io_cfg[io];
+    alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
     VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext_io_mode->domain, ext_io_mode->freq);
     rc = jr2_ts_io_pin_timeofday_get(vtss_state, io, ts, tc);
-    if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) {
+    if ((ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_SAVE) ||
+        ((alt_clock_mode->one_pps_in) && alt_clock_mode->save)) {
         JR2_PTP_PIN_ACTION (io, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, ext_io_mode->domain);
     }
     return rc;

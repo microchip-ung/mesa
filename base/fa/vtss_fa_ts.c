@@ -268,7 +268,6 @@ static vtss_rc fa_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 static vtss_rc fa_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const saved)
 {
     u32                       nsec, nsec_frac;
-    vtss_ts_alt_clock_mode_t  *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN), &nsec);
     nsec = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(nsec);
@@ -278,15 +277,6 @@ static vtss_rc fa_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const sa
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN), &nsec_frac);
     nsec_frac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(nsec_frac);
     *saved = ((u64)nsec << 16) + ((u64)nsec_frac << 8);
-    if (alt_clock_mode->one_pps_in) {
-        if (alt_clock_mode->save && alt_clock_mode->load) {
-            VTSS_E("save and load cannot be enabled at the same time");
-        } else if (alt_clock_mode->save) {
-            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_NOSYNC, 0);
-        } else if (alt_clock_mode->load) {
-            FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_NOSYNC, 0);
-        }
-    }
     return VTSS_RC_OK;
 }
 
@@ -301,7 +291,7 @@ static vtss_rc fa_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
-    FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    FA_PTP_PIN_ACTION (RT_ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
     if (alt_clock_mode->one_pps_out) {
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_ALT_PPS_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
@@ -313,7 +303,7 @@ static vtss_rc fa_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
         (void) vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
     }
 
-    FA_PTP_PIN_ACTION (RT_ALT_PPS_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    FA_PTP_PIN_ACTION (RT_ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
     if (alt_clock_mode->one_pps_in) {
         if (alt_clock_mode->save && alt_clock_mode->load) {
             VTSS_E("save and load cannot be enabled at the same time");

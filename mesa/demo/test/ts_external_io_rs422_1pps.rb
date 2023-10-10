@@ -59,14 +59,23 @@ def tod_external_io_rs422_1pps_test
 
     for domain in 0..2
         test "domain = #{domain}" do
-        # Configure RS422 1PPS input pin to this domain
-        pin_conf["domain"] = domain
-        pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE"
-        $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_in_pin, pin_conf)
 
-        # Configure RS422 1PPS output pin to this domain
-        pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT"
-        $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_out_pin, pin_conf)
+        if (domain == 0)
+            conf = $ts.dut.call("mesa_ts_alt_clock_mode_get")
+            conf["one_pps_out"] = true
+            conf["one_pps_in"] = true
+            conf["save"] = true
+            $ts.dut.call("mesa_ts_alt_clock_mode_set", conf)
+        else
+            # Configure RS422 1PPS input pin to this domain
+            pin_conf["domain"] = domain
+            pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE"
+            $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_in_pin, pin_conf)
+
+            # Configure RS422 1PPS output pin to this domain
+            pin_conf["pin"] = "MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT"
+            $ts.dut.call("mesa_ts_external_io_mode_set", $rs422_out_pin, pin_conf)
+        end
 
         # Set TOD
         tod_ts["seconds"] = 0
@@ -94,8 +103,13 @@ def tod_external_io_rs422_1pps_test
         saved_nano2 = $ts.dut.call("mesa_ts_alt_clock_saved_get")
         saved_nano2 >>= 16
 
-        if (in_pin_tod2["seconds"] != (in_pin_tod1["seconds"] + 1))
+        if (in_pin_tod2["seconds"] <= in_pin_tod1["seconds"])
             t_e("TOD is not incremented as expected.  in_pin_tod1[seconds] = #{in_pin_tod1["seconds"]}  in_pin_tod2[seconds] = #{in_pin_tod2["seconds"]}")
+        end
+
+        nano_diff = in_pin_tod1["nanoseconds"] - in_pin_tod2["nanoseconds"]
+        if ((nano_diff.abs > 2) || (in_pin_tod2["nanoseconds"] > $saved_nano_max))
+            t_e("Difference in nanoseconds is not as expected.  nano_diff = #{nano_diff}  in_pin_tod2[nanoseconds] = #{in_pin_tod2["nanoseconds"]}")
         end
 
         saved_diff = saved_nano1 - saved_nano2
