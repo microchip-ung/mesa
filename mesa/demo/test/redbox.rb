@@ -222,7 +222,7 @@ test_table =
     },
     {
         txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_SAN", npi: "d", non_hsr_queue: 1},
+        cfg: {mode: "HSR_SAN"},
         tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
@@ -830,7 +830,7 @@ test_table =
     },
     {
         txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_PRP", npi: "d", non_hsr_queue: 1},
+        cfg: {mode: "HSR_PRP"},
         tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
@@ -1020,7 +1020,7 @@ test_table =
     },
     {
         txt: "discard non-HSR-tagged on LRE ports",
-        cfg: {mode: "HSR_HSR", npi: "d", non_hsr_queue: 1},
+        cfg: {mode: "HSR_HSR"},
         tab: [{fwd: [{idx_tx: "a"}]}]
     },
     {
@@ -1444,7 +1444,6 @@ def redbox_test(t)
         end
         queue_set(cfg, conf, "bpdu_queue", :bpdu_queue)
         queue_set(cfg, conf, "sv_queue", :sv_queue)
-        queue_set(cfg, conf, "non_hsr_queue", :non_hsr_queue)
         $ts.dut.call("mesa_packet_rx_conf_set", conf)
 
         # Enable NPI port
