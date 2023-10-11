@@ -44,7 +44,7 @@
 #define INDV_MASK_BT_LED_STREAM_TYPE             0x20
 #define INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR 0x30
 
-// AT individual masks - stay with defaults
+// PREBT individual masks - stay with defaults
 #define INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY     0x00
 #define INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION  0x01
 #define INDV_MASK_PREBT_MESSAGE_READY_NOTIFY       0x1E
@@ -52,7 +52,7 @@
 #define INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD      0x2F
 #define INDV_MASK_PREBT_MATRIX_SUPPORT_4P          0x34
 
-// AT individual masks - configuration depends on product
+// PREBT individual masks - configuration depends on product
 #define INDV_MASK_PREBT_SUPPORTS_BACKOFF           0x11
 #define INDV_MASK_PREBT_LED_STREAM_TYPE            0x16
 #define INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING  0x1F
@@ -2671,7 +2671,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
                 private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 AT firmware.");
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200 PREBT firmware.");
                 break;
             }
             case ePD69200_BT:
@@ -2685,7 +2685,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
                 private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 AT firmware.");
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69210 PREBT firmware.");
                 break;
             }
             case ePD69210_BT:
@@ -2699,7 +2699,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             {
                 ePoE_detected_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
                 private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 AT firmware.");
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69220 PREBT firmware.");
                 break;
             }
             case ePD69220_BT:
@@ -2712,7 +2712,7 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             case ePD69200M_AT:
             {
                 private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M AT firmware.");
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,"detected poe firmware: pd69200M PREBT firmware.");
                 break;
             }
             case ePD69200M_BT:
@@ -2757,17 +2757,17 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69220_bt_firmware.s19";
             prod_number_from_file = ePD69220_BT;
         }
-    } else { // AT mode               exit meba_poe_supply_limits_get
+    } else { // PREBT mode               exit meba_poe_supply_limits_get
         if(ePoE_detected_controller_type == MEBA_POE_PD69200_CONTROLLER_TYPE) {
-            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69200 AT firmware.");
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69200 PREBT firmware.");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69200_at_firmware.s19";
             prod_number_from_file = ePD69200_AT;
         } else if(ePoE_detected_controller_type == MEBA_POE_PD69210_CONTROLLER_TYPE) {
-            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69210 AT firmware.");
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69210 PREBT firmware.");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69210_at_firmware.s19";
             prod_number_from_file = ePD69210_AT;
         } else { //if(ePoE_detected_controller_type == MEBA_POE_PD69220_CONTROLLER_TYPE)
-            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69220 AT firmware.");
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69220 PREBT firmware.");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69220_at_firmware.s19";
             prod_number_from_file = ePD69220_AT;
         }
@@ -2943,7 +2943,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_WARNING, "No TPE!");
         // Reset - Section 5.1 - step 9
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Sending 'E' - erasing memory - Section 5.1 - step 3");
@@ -2953,7 +2953,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 5); // read TOE\r\n - Section 5.1 - step 3;
     if ((buf[0] != 'T') || (buf[1] != 'O') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "No TOE!");
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Erasure may last up to 5 seconds. - Section 5.1 - step 4");
@@ -2962,14 +2962,14 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 4); // read TE\r\n - Section 5.1 - step 4
     if ((buf[0] != 'T') || (buf[1] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "No TE!");
-        //        goto out;
+        goto error_out;
     }
     VTSS_MSLEEP(100);
 
     pd69200_firm_update_rd(inst, buf, 5); // read TPE\r\n - Section 5.1 - step 4
     if ((buf[0] != 'T') || (buf[1] != 'P') || (buf[2] != 'E')) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "No TPE!");
-        //        goto out;
+        goto error_out;
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Sending 'P' - program memory - Section 5.1 - step 5");
@@ -2979,7 +2979,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
     pd69200_firm_update_rd(inst, buf, 5); // read TOP\r\n - Section 5.1 - step 5
     if ((buf[0] != 'T') || (buf[1] != 'O') || (buf[2] != 'P')) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "No TOP");
-        //        goto out;
+        goto error_out;
     }
 
     if (!microsemi_firmware) { // Use built-in firmware
@@ -2989,7 +2989,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
         // check valid builtin_firmware file
         if (private_data->builtin_firmware == NULL) {
-            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Error: builtin_firmware is null.\n");
+            DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Error: builtin_firmware is null.\n");
             return MESA_RC_ERROR;
         }
 
@@ -3186,7 +3186,7 @@ mesa_rc meba_poe_pd69200_ctrl_globals_cfg_set(
     current_global_cfg->power_supply_poe_limit_w = cfg_global->power_supply_poe_limit_w;
     current_global_cfg->legacy_detect           = cfg_global->legacy_detect;
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "AF-AT Update configuration for controller");
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "PREBT Update configuration for controller");
 
     uint8_t supports_legacy_detection;
     MESA_RC(meba_poe_pd69200_individual_mask_get(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "supports_legacy_detection"));      // Supports Legacy detection.
@@ -3265,7 +3265,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_cfg_set(
     }
 
     DEBUG(inst,
-          MEBA_TRACE_LVL_INFO, "Update AF-AT configuration for controller port %2d , EnDis(%d->%d): %8s -> %8s , priority(%d->%d): %4s -> %4s , legacy support(%d->%d): %8s -> %8s",
+          MEBA_TRACE_LVL_INFO, "Update PREBT configuration for controller port %2d , EnDis(%d->%d): %8s -> %8s , priority(%d->%d): %4s -> %4s , legacy support(%d->%d): %8s -> %8s",
           handle,
           port_cfg->enable,
           req_port_cfg->enable,
@@ -3592,8 +3592,8 @@ static mesa_rc meba_poe_pd69200_ctrl_globals_status_get(
             bRunIndvMAskOnce = false;
             MESA_RC(print_indv_masks_bt(inst, &(current_status->tPoe_individual_mask_info.im_BT)));
         }
-    } else { // AT
-        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s ,get AT globals_status info", __FUNCTION__);
+    } else { // PREBT
+        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s ,get PREBT globals_status info", __FUNCTION__);
 
         uint16_t pInterrupt_register;
         MESA_RC(meba_poe_pd69200_ctrl_get_system_status(inst, &pInterrupt_register));  //, &cpu_status1, &cpu_status2, &factory_default,NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -3789,7 +3789,7 @@ mesa_rc meba_poe_pd69200_do_detection(
             case ePD69200M_AT:
             {
                 private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_PREBT;
-                DEBUG(inst, MEBA_TRACE_LVL_INFO,"poe mcu type detected: AT firmware=%d", poe_mcu_type);
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,"poe mcu type detected: PREBT firmware=%d", poe_mcu_type);
 
                 uint16_t pInterrupt_register;
                 rc = meba_poe_pd69200_ctrl_get_system_status(inst, &pInterrupt_register);
@@ -3885,7 +3885,7 @@ mesa_rc meba_poe_pd69200_chip_initialization(
 
 
     //--- individual_masks ---//
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing AT individual masks parameters", __FUNCTION__, inst->adapter_name);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing PREBT individual masks parameters", __FUNCTION__, inst->adapter_name);
 
     // Disable i2c ready interrupt
     uint8_t message_ready_notify;
@@ -4324,7 +4324,7 @@ mesa_rc meba_poe_pd69200_ctrl_port_status_get(
         case eAT_0x2B_ON__FORCE:
         case eAT_0x40_ON__HIGH_POWER_PORT_IS_ON:
         {
-            // Note: MEBA_POE_PD_ON_POEBT doesent mapped in AT mode
+            // Note: MEBA_POE_PD_ON_POEBT doesent mapped in PREBT mode
             port_status->meba_poe_port_state = MEBA_POE_PD_ON;
             break;
         }
@@ -5314,7 +5314,7 @@ void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t* inst)
     prod.port_type_operation_mode[0][3] = eBT_Non_Compliant_4P_15w_2P_15w_Legacy;    // ignore-pd-class - BT 15W legacy
 
     // 30W
-    prod.port_type_operation_mode[1][0] = eAFAT_Compliant_30w;                       // AF/AT 30W standard
+    prod.port_type_operation_mode[1][0] = eAFAT_Compliant_30w;                       // PREBT AF/AT 30W standard
     prod.port_type_operation_mode[1][1] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // BT 30W legacy
     prod.port_type_operation_mode[1][2] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // poh - BT 30W legacy
     prod.port_type_operation_mode[1][3] = eBT_Non_Compliant_4P_30w_2P_30w_Legacy;    // ignore-pd-class - BT 30W legacy
@@ -6657,7 +6657,7 @@ mesa_rc meba_poe_pd69200bt_ctrl_port_pd_data_set(
 
     meba_poe_port_cfg_t* port_cfg = &(((poe_driver_private_t*)(inst->private_data))->cfg.ports[handle]);
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO ,"UPDATE LLDP-AT: Set Max Power to %d mW. Cable length = %d meter\n\r",
+    DEBUG(inst, MEBA_TRACE_LVL_INFO ,"UPDATE LLDP-PREBT: Set Max Power to %d mW. Cable length = %d meter\n\r",
            pd_data->pd_requested_power_mw, port_cfg->cable_length * 10);
 
     return meba_poe_pd69200bt_ctrl_set_port_layer2_lldp_pd_request(
