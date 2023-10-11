@@ -316,10 +316,14 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)                # Configs to build
 
 # Change in poe related types
-check("backwards-check",               # Name of check
-      "9e2477e895@poe-appl-updates-09-13-23",     # Apl release to use
-      $default_configs)                # Configs to build
+#check("backwards-check",               # Name of check
+#      "9e2477e895@poe-appl-updates-09-13-23",     # Apl release to use
+#      $default_configs)                # Configs to build
 
+# Change in poe related types
+check("backwards-check",               # Name of check
+      "e90d066c0c@poe-appl-update-9-10",     # Apl release to use
+      $default_configs)                # Configs to build
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
