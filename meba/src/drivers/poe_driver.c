@@ -2989,7 +2989,7 @@ static mesa_rc meba_poe_pd69200_firmware_upgrade(const meba_poe_ctrl_inst_t* con
 
         // check valid builtin_firmware file
         if (private_data->builtin_firmware == NULL) {
-            DEBUG(inst, MEBA_TRACE_LVL_ERROR, "Error: builtin_firmware is null.\n");
+            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Error: builtin_firmware is null.\n");
             return MESA_RC_ERROR;
         }
 
