@@ -550,6 +550,13 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 }
 
 #define VSTAX 73 /* The IFH bit position of the first VSTAX bit. This is because the VSTAX bit positions in Data sheet is starting from zero. */
+
+// The overall IFH layout for FireAnt and Laguna is the same, for example DST starts at offset 153.
+// But within blocks, some Laguna fields are smaller, so fields may be shifted:
+// - FWD: SRC_PORT is 6/7 bits, causing upper fields to be shifted.
+// - DST: COPY_CNT is 8/9 bits, causing upper fields to be shifted.
+
+// These overall offsets are used by the encode() function:
 #define FWD_UPDATE_FCS       FA_TGT ? 67 : 66
 #define FWD_AFI_INJ          FA_TGT ? 72 : 71
 #define FWD_MIRROR_PROBE     FA_TGT ? 53 : 52
@@ -558,8 +565,11 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t           *vtss_state,
 #define DST_PDU_W16_OFFSET   FA_TGT ? 195 : 194
 #define DST_PDU_TYPE         FA_TGT ? 191 : 190
 #define DST_XVID_EXT         FA_TGT ? 202 : 201
+
+// These block offsets are used by the decode() function:
 #define SRC_PORT_WID         FA_TGT ? 7 : 6
 #define FWD_SFLOW_ID_POS     FA_TGT ? 12 : 11
+#define DST_CL_RSLT_POS      FA_TGT ? 22 : 21
 
 static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
                                 const vtss_packet_rx_meta_t *const meta,
@@ -644,7 +654,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
 
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD(misc, 0, 8); // MISC:CPU_MASK
 
-    if (VTSS_EXTRACT_BITFIELD64(dst, 22, 16) & FA_IFH_CL_RSLT_ACL_HIT) {
+    if (VTSS_EXTRACT_BITFIELD64(dst, DST_CL_RSLT_POS, 16) & FA_IFH_CL_RSLT_ACL_HIT) {
         // ACL hit signalled in DST:MATCH_ID_GRP_IDX
         info->acl_hit = 1;
     }
