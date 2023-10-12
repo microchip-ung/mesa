@@ -321,8 +321,13 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)                # Configs to build
 
 # Change in poe related types
+#check("backwards-check",               # Name of check
+#      "e90d066c0c@poe-appl-update-9-10",     # Apl release to use
+#      $default_configs)                # Configs to build
+
+# HSR related change
 check("backwards-check",               # Name of check
-      "e90d066c0c@poe-appl-update-9-10",     # Apl release to use
+      "b2f6132ca8@poe-appl-update-9-10",     # Apl release to use
       $default_configs)                # Configs to build
 
 # This will be activated when we get to the 4.2 release
