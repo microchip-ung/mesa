@@ -160,6 +160,7 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 4;
 
+        conf.port_conf[0].mode[0] = MESA_SGPIO_MODE_ON;
         /* MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
         for (uint32_t i = 1; i < 4; i++) {
             conf.port_conf[0].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
@@ -215,6 +216,7 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
     T_N(inst, "Called - %d", cap);
     switch (cap) {
         case MEBA_CAP_POE:
+            return 1;
         case MEBA_CAP_1588_CLK_ADJ_DAC:
         case MEBA_CAP_1588_REF_CLK_SEL:
         case MEBA_CAP_TEMP_SENSORS:
@@ -225,6 +227,7 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_LED_MODES:
         case MEBA_CAP_DYING_GASP:
         case MEBA_CAP_FAN_SUPPORT:
+            return 0;
         case MEBA_CAP_LED_DIM_SUPPORT:
         case MEBA_CAP_BOARD_HAS_PCB107_CPLD:
         case MEBA_CAP_PCB107_CPLD_CS_VIA_MUX:
@@ -234,13 +237,28 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_SYNCE_PTP_CLOCK_OUTPUT:
         case MEBA_CAP_SYNCE_HO_POST_FILTERING_BW:
         case MEBA_CAP_SYNCE_CLOCK_EEC_OPTION_CNT:
+            return 0;
         case MEBA_CAP_ONE_PPS_INT_ID:
+            return MEBA_EVENT_PTP_PIN_1;
         case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE:
-        case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
         case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
         case MEBA_CAP_POE_BT:
+            return 1;
         case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
+        case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
+            if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+                meba_synce_clock_hw_id_t dpll_type;
+
+                if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+
         default:
             T_E(inst, "Unknown capability %d", cap);
             MEBA_ASSERT(0);
@@ -482,6 +500,8 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_SENSOR_INITIALIZE:
             break;
         case MEBA_INTERRUPT_INITIALIZE:
+            break;
+        case MEBA_POE_INITIALIZE:
             break;
         case MEBA_PHY_INITIALIZE:
             inst->phy_devices = (mepa_device_t **)&board->phy_devices;
@@ -746,6 +766,9 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_serdes_tap_get             = lan969x_serdes_tap_get;
     inst->api.meba_ptp_rs422_conf_get         = lan969x_ptp_rs422_conf_get;
     inst->api.meba_gpio_func_info_get         = lan969x_gpio_func_info_get;
+    inst->api_synce                           = meba_synce_get();
+    inst->api_tod                             = meba_tod_get();
+    inst->api_poe                             = meba_poe_get();
     return inst;
 
 error_out:

@@ -224,6 +224,11 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
             if (rc != MESA_RC_ERROR) {
                 T_I(inst, "Zarlink 30377X detected with partnum 0X%x%x", partnum[1], partnum[2]);
             }
+        } else if (partnum[1] == 0x22) {
+            meba_synce_read(inst, 0x82, 1, &partnum[2]);
+            if (partnum[2] == 0x1C) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30732; // Really ZL80732
+            }
         } else {
             T_I(inst, "No SyncE DPLL detected. partnum 0X%x%x", partnum[0], partnum[1]);
             rc = MESA_RC_ERROR;
@@ -294,7 +299,12 @@ static mesa_rc meba_synce_spi_if_do_read_dpll_fw_ver(meba_inst_t inst, meba_sync
     // attempt to read SW version
     if (known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
         known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
-        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773) {
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30731 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30732 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30733 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30734 ||
+        known_dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30735 ) {
         // select page 0
         uint8_t tx_data[2] = {0};
         uint8_t rx_data[2];
