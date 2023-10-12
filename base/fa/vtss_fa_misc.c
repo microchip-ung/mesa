@@ -1066,14 +1066,12 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
     /* Instead, the INV can be accomplished through the polarity bit */
 
     for (port = 0; port < 32; port++) {
-        if (conf->port_conf[port].mode[0] == VTSS_SGPIO_MODE_NO_CHANGE ||
-            conf->port_conf[port].mode[1] == VTSS_SGPIO_MODE_NO_CHANGE ||
-            conf->port_conf[port].mode[2] == VTSS_SGPIO_MODE_NO_CHANGE ||
-            conf->port_conf[port].mode[3] == VTSS_SGPIO_MODE_NO_CHANGE) {
-            continue;
-        }
         mask = (1 << port);
-        for (pol = 0, val = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
+        REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(FA_TGT ? group : 0, port), &val);
+        for (pol = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
+            if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_NO_CHANGE) {
+                continue;
+            }
             /* Set output bit n */
             if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_0_ACTIVITY_INV) {
                 val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_0_ACTIVITY, (bit_idx * 3), 3);

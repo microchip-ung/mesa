@@ -161,9 +161,10 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         conf.bit_count = 4;
 
         /* MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
-        for (uint32_t i = 0; i < 4; i++) {
+        for (uint32_t i = 1; i < 4; i++) {
             conf.port_conf[0].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
         }
+        conf.port_conf[0].mode[0] = MESA_SGPIO_MODE_ON; // POE enabled
         conf.port_conf[0].enabled = 1;
 
         /* Set bit 2 and 3 to high. This sets the RS422 1PPS driver output to tristate */
