@@ -826,6 +826,7 @@ typedef struct
     uint32_t     ptp_pin_ppso;           // PTP_IO pin used for RS422 1 PPS output
     uint32_t     ptp_rs422_pps_int_id;   // Interrupt id for RS422 1PPS interrupt
     uint32_t     ptp_rs422_ldsv_int_id;  // Interrupt id for RS422 Load/Save input interrupt
+    const char   *serial_port;           // The serial port used for RS422 (default ttyS1)
 } meba_ptp_rs422_conf_t CAP(TS_PTP_RS422);
 
 /* - Symreg ----------------------------------------------------------------- */

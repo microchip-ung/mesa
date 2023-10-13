@@ -35,7 +35,8 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_pin_ldst           = 2,
     .ptp_pin_ppso           = 3,
     .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
-    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3,
+    .serial_port            = "/dev/ttyAT1"
 };
 
 #define LAGUNA_CAP_10G_FDX (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH)
