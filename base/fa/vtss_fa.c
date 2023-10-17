@@ -1152,9 +1152,9 @@ static BOOL fa_dsm_cmp_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *calenda
     return TRUE;
 }
 
-static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *calendar)
+static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *calendar, u32 len)
 {
-    u32 len = dsm_cal_len(vtss_state, calendar), val;
+    u32 val;
 
     if (LA_TGT) {
         REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
@@ -1672,131 +1672,110 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
 }
 #endif
 
-typedef struct {
-    int active;
-    int compensate;
-} port_comp_t;
-#if 0
-static int jira482_check(vtss_state_t *vtss_state, u32 taxi_num, u32 *calendar, u8 *changed)
+static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *cal, u32 *cal_len) {
+    int bw = freq_mhz * 128 / 1.05;
+    int grps = 3;
+    int grp[ports];
+    int cnt[30];
+    int grpspd = 10000;
+    int bwavail[3];
+    int i, j, p, sp, win, grplen;
 
-{
-    int taxis[5] = {16, 16, 16, 8, 8};
-    port_comp_t port_comp[FA_CHIP_PORTS_ALL] = {};
-    int candidates[FA_CHIP_PORTS_ALL] = {};
-    int inv, k, j, port_i, port_j, evicted, i, port;
-    int cand_idx = 0, p_prev, p_next, rnd_idx;
-    u32 cal_len = dsm_cal_len(vtss_state, calendar);
-
-    *changed = 0;
-    k = taxis[taxi_num];
-
-    for (int i = 0; i < cal_len; i++) {
-        port_comp[calendar[i]].active = 1;
+    if (bw < 30000) {
+        for (i = 0; i < ports && speeds[i] != 10000; i++);
+        if (i == ports)
+            grpspd = 5000;
+        else
+            grps = 2;
     }
 
-    inv = RT_DSM_CAL_MAX_DEVS_PER_TAXI;
+    grplen = grpspd / 1000;
+    for (i = 0; i < grps; bwavail[i++] = grpspd);
 
-    for (i = 0; i < cal_len; i++) {
-        j = (i + k) % cal_len;
-        port_i = calendar[i];
-        port_j = calendar[j];
+    for (i = 0; i < ports; i++) {
+        if (!speeds[i]) {
+            continue;
+        }
+        for (j = 0; j < grps && bwavail[j] < speeds[i]; j++);
+        if (j == grps) {
+            VTSS_E("Could not generate calendar at taxibw %d\n", bw);
+            return VTSS_RC_ERROR;
+        }
+        grp[i]=j;
+        bwavail[j]-=speeds[i];
+    }
 
-        if ((port_i < inv) && (port_i == port_j)) {
-            if (i == j) {
-                VTSS_E("There is no calendar solution (jira482), change calender length (%d)\n",cal_len);
-                return VTSS_RC_ERROR;
-            } else if (i < j) {
-                VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",j,port_i);
-                port_comp[port_i].compensate++;
-                calendar[j] = inv;
-                *changed = 1;
-            } else {
-                VTSS_D("JIRA482 violation found on slot %d for port %d. Replacing with empty.\n",i,port_i);
-                port_comp[port_i].compensate++;
-                calendar[i] = inv;
-                *changed = 1;
+    memset(cnt, 0, sizeof(cnt));
+    for (i = 0; i < grplen; i++) {
+        for (j = 0; j < grps; j++) {
+            sp = 1;
+            win = ports;
+            for (p = 0; p < ports; p++) {
+                if (grp[p] != j) {
+                    continue;
+                }
+                cnt[p] -= (cnt[p] > 0);
+                if (speeds[p] > sp && !cnt[p]) {
+                    win = p;
+                    sp = speeds[p];
+                }
             }
+            if (win == ports) {
+                win = 10;
+            }
+
+            cnt[win] = grpspd/sp;
+            cal[i*grps + j] = win;
         }
     }
 
-    evicted = 1;
-
-    while(evicted) {
-        for (port = 0; port < FA_CHIP_PORTS_ALL; port++) {
-            if (!port_comp[port].active) {
-                continue;
-            }
-            i = 0;
-            evicted = 0;
-            while(port_comp[port].compensate > 0 && i < cal_len) {
-                port_i = calendar[i];
-                p_prev = calendar[(i + cal_len - k) % cal_len];
-                p_next = calendar[(i + k) % cal_len];
-                if ((port_i == inv) && (port != p_prev) && (port != p_next)) {
-                    calendar[i] = port;
-                    port_comp[port].compensate--;
-                    *changed = 1;
-                }
-                i++;
-            }
-
-            for (i = 0; i < FA_CHIP_PORTS_ALL; i++) {
-                candidates[i] = -1;
-            }
-            cand_idx = 0;
-
-            while (port_comp[port].compensate > 0 && 0) {
-                for (i = 0; i < cal_len; i++) {
-                    port_i = calendar[i];
-                    p_prev = calendar[(i + cal_len - k) % cal_len];
-                    p_next = calendar[(i + k) % cal_len];
-                    if (!((port_i == port) || (p_prev == port) || (p_next == port))) {
-                        candidates[cand_idx] = port;
-                        cand_idx++;
-                    }
-                }
-                if (cand_idx == 0) {
-                    VTSS_E("There is no calendar solution (jira482), change calender length (%d)\n",cal_len);
-                    return VTSS_RC_ERROR;
-                } else {
-                    rnd_idx = rand() % cand_idx + 1;
-                    i = candidates[rnd_idx];
-                    port_i = calendar[i];
-                    calendar[i] = port;
-                    *changed = 1;
-                    port_comp[port].compensate--;
-                    port_comp[port_i].compensate++;
-                    evicted = 1;
-                }
-            }
-        }
-    }
-
+    *cal_len = (cal[0] >= ports) ? 1 : (grps * grplen);
     return VTSS_RC_OK;
 }
-#endif
-// Configure the DSM calendar based on port-map
+
+
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
 {
-    u32 calendar[FA_DSM_CAL_LEN];
-    i32 avg_len[FA_DSM_CAL_LEN];
+    u32 calendar[FA_DSM_CAL_LEN], taxi;
 
-    for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
-        VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
-        VTSS_RC(fa_dsm_chk_calendar(vtss_state, calendar, avg_len));
-        if (!fa_dsm_cmp_calendar(vtss_state, taxi, calendar)) {
-            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar));
+    if (FA_TGT) {
+        i32 avg_len[FA_DSM_CAL_LEN];
+
+        for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+            VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
+            VTSS_RC(fa_dsm_chk_calendar(vtss_state, calendar, avg_len));
+            if (!fa_dsm_cmp_calendar(vtss_state, taxi, calendar)) {
+                VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar, dsm_cal_len(vtss_state, calendar)));
+            }
         }
-    }
+    } else {
+        u32 cal_len, p, cal_spd;
+        u32 port_speeds[FA_CHIP_PORTS_ALL] = {0};
+        u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI];
+        u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
+        u32 freq_mhz = 328; // Currently only supported freq.
+        int chip_port;
 
-    // JIRA-482
-    /* for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) { */
-    /*     VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len)); */
-    /*     VTSS_RC(jira482_check(vtss_state, taxi, calendar, &changed)); */
-    /*     if (changed) { */
-    /*         VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar)); */
-    /*     } */
-    /* } */
+        // laguna is using different cal. algorithm due to UNG_LAGUNA-482.
+        // Each chip port (incl. CPU ports) has a predefined position on one of the 5 taxi's.
+        // Ports in the port map gets enabled by setting a speed (1G/2G5/5G/10G) at their position.
+
+        for (p = 0; p < vtss_state->port_count; p++) {
+            cal_spd = calspd2int(fa_cal_speed_get(vtss_state, p, &chip_port, 0, 0));
+            port_speeds[chip_port] = cal_spd;
+        }
+
+        for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+            taxi2ports(vtss_state, taxi, taxi_ports);
+            p = 0;
+            while(taxi_ports[p] < RT_CHIP_PORTS_ALL) {
+                taxi_speeds[p] = port_speeds[taxi_ports[p]];
+                p++;
+            }
+            VTSS_RC(la_dsm_calc_calendar(taxi_speeds, p, freq_mhz, calendar, &cal_len));
+            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar, cal_len));
+       }
+    }
 
     return VTSS_RC_OK;
 }
