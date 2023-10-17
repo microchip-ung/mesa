@@ -1907,6 +1907,10 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
     if (sfp_device->drv->meba_sfp_driver_tr_get(sfp_device, &entry->sfp_type) != MESA_RC_OK) {
         T_E("Port:%u Could not get SFP tranceiver type", port_no);
     }
+
+    meba_sfp_driver_conf_t sfp_conf = {};
+    sfp_conf.admin.enable = 1;
+    (void)entry->sfp_device->drv->meba_sfp_driver_conf_set(entry->sfp_device, &sfp_conf);
 }
 
 static mesa_bool_t port_is_aneg_mode(port_entry_t *entry) {
