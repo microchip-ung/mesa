@@ -90,7 +90,7 @@ static vtss_phy_ts_ptp_clock_mode_t get_mesa_clk_mode(mepa_ts_ptp_clock_mode_t i
     vtss_phy_ts_ptp_clock_mode_t ret = (in == MEPA_TS_PTP_CLOCK_MODE_BC1STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_BC1STEP :
                                        (in == MEPA_TS_PTP_CLOCK_MODE_BC2STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_BC2STEP :
                                        (in == MEPA_TS_PTP_CLOCK_MODE_TC1STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_TC1STEP :
-                                       (in == MEPA_TS_PTP_CLOCK_MODE_TC2STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_TC2STEP : VTSS_PHY_TS_PTP_CLOCK_MODE_BC1STEP;
+                                       (in == MEPA_TS_PTP_CLOCK_MODE_TC2STEP) ? VTSS_PHY_TS_PTP_CLOCK_MODE_TC2STEP : VTSS_PHY_TS_PTP_CLOCK_MODE_NONE;
     return ret;
 }
 
@@ -951,6 +951,7 @@ static mepa_rc vtss_ts_rx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
         (!ptpclock_conf->enable)) {
         T_I(data, MEPA_TRACE_GRP_TS, "disabling action channel mask ");
         action->channel_map &= ~(get_vs_channel_mask(dev));
+        action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
         if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) &&
             (!action->channel_map)) {
             action->enable = false;
@@ -1018,6 +1019,7 @@ static mepa_rc vtss_ts_tx_clock_conf_set(mepa_device_t *dev, uint16_t clock_id, 
     if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) ||
         (!ptpclock_conf->enable)) {
         T_I(data, MEPA_TRACE_GRP_TS, "disabling action channel mask ");
+        action->clk_mode = get_mesa_clk_mode(ptpclock_conf->clk_mode);
         action->channel_map &= ~(get_vs_channel_mask(dev));
         if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) &&
             (!action->channel_map)) {

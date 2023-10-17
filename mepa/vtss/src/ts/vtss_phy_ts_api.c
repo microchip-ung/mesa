@@ -22109,6 +22109,9 @@ static void vtss_phy_ts_dis_action(vtss_phy_ts_engine_action_t *act, const vtss_
             case VTSS_PHY_TS_PTP_DELAY_COMP_ENGINE:
                 pr("Clock Mode :: Delay Compensation\n");
                 break;
+            case VTSS_PHY_TS_PTP_CLOCK_MODE_NONE:
+                pr("Clock Mode :: None\n");
+                break;
             }
 
             switch (act->action.ptp_conf[tloop].delaym_type) {

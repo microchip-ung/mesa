@@ -1240,6 +1240,7 @@ typedef enum {
     VTSS_PHY_TS_PTP_CLOCK_MODE_TC1STEP, /**< Transparent clock, 1 step */
     VTSS_PHY_TS_PTP_CLOCK_MODE_TC2STEP, /**< Transparent clock, 2 step */
     VTSS_PHY_TS_PTP_DELAY_COMP_ENGINE,  /**<  Delay Compenstaion */
+    VTSS_PHY_TS_PTP_CLOCK_MODE_NONE, /**< No clock when PTP engine is disabled */
 } vtss_phy_ts_ptp_clock_mode_t;
 
 /**
