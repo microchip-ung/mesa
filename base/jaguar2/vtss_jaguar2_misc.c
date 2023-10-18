@@ -17,7 +17,7 @@
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
 static vtss_rc jr2_eee_port_conf_set(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t       port_no, 
+                                      const vtss_port_no_t       port_no,
                                       const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
@@ -85,7 +85,7 @@ static vtss_rc jr2_eee_port_conf_set(vtss_state_t *vtss_state,
     }
 
     eee_cfg_reg |= VTSS_F_DEV1G_DEV_CFG_STATUS_EEE_CFG_EEE_TIMER_WAKEUP(closest_match_index);
-    
+
     // Set the latency depending upon what the user prefer (power saving vs. low traffic latency)
     if (conf->optimized_for_power) {
         eee_timer_age = 82; // Set timer age to 263 mSec.
@@ -98,10 +98,10 @@ static vtss_rc jr2_eee_port_conf_set(vtss_state_t *vtss_state,
 
     // EEE fast queues
     VTSS_N("eee_fast_queues:0x%X, to-dev:%d, chip_port:%d", conf->eee_fast_queues, VTSS_TO_DEV1G(chip_port), chip_port);
-    JR2_WRM(VTSS_QSYS_SYSTEM_EEE_CFG(chip_port),  
+    JR2_WRM(VTSS_QSYS_SYSTEM_EEE_CFG(chip_port),
             VTSS_F_QSYS_SYSTEM_EEE_CFG_EEE_FAST_QUEUES(conf->eee_fast_queues),
             VTSS_M_QSYS_SYSTEM_EEE_CFG_EEE_FAST_QUEUES);
-            
+
     // Registers write
     VTSS_D("chip_port:%d, eee_cfg_reg:0x%X", chip_port, eee_cfg_reg);
     JR2_WR(VTSS_DEV1G_DEV_CFG_STATUS_EEE_CFG(VTSS_TO_DEV1G(chip_port)), eee_cfg_reg);
@@ -110,12 +110,12 @@ static vtss_rc jr2_eee_port_conf_set(vtss_state_t *vtss_state,
     // Setting Buffer size to 12.2 Kbyte & 255 frames.
     JR2_WR(VTSS_QSYS_SYSTEM_EEE_THRES, 0xFFFF);
 
-    // Work-around of Bugzilla#18901     
+    // Work-around of Bugzilla#18901
     u32 dummy_reg, prio;
     for (prio = 0; prio < 8; prio++) {
         JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(2048 + 8 * port_no + prio), &dummy_reg);
     }
-    
+
     return VTSS_RC_OK;
 }
 #endif /* VTSS_FEATURE_EEE */
@@ -143,17 +143,17 @@ static vtss_rc jr2_fan_controller_init(vtss_state_t *vtss_state,
 #endif
 
 
-    // Set PWM frequency 
+    // Set PWM frequency
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
             VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_PWM_FREQ(spec->fan_pwm_freq),
             VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_PWM_FREQ);
 
-    // Set PWM polarity 
+    // Set PWM polarity
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
             spec->fan_low_pol ? VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_INV_POL : 0,
             VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_INV_POL);
-    
-    // Set PWM open collector 
+
+    // Set PWM open collector
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
             spec->fan_open_col ? VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_INV_POL : 0,
             VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_PWM_OPEN_COL_ENA);
@@ -170,7 +170,7 @@ static vtss_rc jr2_fan_controller_init(vtss_state_t *vtss_state,
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
             0,
             VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_FAN_STAT_CFG);
-           
+
     // Set fan speed measurement
     if (spec->type == VTSS_FAN_3_WIRE_TYPE) {
         // Enable gating for 3-wire fan types.
@@ -188,7 +188,7 @@ static vtss_rc jr2_fan_controller_init(vtss_state_t *vtss_state,
 
 static vtss_rc jr2_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
-    // Set PWM duty cycle (fan speed) 
+    // Set PWM duty cycle (fan speed)
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG,
             VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(lvl),
             VTSS_M_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE);
@@ -199,21 +199,21 @@ static vtss_rc jr2_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 static vtss_rc jr2_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     u32 fan_cfg_reg;
-    
-    // Read the register 
+
+    // Read the register
     JR2_RD(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG, &fan_cfg_reg);
-    
+
     // Get PWM duty cycle
     *duty_cycle = VTSS_X_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(fan_cfg_reg);
-    
+
     return VTSS_RC_OK;
 }
 
 static vtss_rc jr2_fan_rotation_get(vtss_state_t *vtss_state, vtss_fan_conf_t *fan_spec, u32 *rotation_count)
 {
-    // Read the register 
+    // Read the register
     JR2_RD(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CNT, rotation_count);
-   
+
     return VTSS_RC_OK;
 }
 #endif /* VTSS_FEATURE_FAN */
@@ -223,7 +223,7 @@ static vtss_rc jr2_fan_rotation_get(vtss_state_t *vtss_state, vtss_fan_conf_t *f
  * ================================================================= */
 #if defined(VTSS_FEATURE_TEMP_SENSOR) && (defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C))
 static vtss_rc jr2_temp_sensor_init(vtss_state_t *vtss_state,
-                                    const BOOL enable) 
+                                    const BOOL enable)
 {
     // Enable/Disable
     JR2_WRM(VTSS_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_CTRL,
@@ -233,19 +233,19 @@ static vtss_rc jr2_temp_sensor_init(vtss_state_t *vtss_state,
 }
 
 static vtss_rc jr2_temp_sensor_get(vtss_state_t *vtss_state,
-                                   i16  *temp) 
+                                   i16  *temp)
 {
     u32 status = 0;
     JR2_RD(VTSS_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT, &status);
 
     // See data-sheet section 3.8.11
     *temp = (197400 - 953 * (i16)(status & VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT_TEMP))/1000;
-    
+
     // Check if the data is valid.
     if (status & VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT_TEMP_VALID) {
         return VTSS_RC_OK;
     }
-    
+
     return VTSS_RC_ERROR;
 }
 
@@ -1228,6 +1228,600 @@ static vtss_rc jr2_sgpio_read(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_VSCOPE)
+static vtss_rc jr2_vscope_fast_scan_conf_set( struct vtss_state_s *vtss_state,
+        const vtss_port_no_t chip_port)
+{
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA(1),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA);
+
+    //setup the vscope block
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_HIST_MASK(0),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_HIST_MASK);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_OUT_SEL(3),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_OUT_SEL);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_SCAN_LIM(0),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_SCAN_LIM);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COUNT_PER(9),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COUNT_PER);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_INTR_DIS(1),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_INTR_DIS);
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc jr2_vscope_conf_set( struct vtss_state_s * vtss_state,
+        const vtss_port_no_t chip_port,
+        const vtss_vscope_conf_t *const conf)
+{
+    u32 check_aux_phase,ifmode,tmp;
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+
+    if(conf->enable){
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_VSCOPE_ENA(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_VSCOPE_ENA);
+
+        JR2_RD(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana), &tmp);
+
+        check_aux_phase = VTSS_X_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(tmp);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(check_aux_phase),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_QUICK_SCAN);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                0,
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_VSC_DIS);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_SYN_PHASE_WR_DIS);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_IB_AUX_OFFS_WR_DIS);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_IB_JUMP_ENA_WR_DIS);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COMP_SEL(2),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COMP_SEL);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_SCAN_LIM(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_SCAN_LIM);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_INTR_DIS);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_TRIG_ENA);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_OUT_SEL(0),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_OUT_SEL);
+        JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig), &tmp);
+
+        ifmode = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_IF_WIDTH(tmp);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_IF_MODE(ifmode),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_IF_MODE);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_PRELOAD_VAL(31),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_PRELOAD_VAL);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COUNT_PER(31),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_COUNT_PER);
+
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_AMPL_INCR(0),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_AMPL_INCR);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_PHASE_INCR(0),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_PHASE_INCR);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_AMPL_OFFS_VAL(0),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_AMPL_OFFS_VAL);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_NUM_SCANS_PER_ITR(0),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_NUM_SCANS_PER_ITR);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_PHASE_JUMP_INV);
+
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG2(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG2_PHASE_JUMP_VAL(96),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG2_PHASE_JUMP_VAL);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG2(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG2_AUX_AMPL_SYM_DIS);
+
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_DC_MASK(0x3FF),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_DC_MASK);
+        if (conf->scan_type == VTSS_VSCOPE_FAST_SCAN){
+            VTSS_RC(jr2_vscope_fast_scan_conf_set(vtss_state, chip_port));
+        }
+    } else {
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_VSCOPE_ENA);
+    }
+
+    return VTSS_RC_OK;
+}
+
+//function for circle phase aux, used in VSCOPE
+static vtss_rc jr2_vscope_circle_phase_aux(struct vtss_state_s *vtss_state, const vtss_port_no_t chip_port)
+{
+    u32 value=0;
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana), &value);
+    value = VTSS_X_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(value);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX((value + 42)%128),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX((value + 84)%128),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(value),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+
+    return VTSS_RC_OK;
+}
+
+//Function to backup settings used by VSCOPE
+static vtss_rc jr2_vscope_backup_settings (struct vtss_state_s *vtss_state,
+        const vtss_port_no_t chip_port, vtss_vscope_ib_storage_t *const store)
+{
+    u32 tmp;
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+
+    JR2_RD(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana), &tmp);
+    store->ib_storage_bool[0] = (VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_VSC_DIS & tmp)? TRUE : FALSE;
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana), &tmp);
+    store->ib_storage_bool[1] = (VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK & tmp) ? TRUE : FALSE;
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana), &tmp);
+    store->ib_storage_bool[2] = (VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA & tmp) ? TRUE : FALSE;
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana), &tmp);
+    store->ib_storage_bool[3] = (VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA & tmp) ? TRUE : FALSE;
+    store->ib_storage_bool[4] = (VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA & tmp) ? TRUE : FALSE;
+    JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig), &tmp);
+    store->ib_storage_bool[5] = (VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC & tmp) ? TRUE : FALSE;
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana), &tmp);
+    store->ib_storage[0]= VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(tmp);
+    store->ib_storage[1]= VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(tmp);
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana), &tmp);
+    store->ib_storage[2]= VTSS_X_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(tmp);
+    JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig), &tmp);
+    store->ib_storage[3] = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(tmp);
+    JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig), &tmp);
+    store->ib_storage[4] = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_HW_SCAN_ENA(tmp);
+
+    return VTSS_RC_OK;
+}
+
+//Function to restore backed up settings used by VSCOPE
+static vtss_rc jr2_vscope_restore_settings (struct vtss_state_s *vtss_state,
+        const vtss_port_no_t chip_port, vtss_vscope_ib_storage_t *const store)
+{
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+            store->ib_storage_bool[0], VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_VSC_DIS);
+    if(!(store->ib_storage_bool[1]))
+    {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                store->ib_storage_bool[1], VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK);
+    }
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+            store->ib_storage_bool[2], VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            store->ib_storage_bool[3], VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            store->ib_storage_bool[4], VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(store->ib_storage[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(store->ib_storage[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES);
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(store->ib_storage[2]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(store->ib_storage[3]),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_HW_SCAN_ENA(store->ib_storage[4]),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_HW_SCAN_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+            store->ib_storage_bool[5], VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC);
+
+    return VTSS_RC_OK;
+
+}
+
+static vtss_rc jr2_vscope_xy_scan_eye_sw( struct vtss_state_s *vtss_state,
+                                                     const vtss_port_no_t chip_port,
+                                                     vtss_vscope_scan_status_t *const conf)
+{
+    vtss_vscope_ib_storage_t store;
+    u32 hit_cnt, symDisable, tmp, skipAmpl, actPhase, actAmpl, counter_val, err_thres;
+    u32 i, j;
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+    //value to be calculated using x/log10(2)
+    hit_cnt = conf->scan_conf.ber;
+    symDisable = 0;
+    err_thres = vtss_state->misc.vscope_conf[chip_port].error_thres;
+    memset(&store, 0, sizeof(vtss_vscope_ib_storage_t));
+
+    //checking bounds of the scan parameters
+    if (conf->scan_conf.x_start + conf->scan_conf.x_count > 127) {
+        return VTSS_RC_ERROR;
+    }
+    if (conf->scan_conf.y_start + conf->scan_conf.y_count > 63) {
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_RC(jr2_vscope_backup_settings(vtss_state, chip_port, &store));
+
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(14),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_QUICK_SCAN);
+
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_HW_SCAN_ENA(0),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_HW_SCAN_CFG1_HW_SCAN_ENA);
+    conf->scan_conf.x_incr++;
+    conf->scan_conf.y_incr++;
+    //FREEZE APC
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC(1),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(32),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK);
+
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+    counter_val = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    if (counter_val > err_thres) {
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+    }
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(hit_cnt),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT);
+
+    for ( j = 0 ; j <= conf->scan_conf.x_count; j = j + conf->scan_conf.x_incr) {
+        skipAmpl = 0;
+        for ( i = 0; (i + skipAmpl) <= conf->scan_conf.y_count; i = i + conf->scan_conf.y_incr) {
+            actPhase = j + conf->scan_conf.x_start;
+            skipAmpl = 0;
+            if ((symDisable == 0) && ( conf->scan_conf.y_start < 32) && ((i + conf->scan_conf.y_start) >= 32)) {
+                skipAmpl = 1;
+            }
+            actAmpl = i + conf->scan_conf.y_start + skipAmpl;
+
+            //write phase and aux values (vscope10g_get_xy_point)
+            JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(actPhase),
+                    VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(actAmpl),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+                    VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+            counter_val = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                    0,
+                    VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+            conf->errors[actPhase][actAmpl] = counter_val;
+        }
+    }
+
+    //Aux circle phase condition
+    if ((((conf->scan_conf.x_count * conf->scan_conf.x_incr) % 128) - conf->scan_conf.x_start) > 63) {
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+    }
+    //backup settings to be restored ========> resolved
+    VTSS_RC(jr2_vscope_restore_settings(vtss_state, chip_port, &store));
+
+    return VTSS_RC_OK;
+}
+
+//calculates fast scan output parameters
+static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
+        const vtss_port_no_t chip_port,
+        vtss_vscope_scan_status_t *const conf)
+{
+    vtss_vscope_ib_storage_t store;
+    u8 loop_cntr = 1;
+    i32 positive_phase = -1,negative_phase = -1, positive_amplitude = -1, negative_amplitude = -1,i;
+    i32 steps = 0;
+    u32 error_counter, l_thres, h_thres,tmp=0,err_thres=0, counter_val = 0;
+    i32 phase_start_val, phase_jump_val = 96 ;
+    i32 ampl_start_pos = 32;
+    i32 ampl_start_neg = 31;
+    u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
+    u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
+
+    memset(&store, 0, sizeof(vtss_vscope_ib_storage_t));
+    err_thres = vtss_state->misc.vscope_conf[chip_port].error_thres;
+
+    //storing IB, DES and APC settings
+    VTSS_RC(jr2_vscope_backup_settings(vtss_state, chip_port, &store));
+
+    //disable APC
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC(1),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA);
+
+    //setup test run
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_SEL_VCLK);
+
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(ampl_start_pos),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(ampl_start_neg),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(31),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+    counter_val = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    if (counter_val > err_thres) {
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+    }
+
+    //get the phase_start_val
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana), &tmp);
+    phase_start_val = VTSS_X_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(tmp);
+
+    //measuring positive phase
+    for(i = phase_start_val; i< 128; i = i + loop_cntr)
+    {
+        steps++;
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(i),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+        error_counter = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+        if(error_counter > err_thres) {
+            positive_phase = i;
+            break;
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        if( i == phase_jump_val)
+        {
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+                    0,
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA);
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+                    0,
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA);
+        }
+    }
+    if(steps > 63 )
+    {
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(90),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+    }
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPH_ENA);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA(1),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_JUMPL_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    //measuring negative phase
+    for(i = phase_start_val; i>=0; i=i-loop_cntr)
+    {
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(i),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+        error_counter = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+        if(error_counter > err_thres)
+        {
+            negative_phase = i;
+            break;
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    }
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(phase_start_val),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    //measuring positive amplitude
+    for(i = ampl_start_pos; i<63; i++)
+    {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(i),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+        error_counter = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+        if(error_counter > err_thres)
+        {
+            positive_amplitude = i;
+            break;
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    }
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+
+    //measuring negative amplitude
+    for(i = ampl_start_neg; i>=0; i--)
+    {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(i),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+        JR2_RD(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT(tgt_dig), &tmp);
+        error_counter = VTSS_X_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_CNT_COUNTER(tmp);
+        if(error_counter > err_thres)
+        {
+            negative_amplitude = i;
+            break;
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+                0,
+                VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    }
+    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX(phase_start_val),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_AUX);
+    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(ampl_start_pos),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA(1),
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
+            0,
+            VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
+    //SET IB and DES to the values they had before the scan
+    VTSS_RC(jr2_vscope_restore_settings(vtss_state, chip_port, &store));
+
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana), &tmp);
+    h_thres = VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(tmp);
+    l_thres = VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(tmp);
+    conf->amp_range = h_thres - l_thres;
+
+    if(positive_phase == negative_phase)
+    {
+        conf->error_free_x = 0;
+    }else if(positive_phase == -1 || negative_phase == -1 || positive_phase == phase_start_val || negative_phase == phase_start_val){
+        conf->error_free_x =0;
+    }else{
+        conf->error_free_x = (positive_phase -1) - (negative_phase + 1);
+    }
+    if(positive_amplitude == (negative_amplitude + 1))
+    {
+        conf->error_free_y = 0;
+    }else if(positive_amplitude == -1 || negative_amplitude == -1 || positive_amplitude == ampl_start_pos || negative_amplitude == ampl_start_neg){
+        conf->error_free_y =0;
+    }else{
+        conf->error_free_y = (positive_amplitude -1) - (negative_amplitude + 1);
+        if(conf->error_free_y > conf->amp_range)
+            conf->error_free_y = conf->amp_range;
+    }
+
+    return VTSS_RC_OK;
+}
+
+static vtss_rc jr2_vscope_scan_status_get( struct vtss_state_s *vtss_state,
+        const vtss_port_no_t chip_port,
+        vtss_vscope_scan_status_t *const conf)
+{
+    vtss_vscope_scan_t scan_type;
+    scan_type = vtss_state->misc.vscope_conf[chip_port].scan_type;
+    if (scan_type == VTSS_VSCOPE_FAST_SCAN){
+        VTSS_RC(jr2_vscope_fast_scan_status_get(vtss_state, chip_port, conf));
+    } else if (scan_type == VTSS_VSCOPE_FULL_SCAN){
+        VTSS_RC(jr2_vscope_xy_scan_eye_sw(vtss_state, chip_port, conf));
+    } else
+        return VTSS_RC_ERROR;
+    return VTSS_RC_OK;
+}
+#endif /* VTSS_FEATURE_VSCOPE) */
+
 /* - Debug print --------------------------------------------------- */
 
 /* - Debug print --------------------------------------------------- */
@@ -1395,6 +1989,10 @@ vtss_rc vtss_jr2_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->temp_sensor.chip_temp_init = jr2_temp_sensor_init;
         vtss_state->temp_sensor.chip_temp_get  = jr2_temp_sensor_get;
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
+#if defined(VTSS_FEATURE_VSCOPE)
+        vtss_state->misc.vscope_conf_set = jr2_vscope_conf_set;
+        vtss_state->misc.vscope_scan_status_get = jr2_vscope_scan_status_get;
+#endif /* VTSS_FEATURE_VSCOPE */
     } else if (cmd == VTSS_INIT_CMD_INIT) {
         VTSS_RC(jr2_sgpio_init(vtss_state));
     }

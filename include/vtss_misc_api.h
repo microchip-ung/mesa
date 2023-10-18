@@ -1294,6 +1294,63 @@ typedef struct {
 vtss_rc vtss_symreg_data_get(const vtss_inst_t   inst,
                              vtss_symreg_data_t *const data);
 
+
+typedef enum {
+    VTSS_VSCOPE_FAST_SCAN,
+    VTSS_VSCOPE_FULL_SCAN,
+} vtss_vscope_scan_t;
+
+typedef struct {
+    vtss_vscope_scan_t scan_type; /**<selects the type of scan to be implemented */
+    BOOL enable;                  /**<enable or disable vscope fast scan*/
+    u32  error_thres;             /**<error_threshold for vscope calculations */
+} vtss_vscope_conf_t;
+
+#if defined(VTSS_FEATURE_VSCOPE)
+vtss_rc vtss_vscope_conf_set(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             const vtss_vscope_conf_t *const conf);
+
+vtss_rc vtss_vscope_conf_get(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_vscope_conf_t *const conf);
+
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6    /**<BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5    /**<UNSIGNED parameters to be stored during Vscope Scan */
+
+typedef struct {
+    BOOL ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT];    /**<boolean values to be stored in vtss_state during vscope fast scan configuration */
+    u32  ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT];        /**<u8 values to be stored in vtss_state during vscope fast scan configuration */
+} vtss_vscope_ib_storage_t;
+
+/**\brief VSCOPE scan configuration */
+typedef struct{
+        BOOL line;      /**<selects line or host side, 1 for line */
+        u32 x_start;    /**<start value for x (0-127)*/
+        u32 y_start;    /**<start value for y (0-63)*/
+        u32 x_incr;     /**<increment value for x during the scan */
+        u32 y_incr;     /**<increment value for y during the scan */
+        u32 x_count;    /**<max value for x ( upto which scan is to be performed) */
+        u32 y_count;    /**<max value for y ( upto which scan is to be performed) */
+        u32 ber;        /**<bit error rate */
+} vtss_vscope_scan_conf_t;
+
+#define PHASE_POINTS    128 /**<phase points range from 0-127 */
+#define AMPLITUDE_POINTS 64 /**<amplitude points range from 0-63 */
+
+/**\ brief Vscope eye scan status*/
+typedef struct {
+        vtss_vscope_scan_conf_t scan_conf; /**<scan configuration data */
+        i32 error_free_x;       /**<error free x values in case of fast eye scan */
+        i32 error_free_y;       /**<error free y values in case of fast eye scan */
+        i32 amp_range;          /**<amp range in case of fast eye scan */
+        u32 errors[PHASE_POINTS][AMPLITUDE_POINTS]; /**<error matrix in full scan mode */
+} vtss_vscope_scan_status_t;
+
+vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t inst,
+                                    const vtss_port_no_t port_no,
+                                    vtss_vscope_scan_status_t *const conf);
+#endif /* VTSS_FEATURE_VSCOPE) */
 #ifdef __cplusplus
 }
 #endif

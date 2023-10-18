@@ -117,6 +117,17 @@ typedef struct {
     u32                           irq_user_space_owned_mask;  /**< Mask indicating whether an IRQ is owned by user space or another entity */
 #endif /* VTSS_ARCH_LUTON26 */
 #endif /* defined(VTSS_FEATURE_IRQ_CONTROL) */
+#if defined(VTSS_FEATURE_VSCOPE)
+    vtss_vscope_conf_t vscope_conf[VTSS_PORT_ARRAY_SIZE];
+
+    vtss_rc (* vscope_conf_set)(struct vtss_state_s *vtss_state,
+                                const vtss_port_no_t chip_port,
+                                const vtss_vscope_conf_t *const conf);
+
+    vtss_rc (* vscope_scan_status_get)(struct vtss_state_s *vtss_state,
+                                       const vtss_port_no_t chip_port,
+                                       vtss_vscope_scan_status_t  *const conf);
+#endif /* VTSS_FEATURE_VSCOPE */
 } vtss_misc_state_t;
 
 vtss_rc vtss_misc_inst_create(struct vtss_state_s *vtss_state);

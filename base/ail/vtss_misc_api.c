@@ -817,4 +817,51 @@ vtss_rc vtss_symreg_data_get(const vtss_inst_t   inst,
 }
 #endif
 
+#if defined(VTSS_FEATURE_VSCOPE)
+vtss_rc vtss_vscope_conf_set(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             const vtss_vscope_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc rc;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
+        u32 chip_port = VTSS_CHIP_PORT(port_no);
+        vtss_state->misc.vscope_conf[chip_port] = *conf;
+        rc = VTSS_FUNC(misc.vscope_conf_set, chip_port, conf);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_vscope_conf_get(const vtss_inst_t inst,
+                             const vtss_port_no_t port_no,
+                             vtss_vscope_conf_t *const conf)
+{
+    vtss_rc rc;
+    vtss_state_t *vtss_state;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        u32 chip_port = VTSS_CHIP_PORT(port_no);
+        *conf = vtss_state->misc.vscope_conf[chip_port];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t inst,
+                                    const vtss_port_no_t port_no,
+                                    vtss_vscope_scan_status_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc rc;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
+        u32 chip_port = VTSS_CHIP_PORT(port_no);
+        rc = VTSS_FUNC(misc.vscope_scan_status_get, chip_port, conf);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+#endif /* VTSS_FEATURE_VSCOPE */
 #endif /* VTSS_FEATURE_MISC */

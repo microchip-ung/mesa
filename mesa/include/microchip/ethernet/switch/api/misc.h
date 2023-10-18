@@ -870,5 +870,60 @@ typedef struct {
 mesa_rc mesa_symreg_data_get(const mesa_inst_t   inst,
                              mesa_symreg_data_t *const data);
 
+typedef enum {
+    MESA_VSCOPE_FAST_SCAN,
+    MESA_VSCOPE_FULL_SCAN,
+} mesa_vscope_scan_t CAP(VSCOPE);
+
+typedef struct {
+    mesa_vscope_scan_t scan_type; // selects the type of scan to be implemented */
+    mesa_bool_t enable;           // enable or disable vscope fast scan*/
+    uint32_t    error_thres;      // error_threshold for vscope calculations */
+} mesa_vscope_conf_t CAP(VSCOPE);
+
+mesa_rc mesa_vscope_conf_set(const mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             const mesa_vscope_conf_t *const conf) CAP(VSCOPE);
+
+mesa_rc mesa_vscope_conf_get(const mesa_inst_t inst,
+                             const mesa_port_no_t port_no,
+                             mesa_vscope_conf_t *const conf) CAP(VSCOPE);
+
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6    // BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5    // UNSIGNED parameters to be stored during Vscope Scan */
+
+typedef struct {
+    mesa_bool_t ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT];    // boolean values to be stored in vtss_state during vscope fast scan configuration */
+    uint32_t    ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT];        // u8 values to be stored in vtss_state during vscope fast scan configuration */
+} mesa_vscope_ib_storage_t CAP(VSCOPE);
+
+/**\brief VSCOPE scan configuration */
+typedef struct{
+    mesa_bool_t line;    // selects line or host side, 1 for line */
+    uint32_t x_start;    // start value for x (0-127)*/
+    uint32_t y_start;    // start value for y (0-63)*/
+    uint32_t x_incr;     // increment value for x during the scan */
+    uint32_t y_incr;     // increment value for y during the scan */
+    uint32_t x_count;    // max value for x ( upto which scan is to be performed) */
+    uint32_t y_count;    // max value for y ( upto which scan is to be performed) */
+    uint32_t ber;        // bit error rate */
+} mesa_vscope_scan_conf_t CAP(VSCOPE);
+
+#define PHASE_POINTS 128 // phase points range from 0-127 */
+#define AMPLITUDE_POINTS 64 // amplitude points range from 0-63 */
+
+/**\ brief Vscope eye scan status*/
+typedef struct {
+    mesa_vscope_scan_conf_t scan_conf; // scan configuration data */
+    int32_t  error_free_x;  // error free x values in case of fast eye scan */
+    int32_t  error_free_y;  // error free y values in case of fast eye scan */
+    int32_t  amp_range;     // amp range in case of fast eye scan */
+    uint32_t errors[PHASE_POINTS][AMPLITUDE_POINTS]; // error matrix in full scan mode */
+} mesa_vscope_scan_status_t CAP(VSCOPE);
+
+mesa_rc mesa_vscope_scan_status_get(const mesa_inst_t inst,
+                                    const mesa_port_no_t port_no,
+                                    mesa_vscope_scan_status_t *const conf) CAP(VSCOPE);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_MISC_

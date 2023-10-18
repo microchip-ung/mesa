@@ -426,6 +426,7 @@
 #define VTSS_FEATURE_XFLOW                      /**< Ingress and egress flows */
 #define VTSS_FEATURE_XSTAT                      /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                       /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_VSCOPE                     /**< Virtual Scope for eye signal monitoring (debug) */
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_JAGUAR_2_CE)
