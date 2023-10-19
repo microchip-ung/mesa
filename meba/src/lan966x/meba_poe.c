@@ -16,7 +16,7 @@ meba_poe_parameters_t tPoE_parameters =
     .bt_operation_mode_legacy_60W_ignore_pd_class_default = LAN9668_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT,
     .bt_operation_mode_legacy_90W_ignore_pd_class_default = LAN9668_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT,
 
-    .reset_poe_gpio_number                           = LAN9668_RESET_POE_GPIO_NUMBER,
+    .reset_poe_gpio_number                              = LAN9668_RESET_POE_GPIO_NUMBER,
 
     .indv_mask_prebt_ignore_higher_priority_default     = LAN9668_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
     .indv_mask_prebt_supports_legact_detection_default  = LAN9668_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
