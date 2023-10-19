@@ -1350,6 +1350,20 @@ static u32 calspd2int(fa_cal_speed_t spd) {
     return 0;
 }
 
+static u32 bwd2int(vtss_internal_bw_t bw) {
+    switch (bw) {
+    case VTSS_BW_1G:  return 1000;
+    case VTSS_BW_2G5: return 2500;
+    case VTSS_BW_5G:  return 5000;
+    case VTSS_BW_10G: return 10000;
+    case VTSS_BW_25G: return 25000;
+    default:
+        break;
+    }
+    return 0;
+}
+
+
 static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr) {
     u32 fa_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
         {57,12,0,1,2,16,17,18,19,20,21,22,23},
@@ -1678,8 +1692,8 @@ static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *c
     int grp[ports];
     int cnt[30];
     int grpspd = 10000;
-    int bwavail[3];
-    int i, j, p, sp, win, grplen;
+    int bwavail[3], s_values[] = {5000, 2500, 1000};
+    int i, j, p, sp, win, grplen, lcs, s, found;
 
     if (bw < 30000) {
         for (i = 0; i < ports && speeds[i] != 10000; i++);
@@ -1689,7 +1703,27 @@ static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *c
             grps = 2;
     }
 
-    grplen = grpspd / 1000;
+    lcs = grpspd;
+    for (i = 0; i < 3; i++) {
+        s = s_values[i];
+        found = 0;
+        for (j = 0; j < ports; j++) {
+            if (speeds[j] == s) {
+                found = 1;
+                break;
+            }
+        }
+
+        if (found) {
+            if (lcs == 2500) {
+                lcs = 500;
+            } else {
+                lcs = s;
+            }
+        }
+    }
+    grplen = grpspd / lcs;
+
     for (i = 0; i < grps; bwavail[i++] = grpspd);
 
     for (i = 0; i < ports; i++) {
@@ -1701,8 +1735,8 @@ static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *c
             VTSS_E("Could not generate calendar at taxibw %d\n", bw);
             return VTSS_RC_ERROR;
         }
-        grp[i]=j;
-        bwavail[j]-=speeds[i];
+        grp[i] = j;
+        bwavail[j] -= speeds[i];
     }
 
     memset(cnt, 0, sizeof(cnt));
@@ -1725,7 +1759,7 @@ static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *c
             }
 
             cnt[win] = grpspd/sp;
-            cal[i*grps + j] = win;
+            cal[i * grps + j] = win;
         }
     }
 
@@ -1749,28 +1783,29 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
             }
         }
     } else {
-        u32 cal_len, p, cal_spd;
-        u32 port_speeds[FA_CHIP_PORTS_ALL] = {0};
-        u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI];
+        u32 cal_len, p;
+        u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {};
         u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
         u32 freq_mhz = 328; // Currently only supported freq.
-        int chip_port;
+        u32 dev_speeds[VTSS_PORTS] = {};
 
-        // laguna is using different cal. algorithm due to UNG_LAGUNA-482.
-        // Each chip port (incl. CPU ports) has a predefined position on one of the 5 taxi's.
-        // Ports in the port map gets enabled by setting a speed (1G/2G5/5G/10G) at their position.
+        // laguna is using different cal. algorithm than FA due to UNG_LAGUNA-482.
+        // Each of the 5 taxi's serve a number of devices setup via calender.
+        // Each device gets reserved a BW which is configured in the port map.
+        // The devices are then distributed on the calender to secure the wanted BW.
 
         for (p = 0; p < vtss_state->port_count; p++) {
-            cal_spd = calspd2int(fa_cal_speed_get(vtss_state, p, &chip_port, 0, 0));
-            port_speeds[chip_port] = cal_spd;
+            dev_speeds[VTSS_CHIP_PORT(p)] = bwd2int(vtss_state->port.map[p].max_bw);
         }
 
         for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
             taxi2ports(vtss_state, taxi, taxi_ports);
-            p = 0;
-            while(taxi_ports[p] < RT_CHIP_PORTS_ALL) {
-                taxi_speeds[p] = port_speeds[taxi_ports[p]];
-                p++;
+            for (p = 0; p < RT_DSM_CAL_MAX_DEVS_PER_TAXI; p++) {
+                if (taxi_ports[p] < RT_CHIP_PORTS_ALL) {
+                    taxi_speeds[p] = dev_speeds[taxi_ports[p]];
+                } else {
+                    break;
+                }
             }
             VTSS_RC(la_dsm_calc_calendar(taxi_speeds, p, freq_mhz, calendar, &cal_len));
             VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar, cal_len));
