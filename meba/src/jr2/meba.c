@@ -82,6 +82,12 @@ typedef struct
 #define PHY10G_SGPIO_PORT   24
 #define PHY10G_SGPIO_BIT    2
 
+// JR2-24 1G SGPIO RAW INTR
+// VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR_RAW(2, 0)
+#define JR2_24_SIO_CTRL_SIO_INTR_RAW_0 0x404108
+// VTSS_DEVCPU_GCB_SIO_CTRL_SIO_INTR_RAW(2, 1)
+#define JR2_24_SIO_CTRL_SIO_INTR_RAW_1 0x404109
+
 /* SGPIO LED mapping */
 typedef struct {
     uint8_t port;
@@ -3042,6 +3048,7 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
     int               i, handled = 0;
     mesa_bool_t       chk_phys[48];
     vtss_phy_10g_event_t events;
+    uint32_t          val = 0;
 
     // Getting SGPIO bit 0 - 2 (see UG1053 Table 17, p24 b0 + b1)
     for (bit = 0; bit <= 2; bit++) {
@@ -3066,44 +3073,6 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
 
     switch (board->type) {
         case BOARD_TYPE_JAGUAR2:
-            start_port = MESA_PORT_NO_NONE;
-            end_port   = MESA_PORT_NO_NONE;
-
-            // Determine which of the event bits were set (see UG1053 Table 17, p24b0 + p24b1)
-            if (sgpio_events_bit[0][24]) {
-                start_port = 0;
-                end_port   = 3; // nINT_PHY1 (PHY for ports 1-4)
-            }
-
-            if (sgpio_events_bit[1][24]) {
-                if (start_port == MESA_PORT_NO_NONE) {
-                    start_port = 4;
-                }
-
-                end_port = 7; // nINT_PHY2 (PHY for ports 5-8)
-            }
-
-            T_D(inst, "start_port = %u, sgpio_event_bit[0][24] = %d sgpio_event_bit[1][24] = %d", start_port, sgpio_events_bit[0][24], sgpio_events_bit[1][24]);
-
-            // Read PHYs if the interrupt was from one of the PHYs
-            if (start_port != MESA_PORT_NO_NONE) {
-                for (port_no = start_port; port_no <= end_port; port_no++) {
-                    if (board->port[port_no].ts_phy) {
-                        if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
-                            handled++;
-                    }
-                }
-
-                // Check for Cu Phy events (ports 0-7)
-                for (port_no = start_port; port_no <= end_port; port_no++) {
-                    meba_port_entry_t *entry = &board->port[port_no].map;
-                    if (is_phy_port(entry->cap)) {
-                        if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK)
-                            handled++;
-                    }
-                }
-            }
-
             // Check for SFP/SFP+ LOS (SGMII ports: 1G:8-23 (p0b0-p15b0) + 10G:25-28 (p25b0-p28b0))
             for (sgpio_port = 0; sgpio_port <= 28; sgpio_port++) {
                 mesa_bool_t port_handled = false;
@@ -3158,6 +3127,44 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                 }
             }
 
+        jr2_repeat_handler:
+            start_port = MESA_PORT_NO_NONE;
+            end_port   = MESA_PORT_NO_NONE;
+
+            // Determine which of the event bits were set (see UG1053 Table 17, p24b0 + p24b1)
+            if (sgpio_events_bit[0][24]) {
+                start_port = 0;
+                end_port   = 3; // nINT_PHY1 (PHY for ports 1-4)
+            }
+
+            if (sgpio_events_bit[1][24]) {
+                if (start_port == MESA_PORT_NO_NONE) {
+                    start_port = 4;
+                }
+
+                end_port = 7; // nINT_PHY2 (PHY for ports 5-8)
+            }
+
+            T_I(inst, "start_port = %u, sgpio_event_bit[0][24] = %d sgpio_event_bit[1][24] = %d", start_port, sgpio_events_bit[0][24], sgpio_events_bit[1][24]);
+            // Read PHYs if the interrupt was from one of the PHYs
+            if (start_port != MESA_PORT_NO_NONE) {
+                for (port_no = start_port; port_no <= end_port; port_no++) {
+                    if (board->port[port_no].ts_phy) {
+                        if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK)
+                            handled++;
+                    }
+                }
+
+                // Check for Cu Phy events (ports 0-7)
+                for (port_no = start_port; port_no <= end_port; port_no++) {
+                    meba_port_entry_t *entry = &board->port[port_no].map;
+                    if (is_phy_port(entry->cap)) {
+                        if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK)
+                            handled++;
+                    }
+                }
+            }
+
             // Check for timestamp event
             if (board->phy10g_ts_cnt && sgpio_events_bit[PHY10G_SGPIO_GROUP][PHY10G_SGPIO_PORT]) {
                 for (port_no = 0; port_no < board->port_cnt; port_no++) {
@@ -3167,6 +3174,29 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
                             handled++;
                         }
                     }
+                }
+            }
+
+            // Poll events again for 1G phys.
+            if (sgpio_events_bit[0][24] || sgpio_events_bit[1][24]) {
+                sgpio_events_bit[0][24] = sgpio_events_bit[1][24] = false;
+                // In JR2, mesa_sgpio_event_poll might have already cleared interrupt sticky bits.
+                // So, Reading the register 'SIO_INTR_RAW' provides the phy interrupt status.
+                if (mesa_reg_read(NULL, 0, JR2_24_SIO_CTRL_SIO_INTR_RAW_0, &val) == MESA_RC_OK) {
+                    if (val & (1 << 24)) {
+                        sgpio_events_bit[0][24] = true;
+                    }
+                }
+                if (mesa_reg_read(NULL, 0, JR2_24_SIO_CTRL_SIO_INTR_RAW_1, &val) == MESA_RC_OK) {
+                    if (val & (1 << 24)) {
+                        sgpio_events_bit[1][24] = true;
+                    }
+                }
+                T_I(inst, "exit sgpio_events_bit[0][24]=%d sgpio_events_bit[1][24]=%d", sgpio_events_bit[0][24], sgpio_events_bit[1][24]);
+
+                // If interrupted, process again.
+                if (sgpio_events_bit[0][24] || sgpio_events_bit[1][24]) {
+                    goto jr2_repeat_handler;
                 }
             }
 

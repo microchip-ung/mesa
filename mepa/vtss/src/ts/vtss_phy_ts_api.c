@@ -3422,14 +3422,6 @@ static vtss_rc vtss_phy_ts_csr_set_priv(vtss_state_t *vtss_state,
 
         vtss_state->phy_ts_port_conf[port_no].egr_reg_mask = mask;
         w_mask = (VTSS_F_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_MASK_EGR_ANALYZER_ERROR_MASK | VTSS_F_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_MASK_EGR_RW_FCS_ERR_MASK | VTSS_F_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_MASK_EGR_TS_LOADED_MASK | VTSS_F_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_MASK_EGR_TS_OVERFLOW_MASK);
-        /* At the time of enabling the FIFO events, the existing FIFO sticky bits need to be cleared. After enabling the FIFO event, sticky bits would be set again based on FIFO condition or for next packet.
-           The change in sticky bits is needed to raise the interrupt in switch. Since first 4 bits are related to FIFO events, mask of '0xf' is used here. In future, it may need to be decided
-           whether it is needed or not for the rest of the events. */
-        if (mask & 0xf) {
-            u32 tmp_stat = mask & 0xf;
-            VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
-                                          VTSS_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_STATUS, &tmp_stat));
-        }
         VTSS_RC(warm_wr_masked(vtss_state, port_no, VTSS_PHY_TS_PROC_BLK_ID(0), VTSS_PTP_EGR_IP_1588_CFG_STAT_EGR_INT_MASK, mask, w_mask, __FUNCTION__,  __LINE__));
 
         /*LTC Interrupts mask register*/
