@@ -829,6 +829,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
     case MEBA_EVENT_VOE:
         break;
     case MEBA_EVENT_LOS:
+        T_D(inst, "Enable events for MEBA_EVENT_LOS");
         if (board->type == BOARD_TYPE_ENDNODE_CARRIER) {
             for (port_no = 2; port_no < 4; port_no++) {
                 for (i = 0; i < 3; i++) {
@@ -844,11 +845,24 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst,
                     (void)mesa_sgpio_event_enable(NULL, 0, 0, port, bit, enable);
                 }
             }
+        } else if (board->type == BOARD_TYPE_ENDNODE) {
+            T_D(inst, "Board ENDNODE: %d ports", board->port_cnt);
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if (is_phy_port(board->entry[port_no].cap)) {
+                    T_D(inst, "Enable event MEPA_LINK_LOS for port %d", port_no);
+                    rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, TRUE);
+                    if (rc != MESA_RC_OK) {
+                        break;
+                    }
+                }
+            }
         }
         break;
     case MEBA_EVENT_FLNK:
+        T_D(inst, "Enable events for MEBA_EVENT_FLNK (%d ports)", board->port_cnt);
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (is_phy_port(board->entry[port_no].cap)) {
+                T_D(inst, "Enable event MEBA_EVENT_FLNK for port %d", port_no);
                 rc = meba_phy_event_enable_set(inst, port_no, VTSS_PHY_LINK_FFAIL_EV, enable);
                 if (rc != MESA_RC_OK) {
                     break;
