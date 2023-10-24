@@ -71,6 +71,7 @@
 #define station_clock_fireant_56             MESA_SYNCE_DEV_CLOCK_IN(    57,      0)
 #define station_clock_fireant_8              MESA_SYNCE_DEV_CLOCK_IN(     9,      0)
 #define station_clock_fireant_14             MESA_SYNCE_DEV_CLOCK_IN(    15,      0)
+#define station_clock_laguna_28              MESA_SYNCE_DEV_CLOCK_IN(    29,      0)
 
 #define divider_switch_mux_port_0_in      MESA_SYNCE_DEV_DIVIDER(      200,      MESA_SYNCE_DEV_INPUT | 0)
 #define divider_switch_mux_port_0_out     MESA_SYNCE_DEV_DIVIDER(      200,      0)
@@ -113,6 +114,15 @@
 #define divider_switch_mux_port_19_in     MESA_SYNCE_DEV_DIVIDER(      219,      MESA_SYNCE_DEV_INPUT | 19)
 #define divider_switch_mux_port_19_out    MESA_SYNCE_DEV_DIVIDER(      219,      19)
 
+#define divider_switch_mux_port_24_in     MESA_SYNCE_DEV_DIVIDER(      224,      MESA_SYNCE_DEV_INPUT | 24)
+#define divider_switch_mux_port_24_out    MESA_SYNCE_DEV_DIVIDER(      224,      24)
+#define divider_switch_mux_port_25_in     MESA_SYNCE_DEV_DIVIDER(      225,      MESA_SYNCE_DEV_INPUT | 25)
+#define divider_switch_mux_port_25_out    MESA_SYNCE_DEV_DIVIDER(      225,      25)
+#define divider_switch_mux_port_26_in     MESA_SYNCE_DEV_DIVIDER(      226,      MESA_SYNCE_DEV_INPUT | 26)
+#define divider_switch_mux_port_26_out    MESA_SYNCE_DEV_DIVIDER(      226,      26)
+#define divider_switch_mux_port_27_in     MESA_SYNCE_DEV_DIVIDER(      227,      MESA_SYNCE_DEV_INPUT | 27)
+#define divider_switch_mux_port_27_out    MESA_SYNCE_DEV_DIVIDER(      227,      27)
+
 #define divider_switch_mux_port_52_in     MESA_SYNCE_DEV_DIVIDER(      252,      MESA_SYNCE_DEV_INPUT | 52)
 #define divider_switch_mux_port_52_out    MESA_SYNCE_DEV_DIVIDER(      252,      52)
 #define divider_switch_mux_port_53_in     MESA_SYNCE_DEV_DIVIDER(      253,      MESA_SYNCE_DEV_INPUT | 53)
@@ -142,6 +152,12 @@
 #define switch_mux_port_in_17             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 17)
 #define switch_mux_port_in_18             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 18)
 #define switch_mux_port_in_19             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 19)
+
+#define switch_mux_port_in_24             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 24)
+#define switch_mux_port_in_25             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 25)
+#define switch_mux_port_in_26             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 26)
+#define switch_mux_port_in_27             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 27)
+
 #define switch_mux_port_in_52             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 52)
 #define switch_mux_port_in_53             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 53)
 #define switch_mux_port_in_54             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 54)
@@ -1304,7 +1320,8 @@ clk2_out-+--|--|--|1..4|-+-- clk2_in
 The pseudo mux does not need any implementation, and the two half mux'es are both implemented by
 the same physical mux.
  */
-static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_zls30772_board[] = {    // type                                source                           destination
+static const meba_synce_graph_element_t synce_graph_elements_fireant_56_revc_w_zls30772_board[] = {
+    // type                                source                           destination
 
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_0,                       vmux_0_port_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_1,                       vmux_1_port_in_0),
@@ -1588,19 +1605,183 @@ static const meba_synce_terminal_attr_t attr_fireant_56_revc_w_zls30772_board[] 
 
 };
 
+
+static const meba_synce_graph_element_t synce_graph_elements_laguna_28_w_zls30732_board[] = {
+    // type                                source                           destination
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_0,                       vmux_0_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_1,                       vmux_1_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_2,                       vmux_2_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_3,                       vmux_3_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_4,                       vmux_4_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_5,                       vmux_5_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_6,                       vmux_6_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_7,                       vmux_7_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_8,                       vmux_8_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_9,                       vmux_9_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_10,                      vmux_10_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_11,                      vmux_11_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_12,                      vmux_12_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_13,                      vmux_13_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_14,                      vmux_14_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_15,                      vmux_15_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_16,                      vmux_16_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_17,                      vmux_17_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_18,                      vmux_18_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_19,                      vmux_19_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_20,                      vmux_20_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_21,                      vmux_21_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_22,                      vmux_22_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_23,                      vmux_23_port_in_0),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_0_port_out_0,                indy_phy_mux_0a_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_0_port_out_1,                indy_phy_mux_0b_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_1_port_out_0,                indy_phy_mux_0a_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_1_port_out_1,                indy_phy_mux_0b_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_2_port_out_0,                indy_phy_mux_0a_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_2_port_out_1,                indy_phy_mux_0b_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_3_port_out_0,                indy_phy_mux_0a_port_in_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_3_port_out_1,                indy_phy_mux_0b_port_in_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_4_port_out_0,                indy_phy_mux_1a_port_in_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_4_port_out_1,                indy_phy_mux_1b_port_in_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_5_port_out_0,                indy_phy_mux_1a_port_in_5),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_5_port_out_1,                indy_phy_mux_1b_port_in_5),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_6_port_out_0,                indy_phy_mux_1a_port_in_6),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_6_port_out_1,                indy_phy_mux_1b_port_in_6),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_7_port_out_0,                indy_phy_mux_1a_port_in_7),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_7_port_out_1,                indy_phy_mux_1b_port_in_7),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_8_port_out_0,                indy_phy_mux_2a_port_in_8),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_8_port_out_1,                indy_phy_mux_2b_port_in_8),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_9_port_out_0,                indy_phy_mux_2a_port_in_9),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_9_port_out_1,                indy_phy_mux_2b_port_in_9),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_10_port_out_0,               indy_phy_mux_2a_port_in_10),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_10_port_out_1,               indy_phy_mux_2b_port_in_10),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_11_port_out_0,               indy_phy_mux_2a_port_in_11),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_11_port_out_1,               indy_phy_mux_2b_port_in_11),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_12_port_out_0,               indy_phy_mux_3a_port_in_12),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_12_port_out_1,               indy_phy_mux_3b_port_in_12),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_13_port_out_0,               indy_phy_mux_3a_port_in_13),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_13_port_out_1,               indy_phy_mux_3b_port_in_13),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_14_port_out_0,               indy_phy_mux_3a_port_in_14),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_14_port_out_1,               indy_phy_mux_3b_port_in_14),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_15_port_out_0,               indy_phy_mux_3a_port_in_15),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_15_port_out_1,               indy_phy_mux_3b_port_in_15),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_16_port_out_0,               indy_phy_mux_4a_port_in_16),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_16_port_out_1,               indy_phy_mux_4b_port_in_16),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_17_port_out_0,               indy_phy_mux_4a_port_in_17),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_17_port_out_1,               indy_phy_mux_4b_port_in_17),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_18_port_out_0,               indy_phy_mux_4a_port_in_18),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_18_port_out_1,               indy_phy_mux_4b_port_in_18),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_19_port_out_0,               indy_phy_mux_4a_port_in_19),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_19_port_out_1,               indy_phy_mux_4b_port_in_19),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_20_port_out_0,               indy_phy_mux_5a_port_in_20),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_20_port_out_1,               indy_phy_mux_5b_port_in_20),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_21_port_out_0,               indy_phy_mux_5a_port_in_21),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_21_port_out_1,               indy_phy_mux_5b_port_in_21),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_22_port_out_0,               indy_phy_mux_5a_port_in_22),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_22_port_out_1,               indy_phy_mux_5b_port_in_22),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_23_port_out_0,               indy_phy_mux_5a_port_in_23),
+    MESA_SYNCE_GRAPH_CONNECTION(           vmux_23_port_out_1,               indy_phy_mux_5b_port_in_23),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_1a_port_out_0,       indy_phy_mux_0a_reco_clk_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_1b_port_out_1,       indy_phy_mux_0b_reco_clk_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_2a_port_out_0,       indy_phy_mux_1a_reco_clk_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_2b_port_out_1,       indy_phy_mux_1b_reco_clk_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_3a_port_out_0,       indy_phy_mux_2a_reco_clk_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_3b_port_out_1,       indy_phy_mux_2b_reco_clk_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_4a_port_out_0,       indy_phy_mux_3a_reco_clk_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_4b_port_out_1,       indy_phy_mux_3b_reco_clk_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5a_port_out_0,       indy_phy_mux_4a_reco_clk_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5b_port_out_1,       indy_phy_mux_4b_reco_clk_in_1),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_28,          dpll_port_4),
+
+};
+
+static const meba_synce_terminal_attr_t attr_laguna_28_w_zls30772_board[] = {
+    //              device                 attr-type             attr-value
+    MESA_SYNCE_ATTR(dpll_port_0,           MEBA_ATTR_CLOCK_ID,   1),
+    MESA_SYNCE_ATTR(dpll_port_1,           MEBA_ATTR_CLOCK_ID,   2),
+    MESA_SYNCE_ATTR(dpll_port_2,           MEBA_ATTR_CLOCK_ID,   1),
+    MESA_SYNCE_ATTR(dpll_port_3,           MEBA_ATTR_CLOCK_ID,   2),
+    MESA_SYNCE_ATTR(dpll_port_4,           MEBA_ATTR_CLOCK_ID,   3),
+
+    MESA_SYNCE_ATTR(eth_port_0,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_1,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_2,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_3,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_4,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_5,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_6,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_7,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_8,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_9,             MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_10,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_11,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_12,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_13,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_14,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_15,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_16,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_17,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_18,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_19,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_20,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_21,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_22,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+    MESA_SYNCE_ATTR(eth_port_23,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
+
+    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+
+    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+
+    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+
+    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
+    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+
+
+};
+
 mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
 {
     static meba_synce_graph_t synce_graph;
     meba_synce_clock_hw_id_t dpll_type;
     int board_type = inst->props.board_type;
     meba_board_state_t *board = INST2BOARD(inst);
+    printf("PALLE: %s/%d\n", __FILE__, __LINE__);
 
     if (meba_synce_spi_if_get_dpll_type(inst, &dpll_type) != MESA_RC_OK) {
+        printf("PALLE: %s/%d\n", __FILE__, __LINE__);
         T_E(inst, "Failure probing DPLL type.");
         return MESA_RC_NOT_IMPLEMENTED;
     } else {
-        if (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 || dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
-                dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773) {
+        printf("PALLE: %s/%d\n", __FILE__, __LINE__);
+        if (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
+            dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
+            dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773 ||
+            dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30731 ||
+            dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30732 ||
+            dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30733) {
+            printf("PALLE: %s/%d\n", __FILE__, __LINE__);
             if (board_type == VTSS_BOARD_FIREANT_PCB134_REF) {
                 if (board->port_cfg == VTSS_BOARD_CONF_8x25G_NPI) {
                     synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_fireant_8_w_zls30772_board);
@@ -1632,6 +1813,12 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
                     synce_graph.attr = attr_fireant_56_revc_w_zls30772_board;
                     synce_graph.attr_length = MEBA_ARRSZ(attr_fireant_56_revc_w_zls30772_board);
                 }
+            } else if (board_type == VTSS_BOARD_LAN9694_PCB8398) {
+                printf("PALLE: %s/%d\n", __FILE__, __LINE__);
+                synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_laguna_28_w_zls30732_board);
+                synce_graph.graph = synce_graph_elements_laguna_28_w_zls30732_board;
+                synce_graph.attr = attr_laguna_28_w_zls30772_board;
+                synce_graph.attr_length = MEBA_ARRSZ(attr_laguna_28_w_zls30772_board);
             }
         }
         *g = &synce_graph;
@@ -1652,7 +1839,8 @@ mesa_rc meba_synce_mux_set(meba_inst_t  inst,
     mepa_synce_clock_conf_t conf;
     T_D(inst, "Enter");
 
-    if (board_type != VTSS_BOARD_FIREANT_PCB135_REF) {
+    if (board_type != VTSS_BOARD_FIREANT_PCB135_REF &&
+        board_type != VTSS_BOARD_LAN9694_PCB8398) {
         T_E(inst, "Board type not yet implemented.");
         return MESA_RC_NOT_IMPLEMENTED;
     }
