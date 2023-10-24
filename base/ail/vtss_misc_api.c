@@ -826,9 +826,8 @@ vtss_rc vtss_vscope_conf_set(const vtss_inst_t inst,
     vtss_rc rc;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
-        u32 chip_port = VTSS_CHIP_PORT(port_no);
-        vtss_state->misc.vscope_conf[chip_port] = *conf;
-        rc = VTSS_FUNC(misc.vscope_conf_set, chip_port, conf);
+        vtss_state->misc.vscope_conf[port_no] = *conf;
+        rc = VTSS_FUNC(misc.vscope_conf_set, port_no, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -842,8 +841,7 @@ vtss_rc vtss_vscope_conf_get(const vtss_inst_t inst,
     vtss_state_t *vtss_state;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        u32 chip_port = VTSS_CHIP_PORT(port_no);
-        *conf = vtss_state->misc.vscope_conf[chip_port];
+        *conf = vtss_state->misc.vscope_conf[port_no];
     }
     VTSS_EXIT();
     return rc;
@@ -857,8 +855,7 @@ vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t inst,
     vtss_rc rc;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK ) {
-        u32 chip_port = VTSS_CHIP_PORT(port_no);
-        rc = VTSS_FUNC(misc.vscope_scan_status_get, chip_port, conf);
+        rc = VTSS_FUNC(misc.vscope_scan_status_get, port_no, conf);
     }
     VTSS_EXIT();
     return rc;

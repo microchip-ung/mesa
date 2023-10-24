@@ -118,7 +118,7 @@ typedef struct {
 #endif /* VTSS_ARCH_LUTON26 */
 #endif /* defined(VTSS_FEATURE_IRQ_CONTROL) */
 #if defined(VTSS_FEATURE_VSCOPE)
-    vtss_vscope_conf_t vscope_conf[VTSS_PORT_ARRAY_SIZE];
+    vtss_vscope_conf_t vscope_conf[20];
 
     vtss_rc (* vscope_conf_set)(struct vtss_state_s *vtss_state,
                                 const vtss_port_no_t chip_port,

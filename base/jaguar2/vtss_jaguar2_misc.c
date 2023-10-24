@@ -1230,8 +1230,9 @@ static vtss_rc jr2_sgpio_read(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_VSCOPE)
 static vtss_rc jr2_vscope_fast_scan_conf_set( struct vtss_state_s *vtss_state,
-        const vtss_port_no_t chip_port)
+        const vtss_port_no_t port_no)
 {
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
 
@@ -1260,10 +1261,11 @@ static vtss_rc jr2_vscope_fast_scan_conf_set( struct vtss_state_s *vtss_state,
 }
 
 static vtss_rc jr2_vscope_conf_set( struct vtss_state_s * vtss_state,
-        const vtss_port_no_t chip_port,
+        const vtss_port_no_t port_no,
         const vtss_vscope_conf_t *const conf)
 {
     u32 check_aux_phase,ifmode,tmp;
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
 
@@ -1352,7 +1354,7 @@ static vtss_rc jr2_vscope_conf_set( struct vtss_state_s * vtss_state,
                 VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_DC_MASK(0x3FF),
                 VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_DC_MASK);
         if (conf->scan_type == VTSS_VSCOPE_FAST_SCAN){
-            VTSS_RC(jr2_vscope_fast_scan_conf_set(vtss_state, chip_port));
+            VTSS_RC(jr2_vscope_fast_scan_conf_set(vtss_state, port_no));
         }
     } else {
         JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG(tgt_dig),
@@ -1364,9 +1366,10 @@ static vtss_rc jr2_vscope_conf_set( struct vtss_state_s * vtss_state,
 }
 
 //function for circle phase aux, used in VSCOPE
-static vtss_rc jr2_vscope_circle_phase_aux(struct vtss_state_s *vtss_state, const vtss_port_no_t chip_port)
+static vtss_rc jr2_vscope_circle_phase_aux(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
     u32 value=0;
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
 
     JR2_RD(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana), &value);
@@ -1389,9 +1392,10 @@ static vtss_rc jr2_vscope_circle_phase_aux(struct vtss_state_s *vtss_state, cons
 
 //Function to backup settings used by VSCOPE
 static vtss_rc jr2_vscope_backup_settings (struct vtss_state_s *vtss_state,
-        const vtss_port_no_t chip_port, vtss_vscope_ib_storage_t *const store)
+        const vtss_port_no_t port_no, vtss_vscope_ib_storage_t *const store)
 {
     u32 tmp;
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
 
@@ -1421,8 +1425,9 @@ static vtss_rc jr2_vscope_backup_settings (struct vtss_state_s *vtss_state,
 
 //Function to restore backed up settings used by VSCOPE
 static vtss_rc jr2_vscope_restore_settings (struct vtss_state_s *vtss_state,
-        const vtss_port_no_t chip_port, vtss_vscope_ib_storage_t *const store)
+        const vtss_port_no_t port_no, vtss_vscope_ib_storage_t *const store)
 {
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
 
@@ -1462,18 +1467,19 @@ static vtss_rc jr2_vscope_restore_settings (struct vtss_state_s *vtss_state,
 }
 
 static vtss_rc jr2_vscope_xy_scan_eye_sw( struct vtss_state_s *vtss_state,
-                                                     const vtss_port_no_t chip_port,
+                                                     const vtss_port_no_t port_no,
                                                      vtss_vscope_scan_status_t *const conf)
 {
     vtss_vscope_ib_storage_t store;
     u32 hit_cnt, symDisable, tmp, skipAmpl, actPhase, actAmpl, counter_val, err_thres;
     u32 i, j;
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
     //value to be calculated using x/log10(2)
     hit_cnt = conf->scan_conf.ber;
     symDisable = 0;
-    err_thres = vtss_state->misc.vscope_conf[chip_port].error_thres;
+    err_thres = vtss_state->misc.vscope_conf[port_no].error_thres;
     memset(&store, 0, sizeof(vtss_vscope_ib_storage_t));
 
     //checking bounds of the scan parameters
@@ -1484,7 +1490,7 @@ static vtss_rc jr2_vscope_xy_scan_eye_sw( struct vtss_state_s *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(jr2_vscope_backup_settings(vtss_state, chip_port, &store));
+    VTSS_RC(jr2_vscope_backup_settings(vtss_state, port_no, &store));
 
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
             VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(14),
@@ -1530,7 +1536,7 @@ static vtss_rc jr2_vscope_xy_scan_eye_sw( struct vtss_state_s *vtss_state,
             VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
 
     if (counter_val > err_thres) {
-        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, port_no));
     }
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG(tgt_dig),
             VTSS_F_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_PAT_LOCK_CFG_PRELOAD_HIT_CNT(hit_cnt),
@@ -1567,17 +1573,17 @@ static vtss_rc jr2_vscope_xy_scan_eye_sw( struct vtss_state_s *vtss_state,
 
     //Aux circle phase condition
     if ((((conf->scan_conf.x_count * conf->scan_conf.x_incr) % 128) - conf->scan_conf.x_start) > 63) {
-        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, port_no));
     }
     //backup settings to be restored ========> resolved
-    VTSS_RC(jr2_vscope_restore_settings(vtss_state, chip_port, &store));
+    VTSS_RC(jr2_vscope_restore_settings(vtss_state, port_no, &store));
 
     return VTSS_RC_OK;
 }
 
 //calculates fast scan output parameters
 static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
-        const vtss_port_no_t chip_port,
+        const vtss_port_no_t port_no,
         vtss_vscope_scan_status_t *const conf)
 {
     vtss_vscope_ib_storage_t store;
@@ -1588,14 +1594,15 @@ static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
     i32 phase_start_val, phase_jump_val = 96 ;
     i32 ampl_start_pos = 32;
     i32 ampl_start_neg = 31;
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 tgt_ana = VTSS_TO_10G_SRD_TGT(chip_port);
     u32 tgt_dig = VTSS_TO_10G_APC_TGT(chip_port);
 
     memset(&store, 0, sizeof(vtss_vscope_ib_storage_t));
-    err_thres = vtss_state->misc.vscope_conf[chip_port].error_thres;
+    err_thres = vtss_state->misc.vscope_conf[port_no].error_thres;
 
     //storing IB, DES and APC settings
-    VTSS_RC(jr2_vscope_backup_settings(vtss_state, chip_port, &store));
+    VTSS_RC(jr2_vscope_backup_settings(vtss_state, port_no, &store));
 
     //disable APC
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
@@ -1641,7 +1648,7 @@ static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
             VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
 
     if (counter_val > err_thres) {
-        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, chip_port));
+        VTSS_RC(jr2_vscope_circle_phase_aux(vtss_state, port_no));
     }
 
     //get the phase_start_val
@@ -1777,7 +1784,7 @@ static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
             0,
             VTSS_M_SD10G65_DIG_SD10G65_VSCOPE2_VSCOPE_MAIN_CFG_CNT_ENA);
     //SET IB and DES to the values they had before the scan
-    VTSS_RC(jr2_vscope_restore_settings(vtss_state, chip_port, &store));
+    VTSS_RC(jr2_vscope_restore_settings(vtss_state, port_no, &store));
 
     JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana), &tmp);
     h_thres = VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(tmp);
@@ -1807,15 +1814,15 @@ static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s * vtss_state,
 }
 
 static vtss_rc jr2_vscope_scan_status_get( struct vtss_state_s *vtss_state,
-        const vtss_port_no_t chip_port,
+        const vtss_port_no_t port_no,
         vtss_vscope_scan_status_t *const conf)
 {
     vtss_vscope_scan_t scan_type;
-    scan_type = vtss_state->misc.vscope_conf[chip_port].scan_type;
+    scan_type = vtss_state->misc.vscope_conf[port_no].scan_type;
     if (scan_type == VTSS_VSCOPE_FAST_SCAN){
-        VTSS_RC(jr2_vscope_fast_scan_status_get(vtss_state, chip_port, conf));
+        VTSS_RC(jr2_vscope_fast_scan_status_get(vtss_state, port_no, conf));
     } else if (scan_type == VTSS_VSCOPE_FULL_SCAN){
-        VTSS_RC(jr2_vscope_xy_scan_eye_sw(vtss_state, chip_port, conf));
+        VTSS_RC(jr2_vscope_xy_scan_eye_sw(vtss_state, port_no, conf));
     } else
         return VTSS_RC_ERROR;
     return VTSS_RC_OK;
