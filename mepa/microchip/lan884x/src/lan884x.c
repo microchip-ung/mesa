@@ -146,6 +146,12 @@ static mesa_rc pfe_conf_set(mepa_device_t      *dev,
     data->conf = *config;
     MEPA_EXIT(dev);
 
+    if (config->admin.enable) {
+        pfe_direct_reg_wr(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+    } else {
+        pfe_direct_reg_wr(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+    }
+
     return MESA_RC_OK;
 }
 
