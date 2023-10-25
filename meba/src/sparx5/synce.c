@@ -1767,21 +1767,17 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
     meba_synce_clock_hw_id_t dpll_type;
     int board_type = inst->props.board_type;
     meba_board_state_t *board = INST2BOARD(inst);
-    printf("PALLE: %s/%d\n", __FILE__, __LINE__);
 
     if (meba_synce_spi_if_get_dpll_type(inst, &dpll_type) != MESA_RC_OK) {
-        printf("PALLE: %s/%d\n", __FILE__, __LINE__);
         T_E(inst, "Failure probing DPLL type.");
         return MESA_RC_NOT_IMPLEMENTED;
     } else {
-        printf("PALLE: %s/%d\n", __FILE__, __LINE__);
         if (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30731 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30732 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30733) {
-            printf("PALLE: %s/%d\n", __FILE__, __LINE__);
             if (board_type == VTSS_BOARD_FIREANT_PCB134_REF) {
                 if (board->port_cfg == VTSS_BOARD_CONF_8x25G_NPI) {
                     synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_fireant_8_w_zls30772_board);
@@ -1814,7 +1810,6 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
                     synce_graph.attr_length = MEBA_ARRSZ(attr_fireant_56_revc_w_zls30772_board);
                 }
             } else if (board_type == VTSS_BOARD_LAN9694_PCB8398) {
-                printf("PALLE: %s/%d\n", __FILE__, __LINE__);
                 synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_laguna_28_w_zls30732_board);
                 synce_graph.graph = synce_graph_elements_laguna_28_w_zls30732_board;
                 synce_graph.attr = attr_laguna_28_w_zls30772_board;
