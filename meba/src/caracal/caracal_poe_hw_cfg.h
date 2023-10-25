@@ -37,19 +37,19 @@
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define PDS408G_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     0
+#define PDS408G_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     0
 
 
 // Power Suply maximum Power (W)
-#define PDS408G_POE_UNIT_MAX_POWER_W_DEFAULT     480
+#define PDS408G_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT     480
 
 
 // Power Suply default-Capability Power (W)
-#define PDS408G_POE_UNIT_DEF_POWER_W_DEFAULT     480
+#define PDS408G_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT     480
 
 
 // the max power that can be consumed by system itself (W)
-#define PDS408G_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     0
+#define PDS408G_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT     0
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
@@ -223,19 +223,19 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 
 
 // Set unit max power as fixed or variable through Web & CLI
-#define CARACAL_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     1
+#define CARACAL_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     1
 
 
 // Power Suply maximum Power (W)
-#define CARACAL_POE_UNIT_MAX_POWER_W_DEFAULT     100
+#define CARACAL_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT     100
 
 
 // Power Suply default-Capability Power (W)
-#define CARACAL_POE_UNIT_DEF_POWER_W_DEFAULT     100
+#define CARACAL_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT     100
 
 
 // system power usage (W)
-#define CARACAL_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     0
+#define CARACAL_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT     0
 
 
 // set the PoE MCU controller I2C address

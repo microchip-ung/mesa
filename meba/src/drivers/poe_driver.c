@@ -3958,7 +3958,7 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_chip_initialization(
                 &bank,
                 &power_limit_w));
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: PwrSupply_MaxPwr=%d , power_limit_w=%d", __FUNCTION__, tPoE_parameters.poe_init_params.PwrSupply_MaxPwr, power_limit_w);
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: power_supply_max_power_w=%d , power_limit_w=%d", __FUNCTION__, tPoE_parameters.poe_init_params.power_supply_max_power_w, power_limit_w);
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
 
     // Read active matrix and compare with intended matrix before programming it.
@@ -5151,13 +5151,13 @@ void meba_pd69200_driver_init(
         private_data->cfg.ports[i].cable_length = 255;
     }
 
-    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr; // Make sure initial value is different from configured value as configuration only is applied when values are different.
+    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.power_supply_max_power_w; // Make sure initial value is different from configured value as configuration only is applied when values are different.
     inst->api = &meba_pd69200_api;
     inst->private_data = private_data;
     inst->adapter_name = adapter_name;
     inst->adapter_fd = adapter_fd;
     inst->capabilities = capabilities;
-    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.Max_POE_Ch;
+    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.max_poe_ports;
     inst->port_map = port_map;
     inst->port_map_length = port_map_length;
     inst->psu_map = psu_map;
@@ -6801,8 +6801,8 @@ mesa_rc meba_poe_ctrl_pd69200_bt_chip_initialization(
                 &bank,
                 &power_limit_w));
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): Prod_PwrSupply_MaxPwr=%d ,power_limit_w=%d ,current_global_cfg->power_supply_poe_limit_w=%d",
-           __FUNCTION__, inst->adapter_name ,tPoE_parameters.poe_init_params.PwrSupply_MaxPwr ,power_limit_w,current_global_cfg->power_supply_poe_limit_w);
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s(%s): power_supply_max_power_w=%d, power_limit_w=%d, current_global_cfg->power_supply_poe_limit_w=%d",
+           __FUNCTION__, inst->adapter_name, tPoE_parameters.poe_init_params.power_supply_max_power_w, power_limit_w, current_global_cfg->power_supply_poe_limit_w);
 
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
 
@@ -7008,13 +7008,13 @@ void meba_pd69200bt_driver_init(
         private_data->cfg.ports[i].cable_length = 255;
     }
 
-    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.PwrSupply_MaxPwr; // Make sure initial value is different from configured value as configuration only is applied when values are different.
+    private_data->cfg.global.power_supply_poe_limit_w = tMeba_poe_parameters.poe_init_params.power_supply_max_power_w; // Make sure initial value is different from configured value as configuration only is applied when values are different.
     inst->api = &meba_pd69200bt_api;
     inst->private_data = private_data;
     inst->adapter_fd = adapter_fd;
     inst->adapter_name = adapter_name;
     inst->capabilities = capabilities;
-    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.Max_POE_Ch;
+    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.max_poe_ports;
     inst->port_map = port_map;
     inst->port_map_length = port_map_length;
     inst->psu_map = psu_map;

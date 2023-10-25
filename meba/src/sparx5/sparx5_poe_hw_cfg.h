@@ -34,19 +34,19 @@
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define SPARX5_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     1
+#define SPARX5_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     1
 
 
 // Power Suply maximum Power (W)
-#define SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT     5000
+#define SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT     5000
 
 
 // Power Suply default-Capability Power (W)
-#define SPARX5_POE_UNIT_DEF_POWER_W_DEFAULT     10
+#define SPARX5_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT     10
 
 
 // the max power that can be consumed by system itself (W)
-#define SPARX5_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     0
+#define SPARX5_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT     0
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)

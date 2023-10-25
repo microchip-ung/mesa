@@ -397,6 +397,13 @@ typedef enum {
 } meba_poe_software_power_type_t;
 
 
+typedef enum
+{
+    MEBA_POE_PS_INTERNAL = 0,
+    MEBA_POE_PS_EXTERNAL
+}meba_power_supply_int_ext_t;
+
+
 /**
  * \brief Types of port PoE mode
  */
@@ -584,12 +591,16 @@ typedef enum
 
 typedef struct   // parameters taken from DB according to PN read from PoEMCU serial number
 {
-    mesa_bool_t              use_poe_static_parameters              ;
-    uint8_t                  Max_POE_Ch                             ; // Max number of POE channels ( 6/12/24/48) based on product det (serial number)
-    uint16_t                 PwrSupply_MaxPwr                       ; // Midspan Power Supply Max-Power(Watt) - after decrementing internal power consumption ( 450 -> 430,etc )
-    char                     product_name[MAX_PORD_NAME_STR_LEN+1]  ; // Product name - retrieved from DB according to product being detected
-    meba_poe_software_power_type_t eMEBA_POE_SOFTWARE_POWER_TYPE    ; // AF-15W ,AT-30W ,BT-60W/90W
-    meba_poe_firmware_type_t       eMEBA_POE_FIRMWARE_TYPE          ; // AF/AT ,BT
+    mesa_bool_t                 use_poe_static_parameters              ;
+    uint8_t                     max_poe_ports                          ; // Max number of POE channels ( 6/12/24/48) based on product det (serial number)
+    meba_power_supply_int_ext_t ePower_supply_internal_external   ;
+    uint16_t                    power_supply_default_power_limit       ; // Midspan Power Supply Max-Power(Watt) - after decrementing internal power consumption ( 450 -> 430,etc )
+    uint16_t                    power_supply_max_power_w               ; // Midspan maximum Power Supply power (Watt)
+    uint16_t                    power_supply_internal_pwr_usage        ;
+
+    char                        product_name_string[MAX_PORD_NAME_STR_LEN+1]  ; // Product name - retrieved from DB according to product being detected
+    meba_poe_software_power_type_t eMeba_poe_software_power_type       ; // AF-15W ,AT-30W ,BT-60W/90W
+    meba_poe_firmware_type_t    eMeba_poe_firmware_type                ; // AF/AT ,BT
 }meba_poe_init_params_t;
 
 

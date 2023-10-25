@@ -34,19 +34,19 @@
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define LAN9668_POE_UNIT_MAX_POWER_USER_CONFIG_DEFAULT     0
+#define LAN9668_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     0
 
 
 // Power Suply maximum Power (W)
-#define LAN9668_POE_UNIT_MAX_POWER_W_DEFAULT     240
+#define LAN9668_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT     240
 
 
 // Power Suply default-Capability Power (W)
-#define LAN9668_POE_UNIT_DEF_POWER_W_DEFAULT     240
+#define LAN9668_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT     240
 
 
 // the max power that can be consumed by system itself (W)
-#define LAN9668_POE_UNIT_SYSTEM_POWER_USAGE_DEFAULT     20
+#define LAN9668_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT     20
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
@@ -56,7 +56,7 @@
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
-#define LAN9668_RESET_POE_GPIO_NUMBER     0xFF
+#define LAN9668_RESET_POE_GPIO_NUMBER     2
 
 
 //----------------- port map Customizations starts here ------------------//
