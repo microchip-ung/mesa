@@ -37,7 +37,7 @@
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
-#define PDS408G_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     0
+#define PDS408G_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT     0
 
 
 // Power Suply maximum Power (W)
