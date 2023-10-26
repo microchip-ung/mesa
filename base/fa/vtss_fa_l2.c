@@ -2461,6 +2461,7 @@ static vtss_rc fa_rb_host2proxy(vtss_state_t *vtss_state,
     entry->type = (host->pdan ? VTSS_RB_PROXY_NODE_TYPE_DAN : VTSS_RB_PROXY_NODE_TYPE_SAN);
     entry->age = (age_time * host->port[2].age / FA_RB_AGE_CNT);
     entry->cnt.rx = host->port[2].rx;
+    entry->cnt.rx_wrong_lan = host->port[2].rx_wrong_lan;
     return VTSS_RC_OK;
 }
 

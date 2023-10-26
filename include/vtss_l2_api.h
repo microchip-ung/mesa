@@ -3039,6 +3039,7 @@ vtss_rc vtss_rb_proxy_node_table_clear(const vtss_inst_t     inst,
 // Proxy node counters
 typedef struct {
     u32 rx; // Rx frames
+    u32 rx_wrong_lan; // Rx frames with wrong LanId (HSR-PRP mode)
 } vtss_rb_proxy_node_counters_t;
 
 // Proxy node entry.

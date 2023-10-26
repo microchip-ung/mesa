@@ -1820,6 +1820,7 @@ mesa_rc mesa_rb_proxy_node_table_clear(const mesa_inst_t     inst,
 // Proxy node counters
 typedef struct {
     uint32_t rx; // Rx frames
+    uint32_t rx_wrong_lan; // Rx frames with wrong LanId (HSR-PRP mode)
 } mesa_rb_proxy_node_counters_t;
 
 // Proxy node entry.
