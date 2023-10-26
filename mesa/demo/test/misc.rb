@@ -357,3 +357,17 @@ test "mrp-enable" do
     $ts.dut.call("mesa_vce_add", 0, vce)
     $ts.dut.run("mesa-cmd deb api ci vx")
 end
+
+test "ip-intf" do
+    break
+    $ts.dut.run("mesa-cmd interface ip add 1")
+    $ts.dut.run("ip addr add 1.1.1.1/24 dev vtss.vlan.1")
+    e = $ts.dut.call("mesa_mac_table_get_next", {vid: 1, mac: {addr: [0,0,0,0,0,0]}})
+    mac = e["vid_mac"]["mac"]["addr"].collect{|i| i.to_s(16)}.join(":")
+    cmd = "ef name f1 eth smac 2 arp oper 1 sha 2 spa 1.1.1.2 tpa 1.1.1.1"
+    cmd += " name f2 eth dmac 2 smac #{mac} arp oper 2 sha #{mac} tha 2 spa 1.1.1.1 tpa 1.1.1.2"
+    name = $ts.pc.p[0]
+    cmd += " tx #{name} name f1"
+    cmd += " rx #{name} name f2"
+    $ts.pc.run(cmd)
+end
