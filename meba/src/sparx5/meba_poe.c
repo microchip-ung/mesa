@@ -244,24 +244,25 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
 
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
-        tPoe_init_params->PwrSupply_MaxPwr              = SPARX5_POE_UNIT_MAX_POWER_W_DEFAULT;
-        tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE       = SPARX5_POE_FIRMWARE_TYPE_DEFAULT;
-        tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE = (SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
+        tPoe_init_params->power_supply_max_power_w        = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
+        tPoe_init_params->eMeba_poe_firmware_type         = SPARX5_POE_FIRMWARE_TYPE_DEFAULT;
+        tPoe_init_params->eMeba_poe_software_power_type   = (SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
     } else {  // overide meba power supply by appl init_params
-        sparx5_power_supplies->def_w = tPoe_init_params->PwrSupply_MaxPwr;
-        sparx5_power_supplies->max_w = tPoe_init_params->PwrSupply_MaxPwr;
+        sparx5_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
+        sparx5_power_supplies->max_w              = tPoe_init_params->power_supply_max_power_w;
+        sparx5_power_supplies->system_pwr_usage_w = tPoe_init_params->power_supply_internal_pwr_usage;
     }
 
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
-        tPoe_init_params->Max_POE_Ch              = sizeof(sparx5_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t);
+        tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t);
     }
 
-    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  Max_POE_Ch=%d ,PwrSupply_MaxPwr=%d ,POE_FIRMWARE_TYPE=%d ,POE_SOFTWARE_TYPE=%d",
-                      tPoe_init_params->Max_POE_Ch ,
-                      tPoe_init_params->PwrSupply_MaxPwr,
-                      tPoe_init_params->eMEBA_POE_FIRMWARE_TYPE,
-                      tPoe_init_params->eMEBA_POE_SOFTWARE_POWER_TYPE);
+    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+                      tPoe_init_params->max_poe_ports ,
+                      tPoe_init_params->power_supply_max_power_w,
+                      tPoe_init_params->eMeba_poe_firmware_type,
+                      tPoe_init_params->eMeba_poe_software_power_type);
 
     tPoE_parameters.poe_init_params = *tPoe_init_params;
 
