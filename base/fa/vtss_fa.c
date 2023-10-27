@@ -1257,7 +1257,13 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
                                         4,6,8,4,6,8,6,8,                \
                                         2,2,2,2,2,2,2,4,2};
     if (LA_TGT) {
-        return 0;
+        switch (conf->speed) {
+        case VTSS_SPEED_100M:
+        case VTSS_SPEED_10M:
+            return 1;
+        default:
+            return 0;
+        }
     }
 
     switch (conf->speed) {
