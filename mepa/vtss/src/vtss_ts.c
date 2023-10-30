@@ -641,7 +641,7 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
         vtss_phy_10g_id_get(data->vtss_instance, data->port_no, &phy_id);
         if (phy_id.part_number == 0x8489 || phy_id.part_number == 0x8490 || phy_id.part_number == 0x8491 ||
             phy_id.family == VTSS_PHY_FAMILY_MALIBU) {
-            init_conf.auto_clear_ls = true;
+            init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;
         } else {
             init_conf.auto_clear_ls = false;
         }
@@ -650,7 +650,7 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
         vtss_phy_id_get(data->vtss_instance, data->port_no, &phy_id);
         if (phy_id.part_number == VTSS_PHY_TYPE_8582 || phy_id.part_number == VTSS_PHY_TYPE_8584 ||
             phy_id.part_number == VTSS_PHY_TYPE_8575) {
-            init_conf.auto_clear_ls = true;
+            init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;
         } else {
             init_conf.auto_clear_ls = false;
         }

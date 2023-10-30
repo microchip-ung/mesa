@@ -3668,6 +3668,7 @@ static vtss_rc vtss_phy_ts_csr_ptptime_get_priv(
     if ((vtss_state->phy_ts_port_conf[port_no].is_gen2 == TRUE) &&
         (vtss_state->phy_ts_port_conf[port_no].auto_clear_ls == TRUE)) {
         if (value & VTSS_F_PTP_IP_1588_LTC_LTC_CTRL_LTC_SAVE_ENA) {
+            VTSS_I("ltc save bit not cleared for port %d\n", port_no);
             return VTSS_RC_ERROR;
         }
     } else {
