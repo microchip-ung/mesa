@@ -600,7 +600,7 @@ const char *raw_sts2txt(u32 frm_in)
     }
 }
 
-const vtss_port_kr_coef_status_t raw_sts2enum(u32 frm_in)
+vtss_port_kr_coef_status_t raw_sts2enum(u32 frm_in)
 {
     u32 action = 0;
 

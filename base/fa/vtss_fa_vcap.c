@@ -917,6 +917,21 @@ static void fa_debug_action(fa_vcap_data_t *data, const char *name, u32 offs, u3
     data->pr("%s:%u ", name, fa_act_get(data, offs, len));
 }
 
+static int toupper_(int c) {
+    if (c >= 'a' && c <= 'z') {
+        return c - 'a' + 'A';
+    }
+    return c;
+}
+
+static int tolower_(int c) {
+    if (c >= 'A' && c <= 'Z') {
+        return c - 'A' + 'z';
+    }
+    return c;
+}
+
+
 static void fa_debug_action_ena(fa_vcap_data_t *data, const char *name, u32 offs, u32 offs_val, u32 len)
 {
     vtss_debug_printf_t pr = data->pr;
@@ -924,7 +939,7 @@ static void fa_debug_action_ena(fa_vcap_data_t *data, const char *name, u32 offs
     BOOL                enable = vtss_bs_bit_get(data->action, offs);
 
     for (i = 0; i < length; i++) {
-        pr("%c", enable ? toupper(name[i]) : tolower(name[i]));
+        pr("%c", enable ? toupper_(name[i]) : tolower_(name[i]));
     }
     pr(":%u ", fa_act_get(data, offs_val, len));
 }
@@ -5143,7 +5158,7 @@ static vtss_rc fa_vcap_super_test(vtss_state_t *vtss_state)
     idx.key_size = VTSS_VCAP_KEY_SIZE_HALF;
     addr = fa_vcap_entry_addr(vtss_state, vcap_type, &idx);
     VTSS_I("row: %u, col: %u, addr: %u", idx.row, idx.col, addr);
-    memset(data, 0, sizeof(*data));
+    VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = vcap_type;
     data->tg = FA_VCAP_TG_X6;
     VTSS_D("write");

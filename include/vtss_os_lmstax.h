@@ -12,12 +12,18 @@
 typedef signed char        i8;   /**<  8-bit signed */
 typedef signed short       i16;  /**< 16-bit signed */
 typedef signed int         i32;  /**< 32-bit signed */
-typedef signed long long   i64;  /**< 64-bit signed */
 
 typedef unsigned char      u8;   /**<  8-bit unsigned */
 typedef unsigned short     u16;  /**< 16-bit unsigned */
 typedef unsigned int       u32;  /**< 32-bit unsigned */
+
+#ifdef __aarch64__
+typedef signed long   i64;  /**< 64-bit signed */
+typedef unsigned long u64;  /**< 64-bit unsigned */
+#else
+typedef signed long long   i64;  /**< 64-bit signed */
 typedef unsigned long long u64;  /**< 64-bit unsigned */
+#endif
 
 typedef unsigned char      BOOL; /**< Boolean implemented as 8-bit unsigned */
 
@@ -54,6 +60,7 @@ int lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 #define VTSS_MOD64(dividend, divisor) ((dividend) % (divisor))
 
 #define VTSS_LABS(arg) ((arg > 0) ? arg : -arg)
+#define VTSS_LLABS(arg) ((arg > 0) ? arg : -arg)
 
 #define VTSS_TOUPPER(arg) (('a' <= arg && arg <= 'z') ? ((char) (arg - 'a' + 'A')) : arg)
 #define VTSS_TOLOWER(arg) (('A' <= arg && arg <= 'Z') ? ((char) (arg - 'A' + 'a')) : arg)
@@ -87,5 +94,7 @@ int lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 #define VTSS_TIME_OF_DAY(time) { \
     lm_mesa_timeval_init((time));   \
 }
+
+#define VTSS_OS_NTOHL(X) lmu_ntohl(X)
 
 #endif //  _VTSS_OS_LMSTAX_H_

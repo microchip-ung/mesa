@@ -914,7 +914,7 @@ typedef void (*vtss_ts_timestamp_alloc_cb_t)(void *context, u32 port_no,
 /** \brief Timestamp allocation */
 typedef struct vtss_ts_timestamp_alloc_t {
     /** Identify the ports that a timestamp id is allocated to */
-    uint64_t port_mask;
+    u64 port_mask;
 
     /** Application specific context used as parameter in the call-out */
     void * context;
