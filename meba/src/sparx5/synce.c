@@ -1693,11 +1693,11 @@ static const meba_synce_graph_element_t synce_graph_elements_laguna_28_w_zls3073
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5a_port_out_0,       indy_phy_mux_4a_reco_clk_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5b_port_out_1,       indy_phy_mux_4b_reco_clk_in_1),
 
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_1),
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_2),
-    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_3),
-    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_28,          dpll_port_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_28,          dpll_port_4)
 
 };
 
