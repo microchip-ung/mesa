@@ -218,7 +218,8 @@ macro(API_TARGET)
 
   add_library(${A_LIB}_static STATIC ${API_UNI_SRC} ${API_MESA_SRC})
   set_target_properties(${A_LIB}_static PROPERTIES OUTPUT_NAME "${A_LIB}")
-  target_compile_options(${A_LIB}_static PUBLIC ${DEFS})
+  target_compile_options(${A_LIB}_static PUBLIC ${DEFS}
+                                         PRIVATE -Wno-format-security -Wno-sign-compare -Wno-type-limits -Wno-implicit-fallthrough -Wno-array-parameter -Wno-enum-conversion)
 
   if (${A_LIB}_static)
       message(STATUS "Adding ${A_LIB}_static (${A_CHIP}) MESA=${has_mesa} Defines: [${DEFS}]")
