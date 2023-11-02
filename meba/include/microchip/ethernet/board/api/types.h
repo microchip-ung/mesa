@@ -226,27 +226,27 @@ typedef uint64_t meba_port_cap_t;
 
 typedef enum {
     // Initialize Board
-    MEBA_BOARD_INITIALIZE,
+    MEBA_BOARD_INITIALIZE, // 0
     // Global Port Reset
-    MEBA_PORT_RESET,
+    MEBA_PORT_RESET, // 1
     // Global Port Post Reset
-    MEBA_PORT_RESET_POST,
+    MEBA_PORT_RESET_POST, // 2
     // Status LED Initialize
-    MEBA_STATUS_LED_INITIALIZE,
+    MEBA_STATUS_LED_INITIALIZE, // 3
     // Port LED Initialize
-    MEBA_PORT_LED_INITIALIZE,
+    MEBA_PORT_LED_INITIALIZE, // 4
     // Fan Initialize
-    MEBA_FAN_INITIALIZE,
+    MEBA_FAN_INITIALIZE, // 5
     // Sensors Initialize
-    MEBA_SENSOR_INITIALIZE,
+    MEBA_SENSOR_INITIALIZE, // 6
     // Interrupts Initialize
-    MEBA_INTERRUPT_INITIALIZE,
+    MEBA_INTERRUPT_INITIALIZE, // 7
     // Initialize the SyncE DPLL i.e. setup dividers, references, monitors etc.
-    MEBA_SYNCE_DPLL_INITIALIZE,
+    MEBA_SYNCE_DPLL_INITIALIZE, // 8
     // PoE Initialize
-    MEBA_POE_INITIALIZE,
+    MEBA_POE_INITIALIZE, // 9
     // Phy Initialize
-    MEBA_PHY_INITIALIZE
+    MEBA_PHY_INITIALIZE // 10
 } meba_reset_point_t;
 
 typedef enum {
@@ -369,62 +369,62 @@ typedef enum {
     MEBA_EVENT_LOS = MEBA_EVENT_FIRST,
 
     // Fast link failure detect on PHY (Enzo - Atom)
-    MEBA_EVENT_FLNK,
+    MEBA_EVENT_FLNK,  // 1
 
     // Automatic Media-Sence on PHY
-    MEBA_EVENT_AMS,
+    MEBA_EVENT_AMS,  // 2
 
     // VOE interrupt
-    MEBA_EVENT_VOE,
+    MEBA_EVENT_VOE, // 3
 
     // PTP Synchronization pulse update
-    MEBA_EVENT_SYNC,
+    MEBA_EVENT_SYNC, // 4
 
     // PTP External Synchronization input
-    MEBA_EVENT_EXT_SYNC,
+    MEBA_EVENT_EXT_SYNC, // 5
 
     // PTP External Synchronization 1 input (Serval only)
-    MEBA_EVENT_EXT_1_SYNC,
+    MEBA_EVENT_EXT_1_SYNC, // 6
 
     // PTP Clock adjustment updated
-    MEBA_EVENT_CLK_ADJ,
+    MEBA_EVENT_CLK_ADJ, // 7
 
     // PTP Clock timestamp is updated
-    MEBA_EVENT_CLK_TSTAMP,
+    MEBA_EVENT_CLK_TSTAMP, // 8
 
     // The 4 PTP pins have individual enums as the corresponding interrupt must
     // be enabled separately
-    MEBA_EVENT_PTP_PIN_0,
+    MEBA_EVENT_PTP_PIN_0, // 9
     MEBA_EVENT_PTP_PIN_1,
     MEBA_EVENT_PTP_PIN_2,
     MEBA_EVENT_PTP_PIN_3,
 
     // TS More than one engine find match
-    MEBA_EVENT_INGR_ENGINE_ERR,
+    MEBA_EVENT_INGR_ENGINE_ERR, // 13
 
     // TS Preamble too short to append timestamp
-    MEBA_EVENT_INGR_RW_PREAM_ERR,
+    MEBA_EVENT_INGR_RW_PREAM_ERR, // 14
 
     // TS FCS error in ingress
-    MEBA_EVENT_INGR_RW_FCS_ERR,
+    MEBA_EVENT_INGR_RW_FCS_ERR, // 15
 
     // TS More than one engine find match
-    MEBA_EVENT_EGR_ENGINE_ERR,
+    MEBA_EVENT_EGR_ENGINE_ERR, // 16
 
     // TS FCS error in egress
-    MEBA_EVENT_EGR_RW_FCS_ERR,
+    MEBA_EVENT_EGR_RW_FCS_ERR, // 17
 
     // TS Timestamp captured in Tx TSFIFO
-    MEBA_EVENT_EGR_TIMESTAMP_CAPTURED,
+    MEBA_EVENT_EGR_TIMESTAMP_CAPTURED, // 18
 
     // TS Tx TSFIFO overflow
-    MEBA_EVENT_EGR_FIFO_OVERFLOW,
+    MEBA_EVENT_EGR_FIFO_OVERFLOW, // 19
 
     // General Purpose Push Button
-    MEBA_EVENT_PUSH_BUTTON,
+    MEBA_EVENT_PUSH_BUTTON, // 20
 
     // SFP Module Detect
-    MEBA_EVENT_MOD_DET,
+    MEBA_EVENT_MOD_DET, //21
 
     // KR activity
     MEBA_EVENT_KR,

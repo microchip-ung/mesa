@@ -14,9 +14,9 @@ mesa_rc meba_tod_phy_ts_clk_info(meba_inst_t inst,
                                  mepa_timeinterval_t *pps_load_delay,
                                  mepa_timeinterval_t *pps_save_delay)
 {
-    // Will only be called for PCB135 version 3 with Indy Phy. Do Indy phy config. To be verified
+    // Will only be called for PCB135 version 3+5 with Indy Phy. Do Indy phy config.
     *freq = MEPA_TS_CLOCK_FREQ_250M;
-    *src = MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK;
+    *src = MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK;
     T_I(inst, "PCB135 board with Indy phy");
 
     /* default 1pps latency for the phy is 2 clock cycles (updated from ocelot) */

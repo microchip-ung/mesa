@@ -456,7 +456,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
         } else {
             entry->map.chip_port = CHIP_PORT_UNUSED;
         }
-    break;
+        break;
 
     default:
         T_E(inst, "Board type (%d) not supported!", board->type);

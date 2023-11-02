@@ -1141,7 +1141,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
     for (i = 0; i < sizeof(mepa_event_t) * 8; i++) {
         switch (ev_in & (1 << i)) {
         case MEPA_LINK_LOS:
-            ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN;
+            ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_LINK_DOWN; // bit2
             ev_in = ev_in & ~MEPA_LINK_LOS;
             break;
         case MEPA_FAST_LINK_FAIL:
@@ -1149,7 +1149,7 @@ static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mep
             val = INDY_FLF_CFG_STAT_LINK_DOWN | INDY_FLF_CFG_STAT_FLF_ENABLE;
             EP_WRM(dev, INDY_FLF_CONFIG_STATUS, enable ? val : 0, val);
 
-            ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR;
+            ev_mask = ev_mask | INDY_F_GPHY_INTR_ENA_FLF_INTR; // bit 12
             ev_in = ev_in & ~MEPA_FAST_LINK_FAIL;
             break;
         default:
