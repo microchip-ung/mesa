@@ -1745,7 +1745,7 @@ static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *c
         bwavail[j] -= speeds[i];
     }
 
-    memset(cnt, 0, sizeof(cnt));
+    VTSS_MEMSET(cnt, 0, sizeof(cnt));
     for (i = 0; i < grplen; i++) {
         for (j = 0; j < grps; j++) {
             sp = 1;
