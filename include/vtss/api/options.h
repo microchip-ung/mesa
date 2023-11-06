@@ -172,6 +172,7 @@
 #define VTSS_FEATURE_VCL_KEY_DMAC                 /**< VCL entry has destination MAC address */
 #define VTSS_FEATURE_VCL_KEY_DIP                  /**< VCL entry has destination IP address */
 #define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
+#define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */
 
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
@@ -215,7 +216,6 @@
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                 /**< Automatic MAC address ageing */
 #define VTSS_FEATURE_MAC_CPU_QUEUE                /**< CPU queue per MAC address */
-#define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */
 #define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_FAN                          /**< Fan control */

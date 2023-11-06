@@ -362,8 +362,8 @@ typedef struct vtss_state_s {
 #endif
 } vtss_state_t;
 
-#if 0
 // For checking state size at compile time
+#if 0
 char (*_check_vtss_state)[sizeof(vtss_state_t)] = 1;
 char (*_check_port_state)[sizeof(vtss_port_state_t)] = 1;
 char (*_check_port_counter_state)[(VTSS_PORTS + 1)*sizeof(vtss_port_chip_counters_t)] = 1;
@@ -380,6 +380,7 @@ char (*_check_l2_cstream_state)[VTSS_CSTREAM_CNT*sizeof(vtss_frer_stream_conf_t)
 char (*_check_l2_mstream_cnt_state)[VTSS_MSTREAM_CNT*sizeof(vtss_frer_chip_counters_t)] = 1;
 char (*_check_l2_cstream_cnt_state)[VTSS_CSTREAM_CNT*sizeof(vtss_frer_chip_counters_t)] = 1;
 char (*_check_l2_sdx)[sizeof(vtss_sdx_info_t)] = 1;
+char (*_check_l3_state)[sizeof(vtss_l3_state_t)] = 1;
 char (*_check_dlb_conf_state)[VTSS_EVC_POL_CNT*sizeof(vtss_dlb_policer_conf_t)] = 1;
 char (*_check_qos_state)[sizeof(vtss_qos_state_t)] = 1;
 char (*_check_qos_port_state)[VTSS_PORTS*sizeof(vtss_qos_port_conf_t)] = 1;
@@ -391,6 +392,9 @@ char (*_check_vcap_state)[sizeof(vtss_vcap_state_t)] = 1;
 char (*_check_vcap_is1)[sizeof(vtss_is1_info_t)] = 1;
 #endif
 char (*_check_vcap_es0)[sizeof(vtss_es0_info_t)] = 1;
+char (*_check_misc_state)[sizeof(vtss_misc_state_t)] = 1;
+char (*_check_packet_state)[sizeof(vtss_packet_state_t)] = 1;
+char (*_check_ts_state)[sizeof(vtss_ts_state_t)] = 1;
 #endif
 
 /* Check instance */

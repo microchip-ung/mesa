@@ -979,7 +979,11 @@ static vtss_rc rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_cnt
     vtss_res_chg_t res;
 
     VTSS_MEMSET(&res, 0, sizeof(res));
+#if defined(VTSS_ARCH_JAGUAR_2)
     res.add_key[VTSS_VCAP_KEY_SIZE_SIXTEENTH] = ipv4_cnt;
+#else
+    res.add_key[VTSS_VCAP_KEY_SIZE_TWELFTH] = ipv4_cnt;
+#endif
     res.add_key[VTSS_VCAP_KEY_SIZE_QUARTER] = ipv6_cnt;
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
 }
@@ -989,7 +993,11 @@ static vtss_rc mc_rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_
     vtss_res_chg_t res;
 
     VTSS_MEMSET(&res, 0, sizeof(res));
+#if defined(VTSS_ARCH_JAGUAR_2)
     res.add_key[VTSS_VCAP_KEY_SIZE_EIGHTH] = ipv4_cnt;
+#else
+    res.add_key[VTSS_VCAP_KEY_SIZE_SIXTH] = ipv4_cnt;
+#endif
     res.add_key[VTSS_VCAP_KEY_SIZE_HALF] = ipv6_cnt;
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
 }

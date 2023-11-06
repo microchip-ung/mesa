@@ -57,16 +57,16 @@
 #define VTSS_FEATURE_VCAP_SUPER      /* VCAP_SUPER pool */
 #define VTSS_FEATURE_CLM             /* VCAP CLM */
 #define VTSS_FEATURE_ES0             /* VCAP ES0 */
+#define VTSS_FEATURE_LPM             /* VCAP LPM */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_IS2             /* VCAP IS2 */
 #define VTSS_FEATURE_IS2_B           /* VCAP IS2_B */
 #define VTSS_FEATURE_ES2             /* VCAP ES2 */
-#define VTSS_FEATURE_LPM             /* VCAP LPM */
 #endif
 #define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
 #if defined(VTSS_STREAM_CNT)
-#define VTSS_VCAP_SUPER_RULE_CNT VTSS_STREAM_CNT // Full rules assumed
+#define VTSS_VCAP_SUPER_RULE_CNT (VTSS_STREAM_CNT + VTSS_LPM_CNT) // Full CLM rules, X1 LPM rules
 #else
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6) /* Six rules per row */
 #endif
