@@ -378,6 +378,7 @@ static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list
             }
         }
     }
+    return rc;
 }
 
 static mesa_rc lan969x_sfp_status_get(meba_inst_t inst,
