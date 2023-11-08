@@ -7,7 +7,6 @@
 #include <vtss/api/options.h>
 #if defined(VTSS_FEATURE_LAYER3)
 
-#include <sys/time.h>
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_os.h"

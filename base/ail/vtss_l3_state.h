@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
     u16               row_cnt;
-    vtss_l3_arp_row_t row[VTSS_L3_ARP_ROW_CNT];
+    vtss_l3_arp_row_t row[VTSS_L3_ARP_ROW_CNT + 1]; // At least one entry for LIGHT build
 } vtss_l3_arp_info_t;
 
 typedef struct {
@@ -178,7 +178,7 @@ typedef struct {
     vtss_l3_nb_info_t          nb;
     vtss_l3_arp_info_t         arp;
     vtss_l3_mc_rt_info_t       mc_rt;
-    vtss_l3_mc_tbl_t           mc_tbl[VTSS_MC_TBL_CNT];
+    vtss_l3_mc_tbl_t           mc_tbl[VTSS_MC_TBL_CNT + 1]; // At least one entry for LIGHT build
 } vtss_l3_state_t;
 
 vtss_rc vtss_l3_inst_create(struct vtss_state_s *vtss_state);
