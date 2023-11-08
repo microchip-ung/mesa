@@ -597,9 +597,9 @@ vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->debug_sticky_clear = fa_l3_debug_sticky_clear;
         if (LA_TGT) {
             // Reduced L3 scale for Laguna
-            state->rleg_cnt = 126;
-            state->arp_cnt = 1024;
-            state->mc_tbl_cnt = 1024;
+            VTSS_RT_SET(state->rleg_cnt, 126);
+            VTSS_RT_SET(state->arp_cnt, 1024);
+            VTSS_RT_SET(state->mc_tbl_cnt, 1024);
         }
         vtss_l3_integrity_update(vtss_state);
         break;
