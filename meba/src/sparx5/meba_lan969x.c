@@ -41,6 +41,13 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
 };
 
 #define LAGUNA_CAP_10G_FDX (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH)
+
+typedef enum {
+    SFP_DETECT,
+    SFP_FAULT,
+    SFP_LOS
+} sfp_signal_t;
+
 static port_map_t *meba_port_map = NULL;
 
 //---------------------------------------------------------------------------------------------------------------------------
@@ -325,12 +332,52 @@ static mesa_rc lan969x_sfp_i2c_xfer(meba_inst_t inst,
     return rc;
 }
 
+static mesa_bool_t get_sfp_status(meba_inst_t inst,
+                                  mesa_port_no_t port_no,
+                                  mesa_sgpio_port_data_t *data,
+                                  sfp_signal_t sfp)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+
+    if (sgpio_port >= MESA_SGPIO_PORTS) {
+        T_E(inst, "Invalid port %d, sgpio_port %d", port_no, sgpio_port);
+        return false;
+    }
+
+    if (sfp == SFP_DETECT) {
+        return !data[sgpio_port].value[1]; // The SFP detect signal is inverted
+    } else if (sfp == SFP_FAULT) {
+        return data[sgpio_port].value[2];
+    } else if (sfp == SFP_LOS) {
+        return data[sgpio_port].value[0];
+    } else {
+        T_E(inst, "Unknown signal");
+    }
+    return false;
+}
+
 // For backwards compatibility (use lan969x_sfp_status_get())
 static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
 {
+    mesa_rc                rc = MESA_RC_OK;
+    meba_board_state_t     *board = INST2BOARD(inst);
+    mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
+
     T_N(inst, "Called");
     mesa_port_list_clear(present);
-    return MESA_RC_OK;
+
+    if ((rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
+        mesa_port_no_t port_no;
+        /* The 'Module Detect' is inverted i.e. '0' means detected */
+        for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            if (is_sfp_port(board->port[port_no].map.cap)) {
+                mesa_bool_t detect = get_sfp_status(inst, port_no, data, SFP_DETECT);
+                mesa_port_list_set(present, port_no, detect);
+                T_N(inst, "port:%d, status:%d", port_no, detect);
+            }
+        }
+    }
 }
 
 static mesa_rc lan969x_sfp_status_get(meba_inst_t inst,
