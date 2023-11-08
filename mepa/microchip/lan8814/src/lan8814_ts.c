@@ -9,28 +9,34 @@
 #include "lan8814_ts_registers.h"
 #include "lan8814_private.h"
 #include <string.h>
+#include <stdio.h>
 
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
-    {  000, 0000, 00000 }, // 1000,100,10 speeds
-    {  000, 0000, 00000 },
-    {  417, 1441, 8380 },
-    {  415, 1447, 8377 }, // 415 1447
+                                 // 1000,  100,    10 speeds
+    [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 1447, 8377 }, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
+    [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
+    [MEPA_TS_CLOCK_FREQ_200M] =   {  417, 1441, 8380 },
+    [MEPA_TS_CLOCK_FREQ_250M] =   {  415, 1447, 8377 }, // 415 1447
 };
 
 static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
-    {  000, 0000, 00000 }, // 1000,100,100 speeds
-    {  000, 0000, 00000 },
-    {  189,  300, 11355 },
-    {  186,  296, 11353 }, // 186 296
+                                 // 1000,  100,    10 speeds
+    [MEPA_TS_CLOCK_FREQ_25M] =    {  186,  296, 11353 }, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
+    [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
+    [MEPA_TS_CLOCK_FREQ_200M] =   {  189,  300, 11355 },
+    [MEPA_TS_CLOCK_FREQ_250M] =   {  186,  296, 11353 }, // 186 296
 };
 
 static uint16_t indy_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
   //     10M,100M, 1G
-    {0,    0,   0,  0},
-    {0,    0,   0,  0},
-    {0,11197,1125,120}, //200Mhz
-    {0,11198,1120,115}, //250Mhz : 100mbps cannot be compensated due to defailt value less than compensated value.
-    {0,    0,   0,  0},
+    [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 1120, 115}, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_125M] =   {0,     0,    0,   0},
+    [MEPA_TS_CLOCK_FREQ_15625M] = {0,     0,    0,   0},
+    [MEPA_TS_CLOCK_FREQ_200M] =   {0, 11197, 1125, 120}, //200Mhz
+    [MEPA_TS_CLOCK_FREQ_250M] =   {0, 11198, 1120, 115}, //250Mhz : 100mbps cannot be compensated due to defailt value less than compensated value.
+    [MEPA_TS_CLOCK_FREQ_500M] =   {0,     0,    0,   0},
 };
 
 static uint8_t def_mac[] = {0x01, 0x1B, 0x19, 0x00, 0x00, 0x00};
@@ -132,6 +138,14 @@ static mepa_rc indy_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_conf_t
         return MEPA_RC_ERROR;
     }
     switch (ts_init_conf->clk_freq) {
+    case MEPA_TS_CLOCK_FREQ_25M:
+        // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
+        pll_div = pll_div | INDY_1588_PLL_DIVQ_F(2);    // 2h = /4
+        pll_div = pll_div | INDY_1588_PLL_DIVF_F(0x13); //13h = /20
+        pll_div = pll_div | INDY_1588_PLL_DIVR_F(0);
+        EP_WRM(dev, INDY_1588_PLL_DIVEDER, pll_div, INDY_DEF_MASK);
+        clock_cfg = clock_cfg | INDY_PTP_REF_CLK_CFG_REF_CLK_PERIOD_F(4);
+        break;
     case MEPA_TS_CLOCK_FREQ_200M:
         // Write PLL Divider Register,  DIVF-> 32, DIVQ -> 8 for 200M
         pll_div = pll_div | INDY_1588_PLL_DIVQ_F(3);    // 3h = /8
@@ -572,8 +586,8 @@ static mepa_rc indy_ts_clock_adj1ns(mepa_device_t *dev, const mepa_bool_t incr)
         cmd = 0xFFFB & cmd_org;
         EP_WRM(dev, INDY_PTP_CMD_CTL, cmd, INDY_DEF_MASK);
         val = val | INDY_PTP_LTC_STEP_ADJ_DIR;
-
         switch (base_data->ts_state.clk_freq) {
+        case MEPA_TS_CLOCK_FREQ_25M:
         case MEPA_TS_CLOCK_FREQ_250M:
             if (incr) {
                 adj = 4 + 1;
@@ -632,6 +646,7 @@ static mepa_rc indy_ts_clock_adjns(mepa_device_t *dev, const mepa_bool_t incr)
                 adj = 5 - 1;
             }
             break;
+        default:
         }
         EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_HI, val, INDY_DEF_MASK);
         EP_WRM(dev, INDY_PTP_LTC_STEP_ADJ_LO, adj, INDY_DEF_MASK);
