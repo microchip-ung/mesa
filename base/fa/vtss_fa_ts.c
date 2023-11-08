@@ -1273,9 +1273,9 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         break;
     /* Assuming not fractional mode. 328.125 MHz gives 3.047619047619047 ns */
     /* 1 ns is 0x0800000000000000. */
-    /* 0x0800000000000000 * 0.047619047619047 gives 0x00618618618616FD */
+    /* 0x0800000000000000 * 0.047619047619047 gives 0x0061861861861861 */
     case VTSS_CORE_CLOCK_328MHZ:
-        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x00618618618616FD;
+        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x0061861861861861;
         break;
     default: {};
     }
