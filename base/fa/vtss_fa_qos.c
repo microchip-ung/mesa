@@ -3532,11 +3532,15 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
     }
 
     /* Read the current gate state on the port */
+#if defined(VTSS_FEATURE_QOS_OT)
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
         tas_gate_state_read(vtss_state, port_no, status->gate_open, vtss_state->qos.tas.port_conf[port_no].ot);
     } else {
         tas_gate_state_read(vtss_state, port_no, status->gate_open, FALSE);
     }
+#else
+    tas_gate_state_read(vtss_state, port_no, status->gate_open, FALSE);
+#endif
 
     return VTSS_RC_OK;
 }
@@ -4172,7 +4176,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
     u32                 qno, src, prio, dst;
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_port_no_t      tas_port=0;
-    u32                 se, tas_list_idx = 0;
+    u32                 tas_list_idx = 0;
 #endif
     u64                 min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
@@ -4887,7 +4891,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             pr("\n");
 #if defined(VTSS_FEATURE_QOS_OT)
             if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
-                se = FA_HSCH_L0_OT_SE(chip_port);
+                u32 se = FA_HSCH_L0_OT_SE(chip_port);
                 pr("OT SE: %u  Chip Port %u\n", se, chip_port);
                 REG_WR(VTSS_XQS_MAP_CFG_CFG, (se/CFGRATIO));
                 vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_XQS_QLIMIT_SE_SHR(0, (se%CFGRATIO))), (se%CFGRATIO), "XQS:QLIMIT_SE_SHR");

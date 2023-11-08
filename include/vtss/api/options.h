@@ -174,6 +174,8 @@
 #define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 #define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */
 
+#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
+#define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
@@ -182,7 +184,6 @@
 //WRED is not supported on Fireant #define VTSS_FEATURE_QOS_WRED_V3                  /**< QoS: WRED global - per queue (0..7), per dpl (1..3), per group (0..2) */
 #define VTSS_FEATURE_QOS_INGRESS_MAP              /**< QoS: Has Ingress Map Table */
 #define VTSS_FEATURE_QOS_EGRESS_MAP               /**< QoS: Has Egress Map Table */
-#define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 // Unused VTSS_FEATURE_QOS_ defines (they exist for backwards compatibility):
 #define VTSS_FEATURE_QCL_V2                       /**< QoS: QoS Control Lists, V2 features */
 #define VTSS_FEATURE_QCL_KEY_S_TAG                /**< QoS: QoS Control Lists has S tag support */
@@ -244,7 +245,6 @@
 
 // VTSS_ARCH_LAN969X and VTSS_ARCH_S5I specific features
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS     /**< QoS: Has Egress Queue Shapers */
-#define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
