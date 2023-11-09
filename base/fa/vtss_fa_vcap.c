@@ -4799,7 +4799,9 @@ vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_n
     fa_vcap_data_t           vcap_data, *data = &vcap_data;
     u32                      addr, port = VTSS_CHIP_PORT(port_no), dscp_sel = ES0_ACT_DSCP_SEL_PORT;
     fa_es0_map_t             map = {0};
+#if VTSS_OPT_TRACE
     vtss_qos_egress_map_id_t map_id = 0;
+#endif
     fa_es0_tag_t             tag;
     vtss_vlan_port_conf_t    *conf = &vtss_state->l2.vlan_port_conf[port_no];
     BOOL                     port_tag = TRUE;
