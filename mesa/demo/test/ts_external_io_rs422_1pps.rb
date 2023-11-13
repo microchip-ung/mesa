@@ -18,6 +18,8 @@ check_capabilities do
             #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Laguna)")
     assert(($ts.ts_external_clock_looped == true),
            "External clock must be looped")
+    assert(($ts.ts_rs422 == true),
+           "External RS422 clock must be looped")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
 end
 

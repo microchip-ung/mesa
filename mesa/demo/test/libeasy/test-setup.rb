@@ -916,7 +916,7 @@ $easyframes_sha = "0d1c8c257e29c8e5594082d6f38c9271c12bcfbf"
 UBOOT_PROMPTS = ["m => ", "ocelot # ", "luton # ", "jr2 # ", "servalt # ", "=> "]
 
 class Mesa_Pc_b2b
-    attr_accessor :dut, :pc, :links, :ts_external_clock_looped, :port_admin, :port_map, :labels
+    attr_accessor :dut, :pc, :links, :ts_rs422, :ts_external_clock_looped, :port_admin, :port_map, :labels
 
     def initialize conf, mesa_args, port_cnt, topo_name, labels
         #Default topology
@@ -973,6 +973,7 @@ class Mesa_Pc_b2b
 
         @links = dut_ports.zip(pc_ports).map{|e| {:dut => e[0], :pc => e[1]}}
         @ts_external_clock_looped = (conf["ts_external_clock_looped"] == true) ? true : false
+        @ts_rs422 = (conf["ts_rs422"] == true) ? true : false
         if conf["pc"].key?("et_idx")
             @pc.bash_function "export IDX=#{conf["pc"]["et_idx"]}"
         end
