@@ -939,6 +939,11 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         /* Approximated by port calibration and taking 1-PPS error into account*/
         rx_delay += 230 * 1000 + 63999;
         tx_delay += 230 * 1000 - 63999;
+
+        if (speed == VTSS_SPEED_100M) {   /* APPL-5631: Additional adjustment for 100 Mbps */
+            rx_delay += (1100 * 1000);
+            tx_delay += (1100 * 1000);
+        }
         break;
 
     default:
