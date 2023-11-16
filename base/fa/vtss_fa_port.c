@@ -4252,13 +4252,17 @@ static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
                 found_next_if = TRUE;
                 /* serdes properties to be applied to all common ones */
                 start_port = port_no;
-                vtss_fa_port2sd(vtss_state, port_no, &sdi, &sd_type_org);
+                if (vtss_fa_port2sd(vtss_state, port_no, &sdi, &sd_type_org) != VTSS_RC_OK) {
+                    continue;
+                }
                 md_type_org = conf->serdes.media_type;
                 sd_mode_org = vtss_state->port.sd28_mode[vtss_fa_sd_lane_indx(vtss_state, port_no)];
                 speed_org = conf->speed;
             } else {
                 /* if next interface is different then break and apply */
-                vtss_fa_port2sd(vtss_state, port_no, &sdi, &this_type);
+                if (vtss_fa_port2sd(vtss_state, port_no, &sdi, &this_type) != VTSS_RC_OK) {
+                    continue;
+                }
                 this_mode = vtss_state->port.sd28_mode[vtss_fa_sd_lane_indx(vtss_state, port_no)];
                 if ((sd_mode_org != this_mode) ||
                     (sd_type_org != this_type) ||

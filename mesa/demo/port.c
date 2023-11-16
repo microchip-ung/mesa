@@ -49,7 +49,7 @@ static meba_sfp_driver_t *sfp_drivers = NULL;
 static port_entry_t *port_table;
 static mesa_bool_t  port_polling = 1;
 static uint32_t     port_poll_cnt;
-static mesa_bool_t  port_bulk_setup = FALSE;
+static mesa_bool_t  port_bulk_setup = TRUE;
 
 const char *mesa_port_if2txt(mesa_port_interface_t if_type)
 {
@@ -1814,14 +1814,18 @@ static void port_init(meba_inst_t inst)
                 }
             }
         }
-        if (MESA_RC_OK != mesa_ts_status_change(NULL, port_no)) {
-            cli_printf("mesa_ts_status_change(%u) failed\n", port_no);
-        }
     } // Port loop
+
     if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
         // Apply config to HW
         if (mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_APPLY) != MESA_RC_OK) {
             T_E("mesa_port_conf_bulk_set failed");
+        }
+    }
+
+    for (port_no = 0; port_no < port_cnt; port_no++) {
+        if (mesa_ts_status_change(NULL, port_no) != MESA_RC_OK) {
+            cli_printf("mesa_ts_status_change(%u) failed\n", port_no);
         }
     }
 
