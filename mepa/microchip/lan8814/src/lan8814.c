@@ -894,6 +894,18 @@ static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         // set soft power down bit
         WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
+
+
+    if (data->dev.model == 0x27) {
+        /* APPL-5492:
+           9662 platform: set bit 14 in reg 31. The bit is defined as reserved, but used
+           as 'polarity invert' for CU-phy interrupts. Due to
+           interrupts being constantly active (interrupt storm), interrupts needs to be
+           changed to active high instead of active low. By flipping the bit, we instruct to do so
+        */
+        WRM(dev, INDY_CONTROL, INDY_F_CONTROL_RESERVED, INDY_F_CONTROL_RESERVED);
+    }
+
     // Poll before enabling interrupt events again.
     RD(dev, INDY_GPHY_INTR_STATUS, &new_value);
     T_D(MEPA_TRACE_GRP_GEN, "events during configuration 0x%x\n", new_value);

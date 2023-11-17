@@ -135,6 +135,10 @@
 #define INDY_RESV_CON_LOOP 30
 #define INDY_F_EXT_LPBK INDY_BIT(3)
 
+// Register - 31 (control register)
+#define INDY_CONTROL       31
+#define INDY_F_CONTROL_RESERVED INDY_BIT(14)
+
 //====================================================================================
 //      Extended Page 0
 //====================================================================================
