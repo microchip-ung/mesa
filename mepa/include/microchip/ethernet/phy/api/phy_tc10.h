@@ -8,40 +8,36 @@
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
 /** \brief  TC10 PIN types */
-enum mepa_tc10_pin {
+typedef enum mepa_tc10_pin {
     MEPA_TC10_WAKE_IN,  /**< Wake in pin */
     MEPA_TC10_WAKE_OUT, /**< Wake out pin */
     MEPA_TC10_INH,      /**< INH pin */
-};
-typedef uint8_t mepa_tc10_pin_t;
+} mepa_tc10_pin_t;
 
 /** \brief  TC10 sleep modes */
-enum mepa_tc10_sleep_request {
+typedef enum mepa_tc10_sleep_request {
     MEPA_TC10_LPS,          /**< LPS pulse */
     MEPA_TC10_FORCE_SLEEP,  /**< Force sleep */
-};
-typedef uint8_t mepa_tc10_sleep_request_t;
+} mepa_tc10_sleep_request_t;
 
 /** \brief  TC10 wakeup modes */
-enum mepa_tc10_wakeup_mode {
+typedef enum mepa_tc10_wakeup_mode {
     MEPA_TC10_WAKEUP_DISABLE,           /**< PHY wakeup disable, will not wakeup for WUP and WAKE-IN request */
     MEPA_TC10_WAKEUP_WUP_ENABLE,        /**< PHY will wakeup only for WUP request */
     MEPA_TC10_WAKEUP_WAKEIN_ENABLE,     /**< PHY will wakeup only via WAKE-IN pin request */
     MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE, /**< PHY will wakeup with WUP/WAKE-IN request */
-};
-typedef uint8_t mepa_tc10_wakeup_mode_t;
+} mepa_tc10_wakeup_mode_t;
 
 /** \brief  TC10 wakeup forward modes */
-enum mepa_tc10_wakeup_fwd_mode {
+typedef enum mepa_tc10_wakeup_fwd_mode {
     MEPA_TC10_WAKEUP_FWD_DISABLE,               /**< PHY wakeup forward disable */
     MEPA_TC10_WAKEUP_FWD_WUP_ENABLE,            /**< Enable WUP forward for WAKEIN request */
     MEPA_TC10_WAKEUP_FWD_WAKEOUT_ENABLE,        /**< Enable WAKEOUT forward for WUP/WAKEIN request */
     MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE,    /**< Enable WUP and WAKEOUT forward for WUP/WAKEIN requests */
-};
-typedef uint8_t mepa_tc10_wakeup_fwd_mode_t;
+} mepa_tc10_wakeup_fwd_mode_t;
 
 /** \brief  TC10 states */
-enum mepa_tc10_sleep_state {
+typedef enum mepa_tc10_sleep_state {
     MEPA_TC10_START,        /**< TC10 START or RESET state */
     MEPA_TC10_NORMAL,       /**< TC10 NORMAL state */
     MEPA_TC10_SLEEP_ACK,    /**< TC10 SLEEP ACK state */
@@ -49,8 +45,7 @@ enum mepa_tc10_sleep_state {
     MEPA_TC10_SLEEP_FAIL,   /**< TC10 SLEEP FAIL state */
     MEPA_TC10_SLEEP_SILENT, /**< TC10 SLEEP SILENT state */
     MEPA_TC10_SLEEP,        /**< TC10 SLEEP state */
-};
-typedef uint8_t mepa_tc10_state_t;
+} mepa_tc10_state_t;
 
 
 /**
