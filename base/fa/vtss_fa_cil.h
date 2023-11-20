@@ -180,10 +180,12 @@ void vtss_fa_reg_error(const char *file, int line, char *txt);
 
 static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw, int gc, int rc)
 {
+#if VTSS_OPT_TRACE
     if ((gi >= gc) || (ri >= rc)) {
         vtss_fa_reg_error(__FILE__, __LINE__, "Illegal register address!");
         return 0xffffffff;
     }
+#endif
     return (t + (o) + ((gi) * (gw)) + (ri) + (rw));
 }
 
@@ -192,6 +194,7 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
 #define REG_ADDR(p) IOREG(p)
 
 #define REG_RD(...) REG_RD_(__VA_ARGS__)
+#if VTSS_OPT_TRACE
 #define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
     do {                                                               \
         u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
@@ -202,8 +205,16 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
+#else
+#define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
+    do {                                                               \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        (void)vtss_fa_rd(vtss_state, o, value);                        \
+    } while (0)
+#endif
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
+#if VTSS_OPT_TRACE
 #define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
     do {                                                               \
         u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
@@ -214,8 +225,15 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
+#else
+    do {                                                               \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        (void)vtss_fa_wr(vtss_state, o, value);                        \
+    } while (0)
+#endif
 
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
+#if VTSS_OPT_TRACE
 #define REG_WRM_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value, mask)    \
     do {                                                               \
         u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
@@ -226,6 +244,13 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
+#else
+#define REG_WRM_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value, mask)    \
+    do {                                                               \
+        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        (void)vtss_fa_wrm(vtss_state, o, value, mask);                 \
+    } while (0)
+#endif
 
 #define REG_WRM_SET(p, mask) REG_WRM(p, mask, mask)
 #define REG_WRM_CLR(p, mask) REG_WRM(p, 0,    mask)
