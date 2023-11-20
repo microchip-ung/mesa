@@ -1733,34 +1733,32 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
     }
 
     if (fw_req->stop_training) {
+        u32 pcs = vtss_fa_dev_tgt(vtss_state, port_no);
+
+        if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
+            // Make sure that link is down when AN_GOOD_CHECK is entered by disabling the PCS.
+            // This will force LP to obey 73.10.2 link_fail_inhibit_timer
+            // which gives us time to change to 40bit mode
+            REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(pcs),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
+            if (kr->train.pcs_flap) {
+                VTSS_MSLEEP(5);
+            }
+        }
+
         REG_WRM(VTSS_IP_KRANEG_KR_PMD_STS(tgt),
                 VTSS_F_IP_KRANEG_KR_PMD_STS_STPROT(0),
                 VTSS_M_IP_KRANEG_KR_PMD_STS_STPROT);
 
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
-            u32  pcs = vtss_fa_dev_tgt(vtss_state, port_no);
-            if (kr->train.pcs_flap) {
-                // Make sure that link is down when AN_GOOD_CHECK is entered by disabling the PCS.
-                // This will force LP to obey 73.10.2 link_fail_inhibit_timer
-                // which gives us time to change to 40bit mode
-                REG_WRM_CLR(VTSS_DEV10G_PCS25G_CFG(pcs),
-                            VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
-                VTSS_MSLEEP(5);
-            }
             // Change back to 25G 40bit data mode
             VTSS_RC(fa_serdes_40b_mode(vtss_state, port_no));
 
-            if (kr->train.pcs_flap) {
-                // Enable the PCS again
-                VTSS_MSLEEP(1);
-                REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(pcs),
-                            VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
-            }
+            VTSS_RC(fa_port_kr_rsfec_radapt_set(vtss_state, port_no,
+                    vtss_state->port.kr_fec[port_no].rs_fec));
 
-            if (vtss_state->port.kr_fec[port_no].rs_fec) {
-                // Enable RSFEC/RADAPT
-                VTSS_RC(fa_port_kr_rsfec_radapt_set(vtss_state, port_no, TRUE))
-            }
+            REG_WRM_SET(VTSS_DEV10G_PCS25G_CFG(pcs),
+                        VTSS_M_DEV10G_PCS25G_CFG_PCS25G_ENA);
         }
     }
 
