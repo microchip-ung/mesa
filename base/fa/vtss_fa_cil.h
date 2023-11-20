@@ -226,6 +226,7 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
             return __rc;                                               \
     } while (0)
 #else
+#define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
     do {                                                               \
         u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
         (void)vtss_fa_wr(vtss_state, o, value);                        \
