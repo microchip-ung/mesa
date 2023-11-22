@@ -12,7 +12,7 @@
 #define GPIO_FUNC_INFO_SIZE 8
 static vtss_gpio_func_info_t ptp_gpio[GPIO_FUNC_INFO_SIZE] = {};
 
-static u64 nominal_tod_increment;
+static u64 nominal_tod_increment = 0;
 
 #define HW_NS_PR_SEC 1000000000L
 #define HW_PS_PR_SEC 1000000000000LL
@@ -1276,11 +1276,23 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     case VTSS_CORE_CLOCK_625MHZ:
         nominal_tod_increment = ((u64)(1) << 59) + (u64)0x04C6666666666666;
         break;
-    /* Assuming not fractional mode. 328.125 MHz gives 3.047619047619047 ns */
-    /* 1 ns is 0x0800000000000000. */
-    /* 0x0800000000000000 * 0.047619047619047 gives 0x0061861861861861 */
+    /* This is according to values given in Jira UNG_LAGUNA-585 */
     case VTSS_CORE_CLOCK_328MHZ:
-        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x0061861861861861;
+        if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_25MHZ) {
+            nominal_tod_increment = 0x186044FEF1EA9C10;
+        }
+        if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_39MHZ) {
+            nominal_tod_increment = 0x18604697DD0F9B5B;
+        }
+        break;
+    /* This is according to values given in Jira UNG_LAGUNA-585 */
+    case VTSS_CORE_CLOCK_180MHZ:
+        if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_25MHZ) {
+            nominal_tod_increment = 0x2C8346575A51DBE7;
+        }
+        if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_39MHZ) {
+            nominal_tod_increment = 0x2C834656FFBDCFFA;
+        }
         break;
     default: {};
     }
