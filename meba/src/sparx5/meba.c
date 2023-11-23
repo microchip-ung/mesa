@@ -35,7 +35,7 @@ typedef enum {
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
 
 static const mesa_fan_conf_t fan_spec = {
-    .fan_pwm_freq = MESA_FAN_PWM_FREQ_25KHZ,   // 25kHz
+    .fan_pwm_freq = MESA_FAN_PWM_FREQ_20HZ,    // 20Hz
     .fan_low_pol = 0,                          // active low
     .fan_open_col = true,                      // Open collector
     .type = MESA_FAN_3_WIRE_TYPE,              // 3-wire
@@ -1280,7 +1280,7 @@ static mesa_rc fa_fan_param_get(meba_inst_t inst,
                                  meba_fan_param_t *param)
 {
     T_N(inst, "Called");
-    param->start_time = 100;
+    param->start_time = 5;
     param->start_level = 60;
     param->min_pwm = 30;
     return MESA_RC_OK;
