@@ -52,7 +52,7 @@ static vtss_rc srvl_pgid_mask_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_pgid_table_write(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_pgid_table_write(vtss_state_t *vtss_state,
                                      u32 pgid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[pgid];
@@ -73,22 +73,22 @@ static vtss_rc srvl_pgid_update(vtss_state_t *vtss_state, u32 pgid, BOOL member[
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++)
         pgid_entry->member[port_no] = member[port_no];
     
-    return srvl_pgid_table_write(vtss_state, pgid, member);
+    return vtss_cil_l2_pgid_table_write(vtss_state, pgid, member);
 }
 
-static vtss_rc srvl_aggr_table_write(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_aggr_table_write(vtss_state_t *vtss_state,
                                      u32 ac, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     return srvl_pgid_mask_write(vtss_state, PGID_AGGR + ac, member, 0, 0);
 }
 
-static vtss_rc srvl_src_table_write(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_src_table_write(vtss_state_t *vtss_state,
                                     vtss_port_no_t port_no, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     return srvl_pgid_mask_write(vtss_state, PGID_SRC + VTSS_CHIP_PORT(port_no), member, 0, 0);
 }
 
-static vtss_rc srvl_aggr_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_aggr_mode_set(vtss_state_t *vtss_state)
 {
     vtss_aggr_mode_t *mode = &vtss_state->l2.aggr_mode;
 
@@ -101,7 +101,7 @@ static vtss_rc srvl_aggr_mode_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_pmap_table_write(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_pmap_table_write(vtss_state_t *vtss_state,
                                      vtss_port_no_t port_no, vtss_port_no_t l_port_no)
 {
     SRVL_WRM(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT(port_no)), 
@@ -111,7 +111,7 @@ static vtss_rc srvl_pmap_table_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_learn_state_set(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_learn_state_set(vtss_state_t *vtss_state,
                                     const BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t port_no;
@@ -121,6 +121,13 @@ static vtss_rc srvl_learn_state_set(vtss_state_t *vtss_state,
                      member[port_no], VTSS_F_ANA_PORT_PORT_CFG_LEARN_ENA);
     }
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_l2_mstp_state_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   const vtss_msti_t msti)
+{
+    return vtss_cmn_mstp_state_set(vtss_state, port_no, msti);
 }
 
 static vtss_rc srvl_mac_table_idle(vtss_state_t *vtss_state)
@@ -138,7 +145,7 @@ static vtss_rc srvl_mac_table_idle(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_mac_table_add(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_mac_table_add(vtss_state_t *vtss_state,
                                   const vtss_mac_table_entry_t *const entry, u32 pgid)
 {
     u32  value, mach, macl, mask, idx = 0, aged = 0, fwd_kill = 0, type;
@@ -208,7 +215,7 @@ static vtss_rc srvl_mac_table_cmd(vtss_state_t *vtss_state, const vtss_vid_mac_t
     return srvl_mac_table_idle(vtss_state);
 }
 
-static vtss_rc srvl_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
+vtss_rc vtss_cil_l2_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
 {
     u32 type = srvl_mac_type(vid_mac);
 
@@ -277,7 +284,7 @@ static vtss_rc srvl_mac_table_result(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_mac_table_get(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_mac_table_get(vtss_state_t *vtss_state,
                                   vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     vtss_rc rc;
@@ -293,14 +300,14 @@ static vtss_rc srvl_mac_table_get(vtss_state_t *vtss_state,
     return rc;
 }
 
-static vtss_rc srvl_mac_table_get_next(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_mac_table_get_next(vtss_state_t *vtss_state,
                                        vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     VTSS_RC(srvl_mac_table_cmd(vtss_state, &entry->vid_mac, MAC_TYPE_NORMAL, MAC_CMD_GET_NEXT));
     return srvl_mac_table_result(vtss_state, entry, pgid);
 }
 
-static vtss_rc srvl_mac_table_age_time_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mac_table_age_time_set(vtss_state_t *vtss_state)
 {
     u32 time;
     
@@ -316,7 +323,7 @@ static vtss_rc srvl_mac_table_age_time_set(vtss_state_t *vtss_state)
 /* Maximum FID value */
 #define SRVL_FID_MAX 63
 
-static vtss_rc srvl_mac_table_age(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_mac_table_age(vtss_state_t *vtss_state,
                                   BOOL             pgid_age, 
                                   u32              pgid,
                                   BOOL             vid_age,
@@ -353,7 +360,7 @@ static vtss_rc srvl_mac_table_age(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_mac_table_status_get(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_mac_table_status_get(vtss_state_t *vtss_state,
                                          vtss_mac_table_status_t *status) 
 {
     u32 value;
@@ -382,7 +389,7 @@ static vtss_rc srvl_mac_table_status_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_learn_port_mode_set(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_learn_port_mode_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no)
 {
     vtss_learn_mode_t *mode = &vtss_state->l2.learn_mode[port_no];
@@ -403,8 +410,8 @@ static vtss_rc srvl_learn_port_mode_set(vtss_state_t *vtss_state,
         /* Flush entries previously learned on port to avoid continuous refreshing */
         SRVL_RD(VTSS_ANA_PORT_PORT_CFG(port), &value);
         SRVL_WRM_CLR(VTSS_ANA_PORT_PORT_CFG(port), VTSS_F_ANA_PORT_PORT_CFG_LEARN_ENA);
-        VTSS_RC(srvl_mac_table_age(vtss_state, 1, port_no, 0, 0));
-        VTSS_RC(srvl_mac_table_age(vtss_state, 1, port_no, 0, 0));
+        VTSS_RC(vtss_cil_l2_mac_table_age(vtss_state, 1, port_no, 0, 0));
+        VTSS_RC(vtss_cil_l2_mac_table_age(vtss_state, 1, port_no, 0, 0));
         SRVL_WR(VTSS_ANA_PORT_PORT_CFG(port), value);
     }
 
@@ -434,7 +441,7 @@ static vtss_rc srvl_vlan_conf_apply(vtss_state_t *vtss_state, BOOL ports)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_vlan_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_vlan_conf_set(vtss_state_t *vtss_state)
 {
     return srvl_vlan_conf_apply(vtss_state, 1);
 }
@@ -524,7 +531,7 @@ static vtss_rc srvl_vlan_port_conf_apply(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_vlan_port_conf_update(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_vlan_port_conf_update(vtss_state_t *vtss_state,
                                           vtss_port_no_t port_no, vtss_vlan_port_conf_t *conf)
 {
     /* Update maximum tags allowed */
@@ -544,7 +551,7 @@ static vtss_rc srvl_vlan_table_idle(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_vlan_mask_update(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_vlan_mask_update(vtss_state_t *vtss_state,
                                      vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
@@ -575,7 +582,7 @@ static vtss_rc srvl_vlan_mask_update(vtss_state_t *vtss_state,
  *  Layer 2 - PVLAN / Isolated ports
  * ================================================================= */
 
-static vtss_rc srvl_isolated_port_members_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_isolated_port_members_set(vtss_state_t *vtss_state)
 {
     u32 mask = vtss_srvl_port_mask(vtss_state, vtss_state->l2.isolated_port);
 
@@ -589,7 +596,7 @@ static vtss_rc srvl_isolated_port_members_set(vtss_state_t *vtss_state)
  *  Layer 2 - IP Multicast
  * ================================================================= */
 
-static vtss_rc srvl_flood_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_flood_conf_set(vtss_state_t *vtss_state)
 {
     u32 pgid = (vtss_state->l2.ipv6_mc_scope ? PGID_MCIPV6 : PGID_MC);
 
@@ -612,7 +619,7 @@ static vtss_rc srvl_flood_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_ip_mc_update(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_ip_mc_update(vtss_state_t *vtss_state,
                                  vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
     vtss_vcap_obj_t       *obj = &vtss_state->vcap.is2.obj;
@@ -672,88 +679,37 @@ static vtss_rc srvl_ip_mc_update(vtss_state_t *vtss_state,
  *  Layer 2 - Mirror
  * ================================================================= */
 
-#ifdef VTSS_FEATURE_MIRROR_CPU
-/* CPU Ingress ports subjects for mirroring */
-static vtss_rc srvl_mirror_cpu_ingress_set(vtss_state_t *vtss_state)
-{
-    BOOL enabled = vtss_state->l2.mirror_cpu_ingress;
-    
-    SRVL_WRM(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU),
-            (enabled ? VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA : 0), VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
-   return VTSS_RC_OK;
-}
-
-/* CPU Egress ports subjects for mirroring */
-static vtss_rc srvl_mirror_cpu_egress_set(vtss_state_t *vtss_state)
-{
-    BOOL enabled = vtss_state->l2.mirror_cpu_egress;
-
-    SRVL_WRM(VTSS_ANA_ANA_AGENCTRL, enabled ? VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU : 0 , VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU);
-    return VTSS_RC_OK;
-}
-#endif // VTSS_FEATURE_MIRROR_CPU
-
-static vtss_rc srvl_mirror_port_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mirror_conf_set(vtss_state_t *vtss_state)
 {
     BOOL           member[VTSS_PORT_ARRAY_SIZE];
     vtss_port_no_t port_no;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         member[port_no] = (port_no == vtss_state->l2.mirror_conf.port_no);
-    }
-    SRVL_WR(VTSS_ANA_ANA_MIRRORPORTS, vtss_srvl_port_mask(vtss_state, member));    
 
-    /* Update all VLANs */
-    return vtss_cmn_vlan_update_all(vtss_state);
-}
-
-static vtss_rc srvl_mirror_ingress_set(vtss_state_t *vtss_state)
-{
-#if defined (VTSS_FEATURE_MPLS)
-    vtss_port_no_t           port_no;
-    vtss_mpls_vprofile_idx_t vp_idx;
-    BOOL                     set[VTSS_MPLS_VPROFILE_CNT];
-
-    /* The ingress mirror bit is per virtual port profile. This means that if
-     * we have MPLS enabled, the ingress mirroring setup must be applied for all
-     * VProfiles (except the static and shared entries for OAM and LSR; ingress
-     * mirroring won't work for those since they may be used with multiple
-     * ports.)
-     */
-
-    VTSS_MEMSET(set, 0, sizeof(set));
-    for (vp_idx = VTSS_MPLS_VPROFILE_RESERVED_CNT; vp_idx < VTSS_MPLS_VPROFILE_CNT; vp_idx++) {
-        vtss_mpls_vprofile_t *vp = &VP_P(vp_idx);
-        set[vp_idx] = (vp->port < vtss_state->port_count)  &&  vtss_state->l2.mirror_ingress[vp->port];
-    }
-
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        set[VTSS_CHIP_PORT(port_no)] = vtss_state->l2.mirror_ingress[port_no];
-    }
-
-    for (vp_idx = 0; vp_idx < VTSS_MPLS_VPROFILE_CNT; vp_idx++) {
-        SRVL_WRM_CTL(VTSS_ANA_PORT_PORT_CFG(vp_idx), set[vp_idx], VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
-    }
-#else
-    vtss_port_no_t port_no;
-
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        VTSS_I("vtss_state->l2.mirror_ingress[port_no]:%d, port_no:%d, chip_port:%d", vtss_state->l2.mirror_ingress[port_no], port_no, VTSS_CHIP_PORT(port_no));
+        // Ingress mirroring
         SRVL_WRM_CTL(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT(port_no)),
                      vtss_state->l2.mirror_ingress[port_no],
                      VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
     }
-#endif /* VTSS_FEATURE_MPLS */
-    return VTSS_RC_OK;
-}
 
-static vtss_rc srvl_mirror_egress_set(vtss_state_t *vtss_state)
-{
+    // Mirror port
+    SRVL_WR(VTSS_ANA_ANA_MIRRORPORTS, vtss_srvl_port_mask(vtss_state, member));
+
+    // Egress mirroring
     SRVL_WR(VTSS_ANA_ANA_EMIRRORPORTS, vtss_srvl_port_mask(vtss_state, vtss_state->l2.mirror_egress));
+
+    // CPU ingress mirroring
+    SRVL_WRM_CTL(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU),
+                 vtss_state->l2.mirror_cpu_ingress, VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
+
+    // CPU egress mirroring
+    SRVL_WRM_CTL(VTSS_ANA_ANA_AGENCTRL, vtss_state->l2.mirror_cpu_egress, VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU);
+
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_vcap_port_conf_t *conf = &vtss_state->vcap.port_conf[port_no];
     BOOL                  dmac_dip_new = conf->dmac_dip_1;
@@ -764,7 +720,7 @@ static vtss_rc srvl_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     return vtss_srvl_vcap_port_key_addr_set(vtss_state, port_no, 1, key_new, key_old, dmac_dip_new);
 }
 
-static vtss_rc srvl_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
+vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
 {
     vtss_sdx_entry_t *sdx = vtss_iflow_lookup(vtss_state, id);
 
@@ -794,9 +750,6 @@ static u32 next_power_of_two(u32 x)
     return ++x;
 }
 
-/**
- * srvl_sflow_hw_rate()
- */
 static u32 srvl_sflow_hw_rate(const u32 desired_sw_rate, u32 *const realizable_sw_rate)
 {
     u32 hw_rate         = desired_sw_rate ? VTSS_ROUNDING_DIVISION(SRVL_SFLOW_MAX_SAMPLE_RATE + 1, desired_sw_rate) : 0;
@@ -805,10 +758,7 @@ static u32 srvl_sflow_hw_rate(const u32 desired_sw_rate, u32 *const realizable_s
     return hw_rate;
 }
 
-/**
- * srvl_sflow_sampling_rate_convert()
- */
-static vtss_rc srvl_sflow_sampling_rate_convert(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out)
+vtss_rc vtss_cil_l2_sflow_sampling_rate_convert(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out)
 {
     u32 modified_rate_in;
     // Could happen that two threads call this function simultaneously at boot, but we take the risk.
@@ -846,10 +796,7 @@ static vtss_rc srvl_sflow_sampling_rate_convert(struct vtss_state_s *const state
     return VTSS_RC_OK;
 }
 
-/**
- * srvl_sflow_port_conf_set()
- */
-static vtss_rc srvl_sflow_port_conf_set(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t *vtss_state,
                                         const vtss_port_no_t port_no,
                                         const vtss_sflow_port_conf_t *const new_conf)
 {
@@ -1169,7 +1116,7 @@ static vtss_rc srvl_l2_port_map_set(vtss_state_t *vtss_state)
     vtss_state->l2.pgid_count = (VTSS_PGID_LUTON26 - VTSS_CHIP_PORTS + vtss_state->port_count);
     
     /* And then claim some for flooding */
-    VTSS_RC(srvl_flood_conf_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_flood_conf_set(vtss_state));
 
     /* Setup flooding PGIDs */
     SRVL_WR(VTSS_ANA_ANA_FLOODING, 
@@ -1222,10 +1169,10 @@ static vtss_rc srvl_l2_init(vtss_state_t *vtss_state)
     VTSS_RC(srvl_vlan_conf_apply(vtss_state, 0));
 
     /* Setup aggregation mode */
-    VTSS_RC(srvl_aggr_mode_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_aggr_mode_set(vtss_state));
     
     /* Set MAC age time to default value */
-    VTSS_RC(srvl_mac_table_age_time_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_mac_table_age_time_set(vtss_state));
 
     /* Disable learning for frames discarded by VLAN ingress filtering */
     SRVL_WR(VTSS_ANA_ANA_ADVLEARN, VTSS_F_ANA_ANA_ADVLEARN_VLAN_CHK);
@@ -1247,60 +1194,6 @@ vtss_rc vtss_srvl_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->mac_table_add = srvl_mac_table_add;
-        state->mac_table_del = srvl_mac_table_del;
-        state->mac_table_get = srvl_mac_table_get;
-        state->mac_table_get_next = srvl_mac_table_get_next;
-        state->mac_table_age_time_set = srvl_mac_table_age_time_set;
-        state->mac_table_age = srvl_mac_table_age;
-        state->mac_table_status_get = srvl_mac_table_status_get;
-        state->learn_port_mode_set = srvl_learn_port_mode_set;
-        state->learn_state_set = srvl_learn_state_set;
-        state->mstp_state_set = vtss_cmn_mstp_state_set;
-        state->mstp_vlan_msti_set = vtss_cmn_vlan_members_set;
-        state->erps_vlan_member_set = vtss_cmn_erps_vlan_member_set;
-        state->erps_port_state_set = vtss_cmn_erps_port_state_set;
-        state->pgid_table_write = srvl_pgid_table_write;
-        state->src_table_write = srvl_src_table_write;
-        state->aggr_table_write = srvl_aggr_table_write;
-        state->aggr_mode_set = srvl_aggr_mode_set;
-        state->pmap_table_write = srvl_pmap_table_write;
-        state->vlan_conf_set = srvl_vlan_conf_set;
-        state->vlan_port_conf_set = vtss_cmn_vlan_port_conf_set;
-        state->vlan_port_conf_update = srvl_vlan_port_conf_update;
-        state->vlan_port_members_set = vtss_cmn_vlan_members_set;
-        state->vlan_mask_update = srvl_vlan_mask_update;
-        state->vlan_tx_tag_set = vtss_cmn_vlan_tx_tag_set;
-        state->isolated_vlan_set = vtss_cmn_vlan_members_set;
-        state->isolated_port_members_set = srvl_isolated_port_members_set;
-        state->flood_conf_set = srvl_flood_conf_set;
-        state->ipv4_mc_add = vtss_cmn_ipv4_mc_add;
-        state->ipv4_mc_del = vtss_cmn_ipv4_mc_del;
-#if defined(VTSS_FEATURE_IPV6_MC_SIP)
-        state->ipv6_mc_add = vtss_cmn_ipv6_mc_add;
-        state->ipv6_mc_del = vtss_cmn_ipv6_mc_del;
-#endif
-        state->ip_mc_update = srvl_ip_mc_update;
-        state->mirror_port_set = srvl_mirror_port_set;
-        state->mirror_ingress_set = srvl_mirror_ingress_set;
-        state->mirror_egress_set = srvl_mirror_egress_set;
-#ifdef VTSS_FEATURE_MIRROR_CPU
-        state->mirror_cpu_ingress_set = srvl_mirror_cpu_ingress_set;
-        state->mirror_cpu_egress_set = srvl_mirror_cpu_egress_set;
-#endif //VTSS_FEATURE_MIRROR_CPU
-        state->eps_port_set = vtss_cmn_eps_port_set;
-        state->sflow_port_conf_set         = srvl_sflow_port_conf_set;
-        state->sflow_sampling_rate_convert = srvl_sflow_sampling_rate_convert;
-        state->vcl_port_conf_set = vtss_srvl_vcap_port_conf_set;
-        state->vce_add = vtss_cmn_vce_add;
-        state->vce_del = vtss_cmn_vce_del;
-        state->vlan_trans_group_add = vtss_cmn_vlan_trans_group_add;
-        state->vlan_trans_group_del = vtss_cmn_vlan_trans_group_del;
-        state->vlan_trans_group_get = vtss_cmn_vlan_trans_group_get;
-        state->vlan_trans_port_conf_set  = vtss_cmn_vlan_trans_port_conf_set;
-        state->vlan_trans_port_conf_get  = vtss_cmn_vlan_trans_port_conf_get;
-        state->vcap_port_conf_set = srvl_vcap_port_conf_set;
-        state->iflow_conf_set = srvl_iflow_conf_set;
         state->ac_count = SRVL_ACS;
         state->sdx_info.max_count = SRVL_EVC_CNT;
         if (state->sdx_info.max_count > VTSS_SRVL_SDX_CNT)

@@ -275,7 +275,7 @@ vtss_rc vtss_jr2_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_jr2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
+vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 {
     u32 cosid, isdx = sdx->sdx;
     u32 pol_max = (sdx->pol_cnt ? (sdx->pol_cnt - 1) : 0);

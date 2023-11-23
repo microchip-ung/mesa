@@ -51,7 +51,7 @@ static vtss_rc l26_pgid_mask_write(vtss_state_t *vtss_state, u32 pgid, BOOL memb
 }
 
 /* Write PGID entry */
-static vtss_rc l26_pgid_table_write(vtss_state_t *vtss_state, u32 pgid, BOOL member[])
+vtss_rc vtss_cil_l2_pgid_table_write(vtss_state_t *vtss_state, u32 pgid, BOOL member[])
 {
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[pgid];
 
@@ -72,25 +72,25 @@ static vtss_rc l26_pgid_update(vtss_state_t *vtss_state, u32 pgid, BOOL member[]
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++)
         pgid_entry->member[port_no] = member[port_no];
     
-    return l26_pgid_table_write(vtss_state, pgid, member);
+    return vtss_cil_l2_pgid_table_write(vtss_state, pgid, member);
 }
 
 /* Write the aggregation masks  */
-static vtss_rc l26_aggr_table_write(vtss_state_t *vtss_state,
-                                    u32 ac, BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_aggr_table_write(vtss_state_t *vtss_state,
+                                     u32 ac, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     return l26_pgid_mask_write(vtss_state, PGID_AGGR + ac, member, 0, 0);
 }
 
 /* Write source mask */
-static vtss_rc l26_src_table_write(vtss_state_t *vtss_state,
-                                   vtss_port_no_t port_no, BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_src_table_write(vtss_state_t *vtss_state,
+                                    vtss_port_no_t port_no, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     return l26_pgid_mask_write(vtss_state, PGID_SRC + VTSS_CHIP_PORT(port_no), member, 0, 0);
 }
 
 /* Write the aggregation mode  */
-static vtss_rc l26_aggr_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_aggr_mode_set(vtss_state_t *vtss_state)
 {
     vtss_aggr_mode_t *mode = &vtss_state->l2.aggr_mode;
 
@@ -103,8 +103,8 @@ static vtss_rc l26_aggr_mode_set(vtss_state_t *vtss_state)
 }
 
 /* Write the common logical port of the aggr. group (lowest port no. of the group) */
-static vtss_rc l26_pmap_table_write(vtss_state_t *vtss_state,
-                                    vtss_port_no_t port_no, vtss_port_no_t l_port_no)
+vtss_rc vtss_cil_l2_pmap_table_write(vtss_state_t *vtss_state,
+                                     vtss_port_no_t port_no, vtss_port_no_t l_port_no)
 {
     L26_WRM(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT(port_no)), 
             VTSS_F_ANA_PORT_PORT_CFG_PORTID_VAL(VTSS_CHIP_PORT(l_port_no)), 
@@ -248,8 +248,8 @@ static vtss_rc l26_ip_mc_is1_add(vtss_state_t *vtss_state, vtss_ipmc_src_data_t 
 }
 
 /* Update IP multicast entry */
-static vtss_rc l26_ip_mc_update(vtss_state_t *vtss_state,
-                                vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
+vtss_rc vtss_cil_l2_ip_mc_update(vtss_state_t *vtss_state,
+                                 vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
     vtss_res_t             res;
     vtss_ipmc_obj_t        *ipmc_obj = &vtss_state->l2.ipmc.obj;
@@ -554,7 +554,7 @@ static vtss_rc l26_ip_mc_fid_adjust(vtss_state_t *vtss_state, vtss_vid_t fid)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_flood_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_flood_conf_set(vtss_state_t *vtss_state)
 {
     /* Unicast flood mask */
     VTSS_RC(l26_pgid_update(vtss_state, PGID_UC, vtss_state->l2.uc_flood));
@@ -580,9 +580,16 @@ static vtss_rc l26_flood_conf_set(vtss_state_t *vtss_state)
  *  Layer 2
  * ================================================================= */
 
+vtss_rc vtss_cil_l2_mstp_state_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   const vtss_msti_t msti)
+{
+    return vtss_cmn_mstp_state_set(vtss_state, port_no, msti);
+}
+
 /* Set learn mask */
-static vtss_rc l26_learn_state_set(vtss_state_t *vtss_state,
-                                   const BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_learn_state_set(vtss_state_t *vtss_state,
+                                    const BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t port_no;
     
@@ -606,8 +613,8 @@ static vtss_rc l26_mac_table_idle(vtss_state_t *vtss_state)
 }
 
 /* Add a given MAC entry */
-static vtss_rc l26_mac_table_add(vtss_state_t *vtss_state,
-                                 const vtss_mac_table_entry_t *const entry, u32 pgid)
+vtss_rc vtss_cil_l2_mac_table_add(vtss_state_t *vtss_state,
+                                  const vtss_mac_table_entry_t *const entry, u32 pgid)
 {
     u32 mach, macl, mask, idx, aged = 0, fwd_kill = 0, ipv6_mask = 0, type;
     BOOL copy_to_cpu = entry->copy_to_cpu_smac;
@@ -689,7 +696,7 @@ static vtss_rc l26_mac_table_cmd(vtss_state_t *vtss_state, const vtss_vid_mac_t 
 }
 
 /* Delete/unlearn a given MAC entry */
-static vtss_rc l26_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
+vtss_rc vtss_cil_l2_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
 {
     u32 type = l26_mac_type(vid_mac);
 
@@ -766,8 +773,8 @@ static vtss_rc l26_mac_table_result(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_mac_table_get(vtss_state_t *vtss_state,
-                                 vtss_mac_table_entry_t *const entry, u32 *pgid)
+vtss_rc vtss_cil_l2_mac_table_get(vtss_state_t *vtss_state,
+                                  vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     vtss_rc rc;
     u32     type = l26_mac_type(&entry->vid_mac);
@@ -782,15 +789,15 @@ static vtss_rc l26_mac_table_get(vtss_state_t *vtss_state,
     return rc;
 }
 
-static vtss_rc l26_mac_table_get_next(vtss_state_t *vtss_state,
-                                      vtss_mac_table_entry_t *const entry, u32 *pgid)
+vtss_rc vtss_cil_l2_mac_table_get_next(vtss_state_t *vtss_state,
+                                       vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     VTSS_RC(l26_mac_table_cmd(vtss_state, &entry->vid_mac, MAC_TYPE_NORMAL, MAC_CMD_GET_NEXT));
     return l26_mac_table_result(vtss_state, entry, pgid);
 }
 
 /* Normal auto aging in seconds */
-static vtss_rc l26_mac_table_age_time_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mac_table_age_time_set(vtss_state_t *vtss_state)
 {
     u32 time;
     
@@ -803,11 +810,11 @@ static vtss_rc l26_mac_table_age_time_set(vtss_state_t *vtss_state)
 }
 
 /* Selective aging based on port(s) and/or VLAN */
-static vtss_rc l26_mac_table_age(vtss_state_t     *vtss_state,
-                                 BOOL             pgid_age, 
-                                 u32              pgid,
-                                 BOOL             vid_age,
-                                 const vtss_vid_t vid)
+vtss_rc vtss_cil_l2_mac_table_age(vtss_state_t     *vtss_state,
+                                  BOOL             pgid_age,
+                                  u32              pgid,
+                                  BOOL             vid_age,
+                                  const vtss_vid_t vid)
 {
     /* Selective aging */
     L26_WR(VTSS_ANA_ANA_ANAGEFIL, 
@@ -828,7 +835,7 @@ static vtss_rc l26_mac_table_age(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_status_t *status) 
+vtss_rc vtss_cil_l2_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_status_t *status)
 {
     u32 value;
 
@@ -874,7 +881,7 @@ static vtss_rc l26_learn_mode_set(vtss_state_t *vtss_state,
 }
 
 /* Learn mode: 'Learn frames dropped' / 'Autolearning' / 'Copy learn frame to CPU' */
-static vtss_rc l26_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_learn_mode_t *mode = &vtss_state->l2.learn_mode[port_no];
     u32               value, port = VTSS_CHIP_PORT(port_no);
@@ -885,8 +892,8 @@ static vtss_rc l26_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port
         /* Flush entries previously learned on port to avoid continuous refreshing */
         L26_RD(VTSS_ANA_PORT_PORT_CFG(port), &value);
         L26_WRM_CLR(VTSS_ANA_PORT_PORT_CFG(port), VTSS_F_ANA_PORT_PORT_CFG_LEARN_ENA);
-        VTSS_RC(l26_mac_table_age(vtss_state, 1, port_no, 0, 0));
-        VTSS_RC(l26_mac_table_age(vtss_state, 1, port_no, 0, 0));
+        VTSS_RC(vtss_cil_l2_mac_table_age(vtss_state, 1, port_no, 0, 0));
+        VTSS_RC(vtss_cil_l2_mac_table_age(vtss_state, 1, port_no, 0, 0));
         L26_WR(VTSS_ANA_PORT_PORT_CFG(port), value);
     }
     return VTSS_RC_OK;
@@ -897,15 +904,20 @@ static vtss_rc l26_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port
  *  Mirror
  * ================================================================= */
 
-/* Mirror port, where a selected traffic is copied to */
-static vtss_rc l26_mirror_port_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mirror_conf_set(vtss_state_t *vtss_state)
 {
-    BOOL                   member[VTSS_PORT_ARRAY_SIZE];
-    vtss_port_no_t         port_no;
+    BOOL           member[VTSS_PORT_ARRAY_SIZE];
+    vtss_port_no_t port_no;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         member[port_no] = (port_no == vtss_state->l2.mirror_conf.port_no);
+
+        // Ingress mirroring
+        L26_WRM_CTL(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT(port_no)),
+                    vtss_state->l2.mirror_ingress[port_no], VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
     }
+
+    // Mirror port
     L26_WR(VTSS_ANA_ANA_MIRRORPORTS, vtss_l26_port_mask(vtss_state, member));    
 
     /* Update VLAN port configuration for all ports */
@@ -913,47 +925,15 @@ static vtss_rc l26_mirror_port_set(vtss_state_t *vtss_state)
         VTSS_RC(vtss_cmn_vlan_port_conf_set(vtss_state, port_no));
     }
 
-    /* Update all VLANs */
-    return vtss_cmn_vlan_update_all(vtss_state);
-}
-
-/* Ingress ports subjects for mirroring */
-static vtss_rc l26_mirror_ingress_set(vtss_state_t *vtss_state)
-{
-    vtss_port_no_t port_no;
-    BOOL           enabled;
-
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        enabled = vtss_state->l2.mirror_ingress[port_no];
-        L26_WRM(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT(port_no)), 
-                (enabled ? VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA : 0), VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
-    }
-    return VTSS_RC_OK;
-}
-
-/* Egress ports subjects for mirroring */
-static vtss_rc l26_mirror_egress_set(vtss_state_t *vtss_state)
-{
+    // Egress mirroring
     L26_WR(VTSS_ANA_ANA_EMIRRORPORTS, vtss_l26_port_mask(vtss_state, vtss_state->l2.mirror_egress));
-    return VTSS_RC_OK;
-}
 
-/* CPU Ingress ports subjects for mirroring */
-static vtss_rc l26_mirror_cpu_ingress_set(vtss_state_t *vtss_state)
-{
-    BOOL           enabled = vtss_state->l2.mirror_cpu_ingress;
+    // CPU ingress mirroring
+    L26_WRM_CTL(VTSS_ANA_PORT_PORT_CFG(26), vtss_state->l2.mirror_cpu_ingress, VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA);
 
-    L26_WRM(VTSS_ANA_PORT_PORT_CFG(26), 
-            (enabled ? VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA : 0), VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA); // CPU port is port 26, 6See Table 98 in data sheet
-    return VTSS_RC_OK;
-}
+    // CPU egress mirroring
+    L26_WRM_CTL(VTSS_ANA_ANA_AGENCTRL, vtss_state->l2.mirror_cpu_egress, VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU);
 
-/* CPU Egress ports subjects for mirroring */
-static vtss_rc l26_mirror_cpu_egress_set(vtss_state_t *vtss_state)
-{
-    BOOL           enabled = vtss_state->l2.mirror_cpu_egress;
-
-    L26_WRM(VTSS_ANA_ANA_AGENCTRL, enabled ? VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU : 0 , VTSS_F_ANA_ANA_AGENCTRL_MIRROR_CPU);
     return VTSS_RC_OK;
 }
 
@@ -976,7 +956,7 @@ static vtss_rc l26_vlan_conf_apply(vtss_state_t *vtss_state, BOOL ports)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_vlan_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_vlan_conf_set(vtss_state_t *vtss_state)
 {
     return l26_vlan_conf_apply(vtss_state, 1);
 }
@@ -1068,8 +1048,8 @@ static vtss_rc l26_vlan_port_conf_apply(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_vlan_port_conf_update(vtss_state_t *vtss_state,
-                                         vtss_port_no_t port_no, vtss_vlan_port_conf_t *conf)
+vtss_rc vtss_cil_l2_vlan_port_conf_update(vtss_state_t *vtss_state,
+                                          vtss_port_no_t port_no, vtss_vlan_port_conf_t *conf)
 {
     /* Update maximum tags allowed */
     VTSS_RC(vtss_l26_port_max_tags_set(vtss_state, port_no));
@@ -1088,8 +1068,8 @@ static vtss_rc l26_vlan_table_idle(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
-                                    vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_vlan_mask_update(vtss_state_t *vtss_state,
+                                     vtss_vid_t vid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_vlan_entry_t *e = &vtss_state->l2.vlan_table[vid];
     u32               value;
@@ -1123,7 +1103,7 @@ static vtss_rc l26_vlan_mask_update(vtss_state_t *vtss_state,
  *  VCL
  * ================================================================= */
 
-vtss_rc vtss_l26_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     BOOL dmac_dip = vtss_state->l2.vcl_port_conf[port_no].dmac_dip;
     u32  mask = VTSS_F_ANA_PORT_VCAP_CFG_S1_DMAC_DIP_ENA(1);
@@ -1139,7 +1119,7 @@ vtss_rc vtss_l26_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
  *  PVLAN / Isolated ports
  * ================================================================= */
 
-static vtss_rc l26_isolated_port_members_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_isolated_port_members_set(vtss_state_t *vtss_state)
 {
     u32 mask = vtss_l26_port_mask(vtss_state, vtss_state->l2.isolated_port);
 
@@ -1165,9 +1145,6 @@ static u32 next_power_of_two(u32 x)
     return ++x;
 }
 
-/**
- * l26_sflow_hw_rate()
- */
 static u32 l26_sflow_hw_rate(const u32 desired_sw_rate, u32 *const realizable_sw_rate)
 {
     u32 hw_rate         = desired_sw_rate ? VTSS_ROUNDING_DIVISION(LU26_SFLOW_MAX_SAMPLE_RATE + 1, desired_sw_rate) : 0;
@@ -1176,10 +1153,7 @@ static u32 l26_sflow_hw_rate(const u32 desired_sw_rate, u32 *const realizable_sw
     return hw_rate;
 }
 
-/**
- * l26_sflow_sampling_rate_convert()
- */
-static vtss_rc l26_sflow_sampling_rate_convert(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out)
+vtss_rc vtss_cil_l2_sflow_sampling_rate_convert(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out)
 {
     u32 modified_rate_in;
     // Could happen that two threads call this function simultaneously at boot, but we take the risk.
@@ -1217,11 +1191,8 @@ static vtss_rc l26_sflow_sampling_rate_convert(struct vtss_state_s *const state,
     return VTSS_RC_OK;
 }
 
-/**
- * l26_sflow_port_conf_set()
- */
-static vtss_rc l26_sflow_port_conf_set(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no, const vtss_sflow_port_conf_t *const new_conf)
+vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t *vtss_state,
+                                        const vtss_port_no_t port_no, const vtss_sflow_port_conf_t *const new_conf)
 {
     u32 hw_rate, value;
     vtss_sflow_port_conf_t *cur_conf = &vtss_state->l2.sflow_conf[port_no];
@@ -1515,7 +1486,7 @@ static vtss_rc l26_debug_ipmc(vtss_state_t *vtss_state,
     header = TRUE;
     VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
     p = &mac_entry.vid_mac.mac.addr[0];
-    while (l26_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
+    while (vtss_cil_l2_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
         if (header)
             pr("VID   MAC                PGID  CPU  Locked\n");
         header = FALSE;
@@ -1593,10 +1564,10 @@ static vtss_rc l26_l2_init(vtss_state_t *vtss_state)
     } /* Port loop */
     
     /* Setup aggregation mode */
-    VTSS_RC(l26_aggr_mode_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_aggr_mode_set(vtss_state));
     
     /* Set MAC age time to default value */
-    VTSS_RC(l26_mac_table_age_time_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_mac_table_age_time_set(vtss_state));
 
     /* Disable learning for frames discarded by VLAN ingress filtering */
     L26_WR(VTSS_ANA_ANA_ADVLEARN, VTSS_F_ANA_ANA_ADVLEARN_VLAN_CHK);
@@ -1616,7 +1587,7 @@ static vtss_rc l26_l2_port_map_set(vtss_state_t *vtss_state)
     vtss_state->l2.pgid_count = (VTSS_PGID_LUTON26 - VTSS_CHIP_PORTS + vtss_state->port_count);
 
     /* And then claim some for flooding */
-    VTSS_RC(l26_flood_conf_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_flood_conf_set(vtss_state));
 
     /* Setup flooding PGIDs */
     L26_WR(VTSS_ANA_ANA_FLOODING, 
@@ -1639,54 +1610,6 @@ vtss_rc vtss_l26_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->mac_table_add = l26_mac_table_add;
-        state->mac_table_del = l26_mac_table_del;
-        state->mac_table_get = l26_mac_table_get;
-        state->mac_table_get_next = l26_mac_table_get_next;
-        state->mac_table_age_time_set = l26_mac_table_age_time_set;
-        state->mac_table_age = l26_mac_table_age;
-        state->mac_table_status_get = l26_mac_table_status_get;
-        state->learn_port_mode_set = l26_learn_port_mode_set;
-        state->learn_state_set = l26_learn_state_set;
-        state->mstp_state_set = vtss_cmn_mstp_state_set;
-        state->mstp_vlan_msti_set = vtss_cmn_vlan_members_set;
-        state->erps_vlan_member_set = vtss_cmn_erps_vlan_member_set;
-        state->erps_port_state_set = vtss_cmn_erps_port_state_set;
-        state->pgid_table_write = l26_pgid_table_write;
-        state->src_table_write = l26_src_table_write;
-        state->aggr_table_write = l26_aggr_table_write;
-        state->aggr_mode_set = l26_aggr_mode_set;
-        state->pmap_table_write = l26_pmap_table_write;
-        state->vlan_conf_set = l26_vlan_conf_set;
-        state->vlan_port_conf_set = vtss_cmn_vlan_port_conf_set;
-        state->vlan_port_conf_update = l26_vlan_port_conf_update;
-        state->vlan_port_members_set = vtss_cmn_vlan_members_set;
-        state->vlan_mask_update = l26_vlan_mask_update;
-        state->vlan_tx_tag_set = vtss_cmn_vlan_tx_tag_set;
-        state->isolated_vlan_set = vtss_cmn_vlan_members_set;
-        state->isolated_port_members_set = l26_isolated_port_members_set;
-        state->flood_conf_set = l26_flood_conf_set;
-        state->ipv4_mc_add = vtss_cmn_ipv4_mc_add;
-        state->ipv4_mc_del = vtss_cmn_ipv4_mc_del;
-        state->ipv6_mc_add = vtss_cmn_ipv6_mc_add;
-        state->ipv6_mc_del = vtss_cmn_ipv6_mc_del;
-        state->ip_mc_update = l26_ip_mc_update;
-        state->mirror_port_set = l26_mirror_port_set;
-        state->mirror_ingress_set = l26_mirror_ingress_set;
-        state->mirror_egress_set = l26_mirror_egress_set;
-        state->mirror_cpu_ingress_set = l26_mirror_cpu_ingress_set;
-        state->mirror_cpu_egress_set = l26_mirror_cpu_egress_set;
-        state->eps_port_set = vtss_cmn_eps_port_set;
-        state->sflow_port_conf_set = l26_sflow_port_conf_set;
-        state->sflow_sampling_rate_convert = l26_sflow_sampling_rate_convert;
-        state->vcl_port_conf_set = vtss_l26_vcl_port_conf_set;
-        state->vce_add = vtss_cmn_vce_add;
-        state->vce_del = vtss_cmn_vce_del;
-        state->vlan_trans_group_add = vtss_cmn_vlan_trans_group_add;
-        state->vlan_trans_group_del = vtss_cmn_vlan_trans_group_del;
-        state->vlan_trans_group_get = vtss_cmn_vlan_trans_group_get;
-        state->vlan_trans_port_conf_set  = vtss_cmn_vlan_trans_port_conf_set;
-        state->vlan_trans_port_conf_get  = vtss_cmn_vlan_trans_port_conf_get;
         state->ac_count = L26_ACS;
         break;
     case VTSS_INIT_CMD_INIT:

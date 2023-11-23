@@ -2098,7 +2098,7 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_vcl_port_conf_t *conf = &vtss_state->l2.vcl_port_conf[port_no];
     BOOL                 dmac_dip_new = conf->dmac_dip;

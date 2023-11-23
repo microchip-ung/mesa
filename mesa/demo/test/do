@@ -129,6 +129,7 @@ last=${!#}
 
 if [ $last == "brief" ]; then
     suffix="--brief"
+    ((cnt--))
 fi
 
 if [ $last == "short" ]; then

@@ -419,10 +419,10 @@ vtss_rc vtss_npi_conf_set(const vtss_inst_t inst, const vtss_npi_conf_t *const c
             rc = vtss_update_masks(vtss_state, 1, 0, 0);    // Update src masks
             /* Update VLAN configuration for old and new NPI port */
             if (rc == VTSS_RC_OK && conf_old.enable) {
-                rc = VTSS_FUNC_COLD(l2.vlan_port_conf_set, conf_old.port_no);
+                rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state, conf_old.port_no));
             }
             if (rc == VTSS_RC_OK && conf->enable) {
-                rc = VTSS_FUNC_COLD(l2.vlan_port_conf_set, conf->port_no);
+                rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state, conf->port_no));
             }
         }
     }

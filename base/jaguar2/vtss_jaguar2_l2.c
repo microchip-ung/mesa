@@ -37,8 +37,8 @@ vtss_rc vtss_jr2_pgid_table_write_adv(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_pgid_table_write(vtss_state_t *vtss_state,
-                                    u32 pgid, BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_pgid_table_write(vtss_state_t *vtss_state,
+                                     u32 pgid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[pgid];
     u64               pmask = vtss_jr2_port_mask(vtss_state, member);
@@ -51,7 +51,7 @@ static vtss_rc jr2_pgid_table_write(vtss_state_t *vtss_state,
                                          0);
 }
 
-static vtss_rc jr2_src_table_write(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_l2_src_table_write(vtss_state_t *vtss_state,
                                     vtss_port_no_t port_no, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     u64 pmask = vtss_jr2_port_mask(vtss_state, member);
@@ -61,7 +61,7 @@ static vtss_rc jr2_src_table_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_aggr_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_aggr_mode_set(vtss_state_t *vtss_state)
 {
     vtss_aggr_mode_t *mode = &vtss_state->l2.aggr_mode;
 
@@ -94,11 +94,11 @@ static vtss_rc jr2_pgid_update(vtss_state_t *vtss_state,
     pgid_entry->references = 1;
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++)
         pgid_entry->member[port_no] = member[port_no];
-    return jr2_pgid_table_write(vtss_state, pgid, member);
+    return vtss_cil_l2_pgid_table_write(vtss_state, pgid, member);
 }
 
-static vtss_rc jr2_pmap_table_write(vtss_state_t *vtss_state,
-                                    vtss_port_no_t port_no, vtss_port_no_t l_port_no)
+vtss_rc vtss_cil_l2_pmap_table_write(vtss_state_t *vtss_state,
+                                     vtss_port_no_t port_no, vtss_port_no_t l_port_no)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 lport = VTSS_CHIP_PORT(l_port_no);
@@ -107,8 +107,8 @@ static vtss_rc jr2_pmap_table_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_learn_state_set(vtss_state_t *vtss_state,
-                                   const BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_learn_state_set(vtss_state_t *vtss_state,
+                                    const BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t    port;
     BOOL              lrn[VTSS_PORTS];
@@ -126,9 +126,9 @@ static vtss_rc jr2_learn_state_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_mstp_state_set(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no,
-                                  const vtss_msti_t msti)
+vtss_rc vtss_cil_l2_mstp_state_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   const vtss_msti_t msti)
 {
     BOOL             fwd[VTSS_PORTS], lrn[VTSS_PORTS];
     vtss_port_no_t   port;
@@ -184,8 +184,8 @@ static vtss_rc jr2_vlan_management_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_mac_table_add(vtss_state_t *vtss_state,
-                                 const vtss_mac_table_entry_t *const entry, u32 pgid)
+vtss_rc vtss_cil_l2_mac_table_add(vtss_state_t *vtss_state,
+                                  const vtss_mac_table_entry_t *const entry, u32 pgid)
 {
     u32 mach, macl, cfg2, addr, upsid = 0, aged = 0, fwd_kill = 0, addr_type;
     u32 copy_to_cpu = entry->copy_to_cpu_smac;
@@ -230,7 +230,7 @@ static vtss_rc jr2_mac_table_add(vtss_state_t *vtss_state,
     return jr2_mac_table_idle(vtss_state);
 }
 
-static vtss_rc jr2_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
+vtss_rc vtss_cil_l2_mac_table_del(vtss_state_t *vtss_state, const vtss_vid_mac_t *const vid_mac)
 {
     u32 mach, macl;
     
@@ -302,7 +302,7 @@ static vtss_rc jr2_mac_table_result(vtss_state_t *vtss_state, vtss_mac_table_ent
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_mac_table_get(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
+vtss_rc vtss_cil_l2_mac_table_get(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     u32 mach, macl;
 
@@ -321,7 +321,7 @@ static vtss_rc jr2_mac_table_get(vtss_state_t *vtss_state, vtss_mac_table_entry_
     return jr2_mac_table_result(vtss_state, entry, pgid);
 }
 
-static vtss_rc jr2_mac_table_get_next(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
+vtss_rc vtss_cil_l2_mac_table_get_next(vtss_state_t *vtss_state, vtss_mac_table_entry_t *const entry, u32 *pgid)
 {
     u32               mach, macl;
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[VTSS_PGID_NONE];
@@ -350,7 +350,7 @@ static vtss_rc jr2_mac_table_get_next(vtss_state_t *vtss_state, vtss_mac_table_e
     return jr2_mac_table_result(vtss_state, entry, pgid);
 }
 
-static vtss_rc jr2_mac_table_age_time_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mac_table_age_time_set(vtss_state_t *vtss_state)
 {
     u32 time, units;
 
@@ -432,16 +432,16 @@ static vtss_rc jr2_mac_table_age_cmd(vtss_state_t *vtss_state,
     return jr2_mac_table_idle(vtss_state);
 }
 
-static vtss_rc jr2_mac_table_age(vtss_state_t *vtss_state,
-                                 BOOL             pgid_age, 
-                                 u32              pgid,
-                                 BOOL             vid_age,
-                                 const vtss_vid_t vid)
+vtss_rc vtss_cil_l2_mac_table_age(vtss_state_t *vtss_state,
+                                  BOOL             pgid_age,
+                                  u32              pgid,
+                                  BOOL             vid_age,
+                                  const vtss_vid_t vid)
 {
     return jr2_mac_table_age_cmd(vtss_state, pgid_age, pgid, vid_age, vid, 1);
 }
 
-static vtss_rc jr2_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_status_t *status) 
+vtss_rc vtss_cil_l2_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table_status_t *status)
 {
     VTSS_MEMSET(status, 0, sizeof(*status));
 
@@ -484,7 +484,7 @@ static vtss_rc jr2_mac_table_status_get(vtss_state_t *vtss_state, vtss_mac_table
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_learn_mode_t *mode = &vtss_state->l2.learn_mode[port_no];
     u64               pmask = vtss_jr2_pmask(VTSS_CHIP_PORT(port_no)), pmask_zero = 0;
@@ -525,7 +525,7 @@ static vtss_rc jr2_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_port
  *  Layer 2 - VLAN 
  * ================================================================= */
 
-static vtss_rc jr2_vlan_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_vlan_conf_set(vtss_state_t *vtss_state)
 {
     u32 etype = vtss_state->l2.vlan_conf.s_etype;
 
@@ -592,9 +592,9 @@ static vtss_rc jr2_vlan_mask_apply(vtss_state_t *vtss_state, vtss_vid_t vid, u64
     return vtss_jr2_vlan_update(vtss_state, vid);
 }
 
-static vtss_rc jr2_vlan_mask_update(vtss_state_t *vtss_state,
-                                    vtss_vid_t   vid, 
-                                    BOOL         member[VTSS_PORT_ARRAY_SIZE]) 
+vtss_rc vtss_cil_l2_vlan_mask_update(vtss_state_t *vtss_state,
+                                     vtss_vid_t   vid,
+                                     BOOL         member[VTSS_PORT_ARRAY_SIZE])
 {
     u64 pmask;
 
@@ -716,8 +716,8 @@ vtss_rc vtss_jr2_vlan_port_conf_apply(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_vlan_port_conf_update(vtss_state_t *vtss_state,
-                                         vtss_port_no_t port_no, vtss_vlan_port_conf_t *conf)
+vtss_rc vtss_cil_l2_vlan_port_conf_update(vtss_state_t *vtss_state,
+                                          vtss_port_no_t port_no, vtss_vlan_port_conf_t *conf)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
 
@@ -768,18 +768,18 @@ static vtss_rc jr2_vlan_counters_update(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_vlan_counters_get(vtss_state_t *vtss_state, vtss_vid_t vid, vtss_vlan_counters_t *counters)
+vtss_rc vtss_cil_l2_vlan_counters_get(vtss_state_t *vtss_state, vtss_vid_t vid, vtss_vlan_counters_t *counters)
 {
     return jr2_vlan_counters_update(vtss_state, vid, counters, FALSE);
 }
 
-static vtss_rc jr2_vlan_counters_clear(vtss_state_t *vtss_state, vtss_vid_t vid)
+vtss_rc vtss_cil_l2_vlan_counters_clear(vtss_state_t *vtss_state, vtss_vid_t vid)
 {
     return jr2_vlan_counters_update(vtss_state, vid, NULL, TRUE);
 }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
-static vtss_rc jr2_vcl_port_conf_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_vcl_port_conf_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_vcl_port_conf_t *conf = &vtss_state->l2.vcl_port_conf[port_no];
 
@@ -800,7 +800,7 @@ vtss_rc vtss_jr2_isdx_set(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, u64 p
     JR2_WR(VTSS_ANA_L2_ISDX_SERVICE_CTRL(isdx), VTSS_F_ANA_L2_ISDX_SERVICE_CTRL_ES0_ISDX_KEY_ENA(0));
 
     /* DLB/ISDX mappings */
-    VTSS_RC(vtss_jr2_isdx_update(vtss_state, sdx));
+    VTSS_RC(vtss_cil_l2_isdx_update(vtss_state, sdx));
 
     /* L2CP IDX */
     JR2_WR(VTSS_ANA_CL_IPT_ISDX_CFG(isdx), VTSS_F_ANA_CL_IPT_ISDX_CFG_L2CP_IDX(l2cp_idx));
@@ -831,7 +831,7 @@ vtss_rc vtss_jr2_isdx_set(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, u64 p
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
+vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_t id)
 {
     vtss_sdx_entry_t *sdx = vtss_iflow_lookup(vtss_state, id);
     u64              pmask = 0xffffffffffffffff;
@@ -844,7 +844,7 @@ static vtss_rc jr2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id_
                              (sdx->conf.voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE);    /* Independent MEL when no pointer to active VOE */
 }
 
-static vtss_rc jr2_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
+vtss_rc vtss_cil_l2_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_counters_t *counters)
 {
     vtss_stat_idx_t     sidx;
     vtss_evc_counters_t cnt;
@@ -864,7 +864,7 @@ static vtss_rc jr2_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_coun
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counters_t *counters)
+vtss_rc vtss_cil_l2_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_counters_t *counters)
 {
     vtss_stat_idx_t     sidx;
     vtss_evc_counters_t cnt;
@@ -881,14 +881,14 @@ static vtss_rc jr2_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_count
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_evc_policer_update(vtss_state_t *vtss_state, u16 idx)
+vtss_rc vtss_cil_l2_policer_update(vtss_state_t *vtss_state, u16 idx)
 {
     return vtss_jr2_policer_conf_set(vtss_state, idx, &vtss_state->l2.pol_conf[idx]);
 }
 
-static vtss_rc jr2_evc_counters_update(vtss_state_t *vtss_state,
-                                       vtss_stat_idx_t *stat_idx,
-                                       BOOL clear)
+vtss_rc vtss_cil_l2_counters_update(vtss_state_t *vtss_state,
+                                    vtss_stat_idx_t *stat_idx,
+                                    BOOL clear)
 {
     return vtss_jr2_sdx_counters_update(vtss_state, stat_idx, NULL, clear);
 }
@@ -898,7 +898,7 @@ static vtss_rc jr2_evc_counters_update(vtss_state_t *vtss_state,
  *  Layer 2 - PVLAN / Isolated ports
  * ================================================================= */
 
-static vtss_rc jr2_isolated_port_members_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_isolated_port_members_set(vtss_state_t *vtss_state)
 {
     u64 pmask = vtss_jr2_port_mask(vtss_state, vtss_state->l2.isolated_port);
 
@@ -910,7 +910,7 @@ static vtss_rc jr2_isolated_port_members_set(vtss_state_t *vtss_state)
  *  Layer 2 - IP Multicast
  * ================================================================= */
 
-static vtss_rc jr2_flood_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_flood_conf_set(vtss_state_t *vtss_state)
 {
     vtss_port_no_t port_no;
     BOOL           member[VTSS_PORT_ARRAY_SIZE];
@@ -956,7 +956,7 @@ static u32 jr2_first_port(u64 pmask)
 }
 
 /* Setup mirroring for chip */
-static vtss_rc jr2_mirror_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l2_mirror_conf_set(vtss_state_t *vtss_state)
 {
     vtss_mirror_conf_t *conf = &vtss_state->l2.mirror_conf;
     vtss_port_no_t     port_no;
@@ -1034,8 +1034,8 @@ static vtss_rc jr2_mirror_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ip_mc_update(vtss_state_t *vtss_state,
-                                vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
+vtss_rc vtss_cil_l2_ip_mc_update(vtss_state_t *vtss_state,
+                                 vtss_ipmc_data_t *ipmc, vtss_ipmc_cmd_t cmd)
 {
     vtss_vcap_obj_t       *obj = &vtss_state->vcap.is2.obj;
     int                   user = (ipmc->src.ssm ? VTSS_IS2_USER_SSM : VTSS_IS2_USER_ASM);
@@ -1088,45 +1088,15 @@ static vtss_rc jr2_ip_mc_update(vtss_state_t *vtss_state,
     return vtss_vcap_add(vtss_state, obj, user, ipmc->dst.id, ipmc->id_next, &data, 0);
 }
 
-static vtss_rc jr2_mirror_port_set(vtss_state_t *vtss_state)
-{
-    /* Update all VLANs */
-    VTSS_RC(vtss_cmn_vlan_update_all(vtss_state));
-
-    return jr2_mirror_conf_set(vtss_state);
-}
-
-static vtss_rc jr2_mirror_ingress_set(vtss_state_t *vtss_state)
-{
-    return jr2_mirror_conf_set(vtss_state);
-}
-
-static vtss_rc jr2_mirror_egress_set(vtss_state_t *vtss_state)
-{
-    return jr2_mirror_conf_set(vtss_state);
-}
-
-/* CPU Ingress ports subjects for mirroring */
-static vtss_rc jr2_mirror_cpu_ingress_set(vtss_state_t *vtss_state)
-{
-    return jr2_mirror_conf_set(vtss_state);
-}
-
-/* CPU Egress ports subjects for mirroring */
-static vtss_rc jr2_mirror_cpu_egress_set(vtss_state_t *vtss_state)
-{
-    return jr2_mirror_conf_set(vtss_state);
-}
-
-static vtss_rc jr2_aggr_table_write(vtss_state_t *vtss_state,
-                                    u32 ac, BOOL member[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_cil_l2_aggr_table_write(vtss_state_t *vtss_state,
+                                     u32 ac, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     u64 pmask = vtss_jr2_port_mask(vtss_state, member);
 
     JR2_WRX_PMASK(VTSS_ANA_AC_AGGR_AGGR_CFG, ac, pmask);
 
     /* Setup mirroring when the first aggregation mask is setup */
-    return (ac == 0 ? jr2_mirror_conf_set(vtss_state) : VTSS_RC_OK);
+    return (ac == 0 ? vtss_cil_l2_mirror_conf_set(vtss_state) : VTSS_RC_OK);
 }
 
 /* ================================================================= *
@@ -1151,7 +1121,8 @@ static u32 jr2_sflow_hw_rate(const u32 desired_sw_rate, u32 *const realizable_sw
     return hw_rate;
 }
 
-static vtss_rc jr2_sflow_sampling_rate_convert(struct vtss_state_s *const state, const BOOL power2, const u32 rate_in, u32 *const rate_out)
+vtss_rc vtss_cil_l2_sflow_sampling_rate_convert(struct vtss_state_s *const state,
+                                                const BOOL power2, const u32 rate_in, u32 *const rate_out)
 {
     u32 modified_rate_in;
     // Could happen that two threads call this function simultaneously at boot, but we take the risk.
@@ -1190,9 +1161,9 @@ static vtss_rc jr2_sflow_sampling_rate_convert(struct vtss_state_s *const state,
 }
 
 // Note that Jaguar2 has a sFlow-related bug, ref bug#12246
-static vtss_rc jr2_sflow_port_conf_set(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no,
-                                       const vtss_sflow_port_conf_t *const new_conf)
+vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t *vtss_state,
+                                        const vtss_port_no_t port_no,
+                                        const vtss_sflow_port_conf_t *const new_conf)
 {
 #define JR2_SFLOW_ENABLED(_conf_) ((_conf_)->sampling_rate > 0 && (_conf_)->type != VTSS_SFLOW_TYPE_NONE)
     vtss_sflow_port_conf_t *cur_conf = &vtss_state->l2.sflow_conf[port_no];
@@ -1506,7 +1477,7 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t *vtss_state,
     /* Dump MAC address table */
     VTSS_MEMSET(&mac_entry, 0, sizeof(mac_entry));
 
-    while (jr2_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
+    while (vtss_cil_l2_mac_table_get_next(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
         chip_pgid = vtss_jr2_chip_pgid(vtss_state, pgid);
         VTSS_BF_SET(pgids_to_print, chip_pgid, 1);
 
@@ -1525,7 +1496,7 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t *vtss_state,
     header = 1;
     for (entry = vtss_state->l2.mac_list_used; entry != NULL; entry = entry->next) {
         vtss_mach_macl_set(&mac_entry.vid_mac, entry->mach, entry->macl);
-        if (jr2_mac_table_get(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
+        if (vtss_cil_l2_mac_table_get(vtss_state, &mac_entry, &pgid) == VTSS_RC_OK) {
             chip_pgid = vtss_jr2_chip_pgid(vtss_state, pgid);
             VTSS_BF_SET(pgids_to_print, chip_pgid, 1);
 
@@ -1776,7 +1747,7 @@ static vtss_rc jr2_l2_port_map_set(vtss_state_t *vtss_state)
 
     /* Update VLAN port configuration */
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
-        VTSS_RC(jr2_vlan_port_conf_update(vtss_state, port_no, &vtss_state->l2.vlan_port_conf[port_no]));
+        VTSS_RC(vtss_cil_l2_vlan_port_conf_update(vtss_state, port_no, &vtss_state->l2.vlan_port_conf[port_no]));
     }
 
     return VTSS_RC_OK;
@@ -1813,10 +1784,10 @@ static vtss_rc jr2_l2_init(vtss_state_t *vtss_state)
             VTSS_M_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS);
 
     /* Setup VLAN configuration */
-    VTSS_RC(jr2_vlan_conf_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_vlan_conf_set(vtss_state));
 
     /* Set MAC age time to default value */
-    VTSS_RC(jr2_mac_table_age_time_set(vtss_state));
+    VTSS_RC(vtss_cil_l2_mac_table_age_time_set(vtss_state));
 
     /* Enable frame aging */
     JR2_WR(VTSS_QSYS_SYSTEM_FRM_AGING, 
@@ -1892,66 +1863,8 @@ vtss_rc vtss_jr2_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->mac_table_add               = jr2_mac_table_add;
-        state->mac_table_del               = jr2_mac_table_del;
-        state->mac_table_get               = jr2_mac_table_get;
-        state->mac_table_get_next          = jr2_mac_table_get_next;
-        state->mac_table_age_time_set      = jr2_mac_table_age_time_set;
-        state->mac_table_age               = jr2_mac_table_age;
-        state->mac_table_status_get        = jr2_mac_table_status_get;
-        state->learn_port_mode_set         = jr2_learn_port_mode_set;
-        state->learn_state_set             = jr2_learn_state_set;
-        state->mstp_state_set              = jr2_mstp_state_set;
-        state->mstp_vlan_msti_set          = vtss_cmn_vlan_members_set;
-        state->erps_vlan_member_set        = vtss_cmn_erps_vlan_member_set;
-        state->erps_port_state_set         = vtss_cmn_erps_port_state_set;
-        state->pgid_table_write            = jr2_pgid_table_write;
-        state->src_table_write             = jr2_src_table_write;
-        state->aggr_table_write            = jr2_aggr_table_write;
-        state->aggr_mode_set               = jr2_aggr_mode_set;
-        state->pmap_table_write            = jr2_pmap_table_write;
-        state->vlan_conf_set               = jr2_vlan_conf_set;
-        state->vlan_port_conf_set          = vtss_cmn_vlan_port_conf_set;
-        state->vlan_port_conf_update       = jr2_vlan_port_conf_update;
-        state->vlan_port_members_set       = vtss_cmn_vlan_members_set;
-        state->vlan_mask_update            = jr2_vlan_mask_update;
-        state->vlan_tx_tag_set             = vtss_cmn_vlan_tx_tag_set;
-        state->isolated_vlan_set           = vtss_cmn_vlan_members_set;
-        state->isolated_port_members_set   = jr2_isolated_port_members_set;
-        state->flood_conf_set              = jr2_flood_conf_set;
-        state->ipv4_mc_add                 = vtss_cmn_ipv4_mc_add;
-        state->ipv4_mc_del                 = vtss_cmn_ipv4_mc_del;
-        state->ipv6_mc_add                 = vtss_cmn_ipv6_mc_add;
-        state->ipv6_mc_del                 = vtss_cmn_ipv6_mc_del;
-        state->ip_mc_update                = jr2_ip_mc_update;
-        state->mirror_port_set             = jr2_mirror_port_set;
-        state->mirror_ingress_set          = jr2_mirror_ingress_set;
-        state->mirror_egress_set           = jr2_mirror_egress_set;
-        state->mirror_cpu_ingress_set      = jr2_mirror_cpu_ingress_set;
-        state->mirror_cpu_egress_set       = jr2_mirror_cpu_egress_set;
-        state->eps_port_set                = vtss_cmn_eps_port_set;
-        state->sflow_port_conf_set         = jr2_sflow_port_conf_set;
-        state->sflow_sampling_rate_convert = jr2_sflow_sampling_rate_convert;
-#if defined(VTSS_FEATURE_VLAN_COUNTERS)
-        state->vlan_counters_get           = jr2_vlan_counters_get;
-        state->vlan_counters_clear         = jr2_vlan_counters_clear;
-#endif /* VTSS_FEATURE_VLAN_COUNTERS */
-        state->vcl_port_conf_set        = jr2_vcl_port_conf_set;
-        state->vce_add                  = vtss_cmn_vce_add;
-        state->vce_del                  = vtss_cmn_vce_del;
-        state->vlan_trans_group_add     = vtss_cmn_vlan_trans_group_add;
-        state->vlan_trans_group_del     = vtss_cmn_vlan_trans_group_del;
-        state->vlan_trans_group_get     = vtss_cmn_vlan_trans_group_get;
-        state->vlan_trans_port_conf_set = vtss_cmn_vlan_trans_port_conf_set;
-        state->vlan_trans_port_conf_get = vtss_cmn_vlan_trans_port_conf_get;
-        state->iflow_conf_set = jr2_iflow_conf_set;
-        state->icnt_get = jr2_icnt_get;
-        state->ecnt_get = jr2_ecnt_get;
         state->ac_count = JR2_ACS;
         state->vsi_info.max_count = VTSS_VSI_CNT;
-        state->policer_update = jr2_evc_policer_update;
-        state->counters_update = jr2_evc_counters_update;
-        state->isdx_update = vtss_jr2_isdx_update;
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(jr2_l2_init(vtss_state));
