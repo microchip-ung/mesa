@@ -137,32 +137,31 @@ typedef struct {
     u32                rleg; /* Next router leg to poll */
 } vtss_l3_statistics_t;
 
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (* rleg_counters_get)(struct vtss_state_s *vtss_state,
-                                  const vtss_l3_rleg_id_t);
-    vtss_rc (* rleg_counters_reset)(struct vtss_state_s *vtss_state);
-    vtss_rc (* common_set)(struct vtss_state_s *vtss_state,
-                              const vtss_l3_common_conf_t * const);
-    vtss_rc (* rleg_set)(struct vtss_state_s *vtss_state,
-                            const vtss_l3_rleg_id_t, const vtss_l3_rleg_conf_t * const);
-    vtss_rc (* vlan_set)(struct vtss_state_s *vtss_state,
-                         const vtss_l3_rleg_id_t, const vtss_vid_t, const BOOL);
-    vtss_rc (* rt_add)(struct vtss_state_s *vtss_state,
-                       vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt);
-    vtss_rc (* rt_del)(struct vtss_state_s *vtss_state,
-                       vtss_l3_net_t *net);
-    vtss_rc (* mc_rt_add)(struct vtss_state_s *vtss_state,
-                          vtss_l3_mc_rt_t *net);
-    vtss_rc (* mc_rt_del)(struct vtss_state_s *vtss_state,
-                          vtss_l3_mc_rt_t *net);
-    vtss_rc (* mc_rt_rleg_add)(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
-    vtss_rc (* mc_rt_rleg_del)(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
-    vtss_rc (* arp_set)(struct vtss_state_s *vtss_state,
-                        u32 idx, vtss_l3_nb_t *nb);
-    vtss_rc (* debug_sticky_clear)(struct vtss_state_s *vtss_state);
+// CIL functions
+vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state,
+                                      const vtss_l3_rleg_id_t);
+vtss_rc vtss_cil_l3_rleg_counters_reset(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_l3_common_set(struct vtss_state_s *vtss_state,
+                               const vtss_l3_common_conf_t * const);
+vtss_rc vtss_cil_l3_rleg_set(struct vtss_state_s *vtss_state,
+                             const vtss_l3_rleg_id_t, const vtss_l3_rleg_conf_t * const);
+vtss_rc vtss_cil_l3_vlan_set(struct vtss_state_s *vtss_state,
+                             const vtss_l3_rleg_id_t, const vtss_vid_t, const BOOL);
+vtss_rc vtss_cil_l3_rt_add(struct vtss_state_s *vtss_state,
+                           vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt);
+vtss_rc vtss_cil_l3_rt_del(struct vtss_state_s *vtss_state,
+                           vtss_l3_net_t *net);
+vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state,
+                              vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state,
+                              vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_rleg_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_arp_set(struct vtss_state_s *vtss_state,
+                            u32 idx, vtss_l3_nb_t *nb);
+vtss_rc vtss_cil_l3_debug_sticky_clear(struct vtss_state_s *vtss_state);
 
-    /* Configuration/state */
+typedef struct {
     u32                        checksum;
     u16                        rleg_cnt;
     u16                        rleg_stat_cnt;

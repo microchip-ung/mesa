@@ -247,8 +247,8 @@ static vtss_rc rleg_del(vtss_state_t *vtss_state,
     }
     rc = rleg_id_del(vtss_state, rleg_conf, vlan, &rleg_id);
     I("Deleting rleg_id = %d, vlan = %d", rleg_id, vlan);
-    DO(VTSS_FUNC(l3.vlan_set, rleg_id, vlan, FALSE));
-    DO(VTSS_FUNC(l3.rleg_set, rleg_id, &conf));
+    DO(vtss_cil_l3_vlan_set(vtss_state, rleg_id, vlan, FALSE));
+    DO(vtss_cil_l3_rleg_set(vtss_state, rleg_id, &conf));
 #undef DO
 
     return rc;
@@ -274,8 +274,8 @@ static vtss_rc rleg_add(vtss_state_t *vtss_state,
     }
     rc = rleg_id_get_new(vtss_state, vtss_state->l3.rleg_conf, conf, &rleg_id);
     D("Adding rleg: rleg_id = %d, vlan = %d", rleg_id, conf->vlan);
-    DO(VTSS_FUNC(l3.rleg_set, rleg_id, conf));
-    DO(VTSS_FUNC(l3.vlan_set, rleg_id, conf->vlan, TRUE));
+    DO(vtss_cil_l3_rleg_set(vtss_state, rleg_id, conf));
+    DO(vtss_cil_l3_vlan_set(vtss_state, rleg_id, conf->vlan, TRUE));
 #undef DO
 
     return rc;
@@ -292,7 +292,7 @@ static vtss_rc rleg_update(vtss_state_t              *vtss_state,
         if (rleg_conf[i].vlan == conf->vlan) {
             rleg_conf[i] = *conf;
             D("Updating rleg: rleg_id = %d, vlan = %d", i, conf->vlan);
-            rc = VTSS_FUNC(l3.rleg_set, i, conf);
+            rc = vtss_cil_l3_rleg_set(vtss_state, i, conf);
             break;
         }
     }
@@ -644,7 +644,7 @@ static inline vtss_rc nh_update(vtss_state_t *vtss_state,
     BOOL enable = vtss_state->l3.common.routing_enable;
 
     I("idx: %u, dmac: " MAC_FORMAT ", vid: %u", idx, MAC_ARGS(nb->dmac), nb->nh.vid);
-    return (enable ? VTSS_FUNC(l3.arp_set, idx, nb) : VTSS_RC_OK);
+    return (enable ? vtss_cil_l3_arp_set(vtss_state, idx, nb) : VTSS_RC_OK);
 }
 
 /* Look for a next-hop in a list */
@@ -843,7 +843,7 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
     }
     if (cnt > VTSS_L3_NH_MAX) {
         I("delete net");
-        return (enable ? VTSS_FUNC(l3.rt_del, net) : VTSS_RC_OK);
+        return (enable ? vtss_cil_l3_rt_del(vtss_state, net) : VTSS_RC_OK);
     }
     if (net->grp == NULL) {
         /* Single next-hop */
@@ -868,7 +868,7 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
     } else {
         I("cnt: %u, idx: %u", cnt, net->grp->idx);
     }
-    return (enable ? VTSS_FUNC(l3.rt_add, net, nb, cnt) : VTSS_RC_OK);
+    return (enable ? vtss_cil_l3_rt_add(vtss_state, net, nb, cnt) : VTSS_RC_OK);
 }
 
 static inline vtss_rc mc_rt_update(vtss_state_t  *vtss_state,
@@ -882,9 +882,9 @@ static inline vtss_rc mc_rt_update(vtss_state_t  *vtss_state,
         I("group: " IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), 128);
     }
     if (add) {
-        return (enable ? VTSS_FUNC(l3.mc_rt_add, net) : VTSS_RC_OK);
+        return (enable ? vtss_cil_l3_mc_rt_add(vtss_state, net) : VTSS_RC_OK);
     } else {
-        return (enable ? VTSS_FUNC(l3.mc_rt_del, net) : VTSS_RC_OK);
+        return (enable ? vtss_cil_l3_mc_rt_del(vtss_state, net) : VTSS_RC_OK);
     }
 }
 
@@ -1132,7 +1132,7 @@ static inline vtss_rc mc_rt_rleg_modify(vtss_state_t                  *vtss_stat
     }
     VTSS_RC(mc_update_rleg_tbl(vtss_state, cur, new_rlegs, &rt_update));
 
-    return rt_update ? mc_rt_update(vtss_state, cur, TRUE) : VTSS_FUNC(l3.mc_rt_rleg_add, cur);
+    return rt_update ? mc_rt_update(vtss_state, cur, TRUE) : vtss_cil_l3_mc_rt_rleg_add(vtss_state, cur);
 }
 
 /* Get/clear LPM counter */
@@ -1721,7 +1721,7 @@ vtss_rc vtss_l3_common_set(const vtss_inst_t            inst,
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = VTSS_FUNC(l3.common_set, conf)) == VTSS_RC_OK) {
+        (rc = vtss_cil_l3_common_set(vtss_state, conf)) == VTSS_RC_OK) {
         enable = (conf->routing_enable ? 1 : 0);
         if (enable != (vtss_state->l3.common.routing_enable ? 1 : 0)) {
             I("routing is %sabled at runtime", enable ? "en" : "dis");
@@ -1852,7 +1852,7 @@ vtss_rc vtss_l3_counters_reset(const vtss_inst_t inst)
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(l3.rleg_counters_reset);
+        rc = vtss_cil_l3_rleg_counters_reset(vtss_state);
         VTSS_MEMSET(&(vtss_state->l3.statistics), 0, sizeof(vtss_l3_statistics_t));
     }
     VTSS_L3_EXIT();
@@ -1873,7 +1873,7 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
         VTSS_MEMSET(counters, 0, sizeof(*counters));
         for (i = 0; i < vtss_state->l3.rleg_cnt; i++) {
             if (vtss_state->l3.rleg_conf[i].vlan != 0 &&
-                VTSS_FUNC(l3.rleg_counters_get, i) == VTSS_RC_OK) {
+                vtss_cil_l3_rleg_counters_get(vtss_state, i) == VTSS_RC_OK) {
                 /* Summarize router leg counters */
                 cnt = &vtss_state->l3.statistics.interface_counter[i];
                 counters->ipv4uc_received_octets += cnt->ipv4uc_received_octets;
@@ -1927,7 +1927,7 @@ vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t   inst,
     DO(vtss_inst_check(inst, &vtss_state));
     DO(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, 0));
     if (rc == VTSS_RC_OK &&
-        VTSS_FUNC(l3.rleg_counters_get, rleg) == VTSS_RC_OK) {
+        vtss_cil_l3_rleg_counters_get(vtss_state, rleg) == VTSS_RC_OK) {
         *counters = vtss_state->l3.statistics.interface_counter[rleg];
     }
     VTSS_L3_EXIT();
@@ -2233,7 +2233,7 @@ vtss_rc vtss_l3_debug_sticky_clear(const vtss_inst_t inst)
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) != VTSS_RC_OK) {
-        rc = VTSS_FUNC(l3.debug_sticky_clear);
+        rc = vtss_cil_l3_debug_sticky_clear(vtss_state);
     }
     VTSS_L3_EXIT();
 

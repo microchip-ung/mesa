@@ -19,8 +19,8 @@
 #define JR2_L3_CNT_IP_MC_PACKETS 2
 #define JR2_L3_CNT_IP_MC_BYTES   3
 
-static vtss_rc jr2_l3_common_set(vtss_state_t *vtss_state,
-                                 const vtss_l3_common_conf_t * const conf)
+vtss_rc vtss_cil_l3_common_set(vtss_state_t *vtss_state,
+                               const vtss_l3_common_conf_t * const conf)
 {
     const u8 *addr = conf->base_address.addr;
     u32      type_sel = 2;
@@ -75,8 +75,8 @@ static vtss_rc jr2_l3_rleg_counter_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_rleg_hw_stat_poll(vtss_state_t *vtss_state,
-                                        vtss_l3_rleg_id_t rleg)
+vtss_rc vtss_cil_l3_rleg_counters_get(vtss_state_t *vtss_state,
+                                      vtss_l3_rleg_id_t rleg)
 {
     vtss_l3_counters_t *prev = &vtss_state->l3.statistics.interface_shadow_counter[rleg];
     vtss_l3_counters_t *counter = &vtss_state->l3.statistics.interface_counter[rleg];
@@ -125,7 +125,7 @@ static vtss_rc jr2_l3_rleg_hw_stat_poll(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_rleg_stat_reset(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l3_rleg_counters_reset(vtss_state_t *vtss_state)
 {
     u32 i, j;
 
@@ -140,9 +140,9 @@ static vtss_rc jr2_l3_rleg_stat_reset(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_rleg_set(vtss_state_t *vtss_state,
-                               const vtss_l3_rleg_id_t   rleg,
-                               const vtss_l3_rleg_conf_t *const conf)
+vtss_rc vtss_cil_l3_rleg_set(vtss_state_t *vtss_state,
+                             const vtss_l3_rleg_id_t   rleg,
+                             const vtss_l3_rleg_conf_t *const conf)
 {
     BOOL vrid_enable = (conf->vrid0_enable || conf->vrid1_enable);
     u32  i, vrid;
@@ -178,10 +178,10 @@ static vtss_rc jr2_l3_rleg_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_vlan_set(vtss_state_t *vtss_state,
-                               const vtss_l3_rleg_id_t rleg_id,
-                               const vtss_vid_t        vid,
-                               const BOOL              enable)
+vtss_rc vtss_cil_l3_vlan_set(vtss_state_t *vtss_state,
+                             const vtss_l3_rleg_id_t rleg_id,
+                             const vtss_vid_t        vid,
+                             const BOOL              enable)
 {
     vtss_vlan_entry_t *vlan_entry = &vtss_state->l2.vlan_table[vid];
 
@@ -210,7 +210,7 @@ static u32 jr2_l3_cpu_queue(vtss_state_t *vtss_state, vtss_ip_addr_t *dip)
     return (dip_zero ? map->l3_uc_queue : map->l3_other_queue);
 }
 
-static vtss_rc jr2_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *grp)
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *grp)
 {
     vtss_l3_mc_tbl_t *tbl = &vtss_state->l3.mc_tbl[grp->tbl];
 
@@ -235,7 +235,7 @@ static vtss_rc jr2_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
+vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
 {
     vtss_vcap_obj_t   *obj = &vtss_state->vcap.lpm.obj;
     vtss_vcap_data_t  data;
@@ -251,7 +251,7 @@ static vtss_rc jr2_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
     VTSS_MEMSET(&entry, 0, sizeof(entry));
     data.u.lpm.entry = &entry;
 
-    VTSS_RC(jr2_l3_mc_rt_rleg_add(vtss_state, rt));
+    VTSS_RC(vtss_cil_l3_mc_rt_rleg_add(vtss_state, rt));
 
     /* Key */
     if (addr->type == VTSS_IP_TYPE_IPV4) {
@@ -287,8 +287,8 @@ static vtss_rc jr2_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
                          &data, 0);
 }
 
-static vtss_rc jr2_l3_rt_add(vtss_state_t *vtss_state,
-                             vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt)
+vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state,
+                           vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt)
 {
     vtss_vcap_obj_t   *obj = &vtss_state->vcap.lpm.obj;
     vtss_vcap_data_t  data;
@@ -347,22 +347,22 @@ static vtss_rc jr2_l3_rt_add(vtss_state_t *vtss_state,
                          &data, 0);
 }
 
-static vtss_rc jr2_l3_rt_del(vtss_state_t *vtss_state,
-                             vtss_l3_net_t *net)
+vtss_rc vtss_cil_l3_rt_del(vtss_state_t *vtss_state,
+                           vtss_l3_net_t *net)
 {
     vtss_vcap_obj_t *obj = &vtss_state->vcap.lpm.obj;
     return vtss_vcap_del(vtss_state, obj, VTSS_LPM_USER_L3, net->id);
 }
 
-static vtss_rc jr2_l3_mc_rt_del(vtss_state_t *vtss_state,
-                                vtss_l3_mc_rt_t *rt)
+vtss_rc vtss_cil_l3_mc_rt_del(vtss_state_t *vtss_state,
+                              vtss_l3_mc_rt_t *rt)
 {
     vtss_vcap_obj_t *obj = &vtss_state->vcap.lpm.obj;
     return vtss_vcap_del(vtss_state, obj, VTSS_LPM_USER_L3_MC, rt->id);
 }
 
-static vtss_rc jr2_l3_arp_set(vtss_state_t *vtss_state,
-                              u32 idx, vtss_l3_nb_t *nb)
+vtss_rc vtss_cil_l3_arp_set(vtss_state_t *vtss_state,
+                            u32 idx, vtss_l3_nb_t *nb)
 {
     const u8 *addr = nb->dmac.addr;
     u32      msb = ((addr[0] << 8) | addr[1]);
@@ -379,7 +379,7 @@ static vtss_rc jr2_l3_arp_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_l3_debug_sticky_clear(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l3_debug_sticky_clear(vtss_state_t *vtss_state)
 {
     u32 value = 0xffffffff;
 
@@ -556,7 +556,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t *vtss_state,
 
     for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
         if ((i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) ||
-            jr2_l3_rleg_hw_stat_poll(vtss_state, i) != VTSS_RC_OK) {
+            vtss_cil_l3_rleg_counters_get(vtss_state, i) != VTSS_RC_OK) {
             continue;
         }
 
@@ -630,7 +630,7 @@ static vtss_rc jr2_l3_poll(vtss_state_t *vtss_state)
 {
     /* Poll counters for one router leg every second to avoid counter wrapping.
        The worst case is a 40-bit byte counter, which would wrap in about 900 seconds at 10 Gbps */
-    VTSS_RC(jr2_l3_rleg_hw_stat_poll(vtss_state, vtss_state->l3.statistics.rleg));
+    VTSS_RC(vtss_cil_l3_rleg_counters_get(vtss_state, vtss_state->l3.statistics.rleg));
     vtss_state->l3.statistics.rleg++;
     if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_STAT_CNT) {
         vtss_state->l3.statistics.rleg = 0;
@@ -640,22 +640,8 @@ static vtss_rc jr2_l3_poll(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jr2_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_l3_state_t *state = &vtss_state->l3;
-    
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->common_set = jr2_l3_common_set;
-        state->rleg_counters_get = jr2_l3_rleg_hw_stat_poll;
-        state->rleg_counters_reset = jr2_l3_rleg_stat_reset;
-        state->rleg_set = jr2_l3_rleg_set;
-        state->vlan_set = jr2_l3_vlan_set;
-        state->rt_add = jr2_l3_rt_add;
-        state->rt_del = jr2_l3_rt_del;
-        state->mc_rt_add = jr2_l3_mc_rt_add;
-        state->mc_rt_del = jr2_l3_mc_rt_del;
-        state->mc_rt_rleg_add = jr2_l3_mc_rt_rleg_add;
-        state->arp_set = jr2_l3_arp_set;
-        state->debug_sticky_clear = jr2_l3_debug_sticky_clear;
         vtss_l3_integrity_update(vtss_state);
         break;
     case VTSS_INIT_CMD_INIT:
