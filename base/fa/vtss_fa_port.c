@@ -3048,6 +3048,12 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     } else {
         tx_gap = conf->frame_gaps.fdx_gap;
     }
+
+    if (LA_TGT) {
+        // MESA-931
+        conf->exc_col_cont = TRUE;
+    }
+
     if (rgmii) {
         /* Set MAC IFG Gaps */
         REG_WR(VTSS_DEVRGMII_MAC_IFG_CFG(tgt),
