@@ -83,4 +83,5 @@ MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
 
 MEPA_LIB(LIB_NAME mepa_lmstax_lan966x ADVANCED
          DEFS     -DMEPA_HAS_LAN8814
-         DRVS     mepa_drv_lan8814)
+         DRVS     mepa_drv_lan8814_light)
+
