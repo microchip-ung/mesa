@@ -4,7 +4,7 @@
 #ifndef _MEPA_PFE_PRIVATE_H_
 #define _MEPA_PFE_PRIVATE_H_
 
-#include <unistd.h>
+#include <stdint.h>
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api/phy_ts.h>
 
