@@ -12,7 +12,7 @@
 // lan966x 4pairs has both PREBT and BT implementations
 
 //--------------------------------------------------------------------------------------//
-//------------------------------    general parameters   -------------------------------//
+//------------------------------    LAN9668 general parameters   -----------------------//
 //--------------------------------------------------------------------------------------//
 
 
@@ -20,9 +20,9 @@
 // please choose 'ePoE_Controller_Type_Unknown' for automatic firmware detection or force specific PD692x0 PoE controller
 //
 // MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// MEBA_POE_PD69200_CONTROLLER_TYPE ,
-// MEBA_POE_PD69210_CONTROLLER_TYPE ,
-// MEBA_POE_PD69220_CONTROLLER_TYPE ,
+// MEBA_POE_PD69200_CONTROLLER_TYPE
+// MEBA_POE_PD69210_CONTROLLER_TYPE
+// MEBA_POE_PD69220_CONTROLLER_TYPE
 #define LAN9668_POE_PD692x0_CONTROLLER_TYPE_DEFAULT     MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 
@@ -126,17 +126,20 @@ meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 #define LAN9668_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT  0x21  // Lagacy + IGNORE_PD_CLASS 60W
 #define LAN9668_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT  0x26  // Lagacy + IGNORE_PD_CLASS 90W
 
+
 //-- BT individual masks --//
 
+// 0x00	Ignore higher priority
 // '0' The allocation logic before classification sums the delivering power ports with
 //     lower priority and adds the result to the available power. After classification, the
 //     disconnection function executes and may disconnect lower priority ports to free
 //     power for the higher priority port.
 // '1' If power is not available for powering-up any port, any new connected port
 //     power-up is denied, regardless of its priority.
-#define LAN9668_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
+#define LAN9668_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
 
 
+// 0x10	support high res detection
 // '0' Resistor detection range at normal range, according to the IEEE 802.3bt.
 // '1' Open the upper range to 55 KOhm at 2-pair logical port only.
 //     Notes:
@@ -145,11 +148,19 @@ meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 #define LAN9668_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT     0
 
 
+// 0x1B	I2C restart enable
 // '0' Do not initialize the I2C module in case of inactivity.
 // '1' Initializes the I2C module system after 10 seconds of inactivity.
 #define LAN9668_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT     1
 
 
+// 0x1F	PSE powering PSE checking
+// 0 = PSE powering PSE condition does not deny powering new valid ports.
+// 1 = In case PSE powering PSE condition occurs, no additional ports are poweredup, until this problem is resolved.
+#define LAN9668_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT     1
+
+
+// 0x20	Led stream type
 // 0 LED stream is disabled.
 // 1 LED stream supports unicolor BT.
 // 2 LED stream supports Bicolor BT.
@@ -167,7 +178,25 @@ meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 #define LAN9668_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT     1
 
 
-// HOCPP - High Over Current Pulse Protection
+// 0x2C	Layer2 power allocation limit
+// 0 = Power allocation limit up to requested class (non-BT compliant).
+// 1 = Power allocation limit up to minimum between the requested class and the operation mode (BT compliant).
+#define LAN9668_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT     1
+
+
+// 0x30 Port LED Blinks at invalid signature or connection-check error
+// 0 = When port detects invalid signature or connection-check error, LED stays off.
+// 1 = When port detects invalid signature or connection-check error, LED blinks.
+#define LAN9668_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT     0
+
+
+// 0x4F	Adding half priority for LLDP ports
+// 0 = Port at LLDP does not have additional half priority.
+// 1 = Port at LLDP has additional half priority compared to non LLDP port at the same priority settings.
+#define LAN9668_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT     1
+
+
+// 0x50 HOCPP - High Over Current Pulse Protection
 // 0 = Internal port startup check duration is 500 ms and HOCPP is enabled immediately (0 ms) after port power-up.
 // 1 = Internal port startup check duration is 500 ms and HOCPP is enabled at the end of this time duration.
 // 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled at the end of this time duration.
@@ -175,67 +204,48 @@ meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
 #define LAN9668_INDV_MASK_BT_HOCPP_DEFAULT     2
 
-
-//PSE powering PSE checking
-// 0 = PSE powering PSE condition does not deny powering new valid ports.
-// 1 = In case PSE powering PSE condition occurs, no additional ports are poweredup, until this problem is resolved.
-#define LAN9668_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT     1
-
-
-// Layer2 Power Allocation Limit
-// 0 = Power allocation limit up to requested class (non-BT compliant).
-// 1 = Power allocation limit up to minimum between the requested class and the operation mode (BT compliant).
-#define LAN9668_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT     1
-
-
-// Port LED Blinks at invalid signature or connection-check error
-// 0 = When port detects invalid signature or connection-check error, LED stays off.
-// 1 = When port detects invalid signature or connection-check error, LED blinks.
-#define LAN9668_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT     0
-
-
-// Support_adding lldp_half_priority
-// 0 = Port at LLDP does not have additional half priority.
-// 1 = Port at LLDP has additional half priority compared to non LLDP port at the same priority settings.
-#define LAN9668_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT     1
-
-
 //--------------------------------------------------------------------------------------//
 //-------------------------    PREBT parameters    -------------------------------------//
 //--------------------------------------------------------------------------------------//
 
 
+// 0x00 Ignore higher priority
 // '0' If higher priority port powers up and its power exceeds power limit,
 //     a lowest priority port will be disconnected instead.
 // '1' If power is not available for powering up any port,
 //     any new connected port power up will be denied, regardless of its priority.
-#define LAN9668_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT     1
+#define LAN9668_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT     0
 
 
+// 0x01 Supports Legacy detection
 // '0' Don't support legacy detection.
 // '1' Support legacy detection.
 #define LAN9668_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
+// 0x1E Message ready notify
 // '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is ready.
 //     Refer to PD69200 datasheet or PD69200M shared memory documentation.
 #define LAN9668_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT     0
 
 
+// 0x2E Layer2 (LLDP) enable
 // '0' Layer 2 PD commands will be Ignored and Layer 2 PSE requests will return with zero allocation.
 // '1' Layer 2 operation is enabled. Layer 2 commands are processed.
 #define LAN9668_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT     1
 
 
+// 0x2F Layer2 priority by PD
 // '0' Priority information received from LLDP/CDP PD message is ignored. (Mask 0x2E must be '1').
 // '1' Port Priority can be defined by PD. (Mask 0x2E must be '1').
 #define LAN9668_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT     1
 
 
+// 0x34 Use new matrix command (4-pair)
 // '0' Uses old matrix command (2-pair).
-// '1' Uses new 4-pair matrix commands.
-#define LAN9668_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT     1
+// '1' Uses new 4-pair matrix commands (in case PREBT 4-pair matrix is needed).
+#define LAN9668_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT     0
 
 
 // -----------  Legacy Power Management mode of operation  ----------------------//
