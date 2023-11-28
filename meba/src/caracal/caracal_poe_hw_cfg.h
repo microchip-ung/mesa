@@ -225,7 +225,7 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_PREBT - AF/AT modes
 // MEBA_POE_FIRMWARE_TYPE_BT    - BT mode
-#define CARACAL_POE_SYSTEM_MODE_DEFAULT     MEBA_POE_FIRMWARE_TYPE_PREBT
+#define CARACAL_POE_FIRMWARE_TYPE_DEFAULT     MEBA_POE_FIRMWARE_TYPE_PREBT
 
 
 // Set unit max power as fixed or variable through Web & CLI
