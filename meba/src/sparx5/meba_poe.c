@@ -186,7 +186,8 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    "pd69x00",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device, poe_12c0),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                   MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
+                                   MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                   MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
                                    sparx5_pd69200_port_map_1,
                                    sizeof(sparx5_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t),
                                    sparx5_power_supplies,
@@ -211,7 +212,8 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    "pd69x00-2",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device, poe_12c1),
                                    MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                   MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
+                                   MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                   MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
                                    sparx5_pd69200_port_map_2,
                                    sizeof(sparx5_pd69200_port_map_2)/sizeof(meba_poe_port_properties_t),
                                    sparx5_power_supplies,
@@ -245,7 +247,7 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w        = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-        tPoe_init_params->eMeba_poe_firmware_type         = SPARX5_POE_FIRMWARE_TYPE_DEFAULT;
+        tPoe_init_params->eMeba_poe_firmware_type         = SPARX5_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
         tPoe_init_params->eMeba_poe_software_power_type   = (SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
     } else {  // overide meba power supply by appl init_params
         sparx5_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;

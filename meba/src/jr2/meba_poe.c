@@ -103,7 +103,7 @@ mesa_rc meba_poe_jr2_system_initialize(
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->max_poe_ports                 = sizeof(jr2_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t);
             tPoe_init_params->power_supply_max_power_w      = JR2_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-            tPoe_init_params->eMeba_poe_firmware_type       = JR2_POE_FIRMWARE_TYPE_DEFAULT;
+            tPoe_init_params->eMeba_poe_firmware_type       = JR2_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
             tPoe_init_params->eMeba_poe_software_power_type = (JR2_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
         } else { // overide meba power supply by appl init_params
             jr2_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
@@ -122,7 +122,9 @@ mesa_rc meba_poe_jr2_system_initialize(
         meba_pd69200_driver_init(&jr2_pd69200_system.controllers[0],
                                  "pd69x00",
                                  meba_pd69200_i2c_adapter_open(jr2_i2c_config[0].i2c_device, poe_12c0),
-                                 MEBA_POE_CTRL_CAP_POWER_MANAGEMENT | MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
+                                 MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
+                                 MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                 MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
                                  jr2_pd69200_port_map_1,
                                  sizeof(jr2_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t),
                                  jr2_power_supplies,

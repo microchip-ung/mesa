@@ -82,7 +82,7 @@ mesa_rc meba_poe_system_initialize(
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w        = OCELOT_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-        tPoe_init_params->eMeba_poe_firmware_type         = OCELOT_POE_FIRMWARE_TYPE_DEFAULT; // AF_AT/BT
+        tPoe_init_params->eMeba_poe_firmware_type         = OCELOT_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
         tPoe_init_params->eMeba_poe_software_power_type   = (OCELOT_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
     } else { // overide meba power supply by appl init_params
         ocelot_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
@@ -147,7 +147,8 @@ mesa_rc meba_poe_system_initialize(
                                  "pd69x00",
                                  meba_pd69200_i2c_adapter_open(ocelot_i2c_config.i2c_device, poe_12c0),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                 MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION,
+                                 MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
+                                 MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
                                  ocelot_pd69200_port_map,
                                  sizeof(ocelot_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
                                  ocelot_power_supplies,

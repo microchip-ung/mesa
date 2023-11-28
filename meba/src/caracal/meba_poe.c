@@ -110,8 +110,8 @@ mesa_rc meba_poe_caracal_system_initialize(
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->power_supply_max_power_w      = PDS408G_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-            tPoe_init_params->eMeba_poe_firmware_type       = PDS408G_POE_SYSTEM_MODE_DEFAULT;
-            tPoe_init_params->eMeba_poe_software_power_type = (PDS408G_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
+            tPoe_init_params->eMeba_poe_firmware_type       = PDS408G_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
+            tPoe_init_params->eMeba_poe_software_power_type = (PDS408G_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
         } else { // overide meba power supply by appl init_params
             pds408g_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
             pds408g_power_supplies->max_w              = tPoe_init_params->power_supply_max_power_w;
@@ -198,8 +198,8 @@ default:  //caracal board
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->power_supply_max_power_w      = CARACAL_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-            tPoe_init_params->eMeba_poe_firmware_type       = CARACAL_POE_SYSTEM_MODE_DEFAULT;
-            tPoe_init_params->eMeba_poe_software_power_type = (CARACAL_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
+            tPoe_init_params->eMeba_poe_firmware_type       = CARACAL_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
+            tPoe_init_params->eMeba_poe_software_power_type = (CARACAL_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
         } else { // overide meba power supply by appl init_params
             caracal_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
             caracal_power_supplies->max_w              = tPoe_init_params->power_supply_max_power_w;
