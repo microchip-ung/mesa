@@ -1,10 +1,9 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
-
+#if !defined MEPA_LAN8814_LIGHT
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 #include <mepa_ts_driver.h>
-
 #include "../../common/include/lan8814_registers.h"
 #include "lan8814_ts_registers.h"
 #include "lan8814_private.h"
@@ -2495,4 +2494,4 @@ mepa_ts_driver_t indy_ts_drivers = {
     .mepa_ts_test_config                = indy_ts_test_config,
     .mepa_ts_fifo_get                   = indy_ts_fifo_get,
 };
-
+#endif // !defined MEPA_LAN8814_LIGHT
