@@ -136,6 +136,10 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
     for (port_no = 0; port_no < port_cnt; port_no++) {
         port_entry_map(&board->port[port_no].map, &map[port_no]);
         board->port[port_no].ts_phy = map[port_no].ts_phy;
+        // Initialise phy base port.
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 && port_no < 24) {
+            board->port[port_no].map.phy_base_port = (port_no / 4) * 4;
+        }
     }
 }
 

@@ -146,7 +146,7 @@ static mepa_rc indy_init_conf(mepa_device_t *dev)
 
     // Set config only for base port of phy.
     if (data->dev.model == 0x26) {
-        if (data->packet_idx == 0) {
+        if ((data->packet_idx % 4) == 0) {
             //EP_WR(dev, INDY_CHIP_HARD_RESET, 1);
             MEPA_MSLEEP(1);
 
@@ -896,7 +896,7 @@ static uint8_t led_num_to_gpio_mapping(mepa_device_t *dev, mepa_led_num_t led_nu
 {
     phy_data_t *data = (phy_data_t *) dev->data;
     uint8_t gpio = 11;// port 0 as default.
-    switch (data->packet_idx) {
+    switch (data->packet_idx % 4) {
     case 0:
         gpio = led_num == MEPA_LED0 ? 11 : 12;
         break;
@@ -1092,10 +1092,12 @@ static mepa_rc indy_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t
 static mepa_rc indy_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
 
     MEPA_ENTER(dev);
     data->base_dev = base_dev;
     data->packet_idx = packet_idx;
+    T_I(MEPA_TRACE_GRP_GEN, "Linking port %d with base-port %d", data->port_no, base_data->port_no);
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
