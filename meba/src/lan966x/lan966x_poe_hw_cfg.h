@@ -56,7 +56,7 @@
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
-#define LAN9668_RESET_POE_GPIO_NUMBER     2
+#define LAN9668_RESET_POE_GPIO_NUMBER     0xFF
 
 
 //----------------- port map Customizations starts here ------------------//
