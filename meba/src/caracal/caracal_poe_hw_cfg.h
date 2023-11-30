@@ -370,7 +370,7 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
                                      MEBA_POE_PORT_CAP_TYPE_2 | \
                                      MEBA_POE_PORT_CAP_FORCE_ON
 
-#define CARACAL_PD69200_CAP ((CARACAL_POE_SYSTEM_MODE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? CARACAL_PD69200_BT_CAP : CARACAL_PD69200_PREBT_AT_CAP)
+#define CARACAL_PD69200_CAP ((CARACAL_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? CARACAL_PD69200_BT_CAP : CARACAL_PD69200_PREBT_AT_CAP)
 
 //Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //      this parameters is the port power limit when using poe PREBT mode.

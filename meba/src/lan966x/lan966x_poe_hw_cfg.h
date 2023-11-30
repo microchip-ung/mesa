@@ -208,6 +208,7 @@ meba_poe_port_properties_t lan9668_pd69200_port_map[] =
 //-------------------------    PREBT parameters    -------------------------------------//
 //--------------------------------------------------------------------------------------//
 
+//-- PREBT individual masks --//
 
 // 0x00 Ignore higher priority
 // '0' If higher priority port powers up and its power exceeds power limit,
