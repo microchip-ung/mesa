@@ -1826,6 +1826,10 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
         /* system clock is 3,0487 ns (328 MHz) and LOC_BASE_TICK_CNT is default 50, i.e. 152,439 ns */
             loc_base = 152; /* ns */
             break;
+        case VTSS_CORE_CLOCK_180MHZ:
+        /* system clock is 5,5641 ns (179.7234374 MHz) and LOC_BASE_TICK_CNT is default 50, i.e. 278,205 ns */
+            loc_base = 278; /* ns */
+            break;
     }
 
     /* Configure LOC periods used for CCM LOC: */

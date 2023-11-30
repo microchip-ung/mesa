@@ -910,6 +910,11 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
+    if (board->type == 0x8398) {
+        // This board has onboard DPLL for Synce/PTP
+        // Use its 25Mhz ref clock for 1588 (and Core):
+        inst->props.ref_freq = MESA_CORE_REF_CLK_25MHZ;
+    }
 
     switch (board->type) {
     case BOARD_TYPE_LAGUNA_PCB8398:

@@ -1125,6 +1125,7 @@ int main(int argc, char **argv)
     conf.serdes_tap_get = serdes_tap_get;
     if (mesa_capability(NULL, MESA_CAP_INIT_CORE_CLOCK)) {
         conf.core_clock.freq = assign_core_clock(meba_inst->props.target);
+        conf.core_clock.ref_freq = meba_inst->props.ref_freq;
     }
 
     if (mesa_init_conf_set(NULL, &conf) != MESA_RC_OK) {

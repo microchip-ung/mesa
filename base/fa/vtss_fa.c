@@ -289,8 +289,9 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 {
     switch (clock) {
+    case VTSS_CORE_CLOCK_180MHZ: return 5564;
     case VTSS_CORE_CLOCK_250MHZ: return 4000;
-    case VTSS_CORE_CLOCK_328MHZ: return 3048;
+    case VTSS_CORE_CLOCK_328MHZ: return 3047;
     case VTSS_CORE_CLOCK_500MHZ: return 2000;
     case VTSS_CORE_CLOCK_625MHZ:
     default: {};
@@ -450,6 +451,140 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     return 0;
 }
 
+static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
+{
+    vtss_core_ref_clk_t r_freq = vtss_state->init_conf.core_clock.ref_freq;
+    vtss_core_clock_freq_t c_freq = vtss_state->init_conf.core_clock.freq;
+    u32 val, poll_cnt = 0, clk_sel = 0, divr = 0, divq = 0, divfi = 0, divff = 0;
+
+    if (r_freq == VTSS_CORE_REF_CLK_25MHZ &&
+        c_freq == VTSS_CORE_CLOCK_328MHZ) {
+        divfi = 64;
+        divq = 10;
+        divff = 10707062;
+        clk_sel = 2;
+        divr = 3;
+    } else if (r_freq == VTSS_CORE_REF_CLK_39MHZ &&
+               c_freq == VTSS_CORE_CLOCK_328MHZ) {
+        divfi = 72;
+        divq = 10;
+        divff = 8635233;
+        clk_sel = 1;
+        divr = 6;
+    } else if (r_freq == VTSS_CORE_REF_CLK_25MHZ &&
+               c_freq == VTSS_CORE_CLOCK_180MHZ) {
+        divfi = 70;
+        divq = 20;
+        divff = 14922442;
+        clk_sel = 2;
+        divr = 3;
+    } else if (r_freq == VTSS_CORE_REF_CLK_39MHZ &&
+               c_freq == VTSS_CORE_CLOCK_180MHZ) {
+        divfi = 79;
+        divq = 20;
+        divff = 8660072;
+        clk_sel = 1;
+        divr = 6;
+    } else {
+        VTSS_E("Clock config not supported");
+        return VTSS_RC_ERROR;
+    }
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_BYPASS_ENA(1),
+            VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_BYPASS_ENA);
+
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_DIVFI(divfi) |
+            VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_DIVFF(divff),
+            VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_DIVFI |
+            VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_DIVFF);
+
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_REF_CLK_SEL(clk_sel) |
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_DIVQ(divq) |
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_DIVR(divr),
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_REF_CLK_SEL |
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_DIVQ |
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_DIVR);
+
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ENA_CFG(1),
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ENA_CFG);
+
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_FREQ_CFG_BYPASS_ENA(0),
+            VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_BYPASS_ENA);
+
+    // Verify PLL lock
+    poll_cnt = 0;
+    while(1) {
+        VTSS_NSLEEP(10000); // 10usec
+        REG_RD(VTSS_CHIP_TOP_SPARE_PLL_CFG, &val);
+        if (VTSS_X_CHIP_TOP_SPARE_PLL_CFG_LOCK_STAT(val)) {
+            break;
+        }
+        poll_cnt++;
+        if (poll_cnt > 100) {
+            VTSS_E("Spare PLL could not get into lock");
+            break;
+        }
+    }
+    // Shift to use spare PLL for core clock
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE(1),
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE);
+
+    //
+    // Now configure Core PLL identically and switch back to it
+    //
+    REG_WRM(VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_BYPASS_ENA(1),
+            VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_BYPASS_ENA);
+
+    REG_WRM(VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_DIVFI(divfi) |
+            VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_DIVFF(divff),
+            VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_DIVFI |
+            VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_DIVFF);
+
+    REG_WRM(VTSS_CHIP_TOP_CORE_PLL_CFG,
+            VTSS_F_CHIP_TOP_CORE_PLL_CFG_REF_CLK_SEL(clk_sel) |
+            VTSS_F_CHIP_TOP_CORE_PLL_CFG_DIVQ(divq) |
+            VTSS_F_CHIP_TOP_CORE_PLL_CFG_DIVR(divr),
+            VTSS_M_CHIP_TOP_CORE_PLL_CFG_REF_CLK_SEL |
+            VTSS_M_CHIP_TOP_CORE_PLL_CFG_DIVQ |
+            VTSS_M_CHIP_TOP_CORE_PLL_CFG_DIVR);
+
+    REG_WRM(VTSS_CHIP_TOP_CORE_PLL_CFG,
+            VTSS_F_CHIP_TOP_CORE_PLL_CFG_ENA_CFG(1),
+            VTSS_M_CHIP_TOP_CORE_PLL_CFG_ENA_CFG);
+
+    REG_WRM(VTSS_CHIP_TOP_CORE_PLL_FREQ_CFG,
+            VTSS_F_CHIP_TOP_CORE_PLL_FREQ_CFG_BYPASS_ENA(0),
+            VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_BYPASS_ENA);
+
+    // Verify PLL lock
+    poll_cnt = 0;
+    while(1) {
+        VTSS_NSLEEP(10000); // 10usec
+        REG_RD(VTSS_CHIP_TOP_CORE_PLL_CFG, &val);
+        if (VTSS_X_CHIP_TOP_CORE_PLL_CFG_LOCK_STAT(val)) {
+            break;
+        }
+        poll_cnt++;
+        if (poll_cnt > 100) {
+            VTSS_E("Core PLL could not get into lock");
+            break;
+        }
+    }
+
+    REG_WRM(VTSS_CHIP_TOP_SPARE_PLL_CFG,
+            VTSS_F_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE(0),
+            VTSS_M_CHIP_TOP_SPARE_PLL_CFG_ASSIGN_TO_CORE);
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 {
     vtss_core_clock_freq_t freq, f = vtss_state->init_conf.core_clock.freq;
@@ -585,6 +720,20 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA |
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
     } else {
+        // Laguna only: Configure REF+CORE PLLs
+        // If VTSS_CORE_REF_CLK_DEFAULT then pin strappings controls the Ref clock
+        // with: 0 = 25Mhz, 1 = 39Mh
+        if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_DEFAULT) {
+            u32 val;
+            REG_RD(VTSS_CHIP_TOP_HW_STAT, &val);
+            if (VTSS_X_CHIP_TOP_HW_STAT_REFCLK_SEL(val) == 1) {
+                vtss_state->init_conf.core_clock.ref_freq = VTSS_CORE_REF_CLK_39MHZ;
+            } else {
+                vtss_state->init_conf.core_clock.ref_freq = VTSS_CORE_REF_CLK_25MHZ;
+            }
+        }
+        VTSS_RC(fa_core_ref_clk_config(vtss_state));
+
         pol_upd_int = 820; // Laguna default
     }
 

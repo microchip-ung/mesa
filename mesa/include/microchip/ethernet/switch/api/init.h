@@ -305,9 +305,16 @@ typedef enum {
     MESA_CORE_CLOCK_625MHZ,   // 625MHZ core clock frequency
 } mesa_core_clock_freq_t CAP(INIT_CORE_CLOCK);
 
+typedef enum {
+    MESA_CORE_REF_CLK_DEFAULT, // Use strapping pin
+    MESA_CORE_REF_CLK_25MHZ,   // 25Mhz reference clock
+    MESA_CORE_REF_CLK_39MHZ,   // 39.0625Mhz reference clock
+} mesa_core_ref_clk_t CAP(INIT_CORE_CLOCK);
+
 // Core clock configuration
 typedef struct {
     mesa_core_clock_freq_t freq;   // The frequency of the core clock (LC-PLL)
+    mesa_core_ref_clk_t ref_freq;  // The frequency of the ref clock to core clock
 } mesa_core_clock_conf_t CAP(INIT_CORE_CLOCK);
 
 // Initialization configuration.

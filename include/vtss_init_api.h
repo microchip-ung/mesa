@@ -431,15 +431,23 @@ typedef struct {
 /** \brief Core clock frequency */
 typedef enum {
     VTSS_CORE_CLOCK_DEFAULT,  /**< Defaults to the highest supported frequency */
-    VTSS_CORE_CLOCK_250MHZ,   /**< 250MHZ core clock frequency */
-    VTSS_CORE_CLOCK_328MHZ,   /**< 328.125MHZ (laguna) */
-    VTSS_CORE_CLOCK_500MHZ,   /**< 500MHZ core clock frequency */
-    VTSS_CORE_CLOCK_625MHZ,   /**< 625MHZ core clock frequency */
+    VTSS_CORE_CLOCK_180MHZ,   /**< 179.7234374 MHz core (Laguna) */
+    VTSS_CORE_CLOCK_250MHZ,   /**< 250MHZ core clock frequency (FA) */
+    VTSS_CORE_CLOCK_328MHZ,   /**< 328.19095313549 MHz core (Laguna) */
+    VTSS_CORE_CLOCK_500MHZ,   /**< 500MHZ core clock frequency (FA) */
+    VTSS_CORE_CLOCK_625MHZ,   /**< 625MHZ core clock frequency (FA) */
 } vtss_core_clock_freq_t;
+
+typedef enum {
+    VTSS_CORE_REF_CLK_DEFAULT, /**< Use strapping pin (0=25Mhz/1=39Mhz) */
+    VTSS_CORE_REF_CLK_25MHZ,   /**< Force to use 25Mhz ref. clock */
+    VTSS_CORE_REF_CLK_39MHZ,   /**< Force to use 39.0625Mhz (156.25/4) ref. clock */
+} vtss_core_ref_clk_t;
 
 /** \brief Core clock configuration */
 typedef struct {
     vtss_core_clock_freq_t freq;   /**< The frequency of the core clock (LC-PLL) */
+    vtss_core_ref_clk_t ref_freq;  /**< The frequency of the reference clock */
 } vtss_core_clock_conf_t;
 #endif /* VTSS_FEATURE_CORE_CLOCK */
 

@@ -259,10 +259,17 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode)
 #if defined(VTSS_FEATURE_CORE_CLOCK)
 const char *vtss_core_freq_to_txt(vtss_core_clock_freq_t freq)
 {
-    return (freq == VTSS_CORE_CLOCK_250MHZ ? "250MHZ" :
+    return (freq == VTSS_CORE_CLOCK_180MHZ ? "180MHZ" :
+            freq == VTSS_CORE_CLOCK_250MHZ ? "250MHZ" :
             freq == VTSS_CORE_CLOCK_328MHZ ? "328MHZ" :
             freq == VTSS_CORE_CLOCK_500MHZ ? "500MHZ" :
             freq == VTSS_CORE_CLOCK_625MHZ ? "625MHZ" : "?");
+}
+
+const char *vtss_ref_freq_to_txt(vtss_core_ref_clk_t freq)
+{
+    return (freq == VTSS_CORE_REF_CLK_25MHZ ? "25MHZ" :
+            freq == VTSS_CORE_REF_CLK_39MHZ ? "39MHZ" : "-");
 }
 #endif
 /* ================================================================= *
@@ -424,7 +431,8 @@ static void vtss_debug_print_init(vtss_state_t *vtss_state,
     pr("Mux mode   : 0x%04x\n", vtss_state->init_conf.mux_mode);
 #endif /* VTSS_FEATURE_PORT_MUX */
 #if defined(VTSS_FEATURE_CORE_CLOCK)
-    pr("Core clock : %s\n", vtss_core_freq_to_txt(vtss_state->init_conf.core_clock.freq));
+    pr("Core clock : %s / %s\n", vtss_core_freq_to_txt(vtss_state->init_conf.core_clock.freq),
+       vtss_ref_freq_to_txt(vtss_state->init_conf.core_clock.ref_freq));
 #endif /* VTSS_FEATURE_PORT_MUX */
     pr("VTSS_PORTS : %d\n", VTSS_PORTS);
     pr("State Size : %zu\n", sizeof(*vtss_state));

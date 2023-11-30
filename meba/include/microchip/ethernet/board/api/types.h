@@ -536,6 +536,7 @@ typedef struct {
     char name[32];
     mesa_target_type_t   target;
     mesa_port_mux_mode_t mux_mode;
+    mesa_core_ref_clk_t  ref_freq;
 
     // Board type (INTERIM) - DO NOT DEPEND ON THIS
     vtss_board_type_t board_type;
