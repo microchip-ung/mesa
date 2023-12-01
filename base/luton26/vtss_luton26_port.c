@@ -9,9 +9,9 @@
 
 /* - CIL functions ------------------------------------------------- */
 
-static vtss_rc l26_port_clause_37_control_get(vtss_state_t *vtss_state,
-                                              const vtss_port_no_t port_no,
-                                              vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     if (port < 12) {
@@ -28,8 +28,8 @@ static vtss_rc l26_port_clause_37_control_get(vtss_state_t *vtss_state,
 }
 
 /* Set 1000Base-X Fiber Auto-negotiation (Clause 37) */
-static vtss_rc l26_port_clause_37_control_set(vtss_state_t *vtss_state,
-                                              const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32 value, tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
@@ -60,9 +60,9 @@ static vtss_rc l26_port_clause_37_control_set(vtss_state_t *vtss_state,
 }
 
 /* Get 1000Base-X Fiber Auto-negotiation status (Clause 37) */
-static vtss_rc l26_port_clause_37_status_get(vtss_state_t *vtss_state,
-                                             const vtss_port_no_t         port_no,
-                                             vtss_port_clause_37_status_t *const status)
+vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t *vtss_state,
+                                           const vtss_port_no_t         port_no,
+                                           vtss_port_clause_37_status_t *const status)
 
 {
     u32 value, tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
@@ -104,7 +104,7 @@ static vtss_rc l26_port_clause_37_status_get(vtss_state_t *vtss_state,
             if (((value >> 21) & 0x1) == 0) {
                 L26_WRM_CLR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt), VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
                 L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt), VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)l26_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
+                (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
                 VTSS_MSLEEP(50);
                 L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
                 status->autoneg.complete = L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
@@ -763,23 +763,23 @@ static vtss_rc l26_miim_read_write(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_miim_read(vtss_state_t *vtss_state,
-                             vtss_miim_controller_t miim_controller,
-                             u8 miim_addr,
-                             u8 addr,
-                             u16 *value,
-                             BOOL report_errors)
+vtss_rc vtss_cil_miim_read(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller,
+                           u8 miim_addr,
+                           u8 addr,
+                           u16 *value,
+                           BOOL report_errors)
 {
     return l26_miim_read_write(vtss_state, TRUE, miim_controller, miim_addr, addr,
                                value, report_errors);
 }
 
-static vtss_rc l26_miim_write(vtss_state_t *vtss_state,
-                              vtss_miim_controller_t miim_controller,
-                              u8 miim_addr,
-                              u8 addr,
-                              u16 value,
-                              BOOL report_errors)
+vtss_rc vtss_cil_miim_write(vtss_state_t *vtss_state,
+                            vtss_miim_controller_t miim_controller,
+                            u8 miim_addr,
+                            u8 addr,
+                            u16 value,
+                            BOOL report_errors)
 {
     return l26_miim_read_write(vtss_state, FALSE, miim_controller, miim_addr, addr,
                                &value, report_errors);
@@ -847,23 +847,23 @@ static vtss_rc l26_mmd_cmd(vtss_state_t *vtss_state,
     return rc;
 }
 
-static vtss_rc l26_mmd_read(vtss_state_t *vtss_state,
-                            vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                            u16 addr, u16 *value, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read(vtss_state_t *vtss_state,
+                          vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                          u16 addr, u16 *value, BOOL report_errors)
 {
     return l26_mmd_cmd(vtss_state, PHY_CMD_READ, miim_controller, miim_addr, mmd, addr, value, report_errors);
 }
 
-static vtss_rc l26_mmd_write(vtss_state_t *vtss_state,
-                             vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                             u16 addr, u16 value, BOOL report_errors)
+vtss_rc vtss_cil_mmd_write(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                           u16 addr, u16 value, BOOL report_errors)
 {
     return l26_mmd_cmd(vtss_state, PHY_CMD_WRITE, miim_controller, miim_addr, mmd, addr, &value, report_errors);
 }
 
-static vtss_rc l26_mmd_read_inc(vtss_state_t *vtss_state,
-                                vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                                u16 addr, u16 *buf, u8 count, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read_inc(vtss_state_t *vtss_state,
+                              vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                              u16 addr, u16 *buf, u8 count, BOOL report_errors)
 {
     while (count > 1) {
         VTSS_RC(l26_mmd_cmd(vtss_state, PHY_CMD_READ_INC, miim_controller, miim_addr, mmd, addr, buf, report_errors));
@@ -1090,8 +1090,8 @@ typedef enum {
     L26_HDX_GAP_1_2500M = 1
 } l26_hdx_gap_1_t;
 
-static vtss_rc l26_port_conf_get(vtss_state_t *vtss_state,
-                                 const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
+vtss_rc vtss_cil_port_conf_get(vtss_state_t *vtss_state,
+                               const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV(port);
@@ -1133,7 +1133,7 @@ static vtss_rc l26_port_conf_get(vtss_state_t *vtss_state,
 
 /* MAC config for internal(0-11), SGMII, Serdes, 100fx and VAUI ports.        */
 /* Ports 10 and 11 can connect to internal Phys (GMII) or to a Serdes1g macro */
-static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t       *conf = &vtss_state->port.conf[port_no];
     u32                    port = VTSS_CHIP_PORT(port_no);
@@ -1452,7 +1452,7 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
                 L26_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), value);
             }
             //Update vtss_state database accordingly
-            l26_port_clause_37_control_get(vtss_state,port_no,&(vtss_state->port.clause_37[port_no]));
+            vtss_cil_port_clause_37_control_get(vtss_state,port_no,&(vtss_state->port.clause_37[port_no]));
         }
     }
 
@@ -1535,9 +1535,9 @@ static vtss_rc l26_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
 
 
 /* Get status of the VAUI or 100FX ports.  Internal/SGMII/Serdes ports are covered elsewhere */
-static vtss_rc l26_port_status_get(vtss_state_t *vtss_state,
-                                   const vtss_port_no_t  port_no,
-                                   vtss_port_status_t    *const status)
+vtss_rc vtss_cil_port_status_get(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t  port_no,
+                                 vtss_port_status_t    *const status)
 {
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32              tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
@@ -1819,9 +1819,9 @@ static vtss_rc l26_port_counters_read(vtss_state_t *vtss_state,
 }
 
 /* Get Rx and Tx packets */
-static vtss_rc l26_port_basic_counters_get(vtss_state_t *vtss_state,
-                                           const vtss_port_no_t port_no,
-                                           vtss_basic_counters_t *const counters)
+vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t *vtss_state,
+                                         const vtss_port_no_t port_no,
+                                         vtss_basic_counters_t *const counters)
 {
     u32                          base, *p = &base, port = VTSS_CHIP_PORT(port_no);
     vtss_port_luton26_counters_t *c = &vtss_state->port.counters[port_no].counter.luton26;
@@ -1869,33 +1869,33 @@ static vtss_rc l26_port_counters_cmd(vtss_state_t *vtss_state,
                                   clear);
 }
 
-static vtss_rc l26_port_counters_update(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_update(vtss_state_t *vtss_state,
+                                      const vtss_port_no_t port_no)
 {
     return l26_port_counters_cmd(vtss_state, port_no, NULL, 0);
 }
 
-static vtss_rc l26_port_counters_clear(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state,
+                                     const vtss_port_no_t port_no)
 {
     return l26_port_counters_cmd(vtss_state, port_no, NULL, 1);
 }
 
-static vtss_rc l26_port_counters_get(vtss_state_t *vtss_state,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_counters_t *const counters)
+vtss_rc vtss_cil_port_counters_get(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   vtss_port_counters_t *const counters)
 {
     VTSS_MEMSET(counters, 0, sizeof(*counters));
     return l26_port_counters_cmd(vtss_state, port_no, counters, 0);
 }
 
 /* Set forwarding state (already done by vtss_update_masks) */
-static vtss_rc l26_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
     u32                addr, instance, port = VTSS_CHIP_PORT(port_no);
@@ -2194,7 +2194,12 @@ static vtss_rc l26_synce_supported(vtss_state_t *vtss_state)
     return rc;
 }
 
-static vtss_rc l26_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_port)
+vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
     u32 eth_cfg, div_mask, en_mask;
 
@@ -2217,7 +2222,7 @@ static vtss_rc l26_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_p
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
+vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
     vtss_synce_clock_in_t *conf = &vtss_state->synce.in_conf[clk_port];
     serdes_t    serdes_type;
@@ -2624,6 +2629,18 @@ static vtss_rc l26_debug_wm(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                                   const vtss_port_serdes_debug_t *const conf)
+{
+    return VTSS_RC_OK;
+}
+
+
 vtss_rc vtss_l26_port_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,
                                  const vtss_debug_info_t   *const info)
@@ -2673,7 +2690,7 @@ static vtss_rc l26_port_init(vtss_state_t *vtss_state)
 
     // Power down all PHY ports as default in order to save power
     for (port = 0; port < 12; port++) { /* VTSS_CHIP_PORTS */
-        (void)l26_miim_write(vtss_state, VTSS_MIIM_CONTROLLER_0, port, 0, 1<<11, FALSE);
+        (void)vtss_cil_miim_write(vtss_state, VTSS_MIIM_CONTROLLER_0, port, 0, 1<<11, FALSE);
     }
 
     return VTSS_RC_OK;
@@ -2681,31 +2698,8 @@ static vtss_rc l26_port_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_l26_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_port_state_t *state = &vtss_state->port;
-
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->miim_read = l26_miim_read;
-        state->miim_write = l26_miim_write;
-        state->mmd_read = l26_mmd_read;
-        state->mmd_read_inc = l26_mmd_read_inc;
-        state->mmd_write = l26_mmd_write;
-        state->conf_get = l26_port_conf_get;
-        state->conf_set = l26_port_conf_set;
-        state->clause_37_status_get = l26_port_clause_37_status_get;
-        state->clause_37_control_get = l26_port_clause_37_control_get;
-        state->clause_37_control_set = l26_port_clause_37_control_set;
-        state->status_get = l26_port_status_get;
-        state->counters_update = l26_port_counters_update;
-        state->counters_clear = l26_port_counters_clear;
-        state->counters_get = l26_port_counters_get;
-        state->basic_counters_get = l26_port_basic_counters_get;
-        state->forward_set = l26_port_forward_set;
-        state->test_conf_set = l26_port_test_conf_set;
-#if defined(VTSS_FEATURE_SYNCE)
-        vtss_state->synce.clock_out_set = l26_synce_clock_out_set;
-        vtss_state->synce.clock_in_set = l26_synce_clock_in_set;
-#endif /* VTSS_FEATURE_SYNCE */
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_RC(l26_port_init(vtss_state));

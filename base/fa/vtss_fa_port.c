@@ -404,9 +404,9 @@ static BOOL port_is_rgmii(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     return FALSE;
 }
 
-static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
-                                               const vtss_port_no_t port_no,
-                                               vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            vtss_port_clause_37_control_t *const control)
 {
     u32 value;
     u32 tgt = VTSS_TO_DEV2G5(VTSS_CHIP_PORT(port_no));
@@ -420,8 +420,8 @@ static vtss_rc fa_port_clause_37_control_get(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_clause_37_control_set(vtss_state_t *vtss_state,
-                                               const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no)
 {
 
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
@@ -477,9 +477,9 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
-                                              const vtss_port_no_t         port_no,
-                                              vtss_port_clause_37_status_t *const status)
+vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t *vtss_state,
+                                           const vtss_port_no_t         port_no,
+                                           vtss_port_clause_37_status_t *const status)
 
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
@@ -537,7 +537,7 @@ static vtss_rc fa_port_clause_37_status_get(vtss_state_t *vtss_state,
             /* Reset PCS and restart Aneg */
             REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
             REG_WRM_SET(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-            (void)fa_port_clause_37_control_set(vtss_state, port_no);
+            (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no);
             VTSS_MSLEEP(50);
             REG_RD(VTSS_DEV1G_PCS1G_ANEG_STATUS(tgt), &value);
             status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
@@ -626,10 +626,14 @@ static u32 wm_dec(u32 value)
 
 #if defined(VTSS_FEATURE_SYNCE)
 #define RCVRD_CLK_GPIO_NO 60      // on Fireant the 4 recovered clock outputs are GPIO 60-63
-static vtss_rc fa_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port)
+vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port)
 {
     u32                     div_mask;
     vtss_synce_clock_out_t  *conf;
+
+    if (!vtss_state->vtss_features[FEATURE_SYNCE]) {
+        return VTSS_RC_ERROR;
+    }
 
     if (clk_port > 3) {
         VTSS_E("Invalid clock port no: %d\n", clk_port);
@@ -664,7 +668,7 @@ static vtss_rc fa_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_synce
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port)
+vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port)
 {
     vtss_synce_clock_in_t      *conf;
     vtss_synce_clock_in_type_t port_type;
@@ -674,9 +678,13 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
 #endif
     i32                        clk_src;
     BOOL                       ena;
-    u32                        sd_indx, sd_type, clk_div, sd_ena, sd_lane_tgt;
+    u32                        sd_indx, sd_type, clk_div, sd_ena, sd_lane_tgt = 0;
 
     VTSS_D("Enter");
+
+    if (!vtss_state->vtss_features[FEATURE_SYNCE]) {
+        return VTSS_RC_ERROR;
+    }
 
     if (clk_port > 3) {
         VTSS_E("Invalid clock port no: %d\n", clk_port);
@@ -773,6 +781,15 @@ static vtss_rc fa_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_
     }
     return VTSS_RC_OK;
 }
+
+vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
+{
+    if (!vtss_state->vtss_features[FEATURE_SYNCE]) {
+        return VTSS_RC_ERROR;
+    }
+
+    return VTSS_RC_OK;
+}
 #endif /* VTSS_FEATURE_SYNCE */
 
 /* ================================================================= *
@@ -862,29 +879,29 @@ mmd_error:
     return VTSS_RC_ERROR;
 }
 
-static vtss_rc fa_miim_read(vtss_state_t *vtss_state,
-                              vtss_miim_controller_t miim_controller,
-                              u8 miim_addr,
-                              u8 addr,
-                              u16 *value,
-                              BOOL report_errors)
+vtss_rc vtss_cil_miim_read(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller,
+                           u8 miim_addr,
+                           u8 addr,
+                           u16 *value,
+                           BOOL report_errors)
 {
     return fa_miim_cmd(vtss_state, PHY_CMD_READ, 1, miim_controller, miim_addr, addr, value, report_errors);
 }
 
-static vtss_rc fa_miim_write(vtss_state_t *vtss_state,
-                               vtss_miim_controller_t miim_controller,
-                               u8 miim_addr,
-                               u8 addr,
-                               u16 value,
-                               BOOL report_errors)
+vtss_rc vtss_cil_miim_write(vtss_state_t *vtss_state,
+                            vtss_miim_controller_t miim_controller,
+                            u8 miim_addr,
+                            u8 addr,
+                            u16 value,
+                            BOOL report_errors)
 {
     return fa_miim_cmd(vtss_state, PHY_CMD_WRITE, 1, miim_controller, miim_addr, addr, &value, report_errors);
 }
 
-static vtss_rc fa_mmd_read(vtss_state_t *vtss_state,
-                            vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                            u16 addr, u16 *value, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read(vtss_state_t *vtss_state,
+                          vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                          u16 addr, u16 *value, BOOL report_errors)
 {
 
     VTSS_RC(fa_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
@@ -900,9 +917,9 @@ static vtss_rc fa_mmd_read(vtss_state_t *vtss_state,
 }
 
 /* MMD (MDIO Management Devices (10G)) read-inc */
-static vtss_rc fa_mmd_read_inc(vtss_state_t *vtss_state,
-                                vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                                u16 addr, u16 *buf, u8 count, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read_inc(vtss_state_t *vtss_state,
+                              vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                              u16 addr, u16 *buf, u8 count, BOOL report_errors)
 {
 
     VTSS_RC(fa_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
@@ -920,9 +937,9 @@ static vtss_rc fa_mmd_read_inc(vtss_state_t *vtss_state,
 
 
 /* MMD (MDIO Management Devices (10G)) write */
-static vtss_rc fa_mmd_write(vtss_state_t *vtss_state,
-                             vtss_miim_controller_t miim_controller,
-                             u8 miim_addr, u8 mmd, u16 addr, u16 data,  BOOL report_errors)
+vtss_rc vtss_cil_mmd_write(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller,
+                           u8 miim_addr, u8 mmd, u16 addr, u16 data,  BOOL report_errors)
 {
     VTSS_RC(fa_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
                          &addr, report_errors));
@@ -935,8 +952,8 @@ static vtss_rc fa_mmd_write(vtss_state_t *vtss_state,
  *  KR related functions
  * ================================================================= */
 
-static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_ctle_adjust(vtss_state_t *vtss_state,
+                                     const vtss_port_no_t port_no)
 {
     return fa_serdes_ctle_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
@@ -945,8 +962,8 @@ static vtss_rc fa_port_kr_ctle_adjust(vtss_state_t *vtss_state,
                                  port_no, FALSE, NULL, NULL, NULL);
 }
 
-static vtss_rc fa_port_kr_ctle_get(vtss_state_t *vtss_state,
-                                   const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
+vtss_rc vtss_cil_port_kr_ctle_get(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no, vtss_port_ctle_t *const ctle)
 {
     return fa_serdes_ctle_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
@@ -1041,10 +1058,10 @@ static vtss_rc fa_port_kr_speed_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no,
-                                       const u16 coef_in,
-                                       vtss_kr_status_results_t *const sts_out)
+vtss_rc vtss_cil_port_kr_coef_set(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no,
+                                  const u16 coef_in,
+                                  vtss_kr_status_results_t *const sts_out)
 {
     u16 s = 0;
     vtss_kr_status_results_t r = {};
@@ -1077,9 +1094,9 @@ static vtss_rc fa_port_kr_coef_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t port_no,
-                                        const vtss_port_kr_frame_t *const frm)
+vtss_rc vtss_cil_port_kr_frame_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   const vtss_port_kr_frame_t *const frm)
 {
     u32 tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(port_no));
 
@@ -1099,9 +1116,9 @@ static vtss_rc fa_port_kr_frame_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_kr_frame_get(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t port_no,
-                                        vtss_port_kr_frame_t *const frm)
+vtss_rc vtss_cil_port_kr_frame_get(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   vtss_port_kr_frame_t *const frm)
 {
     u32 tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(port_no)), val;
 
@@ -1150,16 +1167,16 @@ static vtss_rc fa_np_rx(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_eye_dim(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no,
-                                  vtss_port_kr_eye_dim_t *const eye)
+vtss_rc vtss_cil_port_kr_eye_dim(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no,
+                                 vtss_port_kr_eye_dim_t *const eye)
 {
     return fa_kr_eye_height(vtss_state,  port_no, 3, &eye->height);
 }
 
-static vtss_rc fa_port_kr_ber_cnt(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no,
-                                  u16 *const ber)
+vtss_rc vtss_cil_port_kr_ber_cnt(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no,
+                                 u16 *const ber)
 {
     u32 tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(port_no));
     u32 val;
@@ -1194,8 +1211,8 @@ static vtss_rc fa_port_kr_rsfec_radapt_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_fec_set(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_fec_set(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no)
 {
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1296,9 +1313,9 @@ static vtss_rc fa_kr_state_chk(vtss_state_t *vtss_state, const vtss_port_no_t po
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no,
-                                  u32 *const irq)
+vtss_rc vtss_cil_port_kr_irq_get(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no,
+                                 u32 *const irq)
 {
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1338,8 +1355,8 @@ static vtss_rc fa_port_kr_irq_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_irq_activity(vtss_state_t *vtss_state,
-                                       u32 *const irq_mask)
+vtss_rc vtss_cil_port_kr_irq_activity(vtss_state_t *vtss_state,
+                                      u32 *const irq_mask)
 {
     REG_RD(VTSS_CPU_KR10G_INTR_RAW, irq_mask);
     // TBD for Laguna
@@ -1347,9 +1364,9 @@ static vtss_rc fa_port_kr_irq_activity(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no,
-                                       BOOL enable)
+vtss_rc vtss_cil_port_kr_event_enable(vtss_state_t *vtss_state,
+                                      const vtss_port_no_t port_no,
+                                      BOOL enable)
 {
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1362,9 +1379,9 @@ static vtss_rc fa_port_kr_event_enable(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no,
-                                      vtss_port_kr_status_t *const status)
+vtss_rc vtss_cil_port_kr_status(vtss_state_t *vtss_state,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_status_t *const status)
 {
     u32 sts0, sts1, tr;
     u16 val1, val2, val3;
@@ -1526,8 +1543,8 @@ static vtss_rc fa_port_kr_status(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no)
 {
     if (!PORT_IS_KR_CAP(port_no)) {
         VTSS_E("Not KR capable")
@@ -1668,9 +1685,9 @@ static vtss_rc fa_port_kr_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
-                                     const vtss_port_no_t port_no,
-                                     vtss_port_kr_fw_req_t *const fw_req)
+vtss_rc vtss_cil_port_kr_fw_req(vtss_state_t *vtss_state,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_fw_req_t *const fw_req)
 
 {
     u32 tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(port_no));
@@ -1681,11 +1698,11 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
         /* Training is interruptet, restart serdes and kr blocks */
         vtss_state->port.kr_conf[port_no].aneg.enable = FALSE;
         vtss_state->port.kr_conf[port_no].train.enable = FALSE;
-        fa_port_kr_conf_set(vtss_state, port_no);
+        vtss_cil_port_kr_conf_set(vtss_state, port_no);
         VTSS_RC(fa_serdes_set(vtss_state, port_no, vtss_state->port.sd28_mode[indx]));
         vtss_state->port.kr_conf[port_no].aneg.enable = TRUE;
         vtss_state->port.kr_conf[port_no].train.enable = TRUE;
-        fa_port_kr_conf_set(vtss_state, port_no);
+        vtss_cil_port_kr_conf_set(vtss_state, port_no);
         return VTSS_RC_OK;
     }
 
@@ -1803,8 +1820,8 @@ static vtss_rc fa_port_kr_fw_req(vtss_state_t *vtss_state,
  *  Switch port functions
  * ================================================================= */
 
-static vtss_rc fa_port_conf_get(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
+vtss_rc vtss_cil_port_conf_get(vtss_state_t *vtss_state,
+                               const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
 {
     return VTSS_RC_OK;
 }
@@ -3151,7 +3168,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
      /* Update vtss_state database accordingly */
-    fa_port_clause_37_control_get(vtss_state,port_no, &vtss_state->port.clause_37[port_no]);
+    vtss_cil_port_clause_37_control_get(vtss_state,port_no, &vtss_state->port.clause_37[port_no]);
     if (!rgmii) {
         REG_WRM_CTL(VTSS_DEV1G_PCS1G_LB_CFG(tgt),
                     conf->loop == VTSS_PORT_LOOP_PCS_HOST,
@@ -3577,7 +3594,7 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
 }
 #endif /* defined(VTSS_FEATURE_PORT_DYNAMIC) */
 
-static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
     u32                   port = VTSS_CHIP_PORT(port_no), mask;
@@ -3647,7 +3664,7 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
         for (clk_port = 0; clk_port < VTSS_SYNCE_CLK_PORT_ARRAY_SIZE; clk_port++) {
             if ((vtss_state->synce.in_conf[clk_port].port_no == port_no) &&
                 ((vtss_state->port.current_speed[port_no] |= conf->speed) || (vtss_state->port.current_mt[port_no] = conf->serdes.media_type))) {
-                (void)fa_synce_clock_in_set(vtss_state, clk_port);
+                (void)vtss_cil_synce_clock_in_set(vtss_state, clk_port);
             }
         }
     }
@@ -3672,9 +3689,9 @@ static vtss_rc fa_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 
 /* Get status of the SFI and 100FX ports. */
 /* Note: Status for SERDES is handled through clause_37_status_get. Status for SGMII is retrieved from the Phy */
-static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t  port_no,
-                                  vtss_port_status_t    *const status)
+vtss_rc vtss_cil_port_status_get(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t  port_no,
+                                 vtss_port_status_t    *const status)
 {
     u32              value, val2, rx_link;
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
@@ -3798,7 +3815,7 @@ static vtss_rc fa_port_status_get(vtss_state_t *vtss_state,
                 vtss_state->port.ctle_done[port_no] = FALSE;
             }
             if (status->link && !vtss_state->port.ctle_done[port_no]) {
-                if (fa_port_kr_ctle_adjust(vtss_state, port_no)) {
+                if (vtss_cil_port_kr_ctle_adjust(vtss_state, port_no)) {
                     VTSS_E("CTLE tuning not supported for port: %u", port_no);
                 }
                 VTSS_NSLEEP(300000); /* wait 300us while the link stabilize */
@@ -4168,22 +4185,22 @@ static vtss_rc fa_port_counters(vtss_state_t                *vtss_state,
                                  cmd);
 }
 
-static vtss_rc fa_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_UPDATE);
 }
 
-static vtss_rc fa_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_CLEAR);
 }
 
-static vtss_rc fa_port_basic_counters_get(vtss_state_t *vtss_state,
-                                            const vtss_port_no_t port_no,
-                                            vtss_basic_counters_t *const counters)
+vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t *vtss_state,
+                                         const vtss_port_no_t port_no,
+                                         vtss_basic_counters_t *const counters)
 {
     vtss_port_fa_counters_t *c = &vtss_state->port.counters[port_no].counter.fa;
-    VTSS_RC(fa_port_counters_update(vtss_state, port_no));
+    VTSS_RC(vtss_cil_port_counters_update(vtss_state, port_no));
     counters->rx_frames = (CNT_SUM(c->rx_unicast) + CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast));
     counters->tx_frames = (CNT_SUM(c->tx_unicast) + CNT_SUM(c->tx_multicast) +
                            CNT_SUM(c->tx_broadcast) + c->tx_late_coll.value);
@@ -4192,27 +4209,27 @@ static vtss_rc fa_port_basic_counters_get(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc fa_port_counters_get(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no,
-                                      vtss_port_counters_t *const counters)
+vtss_rc vtss_cil_port_counters_get(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   vtss_port_counters_t *const counters)
 {
     VTSS_MEMSET(counters, 0, sizeof(*counters));
     return fa_port_counters(vtss_state, port_no, counters, VTSS_COUNTER_CMD_UPDATE);
 }
 
 
-static vtss_rc fa_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
-                                    const vtss_port_serdes_debug_t *const conf)
+vtss_rc vtss_cil_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                                   const vtss_port_serdes_debug_t *const conf)
 {
     VTSS_RC(fa_debug_serdes_set(vtss_state, port_no, conf));
     return VTSS_RC_OK;
@@ -4221,7 +4238,7 @@ static vtss_rc fa_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no
 #if defined(VTSS_FEATURE_PORT_CONF_BULK)
 /* Apply the port configuration to hardware */
 /* Configuration is applied in parallel where possible */
-static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_port_conf_set_bulk(vtss_state_t *vtss_state)
 {
     vtss_port_conf_t *conf;
     BOOL found_next_if;
@@ -4235,7 +4252,7 @@ static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
     /* Apply the stored port config in normal manner - serdes'es are skipped */
     for (u32 port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (bulk_port_mask & VTSS_BIT64(port_no)) {
-            if (fa_port_conf_set(vtss_state, port_no) != VTSS_RC_OK) {
+            if (vtss_cil_port_conf_set(vtss_state, port_no) != VTSS_RC_OK) {
                 VTSS_E("Could not apply port conf to port %d",port_no);
             }
         }
@@ -4297,6 +4314,11 @@ static vtss_rc fa_port_conf_set_bulk(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 #endif /* VTSS_FEATURE_PORT_CONF_BULK */
+
+vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return VTSS_RC_OK;
+}
 
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
@@ -5089,54 +5111,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->miim_read = fa_miim_read;
-        state->miim_write = fa_miim_write;
-        state->mmd_read = fa_mmd_read;
-        state->mmd_read_inc = fa_mmd_read_inc;
-        state->mmd_write = fa_mmd_write;
-        state->conf_get = fa_port_conf_get;
-        state->conf_set = fa_port_conf_set;
-        state->clause_37_status_get = fa_port_clause_37_status_get;
-        state->clause_37_control_get = fa_port_clause_37_control_get;
-        state->clause_37_control_set = fa_port_clause_37_control_set;
-        state->status_get = fa_port_status_get;
-        state->counters_update = fa_port_counters_update;
-        state->counters_clear = fa_port_counters_clear;
-        state->counters_get = fa_port_counters_get;
-        state->basic_counters_get = fa_port_basic_counters_get;
-        state->forward_set = fa_port_forward_set;
-        state->test_conf_set = fa_port_test_conf_set;
-        state->serdes_debug_set = fa_port_serdes_debug;
-        state->kr_ctle_adjust = fa_port_kr_ctle_adjust;
-        state->kr_ctle_get = fa_port_kr_ctle_get;
-#if defined(VTSS_FEATURE_PORT_CONF_BULK)
-        state->conf_set_bulk = fa_port_conf_set_bulk;
-#endif
         if (LA_TGT) {
             state->miim_ctrl_cnt = 2;
         }
-#if defined(VTSS_FEATURE_PORT_KR_IRQ)
-        state->kr_conf_set = fa_port_kr_conf_set;
-        state->kr_status = fa_port_kr_status;
-        state->kr_irq_get = fa_port_kr_irq_get;
-        state->kr_irq_activity = fa_port_kr_irq_activity;
-        state->kr_event_enable = fa_port_kr_event_enable;
-        state->kr_fw_req = fa_port_kr_fw_req;
-        state->kr_frame_set = fa_port_kr_frame_set;
-        state->kr_frame_get = fa_port_kr_frame_get;
-        state->kr_coef_set = fa_port_kr_coef_set;
-        state->kr_eye_dim = fa_port_kr_eye_dim;
-        state->kr_fec_set = fa_port_kr_fec_set;
-        state->kr_ber_cnt = fa_port_kr_ber_cnt;
-#endif /* VTSS_FEATURE_PORT_KR_IRQ */
-
-        /* SYNCE features */
-#if defined(VTSS_FEATURE_SYNCE)
-        if (vtss_state->vtss_features[FEATURE_SYNCE]) {
-            vtss_state->synce.clock_out_set = fa_synce_clock_out_set;
-            vtss_state->synce.clock_in_set = fa_synce_clock_in_set;
-        }
-#endif /* VTSS_FEATURE_SYNCE */
         break;
 
     case VTSS_INIT_CMD_INIT:

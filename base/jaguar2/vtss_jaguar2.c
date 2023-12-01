@@ -393,7 +393,7 @@ void vtss_jr2_debug_sticky(vtss_state_t *vtss_state,
     jr2_debug_reg_clr(vtss_state, pr, addr, name, 1);
 } // vtss_jr2_debug_sticky
 
-static vtss_rc jr2_debug_info_print(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_debug_info_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info)
 {
@@ -1986,7 +1986,7 @@ static vtss_rc jr2_calendar_calc_and_apply(vtss_state_t *vtss_state)
 }
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
-static vtss_rc jr2_port_map_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 {
     vtss_rc rc = VTSS_RC_ERROR;
 
@@ -2009,7 +2009,7 @@ static vtss_rc jr2_port_map_set(vtss_state_t *vtss_state)
 
 #define JR2_API_VERSION 1
 
-static vtss_rc jr2_restart_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 {
     // JR2-TBD: Stub
     return VTSS_RC_OK;
@@ -2041,7 +2041,7 @@ static vtss_rc vtss_lc_pll5g_setup(vtss_state_t *vtss_state)
 }
 
 
-static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     /*lint -esym(459, vtss_jr2_rd, vtss_jr2_wr) */
     u32 value, pending, j, i;
@@ -2324,7 +2324,7 @@ static vtss_rc jr2_init_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_register_access_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state)
 {
     if (vtss_state->init_conf.spi_bus) {
         vtss_jr2_rd = jr2_rd_indirect;
@@ -2339,13 +2339,6 @@ static vtss_rc jr2_register_access_mode_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jaguar2_inst_create(vtss_state_t *vtss_state)
 {
-    /* Initialization */
-    vtss_state->cil.init_conf_set = jr2_init_conf_set;
-    vtss_state->cil.register_access_mode_set = jr2_register_access_mode_set;
-    vtss_state->cil.restart_conf_set = jr2_restart_conf_set;
-    vtss_state->cil.debug_info_print = jr2_debug_info_print;
-    vtss_state->port.map_set = jr2_port_map_set;
-
     /* Create function groups */
     return vtss_jr2_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }

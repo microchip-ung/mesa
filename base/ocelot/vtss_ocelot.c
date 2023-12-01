@@ -266,7 +266,7 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_debug_info_print(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_debug_info_print(vtss_state_t *vtss_state,
                                      const vtss_debug_printf_t pr,
                                      const vtss_debug_info_t   *const info)
 {
@@ -319,7 +319,7 @@ vtss_rc vtss_srvl_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_port_map_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 {
     /* Initialize function groups */
     return vtss_srvl_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
@@ -327,7 +327,7 @@ static vtss_rc srvl_port_map_set(vtss_state_t *vtss_state)
 
 #define SRVL_API_VERSION 1
 
-static vtss_rc srvl_restart_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 {
     SRVL_WR(VTSS_DEVCPU_GCB_CHIP_REGS_GPR, vtss_cmn_restart_value_get(vtss_state));
 
@@ -388,7 +388,7 @@ static vtss_rc vtss_lc_pll5g_setup(vtss_state_t *vtss_state)
     return rc;
 }
 
-static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 value, i;
     /*lint -esym(459, vtss_srvl_rd, vtss_srvl_wr) */
@@ -530,7 +530,7 @@ static vtss_rc srvl_init_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_register_access_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state)
 {
     if (vtss_state->init_conf.spi_bus) {
         vtss_srvl_rd = srvl_rd_indirect;
@@ -545,13 +545,6 @@ static vtss_rc srvl_register_access_mode_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_serval_inst_create(vtss_state_t *vtss_state)
 {
-    /* Initialization */
-    vtss_state->cil.init_conf_set = srvl_init_conf_set;
-    vtss_state->cil.register_access_mode_set = srvl_register_access_mode_set;
-    vtss_state->cil.restart_conf_set = srvl_restart_conf_set;
-    vtss_state->cil.debug_info_print = srvl_debug_info_print;
-    vtss_state->port.map_set = srvl_port_map_set;
-
     /* Create function groups */
     return vtss_srvl_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }

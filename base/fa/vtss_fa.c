@@ -323,9 +323,9 @@ BOOL fa_is_target(vtss_state_t *vtss_state)
  * ================================================================= */
 
 #if VTSS_OPT_DEBUG_PRINT
-static vtss_rc fa_debug_info_print(vtss_state_t *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     const vtss_debug_info_t   *const info)
+vtss_rc vtss_cil_debug_info_print(vtss_state_t *vtss_state,
+                                  const vtss_debug_printf_t pr,
+                                  const vtss_debug_info_t   *const info)
 {
     VTSS_RC(vtss_fa_misc_debug_print(vtss_state, pr, info));
     VTSS_RC(vtss_fa_port_debug_print(vtss_state, pr, info));
@@ -964,7 +964,7 @@ err_exit:
     return VTSS_RC_ERROR;
 }
 #endif
-static vtss_rc fa_init_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
     // Reset switch core if using SPI from external CPU
@@ -1970,12 +1970,12 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_restart_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_port_map_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 {
     VTSS_RC(fa_cell_calendar_auto(vtss_state));
 
@@ -2064,17 +2064,9 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
     /* Initialization */
     VTSS_RC(fa_feature_init(vtss_state));
 
-    vtss_state->cil.init_conf_set    = fa_init_conf_set;
-    vtss_state->cil.restart_conf_set = fa_restart_conf_set;
-#if VTSS_OPT_DEBUG_PRINT
-    vtss_state->cil.debug_info_print = fa_debug_info_print;
-#endif
-    vtss_state->port.map_set         = fa_port_map_set;
-
 #if defined(VTSS_OPT_EMUL)
     VTSS_RC(vtss_fa_emul_init(vtss_state));
 #endif
-
     /* FA: chip_design = 1,  LA: chip_design = 2 */
     vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
     /* Initilize Firenat or Laguna registers  */

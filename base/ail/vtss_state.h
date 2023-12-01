@@ -184,11 +184,6 @@ typedef struct {
 
 #if defined(VTSS_FEATURE_SYNCE)
 typedef struct {
-    /* CIL function pointers */
-    vtss_rc (* clock_out_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
-    vtss_rc (* clock_in_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
-    vtss_rc (* station_clk_out_set)(struct vtss_state_s *vtss_state, const vtss_synce_clk_port_t clk_port);
-
     /* Configuration/state */
     u32                    old_port_no[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
     vtss_synce_clock_in_t  in_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];

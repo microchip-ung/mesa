@@ -11,11 +11,11 @@
 #include "../omega/vtss_omega_clock_cil.h"
 #endif //defined(VTSS_ARCH_SERVAL_T)
 
-static vtss_rc jr2_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 
-static vtss_rc jr2_port_clause_37_control_get(vtss_state_t *vtss_state,
-                                               const vtss_port_no_t port_no,
-                                               vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV1G(port);
@@ -28,8 +28,8 @@ static vtss_rc jr2_port_clause_37_control_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_clause_37_control_set(vtss_state_t *vtss_state,
-                                               const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state,
+                                            const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32 value;
@@ -57,9 +57,9 @@ static vtss_rc jr2_port_clause_37_control_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc jr2_port_clause_37_status_get(vtss_state_t *vtss_state,
-                                              const vtss_port_no_t         port_no,
-                                              vtss_port_clause_37_status_t *const status)
+vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t *vtss_state,
+                                           const vtss_port_no_t         port_no,
+                                           vtss_port_clause_37_status_t *const status)
 
 {
     u32                    value;
@@ -97,7 +97,7 @@ static vtss_rc jr2_port_clause_37_status_get(vtss_state_t *vtss_state,
             if (((value >> 21) & 0x1) == 0) {
                 JR2_WRM_CLR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
                 JR2_WRM_SET(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)jr2_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
+                (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
                 VTSS_MSLEEP(50);
                 JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
                 status->autoneg.complete = JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
@@ -270,7 +270,7 @@ static vtss_rc jr2_port_inst_get(vtss_state_t *vtss_state, vtss_port_no_t port_n
 
 #if defined(VTSS_FEATURE_SYNCE)
 #define RCVRD_CLK_GPIO_NO 33      // on servalt the 4 recovered clock outputs are GPIO 33-36
-static vtss_rc jr2_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
+vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
 {
     u32 div_mask = 0;
     vtss_synce_clk_port_t clk_port = clk_port_par;
@@ -327,7 +327,7 @@ static vtss_rc jr2_synce_clock_out_set(vtss_state_t *vtss_state, const vtss_sync
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
+vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
 {
     vtss_synce_clk_port_t clk_port = clk_port_par;
     vtss_synce_clock_in_t *conf = &vtss_state->synce.in_conf[clk_port];
@@ -458,7 +458,7 @@ static vtss_rc jr2_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_synce_station_clk_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
+vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state, const vtss_synce_clk_port_t clk_port_par)
 {
     u32 div_mask = 0;
     vtss_synce_clk_port_t clk_port = clk_port_par;
@@ -660,31 +660,31 @@ mmd_error:
     return VTSS_RC_ERROR;
 }
 
-static vtss_rc jr2_miim_read(vtss_state_t *vtss_state,
-                              vtss_miim_controller_t miim_controller,
-                              u8 miim_addr,
-                              u8 addr,
-                              u16 *value,
-                              BOOL report_errors)
+vtss_rc vtss_cil_miim_read(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller,
+                           u8 miim_addr,
+                           u8 addr,
+                           u16 *value,
+                           BOOL report_errors)
 {
     return jr2_miim_cmd(vtss_state, PHY_CMD_READ, 1, miim_controller, miim_addr, addr, value, report_errors);
 //    return jr2_miim_read_write(vtss_state, TRUE, miim_controller, miim_addr, addr, value, report_errors);
 }
 
-static vtss_rc jr2_miim_write(vtss_state_t *vtss_state,
-                               vtss_miim_controller_t miim_controller,
-                               u8 miim_addr,
-                               u8 addr,
-                               u16 value,
-                               BOOL report_errors)
+vtss_rc vtss_cil_miim_write(vtss_state_t *vtss_state,
+                            vtss_miim_controller_t miim_controller,
+                            u8 miim_addr,
+                            u8 addr,
+                            u16 value,
+                            BOOL report_errors)
 {
     return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 1, miim_controller, miim_addr, addr, &value, report_errors);
 //    return jr2_miim_read_write(vtss_state, FALSE, miim_controller, miim_addr, addr, &value, report_errors);
 }
 
-static vtss_rc jr2_mmd_read(vtss_state_t *vtss_state,
-                            vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                            u16 addr, u16 *value, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read(vtss_state_t *vtss_state,
+                          vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                          u16 addr, u16 *value, BOOL report_errors)
 {
 
     VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
@@ -700,9 +700,9 @@ static vtss_rc jr2_mmd_read(vtss_state_t *vtss_state,
 }
 
 /* MMD (MDIO Management Devices (10G)) read-inc */
-static vtss_rc jr2_mmd_read_inc(vtss_state_t *vtss_state,
-                                vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
-                                u16 addr, u16 *buf, u8 count, BOOL report_errors)
+vtss_rc vtss_cil_mmd_read_inc(vtss_state_t *vtss_state,
+                              vtss_miim_controller_t miim_controller, u8 miim_addr, u8 mmd,
+                              u16 addr, u16 *buf, u8 count, BOOL report_errors)
 {
 
     VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
@@ -720,9 +720,9 @@ static vtss_rc jr2_mmd_read_inc(vtss_state_t *vtss_state,
 
 
 /* MMD (MDIO Management Devices (10G)) write */
-static vtss_rc jr2_mmd_write(vtss_state_t *vtss_state,
-                             vtss_miim_controller_t miim_controller,
-                             u8 miim_addr, u8 mmd, u16 addr, u16 data,  BOOL report_errors)
+vtss_rc vtss_cil_mmd_write(vtss_state_t *vtss_state,
+                           vtss_miim_controller_t miim_controller,
+                           u8 miim_addr, u8 mmd, u16 addr, u16 data,  BOOL report_errors)
 {
     VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd,
                          &addr, report_errors));
@@ -785,8 +785,8 @@ static BOOL vrfy_spd_iface(vtss_port_no_t port_no, vtss_port_interface_t if_type
     return 1;
 }
 
-static vtss_rc jr2_port_conf_get(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
+vtss_rc vtss_cil_port_conf_get(vtss_state_t *vtss_state,
+                               const vtss_port_no_t port_no, vtss_port_conf_t *const conf)
 {
     // JR2-TBD: Stub
     return VTSS_RC_ERROR;
@@ -1347,8 +1347,8 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
 #define AN_RATE_DET 8
 #define AN_WAIT_RATE_DONE 13
 
-static vtss_rc jr2_port_kr_fec_set(vtss_state_t *vtss_state,
-                                       const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_fec_set(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t port_no)
 {
     BOOL fec = vtss_state->port.kr_fec[port_no].r_fec;
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -1376,9 +1376,9 @@ static vtss_rc jr2_port_kr_fec_set(vtss_state_t *vtss_state,
 }
 
 
-static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
-                                      const vtss_port_no_t port_no,
-                                      vtss_port_kr_status_t *const status)
+vtss_rc vtss_cil_port_kr_status(vtss_state_t *vtss_state,
+                                const vtss_port_no_t port_no,
+                                vtss_port_kr_status_t *const status)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 dev7 = VTSS_TO_10G_KR_DEV7_TGT(port);  // ANEG
@@ -1445,7 +1445,7 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
         return VTSS_RC_OK;
     } else if (an_sm == AN_ACK_DET && !tr_fail && (sticky == 0)) {
         VTSS_I("Port:%d. Stuck in AN_ACK_DET.  Restart KR block",port_no);
-        vtss_state->port.kr_conf_set(vtss_state, port_no);
+        vtss_cil_port_kr_conf_set(vtss_state, port_no);
         return VTSS_RC_OK;
     }
 
@@ -1552,14 +1552,14 @@ static vtss_rc jr2_port_kr_status(vtss_state_t *vtss_state,
 
     if (status->aneg.request_fec_change) {
         vtss_state->port.kr_fec[port_no].r_fec = status->aneg.r_fec_enable;
-        (void)jr2_port_kr_fec_set(vtss_state, port_no);
+        (void)vtss_cil_port_kr_fec_set(vtss_state, port_no);
     }
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_kr_conf_set(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t *vtss_state,
+                                  const vtss_port_no_t port_no)
 {
     vtss_port_kr_conf_t *aneg = &vtss_state->port.kr_conf[port_no];
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -1853,7 +1853,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
         // Update vtss_state database accordingly
-        jr2_port_clause_37_control_get(vtss_state,port_no, &(vtss_state->port.clause_37[port_no]));
+        vtss_cil_port_clause_37_control_get(vtss_state,port_no, &(vtss_state->port.clause_37[port_no]));
 
         // Disable 100fx and 1000BaseX PCS
         JR2_WRM(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
@@ -1984,7 +1984,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         }
     }
     //Update vtss_state database accordingly
-    jr2_port_clause_37_control_get(vtss_state,port_no,&(vtss_state->port.clause_37[port_no]));
+    vtss_cil_port_clause_37_control_get(vtss_state,port_no,&(vtss_state->port.clause_37[port_no]));
 
     JR2_WRM_CTL(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_LB_CFG(tgt),
                  conf->loop == VTSS_PORT_LOOP_PCS_HOST,
@@ -2265,7 +2265,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
 
         /* Restart KR-Aneg after port is enabled */
         if (vtss_state->port.kr_conf[port_no].aneg.enable) {
-            jr2_port_kr_conf_set(vtss_state, port_no);
+            vtss_cil_port_kr_conf_set(vtss_state, port_no);
         }
     } else {
         /* Disable the power hungry serdes */
@@ -2278,7 +2278,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
 }
 
 
-static vtss_rc jr2_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     BOOL             port_10g;
@@ -2303,10 +2303,10 @@ static vtss_rc jr2_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
         VTSS_D("port_10g = %d, Mode = %u", port_10g, mode);
         if ((mode == 3) && port_10g) {
             VTSS_RC(jr2_port_flush(vtss_state, port_no, FALSE)); // Shutdown the 2G5 device
-            (void)jr2_port_counters_clear(vtss_state, port_no);  // Clear counters before DEV change
+            (void)vtss_cil_port_counters_clear(vtss_state, port_no);  // Clear counters before DEV change
         } else if ((mode != 3) && !port_10g) {
             VTSS_RC(jr2_port_flush(vtss_state, port_no, TRUE));  // Shutdown the 10G device
-            (void)jr2_port_counters_clear(vtss_state, port_no);  // Clear counters before DEV change
+            (void)vtss_cil_port_counters_clear(vtss_state, port_no);  // Clear counters before DEV change
         }
     }
 
@@ -2327,9 +2327,9 @@ static vtss_rc jr2_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t 
 
 /* Get status of the XAUI, VAUI or 100FX ports. */
 /* Status for SERDES and SGMII ports is handled elsewhere (through autonegotiation) */
-static vtss_rc jr2_port_status_get(vtss_state_t *vtss_state,
-                                  const vtss_port_no_t  port_no,
-                                  vtss_port_status_t    *const status)
+vtss_rc vtss_cil_port_status_get(vtss_state_t *vtss_state,
+                                 const vtss_port_no_t  port_no,
+                                 vtss_port_status_t    *const status)
 {
     u32              value, sd;
     u32              tgt;
@@ -2724,9 +2724,9 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t                 *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_basic_counters_get(vtss_state_t *vtss_state,
-                                            const vtss_port_no_t port_no,
-                                            vtss_basic_counters_t *const counters)
+vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t *vtss_state,
+                                         const vtss_port_no_t port_no,
+                                         vtss_basic_counters_t *const counters)
 {
     // JR2-TBD: Stub
     return VTSS_RC_ERROR;
@@ -2744,17 +2744,17 @@ static vtss_rc jr2_port_counters(vtss_state_t                *vtss_state,
                                   clear);
 }
 
-static vtss_rc jr2_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return jr2_port_counters(vtss_state, port_no, NULL, 0);
 }
 
-static vtss_rc jr2_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return jr2_port_counters(vtss_state, port_no, NULL, 1);
 }
 
-static vtss_rc jr2_port_counters_get(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_port_counters_get(vtss_state_t *vtss_state,
                                       const vtss_port_no_t port_no,
                                       vtss_port_counters_t *const counters)
 {
@@ -2762,12 +2762,12 @@ static vtss_rc jr2_port_counters_get(vtss_state_t *vtss_state,
     return jr2_port_counters(vtss_state, port_no, counters, 0);
 }
 
-static vtss_rc jr2_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32                tgt, serdes_inst, serdes_type, port = VTSS_CHIP_PORT(port_no);
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
@@ -2834,7 +2834,7 @@ static vtss_rc jr2_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
@@ -2854,6 +2854,13 @@ static vtss_rc jr2_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t p
 
     return VTSS_RC_OK;
 }
+
+vtss_rc vtss_cil_port_serdes_debug(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
+                                   const vtss_port_serdes_debug_t *const conf)
+{
+    return VTSS_RC_OK;
+}
+
 
 vtss_rc vtss_jr2_wm_update(vtss_state_t *vtss_state)
 {
@@ -4156,40 +4163,9 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_port_state_t *state = &vtss_state->port;
-
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->miim_read = jr2_miim_read;
-        state->miim_write = jr2_miim_write;
-        state->mmd_read = jr2_mmd_read;
-        state->mmd_read_inc = jr2_mmd_read_inc;
-        state->mmd_write = jr2_mmd_write;
-        state->conf_get = jr2_port_conf_get;
-        state->conf_set = jr2_port_conf_set;
-        state->clause_37_status_get = jr2_port_clause_37_status_get;
-        state->clause_37_control_get = jr2_port_clause_37_control_get;
-        state->clause_37_control_set = jr2_port_clause_37_control_set;
-#if defined( VTSS_FEATURE_PORT_KR)
-        state->kr_conf_set = jr2_port_kr_conf_set;
-        state->kr_status = jr2_port_kr_status;
-        state->kr_fec_set = jr2_port_kr_fec_set;
-#endif /*  VTSS_FEATURE_PORT_KR */
-        state->status_get = jr2_port_status_get;
-        state->counters_update = jr2_port_counters_update;
-        state->counters_clear = jr2_port_counters_clear;
-        state->counters_get = jr2_port_counters_get;
-        state->basic_counters_get = jr2_port_basic_counters_get;
-        state->ifh_set = jr2_port_ifh_set;
-        state->forward_set = jr2_port_forward_set;
-        state->test_conf_set = jr2_port_test_conf_set;
-
         /* SYNCE features */
-#if defined(VTSS_FEATURE_SYNCE)
-        vtss_state->synce.clock_out_set = jr2_synce_clock_out_set;
-        vtss_state->synce.clock_in_set = jr2_synce_clock_in_set;
-        vtss_state->synce.station_clk_out_set = jr2_synce_station_clk_out_set;
-#endif /* VTSS_FEATURE_SYNCE */
         break;
 
     case VTSS_INIT_CMD_INIT:

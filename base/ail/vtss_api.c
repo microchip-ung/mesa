@@ -421,7 +421,7 @@ vtss_rc vtss_init_conf_set(const vtss_inst_t              inst,
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->init_conf = *conf;
-        rc = VTSS_FUNC_0(cil.init_conf_set);
+        rc = vtss_cil_init_conf_set(vtss_state);
         vtss_state->warm_start_prev = vtss_state->warm_start_cur;
     } else {
         VTSS_E("Initialization check failed");
@@ -729,7 +729,7 @@ vtss_rc vtss_synce_clock_out_set(const vtss_inst_t              inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
             vtss_state->synce.out_conf[clk_port] = *conf;
-            rc = VTSS_FUNC_COLD(synce.clock_out_set, clk_port);
+            rc = vtss_cil_synce_clock_out_set(vtss_state, clk_port);
         }
         else    rc = VTSS_RC_ERROR;
     }
@@ -769,7 +769,7 @@ vtss_rc vtss_synce_clock_in_set(const vtss_inst_t              inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
             vtss_state->synce.in_conf[clk_port] = *conf;
-            rc = VTSS_FUNC_COLD(synce.clock_in_set, clk_port);
+            rc = vtss_cil_synce_clock_in_set(vtss_state, clk_port);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -810,7 +810,7 @@ vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t              inst
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
             vtss_state->synce.station_clk_out_conf[clk_port] = *conf;
-            rc = VTSS_FUNC_COLD(synce.station_clk_out_set, clk_port);
+            rc = vtss_cil_synce_station_clk_out_set(vtss_state, clk_port);
         }
         else    rc = VTSS_RC_ERROR;
     }
@@ -870,7 +870,7 @@ static vtss_rc vtss_restart_cur_set(vtss_state_t *vtss_state, const vtss_restart
     vtss_rc rc = VTSS_RC_OK;
 
     vtss_state->restart_cur = restart;
-    rc = VTSS_FUNC_0(cil.restart_conf_set);
+    rc = vtss_cil_restart_conf_set(vtss_state);
     return rc;
 }
 

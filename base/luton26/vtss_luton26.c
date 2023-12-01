@@ -214,7 +214,7 @@ void vtss_l26_debug_print_port_header(vtss_state_t *vtss_state,
     vtss_debug_print_port_header(vtss_state, pr, txt, VTSS_CHIP_PORTS + 1, 1);
 }
 
-static vtss_rc l26_debug_info_print(vtss_state_t *vtss_state,
+vtss_rc vtss_cil_debug_info_print(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
                                     const vtss_debug_info_t   *const info)
 {
@@ -260,20 +260,20 @@ vtss_rc vtss_l26_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_port_map_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 {
     /* Initialize function groups */
     return vtss_l26_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
 }   
 
-static vtss_rc l26_restart_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 {
     L26_WR(VTSS_DEVCPU_GCB_CHIP_REGS_GENERAL_PURPOSE, vtss_cmn_restart_value_get(vtss_state));
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_init_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
     u32              value, i;
@@ -358,14 +358,6 @@ static vtss_rc l26_init_conf_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_luton26_inst_create(vtss_state_t *vtss_state)
 {
-    vtss_cil_func_t *func = &vtss_state->cil;
-
-    /* Initialization */
-    func->init_conf_set = l26_init_conf_set;
-    func->restart_conf_set = l26_restart_conf_set;
-    func->debug_info_print = l26_debug_info_print;
-    vtss_state->port.map_set = l26_port_map_set;
-
     /* Create function groups */
     return vtss_l26_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
 }
