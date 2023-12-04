@@ -668,7 +668,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t *vtss_state,
         VTSS_SELECT_CHIP(chip_no);
         VTSS_SPRINTF(buf, "Chip Interface Layer[%u]", chip_no);
         vtss_debug_print_header_underlined(pr, buf, 1);
-        rc = VTSS_FUNC(cil.debug_info_print, pr, info);
+        rc = vtss_cil_debug_info_print(vtss_state, pr, info);
     }
     return rc;
 }
