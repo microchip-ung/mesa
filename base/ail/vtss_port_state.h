@@ -472,6 +472,7 @@ typedef struct {
     vtss_port_speed_t             current_speed[VTSS_PORT_ARRAY_SIZE];
     vtss_port_interface_t         current_if_type[VTSS_PORT_ARRAY_SIZE];
     vtss_sd10g_media_type_t       current_mt[VTSS_PORT_ARRAY_SIZE];
+    BOOL                          current_pd[VTSS_PORT_ARRAY_SIZE];
 #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_port_kr_conf_t           kr_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_port_kr_fec_t            kr_fec[VTSS_PORT_ARRAY_SIZE];

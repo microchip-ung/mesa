@@ -88,6 +88,23 @@ vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state)
 }
 #endif
 
+static BOOL is_internal_cu(vtss_state_t *vtss_state, vtss_port_no_t port)
+{
+    switch (vtss_state->init_conf.mux_mode) {
+    case VTSS_PORT_MUX_MODE_1:
+    case VTSS_PORT_MUX_MODE_2:
+    case VTSS_PORT_MUX_MODE_5:
+        if (port < 2) {
+            // Port 0/1: Cu
+            return TRUE;
+        }
+    default:
+        break;
+    }
+
+    return FALSE;
+}
+
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
@@ -1037,6 +1054,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 #endif
     case VTSS_PORT_INTERFACE_SGMII:
         sgmii = 1;
+        if (is_internal_cu(vtss_state, port_no) &&
+            vtss_state->port.current_pd[port_no]) {
+            // ports with internal phys are not flushed
+            skip_port_flush = 1;
+        }
         break;
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_RGMII_RXID:
@@ -1272,7 +1294,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
     vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
     vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
-
+    vtss_state->port.current_pd[port_no] = vtss_state->port.conf[port_no].power_down;
 #if defined(VTSS_FEATURE_QOS)
     // Setup QoS - out of reset
     VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, FALSE));
