@@ -3316,7 +3316,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     u32                    port = VTSS_CHIP_PORT(port_no);
     u32                    tgt = VTSS_TO_HIGH_DEV(port);
     u32                    pcs = VTSS_TO_PCS_TGT(port);
-    u32                    clk_spd = 0, muxed_ports = 0, value;
+    u32                    clk_spd = 0, muxed_ports = 0, value, q;
     vtss_serdes_mode_t     serdes_mode = VTSS_SERDES_MODE_SFI;
     BOOL                   pcs_usx = FALSE;
     u32                    sd_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
@@ -3444,6 +3444,17 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     if (fa_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
         VTSS_E("Could not configure FC port: %u", port);
     }
+
+    // PFC counter mode
+    value = 0;
+    for (q = 0; q < VTSS_PRIOS; q++) {
+        if (conf->flow_control.pfc[q]) {
+            value = 1;
+            break;
+        }
+    }
+    REG_WR(VTSS_DEV10G_PFC_PAUSE_MODE_CTRL(tgt),
+           VTSS_F_DEV10G_PFC_PAUSE_MODE_CTRL_PFC_PAUSE_MODE_SELECT(value));
 
     /* Update policer flow control configuration */
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
