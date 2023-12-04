@@ -4809,6 +4809,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t *vtss_state,
 
     if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
         fa_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
+        fa_debug_cnt(pr, "unsup_opcode", NULL, &cnt.rx_unsup_opcode, NULL);
         fa_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
         fa_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
         fa_debug_cnt(pr, "128_255", "", &cnt.rx_size128_255, &cnt.tx_size128_255);

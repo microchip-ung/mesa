@@ -371,3 +371,47 @@ test "ip-intf" do
     cmd += " rx #{name} name f2"
     $ts.pc.run(cmd)
 end
+
+test "pause-cnt-25g" do
+    break
+    idx_tx = 0
+    idx_rx = 1
+    p0 = $ts.dut.p[idx_tx]
+    p1 = $ts.dut.p[idx_rx]
+    p = $ts.dut.looped_port_list_10g
+    lp0 = p[0]
+    lp1 = p[1]
+    if (false)
+        # 1G operation
+        $ts.dut.run("mesa-cmd port mode #{lp0 + 1},#{lp1 + 1} 1000fdx")
+        sleep(3)
+    end
+    $ts.dut.run("mesa-cmd port mode #{p0 + 1},#{p1 + 1},#{lp0 + 1},#{lp1 + 1}")
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{p0},#{p1},#{lp0},#{lp1}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{p0},#{lp0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{p1},#{lp1}")
+    if (false)
+        # Normal flow control
+        $ts.dut.run("mesa-cmd port flow control #{lp0 + 1},#{lp1 + 1} enable")
+    else
+        # Priority flow control
+        [lp0,lp1].each do |port|
+            conf = $ts.dut.call("mesa_port_conf_get", port)
+            for i in 0..7
+                conf["flow_control"]["pfc"][i] = true;
+            end
+            $ts.dut.call("mesa_port_conf_set", port, conf)
+        end
+    end
+    conf = $ts.dut.call("mesa_qos_port_conf_get", p1)
+    conf["shaper"]["level"] = 5
+    conf["shaper"]["rate"] = 100
+    conf["shaper"]["mode"] = "MESA_SHAPER_MODE_FRAME"
+    $ts.dut.call("mesa_qos_port_conf_set", p1, conf)
+    # Send frames to trigger flow control
+    cmd = "sudo ef name f1 eth "
+    cmd += "tx #{$ts.pc.p[idx_tx]} rep 1000 name f1"
+    $ts.pc.run(cmd)
+    $ts.dut.run("mesa-cmd port stati pa")
+    $ts.dut.run("mesa-cmd debug api ai counters #{lp0 + 1},#{lp1 + 1}")
+end
