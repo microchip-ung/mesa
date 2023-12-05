@@ -951,15 +951,61 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     }
 
     if (LA_TGT) {
-        uint32_t i;
+        uint32_t i, enable;
+        enable = 1;
+        value = 0;
         /* Configure TS phase detection */
+        if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_328MHZ) {
+            switch (speed) {
+            case VTSS_SPEED_10M:
+            case VTSS_SPEED_100M:
+                enable = 0;
+            case VTSS_SPEED_1G:
+                value = 1;
+                break;
+            case VTSS_SPEED_2500M:
+                value = 2;
+                break;
+            case VTSS_SPEED_5G:
+                value = 1;
+                break;
+            case VTSS_SPEED_10G:
+                value = 2;
+                break;
+            default:
+                VTSS_D("Unexpected link speed %d", speed);
+                break;
+            }
+        } else if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_180MHZ) {
+            switch (speed) {
+            case VTSS_SPEED_10M:
+            case VTSS_SPEED_100M:
+                enable = 0;
+            case VTSS_SPEED_1G:
+                value = 2;
+                break;
+            case VTSS_SPEED_2500M:
+                value = 4;
+                break;
+            case VTSS_SPEED_5G:
+                value = 1;
+                break;
+            case VTSS_SPEED_10G:
+                value = 2;
+                break;
+            default:
+                VTSS_D("Unexpected link speed %d", speed);
+                break;
+            }
+        } else {
+            VTSS_D("Unexpected Core Clock Frequency %d", vtss_state->init_conf.core_clock.freq);
+        }
         for(i=0; i<2; ++i) {
-            DEV_RD_IDX(PHAD_CTRL, i, port, &value);
             DEV_WRM_IDX(PHAD_CTRL, i, port,
-                    VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG((VTSS_X_DEV1G_PHAD_CTRL_DIV_STATE(value) + 1)),
+                    VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG(value),
                     VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG);
             DEV_WRM_IDX(PHAD_CTRL, i, port,
-                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(1),
+                    VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(enable),
                     VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
         }
     }
