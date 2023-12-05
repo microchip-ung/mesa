@@ -341,8 +341,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t inst,
                                   mesa_sgpio_port_data_t *data,
                                   sfp_signal_t sfp)
 {
-    meba_board_state_t *board = INST2BOARD(inst);
-    uint32_t           sgpio_port = PORT_2_SGPIO_PORT(board, port_no);
+    uint32_t sgpio_port = meba_port_map[port_no].sgpio_port;
 
     if (sgpio_port >= MESA_SGPIO_PORTS) {
         T_E(inst, "Invalid port %d, sgpio_port %d", port_no, sgpio_port);
