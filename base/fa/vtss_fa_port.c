@@ -3061,7 +3061,12 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
     /* TX interframe gap */
     if (conf->frame_gaps.fdx_gap == VTSS_FRAME_GAP_DEFAULT) {
-        tx_gap = (speed == VTSS_SPEED_1G) ? 4 : fdx ? 6 : 5;
+        if (FA_TGT) {
+            /* UNG_LAGUNA-590 */
+            tx_gap = (speed == VTSS_SPEED_1G) ? 4 : fdx ? 6 : 5;
+       } else {
+            tx_gap = (speed == VTSS_SPEED_1G) ? 4 : fdx ? 5 : 4;
+       }
     } else {
         tx_gap = conf->frame_gaps.fdx_gap;
     }
