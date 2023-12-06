@@ -1593,6 +1593,7 @@ vtss_rc vtss_phy_ts_mode_get(const vtss_inst_t     inst,
  * \brief Timestamp block clock frequencies
  **/
 typedef enum {
+    VTSS_PHY_TS_CLOCK_FREQ_25M,   /**< 25 MHz */
     VTSS_PHY_TS_CLOCK_FREQ_125M,   /**< 125 MHz */
     VTSS_PHY_TS_CLOCK_FREQ_15625M, /**< 156.25 MHz */
     VTSS_PHY_TS_CLOCK_FREQ_200M,   /**< 200 MHz */
