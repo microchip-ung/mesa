@@ -960,11 +960,13 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             case VTSS_SPEED_10M:
             case VTSS_SPEED_100M:
                 enable = 0;
+                value = 3;
+                break;
             case VTSS_SPEED_1G:
                 value = 1;
                 break;
             case VTSS_SPEED_2500M:
-                value = 2;
+                value = 3;
                 break;
             case VTSS_SPEED_5G:
                 value = 1;
@@ -981,14 +983,16 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             case VTSS_SPEED_10M:
             case VTSS_SPEED_100M:
                 enable = 0;
+                value = 5;
+                break;
             case VTSS_SPEED_1G:
                 value = 2;
                 break;
             case VTSS_SPEED_2500M:
-                value = 4;
+                value = 5;
                 break;
             case VTSS_SPEED_5G:
-                value = 1;
+                value = 2;
                 break;
             case VTSS_SPEED_10G:
                 value = 2;
