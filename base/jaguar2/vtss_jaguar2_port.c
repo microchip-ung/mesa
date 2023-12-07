@@ -2070,7 +2070,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
 {
     vtss_port_conf_t   *conf = &vtss_state->port.conf[port_no];
     u32                port = VTSS_CHIP_PORT(port_no);
-    u32                tgt;
+    u32                tgt, q, val;
     vtss_port_speed_t  speed = conf->speed;
 #if !defined(VTSS_ARCH_SERVAL_T)
     BOOL               rx_flip = conf->xaui_rx_lane_flip;
@@ -2222,6 +2222,18 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_n
         if (jr2_port_fc_setup(vtss_state, port, conf) != VTSS_RC_OK) {
             VTSS_E("Could not configure FC port: %u", port);
         }
+
+        // PFC counter mode
+        val = 0;
+        for (q = 0; q < VTSS_PRIOS; q++) {
+            if (conf->flow_control.pfc[q]) {
+                val = 1;
+                break;
+            }
+        }
+        JR2_WR(VTSS_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL(tgt),
+               VTSS_F_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL_PFC_PAUSE_MODE_SELECT(val));
+
         /* Enable MAC module */
         JR2_WR(VTSS_DEV10G_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
                VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_ENA_CFG_RX_ENA |
@@ -3380,6 +3392,7 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
 
     if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
         vtss_jr2_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
+        vtss_jr2_debug_cnt(pr, "unsup_opcode", NULL, &cnt.rx_unsup_opcode, NULL);
         vtss_jr2_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
         vtss_jr2_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
         vtss_jr2_debug_cnt(pr, "128_255", "", &cnt.rx_size128_255, &cnt.tx_size128_255);
