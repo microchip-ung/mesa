@@ -329,7 +329,7 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
         port_entry_map(&board->entry[port_no], &map[port_no]);
         // Link phy base port for 8 port board.
         if (board->type == BOARD_TYPE_8PORT) {
-            board->entry[port_no].phy_base_port = map[port_no].chip_port >= 4 && map[port_no].chip_port <= 7 ? 4 : 0;
+            board->entry[port_no].phy_base_port = port_no >= 4 && port_no <= 7 ? 4 : 0;
         }
 
         T_I(inst, "port_no= %d, poe_support=%d", port_no, board->entry->poe_support);
