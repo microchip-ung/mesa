@@ -1630,8 +1630,11 @@ vtss_rc vtss_phy_veriphy(vtss_state_t *vtss_state, vtss_veriphy_task_t c51_idata
             tsk->stat[1] = (reg_val & VTSS_M_PHY_VERIPHY_CTRL_REG3_PAIR_B_TERMINATION_STATUS) >> 8;
             tsk->stat[0] = (reg_val & VTSS_M_PHY_VERIPHY_CTRL_REG3_PAIR_A_TERMINATION_STATUS) >> 12;
 
-            tsk->flags = VERIPHY_FLAGS_VALID; // Signal Veriphy result valid
-
+            tsk->flags = VERIPHY_FLAGS_VALID; // Signal Veriphy result valid and link is up
+            if(ps->status.link) {
+                tsk->flags |= VERIPHY_FLAGS_LINKUP;
+            }
+            VTSS_I("VeriPhY Complete flags:0x%X, ps->link = %d", tsk->flags, ps->status.link);
             VTSS_RC(vtss_phy_page_std(vtss_state, tsk->port));
 
             //signal to API the veriphy isn't running for this port
