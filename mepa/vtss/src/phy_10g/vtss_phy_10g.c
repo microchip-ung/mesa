@@ -3525,7 +3525,7 @@ vtss_rc vtss_phy_10g_loopback_set(const vtss_inst_t             inst,
     if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         cur_loopback = vtss_state->phy_10g_state[port_no].loopback;
         if (loopback->enable && vtss_state->phy_10g_state[port_no].loopback.enable) {
-            rc = VTSS_RC_ERROR;
+            rc = VTSS_RC_OK;
         } else if (!loopback->enable && !vtss_state->phy_10g_state[port_no].loopback.enable) {
             rc = VTSS_RC_OK;
         } else {
