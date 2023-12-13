@@ -16,6 +16,7 @@
 #define STATUSLED_R_GPIO 61
 #define VTSS_GPIOS_MAX 67
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
+#define VTSS_TS_IO_ARRAY_SIZE 8 // Laguna has 8 pins compared to 4 on FireAnt.
 
 /* Local mapping table */
 typedef struct {
@@ -30,6 +31,16 @@ typedef struct {
     mesa_bool_t            ts_phy;
 } port_map_t;
 
+static const meba_ptp_rs422_conf_t pcb8398_rs422_conf = {
+    .gpio_rs422_1588_mstoen = 58,
+    .gpio_rs422_1588_slvoen = 59,
+    .ptp_pin_ldst           = 5,
+    .ptp_pin_ppso           = 4,
+    .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_4,
+    .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_5,
+    .serial_port            = "/dev/ttyAT1"
+};
+
 static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .gpio_rs422_1588_mstoen = -1,
     .gpio_rs422_1588_slvoen = -1,
@@ -38,6 +49,19 @@ static const meba_ptp_rs422_conf_t other_rs422_conf = {
     .ptp_rs422_pps_int_id   = MEBA_EVENT_PTP_PIN_2,
     .ptp_rs422_ldsv_int_id  = MEBA_EVENT_PTP_PIN_3,
     .serial_port            = "/dev/ttyAT1"
+};
+
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_PTP_PIN_4, MEBA_EVENT_PTP_PIN_5, MEBA_EVENT_PTP_PIN_5, MEBA_EVENT_PTP_PIN_5};
+
+static const uint32_t pin_conf_pcb8398[VTSS_TS_IO_ARRAY_SIZE] = {
+(MEBA_PTP_IO_CAP_UNUSED), // Need to validate PIN_IN
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_TIME_IF_OUT | MEBA_PTP_IO_CAP_PIN_OUT),
+(MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
+(MEBA_PTP_IO_CAP_UNUSED),
+(MEBA_PTP_IO_CAP_UNUSED)
 };
 
 #define LAGUNA_CAP_10G_FDX (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH)
@@ -675,6 +699,8 @@ static mesa_rc lan969x_event_enable(meba_inst_t inst,
     case MEBA_EVENT_PTP_PIN_1:
     case MEBA_EVENT_PTP_PIN_2:
     case MEBA_EVENT_PTP_PIN_3:
+    case MEBA_EVENT_PTP_PIN_4:
+    case MEBA_EVENT_PTP_PIN_5:
     case MEBA_EVENT_CLK_TSTAMP:
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
         if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
@@ -850,11 +876,27 @@ static mesa_rc lan969x_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
 
 static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
 {
+    meba_board_state_t *board = INST2BOARD(inst);
     T_N(inst, "Called");
 
-    // HENRIKBTBD
-    *conf = other_rs422_conf;
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+        *conf = pcb8398_rs422_conf;
+    } else {
+        *conf = other_rs422_conf;
+    }
     return VTSS_RC_OK;
+}
+
+static mesa_rc lan969x_ptp_external_io_conf_get(meba_inst_t inst, uint32_t io_pin, meba_ptp_io_cap_t *const board_assignment, meba_event_t *const source_id)
+{
+    if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
+        return MESA_RC_ERROR;
+    }
+    // default pin assignment.
+    *board_assignment = pin_conf_pcb8398[io_pin];
+
+    *source_id = init_int_source_id[io_pin];
+    return MESA_RC_OK;
 }
 
 static mesa_rc lan969x_gpio_func_info_get(meba_inst_t inst,
@@ -961,7 +1003,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api_poe                             = meba_poe_get();
     inst->api_cpu_port                        = NULL;
     inst->api.meba_serdes_tap_get             = NULL;
-    inst->api.meba_ptp_external_io_conf_get   = NULL;
+    inst->api.meba_ptp_external_io_conf_get   = lan969x_ptp_external_io_conf_get;
     return inst;
 
 error_out:

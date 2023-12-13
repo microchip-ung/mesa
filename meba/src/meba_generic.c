@@ -28,6 +28,10 @@ mesa_ptp_event_type_t meba_generic_ptp_source_to_event(meba_inst_t inst, meba_ev
             return MESA_PTP_PIN_2_SYNC_EV;
         case MEBA_EVENT_PTP_PIN_3:
             return MESA_PTP_PIN_3_SYNC_EV;
+        case MEBA_EVENT_PTP_PIN_4:
+            return MESA_PTP_PIN_4_SYNC_EV;
+        case MEBA_EVENT_PTP_PIN_5:
+            return MESA_PTP_PIN_5_SYNC_EV;
         default:
             T_E(inst, "Unknown event %d", event_id);
             MEBA_ASSERT(0);
@@ -108,6 +112,14 @@ mesa_rc meba_generic_ptp_handler(meba_inst_t inst, meba_event_signal_t signal_no
 
             if (ptp_events & MESA_PTP_PIN_3_SYNC_EV) {
                 signal_notifier(MEBA_EVENT_PTP_PIN_3, 0);
+                handled++;
+            }
+            if (ptp_events & MESA_PTP_PIN_4_SYNC_EV) {
+                signal_notifier(MEBA_EVENT_PTP_PIN_4, 0);
+                handled++;
+            }
+            if (ptp_events & MESA_PTP_PIN_5_SYNC_EV) {
+                signal_notifier(MEBA_EVENT_PTP_PIN_5, 0);
                 handled++;
             }
         }

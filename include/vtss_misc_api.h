@@ -420,6 +420,8 @@ typedef enum {
     VTSS_PTP_PIN_1_SYNC_EV =(1 << 6), /*< PTP External pin 1 synchronization (Jaguar2 only)*/
     VTSS_PTP_PIN_2_SYNC_EV =(1 << 7), /*< PTP External pin 2 synchronization (Jaguar2 only)*/
     VTSS_PTP_PIN_3_SYNC_EV =(1 << 8), /*< PTP External pin 3 synchronization (Jaguar2 only)*/
+    VTSS_PTP_PIN_4_SYNC_EV =(1 << 9), /*< PTP External pin 4 synchronization (Laguna)*/
+    VTSS_PTP_PIN_5_SYNC_EV =(1 << 10),/*< PTP External pin 5 synchronization (Laguna)*/
 } vtss_ptp_event_type_t;
 
 /**

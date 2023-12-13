@@ -342,6 +342,8 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t
     *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<1)) ? VTSS_PTP_PIN_1_SYNC_EV : 0;
     *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<2)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
     *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<3)) ? VTSS_PTP_PIN_3_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<4)) ? VTSS_PTP_PIN_4_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1<<5)) ? VTSS_PTP_PIN_5_SYNC_EV : 0;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
@@ -372,6 +374,16 @@ static vtss_rc fa_ptp_event_enable(vtss_state_t *vtss_state,
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<3 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<3));
+    }
+    if (ev_mask & VTSS_PTP_PIN_4_SYNC_EV) {
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<4 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<4));
+    }
+    if (ev_mask & VTSS_PTP_PIN_5_SYNC_EV) {
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1<<5 : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1<<5));
     }
     return VTSS_RC_OK;
 }

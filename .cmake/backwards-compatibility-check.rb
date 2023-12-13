@@ -326,9 +326,14 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)                # Configs to build
 
 # HSR related change
-check("backwards-check",               # Name of check
-      "b2f6132ca8@poe-appl-update-9-10",     # Apl release to use
-      $default_configs)                # Configs to build
+#check("backwards-check",               # Name of check
+#      "b2f6132ca8@poe-appl-update-9-10",     # Apl release to use
+#      $default_configs)                # Configs to build
+
+# PTP IO pin interrupts related change
+check("backwards-check",                # Name of check
+      "4ad1ba4ef2@master.laguna-ptp",   # Apl release to use
+      $default_configs)                 # Configs to build
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0

@@ -392,12 +392,14 @@ typedef enum {
     // PTP Clock timestamp is updated
     MEBA_EVENT_CLK_TSTAMP, // 8
 
-    // The 4 PTP pins have individual enums as the corresponding interrupt must
+    // All the PTP pins have individual enums as the corresponding interrupt must
     // be enabled separately
     MEBA_EVENT_PTP_PIN_0, // 9
     MEBA_EVENT_PTP_PIN_1,
     MEBA_EVENT_PTP_PIN_2,
     MEBA_EVENT_PTP_PIN_3,
+    MEBA_EVENT_PTP_PIN_4,
+    MEBA_EVENT_PTP_PIN_5,
 
     // TS More than one engine find match
     MEBA_EVENT_INGR_ENGINE_ERR, // 13
