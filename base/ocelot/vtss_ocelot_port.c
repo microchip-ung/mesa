@@ -1516,7 +1516,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     u32                    link_speed, value, tgt = VTSS_TO_DEV(port), delay = 0;
     u32                    q, pfc_mask = 0;
     vtss_port_frame_gaps_t gaps;
-    vtss_port_speed_t      speed = conf->speed;
+    vtss_port_speed_t      speed = conf->speed, skip_port_flush = 0;
     BOOL                   fdx = conf->fdx, disable = conf->power_down;
     BOOL                   sgmii = 0, if_100fx = 0;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;   
@@ -1527,6 +1527,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         SRVL_WRM_CTL(VTSS_DEVCPU_GCB_PHY_PHY_CFG,
                      conf->if_type == VTSS_PORT_INTERFACE_SGMII,
                      VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA(VTSS_BIT(port)));
+    }
+    if (srvl_port_is_internal_phy(port) &&
+        (disable || vtss_state->port.current_pd[port_no])) {
+        // ports with internal phys are not flushed during power_up/down
+        skip_port_flush = 1;
     }
 
     /* Verify speed and interface type */
@@ -1626,6 +1631,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         if (conf->if_type != VTSS_PORT_INTERFACE_QSGMII) {
             VTSS_RC(srvl_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_IDLE));
         }
+
+        vtss_state->port.current_pd[port_no] = vtss_state->port.conf[port_no].power_down;
         return VTSS_RC_OK; // Nothing else needs to be disabled
     }
 
@@ -1639,75 +1646,77 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     SRVL_RD(VTSS_SYS_STAT_CNT(0x40), &cnt[0]); // tx_bytes
     SRVL_RD(VTSS_SYS_STAT_CNT(0x41), &cnt[1]); // tx_unicast
 
-    /* ********************************* */
-    /* Port disable and flush procedure: */
-    /* ********************************* */
-    /* 1: Reset the PCS Rx clock domain  */
-    SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
-                 VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_RX_RST);
+    if (!skip_port_flush) {
+        /* ********************************* */
+        /* Port disable and flush procedure: */
+        /* ********************************* */
+        /* 1: Reset the PCS Rx clock domain  */
+        SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PCS_RX_RST);
 
-    /* 2: Disable MAC frame reception */
-    SRVL_WRM_CLR(VTSS_DEV_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
-                 VTSS_F_DEV_MAC_CFG_STATUS_MAC_ENA_CFG_RX_ENA);
+        /* 2: Disable MAC frame reception */
+        SRVL_WRM_CLR(VTSS_DEV_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
+                     VTSS_F_DEV_MAC_CFG_STATUS_MAC_ENA_CFG_RX_ENA);
 
-    /* 3: Disable traffic being sent to or from switch port */
-    SRVL_WRM_CLR(VTSS_QSYS_SYSTEM_SWITCH_PORT_MODE(port),
-                 VTSS_F_QSYS_SYSTEM_SWITCH_PORT_MODE_PORT_ENA);
+        /* 3: Disable traffic being sent to or from switch port */
+        SRVL_WRM_CLR(VTSS_QSYS_SYSTEM_SWITCH_PORT_MODE(port),
+                     VTSS_F_QSYS_SYSTEM_SWITCH_PORT_MODE_PORT_ENA);
 
-    /* 4: Disable dequeuing from the egress queues  */
-    SRVL_WRM_SET(VTSS_QSYS_SYSTEM_PORT_MODE(port),
-                VTSS_F_QSYS_SYSTEM_PORT_MODE_DEQUEUE_DIS);
+        /* 4: Disable dequeuing from the egress queues  */
+        SRVL_WRM_SET(VTSS_QSYS_SYSTEM_PORT_MODE(port),
+                     VTSS_F_QSYS_SYSTEM_PORT_MODE_DEQUEUE_DIS);
 
-    /* 5: Disable Flowcontrol */
-    SRVL_WRM_CLR(VTSS_SYS_PAUSE_CFG_PAUSE_CFG(port),  VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA);
+        /* 5: Disable Flowcontrol */
+        SRVL_WRM_CLR(VTSS_SYS_PAUSE_CFG_PAUSE_CFG(port),  VTSS_F_SYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA);
 
-    /* 5.1: Disable PFC */
-    SRVL_WRM(VTSS_QSYS_SYSTEM_SWITCH_PORT_MODE(port),
-             VTSS_F_QSYS_SYSTEM_SWITCH_PORT_MODE_TX_PFC_ENA(0),
-             VTSS_M_QSYS_SYSTEM_SWITCH_PORT_MODE_TX_PFC_ENA)
+        /* 5.1: Disable PFC */
+        SRVL_WRM(VTSS_QSYS_SYSTEM_SWITCH_PORT_MODE(port),
+                 VTSS_F_QSYS_SYSTEM_SWITCH_PORT_MODE_TX_PFC_ENA(0),
+                 VTSS_M_QSYS_SYSTEM_SWITCH_PORT_MODE_TX_PFC_ENA)
 
-    /* 6: Wait a worst case time 8ms (jumbo/10Mbit) */
-    VTSS_MSLEEP(8);
+            /* 6: Wait a worst case time 8ms (jumbo/10Mbit) */
+            VTSS_MSLEEP(8);
 
-    /* 7: Disable HDX backpressure (Bugzilla 3203) */
-    SRVL_WRM_CLR(VTSS_SYS_SYSTEM_FRONT_PORT_MODE(port), 
-                 VTSS_F_SYS_SYSTEM_FRONT_PORT_MODE_HDX_MODE);
-   
-    /* 8: Flush the queues accociated with the port */
-    SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(port), 
-                 VTSS_F_REW_PORT_PORT_CFG_FLUSH_ENA);
+        /* 7: Disable HDX backpressure (Bugzilla 3203) */
+        SRVL_WRM_CLR(VTSS_SYS_SYSTEM_FRONT_PORT_MODE(port),
+                     VTSS_F_SYS_SYSTEM_FRONT_PORT_MODE_HDX_MODE);
 
-    /* 9: Enable dequeuing from the egress queues */
-    SRVL_WRM_CLR(VTSS_QSYS_SYSTEM_PORT_MODE(port),
-                VTSS_F_QSYS_SYSTEM_PORT_MODE_DEQUEUE_DIS);
+        /* 8: Flush the queues accociated with the port */
+        SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(port),
+                     VTSS_F_REW_PORT_PORT_CFG_FLUSH_ENA);
 
-    /* 10: Wait until flushing is complete */
-    do { 
-        SRVL_RD(VTSS_QSYS_SYSTEM_SW_STATUS(port), &value);
-        VTSS_MSLEEP(1);            
-        delay++;
-        if (delay == 2000) {
-            VTSS_E("Rev 3. Flush timeout chip port %u",port);
-            break;
-        }
-    } while (value & VTSS_M_QSYS_SYSTEM_SW_STATUS_EQ_AVAIL);
+        /* 9: Enable dequeuing from the egress queues */
+        SRVL_WRM_CLR(VTSS_QSYS_SYSTEM_PORT_MODE(port),
+                     VTSS_F_QSYS_SYSTEM_PORT_MODE_DEQUEUE_DIS);
 
-    /* 11: Reset the Port and MAC clock domains */
-    SRVL_WRM_CLR(VTSS_DEV_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
-            VTSS_F_DEV_MAC_CFG_STATUS_MAC_ENA_CFG_TX_ENA); /* Bugzilla#19076 */
-    SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST);
-    VTSS_MSLEEP(1);
-    SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_TX_RST |
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_RX_RST |
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1) |
-            VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST);
+        /* 10: Wait until flushing is complete */
+        do {
+            SRVL_RD(VTSS_QSYS_SYSTEM_SW_STATUS(port), &value);
+            VTSS_MSLEEP(1);
+            delay++;
+            if (delay == 2000) {
+                VTSS_E("Rev 3. Flush timeout chip port %u",port);
+                break;
+            }
+        } while (value & VTSS_M_QSYS_SYSTEM_SW_STATUS_EQ_AVAIL);
 
-    /* 12: Clear flushing */
-    SRVL_WRM_CLR(VTSS_REW_PORT_PORT_CFG(port), VTSS_F_REW_PORT_PORT_CFG_FLUSH_ENA);
+        /* 11: Reset the Port and MAC clock domains */
+        SRVL_WRM_CLR(VTSS_DEV_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
+                     VTSS_F_DEV_MAC_CFG_STATUS_MAC_ENA_CFG_TX_ENA); /* Bugzilla#19076 */
+        SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST);
+        VTSS_MSLEEP(1);
+        SRVL_WRM_SET(VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt),
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_TX_RST |
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_MAC_RX_RST |
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_LINK_SPEED(1) |
+                     VTSS_F_DEV_PORT_MODE_CLOCK_CFG_PORT_RST);
 
-    /* The port is disabled and flushed, now set up the port in the new operating mode */
+        /* 12: Clear flushing */
+        SRVL_WRM_CLR(VTSS_REW_PORT_PORT_CFG(port), VTSS_F_REW_PORT_PORT_CFG_FLUSH_ENA);
+
+        /* The port is disabled and flushed, now set up the port in the new operating mode */
+    }
 
     /* Re-Configure the Serdes macros */
     if (mode != vtss_state->port.serdes_mode[port_no]) {
@@ -1891,7 +1900,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     }
 
     vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
-
+    vtss_state->port.current_pd[port_no] = vtss_state->port.conf[port_no].power_down;
     return VTSS_RC_OK;
 }
 
