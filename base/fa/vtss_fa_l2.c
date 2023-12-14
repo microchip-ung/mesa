@@ -632,7 +632,7 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
     msti = e->msti;
 #endif
 #if defined(VTSS_FEATURE_VLAN_SVL)
-    fid = (e->fid == 0 ? vid : e->fid);
+    fid = e->fid;
 #endif
 #if defined(VTSS_FEATURE_LAYER3)
     rl_enable = e->rl_enable;
@@ -640,7 +640,7 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
 #endif
     REG_WR(VTSS_ANA_L3_VLAN_CFG(vid),
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_MSTP_PTR(msti) |
-           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(fid) |
+           VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(fid == 0 ? vid : fid) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_IGR_FILTER_ENA(e->flags & VLAN_FLAGS_FILTER ? 1 : 0) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_FLOOD_DIS(e->flags & VLAN_FLAGS_FLOOD ? 0 : 1) |
            VTSS_F_ANA_L3_VLAN_CFG_VLAN_LRN_DIS(e->flags & VLAN_FLAGS_LEARN ? 0 : 1) |
