@@ -161,13 +161,6 @@ typedef mesa_rc (*meba_fan_param_get_t)(struct meba_inst *inst,
 typedef mesa_rc (*meba_fan_conf_get_t)(struct meba_inst *inst,
                                        mesa_fan_conf_t *conf);
 
-// Get IRQ status (active IRQs), mask active IRQs. This acts as a possible
-// override for mesa_irq_status_get_and_mask().
-//
-// status  [OUT] A bitmask of currently active IRQs.
-typedef mesa_rc (*meba_irq_status_get_and_mask_t)(struct meba_inst *inst,
-                                                  mesa_irq_status_t *status);
-
 // Control a specific IRQ
 // chip_irq        [IN] Chip interrupt.
 // enable          [IN] Enable or disable IRQ.
@@ -227,7 +220,6 @@ typedef struct {
     meba_led_intensity_set_t        meba_led_intensity_set;
     meba_fan_param_get_t            meba_fan_param_get;
     meba_fan_conf_get_t             meba_fan_conf_get;
-    meba_irq_status_get_and_mask_t  meba_irq_status_get_and_mask;
     meba_irq_enable_t               meba_irq_enable;
     meba_irq_handler_t              meba_irq_handler;
     meba_irq_requested_t            meba_irq_requested;
@@ -258,7 +250,6 @@ typedef struct {
     X(meba_led_intensity_set)        \
     X(meba_fan_param_get)            \
     X(meba_fan_conf_get)             \
-    X(meba_irq_status_get_and_mask)  \
     X(meba_irq_enable)               \
     X(meba_irq_handler)              \
     X(meba_irq_requested)            \
