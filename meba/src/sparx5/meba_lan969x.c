@@ -252,9 +252,6 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
     (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
 
-    // MIIM frequency needs to be reduced on this board: DEVCPU_GCB:MIIM[0]:MII_CFG = 0x2ff
-    (void)mesa_reg_write(NULL, 0, 0x80406e, 0x2ff);
-
     return MESA_RC_OK;
 }
 
