@@ -201,6 +201,7 @@ vtss_rc vtss_macsec_store_sa(vtss_state_t *vtss_state,
 #ifdef VTSS_MACSEC_FIFO_OVERFLOW_WORKAROUND
 vtss_rc vtss_macsec_reconfigure(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 #endif
+vtss_rc vtss_phy_macsec_bypass_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL macsec_bypass);
 
 static vtss_rc vtss_macsec_init_set_priv(vtss_state_t *vtss_state, const vtss_port_no_t port_no,
                                          const vtss_macsec_init_t *const init);
@@ -10988,7 +10989,39 @@ vtss_rc vtss_macsec_dbg_update_seq_set(const vtss_inst_t        inst,
     return rc;
 }
 
+vtss_rc vtss_phy_macsec_bypass_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   BOOL macsec_bypass)
+{
+    u32 reg_val;
+    if(macsec_bypass) {// if macsec_en is set then setting in bypass mode
+        //Macsec bypass enabled for Ingress
+        CSR_RD(port_no, VTSS_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, &reg_val);
+        reg_val &= ~VTSS_F_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_ENA;
+        reg_val |= VTSS_F_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_BYPASS_ENA;
+        CSR_COLD_WR(port_no, VTSS_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, reg_val);
+        // MACsec disabled needs to added here
+        //Macsec bypass enabled for egress
+        CSR_RD(port_no, VTSS_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, &reg_val);
+        reg_val &= ~VTSS_F_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_ENA;
+        reg_val |= VTSS_F_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_BYPASS_ENA;
+        CSR_COLD_WR(port_no, VTSS_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, reg_val);
 
+    }
+    else {
+        // MACsec bypass disabled for Ingress
+        CSR_RD(port_no, VTSS_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, &reg_val);
+        reg_val |= VTSS_F_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_ENA;
+        reg_val &= ~VTSS_F_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_BYPASS_ENA;
+        CSR_COLD_WR(port_no, VTSS_MACSEC_INGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, reg_val);
+        // Macsec bypass disabled for Egress
+        CSR_RD(port_no, VTSS_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, &reg_val);
+        reg_val |= VTSS_F_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_ENA;
+        reg_val &= ~VTSS_F_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG_MACSEC_BYPASS_ENA;
+        CSR_COLD_WR(port_no, VTSS_MACSEC_EGR_MACSEC_CTL_REGS_MACSEC_ENA_CFG, reg_val);
+    }
+    return VTSS_RC_OK;
+}
 
 
 // ***************************************************************************

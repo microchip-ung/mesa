@@ -1778,9 +1778,6 @@ vtss_rc vtss_macsec_dbg_update_seq_set(const vtss_inst_t        inst,
 
 
 
-
-
-
 // ***************************************************************************
 //
 //  End of file.

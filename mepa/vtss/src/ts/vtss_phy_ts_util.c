@@ -26,6 +26,7 @@
 
 #if defined(VTSS_FEATURE_MACSEC)
 #include "vtss_macsec_api.h"
+#include "../phy_10g/chips/malibu/vtss_malibu_regs.h"
 #endif /* VTSS_FEATURE_MACSEC */
 
 #if defined(VTSS_IOADDR)
@@ -45,6 +46,12 @@
 #include "vtss_phy_ts_util.h"
 /*lint -sem( vtss_callout_lock, thread_lock ) */
 /*lint -sem( vtss_callout_unlock, thread_unlock ) */
+
+#if defined(VTSS_FEATURE_MACSEC)
+vtss_rc vtss_phy_macsec_bypass_set(vtss_state_t *vtss_state,
+                                   const vtss_port_no_t port_no,
+                                   BOOL macsec_bypass);
+#endif
 
 static vtss_rc vtss_phy_id_get_private(vtss_state_t *vtss_state, const vtss_port_no_t port_no, vtss_phy_type_t *phy_id)
 {
@@ -278,12 +285,12 @@ vtss_rc vtss_phy_1588_oos_mitigation_steps_private(vtss_state_t *vtss_state,
                                                    const vtss_port_no_t port_no,
                                                    const vtss_phy_ts_fifo_conf_t *fifo_conf);
 
-
 static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_state,
                                                           const vtss_port_no_t port_no,
                                                           BOOL copper,
                                                           BOOL ams_mode,
-                                                          BOOL cu_sfp);
+                                                          BOOL cu_sfp,
+                                                          BOOL macsec_en);
 
 //proc core_patch {port proc_id} {
 
@@ -859,6 +866,9 @@ static vtss_rc vtss_phy_1588_oos_mitigation_restore_setup(vtss_state_t *vtss_sta
     //after 1
     MEPA_MSLEEP(1);
 
+    //before normal operation macsec block is enabled
+
+
     VTSS_I("Normal Operation being restored\n");
     //MiiWrite $port 9 $reg9
     VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_1000BASE_T_CONTROL, *reg9));
@@ -985,10 +995,8 @@ vtss_rc vtss_phy_1588_oos_mitigation_steps_private(vtss_state_t *vtss_state,
 
     VTSS_I("Calling OOS Alog ams_mode : %s  cu_mode : %s port_no : %u\n", ams_mode ? "TRUE " : "FALSE ", cu_mode ? "TRUE " : "FALSE ", port_no);
 
-    if(!macsec_enable)
-        rc = vtss_phy_1588_oos_mitigation_steps_execute(vtss_state, port_no, cu_mode, ams_mode, cu_sfp);
-    else
-        VTSS_I("MACsec is enabled, Current 1588 OOS Algorithm does not support MACsec modes");
+    rc = vtss_phy_1588_oos_mitigation_steps_execute(vtss_state, port_no, cu_mode, ams_mode, cu_sfp, macsec_enable);
+    //VTSS_I("MACsec is enabled, Current 1588 OOS Algorithm does not support MACsec modes");
 
 #ifdef VTSS_FIFO_SYNC_DEBUG
     gettimeofday(&tv, NULL);
@@ -996,16 +1004,21 @@ vtss_rc vtss_phy_1588_oos_mitigation_steps_private(vtss_state_t *vtss_state,
 #endif
     return rc;
 }
+
 static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_state,
                                                          const vtss_port_no_t port_no, 
                                                          BOOL copper,
                                                          BOOL ams_mode,
-                                                         BOOL cu_sfp)
+                                                         BOOL cu_sfp,
+                                                         BOOL macsec_en)
 {
     vtss_rc rc = VTSS_RC_OK;
     vtss_phy_ts_overflow_info_t overflow_conf = {};
     vtss_phy_ts_pop_fifo_t pop_fifo = {};
     u16 reg0, reg9, extreg29, reg23;
+#if defined(VTSS_FEATURE_MACSEC)
+    BOOL macsec_bypass_flag = FALSE;
+#endif
     VTSS_I("Enter vtss_phy_1588_oos_mitigation_steps_execute port_no %u mode of operation %s\n", port_no, copper? "Copper": "Fiber");
 
     rc = vtss_phy_1588_oos_mitigation_save_cfg(vtss_state, port_no, &reg0, &reg9, &extreg29, &reg23);
@@ -1032,8 +1045,18 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
         }
 
     }
+    // MACsec feature enabled in PHY then Macsec bypass is set
+#if defined(VTSS_FEATURE_MACSEC)
+    if(rc == VTSS_RC_OK) {
+        if(macsec_en) {
+            VTSS_I("Macsec bypass is enabled");
+            rc = vtss_phy_macsec_bypass_set(vtss_state, port_no, TRUE);
+            macsec_bypass_flag = TRUE;
+	}
+    }
+#endif
 
-    //TeslaCsrWrite $port $proc_id 0x00 0x42;#Disable 1588 bypass
+    //TeslaCsrWeite $port $proc_id 0x00 0x42;#Disable 1588 bypass
     if(rc == VTSS_RC_OK){
         rc = vtss_phy_ts_bypass_set(vtss_state, port_no, FALSE, TRUE);
     }
@@ -1086,6 +1109,15 @@ static vtss_rc vtss_phy_1588_oos_mitigation_steps_execute(vtss_state_t *vtss_sta
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_ts_bypass_set(vtss_state, port_no, TRUE, TRUE);
+
+#if defined(VTSS_FEATURE_MACSEC)
+    if(rc == VTSS_RC_OK) {
+        if(macsec_bypass_flag){
+            VTSS_I("\n MACsec BYPASS is Disabled");
+            rc = vtss_phy_macsec_bypass_set(vtss_state, port_no, FALSE);
+        }
+    }
+#endif
 
     if(rc == VTSS_RC_OK)
     rc = vtss_phy_1588_oos_mitigation_restore_setup(vtss_state, port_no,&reg0, &reg9, &extreg29, &reg23);

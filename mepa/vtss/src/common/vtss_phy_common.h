@@ -31,7 +31,7 @@ ioreg_blk *_ioreg(ioreg_blk *io, u16 dev, BOOL is32, u32 addr);
 
 #define CSR_RD(p, io_reg, value)     \
     {   \
-       vtss_rc __rc = _csr_rd(vtss_state, p, io_reg, value); \
+	vtss_rc __rc = _csr_rd(vtss_state, p, io_reg, value); \
         if (__rc != VTSS_RC_OK)           \
             return __rc;                  \
     }
