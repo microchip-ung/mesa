@@ -122,7 +122,7 @@ mesa_rc meba_poe_caracal_system_initialize(
         {
             // overide tMeba_poe_init_params params if using H file parameters
             if(tPoe_init_params->use_poe_static_parameters) {
-                tPoe_init_params->max_poe_ports = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+                tPoe_init_params->max_poe_ports = sizeof(pds408g_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t);
             }
 
             inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
@@ -140,8 +140,8 @@ mesa_rc meba_poe_caracal_system_initialize(
                                        MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                        MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
                                        MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                       pds408g_pd69200_port_map,
-                                       sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                       pds408g_pd69200_4pairs_port_map,
+                                       sizeof(pds408g_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t),
                                        pds408g_power_supplies,
                                        sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                        inst->iface.debug,
@@ -151,7 +151,7 @@ mesa_rc meba_poe_caracal_system_initialize(
         {
             // overide tMeba_poe_init_params params if using H file parameters
             if(tPoe_init_params->use_poe_static_parameters) {
-                tPoe_init_params->max_poe_ports = sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+                tPoe_init_params->max_poe_ports = sizeof(pds408g_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t);
             }
 
             inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
@@ -168,8 +168,8 @@ mesa_rc meba_poe_caracal_system_initialize(
                                        MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                        MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                        MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
-                                       pds408g_pd69200_port_map,
-                                       sizeof(pds408g_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                       pds408g_pd69200_4pairs_port_map,
+                                       sizeof(pds408g_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t),
                                        pds408g_power_supplies,
                                        sizeof(pds408g_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                        inst->iface.debug,
@@ -210,7 +210,7 @@ default:  //caracal board
         {
              // overide tMeba_poe_init_params params if using H file parameters
              if(tPoe_init_params->use_poe_static_parameters) {
-                 tPoe_init_params->max_poe_ports = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+                 tPoe_init_params->max_poe_ports = sizeof(caracal_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t);
              }
 
              inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
@@ -228,8 +228,8 @@ default:  //caracal board
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                      MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
                                      MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                     caracal_pd69200_port_map,
-                                     sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                     caracal_pd69200_4pairs_port_map,
+                                     sizeof(caracal_pd69200_4pairs_port_map)/sizeof(meba_poe_port_properties_t),
                                      caracal_power_supplies,
                                      sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                      inst->iface.debug,
@@ -239,7 +239,7 @@ default:  //caracal board
         {
              // overide tMeba_poe_init_params params if using H file parameters
              if(tPoe_init_params->use_poe_static_parameters) {
-                 tPoe_init_params->max_poe_ports = sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t);
+                 tPoe_init_params->max_poe_ports = sizeof(caracal_pd69200_2pairs_port_map)/sizeof(meba_poe_port_properties_t);
              }
 
              inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
@@ -256,8 +256,8 @@ default:  //caracal board
                                      MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                      MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
-                                     caracal_pd69200_port_map,
-                                     sizeof(caracal_pd69200_port_map)/sizeof(meba_poe_port_properties_t),
+                                     caracal_pd69200_2pairs_port_map,
+                                     sizeof(caracal_pd69200_2pairs_port_map)/sizeof(meba_poe_port_properties_t),
                                      caracal_power_supplies,
                                      sizeof(caracal_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                      inst->iface.debug,

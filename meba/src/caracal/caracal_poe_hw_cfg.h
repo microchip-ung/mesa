@@ -185,7 +185,7 @@
 //Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //      this parameters is the port power limit when using poe PREBT mode.
 
-meba_poe_port_properties_t pds408g_pd69200_port_map[] =
+meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] =
 {
  // PoE                 | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
  // Capability          | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
@@ -375,7 +375,8 @@ meba_poe_port_properties_t pds408g_pd69200_port_map[] =
 //Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //      this parameters is the port power limit when using poe PREBT mode.
 
-meba_poe_port_properties_t caracal_pd69200_port_map[] =
+// pd69200 - PREBT mapping - 8 PoE ports 2-pairs
+meba_poe_port_properties_t caracal_pd69200_2pairs_port_map[] =
 {
 //  PoE                 | PREBT-  | App-Log |PoE-Log | PoE Pair-A   | PoE Pair-B
 //  Capability          | MAX PWR | Port-ID |Port-ID | Phys Port-ID | Phys Port-ID
@@ -405,6 +406,45 @@ meba_poe_port_properties_t caracal_pd69200_port_map[] =
   { CARACAL_PD69200_CAP , 24000   , 22      , 22     , 22           , 255        },
   { CARACAL_PD69200_CAP , 24000   , 23      , 23     , 23           , 255        },
 };
+
+
+
+//Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
+//      this parameters is the port power limit when using poe PREBT mode.
+
+// Note: for PoE BT mode - the user have to update the PoE 4pairs matrix
+// pd69200 - BT mapping - 8 PoE ports 4-pairs
+meba_poe_port_properties_t caracal_pd69200_4pairs_port_map[] =
+{
+//  PoE                 | PREBT-  | App-Log |PoE-Log | PoE Pair-A   | PoE Pair-B
+//  Capability          | MAX PWR | Port-ID |Port-ID | Phys Port-ID | Phys Port-ID
+//--------------------------------------------------------------------------------
+  { CARACAL_PD69200_CAP , 24000   , 0       , 0      , 0            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 1       , 1      , 1            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 2       , 2      , 2            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 3       , 3      , 3            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 4       , 4      , 4            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 5       , 5      , 5            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 6       , 6      , 6            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 7       , 7      , 7            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 8       , 8      , 8            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 9       , 9      , 9            , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 10      , 10     , 10           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 11      , 11     , 11           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 12      , 12     , 12           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 13      , 13     , 13           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 14      , 14     , 14           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 15      , 15     , 15           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 16      , 16     , 16           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 17      , 17     , 17           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 18      , 18     , 18           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 19      , 19     , 19           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 20      , 20     , 20           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 21      , 21     , 21           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 22      , 22     , 22           , 255        },
+  { CARACAL_PD69200_CAP , 24000   , 23      , 23     , 23           , 255        },
+};
+
 
 //----------------- CARACAL cap and port map Customizations ends here -------------------//
 

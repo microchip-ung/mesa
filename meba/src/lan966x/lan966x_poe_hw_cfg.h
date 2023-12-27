@@ -87,7 +87,7 @@
 //      this parameters is the port power limit when using poe PREBT mode.
 
 // pd69200 - BT mapping - 8 PoE ports 4-pairs
-meba_poe_port_properties_t lan9668_pd69200_port_map[] =
+meba_poe_port_properties_t lan9668_pd69200_4pairs_port_map[] =
 {
 //  PoE         | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
 //  Capability  | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID

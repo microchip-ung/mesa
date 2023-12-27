@@ -280,7 +280,7 @@
 //Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //      this parameters is the port power limit when using poe PREBT mode.
 
-meba_poe_port_properties_t sparx5_pd69200_port_map_1[] =
+meba_poe_port_properties_t sparx5_pd69200_4pairs_port_map_1[] =
 {
 //  PoE         | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
 //  Capability  | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
@@ -311,7 +311,7 @@ meba_poe_port_properties_t sparx5_pd69200_port_map_1[] =
   { PD69200_CAP , 24000   , 23      , 23      , 23           , 47        },
 };
 
-meba_poe_port_properties_t sparx5_pd69200_port_map_2[] =
+meba_poe_port_properties_t sparx5_pd69200_4pairs_port_map_2[] =
 {
 //  PoE         | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE Pair-B
 //  Capability  | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys Port-ID
