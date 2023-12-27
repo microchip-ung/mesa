@@ -578,8 +578,8 @@ typedef struct {
 //        PoE init parameters
 //---------------------------------------------------
 
-#define MAX_PORD_NAME_STR_LEN              32   // max string size of product name
-// Parameter [PROD_xyzm_POE_DEF_PORT_MAX_POWER_W] value in file products.db must match one of the enum values
+#define MAX_PORD_NAME_STR_LEN              100   // max string size of product name
+
 typedef enum
 {
     MEBA_POE_PORT_MAX_POWER_15W = 15,
@@ -593,7 +593,7 @@ typedef struct   // parameters taken from DB according to PN read from PoEMCU se
 {
     mesa_bool_t                 use_poe_static_parameters              ;
     uint8_t                     max_poe_ports                          ; // Max number of POE channels ( 6/12/24/48) based on product det (serial number)
-    meba_power_supply_int_ext_t ePower_supply_internal_external   ;
+    meba_power_supply_int_ext_t ePower_supply_internal_external        ;
     uint16_t                    power_supply_default_power_limit       ; // Midspan Power Supply Max-Power(Watt) - after decrementing internal power consumption ( 450 -> 430,etc )
     uint16_t                    power_supply_max_power_w               ; // Midspan maximum Power Supply power (Watt)
     uint16_t                    power_supply_internal_pwr_usage        ;
