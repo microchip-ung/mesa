@@ -257,7 +257,7 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
 
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
-        tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t);
+        tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
     }
 
     inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
@@ -275,8 +275,8 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
                                MEBA_POE_CTRL_INTERRUPTIBLE_POWER   |
                                MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
                                MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                               sparx5_pd69200_port_map_1,
-                               sizeof(sparx5_pd69200_port_map_1)/sizeof(meba_poe_port_properties_t),
+                               sparx5_pd69200_4pairs_port_map_1,
+                               sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t),
                                sparx5_power_supplies,
                                sizeof(sparx5_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                inst->iface.debug,
