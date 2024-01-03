@@ -1,0 +1,21 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2023.12
+
+== MESA-2023.12
+
+|===
+|Version:          |MESA-2023.12
+|Previous Version: |MESA-2023.09
+|Date:             |2024-01-04
+|Description:      |Roadmap release
+|===
+
+=== General
+
+This is a maintenance release providing bug fixes but no significant new
+features added.
+
+Please notice that the LAN969x family is still considered in BETA and is not
+ready for production.
