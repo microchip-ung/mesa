@@ -7,6 +7,7 @@
 #include <mepa_ts_driver.h>
 #include <vtss_phy_api.h>
 #include "vtss_private.h"
+#include "phy_10g/vtss_phy_10g.h"
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PHY
 
