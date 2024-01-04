@@ -16,7 +16,7 @@ static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_200M] =   {  417, 1441, 8380 },
-    [MEPA_TS_CLOCK_FREQ_250M] =   {  415, 1447, 8377 }, // 415 1447
+    [MEPA_TS_CLOCK_FREQ_250M] =   {  415, 627, 8377 }, // 415 1447
 };
 
 static  uint16_t indy_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {

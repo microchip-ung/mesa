@@ -941,8 +941,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         tx_delay += 230 * 1000 - 63999;
 
         if (speed == VTSS_SPEED_100M) {   /* APPL-5631: Additional adjustment for 100 Mbps */
-            rx_delay += (1100 * 1000);
-            tx_delay += (1100 * 1000);
+            rx_delay += (2000 * 1000);
+            tx_delay += (2000 * 1000);
         }
         break;
 

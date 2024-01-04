@@ -1924,6 +1924,8 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
     mesa_port_no_t    port_no;
     uint32_t          bit;
     mesa_bool_t       sgpio_events_bit[3][MESA_SGPIO_PORTS];
+    mesa_bool_t       activeEvent = false;
+    mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
     int               handled = 0;
 
     // Getting SGPIO bit 0 - 2
@@ -1933,6 +1935,7 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
             return rc; // Don't even re-enable SGPIO2 interrupt
         }
     }
+    repeat_handler:
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_sfp_port(board->port[port_no].map.cap)) {
             mesa_bool_t event_detected = false;
@@ -1997,6 +2000,20 @@ static mesa_rc sgpio2_handler(meba_inst_t inst,
             }
 
         }
+    }
+    // As SGPIO2 is edge triggered, a new interrupt will only be seen when all
+    // PHY interrups have been handled and cleared. Therefore,
+    // continue to call SGPIO2 handler until all these have been handled and cleared.
+    mesa_sgpio_read(NULL, 0, 2, data);
+    for (bit = 0; bit <= 2; bit++) {
+        // Data is inverted, 0 equals an active event
+        // Check for event on SGPIO2 port 17 and 18
+        activeEvent |= !data[17].value[bit] && sgpio_events_bit[bit][17];
+        activeEvent |= !data[18].value[bit] && sgpio_events_bit[bit][18];
+    }
+    if (activeEvent) {
+        activeEvent = false;
+        goto repeat_handler;
     }
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
