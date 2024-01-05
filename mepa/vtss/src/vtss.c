@@ -226,6 +226,67 @@ static mepa_rc mscc_1g_reset(mepa_device_t *dev,
     return rc;
 }
 
+static mepa_rc phy_1g_warmrestart_conf_set(struct mepa_device *dev, const mepa_restart_t restart)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    mepa_device_t *base_dev = (mepa_device_t *)data->base_dev;
+    phy_data_t *base_data = (phy_data_t*)base_dev->data;
+    data->vtss_instance->restart_cur = restart;
+    data->vtss_instance->init_conf.restart_info_port = base_data->port_no;
+    data->vtss_instance->init_conf.warm_start_enable = TRUE;
+    data->vtss_instance->init_conf.restart_info_src = VTSS_RESTART_INFO_SRC_CU_PHY;
+    if((rc = vtss_phy_restart_conf_set(data->vtss_instance)) != MEPA_RC_OK) {
+        return rc;
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc phy_1g_warmrestart_conf_end(struct mepa_device *dev)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t *)dev->data;
+    mepa_device_t *base_dev = (mepa_device_t *)data->base_dev;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
+    data->vtss_instance->init_conf.restart_info_port = base_data->port_no;
+    data->vtss_instance->init_conf.warm_start_enable = TRUE;
+    data->vtss_instance->init_conf.restart_info_src = VTSS_RESTART_INFO_SRC_CU_PHY;
+    if(data->vtss_instance->warm_start_cur) {
+        data->vtss_instance->warm_start_cur = 0; /* To sync up the registers with the previous instance */
+
+    /* Apply sync configurations */
+        if((rc = vtss_phy_sync(data->vtss_instance, base_data->port_no) != MEPA_RC_OK)) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_phy_10g_sync port(%d) return rc(0x%04X)", base_data->port_no, rc);
+            return rc;
+        }
+#if defined (VTSS_FEATURE_PHY_TIMESTAMP)
+        if((rc = vtss_phy_ts_sync(data->vtss_instance, base_data->port_no)) != MEPA_RC_OK) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_phy_ts_sync port(%d) return rc(0x%04X)", base_data->port_no, rc);
+            return rc;
+        }
+#endif /* VTSS_FEATURE_PHY_TIMESTAMP */
+#if defined (VTSS_FEATURE_MACSEC)
+        if((rc = vtss_macsec_sync(data->vtss_instance, base_data->port_no)) != MEPA_RC_OK) {
+            T_D(data, MEPA_TRACE_GRP_GEN, "vtss_macsec_sync port(%d) return rc(0x%04X)", base_data->port_no, rc);
+            return rc;
+        }
+#endif /* VTSS_FEATURE_MACSEC */
+    }
+    if((rc = vtss_phy_restart_conf_set(data->vtss_instance)) != MEPA_RC_OK ) {
+        return rc;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc phy_1g_warmrestart_conf_get(struct mepa_device *dev, mepa_restart_t *const restart)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data =(phy_data_t*)dev->data;
+    *restart = data->vtss_instance->restart_cur;
+    return rc;
+}
+
 static mepa_rc mscc_1g_poll(mepa_device_t *dev,
                             mepa_status_t *status)
 {
@@ -1315,6 +1376,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_i2c_read = phy_1g_i2c_read,
             .mepa_driver_phy_i2c_write = phy_1g_i2c_write,
             .mepa_driver_phy_i2c_clock_select = phy_1g_i2c_clock_select,
+            .mepa_driver_warmrestart_conf_get = phy_1g_warmrestart_conf_get,
+            .mepa_driver_warmrestart_conf_end = phy_1g_warmrestart_conf_end,
+            .mepa_driver_warmrestart_conf_set = phy_1g_warmrestart_conf_set,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
         },
@@ -1358,6 +1422,9 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_fefi_get = phy_1g_fefi_get,
             .mepa_driver_phy_fefi_detect = phy_1g_fefi_detect,
             .mepa_driver_chip_temp_get = phy_1g_chip_temp_get,
+            .mepa_driver_warmrestart_conf_get = phy_1g_warmrestart_conf_get,
+            .mepa_driver_warmrestart_conf_end = phy_1g_warmrestart_conf_end,
+            .mepa_driver_warmrestart_conf_set = phy_1g_warmrestart_conf_set,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },
