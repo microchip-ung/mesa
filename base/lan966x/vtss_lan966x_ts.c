@@ -693,6 +693,10 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
             rx_delay += (1000 * 558);
             tx_delay += (1000 * 558);
         }
+        if (speed == VTSS_SPEED_100M) { /* 100 Mbps */
+            rx_delay += (1000 * 2878);
+            tx_delay += (1000 * 2878);
+        }
         break;
     default:
         break;
