@@ -9,7 +9,7 @@
 
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #define VTSS_TS_ID_SIZE  63
-#define TS_IDS_RESERVED_FOR_SW 4
+#define TS_IDS_RESERVED_FOR_SW 10
 #endif /* VTSS_ARCH_LUTON26 || VTSS_ARCH_OCELOT */
 
 #if defined (VTSS_ARCH_OCELOT)
