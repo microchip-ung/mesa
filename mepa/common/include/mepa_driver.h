@@ -874,5 +874,8 @@ mepa_drivers_t mepa_lan8770_driver_init();
 /** \brief Returns drivers for lan884x PHY */
 mepa_drivers_t mepa_lan884x_driver_init();
 
+/** \brief Returns drivers for lan887x PHY */
+mepa_drivers_t mepa_lan887x_driver_init(void);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_ */

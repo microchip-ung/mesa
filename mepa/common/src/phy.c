@@ -216,9 +216,12 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #if defined(MEPA_HAS_LAN884x)
         MEPA_phy_lib[8] = mepa_lan884x_driver_init();
 #endif
+#if defined(MEPA_HAS_LAN887X)
+        MEPA_phy_lib[9] = mepa_lan887x_driver_init();
+#endif
         // Shall be last
 #if defined(MEPA_HAS_VTSS)
-        MEPA_phy_lib[9] = mepa_default_phy_driver_init();
+        MEPA_phy_lib[10] = mepa_default_phy_driver_init();
 #endif
     }
 
@@ -240,7 +243,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         for (uint32_t j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
-            if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
+			if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
                 dev = driver->mepa_driver_probe(driver, callout, callout_ctx, conf);
                 if (dev) {
                     T_I("probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", conf->numeric_handle, driver->id, phy_id, i, j);

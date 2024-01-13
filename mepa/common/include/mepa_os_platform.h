@@ -47,6 +47,9 @@ typedef struct {
 
 #define MEPA_MTIMER_TIMEOUT(timer) (((((timer)->now = os_platform_get_system_time()) - (timer)->timeout) > 0)?(((timer)->now/TICKS_PER_MS_300MHZ > MAX_ALLOWED_TIME_DIFF)? MEPA_OS_TRUE:MEPA_OS_FALSE):MEPA_OS_FALSE) /**< Timer timeout macro */
 
-#define MEPA_MTIMER_START(timer, msec) (((((timer)->now = os_platform_get_system_time()) - msec) > 0)?(((timer)->now/TICKS_PER_MS_300MHZ > MAX_ALLOWED_TIME_DIFF)? MEPA_OS_TRUE:MEPA_OS_FALSE):MEPA_OS_FALSE) /**< Timer timeout macro */
+#define MEPA_MTIMER_START(timer, msec) { \
+    (timer)->now = os_platform_get_system_time();  \
+    (timer)->timeout = ((timer)->now + msec); \
+} /**< Timer timeout macro */
 
 #endif /* _MEPA_OS_PLATFORM_H_ */
