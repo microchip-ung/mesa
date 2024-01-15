@@ -103,8 +103,8 @@ typedef struct {
 #define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8) + queue)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_SDX_CNT      VTSS_STREAM_CNT
-#define VTSS_EVC_POL_CNT  VTSS_STREAM_CNT
-#define VTSS_EVC_STAT_CNT VTSS_STREAM_CNT
+#define VTSS_EVC_POL_CNT  (VTSS_STREAM_CNT + 8) // 8 policers used internally
+#define VTSS_EVC_STAT_CNT (VTSS_STREAM_CNT + 8) // 8 policers used internally
 #else
 #define VTSS_SDX_CNT      VTSS_JR_SDX_CNT
 #define VTSS_EVC_POL_CNT  VTSS_JR_POL_CNT
