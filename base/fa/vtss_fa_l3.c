@@ -145,6 +145,8 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t *vtss_state,
 
     REG_WR(VTSS_ANA_L3_RLEG_CTRL(rleg),
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_EVID(conf->vlan) |
+           VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_STAT_IP_ONLY_ENA(1) |
+           VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_STAT_IP_ONLY_ENA(1) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_UC_ENA(conf->ipv6_unicast_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_UC_ENA(conf->ipv4_unicast_enable) |
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_MC_ENA(conf->ipv6_multicast_enable) |
