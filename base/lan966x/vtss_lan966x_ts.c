@@ -687,6 +687,10 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
             rx_delay += (1000 * 18);
             tx_delay += (1000 * 18);
         }
+        if (speed == VTSS_SPEED_100M) { /* 100 Mbps */
+            rx_delay += (1000 * 738);
+            tx_delay += (1000 * 738);
+        }
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
