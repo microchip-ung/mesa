@@ -415,3 +415,10 @@ test "pause-cnt-25g" do
     $ts.dut.run("mesa-cmd port stati pa")
     $ts.dut.run("mesa-cmd debug api ai counters #{lp0 + 1},#{lp1 + 1}")
 end
+
+test "qos-map" do
+    break
+    map = $ts.dut.call("mesa_qos_egress_map_init", "MESA_QOS_EGRESS_MAP_KEY_DSCP_DPL")
+    map["id"] = 3
+    $ts.dut.call("mesa_qos_egress_map_add", map)
+end
