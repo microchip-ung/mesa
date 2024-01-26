@@ -559,14 +559,14 @@ def ace_test(t, acl)
         end
         
         # Frame length
-        len = 64
+        len = 46
         if (ipv6 and (f.key?:cmd))
             if (f[:cmd].include? "udp")
-                # MAC + IPv6 + UDP + FCS
-                len = (14 + 40 + 8 + 4)
+                # IPv6 + UDP
+                len = (40 + 8)
             elsif (f[:cmd].include? "tcp")
-                # MAC + IPv6 + TCP + FCS
-                len = (14 + 40 + 20 + 4)
+                # IPv6 + TCP
+                len = (40 + 20)
             end
         end
 
