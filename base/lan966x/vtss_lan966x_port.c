@@ -788,7 +788,7 @@ vtss_rc vtss_cil_port_conf_get(vtss_state_t *vtss_state,
 
 #if !defined(VTSS_OPT_FPGA)
 static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
-                                       u32 idx, vtss_serdes_mode_t mode)
+                                       u32 idx, vtss_serdes_mode_t mode, vtss_port_serdes_conf_t *conf)
 {
     u32  val, lane_sel, rate, mpll_multi;
     BOOL ref125M;
@@ -816,6 +816,8 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t *vtss_state,
            HSIO_SD_CFG_RX_LOS_EN(1) |
            HSIO_SD_CFG_PHY_RESET(1) |
            HSIO_SD_CFG_LANE_10BIT_SEL(lane_sel) |
+           HSIO_SD_CFG_TX_INVERT(conf->tx_invert ? 1 : 0) |
+           HSIO_SD_CFG_RX_INVERT(conf->rx_invert ? 1 : 0) |
            HSIO_SD_CFG_RX_RATE(rate) |
            HSIO_SD_CFG_TX_RATE(rate));
 
@@ -911,6 +913,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     u32                      idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t       mode_req = VTSS_SERDES_MODE_DISABLE;
     port_type_t              port_type = PORT_TYPE_NONE;
+    vtss_port_serdes_conf_t *conf = &vtss_state->port.conf[port_no].serdes;
 
     if ((rc = lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req)) != VTSS_RC_OK) {
         return rc;
@@ -928,7 +931,7 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t *vtss_state,
     }
     if (idx < VTSS_SD6G_40_CNT && vtss_state->port.sd6g40_mode[idx] != mode) {
         vtss_state->port.sd6g40_mode[idx] = mode;
-        rc = lan966x_serdes_conf_set(vtss_state, idx, mode);
+        rc = lan966x_serdes_conf_set(vtss_state, idx, mode, conf);
     }
     vtss_state->port.serdes_mode[port_no] = mode;
 #endif
