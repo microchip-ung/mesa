@@ -256,8 +256,8 @@ static vtss_rc lan966x_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_ext_clock_mode_t *ext_clock_mode = &vtss_state->ts.conf.ext_clock_mode;
 
-    VTSS_D("one_pps_mode: %u, enable: %u, freq: %u", ext_clock_mode->one_pps_mode, ext_clock_mode->enable, ext_clock_mode->freq);
-    LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
+    VTSS_D("one_pps_mode: %u, enable: %u, freq: %u domain: %u", ext_clock_mode->one_pps_mode, ext_clock_mode->enable, ext_clock_mode->freq, ext_clock_mode->domain);
+    LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, ext_clock_mode->domain);
     if (ext_clock_mode->enable) {
         u32 dividers = HW_NS_PR_SEC/ext_clock_mode->freq;
         u32 high_div = dividers/2;
@@ -268,7 +268,7 @@ static vtss_rc lan966x_ts_external_clock_mode_set(vtss_state_t *vtss_state)
                PTP_WF_LOW_PERIOD_PIN_WFL(low_div));
 
         (void) vtss_lan966x_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, to_vtss_gpio_mode(ptp_gpio[EXT_CLK_PIN].alt));
-        LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, 0);
+        LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC, ext_clock_mode->domain);
 
     } else if (ext_clock_mode->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
         (void) vtss_lan966x_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, to_vtss_gpio_mode(ptp_gpio[EXT_CLK_PIN].alt));
@@ -276,7 +276,7 @@ static vtss_rc lan966x_ts_external_clock_mode_set(vtss_state_t *vtss_state)
                PTP_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
         REG_WR(PTP_WF_LOW_PERIOD(EXT_CLK_PIN), 0);
 
-        LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
+        LAN966X_PTP_PIN_ACTION (EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, ext_clock_mode->domain);
     } else {
         (void) vtss_lan966x_gpio_mode(vtss_state, 0, ptp_gpio[EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
     }

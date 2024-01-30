@@ -494,6 +494,7 @@ typedef struct vtss_ts_ext_clock_mode_t {
     BOOL enable;            /**< Select internal sync pulse (enable = false) 
                                 or external sync pulse (enable = true) */
     u32  freq;              /**< clock output frequency (hz [1..25.000.000]). */
+    u32  domain;            /**< clock domain in multi domain chip (0..2). */
 } vtss_ts_ext_clock_mode_t;
 
 

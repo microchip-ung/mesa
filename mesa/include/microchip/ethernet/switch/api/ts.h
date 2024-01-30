@@ -421,6 +421,7 @@ typedef struct mesa_ts_ext_clock_mode_t {
     mesa_bool_t                       enable;        /**< True: Select clock generation on external output pin with frequency 'freq'
                                                           False: Select 1PPS on external input/output pins as indicated in 'one_pps_mode' */
     uint32_t                          freq;          /**< clock output frequency (hz [1..25.000.000]) when 'enable' == True. */
+    uint32_t                          domain;        /**< clock domain in multi domain chip (0..2). */
 } mesa_ts_ext_clock_mode_t CAP(TS);
 
 
