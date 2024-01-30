@@ -1022,7 +1022,14 @@ vtss_rc vtss_cil_l2_ecnt_get(vtss_state_t *vtss_state, u16 idx, vtss_egress_coun
 #if defined(VTSS_EVC_STAT_CNT)
 vtss_rc vtss_cil_l2_policer_update(vtss_state_t *vtss_state, u16 idx)
 {
+// The vtss_fa_policer_conf_set() function is potentially changing members in the passed configuration
+// to reflect what is actually written to hardware. On LMSTAX this is not accepted behaviour so a copy is passed.
+#if VTSS_OPT_LIGHT
+    vtss_dlb_policer_conf_t conf = vtss_state->l2.pol_conf[idx];
+    return vtss_fa_policer_conf_set(vtss_state, idx, &conf);
+#else
     return vtss_fa_policer_conf_set(vtss_state, idx, &vtss_state->l2.pol_conf[idx]);
+#endif
 }
 
 vtss_rc vtss_cil_l2_counters_update(vtss_state_t *vtss_state,

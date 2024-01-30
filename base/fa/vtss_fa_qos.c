@@ -859,9 +859,13 @@ static vtss_rc fa_queue_policer_set(vtss_state_t *vtss_state,
         if (VTSS_RC_OK != vtss_fa_policer_conf_set(vtss_state, pol_idx, &dlb_conf)) {
             return VTSS_RC_ERROR;
         }
+#if !VTSS_OPT_LIGHT
+        // Changing members in the passed configuration to reflect what is actually written to hardware.
+        // On LMSTAX this is not accepted behaviour.
         /* The CIR and CBS value might have been changed in order to fit the Fireant LB group regime */
         conf->rate = dlb_conf.cir;
         conf->level = dlb_conf.cbs;
+#endif
     }
     return VTSS_RC_OK;
 }
