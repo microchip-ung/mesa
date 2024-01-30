@@ -1324,9 +1324,14 @@ static mepa_bool_t indy_wait_for_cable_diagnostics(mepa_device_t *dev)
 //Before starting cable diagnostics, do necessary phy configuration like reset speed config.
 static mepa_rc indy_cab_diag_enter_config(mepa_device_t *dev)
 {
+    //Steps to be done before cable diagnostics
+    uint16_t value = 0;
     WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
     MEPA_MSLEEP(1);
-    WR(dev, INDY_BASIC_CONTROL, 0x140);
+    value = (INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1 | INDY_F_BASIC_CTRL_DUP_MODE);
+    WR(dev, INDY_BASIC_CONTROL, value);
+    WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA, INDY_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
+    WRM(dev, INDY_GPHY_DBG_CTL1, INDY_F_SWAPOFF,INDY_F_SWAPOFF);
     MEPA_MSLEEP(50);
     return MEPA_RC_OK;
 }
@@ -1377,7 +1382,7 @@ static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int32_t mode)
             status = INDY_X_CABLE_DIAG_STATUS(value);
             if ((status == INDY_CABLE_OPEN) || (status == INDY_CABLE_SHORT)) {
                 res->status[pair] = (status == INDY_CABLE_SHORT) ? MEPA_CABLE_DIAG_STATUS_SHORT : MEPA_CABLE_DIAG_STATUS_OPEN;
-                res->length[pair] = 0.8 * (INDY_X_CABLE_DIAG_DATA(value) - 22);
+                res->length[pair] = 0.8 * abs((INDY_X_CABLE_DIAG_DATA(value) - 22));
                 res->link = TRUE;
                 T_I(MEPA_TRACE_GRP_GEN, "pair=%d status=%d length=%d\n", pair, res->status[pair], res->length[pair]);
             } else if (status == INDY_CABLE_FAIL) {
