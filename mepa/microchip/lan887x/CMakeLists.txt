@@ -8,10 +8,7 @@ set(MEPA_lan887x_phy_max 4 CACHE STRING "LAN887X static memory")
 set(MEPA_lan887x_custom_defs ${MEPA_lan887x_custom_defs} -DMEPA_lan887x_phy_max=${MEPA_lan887x_phy_max})
 
 if (${MEPA_lan887x_static_mem})
-	message("MEPA_lan887x_static_mem Enabled!!")
 	set(MEPA_lan887x_custom_defs ${MEPA_lan887x_custom_defs} -DMEPA_lan887x_static_mem)
-else()
-	message("MEPA_lan887x_static_mem Disabled!!")
 endif()
 
 MEPA_DRV(LIB_NAME mepa_drv_lan887x
