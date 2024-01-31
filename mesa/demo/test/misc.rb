@@ -319,7 +319,6 @@ test "redbox" do
     $ts.dut.run("mesa-cmd deb api ai redbox")
 end
 
-
 test "acl-frame-policer" do
     break
     idx = 0
@@ -334,8 +333,10 @@ test "acl-frame-policer" do
     conf["rate"] = 30
     $ts.dut.call("mesa_acl_policer_conf_set", pol, conf)
     $ts.pc.run("ef name f1 eth tx #{$ts.pc.p[idx]} rep 100 name f1")
+    $ts.dut.run("mesa-cmd port stati #{port + 1}")
     $ts.dut.run("mesa-cmd port stati pac")
 end
+
 test "vlan-ot" do
     break
     vid = 1
@@ -421,4 +422,22 @@ test "qos-map" do
     map = $ts.dut.call("mesa_qos_egress_map_init", "MESA_QOS_EGRESS_MAP_KEY_DSCP_DPL")
     map["id"] = 3
     $ts.dut.call("mesa_qos_egress_map_add", map)
+end
+
+test "policer-counter" do
+    break
+    idx = 0
+    port = $ts.dut.p[idx]
+    cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_PORT_POLICER_CNT")
+    conf = $ts.dut.call("mesa_qos_port_policer_conf_get", port, cnt)
+    pol = conf[0]
+    pol["frame_rate"] = false
+    pol["policer"]["level"] = 0
+    pol["policer"]["rate"] = 1000000
+    $ts.dut.call("mesa_qos_port_policer_conf_set", port, cnt, conf)
+    cmd = "sudo ef name f1 eth "
+    cmd += "tx #{$ts.pc.p[idx]} rep 1000 name f1"
+    $ts.pc.run(cmd)
+    $ts.dut.run("mesa-cmd port stati #{port + 1}")
+    $ts.dut.run("mesa-cmd port stati pa")
 end

@@ -3990,7 +3990,7 @@ vtss_rc vtss_jr2_port_debug_print(vtss_state_t *vtss_state,
 
 static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
 {
-    u32 port, i, j, value;
+    u32 port, i, j, value, mask;
     BOOL vlan_counters = FALSE;
 
     /* Initialize policers */
@@ -4009,12 +4009,19 @@ static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
 
     /* Setup ANA_AC to count local drops and policer drops per port */
+#if defined(VTSS_ARCH_SERVAL_T)
+    // Port policers (bit 4-5), storm policer (bit 8) and ACL policer (bit 9)
+    mask = 0x730;
+#else
+    // Port policers (bit 4-7), storm policer (bit 12) and ACL policer (bit 13)
+    mask = 0x30f0;
+#endif
     JR2_WR(VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(0),
            VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ZERO_DST_STICKY_MASK);
     JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(JR2_CNT_ANA_AC_PORT_FILTER),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(1<<0));
     JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
-           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(0x730)); /* count policer drops*/
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(mask));
     for (port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
         JR2_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port, JR2_CNT_ANA_AC_PORT_FILTER),
                VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_PRIO_MASK(0xff) |
