@@ -142,6 +142,24 @@ mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool
     return mepa_fefi_detect(inst->phy_devices[port_no], detect);
 }
 
+// Set EEE mode configuration.
+mepa_rc meba_phy_eee_mode_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_phy_eee_conf_t conf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_eee_mode_conf_set(inst->phy_devices[port_no], conf);
+}
+
+// Read the current EEE mode Configuration.
+mepa_rc meba_phy_eee_mode_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_eee_conf_t *const conf)
+{
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+        return MESA_RC_ERR_INV_PORT_BOARD;
+    }
+    return mepa_eee_mode_conf_get(inst->phy_devices[port_no], conf);
+}
+
 /* Get the PHY interface based on speed.*/
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf)

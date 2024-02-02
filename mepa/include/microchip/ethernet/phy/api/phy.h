@@ -807,6 +807,36 @@ mepa_rc mepa_fefi_detect(struct mepa_device *dev,
 mepa_rc mepa_chip_temp_get(struct mepa_device *dev, int16_t *const temp);
 
 /**
+ * \The energy efficient ethernet (EEE) helps in reducing the power consumption on physical layer devices. Configuring
+ * \these EEE on interfaces includes enabling EEE on Base-T copper ethernet port based on the power utilization and
+ * \also verifying if EEE is saving energy on the configured ports.
+ **/
+
+/**
+ * \breif Set EEE Configuration
+ *
+ * \param dev          [IN]   Driver instance.
+ * \param conf         [IN]   EEE configuration.
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_eee_mode_conf_set(struct mepa_device *dev,  const mepa_phy_eee_conf_t conf);
+
+/**
+ * \breif Get current EEE Configuration
+ *
+ * \param dev          [IN]   Driver instance.
+ * \param conf         [OUT]  EEE configuration.
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev,  mepa_phy_eee_conf_t *const conf);
+
+/**
  * \brief PHY write SOF value
  * \param dev   [IN]   Driver instance.
  * \param conf [IN]   SOF value to be Configured

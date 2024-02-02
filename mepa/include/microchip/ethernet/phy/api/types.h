@@ -307,6 +307,19 @@ typedef enum {
     MEPA_100FX_FEFI_FORCE_ENABLE = 3,
 } mepa_fefi_mode_t;
 
+/** \breif EEE modes */
+typedef enum {
+    MEPA_EEE_DISABLE,
+    MEPA_EEE_ENABLE,
+    MEPA_EEE_REG_UPDATE,
+} mepa_eee_mode_t;
+
+/** \breif EEE configurations */
+typedef struct {
+    mepa_eee_mode_t eee_mode;
+    mepa_bool_t     eee_ena_phy;
+} mepa_phy_eee_conf_t;
+
 /** \brief Additional GPIO data used while setting gpio mode */
 typedef struct {
     uint8_t gpio_no;

@@ -627,6 +627,21 @@ mepa_rc mepa_chip_temp_get(struct mepa_device *dev, i16 *const temp)
     return dev->drv->mepa_driver_chip_temp_get(dev, temp);
 }
 
+mepa_rc mepa_eee_mode_conf_set(struct mepa_device *dev,  const mepa_phy_eee_conf_t conf)
+{
+    if (!dev || !dev->drv->mepa_driver_eee_mode_conf_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return dev->drv->mepa_driver_eee_mode_conf_set(dev, conf);
+}
+
+mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev,  mepa_phy_eee_conf_t *const conf)
+{
+    if (!dev || !dev->drv->mepa_driver_eee_mode_conf_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return dev->drv->mepa_driver_eee_mode_conf_get(dev, conf);
+}
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {
