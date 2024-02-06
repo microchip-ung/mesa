@@ -1054,6 +1054,24 @@ static mepa_rc phy_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *co
     return MEPA_RC_OK;
 }
 
+static mepa_rc phy_eee_status_get(mepa_device_t *dev, u8 *const advertisement, BOOL *const rx_in_power_save_state, BOOL *const tx_in_power_save_state)
+{
+     phy_data_t *data = (phy_data_t *)(dev->data);
+     mepa_rc rc = MEPA_RC_OK;
+     u8 eee_link_advertisement;
+     mepa_bool_t  eee_rx_in_power_save_state, eee_tx_in_power_save_state;
+     if((rc = vtss_phy_eee_link_partner_advertisements_get(data->vtss_instance, data->port_no, &eee_link_advertisement)) != MEPA_RC_OK) {
+        return rc;
+     }
+     if((rc =vtss_phy_eee_power_save_state_get(data->vtss_instance, data->port_no, &eee_rx_in_power_save_state, &eee_tx_in_power_save_state)) != MEPA_RC_OK) {
+	return rc;
+     }
+    *advertisement = eee_link_advertisement;
+    *rx_in_power_save_state = eee_rx_in_power_save_state;
+    *tx_in_power_save_state = eee_tx_in_power_save_state;
+    return MEPA_RC_OK;
+}
+
 //To get PHY capability
 static uint32_t phy_1g_capability(struct mepa_device *dev , uint32_t capability)
 {
@@ -1413,6 +1431,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_warmrestart_conf_set = phy_1g_warmrestart_conf_set,
             .mepa_driver_eee_mode_conf_set = phy_eee_mode_conf_set,
             .mepa_driver_eee_mode_conf_get = phy_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = phy_eee_status_get,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
         },
@@ -1461,6 +1480,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_warmrestart_conf_set = phy_1g_warmrestart_conf_set,
             .mepa_driver_eee_mode_conf_set = phy_eee_mode_conf_set,
             .mepa_driver_eee_mode_conf_get = phy_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = phy_eee_status_get,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,
         },

@@ -17,6 +17,7 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed, mepa_por
 static mepa_rc indy_conf_set(mepa_device_t *dev, const mepa_conf_t *config);
 static mepa_rc indy_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
 static mepa_rc indy_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable);
+static mepa_rc indy_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_conf_t conf);
 
 mepa_rc indy_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
@@ -412,6 +413,11 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     // Reconfigure the phy after reset
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
         indy_conf_set(dev, &data->conf);
+
+        // EEE is Disabled on Power Up
+        data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
+        indy_eee_mode_conf_set(dev, data->eee_conf);
+
         if (data->events) {
             indy_event_enable_set(dev, data->events, TRUE);
         }
@@ -1140,6 +1146,77 @@ static mepa_device_t *indy_probe(mepa_driver_t *drv,
 
     T_I(MEPA_TRACE_GRP_GEN, "indy driver probed for port %d", data->port_no);
     return dev;
+}
+
+static mepa_rc indy_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_conf_t conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    BOOL reconfigure = FALSE;
+
+    if (conf.eee_mode == MEPA_EEE_REG_UPDATE) {
+        // Called with re-configure registers but don't change state
+        reconfigure = TRUE;
+        data->eee_conf.eee_mode = conf.eee_ena_phy ? MEPA_EEE_ENABLE : MEPA_EEE_DISABLE;
+        data->eee_conf.eee_ena_phy = conf.eee_ena_phy;
+    } else if ((conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_DISABLE)) {
+        // current state is Enabled, New state is disable. Re-configure registers and change state.
+        reconfigure = TRUE;
+        data->eee_conf.eee_ena_phy = FALSE;
+    } else if (!(conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_ENABLE)) {
+        // current state is Disabled, New state is enable. Re-configure registers and change state.
+        reconfigure = TRUE;
+        data->eee_conf.eee_ena_phy = TRUE;
+    }
+
+    // Copy the EEE mode to phy_data_t only when eee_mode is not REG_UPDATE
+    if (conf.eee_mode != MEPA_EEE_REG_UPDATE) {
+        data->eee_conf.eee_mode = conf.eee_mode;
+    }
+
+    if (reconfigure) {
+        T_I(MEPA_TRACE_GRP_GEN, "New EEE Enable = %d, port = %d", data->eee_conf.eee_mode, data->port_no);
+        // Enable Or Disable EEE
+        if (data->eee_conf.eee_ena_phy) {
+            T_I(MEPA_TRACE_GRP_GEN, "EEE Enabled: 100/1000BaseT Advertisements for Port = %d", data->port_no);
+            MMD_WR(dev, INDY_EEE_ADVERTISEMENT,(INDY_EEE_100_BT | INDY_EEE_1000_BT)); // Enable 100BaseT and 1000BaseT advertisement
+        } else {
+            MMD_WR(dev, INDY_EEE_ADVERTISEMENT,0); //Disable EEE Advertisement
+        }
+        // Restart Autonegotiation
+        T_I(MEPA_TRACE_GRP_GEN, "restart auto neg - Needed for disable/enable EEE advertisement, port", data->port_no);
+        WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+    }
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *const config)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    *config = data->eee_conf;
+    T_I(MEPA_TRACE_GRP_GEN, "returning EEE phy config on port %d", data->port_no);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_eee_status_get(mepa_device_t *dev, u8 *const advertisement, BOOL *const rx_in_power_save_state, BOOL *const tx_in_power_save_state)
+{
+    u16 reg_value = 0;
+    *rx_in_power_save_state = FALSE;
+    *tx_in_power_save_state = FALSE;
+
+    MMD_RD(dev, INDY_LINK_PARTNER_EEE_ABILITY, &reg_value); // Get the Link Partnr Advertisement
+    *advertisement = reg_value >> 1; // Bit 0 is reserved.
+
+    MMD_RD(dev, INDY_EEE_PCS_STATUS, &reg_value);
+
+    //Bit 8 is Rx LPI Indication. See Datasheet
+    if (reg_value & 0x0100){
+        *rx_in_power_save_state = TRUE;
+    }
+    //Bit 9 is tx LPI Indication. See Datsheet.
+    if (reg_value & 0x0200){
+        *tx_in_power_save_state = TRUE;
+    }
+    return MEPA_RC_OK;
 }
 
 #if !defined MEPA_LAN8814_LIGHT
@@ -2282,6 +2359,9 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_link_base_port = indy_link_base_port,
             .mepa_driver_phy_info_get = indy_info_get,
+            .mepa_driver_eee_mode_conf_set = indy_eee_mode_conf_set,
+            .mepa_driver_eee_mode_conf_get = indy_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = indy_eee_status_get,
 #if !defined MEPA_LAN8814_LIGHT
             .mepa_driver_cable_diag_start = indy_cab_diag_start,
             .mepa_driver_cable_diag_get = indy_cab_diag_get,
@@ -2326,6 +2406,9 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_out_set = indy_gpio_out_set,
             .mepa_driver_gpio_in_get = indy_gpio_in_get,
             .mepa_driver_phy_info_get = indy_info_get,
+            .mepa_driver_eee_mode_conf_set = indy_eee_mode_conf_set,
+            .mepa_driver_eee_mode_conf_get = indy_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = indy_eee_status_get,
 #if !defined MEPA_LAN8814_LIGHT
             .mepa_driver_synce_clock_conf_set = indy_recovered_clk_set,
             .mepa_driver_cable_diag_start = indy_cab_diag_start,

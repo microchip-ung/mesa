@@ -642,6 +642,15 @@ mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev,  mepa_phy_eee_conf_t *co
     }
     return dev->drv->mepa_driver_eee_mode_conf_get(dev, conf);
 }
+
+mepa_rc mepa_eee_status_get(struct mepa_device *dev, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state)
+{
+    if(!dev || !dev->drv->mepa_driver_eee_status_get) {
+       return MESA_RC_NOT_IMPLEMENTED;
+     }
+     return dev->drv->mepa_driver_eee_status_get(dev, advertisement, rx_in_power_save_state, tx_in_power_save_state);
+}
+
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {

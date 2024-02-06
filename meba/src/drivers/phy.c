@@ -160,6 +160,15 @@ mepa_rc meba_phy_eee_mode_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mep
     return mepa_eee_mode_conf_get(inst->phy_devices[port_no], conf);
 }
 
+// Read the current EEE mode Configuration.
+ mepa_rc meba_phy_eee_status_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state)
+{
+     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
+         return MESA_RC_ERR_INV_PORT_BOARD;
+     }
+     return mepa_eee_status_get(inst->phy_devices[port_no], advertisement, rx_in_power_save_state, tx_in_power_save_state);
+ }
+
 /* Get the PHY interface based on speed.*/
 mepa_rc meba_phy_if_get(meba_inst_t inst, mepa_port_no_t port_no,
                         mepa_port_speed_t speed, mepa_port_interface_t *intf)

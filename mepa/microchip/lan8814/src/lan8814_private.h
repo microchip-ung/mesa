@@ -139,6 +139,7 @@ typedef struct {
     mepa_ts_tc_op_mode_t          tc_op_mode;           // tc mode for correction field update
 } indy_ts_data_t;
 
+
 typedef struct {
     mepa_bool_t              init_done;
     uint8_t                  packet_idx;
@@ -163,6 +164,7 @@ typedef struct {
     indy_ts_data_t           ts_state;
     mepa_phy_prbs_generator_conf_t prbs_conf;
     mepa_bool_t              prbs_init;
+    mepa_phy_eee_conf_t      eee_conf;
 } phy_data_t;
 
 #endif

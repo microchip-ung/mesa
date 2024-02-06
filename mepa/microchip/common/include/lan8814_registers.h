@@ -23,6 +23,7 @@
 #define INDY_EXT_PAGE_29 29
 #define INDY_EXT_PAGE_31 31
 
+#define INDY_MMD_3      3
 #define INDY_MMD_7      7
 // Direct registers
 
@@ -395,11 +396,22 @@
 #define INDY_CLOCK_MANAGEMENT_MODE_5 INDY_EXT_PAGE_31, 13
 
 //====================================================================================
+//      MMD 3
+//====================================================================================
+// Register 1
+#define INDY_EEE_PCS_STATUS INDY_MMD_3, 1
+
+//====================================================================================
 //      MMD 7
 //====================================================================================
+// Register 60
+#define INDY_EEE_ADVERTISEMENT INDY_MMD_7, 60
+#define INDY_EEE_100_BT  INDY_BIT(1)
+#define INDY_EEE_1000_BT INDY_BIT(2)
+
 // Register 61
 #define INDY_LINK_PARTNER_EEE_ABILITY INDY_MMD_7, 61
-#define INDY_F_LP_EEE_ABILITY_100_BT INDY_BIT(1)
+#define INDY_F_LP_EEE_ABILITY_100_BT  INDY_BIT(1)
 #define INDY_F_LP_EEE_ABILITY_1000_BT INDY_BIT(2)
 
 #endif

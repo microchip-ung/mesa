@@ -386,6 +386,20 @@ typedef mepa_rc  (*mepa_driver_eee_mode_conf_set_t)(struct mepa_device *dev, con
 typedef mepa_rc  (*mepa_driver_eee_mode_conf_get_t)(struct mepa_device *dev, mepa_phy_eee_conf_t *const conf);
 
 /**
+ * \breif Get Current Status of EEE
+ *
+ * \param dev                    [IN]    Driver instance.
+ * \param advertisement          [OUT]   Advertisement of EEE Link Partner
+ * \param rx_in_power_save_state [OUT]   Rx Part of PHY is in power save mode
+ * \param tx_in_power_save_state [OUT]   Tx Part of PHY is in power save mode
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+typedef mepa_rc  (*mepa_driver_eee_status_get_t)(struct mepa_device *dev, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state);
+
+/**
  * \brief Set loopback. Used for debugging purpose
  *
  * \param dev       [IN] Driver Instance.
@@ -803,6 +817,7 @@ typedef struct mepa_driver {
     mepa_driver_chip_temp_get_t        mepa_driver_chip_temp_get;
     mepa_driver_eee_mode_conf_set_t    mepa_driver_eee_mode_conf_set;
     mepa_driver_eee_mode_conf_get_t    mepa_driver_eee_mode_conf_get;
+    mepa_driver_eee_status_get_t       mepa_driver_eee_status_get;
     mepa_debug_info_dump_t             mepa_debug_info_dump;
     mepa_driver_phy_i2c_read_t         mepa_driver_phy_i2c_read;
     mepa_driver_phy_i2c_write_t        mepa_driver_phy_i2c_write;

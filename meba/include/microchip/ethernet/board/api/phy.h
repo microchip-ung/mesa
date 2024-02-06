@@ -74,6 +74,9 @@ mepa_rc meba_phy_eee_mode_conf_set(meba_inst_t inst, mepa_port_no_t port_no, con
 // Get EEE configurations
 mepa_rc meba_phy_eee_mode_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_eee_conf_t *const conf);
 
+// Get EEE Status
+mepa_rc meba_phy_eee_status_get(meba_inst_t inst, mepa_port_no_t port_no, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state);
+
 // Read registers using clause22 format for debugging.
 // address format : bits 0 - 4 : address within page i.e. 0 - 31 addresses.
 //                       5 - 31: page number.

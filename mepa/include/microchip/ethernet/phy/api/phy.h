@@ -822,7 +822,7 @@ mepa_rc mepa_chip_temp_get(struct mepa_device *dev, int16_t *const temp);
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_eee_mode_conf_set(struct mepa_device *dev,  const mepa_phy_eee_conf_t conf);
+mepa_rc mepa_eee_mode_conf_set(struct mepa_device *dev, const mepa_phy_eee_conf_t conf);
 
 /**
  * \breif Get current EEE Configuration
@@ -834,7 +834,21 @@ mepa_rc mepa_eee_mode_conf_set(struct mepa_device *dev,  const mepa_phy_eee_conf
  *   MEPA_RC_ERROR on Error \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev,  mepa_phy_eee_conf_t *const conf);
+mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev, mepa_phy_eee_conf_t *const conf);
+
+/*
+ * \breif Get current status of EEE
+ *
+ * \param dev                    [IN]    Driver instance.
+ * \param advertisement          [OUT]   Advertisement of EEE Link Partner
+ * \param rx_in_power_save_state [OUT]   Rx Part of PHY is in power save mode
+ * \param tx_in_power_save_state [OUT]   Tx Part of PHY is in power save mode
+ *
+ * \return Return code.
+ *   MEPA_RC_ERROR on Error \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_eee_status_get(struct mepa_device *dev, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state);
 
 /**
  * \brief PHY write SOF value
