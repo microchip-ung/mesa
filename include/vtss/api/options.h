@@ -661,6 +661,10 @@
 #define VTSS_OPT_TRACE 1 /**< Trace enabled by default */
 #endif /* VTSS_OPT_TRACE */
 
+#ifndef VTSS_OPT_TRACE_ERROR
+#define VTSS_OPT_TRACE_ERROR 1 /**< Error trace enabled by default */
+#endif /* VTSS_OPT_TRACE_ERROR */
+
 #ifndef VTSS_OPT_DEBUG_PRINT
 #define VTSS_OPT_DEBUG_PRINT 1 /**< Debug print enabled by default */
 #endif /* VTSS_OPT_DEBUG_PRINT */

@@ -431,8 +431,6 @@ typedef enum {
  *  Trace
  * ================================================================= */
 
-#if VTSS_OPT_TRACE
-
 /*lint -esym(459, vtss_trace_conf) */
 extern vtss_trace_conf_t vtss_trace_conf[];
 
@@ -446,25 +444,38 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_DEFAULT
 #endif /* VTSS_TRACE_GROUP */
 
+#define VTSS_T(_grp, _lvl, ...) { if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
+
+#define VTSS_HEX(_grp, _lvl, _byte_p, _byte_cnt) { if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_callout_trace_hex_dump(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, _byte_p, _byte_cnt); }
+
+// Error trace
+#if VTSS_OPT_TRACE_ERROR
 #define VTSS_E(...) VTSS_EG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_E_HEX(_byte_p, _byte_cnt) VTSS_EG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
+#define VTSS_EG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, __VA_ARGS__)
+#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt) VTSS_HEX(_grp, VTSS_TRACE_LEVEL_ERROR, _byte_p, _byte_cnt)
+#else
+#define VTSS_E(...)
+#define VTSS_E_HEX(grp, ...)
+#define VTSS_EG(_grp, ...)
+#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)
+#endif
+
+// Info/debug/noise trace
+#if VTSS_OPT_TRACE
+
 #define VTSS_I(...) VTSS_IG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 #define VTSS_D(...) VTSS_DG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 #define VTSS_N(...) VTSS_NG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 
-#define VTSS_E_HEX(_byte_p, _byte_cnt) VTSS_EG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 #define VTSS_I_HEX(_byte_p, _byte_cnt) VTSS_IG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 #define VTSS_D_HEX(_byte_p, _byte_cnt) VTSS_DG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 #define VTSS_N_HEX(_byte_p, _byte_cnt) VTSS_NG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 
-/* For files with multiple trace groups: */
-#define VTSS_T(_grp, _lvl, ...) { if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
-#define VTSS_EG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, __VA_ARGS__)
 #define VTSS_IG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_INFO,  __VA_ARGS__)
 #define VTSS_DG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_DEBUG, __VA_ARGS__)
 #define VTSS_NG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_NOISE, __VA_ARGS__)
 
-#define VTSS_HEX(_grp, _lvl, _byte_p, _byte_cnt) { if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl) vtss_callout_trace_hex_dump(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__, __FUNCTION__, _byte_p, _byte_cnt); }
-#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt) VTSS_HEX(_grp, VTSS_TRACE_LEVEL_ERROR, _byte_p, _byte_cnt)
 #define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt) VTSS_HEX(_grp, VTSS_TRACE_LEVEL_INFO,  _byte_p, _byte_cnt)
 #define VTSS_DG_HEX(_grp, _byte_p, _byte_cnt) VTSS_HEX(_grp, VTSS_TRACE_LEVEL_DEBUG, _byte_p, _byte_cnt)
 #define VTSS_NG_HEX(_grp, _byte_p, _byte_cnt) VTSS_HEX(_grp, VTSS_TRACE_LEVEL_NOISE, _byte_p, _byte_cnt)
@@ -472,22 +483,18 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #else /* VTSS_OPT_TRACE */
 
 /* No trace */
-#define VTSS_E(...)
 #define VTSS_I(...)
 #define VTSS_D(...)
 #define VTSS_N(...)
 
-#define VTSS_E_HEX(grp, ...)
 #define VTSS_I_HEX(grp, ...)
 #define VTSS_D_HEX(grp, ...)
 #define VTSS_N_HEX(grp, ...)
 
-#define VTSS_EG(_grp, ...)
 #define VTSS_IG(_grp, ...)
 #define VTSS_DG(_grp, ...)
 #define VTSS_NG(_grp, ...)
 
-#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)
 #define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt)
 #define VTSS_DG_HEX(_grp, _byte_p, _byte_cnt)
 #define VTSS_NG_HEX(_grp, _byte_p, _byte_cnt)

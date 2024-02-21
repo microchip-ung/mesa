@@ -2516,7 +2516,7 @@ static vtss_rc fa_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_co
 static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t port)
 {
     u32  value, resource, prio, delay_cnt = 0;
-#if VTSS_OPT_TRACE
+#if VTSS_OPT_TRACE_ERROR
     char *failing_mem = "";
 #endif
     BOOL poll_src;
@@ -2549,7 +2549,7 @@ static vtss_rc fa_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t 
             for (prio = 0; prio < VTSS_PRIOS; prio++) {
                 REG_RD(VTSS_QRES_RES_STAT(base + prio), &value);
                 if (value) {
-#if VTSS_OPT_TRACE
+#if VTSS_OPT_TRACE_ERROR
                     failing_mem = resource == 0 ? "DST-MEM" : "SRC-MEM";
 #endif
                     empty = FALSE;
