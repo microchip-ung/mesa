@@ -97,4 +97,9 @@ int lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 
 #define VTSS_OS_NTOHL(X) lmu_ntohl(X)
 
+#define LM_PROF_ID_MESA_INIT 20U
+#define LM_PROF_ID_MESA_PMAP 21U
+#define VTSS_PROF_ENTER(id, sub) lm_os_prof_enter(id, sub)
+#define VTSS_PROF_EXIT(id, sub)  lm_os_prof_exit(id, sub)
+
 #endif //  _VTSS_OS_LMSTAX_H_

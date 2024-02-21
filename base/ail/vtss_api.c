@@ -418,6 +418,7 @@ vtss_rc vtss_init_conf_set(const vtss_inst_t              inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
+    VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 0);
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->init_conf = *conf;
@@ -427,6 +428,7 @@ vtss_rc vtss_init_conf_set(const vtss_inst_t              inst,
         VTSS_E("Initialization check failed");
     }
     VTSS_D("exit");
+    VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 0);
 
     return rc;
 }

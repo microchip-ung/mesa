@@ -268,6 +268,9 @@ void vtss_callout_free(void *ptr, vtss_mem_flags_t flags);
 #define VTSS_TOUPPER(arg) (toupper(arg))
 #define VTSS_TOLOWER(arg) (toupper(arg))
 
+#define VTSS_PROF_ENTER(id, sub)
+#define VTSS_PROF_EXIT(id, sub)
+
 #ifdef __cplusplus
 }
 #endif

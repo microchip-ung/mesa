@@ -2047,15 +2047,19 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->seq_cnt_get = fa_ts_seq_cnt_get;
         break;
     case VTSS_INIT_CMD_INIT:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 80);
         VTSS_RC(fa_ts_init(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 80);
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 80);
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             port = VTSS_CHIP_PORT(port_no);
 
             /* Initialize the PTP Port ID port number. This is done anyway in the jr2_ts_operation_mode_set() function but this is only called from AIL in case of changes in mode or domain. */
             REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no+1), VTSS_M_ANA_ACL_PTP_CFG_PTP_PORT_NUM);
         }
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 80);
         break;
     default:
         break;

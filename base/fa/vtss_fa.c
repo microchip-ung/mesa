@@ -967,7 +967,10 @@ err_exit:
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
+
+    VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 1);
     // Reset switch core if using SPI from external CPU
+    VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 2);
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
         VTSS_MSLEEP(100);
@@ -991,6 +994,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         REG_WRM_SET(VTSS_QFWD_SWITCH_PORT_MODE(i),
                     VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA);
     }
+    VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 2);
 
     /* Set ASM/DSM watermarks for cpu traffic (see JR2) - needed here or handled by wm function ? TBD-BJO */
 #if !defined(VTSS_OPT_EMUL)
@@ -1033,6 +1037,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 #endif
     /* Initialize function groups */
     VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
+    VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 1);
     return VTSS_RC_OK;
 }
 
@@ -1977,6 +1982,9 @@ vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 {
+    vtss_rc rc;
+
+    VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 1);
     VTSS_RC(fa_cell_calendar_auto(vtss_state));
 
     /* Calculate and configure the DSM calendar */
@@ -1984,7 +1992,9 @@ vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
         VTSS_E("DSM Calendar calc failed");
     }
 
-    return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
+    rc = vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
+    VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 1);
+    return rc;
 }
 
 /* Initilize features based on target */

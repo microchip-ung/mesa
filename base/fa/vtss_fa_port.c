@@ -5134,13 +5134,17 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 10);
         VTSS_RC(fa_port_init(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 10);
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 10);
         if (!vtss_state->warm_start_cur) {
             VTSS_RC(fa_port_buf_qlim_set(vtss_state));
         }
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 10);
         break;
 
     default:

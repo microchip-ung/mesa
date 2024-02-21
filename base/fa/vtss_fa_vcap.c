@@ -5496,12 +5496,16 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
 
     case VTSS_INIT_CMD_INIT:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 60);
         vtss_state->vcap.acl_user = VTSS_IS2_USER_IPACL;
         VTSS_RC(fa_vcap_init(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 60);
         break;
 
     case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 60);
         VTSS_RC(fa_vcap_port_map(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 60);
         break;
 
     default:

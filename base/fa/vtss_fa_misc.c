@@ -1350,9 +1350,13 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->temp_sensor.chip_temp_get  = fa_temp_sensor_get;
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
     } else if (cmd == VTSS_INIT_CMD_INIT) {
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 20);
         VTSS_RC(fa_sgpio_init(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 20);
     } else if (cmd == VTSS_INIT_CMD_PORT_MAP) {
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 20);
         VTSS_RC(fa_sgpio_sd_map_set(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 20);
     }
 
     return VTSS_RC_OK;

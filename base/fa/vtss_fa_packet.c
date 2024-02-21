@@ -1306,12 +1306,16 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif /* VTSS_FEATURE_FDMA && VTSS_OPT_FDMA */
         break;
     case VTSS_INIT_CMD_INIT:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 30);
         VTSS_RC(fa_packet_init(vtss_state));
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 30);
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 30);
         if (!vtss_state->warm_start_cur) {
             VTSS_RC(fa_rx_conf_set(vtss_state));
         }
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 30);
         break;
     default:
         break;

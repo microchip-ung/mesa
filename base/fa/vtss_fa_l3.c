@@ -594,14 +594,18 @@ vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_l3_integrity_update(vtss_state);
         break;
     case VTSS_INIT_CMD_INIT:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 50);
         vtss_l3_integrity_check(vtss_state, __FILE__, __LINE__);
         VTSS_RC(fa_l3_init(vtss_state));
         vtss_l3_integrity_update(vtss_state);
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 50);
         break;
     case VTSS_INIT_CMD_POLL:
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 50);
         vtss_l3_integrity_check(vtss_state, __FILE__, __LINE__);
         VTSS_RC(fa_l3_poll(vtss_state));
         vtss_l3_integrity_update(vtss_state);
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 50);
         break;
     default:
         break;

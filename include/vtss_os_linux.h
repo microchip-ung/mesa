@@ -377,5 +377,8 @@ static inline int __builtin_ctzl(unsigned long val32)
 #define VTSS_TOUPPER(arg) (toupper(arg))
 #define VTSS_TOLOWER(arg) (toupper(arg))
 
+#define VTSS_PROF_ENTER(id, sub)
+#define VTSS_PROF_EXIT(id, sub)
+
 #endif /* _VTSS_OS_LINUX_H_ */
 

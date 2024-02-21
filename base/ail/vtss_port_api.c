@@ -39,6 +39,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t      inst,
     vtss_rc         rc;
     vtss_port_map_t *pmap;
 
+    VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 0);
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
@@ -84,11 +85,14 @@ vtss_rc vtss_port_map_set(const vtss_inst_t      inst,
 #endif /* VTSS_FEATURE_LAYER2 */
         rc = vtss_cil_port_map_set(vtss_state);
 #if defined(VTSS_FEATURE_LAYER2)
+        VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 2);
         if (rc == VTSS_RC_OK) /* Update destination masks */
             rc = vtss_update_masks(vtss_state, 0, 1, 0);
+        VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 2);
 #endif /* VTSS_FEATURE_LAYER2 */
     }
     VTSS_D("exit");
+    VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 0);
 
     return rc;
 }
