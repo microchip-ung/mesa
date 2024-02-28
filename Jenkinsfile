@@ -40,7 +40,8 @@ node('blademaster') {
                 def git_id = sh(script: "git describe --tags --long", returnStdout: true).trim()
                 def branch = env.BRANCH_NAME
                 manager.addShortText("${git_id}@${branch}")
-                sh "./.cmake/release.rb --simplegrid --internal-checks"
+                // sh "./.cmake/release.rb --simplegrid --internal-checks"
+                sh "dr ./.cmake/release.rb --simplegrid"
             }
         } catch (error) {
             currentBuild.result = 'FAILURE'
