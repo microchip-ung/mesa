@@ -60,7 +60,7 @@ node('blademaster') {
 
         stage("Backwards compatibility") {
             try {
-                sh "./.cmake/backwards-compatibility-check.rb"
+                sh "dr ./.cmake/backwards-compatibility-check.rb"
             } catch (error) {
                 currentBuild.result = 'FAILURE'
                 throw error
