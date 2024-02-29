@@ -21,6 +21,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     libpcap-dev \
     locales \
     ruby-full \
+    ruby-jira \
     ruby-parslet \
     sudo \
     wget \
