@@ -57,6 +57,8 @@ RUN gem install hexdump packetfu ox
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/easytest/easytest/utils/:/easytest/easytest/test-setup-server/
 RUN mkdir /easytest && cd /easytest && git clone https://bitbucket.microchip.com/scm/unge/sw-tools-easytest.git easytest
 
+COPY ./mscc-download-pkg /usr/local/bin
+
 # A common entrypoint for setting up things before running the user command(s)
 COPY ./entrypoint.sh /entrypoint.sh
 RUN mkdir /mapped_home

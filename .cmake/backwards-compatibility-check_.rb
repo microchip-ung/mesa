@@ -52,7 +52,7 @@ end
 %x{mkdir -p #{$ws}}
 Dir.chdir($ws)
 
-$l = Logger.new("| tee #{$ws}/build.log")
+$l = Logger.new(IO.popen(["tee", "#{$ws}/build.log"], "wb"))
 $l.level = Logger::INFO
 log_fmt = proc do |severity, datetime, progname, msg|
     "#{severity} [#{Time.now.strftime('%H:%M:%S')}]: #{msg}\n"

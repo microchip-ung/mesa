@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'optparse'
+
+$server = "herent-sw-pkg.microsemi.net"
+global = OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0} [options] file"
+    opts.on("-s", "--server <server>", "HTTP server") do |server|
+        $server = server
+    end
+    opts.on("-t", "--type [TYPE]", "Select package type") do |type|
+        $type = type
+    end
+end.order!
+
+if $server.nil? or $type.nil?
+    puts "Missing option"
+    exit 1
+end
+
+if ARGV.size != 1
+    puts "Expecting one and only one file"
+    exit 1
+end
+
+# Get exclusive lock
+fh = File.open("/opt/mscc/.mscc-download-pkg-lock", File::CREAT)
+fh.flock(File::LOCK_EX)
+
+file = ARGV[0]
+
+dst_dir = "/opt/mscc/#{$type}"
+dst = "#{dst_dir}/#{file}"
+url = "http://#{$server}/jenkins/#{$type}/#{file}"
+%x{mkdir -p #{dst_dir}}
+exit if File.exist?(dst)
+%x{wget -q -O - #{url} > #{dst}}
+if $?.exitstatus != 0
+    puts "File #{file} failed to download/install"
+    %x{rm -rf #{dst}}
+    exit $?.exitstatus
+end
+puts "File #{dst} downloaded"
