@@ -126,6 +126,7 @@ $methods_blacklist = [
     "meba_phy_macsec_dbg_frm_match_handling_ctrl_reg_dump",
     "meba_phy_ts_fifo_get",
     "meba_phy_macsec_frame_get",
+    "meba_phy_macsec_inst_count_get",
     "vtss_phy_inst_create",
     "vtss_phy_inst_destroy",
     "vtss_phy_init_conf_set",

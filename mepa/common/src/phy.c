@@ -226,7 +226,6 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
     }
 
     phy_id = mepa_phy_id_get(callout, callout_ctx);
-
     //if (phy_id != conf->id) {
     //    T_E("PHY IDs does not match");
     //}
@@ -243,7 +242,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
         for (uint32_t j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
 
-			if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
+            if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
                 dev = driver->mepa_driver_probe(driver, callout, callout_ctx, conf);
                 if (dev) {
                     T_I("probe completed for port %d with driver id %x phy_id %x phy_family %d j %d", conf->numeric_handle, driver->id, phy_id, i, j);

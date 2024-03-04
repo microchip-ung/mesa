@@ -5,17 +5,6 @@
 #ifndef _VTSS_MACSEC_H_
 #define _VTSS_MACSEC_H_
 
-#define VTSS_MACSEC_1G_MAX_SA_RX  VTSS_MACSEC_1G_MAX_SA
-#define VTSS_MACSEC_1G_MAX_SA_TX  VTSS_MACSEC_1G_MAX_SA
-#define VTSS_MACSEC_1G_MAX_SC_RX  VTSS_MACSEC_1G_MAX_SA/2     /* Min 2 RxSA per SC         */
-#define VTSS_MACSEC_1G_MAX_SC_TX  VTSS_MACSEC_1G_MAX_SC_RX
-#define VTSS_MACSEC_1G_MAX_SECY   VTSS_MACSEC_1G_MAX_SC_TX
-
-#define VTSS_MACSEC_10G_MAX_SA_RX  VTSS_MACSEC_10G_MAX_SA
-#define VTSS_MACSEC_10G_MAX_SA_TX  VTSS_MACSEC_10G_MAX_SA
-#define VTSS_MACSEC_10G_MAX_SC_RX  VTSS_MACSEC_10G_MAX_SA/2     /* Min 2 RxSA per SC         */
-#define VTSS_MACSEC_10G_MAX_SC_TX  VTSS_MACSEC_10G_MAX_SC_RX
-#define VTSS_MACSEC_10G_MAX_SECY   VTSS_MACSEC_10G_MAX_SC_TX
 
 #define VTSS_MACSEC_ACTION_MAX 3
 #define VTSS_MACSEC_DIRECTION_MAX 3
@@ -69,7 +58,7 @@ typedef struct {
     vtss_macsec_secy_port_counters_t  controlled_cnt;
     vtss_macsec_secy_counters_t       secy_cnt;
     vtss_macsec_secy_conf_t           conf;
-    vtss_macsec_internal_rx_sc_t      *rx_sc[VTSS_MACSEC_MAX_SC_RX];
+    vtss_macsec_internal_rx_sc_t      **rx_sc;
     vtss_macsec_internal_tx_sc_t      tx_sc;
     vtss_macsec_match_pattern_t       pattern[VTSS_MACSEC_ACTION_MAX][VTSS_MACSEC_DIRECTION_MAX];
     u32                               pattern_record[VTSS_MACSEC_ACTION_MAX][VTSS_MACSEC_DIRECTION_MAX];
@@ -95,14 +84,19 @@ typedef struct {
     BOOL                                   spd_change_macsec_recfg; /** MACsec Reconfig flag for speed change */
     u64                                    ingr_flow_map; /** ingress flow map */
     u8                                     recfg_speed;
+    vtss_macsec_inst_count_t               inst_counts;
+    u8                                     max_secy_cnt;
+    u8                                     max_sa_cnt;
+    u8                                     max_sc_cnt;
 } vtss_macsec_internal_glb_t;
 
-
+/* Memory is allocated for this structure during probe depending
+ * on the PHY Connected on the Port */
 typedef struct {
-    vtss_macsec_internal_secy_t         secy[VTSS_MACSEC_MAX_SECY];
-    vtss_macsec_internal_rx_sc_t        rx_sc[VTSS_MACSEC_MAX_SC_RX];
-    vtss_macsec_internal_rx_sa_t        rx_sa[VTSS_MACSEC_MAX_SA_RX];
-    vtss_macsec_internal_tx_sa_t        tx_sa[VTSS_MACSEC_MAX_SA_TX];
+    vtss_macsec_internal_secy_t         *secy;
+    vtss_macsec_internal_rx_sc_t        *rx_sc;
+    vtss_macsec_internal_rx_sa_t        *rx_sa;
+    vtss_macsec_internal_tx_sa_t        *tx_sa;
     vtss_macsec_internal_glb_t          glb;
     vtss_macsec_rc_dbg_counters_t       rc_dbg_counters;
 } vtss_macsec_internal_conf_t;

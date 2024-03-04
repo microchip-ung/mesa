@@ -317,6 +317,9 @@ vtss_rc vtss_phy_inst_destroy(const mepa_callout_t    *callout,
                               struct mepa_callout_ctx *callout_ctx,
                               const vtss_inst_t inst);
 
+uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx);
+
 /** \brief Debug layer */
 /* Debug layer */
 typedef enum {

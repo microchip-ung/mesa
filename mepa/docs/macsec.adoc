@@ -74,6 +74,8 @@ the bypass param set to: `MEPA_MACSEC_INIT_BYPASS_ENABLE` and to remove the bypa
 `mepa_macsec_init_set()` must be called with the bypass param set to:
 `MEPA_MACSEC_INIT_BYPASS_DISABLE`.
 
+NOTE: To enable the MACsec block this API needs to be called with with "enable"=TRUE and "bypass"= MEPA_MACSEC_INIT_BYPASS_NONE.
+
 NOTE: In MACSec operation for certain 10G PHYs, when link down is detected, the
 MACSec block should be set to be bypassed until link up is detected, then MACSec
 block should be set to be non-bypassed.  When the link is down, there is a CLOCK
@@ -207,6 +209,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
                               will not change. Rx SA Status Next PN and Lowest PN shows different
                               as compare with existing Rx SA Status.
 
+`mepa_macsec_rx_sc_get_conf()` : Get the Receive secure channel configuration
 
 `mepa_macsec_rx_sc_get_next()`: Browse through the Rx SCs inside of the SecY.
 
@@ -335,6 +338,68 @@ given virtual MACsec port.
 `mepa_macsec_bypass_mode_set()`: Set header bypass mode globally for the port
 
 `mepa_macsec_bypass_tag_set()`: Set the bypass tag mode i.e. number of Tags to bypass: 0(disable), 1 or 2 tags.
+
+To bypass VLAN Tag the 'mepa_macsec_bypass_mode_set()' needs to be called with bypass mode 'MEPA_MACSEC_BYPASS_TAG'  and
+'mepa_macsec_bypass_tag_set()' needs to be called consecutively to configure number of VLAN tags to be bypassed.
+
+To bypass header 'mepa_macsec_bypass_mode_set()' needs to be called with bypass mode 'MEPA_MACSEC_BYPASS_HDR' and ethtype of the header that needs
+to be bypassed and header length.
+
+NOTE: To bypass VLAN tag/Header the 'mepa_macsec_bypass_mode_set()' and 'mepa_macsec_bypass_tag_set()' APIs needs to be called before creating the
+      secure channel.
+
+
+== MACsec Counters
+
+MACsec counters are supported as per the 802.1AE MACsec standards. The three classes of statistics
+counters are as follows:
+
+SecY statistics: The MACsec block maintains statistics of each SecY in the per physical port.
+
+Per-SA statistics: The software on the MACsec block maintains all the per-SA statistics for the ingress
+and egress MACsec operations. It maintains the statistics for all the four SAs that may belong to an
+SC. Thus, it keeps the per-SA statistics, even for the deleted SAs from the SA flow table. Whenever
+an SA flow is deleted, its final SA statistics must be collected and added into the per-SA and per-SC
+statistics.
+
+Per-SC statistics: The MACsec block does not maintain any per-SC statistics. However, the per-SC
+statistics are the sum of per-SA statistics of the SAs belonging to that SC. Whenever the software
+reads per-SA statistics from the hardware, it will add them to SC statistics.
+
+`mepa_macsec_tx_sa_counters_get()` : Gets the statistics of particular Transmit secure assosiation
+
+`mepa_macsec_tx_sc_counters_get()` : Gets the statics of particular transmit secure channel it contains the statistics of all the SA's
+                                     belong to the particular secure channel
+
+`mepa_macsec_rx_sa_counters_get()` : Gets the statistics of particular Receiving secure assosiation.
+
+`mepa_macsec_rx_sc_counters_get()` : Gets the statics of particular receive secure channel.
+
+`mepa_macsec_secy_counters_get()` : Gets the statistics of particular SecY in the physical port.
+
+`mepa_macsec_controlled_counters_get()` : Gets the statistics of the packets passing through the controlled port of the MACsec.
+
+`mepa_macsec_uncontrolled_counters_get()` : Gets the statistics of the packets passing through the uncontrolled port
+
+
+
+== List of APIs for Ecryption/decryption configuration
+
+'mepa_macsec_init_set()'
+'mepa_macsec_default_action_set()'
+'mepa_macsec_secy_conf_add()'
+'mepa_macsec_pattern_set()'
+'mepa_macsec_secy_cotrolled_set()'
+
+== Encryption
+'mepa_macsec_tx_sc_set()'
+'mepa_macsec_tx_sa_set()'
+'mepa_macsec_tx_sa_activate()'
+
+== Decryption
+'mepa_macsec_rx_sc_add()'
+'mepa_macsec_rx_sc_set()'
+'mepa_macsec_rx_sa_activate()'
 
 
 === MEPA MACSec functions

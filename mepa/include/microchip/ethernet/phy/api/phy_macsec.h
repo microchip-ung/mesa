@@ -13,12 +13,6 @@
 #define MEPA_MACSEC_SA_PER_SC_MIN  2  /**< SAs per SC Min : 2 */
 
 #define MEPA_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC_MAX /**< SAs per SCs : 4 */
-#define MEPA_MACSEC_MAX_SA     MEPA_MACSEC_10G_MAX_SA   /**< 10G PHY Max SAs : 64 */
-#define MEPA_MACSEC_MAX_SA_RX  MEPA_MACSEC_MAX_SA       /**< Max Rx SAs */
-#define MEPA_MACSEC_MAX_SA_TX  MEPA_MACSEC_MAX_SA       /**< Max Tx SAs */
-#define MEPA_MACSEC_MAX_SC_RX  MEPA_MACSEC_MAX_SA/2     /**< Max Rx SCs : 32/8 */
-#define MEPA_MACSEC_MAX_SC_TX  MEPA_MACSEC_MAX_SC_RX    /**< Max Tx SCs : 32/8 */
-#define MEPA_MACSEC_MAX_SECY   MEPA_MACSEC_MAX_SC_TX    /**< Max SecYs : 32/8 */
 
 #define MEPA_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
 
@@ -1363,12 +1357,12 @@ typedef struct {
 typedef struct {
     uint8_t no_txsc;                            /**< No. of Tx SCs configured */
     uint8_t txsc_id;                            /**< Configured Tx SC ids */
-    mepa_macsec_sci_t tx_sci;              /**< Tx SCI */
-    mepa_sc_inst_count_t txsc_inst_count;  /**< Tx SC Instances */
+    mepa_macsec_sci_t tx_sci;                   /**< Tx SCI */
+    mepa_sc_inst_count_t txsc_inst_count;       /**< Tx SC Instances */
     uint8_t no_rxsc;                            /**< No. of Rx SCs configured */
-    uint8_t rxsc_id[MEPA_MACSEC_MAX_SC_RX];     /**< Configured Rx SC ids */
-    mepa_macsec_sci_t rx_sci[MEPA_MACSEC_MAX_SC_RX];             /**< Rx SCIs */
-    mepa_sc_inst_count_t rxsc_inst_count[MEPA_MACSEC_MAX_SC_RX]; /**< Rx SCs Instances */
+    uint8_t *rxsc_id;                           /**< Configured Rx SC ids */
+    mepa_macsec_sci_t *rx_sci;                  /**< Rx SCIs */
+    mepa_sc_inst_count_t *rxsc_inst_count;      /**< Rx SCs Instances */
 } mepa_secy_inst_count_t;
 
 /*--------------------------------------------------------------------*/
@@ -1377,9 +1371,9 @@ typedef struct {
 
 /** \brief No. of  SecYs, Virtual Port Information */
 typedef struct {
-    uint8_t no_secy;                       /**< No. of SecYs configured */
-    uint8_t secy_vport[MEPA_MACSEC_MAX_SECY]; /**< Configured SecY virtual port */
-    mepa_secy_inst_count_t secy_inst_count[MEPA_MACSEC_MAX_SECY]; /**< SecY Instances */
+    uint8_t no_secy;                         /**< No. of SecYs configured */
+    uint8_t *secy_vport;                     /**< Configured SecY virtual port */
+    mepa_secy_inst_count_t *secy_inst_count; /**< SecY Instances */
 } mepa_macsec_inst_count_t;
 
 /** Get the Instances count of SecYs, Rx SCs, Tx SA and Rx SAs.
