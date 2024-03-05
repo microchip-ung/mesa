@@ -1361,20 +1361,20 @@ vtss_rc vtss_cil_port_kr_irq_activity(vtss_state_t *vtss_state,
     if (FA_TGT) {
         REG_RD(VTSS_CPU_KR10G_INTR_RAW, irq_mask);
     } else {
-        for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-            if (!PORT_IS_KR_CAP(p)) {
-                continue;
-            }
-            vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[p];
-            u32 val, tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(p));
-            if (!kr->aneg.enable) {
-                continue;
-            }
-            REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val);
-            if (val > 0) {
-                *irq_mask |= (u32)(1 << VTSS_CHIP_PORT(p));
-            }
-        }
+        /* for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) { */
+        /*     if (!PORT_IS_KR_CAP(p)) { */
+        /*         continue; */
+        /*     } */
+        /*     vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[p]; */
+        /*     u32 val, tgt = vtss_to_sd10g_kr(vtss_state, VTSS_CHIP_PORT(p)); */
+        /*     if (!kr->aneg.enable) { */
+        /*         continue; */
+        /*     } */
+        /*     REG_RD(VTSS_IP_KRANEG_IRQ_VEC(tgt), &val); */
+        /*     if (val > 0) { */
+        /*         *irq_mask |= (u32)(1 << VTSS_CHIP_PORT(p)); */
+        /*     } */
+        /* } */
     }
     return VTSS_RC_OK;
 }
