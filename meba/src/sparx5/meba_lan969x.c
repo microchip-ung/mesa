@@ -824,54 +824,6 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-static mesa_rc kr_irq2port(meba_inst_t inst, mesa_irq_t chip_irq, mesa_port_no_t *port_no)
-{
-    meba_board_state_t    *board = INST2BOARD(inst);
-    mesa_rc               rc = MESA_RC_ERROR;
-    uint32_t              chip_port = 0;
-
-    // Convert chip IRQs to to chip ports
-    // and check if the chip port exists in the port map.
-    switch (chip_irq) {
-    case MESA_IRQ_KR_SD10G_0: chip_port = 0;  break;
-    case MESA_IRQ_KR_SD10G_1: chip_port = 4;  break;
-    case MESA_IRQ_KR_SD10G_2: chip_port = 8;  break;
-    case MESA_IRQ_KR_SD10G_3: chip_port = 12; break;
-    case MESA_IRQ_KR_SD10G_4: chip_port = 16;  break;
-    case MESA_IRQ_KR_SD10G_5: chip_port = 20;  break;
-    case MESA_IRQ_KR_SD10G_6: chip_port = 24;  break;
-    case MESA_IRQ_KR_SD10G_7: chip_port = 25;  break;
-    case MESA_IRQ_KR_SD10G_8: chip_port = 26;  break;
-    case MESA_IRQ_KR_SD10G_9: chip_port = 27;  break;
-
-    default: rc = MESA_RC_ERROR;
-    }
-
-    for (mesa_port_no_t p = 0; p < board->port_cnt; p++) {
-        if (board->port[p].map.map.chip_port == chip_port) {
-            *port_no = p;
-            return MESA_RC_OK;
-        }
-    }
-
-    return rc;
-}
-
-static mesa_rc kr_handler(meba_inst_t inst,
-                          meba_board_state_t *board,
-                          mesa_irq_t chip_irq,
-                          meba_event_signal_t signal_notifier)
-{
-    mesa_port_no_t port_no = 0;
-    if (kr_irq2port(inst, chip_irq, &port_no) != MESA_RC_OK) {
-        return MESA_RC_OK; // Not used in the current board config
-    }
-
-    signal_notifier(MEBA_EVENT_KR, port_no);
-    return MESA_RC_OK;
-}
-
-
 static mesa_rc lan969x_irq_handler(meba_inst_t inst,
                                    mesa_irq_t chip_irq,
                                    meba_event_signal_t signal_notifier)
@@ -892,17 +844,7 @@ static mesa_rc lan969x_irq_handler(meba_inst_t inst,
     case MESA_IRQ_GPIO:
         return gpio_handler(inst, board, signal_notifier);
         return MESA_RC_OK;
-    case MESA_IRQ_KR_SD10G_0:
-    case MESA_IRQ_KR_SD10G_1:
-    case MESA_IRQ_KR_SD10G_2:
-    case MESA_IRQ_KR_SD10G_3:
-    case MESA_IRQ_KR_SD10G_4:
-    case MESA_IRQ_KR_SD10G_5:
-    case MESA_IRQ_KR_SD10G_6:
-    case MESA_IRQ_KR_SD10G_7:
-    case MESA_IRQ_KR_SD10G_8:
-    case MESA_IRQ_KR_SD10G_9:
-        return kr_handler(inst, board, chip_irq, signal_notifier);
+
     default:
         break;
     }
@@ -919,16 +861,6 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     case MESA_IRQ_SGPIO:
     case MESA_IRQ_EXT0:
     case MESA_IRQ_GPIO:
-    case MESA_IRQ_KR_SD10G_0:
-    case MESA_IRQ_KR_SD10G_1:
-    case MESA_IRQ_KR_SD10G_2:
-    case MESA_IRQ_KR_SD10G_3:
-    case MESA_IRQ_KR_SD10G_4:
-    case MESA_IRQ_KR_SD10G_5:
-    case MESA_IRQ_KR_SD10G_6:
-    case MESA_IRQ_KR_SD10G_7:
-    case MESA_IRQ_KR_SD10G_8:
-    case MESA_IRQ_KR_SD10G_9:
         rc = MESA_RC_OK;
         break;
     default:
