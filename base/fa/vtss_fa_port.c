@@ -745,7 +745,8 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_c
                 clk_div = 1; /* Divide by 2 */
             }
 
-            if (port_conf->serdes.media_type == VTSS_SD10G_MEDIA_SR) { /* Optical SFP with LOS signal connected to serial GPIO */
+            if (port_conf->serdes.media_type == VTSS_SD10G_MEDIA_SR ||
+                port_conf->serdes.media_type == VTSS_SD10G_MEDIA_ZR ) { /* Optical SFP with LOS signal connected to serial GPIO */
                 sd_ena = 1;
             } else {    /* No LOS signal connected to serial GPIO */
                 sd_ena = 0;
