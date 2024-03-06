@@ -99,44 +99,68 @@ static void trace_func(const vtss_phy_trace_group_t group,
 }
 
 #if defined (VTSS_FEATURE_MACSEC)
-/* Deallocating the allocated memory */
 static vtss_rc vtss_macsec_port_mem_free(const mepa_callout_t    *callout,
                                          struct mepa_callout_ctx *callout_ctx,
                                          vtss_inst_t             *inst,
                                          uint32_t                 port_no)
 {
     vtss_state_t *vtss_state = *inst;
-    u8 max_secy = vtss_state->macsec_conf[port_no].glb.max_secy_cnt;
-    VTSS_I("Deallocating the memory due to error in allocating memory");
+    u32 max_secy = vtss_state->macsec_conf[port_no].glb.max_secy_cnt;
+    VTSS_I("Deallocating MACsec Memory");
 
-    for(u8 j = 0; j < max_secy; j++) {
-        if(vtss_state->macsec_conf[port_no].secy[j].rx_sc != NULL) {
-            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].secy[j].rx_sc);
-        }
-    }
-
-    if(vtss_state->macsec_conf[port_no].secy != NULL) {
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].secy);
-    }
-
-    if(vtss_state->macsec_conf[port_no].rx_sc != NULL) {
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].rx_sc);
+    if(vtss_state->macsec_conf[port_no].rx_sa != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].rx_sa);
+        vtss_state->macsec_conf[port_no].rx_sa = NULL;
     }
 
     if(vtss_state->macsec_conf[port_no].tx_sa != NULL) {
         mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].tx_sa);
+        vtss_state->macsec_conf[port_no].tx_sa = NULL;
+    }
+    /* The Memory for rx_sc is allocated as a bulk for all SecY's so deallocating the first SecY memory will free the entire rx_sc */
+    if(vtss_state->macsec_conf[port_no].secy[0].rx_sc != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].secy[0].rx_sc);
+        for(u8 j = 0; j < max_secy; j++) {
+            vtss_state->macsec_conf[port_no].secy[j].rx_sc = NULL;
+        }
     }
 
-    if(vtss_state->macsec_conf[port_no].rx_sa != NULL) {
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].rx_sa);
+    if(vtss_state->macsec_conf[port_no].rx_sc != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].rx_sc);
+        vtss_state->macsec_conf[port_no].rx_sc = NULL;
+    }
+
+    if(vtss_state->macsec_conf[port_no].secy != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].secy);
+        vtss_state->macsec_conf[port_no].secy = NULL;
+    }
+    if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport);
+        vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport = NULL;
     }
 
     if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count != NULL) {
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count);
-    }
+        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id);
+            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id = NULL;
+        }
 
+        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci);
+            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci = NULL;
+        }
+
+        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count);
+            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count = NULL;
+        }
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count);
+        vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count = NULL;
+    }
     return MEPA_RC_OK;
 }
+
+
 
 
 static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
@@ -149,6 +173,17 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     u32 phy_id = mepa_phy_id_get(callout, callout_ctx);
     mepa_bool_t is_phy_1g;
     vtss_macsec_internal_secy_t *secy;
+    vtss_macsec_internal_secy_t *macsec_conf_secy = NULL;
+    vtss_macsec_internal_rx_sc_t *macsec_conf_rx_sc = NULL;
+    vtss_macsec_internal_rx_sa_t *macsec_conf_rx_sa = NULL;
+    vtss_macsec_internal_tx_sa_t *macsec_conf_tx_sa = NULL;
+    vtss_macsec_internal_rx_sc_t **secy_rx_sc = NULL;
+
+    uint8_t *rxsc_id = NULL;
+    vtss_macsec_sci_t *sci = NULL;
+    vtss_sc_inst_count_t *sc_inst = NULL;
+    u8 *secy_vport = NULL;
+    vtss_secy_inst_count_t *secy_cnt = NULL;
     VTSS_I("Memory allocation for MACsec Port on port number : %d", port_no);
     /* VSC PHY's which supports MACsec */
     if((phy_id >> 4) == VTSS_PHY_VIPER_ID) {
@@ -171,50 +206,56 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
         max_sa = VTSS_MACSEC_10G_MAX_SA;
         max_secy = VTSS_MACSEC_10G_MAX_SA / 2;
     }
+
     /* Allocating Memory to vtss_macsec_internal_conf_t structure depending on PHY connected on the Port */
-    if((vtss_state->macsec_conf[port_no].secy = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_secy_t) * max_secy)) == 0) {
+    if((macsec_conf_secy = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_secy_t) * max_secy)) == 0) {
         VTSS_E("Error in allocating memory for SecY on port : %d", port_no);
         return MEPA_RC_ERROR;
     }
+    vtss_state->macsec_conf[port_no].secy = macsec_conf_secy;
     memset(vtss_state->macsec_conf[port_no].secy, 0 , sizeof(vtss_macsec_internal_secy_t) * max_secy);
     vtss_state->macsec_conf[port_no].glb.max_secy_cnt = max_secy; /* Storing MAX secy */
 
     /* Maximum Secure channel memory allocation  on a port*/
-    if((vtss_state->macsec_conf[port_no].rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc)) == 0) {
+    if((macsec_conf_rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc)) == 0) {
         VTSS_E("Error in allocating memory for Rx Secure channel on port : %d", port_no);
         return MEPA_RC_ERROR;
     }
+    vtss_state->macsec_conf[port_no].rx_sc = macsec_conf_rx_sc;
     memset(vtss_state->macsec_conf[port_no].rx_sc, 0 , sizeof(vtss_macsec_internal_rx_sc_t) * max_sc);
     vtss_state->macsec_conf[port_no].glb.max_sc_cnt = max_sc;  /* Storing MAX SC */
 
     /* Memory allocation for Receive secure channel */
-    vtss_macsec_internal_rx_sc_t **rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc * max_secy);
-    if(!rx_sc) {
+    secy_rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc * max_secy);
+    if(!secy_rx_sc) {
         VTSS_E("Error in allocating memory for RX SC on SecY in port : %d", port_no);
         return MEPA_RC_ERROR;
     }
-    memset(rx_sc, 0 , sizeof(vtss_macsec_internal_rx_sc_t) * max_sc * max_secy);
+    memset(secy_rx_sc, 0 , sizeof(vtss_macsec_internal_rx_sc_t) * max_sc * max_secy);
     for(u8 j = 0; j < max_secy; j++) {
         secy = &vtss_state->macsec_conf[port_no].secy[j];
-        secy->rx_sc = rx_sc + (max_sc * j);
+        secy->rx_sc = secy_rx_sc + (max_sc * j);
         vtss_state->macsec_conf[port_no].secy[j].rx_sc = secy->rx_sc;
     }
+
     /* Maximum Secure Assosiation allocation on Port */
-    if((vtss_state->macsec_conf[port_no].tx_sa = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_tx_sa_t) * max_sa)) == 0) {
+    if((macsec_conf_tx_sa = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_tx_sa_t) * max_sa)) == 0) {
         VTSS_E("Error in allocating memory for Tx Secure assosiation on port : %d", port_no);
         return MEPA_RC_ERROR;
     }
+    vtss_state->macsec_conf[port_no].tx_sa = macsec_conf_tx_sa;
     memset(vtss_state->macsec_conf[port_no].tx_sa, 0 , sizeof(vtss_macsec_internal_tx_sa_t) * max_sa);
 
-    if((vtss_state->macsec_conf[port_no].rx_sa = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sa_t) * max_sa)) == 0) {
+    if((macsec_conf_rx_sa = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sa_t) * max_sa)) == 0) {
         VTSS_E("Error in allocating memory for Rx Secure assosiation on port : %d", port_no);
         return MEPA_RC_ERROR;
     }
+    vtss_state->macsec_conf[port_no].rx_sa = macsec_conf_rx_sa;
     memset(vtss_state->macsec_conf[port_no].rx_sa, 0 , sizeof(vtss_macsec_internal_rx_sa_t) * max_sa);
     vtss_state->macsec_conf[port_no].glb.max_sa_cnt = max_sa; /* Storing MAX SA */
 
     /* Allocating memory to vtss_macsec_inst_count_t structure */
-    vtss_secy_inst_count_t *secy_cnt = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_secy_inst_count_t) * max_secy);
+    secy_cnt = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_secy_inst_count_t) * max_secy);
     if(!secy_cnt) {
         VTSS_E("Error in allocating memory to Secy Instance count on port : %d", port_no);
         return MEPA_RC_ERROR;
@@ -222,27 +263,24 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     memset(secy_cnt, 0 , sizeof(vtss_secy_inst_count_t));
     vtss_macsec_inst_count_t  inst_counts = {0};
 
-    uint8_t *rxsc_id = mepa_mem_alloc_int(callout, callout_ctx, sizeof(uint8_t) * max_sc * max_secy);
+    rxsc_id = mepa_mem_alloc_int(callout, callout_ctx, sizeof(uint8_t) * max_sc * max_secy);
     if(!rxsc_id) {
         VTSS_E("Error in allocating memory for Rx SC Id on port : %d", port_no);
-        return MEPA_RC_ERROR;
+        goto macsec_mem_dealloc;
     }
     memset(rxsc_id, 0 ,sizeof(uint8_t) * max_sc * max_secy);
 
-    vtss_macsec_sci_t *sci = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_sci_t) * max_sc * max_secy);
+    sci = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_sci_t) * max_sc * max_secy);
     if(!sci) {
-        mepa_mem_free_int(callout, callout_ctx, rxsc_id);
         VTSS_E("Error in allocating memory to SCI on port : %d", port_no);
-        return MEPA_RC_ERROR;
+        goto macsec_mem_dealloc;
     }
     memset(sci, 0 , sizeof(vtss_macsec_sci_t) * max_sc *max_secy);
 
-    vtss_sc_inst_count_t *sc_inst = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_sc_inst_count_t) * max_sc * max_secy);
+    sc_inst = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_sc_inst_count_t) * max_sc * max_secy);
     if(!sc_inst) {
-        mepa_mem_free_int(callout, callout_ctx, rxsc_id);
-	mepa_mem_free_int(callout, callout_ctx, sci); /* Free the previously allocated Memory */
         VTSS_E("Error in allocating memory to SC Instance : %d", port_no);
-        return MEPA_RC_ERROR;
+        goto macsec_mem_dealloc;
     }
     memset(sc_inst, 0 , sizeof(vtss_sc_inst_count_t) * max_sc * max_secy);
 
@@ -251,19 +289,36 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
         secy_cnt[c].rx_sci = sci + (max_sc * c);
         secy_cnt[c].rxsc_inst_count = sc_inst + (max_sc * c);
     }
-    inst_counts.secy_inst_count = secy_cnt;
-    memcpy(&vtss_state->macsec_conf[port_no].glb.inst_counts, &inst_counts, sizeof(vtss_macsec_inst_count_t));
 
-    u8 *secy_vport = mepa_mem_alloc_int(callout, callout_ctx, sizeof(uint8_t) * max_secy);
+    secy_vport = mepa_mem_alloc_int(callout, callout_ctx, sizeof(uint8_t) * max_secy);
     if(!secy_vport) {
         VTSS_E("Error in allocating memory to SecY virtual port count on port : %d", port_no);
-        return MEPA_RC_ERROR;
+        goto macsec_mem_dealloc;
     }
     memset(secy_vport, 0 , sizeof(uint8_t) * max_secy);
     inst_counts.secy_vport = secy_vport;
+    inst_counts.secy_inst_count = secy_cnt;
     memcpy(&vtss_state->macsec_conf[port_no].glb.inst_counts, &inst_counts, sizeof(vtss_macsec_inst_count_t));
 
     return MEPA_RC_OK;
+
+macsec_mem_dealloc:
+    if(sc_inst != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, sc_inst);
+    }
+    if(sci != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, sci);
+    }
+    if(rxsc_id != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, rxsc_id);
+    }
+    if(secy_cnt != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, secy_cnt);
+    }
+    if(secy_vport != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, secy_vport);
+    }
+    return MEPA_RC_ERROR;
 }
 #endif
 
@@ -357,6 +412,12 @@ static mepa_rc mscc_vtss_destroy(mepa_device_t *dev)
         } else {
             return MEPA_RC_ERROR;
         }
+#if defined (VTSS_FEATURE_MACSEC)
+        if(vtss_macsec_port_mem_free(dev->callout, dev->callout_ctx, &vtss_inst, dev->numeric_handle) != VTSS_RC_OK) {
+            VTSS_E("Error in Destroying allocated MACsec memory");
+            return MEPA_RC_ERROR;
+        }
+#endif
         if (vtss_inst_cnt == 0 && vtss_phy_inst_destroy(dev->callout, dev->callout_ctx, vtss_inst) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
