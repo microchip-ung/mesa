@@ -884,6 +884,7 @@ static BOOL check_resources(vtss_state_t *vtss_state,
             num_of_rx_sa_inuse++;
         }
     }
+
     return (num_of_rx_sa_inuse + num_of_sa_rsrv <= macsec_max_port_sa);
 }
 
@@ -7337,6 +7338,7 @@ vtss_rc vtss_macsec_init_get(const vtss_inst_t                 inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc rc = VTSS_RC_ERROR;
+
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
 

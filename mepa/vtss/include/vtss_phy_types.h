@@ -31,6 +31,11 @@ typedef uint8_t            BOOL; /**< Boolean implemented as 8-bit unsigned */
 #define FALSE 0 /**< False boolean value */
 #endif
 
+/* ID when we read PHY ID registers */
+#define VTSS_PHY_VIPER_ID 0x707C
+#define VTSS_PHY_MALIBU10G_8258_ID 0x8258
+#define VTSS_PHY_MALIBU10G_8254_ID 0x8254
+
 /** \brief Error code type */
 typedef int vtss_rc;
 

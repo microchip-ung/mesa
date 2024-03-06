@@ -12,7 +12,6 @@
 
 #define VTSS_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC
 
-
 #define VTSS_MAC_BLOCK_MTU_MAX MEPA_MAC_BLOCK_MTU_MAX
 #ifdef __cplusplus
 extern "C" {

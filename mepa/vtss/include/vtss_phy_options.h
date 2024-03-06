@@ -34,6 +34,7 @@
 #if !defined(VTSS_OPT_PHY_MACSEC)
 #define VTSS_OPT_PHY_MACSEC 0
 #endif
+#undef VTSS_FEATURE_MACSEC
 #if VTSS_OPT_PHY_MACSEC
 #define VTSS_FEATURE_MACSEC
 #endif

@@ -457,6 +457,7 @@ static vtss_rc vtss_phy_10g_identify_private(vtss_state_t *vtss_state,
 {
     u16                   model=0, rev=0, device_feature_status = 0, efuse = 0,value = 0;
     BOOL identified=FALSE,is_1_channel_8489=FALSE;
+
     if (vtss_state->phy_10g_state[port_no].channel_id_lock) {
         return VTSS_RC_OK;     /* The Phy is already identified */
     }

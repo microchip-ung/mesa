@@ -226,6 +226,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
     }
 
     phy_id = mepa_phy_id_get(callout, callout_ctx);
+
     //if (phy_id != conf->id) {
     //    T_E("PHY IDs does not match");
     //}
