@@ -77,8 +77,8 @@
 #define MDIO_AN_STAT1_COMPLETE          (0x0020U)   /* Auto-negotiation complete   */
 #define MDIO_AN_T1_ADV_L_PAUSE_CAP      (0x0400U)   /* Try for pause               */
 #define MDIO_AN_T1_ADV_L_PAUSE_ASYM     (0x0800U)
-#define LPA_100FULL                     (0x0080U)   /* Can do 100mbps full-duplex  */
-#define LPA_1000FULL                    (0x0020U)   /* Can do 1000BASE-X full-duplex */
+#define LPA_100FULL                     (0x0020U)   /* Can do 100mbps full-duplex  */
+#define LPA_1000FULL                    (0x0080U)   /* Can do 1000BASE-X full-duplex */
 #define MDIO_AN_T1_ADV_M_B1000          (0x0080U)   /* device is compatible with 1000BASE-T1 */
 #define MDIO_AN_T1_ADV_M_B100           (0x0020U)   /* device is compatible with 100BASE-T1 */
 
@@ -93,11 +93,14 @@
 
 /* Media-dependent registers. */
 #define MDIO_PMA_PMD_BT1_CTRL           (2100U) /* BASE-T1 PMA/PMD control register */
+/* BASE-T1 PMA/PMD control register */
+#define MDIO_PMA_PMD_BT1_CTRL_CFG_MST   (0x4000U) /* MASTER-SLAVE config value */
+
 
 /* Start:: DEV-0x1 Registers */
 /* 100T1 PMA Commmon Registers */
-#define     LAN887X_PMA_COMM_100T1_CTL_T1                       (0x834U)
-#define     LAN887X_PMA_COMM_100T1_CTL_T1_MAS_SLV_CFG           BIT(14)
+#define     LAN887X_PMA_COMM_100T1_CTL_T1                       (MDIO_PMA_PMD_BT1_CTRL)
+#define     LAN887X_PMA_COMM_100T1_CTL_T1_MAS_SLV_CFG           (MDIO_PMA_PMD_BT1_CTRL_CFG_MST)
 #define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_MASK             (0xFU)
 #define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_100              (0x0U)
 #define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_1000             (0x1U)
@@ -148,6 +151,9 @@
 #define LAN887X_DSP_REGS_MAX_PGA_GAIN_100                       (0x44FU)
 #define LAN887X_DSP_REGS_MIN_PGA_GAIN_100                       (0x450U)
 #define LAN887X_DSP_REGS_START_CBL_DIAG_100                     (0x45AU)
+#define LAN887X_DSP_REGS_START_CBL_DIAG_DONE                    BIT(1)
+#define LAN887X_DSP_REGS_START_CBL_DIAG_EN                      BIT(0)
+
 #define LAN887X_DSP_REGS_CBL_DIAG_TDR_THRESH_100                (0x45BU)
 #define LAN887X_DSP_REGS_CBL_DIAG_AGC_THRESH_100                (0x45CU)
 #define LAN887X_DSP_REGS_CBL_DIAG_MIN_WAIT_CONFIG_100           (0x45DU)
@@ -315,14 +321,14 @@
                      LAN887X_DEV30_COMMON_TC10_MISC32_VBAT_COM_WR)
 
 #define LAN887X_DEV30_COMMON_TC10_MISC33                    (0x0C25U)
-#define LAN887X_DEV30_COMMON_TC10_MISC33_WK_OUT_LEN         (0x4FU)
-#define LAN887X_DEV30_COMMON_TC10_MISC33_WK_DEB_VAL         (0x27U)
+#define LAN887X_DEV30_COMMON_TC10_MISC33_WK_OUT_LEN         (0x004FU)
+#define LAN887X_DEV30_COMMON_TC10_MISC33_WK_DEB_VAL         (0x0027U)
 
 #define LAN887X_DEV30_COMMON_TC10_MISC36                    (0x0C27U)
-#define LAN887X_DEV30_COMMON_TC10_MISC36_WUP_DEB_VAL        (0x10U)
+#define LAN887X_DEV30_COMMON_TC10_MISC36_WUP_DEB_VAL        (0x0010U)
 #define LAN887X_DEV30_COMMON_TC10_MISC36_WK_MDI_EN          BIT(8)
 #define LAN887X_DEV30_COMMON_TC10_MISC36_WUP_AUTO_FWD_EN    BIT(12)
-#define LAN887X_DEV30_COMMON_TC10_MISC36_WUP_DET_FILT_LEN   (2U << 13U)
+#define LAN887X_DEV30_COMMON_TC10_MISC36_WUP_DET_FILT_LEN   (0x4000U)
 #define LAN887X_DEV30_COMMON_TC10_MISC36_VBAT_PORT_WR       BIT(15)
 #define LAN887X_DEV30_COMMON_TC10_MISC36_VAL \
                 (LAN887X_DEV30_COMMON_TC10_MISC36_WK_MDI_EN |\
@@ -341,8 +347,5 @@
 #define LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG     (0xC2FU)
 
 /* End:: DEV-0x1E Registers */
-
-/* BASE-T1 PMA/PMD control register */
-#define MDIO_PMA_PMD_BT1_CTRL_CFG_MST   (0x4000U) /* MASTER-SLAVE config value */
 
 #endif //LAN887X_REGISTERS_H

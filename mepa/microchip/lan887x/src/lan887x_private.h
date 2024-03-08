@@ -39,12 +39,11 @@
 }
 
 #ifdef MEPA_lan887x_static_mem
-#define LAN887X_PHY_MAX         (MEPA_lan887x_phy_max)
-#define LAN887X_PHY_ID_MAX      (LAN887X_PHY_MAX)
+#define LAN887X_PHY_MAX                        (MEPA_lan887x_phy_max)
 #else
-#define LAN887X_PHY_MAX         (1U)
-#define LAN887X_PHY_ID_MAX      (1U)
+#define LAN887X_PHY_MAX                        (1U)
 #endif
+#define LAN887X_PHY_ID_MAX      (LAN887X_PHY_MAX)
 #define LAN887X_PHY_ID_MASK     (0xFFFFF0U)
 #define LAN8870_PHY_ID          (0x7C1F0U)
 #define LAN887X_PHY_ID_PRTO         (0x7C001U)
@@ -92,15 +91,6 @@ typedef struct {
     mepa_gpio_mode_t                inh_mode;
 } lan887x_tc10_data_t;
 
-typedef struct phy_cbl_diag {
-    uint16_t gain_idx;
-    uint16_t pos_peak;
-    uint16_t neg_peak;
-    uint16_t pos_peak_time;
-    uint16_t neg_peak_time;
-} phy_cbl_diag_t;
-
-
 typedef struct {
     mepa_bool_t             init_done;
     mepa_bool_t             phy_aneg_dis;
@@ -113,8 +103,7 @@ typedef struct {
     mepa_loopback_t         loopback;
     phy_dev_info_t          dev;
     mepa_bool_t             ctx_status;
-    mepa_bool_t             cdiags_start;
-    phy_cbl_diag_t          cdiags_inf;
+    mepa_cable_diag_result_t cd_res;
     lan887x_tc10_data_t         tc10_cfg;
     mepa_gpio_conf_t        led3_conf;
     /* Pointer to the device of base port on the phy chip */
@@ -140,6 +129,7 @@ mepa_rc phy_reg_wr(mepa_device_t *const phydev, uint32_t const offset, uint16_t 
 mepa_rc phy_reg_modify(mepa_device_t *const phydev, uint32_t const offset, uint16_t const mask, uint16_t const value);
 
 mepa_rc phy_reg_set_bits(mepa_device_t *const phydev, uint32_t const offset, uint16_t const value);
+
 mepa_rc phy_reg_clear_bits(mepa_device_t *const phydev, uint32_t const offset, uint16_t const value);
 
 mepa_rc phy_mmd_reg_rd(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t *const value);
@@ -149,5 +139,7 @@ mepa_rc phy_mmd_reg_wr(mepa_device_t *const phydev, uint32_t const dev, uint32_t
 mepa_rc phy_mmd_reg_modify(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const mask, uint16_t const value);
 
 mepa_rc phy_mmd_reg_clear_bits(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const value);
+
+mepa_rc phy_mmd_reg_set_bits(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const value);
 
 #endif //LAN887X_PRIVATE_H

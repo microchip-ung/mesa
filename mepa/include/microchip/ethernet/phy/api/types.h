@@ -156,6 +156,7 @@ typedef struct {
 typedef struct {
     mepa_bool_t link;        /**< Link is up */
     mepa_port_speed_t speed; /**< Speed */
+	mepa_bool_t master;      /**< Master/Slave Mode */
     mepa_bool_t fdx;         /**< Full duplex */
     mepa_aneg_t aneg;        /**< Auto-negotiation */
     mepa_bool_t copper;      /**< For dual-media ports */
