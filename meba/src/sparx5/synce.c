@@ -1693,8 +1693,17 @@ static const meba_synce_graph_element_t synce_graph_elements_laguna_28_w_zls3073
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5a_port_out_0,       indy_phy_mux_4a_reco_clk_in_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_5b_port_out_1,       indy_phy_mux_4b_reco_clk_in_1),
 
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_2),
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_24,                      divider_switch_mux_port_24_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_24_out,   switch_mux_port_in_24),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_25,                      divider_switch_mux_port_25_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_25_out,   switch_mux_port_in_25),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_26,                      divider_switch_mux_port_26_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_26_out,   switch_mux_port_in_26),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_27,                      divider_switch_mux_port_27_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_27_out,   switch_mux_port_in_27),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_3),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0a_port_out_0,       dpll_port_0),
     MESA_SYNCE_GRAPH_CONNECTION(           indy_phy_mux_0b_port_out_1,       dpll_port_1),
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_28,          dpll_port_4)
@@ -1734,29 +1743,25 @@ static const meba_synce_terminal_attr_t attr_laguna_28_w_zls30772_board[] = {
     MESA_SYNCE_ATTR(eth_port_22,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
     MESA_SYNCE_ATTR(eth_port_23,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
 
-    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+    MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
+    MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
+    MESA_SYNCE_ATTR(eth_port_24,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
 
-    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+    MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
+    MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
+    MESA_SYNCE_ATTR(eth_port_25,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
 
-    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+    MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
+    MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
+    MESA_SYNCE_ATTR(eth_port_26,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
 
-    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_25G,       MEBA_SYNCE_CLOCK_FREQ_322_265MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ), */
-    /* MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ), */
+    MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
+    MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
+    MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
+    MESA_SYNCE_ATTR(eth_port_27,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
 
 
 };
@@ -1845,7 +1850,7 @@ mesa_rc meba_synce_mux_set(meba_inst_t  inst,
         return MESA_RC_OK;
     }
 
-    if (dev_id >= 250 && dev_id <= 299) {
+    if (dev_id >= 200 && dev_id <= 299) {
         // this is a divider (in). Not an actual device - ok
         return MESA_RC_OK;
     }

@@ -769,11 +769,12 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_c
                         VTSS_F_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA(conf->squelsh),
                         VTSS_M_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_RECO_CLK_DIV |
                         VTSS_M_SD_LANE_TARGET_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA);
-
-                REG_WR(VTSS_SD_LANE_TARGET_SD_CFG(sd_lane_tgt),
-                       VTSS_F_SD_LANE_TARGET_SD_CFG_SD_SEL(1) |
-                       VTSS_F_SD_LANE_TARGET_SD_CFG_SD_POL(0) |
-                       VTSS_F_SD_LANE_TARGET_SD_CFG_SD_ENA(sd_ena));
+                if (FA_TGT) {
+                    REG_WR(VTSS_SD_LANE_TARGET_SD_CFG(sd_lane_tgt),
+                           VTSS_F_SD_LANE_TARGET_SD_CFG_SD_SEL(1) |
+                           VTSS_F_SD_LANE_TARGET_SD_CFG_SD_POL(0) |
+                           VTSS_F_SD_LANE_TARGET_SD_CFG_SD_ENA(sd_ena));
+                }
             }
         } else if (port_type == VTSS_SYNCE_CLOCK_AUX) {  /* Port type is AUX so the clock source is the AUX number */
             /* TBD */

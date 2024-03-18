@@ -182,6 +182,10 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         break;
     }
 
+    /* In the diagram for UNG8398 the GPIO alternate modes are named
+    ALT1..ALT3. In the software the alternate modes are named
+    ALT0..ALT2. So, when diagram say ALT1 - use MESA_GPIO_ALT_0 */
+
     /* Configure GPIOs for MIIM/MDIO/IRQ bus 0 */
     for (gpio_no = 9; gpio_no <= 10; gpio_no++) {
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
@@ -189,6 +193,12 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
 
     /* Configure GPIO 11 as interrupt from PHYs */
     (void)mesa_gpio_mode_set(NULL, 0, INDYPHY_INTERRUPT, MESA_GPIO_IN_INT);
+
+    /* Configure GPIO 27 as recovered clock 0 */
+    (void)mesa_gpio_mode_set(NULL, 0, 27, MESA_GPIO_ALT_0);
+
+    /* Configure GPIO 54 as recovered clock 1 */
+    (void)mesa_gpio_mode_set(NULL, 0, 54, MESA_GPIO_ALT_0);
 
     /* Configure GPIO 57 as PTP.SYNC3 for the PHYs*/
     mesa_ts_ext_io_mode_t pps_mode = {MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT, 0, 0} ;
