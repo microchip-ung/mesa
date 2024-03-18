@@ -3525,6 +3525,11 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     VTSS_RC(vtss_cil_l2_vlan_mask_update(vtss_state, 1, state->port_all));
     VTSS_RC(vtss_cil_l2_vlan_mask_update(vtss_state, 4095, state->port_none));
 
+    // Avoid using FID zero for other VLANs
+    for (i = 2; i < 4095; i++) {
+        REG_WR(VTSS_ANA_L3_VLAN_CFG(i), VTSS_F_ANA_L3_VLAN_CFG_VLAN_FID(i));
+    }
+
     /* Apply default VLAN configuration to all ports */
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         VTSS_RC(vtss_cil_l2_vlan_port_conf_update(vtss_state, port_no, conf));
