@@ -107,6 +107,10 @@
 #define INDY_X_CABLE_DIAG_STATUS(x)  INDY_EXTRACT_BITFIELD(x, 8, 2)
 #define INDY_X_CABLE_DIAG_DATA(x)    INDY_EXTRACT_BITFIELD(x, 0, 8)
 
+// Register - 20
+#define INDY_DIGITAL_AX_AN_STATUS 20
+#define INDY_F_LINK_DET INDY_BIT(14)
+
 // Register - 22
 #define INDY_EXT_PAGE_ACCESS_CTRL 22
 #define INDY_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC 0x4000
@@ -138,6 +142,7 @@
 
 // Register - 31 (control register)
 #define INDY_CONTROL       31
+#define INDY_F_CONTROL_SOFT_RESET INDY_BIT(1)
 #define INDY_F_CONTROL_RESERVED INDY_BIT(14)
 
 //====================================================================================
