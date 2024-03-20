@@ -1600,31 +1600,47 @@ static u16 kr_analyze_ber(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
     return (high_best - (high_best-low_best)/2);
 }
 
-static u32 kr_get_best_eye(vtss_port_kr_state_t *krs, vtss_kr_tap_t tap)
+static u32 kr_get_best_eye(u16 *array, u16 len)
 {
-    u32 max_height = 0;
+    u32 max_height = 0, equals = 0, found_hig = 0;
     u32 indx = 0, repl=0, max_repl=0;
 
-    for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
-        if (krs->eye_height[tap][i] > max_height ) {
-            max_height = krs->eye_height[tap][i];
+    for (u32 i = 0; i < len; i++) {
+        if (array[i] > max_height ) {
+            max_height = array[i];
         }
     }
-    // Find the midfield of the identcial max height posistions (if more than one)
-    for (u32 i = 0; i < krs->lp_tap_max_cnt[tap]; i++) {
-        if (krs->eye_height[tap][i] == max_height ) {
-            for (u32 a = i; a <= krs->lp_tap_max_cnt[tap]; a++) {
-                if (krs->eye_height[tap][a] == max_height && (a < krs->lp_tap_max_cnt[tap])) {
+    // Find the midfield of the identcial max height posistions in a row
+    for (u32 i = 0; i < len; i++) {
+        if (array[i] == max_height) {
+            for (u32 a = i; a < len; a++) {
+                if (array[a] == max_height) {
                     repl++;
-                } else {
-                    if (repl > max_repl) {
-                        max_repl = repl;
-                        indx = i;
-                        i = a;
-                        repl = 0;
-                        break;
+                    if (a + 1 != len) {
+                        continue;
                     }
                 }
+                if (repl > max_repl) {
+                    max_repl = repl;
+                    indx = i;
+                    i = a;
+                }
+                repl = 0;
+                if (max_repl == 1) {
+                    equals++;
+                }
+                break;
+            }
+        }
+    }
+    // Find the midfield of identcial single height posistions
+    if (max_repl == 1 && equals > 1) {
+        for (indx = 0; indx < len; indx++) {
+            if (array[indx] == max_height) {
+                found_hig++;
+            }
+            if (found_hig == equals/2) {
+                break;
             }
         }
     }
@@ -1801,7 +1817,8 @@ static void kr_ber_training(vtss_state_t *vtss_state,
                 if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {
                     mid_mark = kr_analyze_ber(krs, krs->current_tap);
                 } else {
-                    mid_mark = kr_get_best_eye(krs, krs->current_tap);
+                    mid_mark = kr_get_best_eye(krs->eye_height[krs->current_tap],
+                                               krs->lp_tap_max_cnt[krs->current_tap]);
                 }
                 krs->lp_tap_end_cnt[krs->current_tap] = mid_mark;
                 krs->decr_cnt = krs->tap_idx - mid_mark - 1;
@@ -2056,6 +2073,7 @@ static vtss_rc kr_irq_apply(vtss_state_t *vtss_state,
 
     // WT_START (Start wait timer to ensure that the LP detects our state (72.6.10.3.2))
     if (krs->current_state == VTSS_TR_TRAIN_REMOTE && krs->remote_rx_ready) {
+        (void)vtss_cil_port_kr_ctle_adjust(vtss_state, port_no);
         // Set the 'Receiver Ready' bit
         krs->tr_res.status |= BT(15);
         kr_send_sts_report(vtss_state, port_no, krs->tr_res.status);

@@ -464,6 +464,7 @@ vtss_rc fa_debug_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port_
                             const vtss_port_serdes_debug_t *const conf);
 BOOL fa_is_target(vtss_state_t *vtss_state);
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,  vtss_port_no_t port_no, u32 action, u32 *ret_val);
+u32 fa_eye_height_num(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 num);
 vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
                               const vtss_debug_printf_t pr,

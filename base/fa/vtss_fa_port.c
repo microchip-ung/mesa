@@ -1171,7 +1171,9 @@ vtss_rc vtss_cil_port_kr_eye_dim(vtss_state_t *vtss_state,
                                  const vtss_port_no_t port_no,
                                  vtss_port_kr_eye_dim_t *const eye)
 {
-    return fa_kr_eye_height(vtss_state,  port_no, 3, &eye->height);
+
+    eye->height = fa_eye_height_num(vtss_state, port_no, 3);
+    return VTSS_RC_OK;
 }
 
 vtss_rc vtss_cil_port_kr_ber_cnt(vtss_state_t *vtss_state,
@@ -3847,12 +3849,11 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t *vtss_state,
                 vtss_state->port.ctle_done[port_no] = FALSE;
             }
             if (status->link && !vtss_state->port.ctle_done[port_no]) {
-                if (vtss_cil_port_kr_ctle_adjust(vtss_state, port_no)) {
-                    VTSS_E("CTLE tuning not supported for port: %u", port_no);
+                if (vtss_cil_port_kr_ctle_adjust(vtss_state, port_no) == VTSS_RC_OK) {
+                    VTSS_NSLEEP(300000); /* wait 300us while the link stabilize */
+                    REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
+                    vtss_state->port.ctle_done[port_no] = TRUE;
                 }
-                VTSS_NSLEEP(300000); /* wait 300us while the link stabilize */
-                REG_WR(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
-                vtss_state->port.ctle_done[port_no] = TRUE;
             }
         }
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -4371,6 +4372,7 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     u32  sd_indx, sd_type, sd;
     u32  tgt = vtss_fa_dev_tgt(vtss_state, port_no);
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
+    BOOL rs_fec = 0, r_fec = 0;
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
         u32 value, val2, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
@@ -4391,12 +4393,16 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
             lock = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st);
             hi_ber = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_HI_BER(pcs_st);
         }
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
+        rs_fec = vtss_state->port.kr_fec[port_no].rs_fec;
+        r_fec = vtss_state->port.kr_fec[port_no].r_fec;
+#endif
         pr("%-13d %-13d %-13d %-13d %-13d %-13d %d/%-13d\n",
            port,
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
            VTSS_X_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
-           lock, hi_ber, vtss_state->port.kr_fec[port_no].rs_fec, vtss_state->port.kr_fec[port_no].r_fec);
+           lock, hi_ber, rs_fec, r_fec);
         // Clear the stickies
         REG_WR(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), 0xFFFFFFFF);
     } else {
