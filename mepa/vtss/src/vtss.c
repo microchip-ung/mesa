@@ -105,7 +105,7 @@ static vtss_rc vtss_macsec_port_mem_free(const mepa_callout_t    *callout,
                                          uint32_t                 port_no)
 {
     vtss_state_t *vtss_state = *inst;
-    u32 max_secy = vtss_state->macsec_conf[port_no].glb.max_secy_cnt;
+    u32 max_secy = vtss_state->macsec_capability[port_no].max_secy_cnt;
     VTSS_I("Deallocating MACsec Memory");
 
     if(vtss_state->macsec_conf[port_no].rx_sa != NULL) {
@@ -134,28 +134,28 @@ static vtss_rc vtss_macsec_port_mem_free(const mepa_callout_t    *callout,
         mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].secy);
         vtss_state->macsec_conf[port_no].secy = NULL;
     }
-    if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport != NULL) {
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport);
-        vtss_state->macsec_conf[port_no].glb.inst_counts.secy_vport = NULL;
+    if(vtss_state->macsec_capability[port_no].inst_counts.secy_vport != NULL) {
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_capability[port_no].inst_counts.secy_vport);
+        vtss_state->macsec_capability[port_no].inst_counts.secy_vport = NULL;
     }
 
-    if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count != NULL) {
-        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id != NULL) {
-            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id);
-            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_id = NULL;
+    if(vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count != NULL) {
+        if(vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_id != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_id);
+            vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_id = NULL;
         }
 
-        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci != NULL) {
-            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci);
-            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rx_sci = NULL;
+        if(vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rx_sci != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rx_sci);
+            vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rx_sci = NULL;
         }
 
-        if(vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count != NULL) {
-            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count);
-            vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count->rxsc_inst_count = NULL;
+        if(vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_inst_count != NULL) {
+            mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_inst_count);
+            vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count->rxsc_inst_count = NULL;
         }
-        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count);
-        vtss_state->macsec_conf[port_no].glb.inst_counts.secy_inst_count = NULL;
+        mepa_mem_free_int(callout, callout_ctx, vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count);
+        vtss_state->macsec_capability[port_no].inst_counts.secy_inst_count = NULL;
     }
     return MEPA_RC_OK;
 }
@@ -214,7 +214,7 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     }
     vtss_state->macsec_conf[port_no].secy = macsec_conf_secy;
     memset(vtss_state->macsec_conf[port_no].secy, 0 , sizeof(vtss_macsec_internal_secy_t) * max_secy);
-    vtss_state->macsec_conf[port_no].glb.max_secy_cnt = max_secy; /* Storing MAX secy */
+    vtss_state->macsec_capability[port_no].max_secy_cnt = max_secy; /* Storing MAX secy */
 
     /* Maximum Secure channel memory allocation  on a port*/
     if((macsec_conf_rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc)) == 0) {
@@ -223,7 +223,7 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     }
     vtss_state->macsec_conf[port_no].rx_sc = macsec_conf_rx_sc;
     memset(vtss_state->macsec_conf[port_no].rx_sc, 0 , sizeof(vtss_macsec_internal_rx_sc_t) * max_sc);
-    vtss_state->macsec_conf[port_no].glb.max_sc_cnt = max_sc;  /* Storing MAX SC */
+    vtss_state->macsec_capability[port_no].max_sc_cnt = max_sc;  /* Storing MAX SC */
 
     /* Memory allocation for Receive secure channel */
     secy_rx_sc = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_macsec_internal_rx_sc_t) * max_sc * max_secy);
@@ -252,7 +252,7 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     }
     vtss_state->macsec_conf[port_no].rx_sa = macsec_conf_rx_sa;
     memset(vtss_state->macsec_conf[port_no].rx_sa, 0 , sizeof(vtss_macsec_internal_rx_sa_t) * max_sa);
-    vtss_state->macsec_conf[port_no].glb.max_sa_cnt = max_sa; /* Storing MAX SA */
+    vtss_state->macsec_capability[port_no].max_sa_cnt = max_sa; /* Storing MAX SA */
 
     /* Allocating memory to vtss_macsec_inst_count_t structure */
     secy_cnt = mepa_mem_alloc_int(callout, callout_ctx, sizeof(vtss_secy_inst_count_t) * max_secy);
@@ -298,7 +298,7 @@ static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
     memset(secy_vport, 0 , sizeof(uint8_t) * max_secy);
     inst_counts.secy_vport = secy_vport;
     inst_counts.secy_inst_count = secy_cnt;
-    memcpy(&vtss_state->macsec_conf[port_no].glb.inst_counts, &inst_counts, sizeof(vtss_macsec_inst_count_t));
+    memcpy(&vtss_state->macsec_capability[port_no].inst_counts, &inst_counts, sizeof(vtss_macsec_inst_count_t));
 
     return MEPA_RC_OK;
 

@@ -84,10 +84,6 @@ typedef struct {
     BOOL                                   spd_change_macsec_recfg; /** MACsec Reconfig flag for speed change */
     u64                                    ingr_flow_map; /** ingress flow map */
     u8                                     recfg_speed;
-    vtss_macsec_inst_count_t               inst_counts;
-    u8                                     max_secy_cnt;
-    u8                                     max_sa_cnt;
-    u8                                     max_sc_cnt;
 } vtss_macsec_internal_glb_t;
 
 /* Memory is allocated for this structure during probe depending
@@ -100,6 +96,14 @@ typedef struct {
     vtss_macsec_internal_glb_t          glb;
     vtss_macsec_rc_dbg_counters_t       rc_dbg_counters;
 } vtss_macsec_internal_conf_t;
+
+/* MACsec port capability based on PHY on the port */
+typedef struct {
+    u8                         max_secy_cnt; /* Max SecY Supported */
+    u8                         max_sa_cnt;   /* Max Secure Assosiation supported */
+    u8                         max_sc_cnt;   /* Max Secure channel supported */
+    vtss_macsec_inst_count_t   inst_counts;  /* Number of SecY, SC, SA created on the port depends on PHY */
+} vtss_macsec_port_capability;
 
 vtss_rc vtss_macsec_sync(struct vtss_state_s *vtss_state,
                          const vtss_port_no_t port_no);

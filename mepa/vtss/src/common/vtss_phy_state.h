@@ -459,6 +459,7 @@ typedef struct vtss_state_s {
 #endif
 #if defined(VTSS_FEATURE_MACSEC)
     vtss_macsec_internal_conf_t macsec_conf[VTSS_PORT_ARRAY_SIZE];
+    vtss_macsec_port_capability macsec_capability[VTSS_PORT_ARRAY_SIZE];
 #endif
 #if defined(VTSS_OPT_PHY_TIMESTAMP)
     vtss_phy_ts_port_conf_t  phy_ts_port_conf[VTSS_PORT_ARRAY_SIZE];
