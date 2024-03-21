@@ -1,0 +1,38 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Reset Considerations
+
+`mepa_reset()` really is an initialization requirement for all our PHYs, and furthermore
+the exact sequence is crucial in order to get all workarounds applied.
+
+VSC/Tesla:
+
+`mepa_reset()` has to be called 3 times.
+
+There are 3 Reset Parameters in total.
+1. `MEPA_RESET_POINT_PRE`
+2. `MEPA_RESET_POINT_DEFAULT`
+3. `MEPA_RESET_POINT_POST`
+
+The "Normal" suequence should be iterating through the ports and initializing in
+a particular manner and the order should be:
+
+For each Port 0 of the PHY: mepa_reset (`MEPA_RESET_POINT_PRE`) // NEVER apply this on more
+than a single port, else the operations on other ports of the same chip will be disrupted!
+
+For each Port of the PHY: mepa_reset (`MEPA_RESET_POINT_DEFAULT`)
+
+For each Port 3 of the PHY: mepa_reset (`MEPA_RESET_POINT_POST`) // apply to the final port
+configured for a single chip
+
+Indy:
+
+`mepa_reset()` has to be called with 2 times.
+
+For each Port of the PHY:  mepa_reset (`MEPA_RESET_POINT_DEFAULT`)
+For each Port 3 of the PHY:  mepa_reset (`MEPA_RESET_POINT_POST_MAC`)
+
+=== API References
+`mepa_reset()`

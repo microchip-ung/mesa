@@ -12,23 +12,23 @@ also verifying if EEE is saving energy on the configured ports.
 The API `mepa_eee_mode_conf_set()` is used to Set EEE Configuration.
 The structure mepa_phy_eee_conf_t has two paramters `eee_mode` and `eee_ena_phy`
 `eee_mode` denotes the New EEE State
-`eee-ena_phy` denotes the Current EEE State
+`eee_ena_phy` denotes the Current EEE State
 
-`To Enable EEE Mode` :
-`eee_mode` - MEPA_EEE_ENABLE
-`eee_ena_phy` - FALSE
+To Enable EEE Mode::
+'eee_mode' - `MEPA_EEE_ENABLE`
+'eee_ena_phy' - FALSE
 
-`To Disable EEE Mode` :
-`eee_mode` - MEPA_EEE_DISABLE
+To Disable EEE Mode::
+`eee_mode` - `MEPA_EEE_DISABLE`
 `eee_ena_phy` - TRUE
 
-`REG_UPDATE in EEE`
+Register Update without changing state in EEE::
 `eee_mode` - TRUE  - Performs Register update for EEE_ENABLE mode
 `eee_ena_phy` - FALSE - Performs Register update for EEE_DISABLE mode
 
 The API `mepa_eee_mode_conf_get()` is used to get the current EEE configuration with the values `eee_mode` and `eee_ena_phy`
 
-The API `mepa_eee_status_get()`is used to return the status of EEE which includes
+The API `mepa_eee_status_get()` is used to return the status of EEE which includes
 advertisement capability of EEE Link Partner, status parameter indicating Rx and Tx LPI recieved
 
 === API References

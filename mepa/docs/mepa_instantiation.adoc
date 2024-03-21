@@ -307,6 +307,9 @@ doing cold reset. But not while doing warm reset.
 within PHY.
 ** POST_MAC_RESET Used to reset PHY after MAC initialization.
 
+MEPA Reset considerations for available PHY's can be inferred
+from: link:#mepa/docs/phy-reset-considerations[PHY Reset consideration documentation]
+
 == Link Up Sequence
 
 Once reset is done and successful, port needs to be
