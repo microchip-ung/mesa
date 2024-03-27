@@ -3313,6 +3313,9 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
                 /* Cancel the scheduled list start */
                 tas_list_cancel(vtss_state, gcl_state->trunk_list_idx);
                 tas_list_cancel(vtss_state, gcl_state->next_list_idx);
+                // next_list_idx must be NONE or tas_gcl_state_update() will move this index to curr_list_idx
+                gcl_state->trunk_list_idx = TAS_LIST_IDX_NONE;
+                gcl_state->next_list_idx = TAS_LIST_IDX_NONE;
             }
 
             /* Check if a list is currently running. Possible trunk list required */
@@ -3451,6 +3454,9 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             /* Cancel the scheduled list start */
             tas_list_cancel(vtss_state, gcl_state->trunk_list_idx);
             tas_list_cancel(vtss_state, gcl_state->next_list_idx);
+            // next_list_idx must be NONE or tas_gcl_state_update() will move this index to curr_list_idx
+            gcl_state->trunk_list_idx = TAS_LIST_IDX_NONE;
+            gcl_state->next_list_idx = TAS_LIST_IDX_NONE;
         }
 
         /* Check if a list is currently running - must be stopped by a stop list */
