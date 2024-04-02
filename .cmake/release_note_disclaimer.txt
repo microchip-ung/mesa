@@ -57,6 +57,3 @@ General
 This is a maintenance release providing bug fixes but no significant new
 features added.
 
-Please notice that the LAN969x family is still considered in BETA and is not
-ready for production.
-
