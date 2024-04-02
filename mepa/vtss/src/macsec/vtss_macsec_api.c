@@ -4908,7 +4908,7 @@ static vtss_rc vtss_macsec_rx_sa_lowest_pn_update_priv(vtss_state_t             
         }
 
         if (lowest_pn.pn > (next_pn + secy->conf.replay_window)) {
-            u32 new_record;
+            u32 new_record = 0;
             vtss_macsec_match_pattern_t *match = &secy->pattern[VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT][VTSS_MACSEC_DIRECTION_INGRESS];
             VTSS_D("SA must be changed! (lowest_pn > next_pn + replay_window). Lowest_pn:%u next_pn:%u replay_window:%u",
                    lowest_pn.pn, next_pn, secy->conf.replay_window);
