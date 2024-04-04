@@ -38,7 +38,7 @@ if $options[:out_folder].nil?
     exit -1
 end
 
-if File.exists? $options[:out_folder]
+if File.exist? $options[:out_folder]
     system("rm -fr #{$options[:out_folder]}")
 end
 
