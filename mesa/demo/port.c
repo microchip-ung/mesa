@@ -77,7 +77,7 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_SGMII_CISCO:   return "SGMII_CISCO";
     case MESA_PORT_INTERFACE_QSGMII:        return "QSGMII";
     case MESA_PORT_INTERFACE_SFI:           return "SFI";
-    case MESA_PORT_INTERFACE_SXGMII:        return "SXGMII";
+    case MESA_PORT_INTERFACE_USXGMII:       return "USXGMII";
     case MESA_PORT_INTERFACE_USGMII:        return "USGMII";
     case MESA_PORT_INTERFACE_QXGMII:        return "USX-QXGMII";
     case MESA_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
@@ -187,6 +187,7 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
         return MESA_RC_OK;
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_XAUI:
+    case MESA_PORT_INTERFACE_USXGMII:
         if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
             entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_SR) {
             if ((speed_in == MESA_SPEED_25G) && (cap & MEBA_PORT_CAP_10G_FDX)) {
@@ -1728,7 +1729,7 @@ static void port_init(meba_inst_t inst)
             pc->speed = MESA_SPEED_2500M;
             pc->autoneg = 1;
             break;
-        case MESA_PORT_INTERFACE_SXGMII:
+        case MESA_PORT_INTERFACE_USXGMII:
             entry->media_type = MSCC_PORT_TYPE_SFP;
             pc->speed = MESA_SPEED_10G;
             pc->autoneg = 1;

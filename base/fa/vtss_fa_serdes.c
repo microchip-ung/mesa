@@ -3805,6 +3805,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  v
     /* Apply the serdes mode */
     switch (mode) {
         case VTSS_SERDES_MODE_IDLE:
+        case VTSS_SERDES_MODE_USXGMII:
         case VTSS_SERDES_MODE_SFI_DAC:
         case VTSS_SERDES_MODE_SFI_SR:
         case VTSS_SERDES_MODE_SFI_ZR:

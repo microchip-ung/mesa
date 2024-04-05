@@ -420,7 +420,7 @@ vtss_rc vtss_port_status_get(const vtss_inst_t     inst,
             case VTSS_PORT_INTERFACE_SGMII_CISCO:
                 rc = vtss_port_clause_37_status_get(vtss_state, port_no, status);
                 break;
-            case VTSS_PORT_INTERFACE_SXGMII:
+            case VTSS_PORT_INTERFACE_USXGMII:
             case VTSS_PORT_INTERFACE_DXGMII_5G:
             case VTSS_PORT_INTERFACE_DXGMII_10G:
             case VTSS_PORT_INTERFACE_QXGMII:

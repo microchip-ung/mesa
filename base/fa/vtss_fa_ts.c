@@ -866,7 +866,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
-    case VTSS_PORT_INTERFACE_SXGMII:
+    case VTSS_PORT_INTERFACE_USXGMII:
     case VTSS_PORT_INTERFACE_QXGMII:
     case VTSS_PORT_INTERFACE_DXGMII_5G:
     case VTSS_PORT_INTERFACE_DXGMII_10G:

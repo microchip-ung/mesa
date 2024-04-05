@@ -465,7 +465,7 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t *vtss_state,
         tgt = VTSS_TO_HIGH_DEV(port);
         REG_RD(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), &aneg);
         REG_WR(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), aneg); /* Clear PAGE_RX_STICKY */
-    }
+     }
 
     status->autoneg.complete = REG_BF(DEV10G_USXGMII_ANEG_STATUS_ANEG_COMPLETE, aneg);
     adv = VTSS_X_DEV10G_USXGMII_ANEG_STATUS_LP_ADV_ABILITY(aneg);
@@ -500,7 +500,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t *vtss_state,
 
     /* USXGMII modes  */
     if (if_type == VTSS_PORT_INTERFACE_QXGMII ||
-        if_type == VTSS_PORT_INTERFACE_SXGMII ||
+        if_type == VTSS_PORT_INTERFACE_USXGMII ||
         if_type == VTSS_PORT_INTERFACE_DXGMII_10G ||
         if_type == VTSS_PORT_INTERFACE_DXGMII_5G) {
         return fa_port_usxgmii_status_get(vtss_state, port_no, status);
@@ -574,7 +574,7 @@ static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
 }
 
 static BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SXGMII ||
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USXGMII ||
         vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_10G) {
        return TRUE;
     }
@@ -2082,9 +2082,13 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
             return FALSE;
         }
         break;
-    case VTSS_PORT_INTERFACE_SXGMII:
-        VTSS_E("port %d SXGMII not supported yet",port);
-        return FALSE;
+    case VTSS_PORT_INTERFACE_USXGMII:
+        if (FA_TGT) {
+            VTSS_E("port %d USXGMII not supported",port);
+            return FALSE;
+        } else {
+            return TRUE;
+        }
     case VTSS_PORT_INTERFACE_DXGMII_5G:  /* DXGMII_5G: 2x2G5 devices. Mode 'F'. Use 2G5 device. */
         VTSS_E("port %d not DXGMII_5G supported yet",port);
         return FALSE;
@@ -2172,6 +2176,7 @@ static vtss_rc fa_enable_usx_extender(vtss_state_t *vtss_state, const vtss_port_
 // QXGMII:     4x2G5 devices.
 // DXGMII_5G:  2x2G5 devices
 // DXGMII_10G: 2x5G  devices.
+// USXGMII:    1x10G devices
 static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 p = VTSS_CHIP_PORT(port_no), Q,X,U,F,S,mask;
@@ -2227,7 +2232,7 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         U = U + 16;
         REG_WRM(VTSS_PORT_CONF_USGMII_ENA, VTSS_BIT(U), VTSS_BIT(U));
         break;
-    case VTSS_PORT_INTERFACE_SXGMII:     /* SXGMII: 1x10G */
+    case VTSS_PORT_INTERFACE_USXGMII:     /* USXGMII: 1x10G */
         if (p >= 48 && p < 64) {
             S = p - 32;
             REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(S),
@@ -2280,7 +2285,7 @@ static vtss_rc la_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
             return VTSS_RC_ERROR;
         }
         break;
-    case VTSS_PORT_INTERFACE_SXGMII:  /* SXGMII: 1x10G USXGMII. Mode 'H' */
+    case VTSS_PORT_INTERFACE_USXGMII:  /* USXGMII: 1x10G USXGMII. Mode 'H' */
         if (VTSS_PORT_IS_10G(p)) {
             H = vtss_port_dev_index(vtss_state, p);
             REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(H),
@@ -3350,8 +3355,8 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     case VTSS_PORT_INTERFACE_SFI:
         serdes_mode = VTSS_SERDES_MODE_SFI;
         break;
-    case VTSS_PORT_INTERFACE_SXGMII:     // 1x10G device. 10M-10G.
-        serdes_mode = VTSS_SERDES_MODE_QXGMII;
+    case VTSS_PORT_INTERFACE_USXGMII:     // 1x10G device. 10M-10G.
+        serdes_mode = VTSS_SERDES_MODE_USXGMII;
         pcs_usx = TRUE;
         break;
     case VTSS_PORT_INTERFACE_DXGMII_10G: // 2x5G devices. Mode 'U', 10M-5G.
@@ -3416,7 +3421,7 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
     } else {
         if (pcs_usx) {
             /* Setup USXGMII mode (once) */
-            VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, 1));
+            VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, TRUE));
         } else {
             /* The PCS_BR block below handles 5G/10G speeds for all primary devices */
 
