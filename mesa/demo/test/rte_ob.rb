@@ -155,10 +155,26 @@ test_table =
 
     # Data group transfer
     {
-        txt: "dg_write - QSPI",
+        txt: "dg_write - QSPI (global flush)",
         intf: "QSPI",
         rtp: {wal_id: 7},
         dg: [{length: 4},{offs: 8, length: 34},{offs: 4, length: 4}],
+        flush: true
+    },
+    {
+        txt: "dg_write - QSPI (RTP flush)",
+        intf: "QSPI",
+        frame: [{len: 47}],
+        rtp: {wal_id: 7, length: 47},
+        dg: [{length: 4},{offs: 9, length: 34},{offs: 4, length: 4}],
+        rtp_flush: true
+    },
+    {
+        txt: "dg_write - QSPI",
+        intf: "QSPI",
+        frame: [{len: 48}],
+        rtp: {wal_id: 7, length: 48},
+        dg: [{length: 4},{offs: 10, length: 34},{offs: 4, length: 4}],
     },
     {
         txt: "dg_write - SRAM",
@@ -233,8 +249,9 @@ def time_set(conf, interval)
 end
 
 def rte_ob_test(t)
-    flush = false
-    if (flush and fld_get(t, :skip_flush) > 0)
+    flush = fld_get(t, :flush, false)
+    rtp_flush = fld_get(t, :rtp_flush, false)
+    if ((flush or rtp_flush) and fld_get(t, :skip_flush) > 0)
         return
     end
 
@@ -435,18 +452,48 @@ def rte_ob_test(t)
 
     # Either flush the configuration or increment RTP ID
     if (flush)
+        # Global flush
         $ts.dut.call("mera_ob_flush")
+    elsif (rtp_flush)
+        # RTP flush
+        $ts.dut.call("mera_ob_rtp_flush", $rtp_id)
     else
         $rtp_id = ($rtp_id + 1)
     end
 end
 
-# Run all or selected test
-sel = table_lookup(test_table, :sel)
-test_table.each do |t|
-    next if (t[:sel] != sel)
-    test t[:txt] do
-        rte_ob_test(t)
+if (true)
+    # Normal tests
+    sel = table_lookup(test_table, :sel)
+    test_table.each do |t|
+        next if (t[:sel] != sel)
+        test t[:txt] do
+            rte_ob_test(t)
+        end
+    end
+else
+    # Alternative test
+    test "frag" do
+        # Add two RTPs
+        conf = $ts.dut.call("mera_ob_rtp_conf_get", 1)
+        conf["type"] = "MERA_RTP_TYPE_PN"
+        conf["length"] = 46
+        $ts.dut.call("mera_ob_rtp_conf_set", 1, conf)
+        $ts.dut.call("mera_ob_rtp_conf_set", 2, conf)
+
+        # Add alternating DGs, allocating all DG memory
+        cnt = 32
+        cnt.times do |i|
+            conf = $ts.dut.call("mera_ob_dg_init")
+            conf["dg_id"] = i
+            conf["pdu_offset"] = i
+            conf["length"] = 128
+            $ts.dut.try_ignore("mera_ob_dg_add", 1 + (i & 1), conf)
+        end
+
+        # Flush first RTP, releasing half of the DG memory
+        $ts.dut.call("mera_ob_rtp_flush", 1)
+        $ts.dut.run("mera-cmd debug api ob")
     end
 end
 

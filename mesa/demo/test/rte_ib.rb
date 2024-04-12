@@ -29,12 +29,16 @@ test "conf" do
     io_fpga_rw("fill 0x100 0x100 0")
 end
 
-def rte_next_test
+def rte_next_test(flush = 0)
     # Either flush the configuration or increment RTP ID
-    if (true)
-        $rtp_id = ($rtp_id + 1)
-    else
+    if (flush == 1)
+        # Global flush
         $ts.dut.call("mera_ib_flush")
+    elsif (flush == 2)
+        # RTP flush
+        $ts.dut.call("mera_ib_rtp_flush", $rtp_id)
+    else
+        $rtp_id = ($rtp_id + 1)
     end
 end
 
@@ -197,7 +201,6 @@ end
 
 def tx_dg_test(intf, ral_id, opc = false)
     len = 60
-    rte_next_test
     conf = $ts.dut.call("mera_ib_rtp_conf_get", $rtp_id)
     conf["type"] = ("MERA_RTP_TYPE_" + (opc ? "OPC_UA" : "PN"))
     time = conf["time"]
@@ -301,7 +304,7 @@ def tx_dg_test(intf, ral_id, opc = false)
     sleep(1)
 
     # Easyframe runs a little longer than the specified time
-    cmd = "sudo ef -t 60 name f1 eth et 0xaaaa"
+    cmd = "sudo ef -t 100 name f1 eth et 0xaaaa"
     cmd += cmd_payload_push(payload)
     $ts.pc.p.each_index do |idx|
         cmd += " rx #{$ts.pc.p[idx]}"
@@ -317,38 +320,72 @@ def tx_dg_test(intf, ral_id, opc = false)
     $ts.dut.call("mera_ib_rtp_conf_set", $rtp_id, conf)
 end
 
-test "tx-data-min" do
-    tx_len_test(60)
-end
+if (true)
+    # Normal tests
 
-test "tx-data-max" do
-    tx_len_test(1514)
-end
+    test "tx-data-min" do
+        tx_len_test(60)
+    end
 
-test "tx-interval-min" do
-    # 31.25 usec
-    tx_time_test(31250, 2)
-end
+    test "tx-data-max" do
+        # Disabled due to termhub problem with large messages
+        #tx_len_test(1514)
+    end
 
-test "tx-interval-max" do
-    # 128 msec
-    tx_time_test(128000000, 20)
-end
+    test "tx-interval-min" do
+        # 31.25 usec
+        tx_time_test(31250, 2)
+    end
 
-test "otf" do
-    otf_test
-end
+    test "tx-interval-max" do
+        # 128 msec
+        tx_time_test(128000000, 20)
+    end
 
-test "dg-qspi" do
-    tx_dg_test("QSPI", 1)
-end
+    test "otf" do
+        otf_test
+    end
 
-test "dg-sram-pn" do
-    tx_dg_test("SRAM", 2)
-end
+    test "dg-qspi" do
+        rte_next_test
+        tx_dg_test("QSPI", 1)
+    end
 
-test "dg-sram-opc" do
-    tx_dg_test("SRAM", 3, true)
+    test "dg-sram-pn" do
+        rte_next_test(1)
+        tx_dg_test("SRAM", 2)
+    end
+
+    test "dg-sram-opc" do
+        rte_next_test(2)
+        tx_dg_test("SRAM", 3, true)
+    end
+else
+    # Alternative tests
+    test "frag" do
+        conf = $ts.dut.call("mera_ib_rtp_conf_get", 1)
+        conf["type"] = "MERA_RTP_TYPE_PN"
+        conf["port"] = $port_tx
+        len = (31*32)
+        conf["length"] = len
+        for i in 0..(len - 1) do
+            conf["data"][i] = 0
+        end
+
+        # Add RTPs, allocating all frame memory
+        cnt = 51;
+        cnt.times do |i|
+            $ts.dut.try_ignore("mera_ib_rtp_conf_set", i + 1, conf)
+        end
+
+        # Flush half the RTPs, releasing half the frame memory
+        cnt.times do |i|
+            if (i.even?)
+                $ts.dut.call("mera_ib_rtp_flush", i + 1)
+            end
+        end
+        $ts.dut.run("mera-cmd debug api ib")
+    end
 end
 
 test_summary

@@ -962,7 +962,7 @@ def qspi_init
     ol = "/sys/kernel/config/device-tree/overlays/tsys01"
     $ts.dut.run("mount -t configfs none /sys/kernel/config")
     $ts.dut.run("mkdir -p #{ol}")
-    $ts.dut.run("sh -c 'cat /overlays/qspi_overlay.dtbo > #{ol}/dtbo'")
+    $ts.dut.run("sh -c 'cat /overlays/lan966x_pcb8309_qspi_rte.dtbo > #{ol}/dtbo'")
 end
 
 def io_read_val(txt)
