@@ -2631,14 +2631,14 @@ static u32 get_xform_value_64(vtss_state_t *vtss_state, vtss_port_no_t p, u32 i,
                 return get_u32(&sak->h_buf[0] + ((i - 6) * 4)); // AES Hash 0-3 Record 6-9
             } else if (i == 10) {
                 if (egr) {
-                    return (u32)secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn;// Sequence / Next PN, LSW, Record 10
+                    return (u32)secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn - 1;// Sequence / Next PN, LSW, Record 10
                 } else {
                     temp2 = secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn.xpn + secy->rx_sc[sc]->conf.replay_window;
                     return (u32)temp2; // Next PN, LSW, Record 10
                 }
             } else if (i == 11) {
                 if (egr) {
-                    return (u32)(secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn >> 32);// Sequence / Next PN, MSW, Record 11
+                    return (u32)((secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn - 1) >> 32);// Sequence / Next PN, MSW, Record 11
                 } else {
                     temp2 = secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn.xpn + secy->rx_sc[sc]->conf.replay_window;
                     return (u32)(temp2 >> 32); //Next PN, MSW, Record 11
@@ -2680,14 +2680,14 @@ static u32 get_xform_value_64(vtss_state_t *vtss_state, vtss_port_no_t p, u32 i,
                 return get_u32(&sak->h_buf[0] + ((i - 10) * 4)); // AES Hash 0-3 Record 10-13
             } else if (i == 14) {
                 if (egr) {
-                    return (u32)secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn;// Sequence / Next PN, LSW, Record 14
+                    return (u32)secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn - 1;// Sequence / Next PN, LSW, Record 14
                 } else {
                     temp2 = secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn.xpn + secy->rx_sc[sc]->conf.replay_window;
                     return (u32)temp2; // Sequence / Next PN, LSW, Record 14
                 }
             } else if (i == 15) {
                 if (egr) {
-                    return (u32)(secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn >> 32); // Sequence / Next PN, MSW, Record 15
+                    return (u32)((secy->tx_sc.sa[an]->status.pn_status.next_pn.xpn - 1) >> 32); // Sequence / Next PN, MSW, Record 15
                 } else {
                     temp2 = secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn.xpn + secy->rx_sc[sc]->conf.replay_window;
                     return (u32)(temp2 >> 32); //Sequence, MSW, Record 15
@@ -4668,6 +4668,16 @@ static vtss_rc vtss_macsec_rx_sa_set_priv(vtss_state_t                  *vtss_st
         if (secy->rx_sc[sc]->sa[an] == NULL) {
             return VTSS_RC_OK;
         }
+    }
+
+    /* The MACsec Packet with PN = 0 is considered as BAD tag packet and MACsec engine will drop the packet
+     * In case of XPN after the packet 0xFFFFFFFF then packet will have packet number in Sectag as 0
+     * To avoid Drop of this packet CHECK_PN = 0 in case of XPN Cipher suit
+     */
+    if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
+        (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
+
+        CSR_WRM(port.port_no, VTSS_MACSEC_INGR_FRAME_MATCHING_HANDLING_CTRL_SAM_NM_PARAMS, 0, VTSS_F_MACSEC_INGR_FRAME_MATCHING_HANDLING_CTRL_SAM_NM_PARAMS_CHECK_PN);
     }
 
     if (!vtss_state->sync_calling_private) {
