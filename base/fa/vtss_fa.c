@@ -2001,9 +2001,6 @@ static vtss_rc la_dsm_cal_idx_find_next_free(vtss_state_t *vtss_state, u32 taxi_
 
 /******************************************************************************/
 // la_dsm_calc_calendar()
-// We always construct the calendar with maximum bandwidths from the port map,
-// and not actual bandwidths.
-//
 // dev_speeds_from_port_map[] is an array, where the first dev_cnt entries are
 // set to the requested B/W from the port map.
 // dev_cnt always corresponds to the number of devices attached to this taxi
