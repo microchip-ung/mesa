@@ -3631,7 +3631,7 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
     }
     /* Apply the new BW to cell and taxi calendar */
    VTSS_RC(fa_cell_calendar_auto(vtss_state));
-   return fa_dsm_calc_and_apply_calendar(vtss_state);
+   return fa_dsm_calc_and_apply_calendar(vtss_state, TRUE /* force a new calendar because the port map has changed */);
 }
 #endif /* defined(VTSS_FEATURE_PORT_DYNAMIC) */
 
@@ -3662,11 +3662,18 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
     /* All high speed (>2G5) ports have a shadow 2G5 device. */
     /* Only one of them can be active and attached to the switch core at a time. */
-    /* Every time the devices changes a port flush (shut down) must be performed on the DEV that is not active. */
+    /* Every time the device changes, a port flush (shut down) must be performed on the DEV that is not active. */
     if (fa_change_device(vtss_state, port_no)) {
         VTSS_I("port_no:%d (chip port:%d) shutdown the %s device", port_no, port, use_primary_dev ? "shadow" : "primary");
         /* Shutdown the not-in-use device */
         VTSS_RC(fa_port_flush(vtss_state, port_no, !use_primary_dev));
+
+        if (LA_TGT) {
+            // On Laguna, we might need to change DSM Taxi calendar when
+            // enabling or disabling a shadow device.
+            VTSS_RC(fa_dsm_calc_and_apply_calendar(vtss_state, FALSE /* don't force a new calendar */));
+        }
+
         /* Enable/disable shadow device */
         if (VTSS_PORT_IS_5G(port)) {
             mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));

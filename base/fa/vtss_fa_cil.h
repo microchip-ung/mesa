@@ -507,7 +507,7 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
                                const vtss_debug_printf_t pr);
 #endif
 u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state);
+vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force);
 vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state);
 #if defined(VTSS_SDX_CNT)
 vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);

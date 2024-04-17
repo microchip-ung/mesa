@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-//#include <cyg/infra/diag.h>
 #include "vtss_fa_cil.h"
 
 #if defined(VTSS_ARCH_FA)
@@ -9,6 +8,23 @@
 #if defined(VTSS_FEATURE_CLOCK)
 #include "../omega/vtss_omega_clock_cil.h"
 #endif
+
+// Various defines needed to calculate the DSM calendar for LAN969x.
+#define DEV_10G_IDX   0
+#define DEV_5G_IDX    1
+#define DEV_2G5_IDX   2
+#define DEV_OTHER_IDX 3 // 1G or less
+#define DEV_IDX_CNT   4
+
+#define SPEED2IDX(speed) (speed == 10000 ? DEV_10G_IDX : speed == 5000 ? DEV_5G_IDX : speed == 2500 ? DEV_2G5_IDX : DEV_OTHER_IDX)
+#define IDX2SPEED(idx)   (idx == DEV_10G_IDX ? 10000 : idx == DEV_5G_IDX ? 5000 : idx == DEV_2G5_IDX ? 2500 : 1000)
+
+// We use two different values in the calendar for unused slots: One for slots
+// that are unused because of the requirement of unused slots for the interlink
+// device (TAXI_SLOT_UNUSED_BUT_LOCKED) and one for unused and free to use slots
+// (UNUSED).
+#define TAXI_SLOT_UNUSED            RT_DSM_CAL_MAX_DEVS_PER_TAXI
+#define TAXI_SLOT_UNUSED_BUT_LOCKED (TAXI_SLOT_UNUSED + 1) // It's OK to use a value greater than the max, because it gives the same when writing
 
 void vtss_fa_reg_error(const char *file, int line, char *txt) {
 #if VTSS_OPT_TRACE
@@ -1532,7 +1548,7 @@ static u32 bwd2int(vtss_internal_bw_t bw) {
 
 
 static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr) {
-    u32 fa_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
+    static const u32 fa_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
         {57,12,0,1,2,16,17,18,19,20,21,22,23},
         {58,13,3,4,5,24,25,26,27,28,29,30,31},
         {59,14,6,7,8,32,33,34,35,36,37,38,39},
@@ -1541,7 +1557,7 @@ static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr) {
         {62,51,52,53,99,99,99,99,99,99,99,99,99},
         {56,63,54,55,99,99,99,99,99,99,99,99,99},
         {64,99,99,99,99,99,99,99,99,99,99,99,99}};
-    u32 la_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
+    static const u32 la_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
         {0,4,1,2,3,5,6,7,28,29},
         {8,12,9,13,10,11,14,15,99,99},
         {16,20,17,21,18,19,22,23,99,99},
@@ -1557,6 +1573,26 @@ static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr) {
                     sizeof(u32) * RT_DSM_CAL_MAX_DEVS_PER_TAXI);
     }
 }
+
+#ifdef VTSS_FEATURE_REDBOX
+// When a given taxi bus' RedBox is enabled AND one of the LRE ports is
+// connected to the neighboring RedBox, a bug in the chip requires us to create
+// a special DSM calendar that makes sure that a calendar slot X slots after the
+// RedBox's interlink port's slot is unused. The 'X' depends on the delay
+// through the taxi bus from start to end. 5G and 10G devices add a delay of 2.
+// 2.5G devices add a delay of 1. This delay is there whether or not the device
+// is part of the port map.
+// Also, if a 5G or 10G device is configured with a speed lower than 5G, that
+// device adds one to the delay through the taxi bus. This is not included in
+// the table here:
+static const u32 la_taxi_bus_delays[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
+    {2 /* D0  */, 2 /* D4  */, 1 /* D1  */, 1 /* D2  */, 1 /* D3  */, 1 /* D5  */, 1 /* D6  */, 1 /* D7  */, 1 /* D28 */, 1 /* D29 */},
+    {2 /* D8  */, 2 /* D12 */, 2 /* D9  */, 2 /* D13 */, 1 /* D10 */, 1 /* D11 */, 1 /* D14 */, 1 /* D15 */},
+    {2 /* D16 */, 2 /* D20 */, 2 /* D17 */, 2 /* D21 */, 1 /* D18 */, 1 /* D19 */, 1 /* D22 */, 1 /* D23 */},
+    {2 /* D24 */, 2 /* D25 */},
+    {2 /* D26 */, 2 /* D27 */},
+};
+#endif
 
 vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state,
                           u32 taxi, vtss_port_no_t port_no, u32 *taxi_port)
@@ -1777,7 +1813,7 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
         taxi2ports(vtss_state, taxi, taxi_ports);
         REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &len);
         len = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(len) + 1;
-        pr("Taxi:%d, Len:%d:\n",taxi, len);
+        pr("Taxi:%d, Len:%d, Cal:\n", taxi, len);
         for (u32 i = 0; i < len; i++) {
             REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi),
                     VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(i),
@@ -1787,11 +1823,14 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
             if (val < RT_DSM_CAL_MAX_DEVS_PER_TAXI) {
                 port = taxi_ports[val];
                 pr(" %d ",port);
-            } else {
+            } else if (FA_TGT) {
                 pr(" - ");
+            } else {
+                // LAN969x
+                pr(" %c ", val == TAXI_SLOT_UNUSED_BUT_LOCKED ? 'L' : '-');
             }
 
-            if ((i > 0 && (i % 16 == 0)) || (i == len - 1)) {
+            if ((i > 0 && (i % 32 == 0)) || (i == len - 1)) {
                 pr("\n");
             }
         }
@@ -1853,89 +1892,350 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
 }
 #endif
 
-static vtss_rc la_dsm_calc_calendar(u32 *speeds, u32 ports, u32 freq_mhz, u32 *cal, u32 *cal_len) {
-    int bw = freq_mhz * 128 / 1.05;
-    int grps = 3;
-    int grp[ports];
-    int cnt[30];
-    int grpspd = 10000;
-    int bwavail[3], s_values[] = {5000, 2500, 1000};
-    int i, j, p, sp, win, grplen, lcs, s, found;
+#if defined(VTSS_FEATURE_REDBOX)
+/******************************************************************************/
+// la_dsm_cal_delay_get()
+// This function calculates the delay through the taxi bus, based on the
+// following:
+//   2 x FastDevCnt + SlowDevCnt + ShadowDevCnt + 2.
+// Where
+//   FastDev is a device that supports >= 5G,
+//   SlowDev is a device that supports < 5G,
+//   ShadowDev is a shadow device inserted on the taxi bus when a FastDev is
+//   configured to run less than 5G,
+//   The last "+ 2" is the delay through the RedBox.
+//
+// The returned delay is only non-zero if the RedBox is enabled AND it is using
+// the neighboring redbox as one of the LRE ports.
+/******************************************************************************/
+static vtss_rc la_dsm_cal_delay_get(vtss_state_t *vtss_state, u32 taxi_bus, u32 dev_cnt, u32 interlink_dev, const u32 *dev_speeds_from_port_map, const BOOL *dev_speeds_5g_or_higher, u32 *delay)
+{
+    u32  dev;
+    BOOL interlink_dev_used = FALSE;
 
-    if (bw < 30000) {
-        for (i = 0; i < ports && speeds[i] != 10000; i++);
-        if (i == ports)
-            grpspd = 5000;
-        else
-            grps = 2;
+    if (!vtss_state->vtss_features[FEATURE_REDBOX]) {
+        *delay = 0;
+        return VTSS_RC_OK;
     }
 
-    lcs = grpspd;
-    for (i = 0; i < 3; i++) {
-        s = s_values[i];
-        found = 0;
-        for (j = 0; j < ports; j++) {
-            if (speeds[j] == s) {
-                found = 1;
-                break;
-            }
+    *delay = 2; // Through the RedBox.
+
+    for (dev = 0; dev < dev_cnt; dev++) {
+        // There is a fixed overhead on the delay through a given taxi bus. This
+        // is given by the la_taxi_bus_delays[][] array.
+        *delay += la_taxi_bus_delays[taxi_bus][dev];
+
+        if (dev == interlink_dev) {
+            interlink_dev_used = TRUE;
         }
 
-        if (found) {
-            if (lcs == 2500) {
-                lcs = 500;
-            } else {
-                lcs = s;
+        // On top of the fixed overhead delay comes one delay per 5G and 10G
+        // port that operates in less than 5G mode due to insertion of a
+        // so-called shadow device on the taxi bus.
+        // We can distinguish 5G and 10G ports from 2.5G ports by them having a
+        // delay of 2 in the delay table.
+        if (la_taxi_bus_delays[taxi_bus][dev] > 1) {
+            // This is physically a 5G or 10G port.
+            if (dev_speeds_from_port_map[dev] > 0 && !dev_speeds_5g_or_higher[dev]) {
+                // And it is indeed in the port map and is running less than 5G
+                (*delay)++;
             }
-        }
-    }
-    grplen = grpspd / lcs;
-
-    for (i = 0; i < grps; bwavail[i++] = grpspd);
-
-    for (i = 0; i < ports; i++) {
-        if (!speeds[i]) {
-            continue;
-        }
-        for (j = 0; j < grps && bwavail[j] < speeds[i]; j++);
-        if (j == grps) {
-            VTSS_E("Could not generate calendar at taxibw %d\n", bw);
-            return VTSS_RC_ERROR;
-        }
-        grp[i] = j;
-        bwavail[j] -= speeds[i];
-    }
-
-    VTSS_MEMSET(cnt, 0, sizeof(cnt));
-    for (i = 0; i < grplen; i++) {
-        for (j = 0; j < grps; j++) {
-            sp = 1;
-            win = ports;
-            for (p = 0; p < ports; p++) {
-                if (grp[p] != j) {
-                    continue;
-                }
-                cnt[p] -= (cnt[p] > 0);
-                if (speeds[p] > sp && !cnt[p]) {
-                    win = p;
-                    sp = speeds[p];
-                }
-            }
-            if (win == ports) {
-                win = 10;
-            }
-
-            cnt[win] = grpspd/sp;
-            cal[i * grps + j] = win;
         }
     }
 
-    *cal_len = (cal[0] >= ports) ? 1 : (grps * grplen);
+    // If the interlink_dev was not used in the above calculations, return a
+    // delay of 0, because it doesn't matter.
+    if (!interlink_dev_used) {
+        *delay = 0;
+    }
+
+    return VTSS_RC_OK;
+}
+#endif
+
+/******************************************************************************/
+// la_dsm_cal_idx_set()
+// Helper function that both checks that the calendar index is within limits and
+// indeeds sets an unused slot. If both fulfilled, it sets the calendar index to
+// dev.
+/******************************************************************************/
+static vtss_rc la_dsm_cal_idx_set(vtss_state_t *vtss_state, u32 taxi_bus, u32 *calendar, u32 cal_len, u32 cal_idx, u32 dev)
+{
+    if (cal_idx >= cal_len) {
+        VTSS_E("Taxi %u, dev = %u: cal_idx (%u) is out of bounds (must be smaller than %u)", taxi_bus, dev, cal_idx, cal_len);
+        return VTSS_RC_ERROR;
+    }
+
+    if (calendar[cal_idx] != TAXI_SLOT_UNUSED) {
+        VTSS_E("Taxi %u, dev = %u: calendar[%u] is not unused (%u), but %u", taxi_bus, dev, cal_idx, TAXI_SLOT_UNUSED, calendar[cal_idx]);
+        return VTSS_RC_ERROR;
+    }
+
+    calendar[cal_idx] = dev;
     return VTSS_RC_OK;
 }
 
+/******************************************************************************/
+// la_dsm_cal_idx_find_next_free()
+// Helper function that finds the next free calendar entry, starting with
+// cal_idx, which is both an in and out parameter.
+/******************************************************************************/
+static vtss_rc la_dsm_cal_idx_find_next_free(vtss_state_t *vtss_state, u32 taxi_bus, u32 *calendar, u32 cal_len, u32 *cal_idx, u32 dev)
+{
+    if (*cal_idx >= cal_len) {
+        VTSS_E("Taxi %u, dev %u: cal_idx (%u) >= cal_len (%u) on entry to function", taxi_bus, dev, *cal_idx, cal_len);
+        return VTSS_RC_ERROR;
+    }
 
-vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
+    do {
+        if (calendar[*cal_idx] == TAXI_SLOT_UNUSED) {
+            return VTSS_RC_OK;
+        }
+
+        (*cal_idx)++;
+    } while (*cal_idx < cal_len);
+
+    VTSS_E("Taxi %u, dev %u: No free entries found in calendar of length %u", taxi_bus, dev, cal_len);
+    return VTSS_RC_ERROR;
+}
+
+/******************************************************************************/
+// la_dsm_calc_calendar()
+// We always construct the calendar with maximum bandwidths from the port map,
+// and not actual bandwidths.
+//
+// dev_speeds_from_port_map[] is an array, where the first dev_cnt entries are
+// set to the requested B/W from the port map.
+// dev_cnt always corresponds to the number of devices attached to this taxi
+// bus. Unused ports will have a requested B/W of 0.
+//
+// interlink_dev is RT_DSM_CAL_MAX_DEVS_PER_TAXI if the RedBox of this taxi bus
+// is not enabled or the RedBox doesn't use the neighboring RedBox as one of its
+// LRE ports. Otherwise it is the index of the device thatis the RedBox'
+// interlink port.
+//
+// taxi_bw is the taxi bus' bandwidth measured in Mbps.
+//
+// cal and cal_len are the results of this function.
+//
+// If force is true, we always calculate a new calendar. Otherwise, the function
+// may return VTSS_RC_OK if the calendar hasn't changed, in which case
+// *cal_changed is set to FALSE.
+/******************************************************************************/
+static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi_bus, u32 dev_cnt, u32 interlink_dev, const u32 *dev_speeds_from_port_map, const BOOL *dev_speeds_5g_or_higher, u32 taxi_bw, BOOL force, u32 *calendar, u32 *calendar_len, BOOL *cal_changed)
+{
+#define CAL_IDX_SET(_cal_idx_, _dev_)            VTSS_RC(la_dsm_cal_idx_set(vtss_state, taxi_bus, calendar, cal_len, _cal_idx_, _dev_))
+#define CAL_IDX_FIND_NEXT_FREE(_cal_idx_, _dev_) VTSS_RC(la_dsm_cal_idx_find_next_free(vtss_state, taxi_bus, calendar, cal_len, &_cal_idx_, _dev_))
+
+    // Each entry in the following struct defines properties for a given speed
+    // (10G, 5G, 2.5G, or 1G or less).
+    typedef struct {
+        // Number of devices that requires this speed
+        u32 dev_cnt;
+
+        // List of devices that requires this speed. Only first 'dev_cnt' are
+        // valid.
+        u32 devs[FA_DSM_CAL_MAX_DEVS_PER_TAXI];
+
+        // Number of slots required for one device running this speed
+        u32 slots_required;
+
+        // Number of slots between two slots for one device running this speed.
+        u32 slots_between_repeats;
+    } dev_per_speed_t;
+
+    dev_per_speed_t dev_per_speed[DEV_IDX_CNT] = {}, *d;
+    u32             dev, delay, required_bw, cal_len, speed, idx, cal_idx, active_dev_cnt;
+    u32             bw_per_slot, slots_required;
+    char            buf[4 * FA_DSM_CAL_MAX_DEVS_PER_TAXI];
+    int             sz;
+    BOOL            interlink_active = FALSE, works;
+
+#if defined(VTSS_FEATURE_REDBOX)
+    // Get the required delay and bandwidth.
+    VTSS_RC(la_dsm_cal_delay_get(vtss_state, taxi_bus, dev_cnt, interlink_dev, dev_speeds_from_port_map, dev_speeds_5g_or_higher, &delay));
+
+    // If the delay has now changed or if we are forced to, compute a new
+    // calendar.
+    *cal_changed = delay != vtss_state->taxi_delay[taxi_bus] || force;
+
+    // Save it for next calendar change call.
+    vtss_state->taxi_delay[taxi_bus] = delay;
+#else
+    delay = 0;
+    *cal_changed = force;
+#endif
+
+    if (!*cal_changed) {
+        // Nothing to do. Caller knows not to apply a new calendar.
+        return VTSS_RC_OK;
+    }
+
+    // Figure out how many device types (10G, 5G, 2.5G, <= 1G) are in the port
+    // map for this taxi bus.
+    active_dev_cnt = 0;
+    required_bw    = 0;
+    for (dev = 0; dev < dev_cnt; dev++) {
+        speed = dev_speeds_from_port_map[dev];
+
+        if (speed == 0) {
+            // Unused port
+            continue;
+        }
+
+        required_bw += speed;
+
+        idx = SPEED2IDX(speed);
+        d = &dev_per_speed[idx];
+        d->devs[d->dev_cnt++] = dev;
+        active_dev_cnt++;
+
+        if (dev == interlink_dev) {
+            // If this taxi bus' RedBox is enabled, its interlink port requires
+            // double bandwidth, because there must be an unused slot for every
+            // slot the interlink port has in the calendar.
+            d->devs[d->dev_cnt++] = TAXI_SLOT_UNUSED_BUT_LOCKED;
+            interlink_active = TRUE;
+            required_bw += speed;
+        }
+    }
+
+    VTSS_I("Taxi %u: %u devices, required B/W = %u Mbps, taxi B/W = %u Mbps, interlink_dev = %u, delay = %u", taxi_bus, dev_cnt, required_bw, taxi_bw, interlink_dev, delay);
+
+    if (required_bw > taxi_bw) {
+        VTSS_E("Taxi: %u: Required B/W (%u Mbps) cannot exceed the taxi bus' B/W (%u Mbps)", taxi_bus, required_bw, taxi_bw);
+        return VTSS_RC_ERROR;
+    }
+
+    if (active_dev_cnt == 0) {
+        // No devices used on this taxi bus.
+        *calendar_len = 1;
+        calendar[0] = TAXI_SLOT_UNUSED;
+        return VTSS_RC_OK;
+    }
+
+    // The calendar needs at least one slot per device.
+    cal_len = active_dev_cnt;
+
+    // And it needs to be at least one longer than the delay.
+    if (cal_len < delay) {
+        cal_len = delay + 1;
+    }
+
+    // Search for a calendar length that fits all active devices
+    bw_per_slot = 0;
+    while (cal_len < FA_DSM_CAL_LEN) {
+        // Use truncating division here
+        bw_per_slot = taxi_bw / cal_len;
+
+        slots_required = 0;
+        works = TRUE;
+        for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+             d = &dev_per_speed[idx];
+
+             if (d->dev_cnt == 0) {
+                 continue;
+             }
+
+            required_bw = IDX2SPEED(idx);
+
+            d->slots_required = VTSS_DIV_ROUND_UP(required_bw, bw_per_slot);
+
+            if (d->slots_required) {
+                d->slots_between_repeats = VTSS_DIV_ROUND_UP(cal_len, d->slots_required);
+
+                // delay and slots_between_repeats may not be the same.
+                if (d->slots_between_repeats == delay) {
+                    // Calendar length doesn't work.
+                    cal_len++;
+                    works = FALSE;
+                    break;
+                }
+
+                slots_required += d->dev_cnt * d->slots_required;
+            } else {
+                d->slots_between_repeats = 0;
+            }
+        }
+
+        if (!works) {
+            continue;
+        }
+
+        if (slots_required <= cal_len) {
+            // Found a suitable calendar length
+            break;
+        }
+
+        // Not good enough yet.
+        cal_len = slots_required;
+    }
+
+    if (cal_len > FA_DSM_CAL_LEN) {
+        VTSS_E("Taxi %u: Computed calendar length (%u) is greater than the amount of slots in H/W (%u)", taxi_bus, cal_len, FA_DSM_CAL_LEN);
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_I("Taxi %u: active_dev_cnt = %u, cal_len = %u, bw_per_slot = %u", taxi_bus, active_dev_cnt, cal_len, bw_per_slot);
+    for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+        d = &dev_per_speed[idx];
+
+        sz = 0;
+        buf[0] = '\0';
+        for (dev = 0; dev < d->dev_cnt; dev++) {
+            sz += VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, " %u ", d->devs[dev]);
+        }
+
+        VTSS_I("idx = %u: speed = %5u, dev_cnt = %u, slots_required = %u, slots_between_repeats = %u, devs = %s", idx, IDX2SPEED(idx), d->dev_cnt, d->slots_required, d->slots_between_repeats, buf);
+    }
+
+    for (cal_idx = 0; cal_idx < cal_len; cal_idx++) {
+       calendar[cal_idx] = TAXI_SLOT_UNUSED;
+    }
+
+    // Start by placing the interlink device and its associated unused slots.
+    if (interlink_active) {
+        // Figure out how many slots the interlink port requires.
+        idx = SPEED2IDX(dev_speeds_from_port_map[interlink_dev]);
+        d = &dev_per_speed[idx];
+
+        for (slots_required = 0; slots_required < d->slots_required; slots_required++) {
+            // Space them evenly.
+            cal_idx = slots_required * d->slots_between_repeats;
+            CAL_IDX_SET(cal_idx, interlink_dev);
+
+            // Add an unused slot 'delay' slots after.
+            CAL_IDX_SET((cal_idx + delay) % cal_len, TAXI_SLOT_UNUSED_BUT_LOCKED);
+        }
+    }
+
+    // Place the remaining devices. Start with the fastest.
+    for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+        d = &dev_per_speed[idx];
+
+        for (dev = 0; dev < d->dev_cnt; dev++) {
+            if (d->devs[dev] == interlink_dev || d->devs[dev] == TAXI_SLOT_UNUSED_BUT_LOCKED) {
+                // Already placed
+                continue;
+            }
+
+            cal_idx = 0;
+            for (slots_required = 0; slots_required < d->slots_required; slots_required++) {
+                CAL_IDX_FIND_NEXT_FREE(cal_idx, d->devs[dev]);
+                CAL_IDX_SET(cal_idx, d->devs[dev]);
+                cal_idx += d->slots_between_repeats;
+            }
+        }
+    }
+
+    *calendar_len = cal_len;
+    return VTSS_RC_OK;
+}
+
+/******************************************************************************/
+// fa_dsm_calc_and_apply_calendar()
+/******************************************************************************/
+vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
 {
     u32 calendar[FA_DSM_CAL_LEN], taxi;
 
@@ -1950,33 +2250,116 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state)
             }
         }
     } else {
-        u32 cal_len, p;
-        u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {};
-        u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
-        u32 freq_mhz = 328; // Currently only supported freq.
-        u32 dev_speeds[VTSS_PORTS] = {};
+        u32                 cal_len, p;
+        u32                 dev_speeds_from_port_map[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {};
+        BOOL                dev_speeds_5g_or_higher[FA_DSM_CAL_MAX_DEVS_PER_TAXI]  = {};
+        u32                 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI]               = {};
+        u32                 port_speeds[VTSS_PORTS]                                = {};
+        BOOL                port_speeds_5g_or_higher[VTSS_PORTS]                   = {};
+        u32                 freq_mhz = 328; // Currently only supported frequency
+        u32                 taxi_bw;
+        u32                 interlink_dev, dev;
+        BOOL                first, cal_changed;
+        char                buf[2 * FA_DSM_CAL_LEN];
+        int                 sz;
+        vtss_phys_port_no_t interlink_chip_port;
 
-        // laguna is using different cal. algorithm than FA due to UNG_LAGUNA-482.
-        // Each of the 5 taxi's serve a number of devices setup via calender.
-        // Each device gets reserved a BW which is configured in the port map.
-        // The devices are then distributed on the calender to secure the wanted BW.
+#if defined(VTSS_FEATURE_REDBOX)
+        vtss_rb_conf_t *rb_conf;
+#endif
+
+        // Each taxi bus has a certain bandwidth that depends on the configured
+        // core clock frequency (freq_mhz).
+        // This B/W is 128 bits/taxiword * freq_mhz.
+        // If, however, 71 byte frames are sent back-to-back on a 1G port, the
+        // required B/W for that 1G port is more than 1G. In fact, it is 1.055
+        // times higher.
+        // Therefore, we pretend that the total available bandwidth on the taxi
+        // bus is 1.055 times lower than actually and use that for all
+        // calculations despite actually requested port B/W.
+        // Division by 1.055 is roughly the same as multiplication by 0.948.
+        taxi_bw = (freq_mhz * 128 /* bits per taxi word */ * 948) / 1000;
 
         for (p = 0; p < vtss_state->port_count; p++) {
-            dev_speeds[VTSS_CHIP_PORT(p)] = bwd2int(vtss_state->port.map[p].max_bw);
+            port_speeds[VTSS_CHIP_PORT(p)] = bwd2int(vtss_state->port.map[p].max_bw);
+
+            // Computes whether the configured speed is >= 5G similarly to
+            // fa_change_device(). A false TRUE on a 2.5G with configured speed
+            // set to UNDEFINED doesn't matter, because the function that
+            // utilizes this array only looks at 5G or 10G ports.
+            port_speeds_5g_or_higher[VTSS_CHIP_PORT(p)] = vtss_state->port.conf[p].speed >= VTSS_SPEED_5G || vtss_state->port.conf[p].speed == VTSS_SPEED_UNDEFINED;
         }
 
         for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+            // Make taxi_ports[] contain the chip ports on this taxi bus. Not
+            // all chip ports may be used in the port map.
             taxi2ports(vtss_state, taxi, taxi_ports);
+
+#if defined(VTSS_FEATURE_REDBOX)
+            // The RedBoxes are numbered the same was as the taxi busses, so we
+            // can index the rb_conf[] directly with the taxi bus number.
+            rb_conf = &vtss_state->l2.rb_conf[taxi];
+
+            if (vtss_state->vtss_features[FEATURE_REDBOX] && rb_conf->mode != VTSS_RB_MODE_DISABLED && (rb_conf->port_a == VTSS_PORT_NO_NONE || rb_conf->port_b == VTSS_PORT_NO_NONE)) {
+                // This SKU has the RedBox feature active, the RedBox is
+                // enabled and either port_a or port_b is interconnected with
+                // the neighboring RedBox. The interlink is the port that has a
+                // value != VTSS_PORT_NO_NONE.
+                interlink_chip_port = VTSS_CHIP_PORT(rb_conf->port_b == VTSS_PORT_NO_NONE ? rb_conf->port_a : rb_conf->port_b);
+            } else {
+                interlink_chip_port = VTSS_PORT_NO_NONE;
+            }
+#else
+            interlink_chip_port = VTSS_PORT_NO_NONE;
+#endif
+
+            // Initialize the port that identifies this taxi bus' RedBox'
+            // interlink port to an unused calendar value.
+            interlink_dev = RT_DSM_CAL_MAX_DEVS_PER_TAXI;
             for (p = 0; p < RT_DSM_CAL_MAX_DEVS_PER_TAXI; p++) {
                 if (taxi_ports[p] < RT_CHIP_PORTS_ALL) {
-                    taxi_speeds[p] = dev_speeds[taxi_ports[p]];
+                    dev_speeds_from_port_map[p] = port_speeds[taxi_ports[p]];
+                    dev_speeds_5g_or_higher[p]  = port_speeds_5g_or_higher[taxi_ports[p]];
+
+                    if (taxi_ports[p] == interlink_chip_port) {
+                        // This device is the interlink of an enabled RedBox
+                        // with an internal connection to the neighboring
+                        // RedBox.
+                        interlink_dev = p;
+                    }
                 } else {
+                    // Done with this taxi. p now holds the number of port
+                    // devices on this taxi bus.
                     break;
                 }
             }
-            VTSS_RC(la_dsm_calc_calendar(taxi_speeds, p, freq_mhz, calendar, &cal_len));
-            VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar, cal_len));
-       }
+
+            VTSS_RC(la_dsm_calc_calendar(vtss_state, taxi, p, interlink_dev, dev_speeds_from_port_map, dev_speeds_5g_or_higher, taxi_bw, force, calendar, &cal_len, &cal_changed));
+
+            if (force || cal_changed) {
+                // Print calendar
+                first = TRUE;
+                sz = 0;
+                buf[0] = '\0';
+                for (p = 0; p < cal_len; p++) {
+                    dev = calendar[p];
+                    if (dev == TAXI_SLOT_UNUSED || dev == TAXI_SLOT_UNUSED_BUT_LOCKED) {
+                        sz += VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, "%s%c", first ? "" : " ", dev == TAXI_SLOT_UNUSED ? '-' : 'L');
+                    } else {
+                        sz += VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, "%s%u", first ? "" : " ", dev);
+                    }
+
+                    first = FALSE;
+                }
+
+                VTSS_I("Taxi: %u, calendar length: %u, calendar: %s\n", taxi, cal_len, buf);
+
+                // Set calendar
+                VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar, cal_len));
+            } else {
+                VTSS_I("Taxi: %u: Calendar unchanged", taxi);
+            }
+        }
     }
 
     return VTSS_RC_OK;
@@ -1995,7 +2378,7 @@ vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
     VTSS_RC(fa_cell_calendar_auto(vtss_state));
 
     /* Calculate and configure the DSM calendar */
-    if (fa_dsm_calc_and_apply_calendar(vtss_state) != VTSS_RC_OK) {
+    if (fa_dsm_calc_and_apply_calendar(vtss_state, TRUE /* force a new calendar */) != VTSS_RC_OK) {
         VTSS_E("DSM Calendar calc failed");
     }
 
@@ -2086,9 +2469,9 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 #endif
     /* FA: chip_design = 1,  LA: chip_design = 2 */
     vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
-    /* Initilize Firenat or Laguna registers  */
+    /* Initilize Fireant or Laguna registers  */
     fla_init_regs(vtss_state, FA_TGT);
-    /* Initilize Firenat and lagunas constants  */
+    /* Initilize Fireant and Laguna constants  */
     fla_init_const(vtss_state, FA_TGT);
 
     /* Create function groups */

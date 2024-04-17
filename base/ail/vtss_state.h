@@ -352,8 +352,14 @@ typedef struct vtss_state_s {
     u32 *reg_group_cnt;
     u32 *reg_cnt;
     u32 *chip_const;
-    u8 chip_design; /* FA=1, LA=2 */
 
+#if defined(VTSS_FEATURE_REDBOX)
+    // This should have been sized by FA_DSM_CAL_MAX_DEVS_PER_TAXI, but that's
+    // not available, so using the RedBox count, which is the same.
+    u32 taxi_delay[VTSS_REDBOX_CNT];
+#endif
+
+    u8 chip_design; /* FA=1, LA=2 */
 #endif
 } vtss_state_t;
 

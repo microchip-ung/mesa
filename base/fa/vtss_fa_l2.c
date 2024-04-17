@@ -2009,7 +2009,10 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
     for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
         VTSS_RC(fa_rb_port_conf_set(vtss_state, rb_id, j, conf));
     }
-    return VTSS_RC_OK;
+
+    // We might need to change DSM Taxi calendar when changing a RedBox
+    // configuration.
+    return fa_dsm_calc_and_apply_calendar(vtss_state, FALSE /* don't force a new calendar */);
 }
 
 #define RB_CNT(name, i, j, cnt, clear)                  \
