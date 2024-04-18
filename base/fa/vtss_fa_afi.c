@@ -118,7 +118,7 @@ static vtss_rc fa_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t 
     // DTI Table
     pr("\nDTI table\n");
     fa_afi_debug_frame_hdr(pr, "Idx ", "--- ");
-    for (idx = 0; idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); idx++) {
+    for (idx = 0; idx < vtss_state->afi.fast_inj_cnt; idx++) {
         BOOL first = 1;
 
         REG_RD(VTSS_AFI_DTI_CTRL(idx), &val);
@@ -517,7 +517,7 @@ static vtss_rc fa_afi_up_flows_pause_resume(vtss_state_t *vtss_state, vtss_port_
     VTSS_I("Enter. %sing up-flows on port_no = %u", pause ? "Paus" : "Resum", port_no);
 
     // Pause or resume all DTIs egressing VD1 (ingressing #port_no)
-    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); dti_idx++) {
+    for (dti_idx = 0; dti_idx < vtss_state->afi.fast_inj_cnt; dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
         if (dti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
@@ -1160,7 +1160,7 @@ static vtss_rc fa_afi_qu_ref_update(vtss_state_t *vtss_state, vtss_port_no_t por
     // Injection must already have been stopped on #port_no.
 
     // Update the queue number for all DTIs egressing #port_no (down-flows)
-    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); dti_idx++) {
+    for (dti_idx = 0; dti_idx < vtss_state->afi.fast_inj_cnt; dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
         if (dti->state != VTSS_AFI_ENTRY_STATE_FREE && dti->port_no == port_no) {
@@ -1345,6 +1345,7 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         state->fast_inj_bps_min  = RT_AFI_FAST_INJ_BPS_MIN;
         state->fast_inj_bps_max  = RT_AFI_FAST_INJ_BPS_MAX;
         if (LA_TGT) {
+            state->fast_inj_cnt = 16;
             state->frm_cnt = 512;
         }
 

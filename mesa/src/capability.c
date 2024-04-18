@@ -574,10 +574,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_AFI_SLOW_INJ_CNT:
+    case MESA_CAP_AFI_SLOW_INJ_CNT: {
 #if defined(VTSS_AFI_SLOW_INJ_CNT)
-        c = VTSS_AFI_SLOW_INJ_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->afi.slow_inj_cnt;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_AFI_SLOW_INJ_FPH_MAX:
@@ -586,10 +590,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_AFI_FAST_INJ_CNT:
+    case MESA_CAP_AFI_FAST_INJ_CNT: {
 #if defined(VTSS_AFI_FAST_INJ_CNT)
-        c = VTSS_AFI_FAST_INJ_CNT;
+        vtss_state_t *vtss_state;
+        if (mesa_state(inst, &vtss_state)) {
+            c = vtss_state->afi.fast_inj_cnt;
+        }
 #endif
+    }
         break;
 
     case MESA_CAP_AFI_FAST_INJ_KBPS_MIN:

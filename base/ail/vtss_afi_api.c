@@ -333,8 +333,9 @@ static void afi_dti_init(vtss_afi_dti_t *dti)
 static vtss_rc afi_dti_alloc(vtss_state_t *const vtss_state, u32 *const dti_idx)
 {
     vtss_rc rc;
+    u32 cnt = vtss_state->afi.fast_inj_cnt;
 
-    if ((rc = afi_res_alloc(vtss_state, vtss_state->afi.dtis_alloced, VTSS_AFI_FAST_INJ_CNT, dti_idx /* min_res_idx+max_res_idx (full range allowed) */, 0, VTSS_AFI_FAST_INJ_CNT - 1, FALSE)) != VTSS_RC_OK) {
+    if ((rc = afi_res_alloc(vtss_state, vtss_state->afi.dtis_alloced, cnt, dti_idx, 0, cnt - 1, FALSE)) != VTSS_RC_OK) {
         VTSS_E("Out of DTIs");
         return rc;
     }
@@ -349,8 +350,10 @@ static vtss_rc afi_dti_alloc(vtss_state_t *const vtss_state, u32 *const dti_idx)
  */
 static vtss_rc afi_dti_free(vtss_state_t *const vtss_state, u32 dti_idx)
 {
-    if (dti_idx >= VTSS_AFI_FAST_INJ_CNT) {
-        VTSS_E("dti_idx=%u > %u", dti_idx, VTSS_AFI_FAST_INJ_CNT);
+    u32 cnt = vtss_state->afi.fast_inj_cnt;
+
+    if (dti_idx >= cnt) {
+        VTSS_E("dti_idx=%u > %u", dti_idx, cnt);
         return VTSS_RC_ERROR;
     }
 
@@ -538,7 +541,7 @@ vtss_rc afi_frm_idx_chk(struct vtss_state_s *const vtss_state, i32 frm_idx)
  */
 static vtss_rc afi_dti_idx_chk(struct vtss_state_s *const vtss_state, u32 dti_idx)
 {
-    if (dti_idx >= VTSS_AFI_FAST_INJ_CNT) {
+    if (dti_idx >= vtss_state->afi.fast_inj_cnt) {
         VTSS_E("dti_idx == %u illegal", dti_idx);
         return VTSS_RC_ERROR;
     }
@@ -1980,6 +1983,7 @@ vtss_rc vtss_afi_inst_create(vtss_state_t *vtss_state)
     if (vtss_state->create_pre) {
         // Preprocessing
         state->slow_inj_cnt = VTSS_AFI_SLOW_INJ_CNT;
+        state->fast_inj_cnt = VTSS_AFI_FAST_INJ_CNT;
         state->frm_cnt = VTSS_AFI_FRM_CNT;
         state->fast_inj_bps_min = VTSS_AFI_FAST_INJ_BPS_MIN;
         state->fast_inj_bps_max = VTSS_AFI_FAST_INJ_BPS_MAX;

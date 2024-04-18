@@ -479,6 +479,7 @@ typedef struct {
     u64 clk_period_ps;
 
     u32 slow_inj_cnt;
+    u32 fast_inj_cnt;
     u32 frm_cnt;
     u64 fast_inj_bps_min;
     u64 fast_inj_bps_max;
