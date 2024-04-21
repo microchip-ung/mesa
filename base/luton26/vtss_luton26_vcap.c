@@ -926,9 +926,11 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
             type = ACL_TYPE_IPV6;
             L26_ACL_CFIELD(59, 8, proto->value, proto->mask, entry, mask);
             for (i = 0; i < 4; i++) {
-                sip.value = l26_u8_to_u32(&sipv6->value[i * 4]);
-                sip.mask = l26_u8_to_u32(&sipv6->mask[i * 4]);
-                L26_ACL_CFIELD(67 + i * 32, 32, sip.value, sip.mask, entry, mask);
+                if (sipv6 != NULL) {
+                    sip.value = l26_u8_to_u32(&sipv6->value[i * 4]);
+                    sip.mask = l26_u8_to_u32(&sipv6->mask[i * 4]);
+                    L26_ACL_CFIELD(67 + i * 32, 32, sip.value, sip.mask, entry, mask);
+                }
             }
             break;
         }

@@ -2558,6 +2558,8 @@ static mesa_bool_t is_firmware_version_identical(const meba_poe_ctrl_inst_t* con
     mesa_bool_t                     ePOE_BOOL_Is_system_status = false;
     Telemetry_at_Boot_Up_Error_e    eTelemetry_at_boot_up_error = eBoot_Unknown_error;
 
+    memset(buf_rx, 0, sizeof(buf_rx));
+
     // on startup we got single system status from boot with detailed boot error
     if ((private_data->eTelemetry_at_boot_up_error != eBoot_Unknown_error) && (private_data->IsBootError == true)) {
          memcpy(private_data->buf_rx , buf_rx , PD_BUFFER_SIZE);

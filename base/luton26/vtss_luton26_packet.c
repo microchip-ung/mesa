@@ -407,7 +407,7 @@ static vtss_rc l26_tx_frame_ifh(vtss_state_t *vtss_state,
 
 static vtss_rc l26_rx_hdr_decode(const vtss_state_t          *const state,
                                  const vtss_packet_rx_meta_t *const meta,
-                                 const u8                           xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                 const u8                           xtr_hdr[VTSS_L26_RX_IFH_SIZE],
                                        vtss_packet_rx_info_t *const info)
 {
     u64                 ifh;

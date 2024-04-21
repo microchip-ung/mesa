@@ -320,7 +320,9 @@ static uint32_t get_fa_port_cnt_default(uint32_t target, uint32_t pcb)
 
 static void get_fa_board_name(uint32_t cnt, mesa_bool_t sparx5i, uint32_t pcb, char *buf)
 {
-    char str[10];
+    char str[15];
+
+    memset(str, 0, sizeof(str));
     if (buf != NULL) {
         strcpy(buf, sparx5i ? "SparX-5i-" : "SparX-5-");
         if (pcb == 125) {

@@ -236,7 +236,7 @@ static int mrp_clean()
     return 0;
 }
 
-static char ret_string[600];
+static char ret_string[1000];
 static const char* mrp_help()
 {
     uint32_t cnt;

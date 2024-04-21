@@ -51,7 +51,7 @@ static vtss_rc l26_pgid_mask_write(vtss_state_t *vtss_state, u32 pgid, BOOL memb
 }
 
 /* Write PGID entry */
-vtss_rc vtss_cil_l2_pgid_table_write(vtss_state_t *vtss_state, u32 pgid, BOOL member[])
+vtss_rc vtss_cil_l2_pgid_table_write(vtss_state_t *vtss_state, u32 pgid, BOOL member[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_pgid_entry_t *pgid_entry = &vtss_state->l2.pgid_table[pgid];
 
