@@ -370,6 +370,11 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
         REG_WR(VTSS_ASM_PORT_CFG(port),
                VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) |
                VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
+        // Kernel driver changes this for FDMA, so change it back
+        REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
+                VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(0),
+                VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
+
         for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
             REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(queue)),
                     VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(port),
