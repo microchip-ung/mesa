@@ -10,6 +10,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define CLK_PERIOD_250_MHZ  4 // 4 nano seconds clock period.
+
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
                                  // 1000,  100,    10 speeds
     [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 1447, 8377 }, // Internal clock is 250 MHz
@@ -535,6 +537,22 @@ static mepa_rc indy_ts_clock_rateadj_get(mepa_device_t *dev, mepa_ts_scaled_ppb_
     return MEPA_RC_OK;
 }
 
+/*
+Mathematical derivation for rate adjustment register values:
+
+Suppose the frequency change is +x ppb units.
+Time after which 1ns is adjusted is 1/(x ppb) =((10 ^ 9) / x) ns.
+With scaled ppb, time for 1ns adjustment = (((10 ^ 9) * (2 ^ 16)) / x) ns
+
+Indy Pll output is 250Mhz => each clock cycle takes (1 / (250 Mhz)) = (10 ^ 9)/(250 * 10^6) = 4 ns (CLK_PERIOD_250_MHZ).
+
+Number of clock cycles for 1ns adjustment = (((10 ^ 9) * (2 ^ 16)) / x) / CLK_PERIOD_250_MHZ.
+
+Indy register accepts rate adjustment in units of (1 / (2 ^ 32))sub nano seconds per clock cycle i.e (2 ^ 32) units per clock cycle will contribute to 1ns change.
+
+Number of units to be adjusted per clock cycle = (2 ^ 32) / ((((10 ^ 9) * (2 ^ 16)) / x) / CLK_PERIOD_250_MHZ) = ((2 ^ 16) * CLK_PERIOD_250_MHZ * x) / (10 ^ 9).
+
+*/
 static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scaled_ppb_t *const adj)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -542,30 +560,24 @@ static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scale
     mepa_device_t *base_dev = data->base_dev;
     MEPA_ASSERT(adj == NULL);
     MEPA_ENTER(dev);
-    if ((base_dev == dev) && (adj != 0)) {
-        int16_t adj_dir = (*adj > 0 ? 1 : 0);
-        int64_t adj_abs = MEPA_LABS(*adj), adj_val = 0, adj_abs1 = 0;
-        adj_abs1 = adj_abs;
-        adj_abs1 = adj_abs1 >> 16;
+    if (base_dev == dev) {
+        uint64_t adj_abs = MEPA_LLABS(*adj), adj_val = 0;
 
-        if ( adj_abs > 0) {
-            adj_val = MEPA_DIV64(1000000000ULL * 0x10000ULL, adj_abs);
-            adj_val = MEPA_DIV64((1LL << 32) * 4,  adj_val);
-        }
-        if (adj_abs >= (1LL << 30)) {
-            T_W(MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: direction %d Adj Value : %lld   Port : %d\n", adj_dir, adj_abs, data->port_no);
+        adj_val = MEPA_DIV64(((1LL << 16) * CLK_PERIOD_250_MHZ * adj_abs), 1000000000ULL);
+        if (adj_val >= (1LL << 30)) { // width of frequency register is 30 bits => maximum value is less than (1 << 30).
+            T_W(MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: input adj %lld Adj Value : %llu Port : %d\n", *adj, adj_val, data->port_no);
         } else {
-            if (adj_dir) {
-                val = val | INDY_PTP_LTC_RATE_ADJ_HI_DIR;
+            if (*adj > 0) {
+                val = INDY_PTP_LTC_RATE_ADJ_HI_DIR;
             }
             val = val | (0x3FFF & (adj_val >> 16));
             EP_WRM(dev, INDY_PTP_LTC_RATE_ADJ_HI, val, INDY_DEF_MASK);
-            val = 0;
+
             val = (0xFFFF & (adj_val));
             EP_WRM(dev, INDY_PTP_LTC_RATE_ADJ_LO, val, INDY_DEF_MASK);
             data->ts_state.ts_port_conf.rate_adj = *adj;
         }
-        T_I(MEPA_TRACE_GRP_TS, "Rate Adjust :: direction %d Adj Value : %d   Port : %d\n", adj_dir, (0x3FFFFFFF & adj_val), data->port_no);
+        T_I(MEPA_TRACE_GRP_TS, "Rate Adjust :: adj_val %llu adj_abs %llu input-adj %lld Port %d\n", adj_val, adj_abs, *adj, data->port_no);
     }
     MEPA_EXIT(dev);
 
