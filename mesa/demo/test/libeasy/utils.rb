@@ -144,8 +144,11 @@ def dut_cap_check_exit(cap)
     end
 end
 
-def loop_pair_check
+def loop_pair_check(loop_10g = false)
     port_list = $ts.dut.looped_port_list
+    if (port_list == nil and loop_10g)
+        port_list = $ts.dut.looped_port_list_10g
+    end
 
     check_capabilities do
         assert(port_list != nil && port_list.length > 1, "Two front ports must be looped")
@@ -154,6 +157,7 @@ def loop_pair_check
     check_capabilities do
         assert(dut_port_state_up(port_list.take(2)), "Loop ports must be up")
     end
+    return port_list
 end
 
 def check_val(name, val, exp, fmt)
