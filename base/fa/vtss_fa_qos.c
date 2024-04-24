@@ -3575,13 +3575,15 @@ static vtss_rc fa_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port
     }
 
     if (enable_tx) {
-        if (FA_TGT && speed == VTSS_SPEED_10G && vtss_state->init_conf.core_clock.freq < VTSS_CORE_CLOCK_500MHZ) {
-            VTSS_E("frame preemption requires at least 500 MHz core clock for 10G ports");
-            return VTSS_RC_ERROR;
-        }
-        if (conf->add_frag_size == 3) {
-            VTSS_E("frame preemption does not support add_frag_size 3");
-            return VTSS_RC_ERROR;
+        if (FA_TGT) {
+            if (speed == VTSS_SPEED_10G && vtss_state->init_conf.core_clock.freq < VTSS_CORE_CLOCK_500MHZ) {
+                VTSS_E("frame preemption requires at least 500 MHz core clock for 10G ports");
+                return VTSS_RC_ERROR;
+            }
+            if (conf->add_frag_size == 3) {
+                VTSS_E("frame preemption does not support add_frag_size 3");
+                return VTSS_RC_ERROR;
+            }
         }
         for (i = 0; i < 8; i++) {
             if (vtss_state->qos.port_conf[port_no].cut_through_enable[i]) {
