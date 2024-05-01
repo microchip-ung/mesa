@@ -205,6 +205,9 @@ test_table =
         cfg: {mode: "HSR_SAN", idx_dis: "a"},
         tab: [{fwd: [{idx_tx: "c"},
                      {idx_rx: "b", hsr: {}},
+                     {idx_rx: "d"}]},
+              {fwd: [{idx_tx: "b", hsr: {}},
+                     {idx_rx: "c"},
                      {idx_rx: "d"}]}]
     },
     {
@@ -212,7 +215,10 @@ test_table =
         cfg: {mode: "HSR_SAN", idx_dis: "b"},
         tab: [{fwd: [{idx_tx: "d"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "c"}]}]
+                     {idx_rx: "c"}]},
+              {fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}]
     },
     {
         txt: "discard HSR-tagged on Interlink",

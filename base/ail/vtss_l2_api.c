@@ -459,21 +459,28 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
-        // Tx forwarding also depends on RedBox configuration
+        // Rx/Tx forwarding also depends on RedBox configuration
         for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
             vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
+            i_port = VTSS_PORT_NO_NONE;
             if (rb_conf->mode == VTSS_RB_MODE_DISABLED) {
                 // Skip disabled RedBox
             } else if (rb_conf->port_a == VTSS_PORT_NO_NONE) {
                 // Port A is internal, port B is forwarding
-                tx_forward[rb_conf->port_b] = 1;
+                i_port = rb_conf->port_b;
             } else if (rb_conf->port_b == VTSS_PORT_NO_NONE) {
                 // Port B is internal, port A is forwarding
-                tx_forward[rb_conf->port_a] = 1;
+                i_port = rb_conf->port_a;
             } else if (vtss_state->l2.port_state[rb_conf->port_b]) {
                 // Port A is forwarding, port B is discarding
-                tx_forward[rb_conf->port_a] = 1;
+                i_port = rb_conf->port_a;
                 tx_forward[rb_conf->port_b] = 0;
+            }
+            if (i_port != VTSS_PORT_NO_NONE) {
+                // Force port to forwarding
+                learn[i_port] = 1;
+                rx_forward[i_port] = 1;
+                tx_forward[i_port] = 1;
             }
         }
     }
