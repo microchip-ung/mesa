@@ -1148,12 +1148,12 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         REG_WRM_CTL(CHIP_TOP_CUPHY_PORT_CFG(port),
                     giga, CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
     }
-#endif
     if (is_internal_cu(vtss_state, port)) {
         // Dual media selection
         REG_WRM_CTL(HSIO_HW_CFG, conf->if_type == VTSS_PORT_INTERFACE_SGMII,
                     HSIO_HW_CFG_GMII_ENA(VTSS_BIT(port)));
     }
+#endif
 
     /* Default gaps */
     gaps.fdx_gap = (conf->fdx ? 6 : 5);
