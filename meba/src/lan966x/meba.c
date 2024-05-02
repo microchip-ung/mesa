@@ -142,6 +142,39 @@ static port_map_t port_table_endnode_carrier[] = {
     { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE                 , false  , 4    }
 };
 
+#define CAP_SFP_1G ((MEBA_PORT_CAP_SFP_1G - MEBA_PORT_CAP_100M_FDX) | MEBA_PORT_CAP_SFP_SD_HIGH)
+
+// TBD, taken from Ocelot
+#define CAP_DUAL \
+    (MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER |   \
+     MEBA_PORT_CAP_INT_PHY |                    \
+     MEBA_PORT_CAP_SD_ENABLE |                  \
+     MEBA_PORT_CAP_SD_HIGH |                    \
+     MEBA_PORT_CAP_SD_INTERNAL |                \
+     MEBA_PORT_CAP_SFP_DETECT)
+
+static port_map_t port_table_endnode_carrier_dual[] = {
+    //-------------------------------------------------------------------------------------------------------------------------------
+    //Chip | MII-Controller           | MII |            MAC                   |              CAP                   | PoE    | PoE  |
+    //Port |                          | Addr|            INTERFACE             |                                    | Support| Port |
+    //-------------------------------------------------------------------------------------------------------------------------------
+#if 0
+    // Copper
+    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 1    },
+#endif
+#if 0
+    // Fiber
+    { 0    , MESA_MIIM_CONTROLLER_NONE, 1   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP_1G                         , false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_NONE, 2   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP_1G                         , false  , 1    },
+#endif
+#if 1
+    // Dual (not supported by mesa-demo)
+    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , CAP_DUAL                           , false  , 0    },
+    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , CAP_DUAL                           , false  , 1    },
+#endif
+};
+
 static port_map_t port_table_svb[] = {
     //---------------------------------------------------------------------------------------------------------------------------------------
     //Chip | MII-Controller           | MII |            MAC                 |              CAP                             | PoE    | PoE  |
@@ -504,6 +537,11 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
     return rc;
 }
 
+static mesa_port_no_t lan966x_port2sfp(mesa_port_no_t port_no)
+{
+    return ((port_no & 1) + 2);
+}
+
 static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t inst,
                                     mesa_port_no_t port_no,
                                     mesa_bool_t write,
@@ -517,6 +555,7 @@ static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t inst,
     uint8_t i2c_data[3];
 
     T_N(inst, "Called");
+    port_no = lan966x_port2sfp(port_no);
     if (write) { // cnt ignored
         i2c_data[0] = addr;
         memcpy(&i2c_data[1], data, 2);
@@ -527,20 +566,30 @@ static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t inst,
     return rc;
 }
 
+static mesa_bool_t lan966x_port_sfp_detect(meba_board_state_t *board, mesa_port_no_t port_no)
+{
+    meba_port_cap_t cap = board->entry[port_no].cap;
+
+    return ((cap & MEBA_PORT_CAP_SFP_DETECT) ? true : false);
+}
+
 static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t inst,
                                                 mesa_port_list_t *present)
 {
     mesa_rc                rc = MESA_RC_OK;
     meba_board_state_t     *board = INST2BOARD(inst);
-    mesa_port_no_t         port_no;
+    mesa_port_no_t         port_no, port;
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
 
     mesa_port_list_clear(present);
     if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
-        for (port_no = 2; port_no < 4; port_no++) {
-            // SFP MODDET at bit 1
-            mesa_port_list_set(present, port_no, data[port_no].value[1] ? 0 : 1);
+        for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            if (lan966x_port_sfp_detect(board, port_no)) {
+                // SFP MODDET at bit 1
+                port = lan966x_port2sfp(port_no);
+                mesa_port_list_set(present, port_no, data[port].value[1] ? 0 : 1);
+            }
         }
     }
     return rc;
@@ -552,15 +601,17 @@ static mesa_rc lan966x_sfp_status_get(meba_inst_t inst,
 {
     mesa_rc                rc = MESA_RC_OK;
     meba_board_state_t     *board = INST2BOARD(inst);
+    mesa_port_no_t         port;
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
 
     memset(status, 0, sizeof(*status));
     if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
-        (port_no == 2 || port_no == 3) &&
+        lan966x_port_sfp_detect(board, port_no) &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
-        status->los      = (data[port_no].value[0] ? 0 : 1);     // SFP LOS at bit 0
-        status->present  = (data[port_no].value[1] ? 0 : 1);     // SFP MODDET at bit 1
-        status->tx_fault = (data[1].value[port_no - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
+        port = lan966x_port2sfp(port_no);
+        status->los      = (data[port].value[0] ? 0 : 1);     // SFP LOS at bit 0
+        status->present  = (data[port].value[1] ? 0 : 1);     // SFP MODDET at bit 1
+        status->tx_fault = (data[1].value[port - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
     }
     return rc;
 }
@@ -571,14 +622,16 @@ static mesa_rc lan966x_port_admin_state_set(meba_inst_t inst,
 {
     mesa_rc            rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t     port;
     mesa_sgpio_conf_t  conf;
     mesa_sgpio_mode_t  mode;
 
     if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
-        (port_no == 2 || port_no == 3) &&
+        lan966x_port_sfp_detect(board, port_no) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
-        conf.port_conf[10].mode[port_no - 2] = mode; // SFP TXEN at port 10, bit 0/1
+        port = lan966x_port2sfp(port_no);
+        conf.port_conf[10].mode[port - 2] = mode; // SFP TXEN at port 10, bit 0/1
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
     return rc;
@@ -639,16 +692,19 @@ static mesa_rc sgpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_e
     }
 
     // Check for LOS, MODDET and TXFAULT events
-    for (port_no = 2; port_no < 4; port_no++) {
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        if (!lan966x_port_sfp_detect(board, port_no)) {
+            continue;
+        }
         event_detected = 0;
         for (i = 0; i < 3; i++) {
+            port = lan966x_port2sfp(port_no);
             if (i == 2) {
                 // TXFAULT at port 1, bit 0/1
+                bit = (port - 2);
                 port = 1;
-                bit = (port_no - 2);
             } else {
                 // LOS/MODDET at bit 0/1
-                port = port_no;
                 bit = i;
             }
             if (sgpio_events[bit][port]) {
@@ -917,6 +973,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     meba_inst_t        inst;
     meba_board_state_t *board;
     int                pcb;
+    uint32_t           type;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
@@ -950,6 +1007,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
         board->type = BOARD_TYPE_ADARO;   // Default
     }
 
+    // Get subtype
+    if (meba_conf_get_u32(inst, "type", &type) != MESA_RC_OK) {
+        type = 0;
+    }
+
     T_D(inst, "board type=%d", board->type);
 
     /* Fill out port mapping table */
@@ -973,7 +1035,13 @@ meba_inst_t meba_initialize(size_t callouts_size,
         lan966x_init_port_table(inst, 3, port_table_endnode);
         break;
     case BOARD_TYPE_ENDNODE_CARRIER:
-        lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
+        if (type == 1) {
+            // Dual-media support
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
+            lan966x_init_port_table(inst, 2, port_table_endnode_carrier_dual);
+        } else {
+            lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
+        }
         break;
     case BOARD_TYPE_EDS2:
         lan966x_init_port_table(inst, 2, port_table_endnode);

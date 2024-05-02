@@ -248,7 +248,7 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
                CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
     case VTSS_PORT_MUX_MODE_2:
-        // 2xCu + 1x2,5G + 2xRGMII(dev2,dev3)
+        // 2xCu/1G + 1x2,5G + 2xRGMII(dev2,dev3)
         REG_WR(HSIO_HW_CFG,
                HSIO_HW_CFG_RGMII_ENA(3) |
                HSIO_HW_CFG_GMII_ENA(0xf));

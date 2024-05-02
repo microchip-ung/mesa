@@ -323,12 +323,11 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t *vtss_state,
         break;
 
     case VTSS_PORT_MUX_MODE_2:
-        // 2xCu + 1x2,5G + 2xRGMII
+        // 2xCu/1G + 1x2,5G + 2xRGMII
         *port_type = PORT_TYPE_SD;
         *idx = 2;
         if (port < 2) {
-            // Port 0/1: Cu
-            *port_type = PORT_TYPE_CUPHY;
+            // Port 0/1: Cu/1G
             *idx = port;
         } else if (port < 4) {
             // Port 2/3: RGMII
@@ -1057,7 +1056,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 #endif
     case VTSS_PORT_INTERFACE_SGMII:
         sgmii = 1;
-        if (is_internal_cu(vtss_state, port_no) &&
+        if (is_internal_cu(vtss_state, port) &&
             vtss_state->port.current_pd[port_no]) {
             // ports with internal phys are not flushed
             skip_port_flush = 1;
@@ -1150,6 +1149,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
                     giga, CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
     }
 #endif
+    if (is_internal_cu(vtss_state, port)) {
+        // Dual media selection
+        REG_WRM_CTL(HSIO_HW_CFG, conf->if_type == VTSS_PORT_INTERFACE_SGMII,
+                    HSIO_HW_CFG_GMII_ENA(VTSS_BIT(port)));
+    }
 
     /* Default gaps */
     gaps.fdx_gap = (conf->fdx ? 6 : 5);
