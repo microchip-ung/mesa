@@ -25,6 +25,7 @@ typedef unsigned char      BOOL;
 #define MEPA_LABS(arg) ((arg > 0) ? arg : -arg)
 
 #define MEPA_MSLEEP(msec) { lm_os_nssleep(msec * 1000000); }
+#define MEPA_NSLEEP(nsec) { lm_os_nssleep(nsec); }
 
 typedef struct {
     long int tv_sec;
@@ -36,14 +37,14 @@ typedef struct {
     mepa_timeval_t now;
 } mepa_mtimer_t;
 
-#define MEPA_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? TRUE : FALSE)
+#define MEPA_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? 1 : 0)
 
 #define MEPA_MTIMER_START(timer, msec) { \
-    lm_os_timeval_init(&((timer)->timeout));   \
+    lm_os_timeval_init((lm_os_timeval_t *)&((timer)->timeout));  \
     (timer)->timeout.tv_usec+=msec*1000; \
     if ((timer)->timeout.tv_usec>=1000000) { (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000; (timer)->timeout.tv_usec%=1000000; } \
 }
 
-#define MEPA_MTIMER_TIMEOUT(timer) (lm_os_timeval_init(&((timer)->now)) && MEPA_TIMERCMP((timer)->now, (timer)->timeout, >))
+#define MEPA_MTIMER_TIMEOUT(timer) (lm_os_timeval_init((lm_os_timeval_t *)&((timer)->now)) && MEPA_TIMERCMP((timer)->now, (timer)->timeout, >))
 
 #endif //  _MEPA_OS_LMSTAX_H_
