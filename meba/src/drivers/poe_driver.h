@@ -48,6 +48,9 @@ typedef struct {
     // prebt - en/Dis MESSAGE_READY pin notification.
     uint8_t indv_mask_prebt_message_ready_notify_default;
 
+    // prebt - led stream type
+    uint8_t indv_mask_prebt_led_stream_type_default;
+
     // prebt - En/Dis Layer 2 PD commands.
     uint8_t indv_mask_prebt_layer2_lldp_enable_default;
 
@@ -71,6 +74,9 @@ typedef struct {
 
     // bt - HOCPP - high_over Current Pulse Protection
     uint8_t indv_mask_BT_HOCPP_default;
+
+    // bt - single_detection_fail_event
+    uint8_t indv_mask_BT_bt_single_detection_fail_event_default;
 
     // bt - PSE powering PSE checking
     uint8_t indv_mask_BT_PSE_powering_PSE_checking_default;

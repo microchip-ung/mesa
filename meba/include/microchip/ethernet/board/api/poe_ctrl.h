@@ -105,7 +105,7 @@ typedef enum {
 // State of the PoE chip identification.
 typedef enum {
     //  PoE chipset detection in progress.
-    MEBA_POE_CHIPSET_DETECTION,
+    MEBA_POE_CHIPSET_DETECTION = 0,
 
     // Could not determine chipset state.
     MEBA_POE_NO_CHIPSET_FOUND,
@@ -307,6 +307,7 @@ typedef struct {
     uint8_t bt_support_high_res_detection;
     uint8_t bt_i2c_restart_enable;
     uint8_t bt_hocpp;
+    uint8_t bt_single_detection_fail_event;
     uint8_t bt_pse_powering_pse_checking;
     uint8_t bt_layer2_power_allocation_limit;
     uint8_t bt_support_lldp_half_priority;
@@ -386,15 +387,9 @@ typedef enum {
 
 typedef enum {
     MEBA_POE_FIRMWARE_TYPE_PREBT = 0,
-    MEBA_POE_FIRMWARE_TYPE_BT
+    MEBA_POE_FIRMWARE_TYPE_BT,
+    MEBA_POE_FIRMWARE_TYPE_NONE
 } meba_poe_firmware_type_t;
-
-
-typedef enum {
-    MEBA_POE_SOFTWARE_POWER_TYPE_AF = 0,
-    MEBA_POE_SOFTWARE_POWER_TYPE_AT,
-    MEBA_POE_SOFTWARE_POWER_TYPE_BT
-} meba_poe_software_power_type_t;
 
 
 typedef enum
@@ -423,6 +418,16 @@ typedef enum {
 
 typedef struct
 {
+   uint32_t udl_count;
+   uint32_t ovl_count;
+   uint32_t sc_count;
+   uint32_t invalid_signature_count;
+   uint32_t power_denied_count;
+} meba_poe_port_counters_t;
+
+
+typedef struct
+{
     uint8_t  NumOfCh_HC08_Sprt ;
     uint8_t  SubContractor     ; //
     uint8_t  Year              ; // Manufacuring year
@@ -430,7 +435,6 @@ typedef struct
     uint16_t PN                ; // PowerDsine part number
     uint32_t UN                ; // PowerDsine unique number
 } meba_poe_serial_number_t;
-
 
 
 // The maximum length of buffer used to hold the PoE firmware version string.
@@ -458,8 +462,8 @@ typedef struct {
     // PoE Port enable, IEEE Std 802.3bt Section 30.9.1.1.1 aPSEAdminState
     mesa_bool_t                 enable;
 
-    // PoE legacy support. When false, only features defined in 803.2bt are supported
-    mesa_bool_t                 legacy_support;
+    // PoE plus (PREBT-POH mode, BT-legacy mode) support. When false, only features defined in 803.2bt are supported
+    mesa_bool_t                 bPoe_plus_mode;
 
     // IEEE Std 802.3bt Section 30.9.1.1.3 aPSEPowerPairs
     meba_poe_port_pse_power_pair_t  power_pairs;
@@ -538,15 +542,23 @@ typedef struct {
     uint32_t i2c_tx_error_counter;
 
     // poe firmware info
-    uint8_t          prod_number_detected;
-    uint16_t         sw_version_detected;
-    uint8_t          param_number_detected;
-    uint8_t          prod_number_from_file;
-    uint16_t         sw_version_from_file;
-    uint8_t          param_number_from_file;
-    uint8_t          build_number;
-    uint16_t         internal_sw_version;
-    uint16_t         asic_patch_number;
+    uint8_t         prod_number_detected;
+
+    uint16_t        sw_version_detected;
+    uint8_t         sw_version_high_detected;
+    uint8_t         sw_version_low_detected;
+
+    uint8_t         param_number_detected;
+    uint8_t         prod_number_from_file;
+
+    uint16_t        sw_version_from_file;
+    uint8_t         sw_version_high_from_file;
+    uint8_t         sw_version_low_from_file;
+
+    uint8_t         param_number_from_file;
+    uint8_t         build_number;
+    uint16_t        internal_sw_number;
+    uint16_t        asic_patch_number;
 
     // microchip poe proprietary info
     meba_poe_serial_number_t tSN;
@@ -599,7 +611,6 @@ typedef struct   // parameters taken from DB according to PN read from PoEMCU se
     uint16_t                    power_supply_internal_pwr_usage        ;
 
     char                        product_name_string[MAX_PORD_NAME_STR_LEN+1]  ; // Product name - retrieved from DB according to product being detected
-    meba_poe_software_power_type_t eMeba_poe_software_power_type       ; // AF-15W ,AT-30W ,BT-60W/90W
     meba_poe_firmware_type_t    eMeba_poe_firmware_type                ; // AF/AT ,BT
 }meba_poe_init_params_t;
 
@@ -663,7 +674,10 @@ typedef struct {
     // PoE port cable length in meters.
     mesa_poe_meters_t           cable_len;
 
-} meba_poe_pse_prebt_data_t;
+    // PoE port lldp execution status
+    uint8_t  layer2_execution_status;
+
+} meba_poe_pse_data_t;
 
 // Power supply properties
 typedef struct {
@@ -753,6 +767,8 @@ typedef struct {
 // PoE port status.
 typedef struct {
 
+    uint8_t                      enable;
+
     // PoE chipset detection state.
     meba_poe_chip_state_t       chip_state;
 
@@ -835,7 +851,13 @@ typedef struct {
     mesa_poe_millivolt_t        voltage_mv;
 
     // PoE port PSE data.
-    meba_poe_pse_prebt_data_t   prebt_pse_data;
+    meba_poe_pse_data_t         pse_data;
+
+    /** port counters */
+    meba_poe_port_counters_t    bt_port_counters;
+
+    /** prebt poe mode **/
+    meba_poe_port_pse_prebt_port_type_t port_type_prebt_af_at_poh;
 } meba_poe_port_status_t;
 
 // Get PoE controller firmware version.

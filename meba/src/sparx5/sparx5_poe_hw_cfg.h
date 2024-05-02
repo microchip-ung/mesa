@@ -157,9 +157,12 @@
 // 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled at the end of this time duration.
 // 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled at the end of this time duration.
 #define SPARX5_INDV_MASK_BT_HOCPP_DEFAULT     2
+
+
 //--------------------------------------------------------------------------------------//
 //-------------------------    PREBT parameters    -------------------------------------//
 //--------------------------------------------------------------------------------------//
+
 
 // 0x00 Ignore higher priority
 // '0' If higher priority port powers up and its power exceeds power limit,
@@ -170,9 +173,20 @@
 
 
 // 0x01 Supports Legacy detection
+// handles the proprietary Microsemi Capacitor Detection method
 // '0' Don't support legacy detection.
 // '1' Support legacy detection.
 #define SPARX5_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
+
+
+// 0x16 LED stream type
+// '0' LED stream disabled.
+// '1' LED stream supports unicolor 2-Pair system
+// '2' LED stream supports Bicolor 2-Pair system
+// '3' LED stream supports Bicolor 4-Pair system
+// '4' For Microsemi internal use only, Direct LED from PD69208.
+// '5' Direct led function, like Bicolor 4-Pair system (For 1port Midspan).
+#define SPARX5_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT     1
 
 
 // 0x1E Message ready notify
@@ -268,14 +282,14 @@
                        MEBA_POE_PORT_CAP_4PAIR  | \
                        MEBA_POE_PORT_CAP_FORCE_ON
 
-// PDS408G PREBT AT capability
-#define PD69200_PREBT_AT_CAP MEBA_POE_PORT_CAP_POE    | \
-                             MEBA_POE_PORT_CAP_TYPE_1 | \
-                             MEBA_POE_PORT_CAP_TYPE_2 | \
-                             MEBA_POE_PORT_CAP_4PAIR  | \
-                             MEBA_POE_PORT_CAP_FORCE_ON
+// PDS408G PREBT capability
+#define PD69200_PREBT_CAP MEBA_POE_PORT_CAP_POE    | \
+                          MEBA_POE_PORT_CAP_TYPE_1 | \
+                          MEBA_POE_PORT_CAP_TYPE_2 | \
+                          MEBA_POE_PORT_CAP_4PAIR  | \
+                          MEBA_POE_PORT_CAP_FORCE_ON
 
-#define PD69200_CAP ((SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PD69200_BT_CAP : PD69200_PREBT_AT_CAP)
+#define PD69200_CAP ((SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PD69200_BT_CAP : PD69200_PREBT_CAP)
 
 //Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //      this parameters is the port power limit when using poe PREBT mode.

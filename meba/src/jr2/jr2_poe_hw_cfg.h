@@ -173,9 +173,20 @@
 
 
 // 0x01 Supports Legacy detection
+// handles the proprietary Microsemi Capacitor Detection method
 // '0' Don't support legacy detection.
 // '1' Support legacy detection.
 #define JR2_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
+
+
+// 0x16 LED stream type
+// '0' LED stream disabled.
+// '1' LED stream supports unicolor 2-Pair system
+// '2' LED stream supports Bicolor 2-Pair system
+// '3' LED stream supports Bicolor 4-Pair system
+// '4' For Microsemi internal use only, Direct LED from PD69208.
+// '5' Direct led function, like Bicolor 4-Pair system (For 1port Midspan).
+#define JR2_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT     1
 
 
 // 0x1E Message ready notify
@@ -255,7 +266,7 @@
 #define JR2_PM3_PREBT_DEFAULT     0x00
 
 
-//--------------- prebt cap and port map Customizations starts here ---------------//
+//--------------- PoE cap and port map Customizations starts here ---------------//
 
 //Type 1(IEEE 802.3af) 2P 15W
 //Type 2(IEEE 802.3at) 2P 30W
@@ -403,9 +414,6 @@ meba_poe_port_properties_t jr2_pd69200_4pairs_port_map_2[] =
   { PD69200_PREBT_CAP , 24000   , 47      , 23      , 23           , 255       },
 };
 
-
-
-
-//--------------- AT cap and port map Customizations ends here ---------------//
+//--------------- PoE cap and port map Customizations ends here ---------------//
 
 #endif // _JR2_POE_HW_CFG_H_

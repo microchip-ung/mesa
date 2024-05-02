@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// Copyright (c) 2004-2024 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
 #include "microchip/ethernet/board/api.h"
@@ -17,8 +17,9 @@ meba_poe_parameters_t tPoE_parameters =
     .bt_operation_mode_legacy_60W_ignore_pd_class_default = SPARX5_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT,
     .bt_operation_mode_legacy_90W_ignore_pd_class_default = SPARX5_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT,
 
-    .reset_poe_gpio_number                           = SPARX5_RESET_POE_GPIO_NUMBER,
+    .reset_poe_gpio_number                              = SPARX5_RESET_POE_GPIO_NUMBER,
 
+    .indv_mask_prebt_led_stream_type_default            = SPARX5_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT,            // prebt led stream type
     .indv_mask_prebt_ignore_higher_priority_default     = SPARX5_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
     .indv_mask_prebt_supports_legact_detection_default  = SPARX5_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
     .indv_mask_prebt_message_ready_notify_default       = SPARX5_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT,       // en/Dis MESSAGE_READY pin notification.
@@ -105,7 +106,6 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w        = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
         tPoe_init_params->eMeba_poe_firmware_type         = SPARX5_POE_FIRMWARE_TYPE_DEFAULT;
-        tPoe_init_params->eMeba_poe_software_power_type   = (SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
     } else {  // overide meba power supply by appl init_params
         sparx5_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
         sparx5_power_supplies->max_w              = tPoe_init_params->power_supply_max_power_w;
@@ -119,11 +119,10 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
               tPoe_init_params->max_poe_ports,
               tPoe_init_params->power_supply_max_power_w,
-              tPoe_init_params->eMeba_poe_firmware_type,
-              tPoe_init_params->eMeba_poe_software_power_type);
+              tPoe_init_params->eMeba_poe_firmware_type);
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
@@ -147,11 +146,10 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
               tPoe_init_params->max_poe_ports,
               tPoe_init_params->power_supply_max_power_w,
-              tPoe_init_params->eMeba_poe_firmware_type,
-              tPoe_init_params->eMeba_poe_software_power_type);
+              tPoe_init_params->eMeba_poe_firmware_type);
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
@@ -174,11 +172,10 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
               tPoe_init_params->max_poe_ports,
               tPoe_init_params->power_supply_max_power_w,
-              tPoe_init_params->eMeba_poe_firmware_type,
-              tPoe_init_params->eMeba_poe_software_power_type);
+              tPoe_init_params->eMeba_poe_firmware_type);
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
@@ -200,11 +197,10 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
               tPoe_init_params->max_poe_ports,
               tPoe_init_params->power_supply_max_power_w,
-              tPoe_init_params->eMeba_poe_firmware_type,
-              tPoe_init_params->eMeba_poe_software_power_type);
+              tPoe_init_params->eMeba_poe_firmware_type);
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
@@ -248,7 +244,6 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w        = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
         tPoe_init_params->eMeba_poe_firmware_type         = SPARX5_POE_FIRMWARE_TYPE_DEFAULT; // BT/PREBT
-        tPoe_init_params->eMeba_poe_software_power_type   = (SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? MEBA_POE_SOFTWARE_POWER_TYPE_BT : MEBA_POE_SOFTWARE_POWER_TYPE_AT;
     } else {  // overide meba power supply by appl init_params
         sparx5_power_supplies->def_w              = tPoe_init_params->power_supply_default_power_limit;
         sparx5_power_supplies->max_w              = tPoe_init_params->power_supply_max_power_w;
@@ -260,11 +255,10 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
         tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
     }
 
-    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d ,eMeba_poe_software_power_type=%d",
+    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"using:  max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
                       tPoe_init_params->max_poe_ports ,
                       tPoe_init_params->power_supply_max_power_w,
-                      tPoe_init_params->eMeba_poe_firmware_type,
-                      tPoe_init_params->eMeba_poe_software_power_type);
+                      tPoe_init_params->eMeba_poe_firmware_type);
 
     tPoE_parameters.poe_init_params = *tPoe_init_params;
 
