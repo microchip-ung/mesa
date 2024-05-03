@@ -331,9 +331,14 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)                # Configs to build
 
 # PTP IO pin interrupts related change
-check("backwards-check",                # Name of check
-      "4ad1ba4ef2@master.laguna-ptp",   # Apl release to use
-      $default_configs)                 # Configs to build
+#check("backwards-check",                # Name of check
+#      "4ad1ba4ef2@master.laguna-ptp",   # Apl release to use
+#      $default_configs)                 # Configs to build
+
+# Change in poe related types
+check("backwards-check",               # Name of check
+      "3249852312@poe_appl_2_5_24",    # Apl release to use
+      $default_configs)                # Configs to build
 
 # This will be activated when we get to the 4.2 release
 # This is the backwards compability check against 4.2.0
