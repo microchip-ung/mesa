@@ -109,6 +109,7 @@
 
 // Register - 20
 #define INDY_DIGITAL_AX_AN_STATUS 20
+#define INDY_F_SIG_DET INDY_BIT(13)
 #define INDY_F_LINK_DET INDY_BIT(14)
 
 // Register - 22
@@ -143,6 +144,7 @@
 // Register - 31 (control register)
 #define INDY_CONTROL       31
 #define INDY_F_CONTROL_SOFT_RESET INDY_BIT(1)
+#define INDY_F_1000T_SPEED_STATUS INDY_BIT(6)
 #define INDY_F_CONTROL_RESERVED INDY_BIT(14)
 
 //====================================================================================

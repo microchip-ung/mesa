@@ -6,6 +6,7 @@
 #include <mepa_ts_driver.h>
 
 #include "../../common/include/lan8814_registers.h"
+#include "microchip/lan8814_cs.h"
 #include "lan8814_ts_registers.h"
 
 #include "lan8814_private.h"
@@ -256,7 +257,21 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
 
 static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
 {
-    // Improve cable reach beyond 130m
+    //737 Clause 14 UNH Fix
+    EP_WR(dev, INDY_AFED_CONTROL, 0xe214);
+    EP_WR(dev, INDY_ANALOG_CONTROL_4, 0x81e0);
+
+    //639 Clause 40 EEE Fix
+    EP_WR(dev, INDY_EEE_WAKE_TX_TIMER, 0x1f);
+
+    //Fix Intel PHY Interop issue JIRA 557
+    EP_WR(dev, INDY_ALIGN_SWAP, 0x02);
+
+    //PLL trim fix for JIRA 564
+    EP_WR(dev, INDY_ANALOG_CONTROL_1, 0x40);
+    EP_WR(dev, INDY_ANALOG_CONTROL_10, 0x01);
+
+    //Cable performance for 130m
     EP_WR(dev, INDY_PD_CONTROLS, 0x248b);
     EP_WR(dev, INDY_DFE_INIT2_100, 0x3c30);
     EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_0, 0x10a);
@@ -278,9 +293,6 @@ static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
     EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_16, 0x2a);
     EP_WR(dev, INDY_PGA_TABLE_1G_ENTRY_17, 0x26);
 
-    // Set Rx-clk to avoid crc errors in near-end loopback
-    WRM(dev, INDY_UNH_TEST, INDY_F_TEST_RX_CLK, INDY_F_TEST_RX_CLK);
-
     // Magjack center tapped ports
     EP_WR(dev, INDY_POWER_MGMT_MODE_3, 0x6677);
     EP_WR(dev, INDY_POWER_MGMT_MODE_4, 0x6677);
@@ -289,18 +301,15 @@ static mepa_rc indy_workaround_after_reset(mepa_device_t *dev)
     EP_WR(dev, INDY_POWER_MGMT_MODE_7, 0x0077);
     EP_WR(dev, INDY_POWER_MGMT_MODE_8, 0x4377);
     EP_WR(dev, INDY_POWER_MGMT_MODE_9, 0x4377);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_10, 0x6677);
     EP_WR(dev, INDY_POWER_MGMT_MODE_11, 0x0777);
     EP_WR(dev, INDY_POWER_MGMT_MODE_12, 0x0777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6777);
-    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6777);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_13, 0x6677);
+    EP_WR(dev, INDY_POWER_MGMT_MODE_14, 0x6677);
 
-    // Trimming 10BT also for template and Diff output fixes
-    EP_WR(dev, INDY_AFED_CONTROL, 0xe214);
-    EP_WR(dev, INDY_ANALOG_CONTROL_4, 0x81e0);
-
-    // EEE wake TX timer max value
-    EP_WR(dev, INDY_EEE_WAKE_TX_TIMER, 0x1f);
+    //28.2.7.a and 28.2.1.d fix JIRA 569 & JIRA 568
+    WR(dev, INDY_BASIC_CONTROL, 0x1340);
+    WR(dev, INDY_ANEG_ADVERTISEMENT, 0x05e1);
 
     return MEPA_RC_OK;
 }
@@ -382,6 +391,7 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
         indy_rev_workaround(dev);
         indy_qsgmii_aneg(dev, FALSE);
         data->init_done = TRUE;
+        data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
         if (data->dev.model == 0x26) {
             data->crc_workaround = TRUE;
             data->aneg_after_link_up = FALSE;
@@ -429,9 +439,45 @@ static mepa_rc indy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf
     return MEPA_RC_OK;
 }
 
+mepa_rc indy_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    data->rep_cnt = rep_cnt;
+    return MEPA_RC_OK;
+}
+
+mepa_rc indy_downshift_conf_set(mepa_device_t *dev, const indy_phy_downshift_t *dsh)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    if (!dsh->dsh_enable && data->dsh_conf.dsh_enable) {
+        WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+    }
+    data->dsh_conf.dsh_enable = dsh->dsh_enable;
+    data->dsh_conf.dsh_thr_cnt = dsh->dsh_thr_cnt;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc indy_downshift(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t val = 0;
+    // Max_Timer is the no of attempts the link status needs to be checked with a time interval of 1 secs.
+    // Default value for Max_Timer will be 4 .
+    RD(dev, INDY_ANEG_MSTR_SLV_CTRL, &val);
+    T_I(MEPA_TRACE_GRP_GEN,"Starting Downshift to 100M on port:%d", data->port_no);
+    val &= ~(INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
+    T_I(MEPA_TRACE_GRP_GEN, "Speed Changed to 100M");
+    WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, val, INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_ANEG_ENA, INDY_F_BASIC_CTRL_ANEG_ENA | INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+    // Restart aneg After downshift has been performed in the port
+    WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+    data->dsh_complete = 1; // set a downshift complete flag
+    return MEPA_RC_OK;
+}
+
 static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
 {
-    uint16_t val, val2 = 0;
+    uint16_t val, val2, val3 = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
     MEPA_ENTER(dev);
@@ -447,13 +493,41 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         // Default values
         status->speed = MEPA_SPEED_UNDEFINED;
         status->fdx = 1;
-        // check if auto-negotiation is completed or not.
+        // check if auto-negotiation is completed or not
         if (!data->loopback.near_end_ena && status->link && !(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
             T_I(MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
             status->link = 0;
         } else if (data->loopback.near_end_ena) {
             status->speed = MEPA_SPEED_1G;
         }
+        // Auto Downshift Feature: Downshift allows an interface to link at a lower advertised speed when unable to establish a stable link at the maximum speed.
+        // Both the Downshift and MEPA 555 ANEG State Machine Stuck Fix has same criteria. When Downshift is enabled, the Restart ANEG happens first and still couldn't
+        // establish the link then perform downshift to 100M.
+        RD(dev, INDY_DIGITAL_AX_AN_STATUS, &val3);
+        RD(dev, INDY_CONTROL, &val2);
+        if (data->dsh_conf.dsh_enable && !status->link && ((val2 && INDY_F_1000T_SPEED_STATUS) && (val3 & INDY_F_LINK_DET) && (data->aneg_flag)) && !data->dsh_complete) {
+            data->loop_cnt++;
+            if (data->loop_cnt > data->dsh_conf.dsh_thr_cnt * data->rep_cnt) {
+               indy_downshift(dev);
+               data->loop_cnt = 0;
+               data->aneg_flag = FALSE;
+               T_I(MEPA_TRACE_GRP_GEN, "Downshift on port %d", data->port_no);
+            }
+            T_I(MEPA_TRACE_GRP_GEN, "Downshift capable on port %d dsh_loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+        }
+        // MEPA 555: This is a SW workaround for the ANEG state machine hung.
+        // Check link up and aneg status complete when a valid signal is detected from link partner wait for 2 secs, couldn't establish link restart ANEG state Machine.
+        if (!status->link && !(val & (INDY_F_BASIC_STATUS_ANEG_COMPLETE)) && (val3 & INDY_F_SIG_DET) && !data->aneg_flag) {
+            data->loop_cnt++;
+            T_I(MEPA_TRACE_GRP_GEN, "Aneg not complete on port %d loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+            if (data->loop_cnt > 2 * data->rep_cnt) { // default value for rep cnt to be 1sec
+                T_I(MEPA_TRACE_GRP_GEN, "Aneg state machine stuck!! restarting ANEG on port %d", data->port_no);
+                data->loop_cnt = 0;
+                WRM(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_RESTART_ANEG, INDY_F_BASIC_CTRL_RESTART_ANEG);
+                data->aneg_flag = TRUE;
+            }
+        }
+
         if (!status->link || data->loopback.near_end_ena) {
             // No need to read aneg values when link is down or when near-end loopback enabled.
             goto end;
@@ -462,8 +536,8 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         RD(dev, INDY_ANEG_LP_BASE, &val);
         RD(dev, INDY_ANEG_MSTR_SLV_STATUS, &val2);
         // 1G half duplex is not supported. Refer direct register - 9
-        if ((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
-            data->conf.aneg.speed_1g_fdx) {
+        if (((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
+            data->conf.aneg.speed_1g_fdx) && !data->dsh_complete) {
             // Work-around for CRC errors begin.
             if (data->crc_workaround) {
                 if (!((val2 & INDY_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
@@ -558,7 +632,17 @@ end:
                 }
             } else {// link down event.
                 indy_workaround_fifo_reset(dev);
+                if (data->dsh_complete) {
+                    val |= (INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
+                    T_I(MEPA_TRACE_GRP_GEN, "link Down Readvertising 1G Speed Changed on port: %d", data->port_no);
+                    WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, val, INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+                    data->loop_cnt = 0;
+                    data->aneg_after_link_up = FALSE;
+                }
             }
+            data->loop_cnt = 0;
+            data->aneg_flag = 0;
+            T_I(MEPA_TRACE_GRP_GEN,"After restart workaround on port->no:%d and data->dsh_loop_cnt:%d", data->port_no, data->loop_cnt);
         }
     }
     data->link_status = status->link;
@@ -771,13 +855,13 @@ static mepa_rc indy_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
 static mepa_rc indy_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *status)
 {
     uint16_t val;
-
+    phy_data_t *data = (phy_data_t *)dev->data;
     MEPA_ENTER(dev);
     RD(dev, INDY_ANEG_MSTR_SLV_STATUS, &val);
     status->master_cfg_fault = (val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
     status->master = val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
     MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, "aneg status get mstr %d", status->master);
+    T_I(MEPA_TRACE_GRP_GEN, "aneg status get mstr %d port %d", status->master, data->port_no);
     return MEPA_RC_OK;
 }
 
