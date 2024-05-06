@@ -4607,10 +4607,7 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_status_get(
             DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s port= %d, tPrebt_single_port_status.af_at_poh value error=%d", __FUNCTION__, handle, tPrebt_single_port_status.af_at_poh);
         }
 
-        if (current_port_status->port_status.poe_internal_port_status != tPrebt_extended_port_status.port_status)
-        {
-            strncpy( current_port_status->port_status.poe_port_status_description , get_prebt_title_by_ports_status(tPrebt_extended_port_status.port_status), MAX_STR_SIZE-1);
-        }
+        strncpy( current_port_status->port_status.poe_port_status_description , get_prebt_title_by_ports_status(tPrebt_extended_port_status.port_status), MAX_STR_SIZE-1);
 
         current_port_status->port_status.poe_internal_port_status = tPrebt_extended_port_status.port_status;
 
