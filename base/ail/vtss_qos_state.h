@@ -395,7 +395,11 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_LISTS              (0x7F+1)
 #define VTSS_TAS_NUMBER_OF_PROFILES           100
 #define VTSS_TAS_NUMBER_OF_ENTRIES            (0x3FFF+1)
+#if VTSS_OPT_LIGHT
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK  8     /* Number of entries per block. This is the minimum allocated number of entries for a list */
+#else
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK  32    /* Number of entries per block. This is the minimum allocated number of entries for a list */
+#endif
 #define VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW     (VTSS_QOS_TAS_GCL_LEN_MAX / VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK)    /* Number of blocks per row. A list must be able to fit into one row. So a row must have blocks to contain the maximum GCL */
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW    VTSS_QOS_TAS_GCL_LEN_MAX    /* Number of entries per row. This is also the maximum lengt of a list as a list mist be in one row */
 #define VTSS_TAS_NUMBER_OF_ROWS               (VTSS_TAS_NUMBER_OF_ENTRIES/VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW)   /* Number of rows */

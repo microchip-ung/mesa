@@ -10,6 +10,7 @@ $ts = get_test_setup("mesa_pc_b2b_2x")
 
 check_capabilities do
     $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
+    $gce_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_TAS_GCE_CNT")
     $tas_support = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_TAS")
     assert(($tas_support == 1),
            "TAS not supported on this platform")
@@ -354,8 +355,8 @@ def jira_mesa_899_test
     t_i ("Wait for GCL to stop")
     sleep 2
 
-    t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
+    t_i ("Create GCL gce_cnt #{$gce_cnt}")
+    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], $gce_cnt)
     gcl = conf[0]
     gce_cnt = conf[1]
     gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
