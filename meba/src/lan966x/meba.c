@@ -609,7 +609,7 @@ static mesa_rc lan966x_sfp_status_get(meba_inst_t inst,
         lan966x_port_sfp_detect(board, port_no) &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
         port = lan966x_port2sfp(port_no);
-        status->los      = (data[port].value[0] ? 0 : 1);     // SFP LOS at bit 0
+        status->los      = (data[port].value[0] ? 1 : 0);     // SFP LOS at bit 0
         status->present  = (data[port].value[1] ? 0 : 1);     // SFP MODDET at bit 1
         status->tx_fault = (data[1].value[port - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
     }
