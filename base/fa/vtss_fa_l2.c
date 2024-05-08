@@ -776,7 +776,7 @@ vtss_rc vtss_cil_l2_vlan_port_conf_update(vtss_state_t *vtss_state,
             VTSS_F_REW_PORT_VLAN_CFG_PORT_VID(uvid),
             VTSS_M_REW_PORT_VLAN_CFG_PORT_VID);
 
-#if defined(VTSS_FEATURE_VCAP)
+#if defined(VTSS_FEATURE_VCAP) && defined(VTSS_FEATURE_QOS_EGRESS_MAP)
     return vtss_fa_vcap_port_update(vtss_state, port_no);
 #else
     return VTSS_RC_OK;
@@ -2917,7 +2917,7 @@ static vtss_rc fa_debug_aggr(vtss_state_t *vtss_state,
                              const vtss_debug_printf_t pr,
                              const vtss_debug_info_t *const info)
 {
-    u32 port;
+    u32 port, cnt = MIN(RT_PGID_FA, VTSS_PGIDS);
 
     vtss_fa_debug_reg_header(pr, "Logical Ports");
     for (port = 0; port < RT_CHIP_PORTS; port++) {
@@ -2927,7 +2927,7 @@ static vtss_rc fa_debug_aggr(vtss_state_t *vtss_state,
 
     VTSS_RC(fa_debug_src_table(vtss_state, pr, info));
     VTSS_RC(fa_debug_aggr_table(vtss_state, pr, info));
-    VTSS_RC(fa_debug_pgid_table(vtss_state, pr, info, 0, RT_PGID_FA));
+    VTSS_RC(fa_debug_pgid_table(vtss_state, pr, info, 0, cnt));
 
     return VTSS_RC_OK;
 }
@@ -3503,7 +3503,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     BOOL                  psfp_counters = FALSE;
 
     /* Setup number of available PGIDs */
-    state->pgid_count = (RT_PGID_FA - RT_CHIP_PORTS + vtss_state->port_count);
+    state->pgid_count = (MIN(RT_PGID_FA, VTSS_PGIDS) + vtss_state->port_count - RT_CHIP_PORTS);
 
     /* Set flood masks */
     VTSS_RC(vtss_cil_l2_flood_conf_set(vtss_state));

@@ -88,6 +88,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t      inst,
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 2);
         if (rc == VTSS_RC_OK) /* Update destination masks */
             rc = vtss_update_masks(vtss_state, 0, 1, 0);
+        vtss_state->l2.pmap_done = TRUE;
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 2);
 #endif /* VTSS_FEATURE_LAYER2 */
     }

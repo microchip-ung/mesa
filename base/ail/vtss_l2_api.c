@@ -56,7 +56,7 @@ static void vtss_pgid_members_get(vtss_state_t *vtss_state,
         member[port_no] = (port_no < vtss_state->port_count ? pgid_entry->member[port_no] : 0);
 
     /* Reserved entries are used direcly (e.g. GLAG masks) */
-    if (pgid_entry->resv)
+    if (pgid_entry->resv || !vtss_state->l2.pmap_done)
         return;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {

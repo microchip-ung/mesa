@@ -729,6 +729,7 @@ vtss_rc vtss_cil_l2_rb_proxy_node_id_get_next(struct vtss_state_s *vtss_state,
 
 typedef struct {
     /* Aggregated forwarding information */
+    BOOL                          pmap_done;
     BOOL                          learn[VTSS_PORT_ARRAY_SIZE];
     BOOL                          rx_forward[VTSS_PORT_ARRAY_SIZE];
     BOOL                          tx_forward[VTSS_PORT_ARRAY_SIZE];
