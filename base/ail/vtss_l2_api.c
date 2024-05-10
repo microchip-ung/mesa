@@ -3262,6 +3262,10 @@ static vtss_rc vtss_xrow_alloc(vtss_state_t *vtss_state, vtss_xrow_header_t *hdr
         return VTSS_RC_OK;
     }
 
+#if VTSS_OPT_LIGHT
+    // Clear is not needed, rows are allocated once during initialization
+    clear = FALSE;
+#endif
     if (*idx != VTSS_POL_STAT_NONE) {
         /* Try to reallocate index */
         if (*idx < hdr->max_count) {

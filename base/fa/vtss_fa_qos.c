@@ -656,15 +656,6 @@ static vtss_rc fa_qos_policer_init(vtss_state_t *vtss_state)
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_ACL_FORCE_INIT       |
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
 
-    // TDB_VK: Initialize policer related statistics
-
-    // Await policer initialization (init bits cleared)
-    REG_POLL_MASK(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
-                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_STORM_FORCE_INIT |
-                  // Not working: VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_PRIO_FORCE_INIT |
-                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_ACL_FORCE_INIT   |
-                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
-
     /* Setup queue policer indexes */
     for (port = 0; port < RT_CHIP_PORTS; port++) {
         REG_WRM(VTSS_ANA_L2_PORT_DLB_CFG(port),
@@ -677,6 +668,13 @@ static vtss_rc fa_qos_policer_init(vtss_state_t *vtss_state)
 
     /* Disable bundle policer */
     REG_WRM(VTSS_ANA_L2_FWD_CFG, 0, VTSS_M_ANA_L2_FWD_CFG_PORT_DEFAULT_BDLB_ENA);
+
+    // Await policer initialization (init bits cleared)
+    REG_POLL_MASK(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
+                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_STORM_FORCE_INIT |
+                  // Not working: VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_PRIO_FORCE_INIT |
+                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_ACL_FORCE_INIT   |
+                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
 
     VTSS_D("Exit");
     return VTSS_RC_OK;

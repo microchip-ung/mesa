@@ -863,7 +863,7 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
             if (!pending) {
                 break;
             }
-            VTSS_MSLEEP(1);
+            VTSS_NSLEEP(100000);
         }
 
         if (pending > 0) {
