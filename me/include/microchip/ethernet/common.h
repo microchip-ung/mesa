@@ -58,7 +58,10 @@ typedef enum {
     MESA_PHY_MEDIA_IF_AMS_FI_100FX,
     MESA_PHY_MEDIA_IF_T1S_10FX,                /**< 10Base-T1S */
     MESA_PHY_MEDIA_IF_T1_100FX,                /**< 100Base-T1 */
-    MESA_PHY_MEDIA_IF_T1_1000FX                /**< 1000Base-T1 */
+    MESA_PHY_MEDIA_IF_T1_1000FX,                /**< 1000Base-T1 */
+    MESA_PHY_MEDIA_IF_FI_10G_1G_LAN,           /**< 10G PHY 1G-LAN */
+    MESA_PHY_MEDIA_IF_FI_10G_LAN,              /**< 10G PHY 10G-LAN */
+    MESA_PHY_MEDIA_IF_FI_10G_WAN               /**< 10G PHY WAN */
 } mesa_phy_media_interface_t;
 
 /** \brief PHY media interface type */

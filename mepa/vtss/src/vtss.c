@@ -1002,10 +1002,77 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
 {
     vtss_phy_10g_mode_t oper_mode = {};
     phy_data_t *data = (phy_data_t *)(dev->data);
-    if (vtss_phy_10g_mode_get(data->vtss_instance, data->port_no, &oper_mode) != MEPA_RC_OK)
-        return MEPA_RC_ERROR;
-    else
-        return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
+
+    vtss_phy_10g_init_parm_t init_parm;
+    data->temp_init_flag = false;
+    if (rst_conf->reset_point == MEPA_RESET_POINT_PRE) {
+        // The following call pre-populates the PHY_INST with initization params
+        init_parm.channel_conf = VTSS_CHANNEL_AUTO;
+        if(vtss_phy_10g_init(data->vtss_instance, data->port_no, &init_parm) != VTSS_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+    } else if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
+        if (vtss_phy_10g_mode_get(data->vtss_instance, data->port_no, &oper_mode) != MEPA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+
+    if (rst_conf->media_intf == MESA_PHY_MEDIA_IF_FI_10G_LAN){
+        oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
+        oper_mode.interface = VTSS_PHY_SFI_XFI;
+        oper_mode.channel_id = VTSS_CHANNEL_AUTO;
+        oper_mode.h_media = VTSS_MEDIA_TYPE_KR_SC;
+        oper_mode.l_media = VTSS_MEDIA_TYPE_SR2_SC;
+
+        } else if (rst_conf->media_intf == MESA_PHY_MEDIA_IF_FI_10G_1G_LAN){
+            oper_mode.oper_mode = VTSS_PHY_1G_MODE;
+            oper_mode.interface = VTSS_PHY_SFI_XFI;
+            oper_mode.channel_id = VTSS_CHANNEL_AUTO;
+            oper_mode.h_media = VTSS_MEDIA_TYPE_SR2_SC;
+            oper_mode.l_media = VTSS_MEDIA_TYPE_SR2_SC;
+              // 1G Auto Negotiation
+            vtss_phy_10g_clause_37_control_t ctrl;
+            memset(&ctrl, 0, sizeof(vtss_phy_10g_clause_37_control_t));
+            ctrl.enable = TRUE;
+            ctrl.l_h = TRUE;
+            ctrl.advertisement.fdx = TRUE;
+            ctrl.advertisement.hdx = FALSE;
+            ctrl.advertisement.symmetric_pause = FALSE; /* Enable or Disable Flowcontrol */
+            ctrl.advertisement.asymmetric_pause = FALSE; /* Enable or Disable Flowcontrol */
+            ctrl.advertisement.remote_fault =  FALSE;
+            ctrl.advertisement.acknowledge =  FALSE;
+            ctrl.advertisement.next_page =  FALSE;
+            if (vtss_phy_10g_clause_37_control_set(data->vtss_instance, data->port_no, &ctrl) != VTSS_RC_OK) {
+                return MEPA_RC_ERROR;
+            }
+
+        } else if (rst_conf->media_intf == MESA_PHY_MEDIA_IF_FI_10G_WAN){
+            oper_mode.oper_mode = VTSS_PHY_WAN_MODE;
+            oper_mode.interface = VTSS_PHY_SFI_XFI;
+            oper_mode.channel_id = VTSS_CHANNEL_AUTO;
+            oper_mode.h_media = VTSS_MEDIA_TYPE_KR_SC;
+            oper_mode.l_media = VTSS_MEDIA_TYPE_SR2_SC;
+        } else {
+            return MEPA_RC_ERROR;
+        }
+                // Invert Polarity of Line/Host Tx/Rx, these are all set to FALSE, ie. the Defaults
+        oper_mode.polarity.line_rx = FALSE;
+        oper_mode.polarity.line_tx = FALSE;
+        oper_mode.polarity.host_rx = FALSE;
+        oper_mode.polarity.host_tx = FALSE;
+
+        // H/LREFCLK is_high_amp :
+        // --> TRUE (1100mV to 2400mV diff swing)
+        // --> FALSE (200mV to 1200mV diff swing)
+        oper_mode.h_clk_src.is_high_amp = TRUE;
+        oper_mode.l_clk_src.is_high_amp = TRUE;
+
+        if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode) != MEPA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+
+    }
+    return MEPA_RC_OK;
+
 }
 
 static mepa_rc venice_10g_reset(mepa_device_t *dev,
@@ -1034,6 +1101,7 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_10g_status_t status_10g;
+    vtss_phy_10g_clause_37_control_t control;
 
     if (vtss_phy_10g_status_get(data->vtss_instance, data->port_no, &status_10g) != VTSS_RC_OK) {
         return MEPA_RC_ERROR;
@@ -1045,6 +1113,12 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
        status->speed = MESA_SPEED_10G;
        status->fiber = 1;
        status->fdx = 1;
+    }
+    else if (status_10g.pma.rx_link && status_10g.hpma.rx_link && status_10g.lpcs_1g && status_10g.hpcs_1g)
+    {
+        vtss_phy_10g_clause_37_control_get(data->vtss_instance, data->port_no, &control);
+        status->speed = MESA_SPEED_1G;
+        status->fdx = control.advertisement.fdx;
     }
     return MEPA_RC_OK;
 }
@@ -1063,7 +1137,7 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         ? MESA_SPEED_1G
         : config->speed;
 
-    if (speed == MESA_SPEED_1G) {
+    if (config->speed == MESA_SPEED_1G || config->speed == MESA_SPEED_AUTO) {
         /* Need to flip the lanes to match JR XAUI-lane-0 and 8487 XAUI-lane-0
          */
         mode.xaui_lane_flip = true;
@@ -1076,7 +1150,7 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         }
 
         vtss_phy_10g_clause_37_control_t ctrl = {};
-        ctrl.enable = config->speed == MESA_SPEED_AUTO;
+        ctrl.enable = (config->speed == MESA_SPEED_AUTO)?1:0;
         ctrl.advertisement.fdx = 1;
         ctrl.advertisement.symmetric_pause = config->flow_control;
         ctrl.advertisement.asymmetric_pause = config->flow_control;
