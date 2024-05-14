@@ -636,7 +636,7 @@ end:
                     val |= (INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
                     T_I(MEPA_TRACE_GRP_GEN, "link Down Readvertising 1G Speed Changed on port: %d", data->port_no);
                     WRM(dev, INDY_ANEG_MSTR_SLV_CTRL, val, INDY_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | INDY_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
-                    data->loop_cnt = 0;
+                    data->loop_cnt = data->dsh_complete = 0;
                     data->aneg_after_link_up = FALSE;
                 }
             }
