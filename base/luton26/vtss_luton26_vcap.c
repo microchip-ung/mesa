@@ -732,7 +732,7 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
     vtss_ace_ip_t      sip, dip;
     vtss_ace_u48_t     ip_data;
     vtss_ace_ptp_t     *ptp;
-    vtss_ace_u128_t    *sipv6;
+    vtss_ace_u128_t    *sipv6 = NULL;
     
     VTSS_MEMSET(entry, 0, sizeof(entry));
     VTSS_MEMSET(mask, 0, sizeof(mask));
