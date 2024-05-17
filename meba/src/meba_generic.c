@@ -340,6 +340,10 @@ void meba_phy_driver_init(meba_inst_t inst)
             mepa_board_conf_t board_conf = {};
             board_conf.numeric_handle = port_no;
 
+            if (port_cap & MEBA_PORT_CAP_DUMMY_PHY) {
+                board_conf.dummy_phy_cap = port_cap;
+            }
+
             inst->phy_device_ctx[port_no].inst = 0;
             inst->phy_device_ctx[port_no].port_no = port_no;
             inst->phy_device_ctx[port_no].meba_inst = inst;

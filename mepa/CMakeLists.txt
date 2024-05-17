@@ -25,6 +25,7 @@ add_subdirectory(intel)
 add_subdirectory(ksz9031)
 add_subdirectory(microchip)
 add_subdirectory(vtss)
+add_subdirectory(dummy_phy)
 
 
 ###############################################################################

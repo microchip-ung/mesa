@@ -91,6 +91,9 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // is between 4 x QSGMII <--> 1 x SFI
 #define MEBA_PORT_CAP_DYNAMIC           0x400000000
 
+// Dummy SW phy is used - no MIIM access
+#define MEBA_PORT_CAP_DUMMY_PHY         0x800000000
+
 #define MEBA_PORT_CAP_HDX        \
         (MEBA_PORT_CAP_10M_HDX | \
          MEBA_PORT_CAP_100M_HDX)

@@ -219,13 +219,19 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #if defined(MEPA_HAS_LAN887X)
         MEPA_phy_lib[9] = mepa_lan887x_driver_init();
 #endif
+#if defined(MEPA_HAS_DUMMY_PHY)
+        MEPA_phy_lib[10] = mepa_dummy_driver_init();
+#endif
         // Shall be last
 #if defined(MEPA_HAS_VTSS)
-        MEPA_phy_lib[10] = mepa_default_phy_driver_init();
+        MEPA_phy_lib[11] = mepa_default_phy_driver_init();
 #endif
     }
-
-    phy_id = mepa_phy_id_get(callout, callout_ctx);
+    if (conf->dummy_phy_cap > 0) {
+        phy_id = 0xdeadbeef;
+    } else {
+        phy_id = mepa_phy_id_get(callout, callout_ctx);
+    }
 
     //if (phy_id != conf->id) {
     //    T_E("PHY IDs does not match");
@@ -242,6 +248,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 
         for (uint32_t j = 0; j < MEPA_phy_lib[i].count; j++) {
             mepa_driver_t *driver = &MEPA_phy_lib[i].phy_drv[j];
+
 
             if ((driver->id & driver->mask) == (phy_id & driver->mask)) {
                 dev = driver->mepa_driver_probe(driver, callout, callout_ctx, conf);

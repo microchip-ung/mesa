@@ -213,7 +213,7 @@ typedef struct vtss_state_s *vtss_inst_t;
 
 typedef struct mepa_board_conf {
     uint32_t                 numeric_handle;
-
+    uint32_t                 dummy_phy_cap;
     // By default all PHYs in the VTSS library will use default instance located
     // in mepa/vtss/src/vtss.c (as a static variable).
     // This makes it easy for simple usage, but sometime it is desirable to
