@@ -229,6 +229,13 @@ mesa_rc meba_synce_spi_if_do_dpll_type_detection(meba_inst_t inst, const char *d
             if (partnum[2] == 0x1C) {
                 known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30732; // Really ZL80732
             }
+        } else if (partnum[1] == 0x2E) {
+            meba_synce_read(inst, 0x82, 1, &partnum[2]);
+            if (partnum[2] == 0x94) {
+                known_dpll_type = MEBA_SYNCE_CLOCK_HW_ZL_30732; // Really ZL80732
+            } else {
+                T_I(inst, "No SyncE DPLL detected. partnum 0X%x%x", partnum[1], partnum[2]);
+            }
         } else {
             T_I(inst, "No SyncE DPLL detected. partnum 0X%x%x", partnum[0], partnum[1]);
             rc = MESA_RC_ERROR;
