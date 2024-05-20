@@ -99,10 +99,6 @@
 
 /* Start:: DEV-0x1 Registers */
 /* 100T1 PMA Commmon Registers */
-#define     LAN887X_PMA_COMM_100T1_CTL_T1                       (MDIO_PMA_PMD_BT1_CTRL)
-#define     LAN887X_PMA_COMM_100T1_CTL_T1_MAS_SLV_CFG           (MDIO_PMA_PMD_BT1_CTRL_CFG_MST)
-#define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_MASK             (0xFU)
-#define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_100              (0x0U)
 #define     LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_1000             (0x1U)
 
 /* 1000T1 PMA Registers */
@@ -120,6 +116,8 @@
 
 /* t1_phy_common_afe_regs Registers */
 #define LAN887X_COMMON_AFE_COMMON_BLOCK_CONTROL_2               (0xF001U)
+#define LAN887X_COMMON_AFE_COMMON_BLOCK_TESTBUS_CTRL1           (0xF00CU)
+#define LAN887X_COMMON_AFE_COMMON_BLOCK_TESTBUS_CTRL1_MCM_CLK_EN BIT(6)
 
 /* End:: DEV-0x1 Registers */
 
@@ -199,8 +197,10 @@
 
 #define        LAN887X_MIS_CFG_REG0                             (0xa00U)
 #define        LAN887X_MIS_CFG_REG0_RX_BIT_REV                  BIT(4)
+#define        LAN887X_MIS_CFG_REG0_RCLKOUT_DIS                 BIT(5)
 #define        LAN887X_MIS_CFG_REG0_MAC_MAC_MODE_SEL            GENMASK(0, 2)
 #define        LAN887X_MIS_CFG_REG0_MAC_MODE_RGMII              (0x01U)
+#define        LAN887X_MIS_CFG_REG0_MAC_MODE_SGMII              (0x03U)
 
 #define        LAN887X_MIS_TX_DLL_CFG_REG0                      (0xa01U)
 #define        LAN887X_MIS_RX_DLL_CFG_REG1                      (0xa02U)
@@ -251,11 +251,22 @@
              LAN887X_MX_CHIP_TOP_LINK_MSK |\
              LAN887X_MX_CHIP_TOP_P1588_MOD_INT_STS)
 
+#define LAN887X_MX_CHIP_TOP_REG_HARD_RST                        (0xF03EU)
 #define LAN887X_MX_CHIP_TOP_REG_SOFT_RST                        (0xF03FU)
 #define LAN887X_MX_CHIP_TOP_RESET_                              BIT(0)
 
 #define LAN887X_MX_CHIP_TOP_REG_SGMII_CTL                       (0xF01AU)
+#define LAN887X_MX_CHIP_TOP_REG_SGMII_XAUI_RST                  BIT(2)
+#define LAN887X_MX_CHIP_TOP_REG_SGMII_VREG_BYP_CTL              BIT(1)
 #define LAN887X_MX_CHIP_TOP_REG_SGMII_MUX_EN                    BIT(0)
+
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG                       (0xF034U)
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_LNK_STS_TYP               BIT(10)
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_ENA                       BIT(9)
+
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG                      (0xF035U)
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_RST                  BIT(4)
+#define LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN                   BIT(3)
 
 /**********************************/
 //     TC10 Registers

@@ -11,7 +11,11 @@
 
 #define MEPA_RC_GOTO(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { goto error; } }
 
+#if defined(MEPA_OPSYS_LMSTAX)
+#define T_D(grp, format, ...) LM_OS_PR(format, ##__VA_ARGS__);
+#else
 #define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#endif
 #define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
@@ -44,11 +48,15 @@
 #define LAN887X_PHY_MAX                        (1U)
 #endif
 #define LAN887X_PHY_ID_MAX      (LAN887X_PHY_MAX)
-#define LAN887X_PHY_ID_MASK     (0xFFFFF0U)
-#define LAN8870_PHY_ID          (0x7C1F0U)
-#define LAN887X_PHY_ID_PRTO         (0x7C001U)
-#define LAN887X_PHY_ID_PRTO_MSK     (0xFF001U)
 
+#define LAN8870_PHY_ID          (0x7C1F2U)
+#define LAN887X_PHY_ID_MASK     (0xFFFF2U)
+
+#define LAN887X_PHY_ID_PRTO         (0x7C002U)
+#define LAN887X_PHY_ID_PRTO_MSK     (0xFFF002U)
+#define LAN887X_PHY_ID_EXACT        (0xFFFFF2U)
+
+#define IS_LAN887X_B0_PROTOS(id) (((id) & LAN887X_PHY_ID_EXACT) == LAN887X_PHY_ID_PRTO)
 
 #define PHY_LINKUP          (PHY_TRUE)
 #define PHY_LINKDOWN        (PHY_FALSE)
@@ -93,7 +101,6 @@ typedef struct {
 
 typedef struct {
     mepa_bool_t             init_done;
-    mepa_bool_t             phy_aneg_dis;
     mepa_bool_t             link_status;
     mepa_port_no_t          port_no;
     mepa_port_interface_t   mac_if;
@@ -121,6 +128,20 @@ struct phy_reg_map {
     uint16_t offset;
     uint16_t val;
 };
+
+typedef enum  {
+    LAN887X_RST_SOFT,           // soft-reset and re-configure
+    LAN887X_RST_SOFT_MAC,       // mac change, soft-reset and re-configure
+    LAN887X_RST_SOFT_EXT,       // external soft-reset and re-configure
+    LAN887X_RST_HARD_ONLY,      // hard-reset only
+    LAN887X_RST_HARD,           // hard-reset, phy_setup and re-configure
+    LAN887X_RST_SKIP_TO_CONF,   // no reset. proceed to re-configure
+    //Anything new above this line
+    LAN887X_RST_MAX
+} lan887x_reset_typ;
+
+extern mepa_tc10_driver_t lan887x_tc10_drivers;
+mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t *cfg);
 
 mepa_rc phy_reg_rd(mepa_device_t *const phydev, uint32_t const offset, uint16_t *const value);
 

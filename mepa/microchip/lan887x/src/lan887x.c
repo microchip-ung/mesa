@@ -11,34 +11,37 @@
 /*
  * START of PHY Configurations
  */
-static const struct phy_reg_map lan887x_onetime_setup[] = {
-    // eFUSE emulation enable
+/*
+ * START of PHY Configurations
+ */
+static const struct phy_reg_map lan887x_phy_en[] = {
     {MDIO_MMD_VEND1, 0xF003U, 0x0008U},
-    // used with EFUSE emulation mode to manually assert the efuse_done signal
     {MDIO_MMD_VEND1, 0xF005U, 0x0010U},
 };
 
-static const struct phy_reg_map lan887x_setup[] = {
-    // OFFSET +2
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_ZQCAL_OFFSET_REG, 0x8040U},
-    // TX_DAC_CLK_SEL=1; LPF = 237.6MHz
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_TESTBUS_CTRL4_REG, 0x0084U},
-    // TX_DAC_CLK_SEL=1; LPF = 237.6MHz
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_TX_AMPLT_1000T1_REG, 0x001FU},
-    // Clear FIR_LOADER_EN
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_TX_FIR_CTRL_STATUS, 0x0000U},
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_COEFF_2_1_1000T1_REG, 0x0014U},
-    // Set FIR_LOADER_EN [bit 0] and FIR_MAX_TAP=7 [bits 5:3]
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_TX_FIR_CTRL_STATUS, 0x0039U},
-    // 2. Molineux_A0_BG.txt
-    // BG_TC_TRIM = 31, and BG_MAG_TRIM = 0 ==> VBG = 1.2V
-    {MDIO_MMD_PMAPMD, LAN887X_COMMON_AFE_COMMON_BLOCK_CONTROL_2, 0x001FU},
-    // keep both 600 and 750
-    {MDIO_MMD_PMAPMD, LAN887X_T1_AFE_PORT_TESTBUS_CTRL2_REG, 0x0080U},
-    //TX_DRV_ENB
-    {MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26, LAN887X_MIS_100T1_SMI_REG26_TX_DRV_EN_},
-    // TURN_ON_LINK_SYNC
-    {MDIO_MMD_PMAPMD, LAN887X_PMA_1000T1_DSP_PMA_CTL_REG, LAN887X_PMA_1000T1_DSP_PMA_LNK_SYNC}
+static const struct phy_reg_map lan887x_onetime_setup[] = {
+    {MDIO_MMD_PMAPMD, 0x8080, 0x4008},
+    {MDIO_MMD_PMAPMD, 0x8089, 0x0000},
+    {MDIO_MMD_PMAPMD, 0x808D, 0x0040},
+    {MDIO_MMD_PCS,    0x8213, 0x0008},
+    {MDIO_MMD_PCS,    0x8204, 0x800D},
+    {MDIO_MMD_VEND1,  0x0405, 0x0AB1},
+    {MDIO_MMD_VEND1,  0x0411, 0x5274},
+    {MDIO_MMD_VEND1,  0x0417, 0x0D74},
+    {MDIO_MMD_VEND1,  0x041C, 0x0AEA},
+    {MDIO_MMD_VEND1,  0x0425, 0x0360},
+    {MDIO_MMD_VEND1,  0x0454, 0x0C30},
+    {MDIO_MMD_VEND1,  0x0811, 0x2A78},
+    {MDIO_MMD_VEND1,  0x0813, 0x1368},
+    {MDIO_MMD_VEND1,  0x0825, 0x1354},
+    {MDIO_MMD_VEND1,  0x0843, 0x3C84},
+    {MDIO_MMD_VEND1,  0x0844, 0x3CA5},
+    {MDIO_MMD_VEND1,  0x0845, 0x3CA5},
+    {MDIO_MMD_VEND1,  0x0846, 0x3CA5},
+    {MDIO_MMD_VEND1,  0x08EC, 0x0024},
+    {MDIO_MMD_VEND1,  0x08EE, 0x227F},
+    {MDIO_MMD_PCS,    0x8043, 0x1E00},
+    {MDIO_MMD_PCS,    0x8048, 0x0FA1},
 };
 /*
  * END of PHY Configurations
@@ -51,11 +54,25 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "Device Identifier 2 Register", 0, MII_PHYSID2},
     { "MMD Access Control Register", 0, MII_MMD_CTRL},
     { "MMD Access Address/Data Register", 0, MII_MMD_DATA},
-    { "chiptop_regs::PMA_CONTROL_T1", MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL},
-    { "mx_chip_top_regs::SGMII_CTL", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_REG_SGMII_CTL},
-    { "mis_regs::MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0},
-    { "mis_regs::MIS_DLL_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_TX_DLL_CFG_REG0},
-    { "mis_regs::MIS_DLL_CFG_REG1", MDIO_MMD_VEND1, LAN887X_MIS_RX_DLL_CFG_REG1},
+    { "chiptop_regs:PMA_CONTROL_T1", MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL},
+    //SGMII or RGMII configuration
+    { "mis_regs:MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0},
+    { "mx_chip_top_regs:SGMII_CTL", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_REG_SGMII_CTL},
+    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, 0xF028},
+    { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B},
+    { "mx_chip_top_regs:SGMII_PCS_CFG", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG},
+    { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035},
+    // start - SGMII debugging
+    { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041},
+    { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209},
+    { "mx_uvov_regs:UVOV_CFG2_0", MDIO_MMD_VEND1, 0xF22C},
+    { "mx_uvov_regs:UVOV_CFG2_1", MDIO_MMD_VEND1, 0xF22D},
+    { "mx_uvov_regs:UVOV_CFG2_2", MDIO_MMD_VEND1, 0xF22E},
+    { "mx_uvov_regs:UVOV_CFG2_3", MDIO_MMD_VEND1, 0xF22F},
+    // end - SGMII debugging
+    // start - Aneg debugging
+    { "mis_regs:MIS_DLL_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_TX_DLL_CFG_REG0},
+    { "mis_regs:MIS_DLL_CFG_REG1", MDIO_MMD_VEND1, LAN887X_MIS_RX_DLL_CFG_REG1},
     { "aneg_regs:ANEG_CNTRL_REG1", MDIO_MMD_AN, 0x200},
     { "aneg_regs:ANEG_STAT_REG1", MDIO_MMD_AN, 0x201},
     { "aneg_regs:ANEG_ADV_REG1", MDIO_MMD_AN, 0x202},
@@ -65,19 +82,21 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "aneg_regs:ANEG_LP_AB_REG2", MDIO_MMD_AN, 0x206},
     { "aneg_regs:ANEG_LP_AB_REG3", MDIO_MMD_AN, 0x207},
     { "aneg_regs:VEND_DBG_CTRL_STAT_REG", MDIO_MMD_AN, 0x8013},
-    {
-        "LAN887X_DEV30_COMMON_TC10_REG_REG15", MDIO_MMD_VEND1,
-        LAN887X_DEV30_COMMON_TC10_REG_REG15
-    },
-    { "LAN887X_DEV30_COMMON_TC10_MISC33", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33},
-    { "LAN887X_DEV30_COMMON_TC10_MISC32", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC32},
-    { "LAN887X_DEV30_COMMON_TC10_MISC46", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC46},
-    { "LAN887X_DEV30_COMMON_TC10_MISC36", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC36},
-    { "LAN887X_MISC_REGS_MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37},
-    {
-        "LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1,
-        LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG
-    },
+    // end - Aneg debugging
+    { "tc10_dev30_common:REG15", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_REG_REG15},
+    { "tc10_dev30_common:TC10_MISC33", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33},
+    { "tc10_dev30_common:TC10_MISC32", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC32},
+    { "tc10_dev30_common:TC10_MISC46", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC46},
+    { "tc10_dev30_common:TC10_MISC36", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC36},
+    { "tc10_dev30_common:TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG},
+    { "misc_regs:REG16", MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16},
+    { "misc_regs:MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37},
+    { "statistics:TX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG0},
+    { "statistics:RX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG1},
+    { "statistics:RX ERR Count detected by PCS", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG3},
+    { "statistics:TX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG4},
+    { "statistics:RX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG5},
+    { "statistics:RX ERR Count for SGMII MII2GMII", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG6},
 };
 
 #ifdef MEPA_lan887x_static_mem
@@ -86,9 +105,9 @@ static phy_data_t lan887x_data[LAN887X_PHY_MAX];
 #endif
 
 static mepa_rc lan887x_phy_cable_diag_start(mepa_device_t *dev, mepa_bool_t is_hybrid, mepa_bool_t ms_mode);
-static mepa_rc lan887x_reset_phy(mepa_device_t *dev, mepa_bool_t from_confset);
 static mepa_rc lan887x_aneg_read_status(mepa_device_t *dev, mepa_status_t *status);
-
+static mepa_rc lan887x_int_reset(mepa_device_t *dev, const lan887x_reset_typ typ);
+static mepa_rc lan887x_phy_init(mepa_device_t *const dev);
 /**********************************
  * Internal APIs
  *********************************/
@@ -128,21 +147,6 @@ static mepa_rc phy_get_device_info(mepa_device_t *const dev)
     return MEPA_RC_OK;
 }
 
-#if 0
-static mepa_rc phy_get_link_status(mepa_device_t *const dev, mepa_status_t *const status)
-{
-    uint16_t reg_val = 0;
-    phy_data_t *data = (phy_data_t *) dev->data;
-
-    (void) phy_reg_rd(dev, MII_BMSR, &reg_val);
-
-    status->link = (reg_val & BMSR_LSTATUS) ? PHY_LINKUP : PHY_LINKDOWN;
-    data->link_status = status->link;
-
-    return MEPA_RC_OK;
-}
-#endif
-
 //callout print API
 static void phy_dbg_pr (mepa_device_t *const dev, const mepa_debug_print_t pr,
                         uint8_t mmd, uint16_t offset, const char *str)
@@ -150,7 +154,7 @@ static void phy_dbg_pr (mepa_device_t *const dev, const mepa_debug_print_t pr,
     uint16_t value = 0;
 
     if (MEPA_RC_OK == phy_mmd_reg_rd(dev, mmd, offset, &value)) {
-        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t%u \r\n", str, mmd, offset, value);
+        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
     }
 }
 
@@ -190,16 +194,18 @@ static void phy_cfg_regs(mepa_device_t *const dev, const struct phy_reg_map *reg
 
 static mepa_rc phy_c45_get_link_status(mepa_device_t *const dev, mepa_status_t *const status)
 {
-	mepa_rc rc = MEPA_RC_ERROR;
+    mepa_rc rc = MEPA_RC_ERROR;
     uint16_t reg_val = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
     //LATCH-LOW BIT
     rc = phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, MDIO_STAT1, &reg_val);
-    rc = phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, MDIO_STAT1, &reg_val);
     if (rc == MEPA_RC_OK) {
-		status->link = ((reg_val & MDIO_STAT1_LSTATUS) != ZERO);
-		data->link_status = status->link;
+        rc = phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, MDIO_STAT1, &reg_val);
+        if (rc == MEPA_RC_OK) {
+            status->link = ((reg_val & MDIO_STAT1_LSTATUS) != ZERO);
+            data->link_status = status->link;
+        }
     }
 
     //T_D( MEPA_TRACE_GRP_GEN, "Link Status is %s!!\n", (data->link_status ? "UP" : "DOWN"));
@@ -274,6 +280,36 @@ static mepa_rc lan887x_config_led(mepa_device_t *const dev, const mepa_gpio_conf
     return rc;
 }
 
+static mepa_rc lan887x_tc10_init(mepa_device_t *const dev)
+{
+    uint16_t reg_val = LAN887X_DEV30_COMMON_TC10_MISC33_WK_DEB_VAL;
+    mepa_rc rc = MEPA_RC_OK;
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16,
+                                        LAN887X_MISC_REGS_REG16_IGNORE_IDLE_WITH_WUR_LPS,
+                                        LAN887X_MISC_REGS_REG16_IGNORE_IDLE_WITH_WUR_LPS));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_REG_REG15,
+                                        LAN887X_DEV30_COMMON_TC10_REG_REG15_WK_OUT_PIN_REQ,
+                                        LAN887X_DEV30_COMMON_TC10_REG_REG15_WK_OUT_PIN_REQ));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33,
+                                    (reg_val << 8) |
+                                    LAN887X_DEV30_COMMON_TC10_MISC33_WK_OUT_LEN));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC32,
+                                        LAN887X_DEV30_COMMON_TC10_MISC32_VAL,
+                                        LAN887X_DEV30_COMMON_TC10_MISC32_VAL));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC46,
+                                        LAN887X_DEV30_COMMON_TC10_MISC46_WK_PORT_TEST_MASK,
+                                        LAN887X_DEV30_COMMON_TC10_MISC46_WK_PORT_TEST_VAL));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC36,
+                                        LAN887X_DEV30_COMMON_TC10_MISC36_VAL,
+                                        LAN887X_DEV30_COMMON_TC10_MISC36_VAL));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37,
+                                        LAN887X_MISC_REGS_MISC37_EN_TC10_SLEEP_SILENT,
+                                        LAN887X_MISC_REGS_MISC37_EN_TC10_SLEEP_SILENT));
+error:
+    return rc;
+}
+
 static mepa_rc lan887x_setup_lpbk(mepa_device_t *const dev, const mepa_loopback_t *loopback)
 {
     mepa_rc rc = MEPA_RC_OK;
@@ -315,85 +351,31 @@ error:
     return rc;
 }
 
-static void lan887x_phy_100m_cfg_script(mepa_device_t *const dev)
-{
-    mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    if (data->conf.mac_if_aneg_ena == PHY_FALSE) {
-        // MLNX_MISC_SPEED_100T1
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD,
-                                            LAN887X_PMA_COMM_100T1_CTL_T1,
-                                            LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_MASK,
-                                            LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_100));
-    }
-
-    // MLNX_100T1_000
-    // RMW PORT_AFE->AFE_PORT_TESTBUS_CTRL4->bit 7 = 1
-    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD,
-                                        ((uint16_t)LAN887X_T1_AFE_PORT_TESTBUS_CTRL4_REG),
-                                        0x0080U, 0x0080U));
-error:
-    return;
-}
-
-static void lan887x_phy_1000m_cfg_script(mepa_device_t *const dev)
-{
-    mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    if (data->conf.mac_if_aneg_ena == PHY_FALSE) {
-        // MLNX_MISC_SPEED_1000T1
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD, LAN887X_PMA_COMM_100T1_CTL_T1,
-                                            LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_MASK,
-                                            LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_1000));
-    }
-
-    // MLNX_1000T1_000
-    // RMW PORT_AFE->AFE_PORT_TESTBUS_CTRL4->bit 7 = 1
-    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD,
-                                        LAN887X_T1_AFE_PORT_TESTBUS_CTRL4_REG, 0x0084U, 0x0084U));
-
-    // ECHO_DELAY_CONFIG
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1, 0x8ECU, 0x0024U));
-
-error:
-    return;
-}
-
-static void lan887x_link_setup(mepa_device_t *const dev, mesa_port_speed_t speed)
-{
-    // speed specific initialization
-    if (speed == MESA_SPEED_100M) {
-        lan887x_phy_100m_cfg_script(dev);
-    } else {
-        lan887x_phy_1000m_cfg_script(dev);
-    }
-}
-
-static mepa_rc lan887x_master_slave_mode_set(mepa_device_t *const dev, const mepa_bool_t value)
-{
-    uint16_t reg_val = 0;
-
-    if (value) {
-        reg_val = MDIO_PMA_PMD_BT1_CTRL_CFG_MST;
-    }
-
-    return phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL,
-                              MDIO_PMA_PMD_BT1_CTRL_CFG_MST, reg_val);
-}
-
 static mepa_rc lan887x_rgmii_setup(mepa_device_t *const dev, mepa_port_interface_t mac_if)
 {
     mepa_rc rc = MEPA_RC_OK;
-    mepa_bool_t rgmii_set = PHY_TRUE;
     uint16_t txc = 0;
     uint16_t rxc = 0;
+    mepa_bool_t updated = PHY_TRUE;
 
     // Disable SGMII_CTL
     MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
                                             LAN887X_MX_CHIP_TOP_REG_SGMII_CTL,
                                             LAN887X_MX_CHIP_TOP_REG_SGMII_MUX_EN));
+
+    // Enable MAC_MODE = RGMII
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0,
+                                        LAN887X_MIS_CFG_REG0_MAC_MAC_MODE_SEL,
+                                        LAN887X_MIS_CFG_REG0_MAC_MODE_RGMII));
+
+    // PCS_ENA  = 0
+    MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                            LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG,
+                                            LAN887X_MX_CHIP_TOP_SGMII_PCS_ENA));
+
+    // Errata enabled in SGMII, need to disable bit for RGMII
+    MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0,
+                                            LAN887X_MIS_CFG_REG0_RCLKOUT_DIS));
 
     MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, LAN887X_MIS_TX_DLL_CFG_REG0, &txc));
 
@@ -417,18 +399,12 @@ static mepa_rc lan887x_rgmii_setup(mepa_device_t *const dev, mepa_port_interface
         rxc &= ((~LAN887X_MIS_DLL_EN_) & 0xFFFFU);
         break;
     default:
-        rgmii_set = PHY_FALSE;
         T_I( MEPA_TRACE_GRP_GEN, "PHY MAC interface is not RGMII(%d)!\n", mac_if);
-        rc = MEPA_RC_OK;
+        updated = PHY_FALSE;
         break;
     }
 
-    if (rgmii_set) {
-        // Enable RGMII
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0,
-                                            LAN887X_MIS_CFG_REG0_MAC_MAC_MODE_SEL,
-                                            LAN887X_MIS_CFG_REG0_MAC_MODE_RGMII));
-
+    if (updated == PHY_TRUE) {
         // Set RX DELAY
         MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_RX_DLL_CFG_REG1,
                                             LAN887X_MIS_DLL_EN_, rxc));
@@ -439,7 +415,62 @@ static mepa_rc lan887x_rgmii_setup(mepa_device_t *const dev, mepa_port_interface
 
         T_I( MEPA_TRACE_GRP_GEN, "PHY RGMII setup complete!\n");
     }
+
     rc = MEPA_RC_OK;
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_sgmii_setup(mepa_device_t *const dev)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    // Enable SGMII_CTL
+    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                          LAN887X_MX_CHIP_TOP_REG_SGMII_CTL,
+                                          LAN887X_MX_CHIP_TOP_REG_SGMII_MUX_EN));
+
+    if (IS_LAN887X_B0_PROTOS(data->dev.id)) {
+        //FIXME: LAN9692 specific WA
+        //      Remove this code one parts are efused for 3.3v
+        //       this might cause damage to boards
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                              LAN887X_MX_CHIP_TOP_REG_SGMII_CTL,
+                                              (LAN887X_MX_CHIP_TOP_REG_SGMII_VREG_BYP_CTL |
+                                               LAN887X_MX_CHIP_TOP_REG_SGMII_XAUI_RST)));
+    }
+
+    // Enable MAC_MODE = SGMII
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0,
+                                        LAN887X_MIS_CFG_REG0_MAC_MAC_MODE_SEL,
+                                        LAN887X_MIS_CFG_REG0_MAC_MODE_SGMII));
+
+    // ERRATA: RCLKOUT disable for disabling RGMII clock and reduce power consumption
+    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0,
+                                          LAN887X_MIS_CFG_REG0_RCLKOUT_DIS));
+
+    // PCS_ENA  = 1
+    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                          LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG,
+                                          LAN887X_MX_CHIP_TOP_SGMII_PCS_ENA));
+
+    // restart SGMII_PCS_ANEG
+    if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                              LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG,
+                                              (LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN |
+                                               LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_RST)));
+        T_I( MEPA_TRACE_GRP_GEN, "PHY port=%u SGMII aneg enabled!\n", data->port_no);
+    } else {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG,
+                                                LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN));
+        T_I( MEPA_TRACE_GRP_GEN, "PHY port=%u SGMII aneg disabled!\n", data->port_no);
+    }
+
+    T_I( MEPA_TRACE_GRP_GEN, "PHY SGMII setup complete!\n");
 
 error:
     return rc;
@@ -468,42 +499,243 @@ static mepa_rc lan887x_int_events_set(struct mepa_device *dev, mepa_event_t even
     return rc;
 }
 
-static mepa_rc lan887x_init_phy(mepa_device_t *const dev, mepa_bool_t from_confset)
+static mepa_rc lan887x_config_mac(struct mepa_device *dev)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    if (data->mac_if >= MESA_PORT_INTERFACE_RGMII &&
+        data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) {
+        MEPA_RC_GOTO(rc, lan887x_rgmii_setup(dev, data->mac_if));
+    } else if (data->mac_if == MESA_PORT_INTERFACE_SGMII) {
+        MEPA_RC_GOTO(rc, lan887x_sgmii_setup(dev));
+    } else {
+        // Disable RGMII
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                LAN887X_MIS_CFG_REG0,
+                                                LAN887X_MIS_CFG_REG0_MAC_MAC_MODE_SEL));
+    }
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_phy_setup(mepa_device_t *const dev)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *) dev->data;
 
+    MEPA_RC_GOTO(rc, phy_get_device_info(dev));
+
     if (!data->init_done) {
-        data->init_done = PHY_TRUE;
-
-        //FIXME: LAN887X A0 onetime eFuse setup
-        phy_cfg_regs(dev, lan887x_onetime_setup, ARRAY_SIZE(lan887x_onetime_setup), PHY_TRUE);
-
-        T_I( MEPA_TRACE_GRP_GEN, "PHY efuse setup complete!\n");
+        //LAN887X B0 Protos ONLY!
+        if (IS_LAN887X_B0_PROTOS(data->dev.id)) {
+            phy_cfg_regs(dev, lan887x_phy_en, ARRAY_SIZE(lan887x_phy_en), PHY_TRUE);
+        }
     }
+
+    data->init_done = PHY_TRUE;
+
+    //LAN887X B0 PHY Setup
+    phy_cfg_regs(dev, lan887x_onetime_setup, ARRAY_SIZE(lan887x_onetime_setup), PHY_FALSE);
+
+    // Initialize TC10 required config
+    MEPA_RC_GOTO(rc, lan887x_tc10_init(dev));
+
+    MEPA_RC_GOTO(rc, lan887x_phy_init(dev));
+
+    //T_D( MEPA_TRACE_GRP_GEN, "PHY port=%u setup complete!\n", data->port_no);
+
+    rc = MEPA_RC_OK;
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_phy_cfg_clr(mepa_device_t *const dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    mepa_rc rc = MEPA_RC_OK;
+
+    //clear isolate bit
+    MEPA_RC_GOTO(rc, phy_reg_clear_bits(dev, MII_BMCR, BMCR_ISOLATE));
+
+    //clear loopback if it is setup in prev. config
+    MEPA_RC_GOTO(rc, lan887x_setup_lpbk(dev, NULL));
 
     //Setup events
     MEPA_RC_GOTO(rc, lan887x_int_events_set(dev, data->events, PHY_TRUE));
 
-    //LAN887X A0 PHY Setup
-    phy_cfg_regs(dev, lan887x_setup, ARRAY_SIZE(lan887x_setup), PHY_FALSE);
+error:
+    return rc;
+}
 
-    //setup SGMII/RGMII interface
-    MEPA_RC_GOTO(rc, lan887x_rgmii_setup(dev, data->mac_if));
+static mepa_rc lan887x_phy_init(mepa_device_t *const dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    mepa_rc rc = MEPA_RC_OK;
+
+    //MAC Setup
+    MEPA_RC_GOTO(rc, lan887x_config_mac(dev));
 
     //LED setup
     MEPA_RC_GOTO(rc, lan887x_config_led(dev, &data->led3_conf));
 
-    if (from_confset == PHY_FALSE) {
-        //clear isolate bit
-        MEPA_RC_GOTO(rc, phy_reg_clear_bits(dev, MII_BMCR, BMCR_ISOLATE));
-
-        //clear loopback if it is setup in prev. config
-        MEPA_RC_GOTO(rc, lan887x_setup_lpbk(dev, NULL));
-
-    }
+    //clear config
+    MEPA_RC_GOTO(rc, lan887x_phy_cfg_clr(dev));
 
     rc = MEPA_RC_OK;
+
+error:
+    return rc;
+}
+
+struct lan887x_regwr_map {
+    u8  mmd;
+    u16 reg;
+    u16 val;
+};
+
+static int lan887x_100m_scripts(mepa_device_t *const dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    int ret;
+    uint16_t i;
+    mepa_rc rc = MEPA_RC_OK;
+
+    if (data->conf.speed != MESA_SPEED_AUTO) {
+        if (data->conf.man_neg == MEPA_MANUAL_NEG_REF) {
+            static const struct lan887x_regwr_map phy_cfg[] = {
+                {MDIO_MMD_PMAPMD, 0x808B, 0x00B8},
+                {MDIO_MMD_PMAPMD, 0x80B0, 0x0038},
+                {MDIO_MMD_VEND1,  0x0422, 0x000F},
+            };
+
+            for (i = 0; i < ARRAY_SIZE(phy_cfg); i++) {
+                ret = phy_mmd_reg_wr(dev, phy_cfg[i].mmd, phy_cfg[i].reg, phy_cfg[i].val);
+                if (ret < 0) {
+                    return ret;
+                }
+            }
+        } else {
+            static const struct lan887x_regwr_map phy_cfg[] = {
+                {MDIO_MMD_PMAPMD, 0x808B, 0x0038},
+                {MDIO_MMD_VEND1, 0x0422, 0x0014},
+            };
+
+            for (i = 0; i < ARRAY_SIZE(phy_cfg); i++) {
+                ret = phy_mmd_reg_wr(dev, phy_cfg[i].mmd, phy_cfg[i].reg, phy_cfg[i].val);
+                if (ret < 0) {
+                    return ret;
+                }
+            }
+        }
+    } else {
+        static const struct lan887x_regwr_map phy_cfg[] = {
+            {MDIO_MMD_PMAPMD, 0x808B, 0x00B8},
+            {MDIO_MMD_PMAPMD, 0x80B0, 0x0038},
+            {MDIO_MMD_VEND1,  0x0422, 0x000F},
+        };
+
+        for (i = 0; i < ARRAY_SIZE(phy_cfg); i++) {
+            ret = phy_mmd_reg_wr(dev, phy_cfg[i].mmd, phy_cfg[i].reg, phy_cfg[i].val);
+            if (ret < 0) {
+                return ret;
+            }
+        }
+    }
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26,
+                                          LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN));
+error:
+    return rc;
+}
+
+static int lan887x_1000m_scripts(mepa_device_t *const dev)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    static const struct lan887x_regwr_map phy_cfg[] = {
+        {MDIO_MMD_PMAPMD, 0x80B0, 0x003F},
+        {MDIO_MMD_PMAPMD, 0x808B, 0x00B8},
+    };
+    int ret;
+    uint16_t i;
+    mepa_rc rc = MEPA_RC_OK;
+
+    for (i = 0; i < ARRAY_SIZE(phy_cfg); i++) {
+        ret = phy_mmd_reg_wr(dev, phy_cfg[i].mmd, phy_cfg[i].reg, phy_cfg[i].val);
+        if (ret < 0) {
+            return ret;
+        }
+    }
+
+    if (data->conf.speed == MESA_SPEED_AUTO) {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_PMAPMD,
+                                                LAN887X_PMA_1000T1_DSP_PMA_CTL_REG,
+                                                LAN887X_PMA_1000T1_DSP_PMA_LNK_SYNC));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26,
+                                              LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN));
+
+    } else {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_PMAPMD, LAN887X_PMA_1000T1_DSP_PMA_CTL_REG,
+                                              LAN887X_PMA_1000T1_DSP_PMA_LNK_SYNC));
+    }
+
+error:
+    return rc;
+}
+
+static mepa_bool_t lan887x_is_1g(struct mepa_device *dev)
+{
+    mepa_bool_t gig_en = PHY_FALSE;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    if (data->conf.speed == MESA_SPEED_AUTO) {
+        if (data->media_intf != MESA_PHY_MEDIA_IF_T1_100FX &&
+            data->conf.aneg.speed_1g_fdx == PHY_TRUE) {
+            gig_en = PHY_TRUE;
+        }
+    } else {
+        if (data->media_intf != MESA_PHY_MEDIA_IF_T1_100FX &&
+            data->conf.speed == MESA_SPEED_1G) {
+            gig_en = PHY_TRUE;
+        }
+    }
+
+    return gig_en;
+}
+
+static void lan887x_link_setup(mepa_device_t *const dev)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    if (lan887x_is_1g(dev) == PHY_TRUE) {
+        MEPA_RC_GOTO(rc, lan887x_1000m_scripts(dev));
+    } else {
+        MEPA_RC_GOTO(rc, lan887x_100m_scripts(dev));
+    }
+
+error:
+    return;
+}
+
+static int lan887x_pma_baset1_setup_forced(mepa_device_t *const dev)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t reg_val = 0;
+
+    /* mode configuration */
+    if (data->conf.man_neg == MEPA_MANUAL_NEG_REF) {
+        reg_val |= MDIO_PMA_PMD_BT1_CTRL_CFG_MST;
+    }
+
+    /* speed configuration */
+    if (lan887x_is_1g(dev) == PHY_TRUE) {
+        reg_val |= LAN887X_PMA_COMM_100T1_CTL_T1_TYPE_1000;
+    }
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, reg_val));
 
 error:
     return rc;
@@ -512,40 +744,26 @@ error:
 static mepa_rc lan887x_init_conf(mepa_device_t *const dev)
 {
     mepa_rc rc = MEPA_RC_OK;
-    uint16_t reg_speed = BMCR_FULLDPLX;
-    uint16_t reg_mask = (BMCR_FULLDPLX | BMCR_SPEED100 | BMCR_SPEED1000);
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_manual_neg_t mode_ms = data->conf.man_neg;
 
-    // speed selection based on media type
-    if ((data->media_intf == MESA_PHY_MEDIA_IF_T1_100FX) ||
-        ((data->media_intf == MESA_PHY_MEDIA_IF_T1_1000FX) &&
-         (data->conf.mac_if_aneg_ena == PHY_FALSE) &&
-         (data->conf.speed == MESA_SPEED_100M))) {
-        //Update speed incase if it is not 100 when 100M media is selected
-        data->conf.speed = MESA_SPEED_100M;
-        reg_speed |= BMCR_SPEED100;
-    } else {
-        data->conf.speed = MESA_SPEED_1G;
-        reg_speed |= BMCR_SPEED1000;
-    }
+    if (data->conf.admin.enable == PHY_TRUE) {
 
-    if (data->conf.admin.enable == PHY_FALSE) {
-        //Power down
-        MEPA_RC_GOTO(rc, phy_reg_set_bits(dev, MII_BMCR, BMCR_PDOWN));
-    } else {
         //clear power down bit
         MEPA_RC_GOTO(rc, phy_reg_clear_bits(dev, MII_BMCR, BMCR_PDOWN));
-        if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+
+        if (data->conf.speed == MESA_SPEED_AUTO) {
             u16 adv_r1 = 0;
             u16 adv_r2_mask = 0;
             u16 adv_r2 = 0;
 
-            // Clear ANEG Master/Slave
-            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_L, &adv_r1));
-
-            //clear Force MS bit
-            adv_r1 &= ((~MDIO_AN_T1_ADV_L_FORCE_MS) & LAN887X_DEF_MASK);
+            //Errata-949: 100M master issue. Dual speed in Aneg is not supported.
+            //Recommendations:
+            //  1. speed can be Speed_1000T1(0x80) or Speed_100T1(0x20)
+            //     and only advertise one speed (recommended),
+            //     or ANEG(0xA0) for dual speed (not currently recommended)
+            //  2. mode can be MASTER/SLAVE for forcing the DUT to a certain resolution (not recommended)
+            //     or ANEG to allow ANEG state machine to determine mode (recommended).
 
             adv_r2_mask = (MDIO_AN_T1_ADV_M_B1000 |
                            MDIO_AN_T1_ADV_M_B100 |
@@ -556,15 +774,12 @@ static mepa_rc lan887x_init_conf(mepa_device_t *const dev)
                 adv_r2 |= MDIO_AN_T1_ADV_M_MST;
             }
 
-            // Advertise speeds based on media type
-            if (data->conf.speed == MESA_SPEED_100M) {
-                data->conf.aneg.speed_100m_fdx = PHY_TRUE;
-                data->conf.aneg.speed_1g_fdx = PHY_FALSE;
-                adv_r2 |= MDIO_AN_T1_ADV_M_B100;
+            //Errata-949: 100M master issue. Dual speed in Aneg is not supported.
+            if (lan887x_is_1g(dev) == PHY_TRUE) {
+                //adv_r2 |= MDIO_AN_T1_ADV_M_B100 | MDIO_AN_T1_ADV_M_B1000;
+                adv_r2 |= MDIO_AN_T1_ADV_M_B1000;
             } else {
-                data->conf.aneg.speed_1g_fdx = PHY_TRUE;
-                data->conf.aneg.speed_100m_fdx = PHY_TRUE;
-                adv_r2 |= MDIO_AN_T1_ADV_M_B100 | MDIO_AN_T1_ADV_M_B1000;
+                adv_r2 |= MDIO_AN_T1_ADV_M_B100;
             }
 
             MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_M, adv_r2_mask, adv_r2));
@@ -575,28 +790,109 @@ static mepa_rc lan887x_init_conf(mepa_device_t *const dev)
              */
             MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_L, adv_r1));
         } else {
-            //Disable aneg
-            MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_AN, MDIO_AN_T1_CTRL,
-                                                    MDIO_AN_CTRL1_ENABLE | MDIO_AN_CTRL1_RESTART));
-
-            /* Setup MASTER/SLAVE */
-            MEPA_RC_GOTO(rc, lan887x_master_slave_mode_set(dev, (mode_ms == MEPA_MANUAL_NEG_REF)));
-
-            /* Setup Speed */
-            MEPA_RC_GOTO(rc, phy_reg_modify(dev, MII_BMCR, reg_mask, reg_speed));
+            MEPA_RC_GOTO(rc, lan887x_pma_baset1_setup_forced(dev));
         }
 
-        // MLX 100/1000 link setup
-        lan887x_link_setup(dev, data->conf.speed);
+        T_I( MEPA_TRACE_GRP_GEN, "PHY port-%u init_conf aneg %sabled, mode %s-%s speed %sM!\n",
+             data->port_no, (data->conf.speed == MESA_SPEED_AUTO ? "en" : "dis"),
+             (data->conf.speed == MESA_SPEED_AUTO ? "preferred" : "forced"),
+             (mode_ms == MEPA_MANUAL_NEG_REF ? "master" : "slave"),
+             (data->conf.speed == MESA_SPEED_100M ? "100" :
+              (data->conf.speed == MESA_SPEED_1G ? "1000" :
+               (data->conf.speed == MESA_SPEED_AUTO ? "auto" : "unknown"))));
 
-        if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+        // MLX link setup
+        lan887x_link_setup(dev);
+
+        if (data->conf.speed == MESA_SPEED_AUTO) {
             MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_AN, MDIO_AN_T1_CTRL,
                                                   MDIO_AN_CTRL1_ENABLE | MDIO_AN_CTRL1_RESTART));
         }
     }
 
-    T_I( MEPA_TRACE_GRP_GEN, "PHY setup complete!\n");
+    //T_D( MEPA_TRACE_GRP_GEN, "PHY port-%u configuration complete!\n", data->port_no);
+
     rc = MEPA_RC_OK;
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_phy_reset(mepa_device_t *dev, mepa_bool_t hard_reset)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    mepa_bool_t done = PHY_FALSE;
+    mepa_bool_t timeout = PHY_FALSE;
+    mepa_mtimer_t   timer = { 0 };
+
+    if (hard_reset) {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        LAN887X_MX_CHIP_TOP_REG_HARD_RST,
+                                        LAN887X_MX_CHIP_TOP_RESET_));
+        LAN887X_NSLEEP(50U);
+    } else {
+        // clear 1000m link sync
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_PMAPMD, LAN887X_PMA_1000T1_DSP_PMA_CTL_REG,
+                                                LAN887X_PMA_1000T1_DSP_PMA_LNK_SYNC));
+
+        // clear 100m link sync
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26,
+                                                LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN));
+
+        // disable aneg
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_AN, MDIO_AN_T1_CTRL,
+                                                MDIO_AN_CTRL1_ENABLE));
+
+        // chiptop soft-reset to allow the speed/mode change
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        LAN887X_MX_CHIP_TOP_REG_SOFT_RST,
+                                        LAN887X_MX_CHIP_TOP_RESET_));
+
+        // CL22 soft-reset to let the link re-train
+        MEPA_RC_GOTO(rc, phy_reg_set_bits(dev, MII_BMCR, BMCR_RESET));
+
+        LAN887X_MTIMER_START(&timer, 4000U);
+
+        // wait for cable diag to finish or timeout (4 seconds)
+        while (done == PHY_FALSE && timeout == PHY_FALSE) {
+            uint16_t tmp = 0;
+
+            timeout = MEPA_MTIMER_TIMEOUT(&timer);
+            (void) phy_reg_rd(dev, MII_BMCR, &tmp);
+            if (!((tmp & BMCR_RESET) == BMCR_RESET)) {
+                done = PHY_TRUE;
+            }
+        }
+        if (done == PHY_FALSE) {
+            T_E( MEPA_TRACE_GRP_GEN, "PHY soft-reset timedout! \r\n");
+        }
+    }
+
+    //T_D( MEPA_TRACE_GRP_GEN, "PHY %s reset done! \r\n", (hard_reset ? "hard" : "soft"));
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_check_media(struct mepa_device *dev, mepa_media_interface_t media_if, mesa_port_speed_t speed)
+{
+    int rc = MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED;
+
+    if ((media_if == MESA_PHY_MEDIA_IF_T1_100FX) || (media_if == MESA_PHY_MEDIA_IF_T1_1000FX)) {
+        phy_data_t *data = (phy_data_t *)dev->data;
+
+        // speed selection based on media type
+        if (media_if == MESA_PHY_MEDIA_IF_T1_100FX) {
+            if ((speed == MESA_SPEED_AUTO &&
+                 data->conf.aneg.speed_100m_fdx != PHY_TRUE) ||
+                (speed != MESA_SPEED_AUTO &&
+                 speed != MESA_SPEED_100M)) {
+                rc = MEPA_RC_ERR_PARM;
+                goto error;
+            }
+        }
+        rc = MEPA_RC_OK;
+    }
 
 error:
     return rc;
@@ -608,34 +904,6 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_bool_t re_config = PHY_FALSE;
 
-    /** Mode and speed settings are as following
-     * Speed Settings are advertised as following
-     *
-     *  Autoneg:
-     *      Speed will be advertised based on media type.
-     *      if media type is 100M then,
-     *          advertised speed is 100M
-     *      otherwise
-     *          advertised speed is 100M and 1000M
-     *  Fixed Speeds:
-     *      speed = (100Mbps or 1000Mbps)
-     *
-     * Mode Settings are advertised as following
-     *  Autoneg:
-     *      When mode = MEPA_MANUAL_NEG_REF,
-     *          Mode = Preferred master
-     *      When mode = MEPA_MANUAL_NEG_CLIENT,
-     *          Mode = Preferred slave
-     *  Fixed Mode:
-     *      When mode = MEPA_MANUAL_NEG_REF,
-     *          Mode = Forced master
-     *      When mode = MEPA_MANUAL_NEG_CLIENT,
-     *          Mode = Forced slave
-     *
-     * fdx always enabled.
-     * AUTO is treated as 1G speed always
-     *
-     */
     if ((config->man_neg != MEPA_MANUAL_NEG_CLIENT &&
          config->man_neg != MEPA_MANUAL_NEG_REF) ||
         (config->fdx != PHY_TRUE) ||
@@ -647,44 +915,18 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
         //AUTO is always 1G
         mesa_port_speed_t speed = config->speed;
 
-        if (speed == MESA_SPEED_AUTO) {
-            speed = MESA_SPEED_1G;
-        }
-
         data->conf.fdx = PHY_TRUE;
         data->conf.flow_control = config->flow_control;
-
-        if (!data->init_done) {
-            data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
-            data->conf.speed = speed;
-            data->conf.admin.enable = config->admin.enable;
-            data->conf.man_neg = config->man_neg;
-
-            MEPA_RC_GOTO(rc, lan887x_init_conf(dev));
-            data->init_done = PHY_TRUE;
-        }
-
-        // Check if aneg is changed
-        if (data->conf.mac_if_aneg_ena != config->mac_if_aneg_ena) {
-            re_config = PHY_TRUE;
-            data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
-            //Due to chip bug, we need to reset PHY
-            MEPA_RC_GOTO(rc, lan887x_reset_phy(dev, PHY_TRUE));
-        }
+        data->conf.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
+        data->conf.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
+        data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
 
         // Setup Speed
         if (data->conf.speed != speed) {
-            if (data->conf.mac_if_aneg_ena == PHY_TRUE) { /*speed change will be rejected when aneg is enabled */
-                rc = MEPA_RC_ERR_PARM;
-                goto error;
-            } else if (speed != MESA_SPEED_100M &&
-                       data->media_intf == MESA_PHY_MEDIA_IF_T1_100FX) { /* speed change to other than 100M will be rejected when media type is 100M */
-                rc = MEPA_RC_ERR_PARM;
-                goto error;
-            } else {
-                re_config = PHY_TRUE;
-                data->conf.speed = speed;
-            }
+            //check media/speed/aneg capabilities
+            MEPA_RC_GOTO(rc, lan887x_check_media(dev, data->media_intf, speed));
+            re_config = PHY_TRUE;
+            data->conf.speed = speed;
         }
 
         // Setup Master/Slave Mode
@@ -697,14 +939,16 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (data->conf.admin.enable != config->admin.enable) {
             re_config = PHY_TRUE;
             data->conf.admin.enable = config->admin.enable;
-            if (data->conf.admin.enable == PHY_TRUE) {
-                //Due to chip bug, we need to reset PHY
-                MEPA_RC_GOTO(rc, lan887x_reset_phy(dev, PHY_TRUE));
-            }
         }
 
         if (re_config == PHY_TRUE) {
-            MEPA_RC_GOTO(rc, lan887x_init_conf(dev));
+            //config change and admin enable
+            if (data->conf.admin.enable == PHY_TRUE) {
+                MEPA_RC_GOTO(rc, lan887x_int_reset(dev, LAN887X_RST_SOFT));
+            } else {
+                //Power down
+                MEPA_RC_GOTO(rc, phy_reg_set_bits(dev, MII_BMCR, BMCR_PDOWN));
+            }
         }
 
         rc = MEPA_RC_OK;
@@ -816,7 +1060,7 @@ static uint32_t lan887x_get_sqi(mepa_device_t *const dev)
     mesa_port_speed_t speed = data->conf.speed;
 
     // Resolve speed
-    if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+    if (data->conf.speed == MESA_SPEED_AUTO) {
         (void) lan887x_aneg_read_status(dev, &link_status);
         speed = link_status.speed;
     }
@@ -872,52 +1116,64 @@ done:
     return sqi_value;
 }
 
-static mepa_rc lan887x_reset_phy(mepa_device_t *dev, mepa_bool_t from_confset)
+static mepa_rc lan887x_cd_reset(mepa_device_t *dev, mepa_bool_t cd_done)
 {
     mepa_rc rc = MEPA_RC_OK;
+    lan887x_reset_typ typ = LAN887X_RST_HARD_ONLY;
 
-    /**
-     * NOTE: UNG_MOLINEUX-675
-     *   CL22 RESET(2) bit is causing link issues
-     *   Even interrupts are not properly generated
-     *   So use MX_CHIP_TOP:CHIP_SOFT_RST registers
-     */
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
-                                    LAN887X_MX_CHIP_TOP_REG_SOFT_RST,
-                                    LAN887X_MX_CHIP_TOP_RESET_));
-    LAN887X_NSLEEP(50U);
 
-    //setup phy & work arounds after reset
-    MEPA_RC_GOTO(rc, lan887x_init_phy(dev, from_confset));
+    if (cd_done) {
+        typ = LAN887X_RST_HARD;
+    }
+    MEPA_RC_GOTO(rc, lan887x_int_reset(dev, typ));
 
 error:
     return rc;
+
 }
 
-static mepa_rc lan887x_int_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
+static mepa_rc lan887x_int_reset(mepa_device_t *dev, const lan887x_reset_typ typ)
 {
     mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data = (phy_data_t *) dev->data;
 
-    T_I( MEPA_TRACE_GRP_GEN, "Initializing PHY! \r\n");
-    if ((rst_conf != NULL) &&
-        ((rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_100FX) ||
-         (rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_1000FX))) {
-        //re-configure media interface
-        data->media_intf = rst_conf->media_intf;
-    }
+    T_I( MEPA_TRACE_GRP_GEN, "PHY reset & initialize! \r\n");
 
     //reset PHY
-    MEPA_RC_GOTO(rc, lan887x_reset_phy(dev, PHY_FALSE));
+    if (typ == LAN887X_RST_HARD || typ == LAN887X_RST_HARD_ONLY) { //hard-reset
+        MEPA_RC_GOTO(rc, lan887x_phy_reset(dev, PHY_TRUE));
 
-    //initialize PHY with configuration
+        if (typ == LAN887X_RST_HARD_ONLY) {
+            rc = MEPA_RC_OK;
+            goto error;
+        }
+        MEPA_RC_GOTO(rc, lan887x_phy_setup(dev));
+        T_I( MEPA_TRACE_GRP_GEN, "PHY re-configured after reset!\n");
+    } else {
+        if (typ != LAN887X_RST_SKIP_TO_CONF) { //soft-reset
+            MEPA_RC_GOTO(rc, lan887x_phy_reset(dev, PHY_FALSE));
+        }
+    }
+
+    if (typ == LAN887X_RST_SOFT_EXT) {
+        //clear config
+        MEPA_RC_GOTO(rc, lan887x_phy_cfg_clr(dev));
+    }
+
+    //configure after reset
+    if (typ == LAN887X_RST_SOFT_MAC ||
+        typ == LAN887X_RST_SKIP_TO_CONF) {
+        MEPA_RC_GOTO(rc, lan887x_config_mac(dev));
+    }
+
+    //For the first time init_conf will take care of all phy setup
     MEPA_RC_GOTO(rc, lan887x_init_conf(dev));
 
     MEPA_RC_GOTO(rc, phy_get_device_info(dev));
-    T_I( MEPA_TRACE_GRP_GEN, "phy_info phy_id=0x%x, mode=%s[fault=%u],"
-         "model=0x%x, rev=%u, error=%d  \r\n",
-         data->dev.id, (data->dev.is_master ? "master" : "slave"),
-         data->dev.is_master_fault, data->dev.model, data->dev.rev, rc);
+
+#if 0 //FIXME: we may not need this phy reset will not affect registers
+    // tc10 config
+    MEPA_RC_GOTO(rc, lan887x_phy_tc10_set_config(dev, &data->tc10_cfg));
+#endif
 
 error:
     return rc;
@@ -1023,7 +1279,7 @@ static mepa_rc lan887x_cable_test_report(mepa_device_t *const dev, mepa_bool_t m
             detect = 0;
             distance = 0.0F;
             /*** SOFT RESET to restore configuration ***/
-            MEPA_RC_GOTO(rc, lan887x_int_reset(dev, NULL));
+            MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_TRUE));
         } else {
 
             //For Hybrid values
@@ -1053,7 +1309,7 @@ static mepa_rc lan887x_cable_test_report(mepa_device_t *const dev, mepa_bool_t m
                 (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49CU, &pos_peak_time_hybrid);
 
                 /*** SOFT RESET to restore configuration ***/
-                (void) lan887x_int_reset(dev, NULL);
+                (void) lan887x_cd_reset(dev, PHY_FALSE);
 
                 /* calculate hybrid values */
                 pos_peak_cycle_hybrid = (pos_peak_time_hybrid >> 7) & 0x7FU;
@@ -1123,20 +1379,17 @@ static mepa_rc lan887x_phy_cable_diag_start(mepa_device_t *dev, mepa_bool_t is_h
 
     if (data->init_done && data->conf.admin.enable) {
         //setup master/slave based on ms_mode
-        uint16_t ms_val = (ms_mode == PHY_TRUE ? LAN887X_PMA_COMM_100T1_CTL_T1_MAS_SLV_CFG : 0U);
+        uint16_t ms_val = (ms_mode == PHY_TRUE ? MDIO_PMA_PMD_BT1_CTRL_CFG_MST : 0U);
 
         rc = MEPA_RC_OK;
 
-        /* Disable Autoneg */
-        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_AN, MDIO_CTRL1, MDIO_AN_CTRL1_ENABLE));
-
         /*** SOFT RESET ONLY ***/
-        MEPA_RC_GOTO(rc, lan887x_reset_phy(dev, PHY_FALSE));
+        MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_FALSE));
 
         /* Forcing DUT to master mode, avoids headaches and
          * we don't care about mode during diagnostics
          */
-        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, LAN887X_PMA_COMM_100T1_CTL_T1, ms_val));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, ms_val));
 
         MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1,
                                             LAN887X_DSP_CALIB_CONFIG_100, 0x0U,
@@ -1243,7 +1496,6 @@ static mepa_rc lan887x_aneg_read_status(mepa_device_t *dev, mepa_status_t *statu
 
     status->aneg.obey_pause = PHY_FALSE;
     status->aneg.generate_pause = PHY_FALSE;
-    status->fdx = PHY_TRUE;
     status->link = PHY_FALSE;
     status->speed = MESA_SPEED_UNDEFINED;
 
@@ -1263,13 +1515,6 @@ static mepa_rc lan887x_aneg_read_status(mepa_device_t *dev, mepa_status_t *statu
         } else {
             status->speed = MESA_SPEED_UNDEFINED;
         }
-#if 0
-        lp_sym_pause = ((lp_l & MDIO_AN_T1_ADV_L_PAUSE_CAP) != ZERO) ? PHY_TRUE : PHY_FALSE;
-        lp_asym_pause = ((lp_l & MDIO_AN_T1_ADV_L_PAUSE_ASYM) != ZERO) ? PHY_TRUE : PHY_FALSE;
-        status->aneg.obey_pause = data->conf.flow_control && (lp_sym_pause || lp_asym_pause);
-        status->aneg.generate_pause = data->conf.flow_control && lp_sym_pause;
-#endif
-
         //T_D( MEPA_TRACE_GRP_GEN, "aneg link resolved \r\n");
     }
 
@@ -1308,7 +1553,7 @@ static mepa_rc lan887x_delete(struct mepa_device *dev)
 #ifdef MEPA_lan887x_static_mem
         uint8_t pidx = 0;
 
-        T_D( MEPA_TRACE_GRP_GEN, "static driver cleanup!!\n");
+        //T_D( MEPA_TRACE_GRP_GEN, "static driver cleanup!!\n");
         for (pidx = 0; pidx < LAN887X_PHY_MAX; pidx++) {
 
             if (lan887x_data[pidx].ctx_status &&
@@ -1322,7 +1567,7 @@ static mepa_rc lan887x_delete(struct mepa_device *dev)
         }
         rc = MEPA_RC_OK;
 #else
-        T_D( MEPA_TRACE_GRP_GEN, "dynamic driver cleanup!!\n");
+        //T_D( MEPA_TRACE_GRP_GEN, "dynamic driver cleanup!!\n");
         rc = mepa_delete_int(dev);
 #endif
     }
@@ -1350,22 +1595,35 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
     //Default is preferred master when autoneg is enabled and forced master when aneg is disabled
     data->conf.man_neg = MEPA_MANUAL_NEG_REF;
     data->conf.admin.enable = PHY_TRUE;
-    data->conf.speed = MESA_SPEED_1G;
     data->conf.fdx = PHY_TRUE;
+    //mac-if aneg must be enabled always
     data->conf.mac_if_aneg_ena = PHY_TRUE;
+    //phy aneg
+    data->conf.speed = MESA_SPEED_AUTO;
+    data->conf.aneg.speed_100m_fdx = PHY_TRUE;
+    data->conf.aneg.speed_1g_fdx = PHY_TRUE;
+
     data->media_intf = MESA_PHY_MEDIA_IF_T1_1000FX;
     data->mac_if = MESA_PORT_INTERFACE_RGMII_RXID;
+
     data->led3_conf.led_num = MEPA_LED3;
     data->led3_conf.mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;
+    data->tc10_cfg.sleep_enable = PHY_TRUE;
+    data->tc10_cfg.wakeup_mode = MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE;
+    data->tc10_cfg.wakeup_fwd_mode = MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE;
+    data->tc10_cfg.wake_in_pol = MEPA_GPIO_MODE_ACTIVE_HIGH;
+    data->tc10_cfg.wake_out_pol = MEPA_GPIO_MODE_ACTIVE_HIGH;
+    data->tc10_cfg.wake_out_mode = MEPA_GPIO_MODE_PUSH_PULL;
+    data->tc10_cfg.inh_mode = MEPA_GPIO_MODE_OPEN_SOURCE;
 
     //Cable diag data reset
     data->cd_res.link = PHY_LINKDOWN;
     data->cd_res.length[0] = 0;
     data->cd_res.status[0] = MESA_VERIPHY_STATUS_UNKNOWN;
 
-    (void) lan887x_init_phy(dev, PHY_FALSE);
+    (void) lan887x_phy_setup(dev);
 
-    T_I(MEPA_TRACE_GRP_GEN, "LAN887X driver probed for port %u  \r\n", data->port_no);
+    T_I( MEPA_TRACE_GRP_GEN, "phy probe port=%u probed phy_id=0x%x", data->port_no, data->dev.id);
 }
 
 static mepa_device_t *lan887x_probe(mepa_driver_t *drv,
@@ -1381,7 +1639,7 @@ static mepa_device_t *lan887x_probe(mepa_driver_t *drv,
 #ifdef MEPA_lan887x_static_mem
         uint8_t pidx = 0;
 
-        T_D( MEPA_TRACE_GRP_GEN, "static driver create!!\n");
+        //T_D( MEPA_TRACE_GRP_GEN, "static driver create!!\n");
         for (pidx = 0; pidx < LAN887X_PHY_MAX; pidx++) {
             if (lan887x_data[pidx].ctx_status) {
                 T_D( MEPA_TRACE_GRP_GEN, "LAN887X driver already @ idx=%d[port-%d]!!\n", pidx, lan887x_device[pidx].numeric_handle);
@@ -1397,7 +1655,7 @@ static mepa_device_t *lan887x_probe(mepa_driver_t *drv,
             break;
         }
 #else
-        T_D( MEPA_TRACE_GRP_GEN, "dynamic driver create!!\n");
+        //T_D( MEPA_TRACE_GRP_GEN, "dynamic driver create!!\n");
         dev = mepa_create_int(drv, callout, callout_ctx, conf, (int32_t)(sizeof(phy_data_t)));
         if (dev != NULL) {
             data = dev->data;
@@ -1445,8 +1703,26 @@ static mepa_rc lan887x_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
     mepa_rc rc = MEPA_RC_ERROR;
 
     if (dev != NULL) {
+        phy_data_t *data = (phy_data_t *)dev->data;
+
         MEPA_ENTER(dev);
-        rc = lan887x_int_reset(dev, rst_conf);
+        if (rst_conf != NULL) {
+            // reset points are not supported
+            if (rst_conf->reset_point != MEPA_RESET_POINT_DEFAULT &&
+                rst_conf->reset_point != MEPA_RESET_POINT_PRE) {
+                rc = MEPA_RC_OK;
+                goto error;
+            }
+
+            if ((rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_100FX) ||
+                (rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_1000FX)) {
+                //re-configure media interface
+                data->media_intf = rst_conf->media_intf;
+            }
+        }
+        rc = lan887x_int_reset(dev, LAN887X_RST_SOFT_EXT);
+
+error:
         MEPA_EXIT(dev);
     }
 
@@ -1462,7 +1738,7 @@ static mepa_rc lan887x_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *s
         phy_data_t *data = (phy_data_t *)dev->data;
 
         rc = MEPA_RC_INV_STATE;
-        if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+        if (data->conf.speed == MESA_SPEED_AUTO) {
 
             MEPA_ENTER(dev);
 
@@ -1486,6 +1762,7 @@ static mepa_rc lan887x_poll(struct mepa_device *dev, mepa_status_t *status)
 
     if (dev != NULL && status != NULL) {
         phy_data_t *data = (phy_data_t *)dev->data;
+        mepa_bool_t old_link = data->link_status;
 
         rc = MEPA_RC_OK;
         MEPA_ENTER(dev);
@@ -1493,7 +1770,7 @@ static mepa_rc lan887x_poll(struct mepa_device *dev, mepa_status_t *status)
         //Current link status
         data->link_status = PHY_FALSE;
 
-        if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+        if (data->conf.speed == MESA_SPEED_AUTO) {
             //Resolve speed
             MEPA_RC_GOTO(rc, lan887x_aneg_read_status(dev, status));
             //Resolve speed
@@ -1503,14 +1780,22 @@ static mepa_rc lan887x_poll(struct mepa_device *dev, mepa_status_t *status)
             status->master = (data->conf.man_neg == MEPA_MANUAL_NEG_REF ? PHY_TRUE : PHY_FALSE);
             status->speed = data->conf.speed;
         }
+        //T1 PHY supports only Full Duplex
+        status->fdx = PHY_TRUE;
+        data->dev.is_master = status->master;
 
-        //Set link status
-#if 0
-        rc = phy_get_link_status(dev, status);
-#else
         rc = phy_c45_get_link_status(dev, status);
-#endif
-        //T_D( MEPA_TRACE_GRP_GEN, "poll complete! ink is %s \r\n", (status->link?"up":"down"));
+
+        if (old_link != data->link_status) {
+            T_D(MEPA_TRACE_GRP_GEN, "port=%u phy_id=0x%x poll state change %s[speed=%s, master=%s, aneg=%s]\r\n",
+                data->port_no, data->dev.id,
+                (status->link ? "up" : "down"),
+                (status->speed == MESA_SPEED_1G ? "1G" :
+                 (status->speed == MESA_SPEED_100M ? "100M" :
+                  (status->speed == MESA_SPEED_AUTO ? "auto" : "Unknown"))),
+                (status->master ? "master" : "slave"),
+                (data->conf.speed == MESA_SPEED_AUTO ? "on" : "off"));
+        }
 
 error:
         MEPA_EXIT(dev);
@@ -1526,7 +1811,8 @@ static mepa_rc lan887x_if_set( struct mepa_device *dev, mepa_port_interface_t ma
     if (dev != NULL) {
         rc = MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED;
 
-        if (mac_if >= MESA_PORT_INTERFACE_RGMII && mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) {
+        if ((mac_if >= MESA_PORT_INTERFACE_RGMII && mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) ||
+            mac_if == MESA_PORT_INTERFACE_SGMII) {
             phy_data_t *data = (phy_data_t *)dev->data;
 
             rc = MEPA_RC_OK;
@@ -1535,12 +1821,10 @@ static mepa_rc lan887x_if_set( struct mepa_device *dev, mepa_port_interface_t ma
                 //Setup mac_if
                 data->mac_if = mac_if;
                 //reset PHY
-                MEPA_RC_GOTO(rc, lan887x_int_reset(dev, NULL));
-                //T_D( MEPA_TRACE_GRP_GEN, "Re-configure MAC Interface type from %d to %d\r\n", data->mac_if, mac_if);
+                MEPA_RC_GOTO(rc, lan887x_int_reset(dev, LAN887X_RST_SOFT_MAC));
 error:
                 MEPA_EXIT(dev);
             }
-            //T_D( MEPA_TRACE_GRP_GEN, "Set MAC Interface type %d\r\n", data->mac_if);
         }
     }
 
@@ -1576,9 +1860,13 @@ static mepa_rc lan887x_media_set(struct mepa_device *dev, mepa_media_interface_t
             phy_data_t *data = (phy_data_t *)dev->data;
 
             rc = MEPA_RC_OK;
+            MEPA_ENTER(dev);
+
             if (data->media_intf != media_if) {
-                MEPA_ENTER(dev);
+                //check media/speed/aneg capabilities
+                MEPA_RC_GOTO(rc, lan887x_check_media(dev, media_if, data->conf.speed));
                 data->media_intf = media_if;
+
                 /* re-configure media interface
                    when aneg = true, apply change
                    when aneg = false, then following
@@ -1587,12 +1875,13 @@ static mepa_rc lan887x_media_set(struct mepa_device *dev, mepa_media_interface_t
                    1000_t1         100_t1         100       100    ===> No reset
                    100t1           1000t1         100       100   ===> No reset */
                 if (data->conf.speed != MESA_SPEED_100M ||
-                    data->conf.mac_if_aneg_ena == PHY_TRUE) {
-                    rc = lan887x_int_reset(dev, NULL);
+                    data->conf.speed == MESA_SPEED_AUTO) {
+                    MEPA_RC_GOTO(rc, lan887x_int_reset(dev, LAN887X_RST_SOFT));
                 }
-                MEPA_EXIT(dev);
                 //T_D( MEPA_TRACE_GRP_GEN, "Set media type %d! rc=%d.\r\n", media_if, rc);
             }
+error:
+            MEPA_EXIT(dev);
         }
     }
 
@@ -1802,15 +2091,15 @@ static mepa_rc lan887x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
     if (dev != NULL && phy_info != NULL) {
         phy_data_t *data = (phy_data_t *)(dev->data);
 
+        MEPA_ENTER(dev);
         if (data->init_done == PHY_TRUE) {
-            MEPA_ENTER(dev);
             phy_info->part_number = data->dev.model;
             phy_info->revision = data->dev.rev;
             phy_info->cap = (data->conf.speed == MESA_SPEED_100M ? MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
-            MEPA_EXIT(dev);
 
             rc = MEPA_RC_OK;
         }
+        MEPA_EXIT(dev);
     }
     //T_D( MEPA_TRACE_GRP_GEN, "phy_info_get rc=%d\r\n", rc);
 
@@ -1869,7 +2158,7 @@ static mepa_rc lan887x_cable_diag_start(mepa_device_t *dev, int32_t mode)
             (void) phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100,
                                           LAN887X_DSP_REGS_START_CBL_DIAG_EN);
             /*** SOFT RESET to restore configuration ***/
-            MEPA_RC_GOTO(rc, lan887x_int_reset(dev, NULL));
+            MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_TRUE));
 
         } else { /* Link is down. Start cable diag */
 
@@ -1911,7 +2200,6 @@ static mepa_rc lan887x_cable_diag_get(struct mepa_device *dev, mepa_cable_diag_r
     return rc;
 }
 
-#if 0
 static mepa_rc lan887x_isolate_mode_set(struct mepa_device *dev, mepa_bool_t const val)
 {
     uint16_t reg_val = 0;
@@ -1937,21 +2225,19 @@ error:
 
     return rc;
 }
-#endif
 
 mepa_drivers_t mepa_lan887x_driver_init(void)
 {
     mepa_drivers_t result;
-    static mepa_driver_t lan887x_driver[LAN887X_PHY_ID_MAX];
+    static mepa_driver_t lan887x_driver[LAN887X_PHY_MAX];
     uint8_t idx = 0;
 
-    for (idx = 0; idx < LAN887X_PHY_ID_MAX; idx++) {
+    for (idx = 0; idx < LAN887X_PHY_MAX; idx++) {
         mepa_driver_t *lan887x_drv = &lan887x_driver[idx];
 
         //Device ID & Mask
-        //lan887x_drv->id = LAN8870_PHY_ID;
-        //lan887x_drv->mask = LAN887X_PHY_ID_MASK;
-        lan887x_drv->id = LAN887X_PHY_ID_PRTO;
+        lan887x_drv->id = LAN887X_PHY_ID_PRTO;//LAN8870_PHY_ID;
+//        lan887x_drv->mask = LAN887X_PHY_ID_MASK;
         lan887x_drv->mask = LAN887X_PHY_ID_PRTO_MSK;
         /* LAN887X Driver APIs */
         lan887x_drv->mepa_driver_delete             = lan887x_delete;
@@ -1978,14 +2264,14 @@ mepa_drivers_t mepa_lan887x_driver_init(void)
         lan887x_drv->mepa_driver_clause45_read      = lan887x_mmd_reg_read;
         lan887x_drv->mepa_driver_clause45_write     = lan887x_mmd_reg_write;
         lan887x_drv->mepa_driver_sqi_read           = lan887x_sqi_read;
-        //lan887x_drv->mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set;
+        lan887x_drv->mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set;
         lan887x_drv->mepa_driver_cable_diag_start   = lan887x_cable_diag_start;
         lan887x_drv->mepa_driver_cable_diag_get     = lan887x_cable_diag_get;
-        lan887x_drv->mepa_tc10                      = NULL;
+        lan887x_drv->mepa_tc10                      = &lan887x_tc10_drivers;
     }
 
     result.phy_drv = &lan887x_driver[0];
-    result.count = LAN887X_PHY_ID_MAX;
+    result.count = LAN887X_PHY_MAX;
 
     return result;
 }

@@ -12,7 +12,7 @@ if (${MEPA_lan887x_static_mem})
 endif()
 
 MEPA_DRV(LIB_NAME mepa_drv_lan887x
-         SRCS     src/lan887x.c src/lan887x_private.c
+         SRCS     src/lan887x.c src/lan887x_private.c src/lan887x_tc10.c
 		 DEFS	  ${MEPA_lan887x_custom_defs}
          INCL_PUB ../../../me/include ../../include
          INCL_PRI lan887x)
