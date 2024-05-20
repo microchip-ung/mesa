@@ -11,7 +11,7 @@
 
 #define MEPA_RC_GOTO(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { goto error; } }
 
-#if 0 //defined(MEPA_OPSYS_LMSTAX)
+#if 1 //defined(MEPA_OPSYS_LMSTAX)
 #define T_D(grp, format, ...) LM_OS_PR(format, ##__VA_ARGS__);
 #else
 #define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
