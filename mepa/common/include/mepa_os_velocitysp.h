@@ -22,7 +22,9 @@ typedef unsigned char      BOOL;
 #define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor))
 #define MEPA_MOD64(dividend, divisor) ((dividend) % (divisor))
 
-#define MEPA_LABS(arg) ((arg > 0) ? arg : -arg)
+#define MEPA_LABS(arg)  (((arg) > 0) ? arg : -arg)
+#define MEPA_LLABS(arg) (((arg) > 0) ? arg : -arg)
+#define MEPA_ABS(arg)   (((arg) > 0) ? arg : -arg)
 
 #define MEPA_MSLEEP(msec) { lm_os_nssleep(msec * 1000000); }
 #define MEPA_NSLEEP(nsec) { lm_os_nssleep(nsec); }
