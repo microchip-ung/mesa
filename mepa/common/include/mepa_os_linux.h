@@ -71,6 +71,7 @@ typedef struct {
 } /**< Time of day macro */
 
 #define MEPA_LLABS(arg)               llabs(arg)
+#define MEPA_ABS(arg)                 abs(arg)
 
 
 #endif /* _MEPA_OS_LINUX_H_ */

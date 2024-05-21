@@ -1557,7 +1557,7 @@ static mepa_rc indy_cab_diag_start(mepa_device_t *dev, int32_t mode)
             status = INDY_X_CABLE_DIAG_STATUS(value);
             if ((status == INDY_CABLE_OPEN) || (status == INDY_CABLE_SHORT)) {
                 res->status[pair] = (status == INDY_CABLE_SHORT) ? MEPA_CABLE_DIAG_STATUS_SHORT : MEPA_CABLE_DIAG_STATUS_OPEN;
-                res->length[pair] = 0.8 * abs((INDY_X_CABLE_DIAG_DATA(value) - 22));
+                res->length[pair] = 0.8 * MEPA_ABS((INDY_X_CABLE_DIAG_DATA(value) - 22));
                 res->link = TRUE;
                 T_I(MEPA_TRACE_GRP_GEN, "pair=%d status=%d length=%d\n", pair, res->status[pair], res->length[pair]);
             } else if (status == INDY_CABLE_FAIL) {
