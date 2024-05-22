@@ -829,7 +829,7 @@ static mepa_rc lan887x_phy_reset(mepa_device_t *dev, mepa_bool_t hard_reset)
         MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
                                         LAN887X_MX_CHIP_TOP_REG_HARD_RST,
                                         LAN887X_MX_CHIP_TOP_RESET_));
-        LAN887X_NSLEEP(50U);
+        LAN887X_NSLEEP(5000U);
     } else {
         // clear 1000m link sync
         MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_PMAPMD, LAN887X_PMA_1000T1_DSP_PMA_CTL_REG,
@@ -1197,169 +1197,112 @@ static mepa_rc lan887x_cable_test_report(mepa_device_t *const dev, mepa_bool_t m
 
     const uint16_t noise_margin = 20U, time_margin = 89U;
     const uint16_t min_time_diff = 96U, max_time_diff = 96U + time_margin;
-    mepa_bool_t  fault = PHY_FALSE;
-    mepa_bool_t diagTimeout = PHY_FALSE;
-    mepa_bool_t bDone = PHY_FALSE;
-    mepa_rc rc = MEPA_RC_INCOMPLETE;
+    mepa_rc rc = MEPA_RC_OK;
     float distance = -1.0F;
-    int16_t detect = -1;
+    lan887x_cd_status_t detect = LAN87XX_CABLE_TEST_OK;
 
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_cable_diag_result_t *res = &(data->cd_res);
 
-    mepa_mtimer_t   timer = { 0 };
+    // read non-hybrid results
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x497U, &gain_idx);
 
-    LAN887X_MTIMER_START(&timer, 4000U);
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49AU, &neg_peak);
 
-    res->status[0] = MESA_VERIPHY_STATUS_ABNORM;
-    // wait for cable diag to finish or timeout (4 seconds)
-    while (bDone == PHY_FALSE && diagTimeout == PHY_FALSE) {
-        uint16_t tmp = 0;
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49DU, &neg_peak_time);
 
-        diagTimeout = MEPA_MTIMER_TIMEOUT(&timer);
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100, &tmp);
-        if ((tmp & LAN887X_DSP_REGS_START_CBL_DIAG_DONE) == LAN887X_DSP_REGS_START_CBL_DIAG_DONE) {
-            bDone = PHY_TRUE;
-        }
-    }
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x499U, &pos_peak);
 
-    // return diagnostic error if timeout occurred
-    if (diagTimeout == PHY_TRUE) {
-        T_E( MEPA_TRACE_GRP_GEN, "PHY diags error\r\n");
-    } else {
-        rc = MEPA_RC_OK;
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49CU, &pos_peak_time);
 
-        /* stop cable diag */
-        (void) phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100,
-                                      LAN887X_DSP_REGS_START_CBL_DIAG_EN);
-        // read non-hybrid results
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x497U, &gain_idx);
+    // calculate non-hybrid values
+    pos_peak_cycle = (pos_peak_time >> 7) & 0x7FU;
+    pos_peak_phase = pos_peak_time & 0x7FU;
+    pos_peak_in_phases = (pos_peak_cycle * 96U) + pos_peak_phase;
+    neg_peak_cycle = (neg_peak_time >> 7) & 0x7FU;
+    neg_peak_phase = neg_peak_time & 0x7FU;
+    neg_peak_in_phases = (neg_peak_cycle * 96U) + neg_peak_phase;
 
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49AU, &neg_peak);
-
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49DU, &neg_peak_time);
-
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x499U, &pos_peak);
-
-        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49CU, &pos_peak_time);
-
-        // calculate non-hybrid values
-        pos_peak_cycle = (pos_peak_time >> 7) & 0x7FU;
-        pos_peak_phase = pos_peak_time & 0x7FU;
-        pos_peak_in_phases = (pos_peak_cycle * 96U) + pos_peak_phase;
-        /* T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag non-hybrid POS results! pos_peak_time=%d, pos_peak_cycle=%d, pos_peak_phase=%d, pos_peak_in_phases=%d\r\n",
-                    pos_peak_time, pos_peak_cycle, pos_peak_phase, pos_peak_in_phases); */
-
-        neg_peak_cycle = (neg_peak_time >> 7) & 0x7FU;
-        neg_peak_phase = neg_peak_time & 0x7FU;
-        neg_peak_in_phases = (neg_peak_cycle * 96U) + neg_peak_phase;
-        /* T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag non-hybrid NEG results! neg_peak_time%d, neg_peak_cycle=%d, neg_peak_phase=%d, neg_peak_in_phases=%d\r\n",
-                neg_peak_time, neg_peak_cycle, neg_peak_phase, neg_peak_in_phases); */
-        /* Deriving the status of cable */
-        if ((pos_peak_in_phases > neg_peak_in_phases) &&
+    /* Deriving the status of cable */
+    if (pos_peak > noise_margin && neg_peak > noise_margin && gain_idx > 0U) {
+        if (pos_peak_in_phases > 0U &&
+            pos_peak_in_phases > neg_peak_in_phases &&
             ((pos_peak_in_phases - neg_peak_in_phases) >= min_time_diff) &&
             ((pos_peak_in_phases - neg_peak_in_phases) < max_time_diff)) {
-            detect = 2;
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag detect 2!\r\n");
-        } else if ((neg_peak_in_phases > pos_peak_in_phases) &&
+            detect = LAN87XX_CABLE_TEST_SHORT;
+        } else if (neg_peak_in_phases > 0U &&
+                   neg_peak_in_phases > pos_peak_in_phases &&
                    ((neg_peak_in_phases - pos_peak_in_phases) >= min_time_diff) &&
                    ((neg_peak_in_phases - pos_peak_in_phases) < max_time_diff)) {
-            detect = 1;
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag detect 1!\r\n");
+            detect = LAN87XX_CABLE_TEST_OPEN;
         } else {
-            detect = -1;
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag detect -1!\r\n");
+            detect = LAN87XX_CABLE_TEST_OK;
         }
+    } else {
+        detect = LAN87XX_CABLE_TEST_OK;
+    }
 
-        if ((pos_peak > noise_margin) && (neg_peak > noise_margin) && (gain_idx > ZERO)) {
-            fault = (detect == 1 || detect == 2);
-        }
 
-        if (!fault) {
-            detect = 0;
-            distance = 0.0F;
-            /*** SOFT RESET to restore configuration ***/
-            MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_TRUE));
-        } else {
+    if (detect == LAN87XX_CABLE_TEST_OK) {
+        distance = 0.0F;
+        /*** SOFT RESET to restore configuration ***/
+        MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_TRUE));
+    } else {
+        //For Hybrid values
+        MEPA_RC_GOTO(rc, lan887x_phy_cable_diag_start(dev, PHY_TRUE, ms_mode));
+        /* read hybrid results */
+        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49CU, &pos_peak_time_hybrid);
 
-            //For Hybrid values
-            LAN887X_MTIMER_START(&timer, 4000U);
-            MEPA_RC_GOTO(rc, lan887x_phy_cable_diag_start(dev, PHY_TRUE, ms_mode));
-            diagTimeout = bDone = PHY_FALSE;
-            // wait for cable diag to finish or timeout (4 seconds)
-            while (bDone == PHY_FALSE && diagTimeout == PHY_FALSE) {
-                uint16_t tmp = 0;
+        /*** SOFT RESET to restore configuration ***/
+        (void) lan887x_cd_reset(dev, PHY_FALSE);
 
-                diagTimeout = MEPA_MTIMER_TIMEOUT(&timer);
-                (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100, &tmp);
-                if ((tmp & LAN887X_DSP_REGS_START_CBL_DIAG_DONE) == LAN887X_DSP_REGS_START_CBL_DIAG_DONE) {
-                    bDone = PHY_TRUE;
-                }
-            }
-            // return diagnostic error if timeout occurred
-            if (diagTimeout == PHY_TRUE) {
-                T_E( MEPA_TRACE_GRP_GEN, "PHY diags error\r\n");
-                rc = MEPA_RC_INCOMPLETE;
-            } else {
-                /* stop cable diag */
-                (void) phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100,
-                                              LAN887X_DSP_REGS_START_CBL_DIAG_EN);
+        /* calculate hybrid values */
+        pos_peak_cycle_hybrid = (pos_peak_time_hybrid >> 7) & 0x7FU;
+        pos_peak_phase_hybrid = pos_peak_time_hybrid & 0x7FU;
+        pos_peak_in_phases_hybrid = (pos_peak_cycle_hybrid * 96U) + pos_peak_phase_hybrid;
 
-                /* read hybrid results */
-                (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0x49CU, &pos_peak_time_hybrid);
-
-                /*** SOFT RESET to restore configuration ***/
-                (void) lan887x_cd_reset(dev, PHY_FALSE);
-
-                /* calculate hybrid values */
-                pos_peak_cycle_hybrid = (pos_peak_time_hybrid >> 7) & 0x7FU;
-                pos_peak_phase_hybrid = pos_peak_time_hybrid & 0x7FU;
-                pos_peak_in_phases_hybrid = (pos_peak_cycle_hybrid * 96U) + pos_peak_phase_hybrid;
-
-                /* float wavePropagationVelocity = 0.6811 * 2.9979;
-                 * distance = (neg_peak_in_phases - pos_peak_in_phases) * 156.2499 *
-                 * 0.0001 * wavePropagationVelocity * 0.5;
-                 * distance = (neg_peak_in_phases - pos_peak_in_phases)
-                 * * 0.0159520967437766;
-                 */
-                if (detect == 2) {
-                    diff_dist = (neg_peak_in_phases - pos_peak_in_phases_hybrid);
-                } else {
-                    diff_dist = (pos_peak_in_phases - pos_peak_in_phases_hybrid);
-                }
-                distance = ((((float)diff_dist) * 15953.0F) / 1000000.0F);
-            }
-        }
-
-        /* Set cable length.
-         * Note: Length will have no decimal part as it is defined
-         * in unsigned int and have variation of -/+ 1 meter.
+        /* float wavePropagationVelocity = 0.6811 * 2.9979;
+         * distance = (neg_peak_in_phases - pos_peak_in_phases) * 156.2499 *
+         * 0.0001 * wavePropagationVelocity * 0.5;
+         * distance = (neg_peak_in_phases - pos_peak_in_phases)
+         * * 0.0159520967437766;
          */
-        res->length[0] = ((uint8_t)distance) & 0xFFU;
-
-        // Set status
-        switch (detect) {
-        case 2:
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status SHORT!\r\n");
-            res->status[0] = MESA_VERIPHY_STATUS_SHORT;
-            break;
-        case 0:
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status OK!\r\n");
-            res->status[0] = MESA_VERIPHY_STATUS_OK;
-            break;
-        case 1:
-        default:
-            //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status OPEN!\r\n");
-            res->status[0] = MESA_VERIPHY_STATUS_OPEN;
-            break;
+        if (detect == LAN87XX_CABLE_TEST_SHORT) {
+            diff_dist = (neg_peak_in_phases - pos_peak_in_phases_hybrid);
+        } else {
+            diff_dist = (pos_peak_in_phases - pos_peak_in_phases_hybrid);
         }
+        distance = ((((float)diff_dist) * 15953.0F) / 1000000.0F);
+    }
+
+    /* Set cable length.
+     * Note: Length will have no decimal part as it is defined
+     * in unsigned int and have variation of -/+ 1 meter.
+     */
+    res->length[0] = ((uint8_t)distance) & 0xFFU;
+
+    // Set status
+    switch (detect) {
+    case LAN87XX_CABLE_TEST_SHORT:
+        //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status SHORT!\r\n");
+        res->status[0] = MESA_VERIPHY_STATUS_SHORT;
+        break;
+    case LAN87XX_CABLE_TEST_OK:
+        //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status OK!\r\n");
+        res->status[0] = MESA_VERIPHY_STATUS_OK;
+        break;
+    case LAN87XX_CABLE_TEST_OPEN:
+    default:
+        //T_D( MEPA_TRACE_GRP_GEN, "PHY cable diag status OPEN!\r\n");
+        res->status[0] = MESA_VERIPHY_STATUS_OPEN;
+        break;
     }
 
 error:
     return rc;
 }
 
-static mepa_rc lan887x_phy_cable_diag_start(mepa_device_t *dev, mepa_bool_t is_hybrid, mepa_bool_t ms_mode)
+static mepa_rc lan887x_phy_cable_diag_common(mepa_device_t *dev, mepa_bool_t is_hybrid, mepa_bool_t ms_mode)
 {
     static const struct cable_test_start values[] = {
         {LAN887X_DSP_REGS_MAX_PGA_GAIN_100, 0x1FU},
@@ -1373,53 +1316,90 @@ static mepa_rc lan887x_phy_cable_diag_start(mepa_device_t *dev, mepa_bool_t is_h
         {LAN887X_DSP_REGS_CBL_DIAG_MIN_PGA_GAIN_100, 0x0U},
 
     };
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_rc rc = MEPA_RC_INV_STATE;
+    mepa_rc rc = MEPA_RC_OK;
     uint8_t i;
 
-    if (data->init_done && data->conf.admin.enable) {
-        //setup master/slave based on ms_mode
-        uint16_t ms_val = (ms_mode == PHY_TRUE ? MDIO_PMA_PMD_BT1_CTRL_CFG_MST : 0U);
+    //setup master/slave based on ms_mode
+    uint16_t ms_val = (ms_mode == PHY_TRUE ? MDIO_PMA_PMD_BT1_CTRL_CFG_MST : 0U);
 
-        rc = MEPA_RC_OK;
+    /*** SOFT RESET ONLY ***/
+    MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_FALSE));
 
-        /*** SOFT RESET ONLY ***/
-        MEPA_RC_GOTO(rc, lan887x_cd_reset(dev, PHY_FALSE));
+    /* Forcing DUT to master mode, avoids headaches and
+     * we don't care about mode during diagnostics
+     */
+    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, ms_val));
 
-        /* Forcing DUT to master mode, avoids headaches and
-         * we don't care about mode during diagnostics
-         */
-        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, ms_val));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1,
+                                        LAN887X_DSP_CALIB_CONFIG_100, 0x0U,
+                                        LAN887X_DSP_CALIB_CONFIG_100_VAL));
 
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1,
-                                            LAN887X_DSP_CALIB_CONFIG_100, 0x0U,
-                                            LAN887X_DSP_CALIB_CONFIG_100_VAL));
+    for (i = 0; i < ARRAY_SIZE(values); i++) {
+        uint16_t val = values[i].value;
 
-        /* HW_INIT 100T1, Get DUT running in 100T1 mode */
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26,
-                                            LAN887X_MIS_100T1_SMI_REG26_SEL_,
-                                            LAN887X_MIS_100T1_SMI_REG26_SEL_));
-
-        for (i = 0; i < ARRAY_SIZE(values); i++) {
-            uint16_t val = values[i].value;
-
+        (void) phy_mmd_reg_wr(dev, MDIO_MMD_VEND1, values[i].reg, val);
+        if (is_hybrid && LAN887X_DSP_REGS_CBL_DIAG_MAX_WAIT_CONFIG_100 == values[i].reg) {
+            val = 0xAU;
             (void) phy_mmd_reg_wr(dev, MDIO_MMD_VEND1, values[i].reg, val);
-            if (is_hybrid && LAN887X_DSP_REGS_CBL_DIAG_MAX_WAIT_CONFIG_100 == values[i].reg) {
-                val = 0xAU;
-                (void) phy_mmd_reg_wr(dev, MDIO_MMD_VEND1, values[i].reg, val);
-            }
         }
+    }
 
-        if (is_hybrid == PHY_TRUE) {
-            MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD,
-                                                LAN887X_T1_AFE_PORT_TESTBUS_CTRL4_REG, 0x0001U, 0x0001U));
-        }
+    if (is_hybrid == PHY_TRUE) {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_PMAPMD,
+                                            LAN887X_T1_AFE_PORT_TESTBUS_CTRL4_REG, 0x0001U, 0x0001U));
+    }
+
+    /* HW_INIT 100T1, Get DUT running in 100T1 mode */
+    MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1, LAN887X_MIS_100T1_SMI_REG26,
+                                        LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN,
+                                        LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN));
+
+    LAN887X_NSLEEP(1U);
+
+error:
+    return rc;
+}
+
+static mepa_rc lan887x_phy_cable_diag_start(mepa_device_t *dev, mepa_bool_t is_hybrid, mepa_bool_t ms_mode)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_rc rc = MEPA_RC_INV_STATE;
+
+    if (data->init_done && data->conf.admin.enable) {
+        mepa_bool_t diagTimeout = PHY_FALSE;
+        mepa_bool_t bDone = PHY_FALSE;
+        mepa_mtimer_t   timer = { 0 };
+        mepa_cable_diag_result_t *res = &(data->cd_res);
+
+        MEPA_RC_GOTO(rc, lan887x_phy_cable_diag_common(dev, is_hybrid, ms_mode));
 
         /* start cable diag */
-        MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_VEND1,
-                                            LAN887X_DSP_REGS_START_CBL_DIAG_100,
-                                            (LAN887X_DSP_REGS_START_CBL_DIAG_DONE | LAN887X_DSP_REGS_START_CBL_DIAG_EN),
-                                            LAN887X_DSP_REGS_START_CBL_DIAG_EN));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        LAN887X_DSP_REGS_START_CBL_DIAG_100,
+                                        LAN887X_DSP_REGS_START_CBL_DIAG_EN));
+
+        LAN887X_MTIMER_START(&timer, 4000U);
+
+        // wait for cable diag to finish or timeout (4 seconds)
+        while (bDone == PHY_FALSE && diagTimeout == PHY_FALSE) {
+            uint16_t tmp = 0;
+
+            diagTimeout = MEPA_MTIMER_TIMEOUT(&timer);
+            (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100, &tmp);
+            if ((tmp & LAN887X_DSP_REGS_START_CBL_DIAG_DONE) == LAN887X_DSP_REGS_START_CBL_DIAG_DONE) {
+                bDone = PHY_TRUE;
+            }
+        }
+        if (bDone == PHY_FALSE) {
+            rc = MEPA_RC_INCOMPLETE;
+            res->status[0] = MESA_VERIPHY_STATUS_ABNORM;
+            T_E( MEPA_TRACE_GRP_GEN, "PHY cable_diag failed to start\r\n");
+        } else {
+            /* stop cable diag */
+            (void) phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1, LAN887X_DSP_REGS_START_CBL_DIAG_100,
+                                          LAN887X_DSP_REGS_START_CBL_DIAG_EN);
+            rc = MEPA_RC_OK;
+        }
     }
 
 error:

@@ -6,7 +6,7 @@
 
 #include "lan887x_registers.h"
 
-#define LAN887X_NSLEEP(d)           MEPA_NSLEEP((d))
+#define LAN887X_NSLEEP(ns)           MEPA_NSLEEP((ns))
 #define LAN887X_MTIMER_START(t, ms) MEPA_MTIMER_START((t), (ms))
 
 #define MEPA_RC_GOTO(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { goto error; } }
@@ -144,6 +144,12 @@ typedef enum  {
     //Anything new above this line
     LAN887X_RST_MAX
 } lan887x_reset_typ;
+
+typedef enum {
+    LAN87XX_CABLE_TEST_OK,
+    LAN87XX_CABLE_TEST_OPEN,
+    LAN87XX_CABLE_TEST_SHORT,
+} lan887x_cd_status_t;
 
 extern mepa_tc10_driver_t lan887x_tc10_drivers;
 mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t *cfg);

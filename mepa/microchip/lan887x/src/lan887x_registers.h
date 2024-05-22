@@ -183,17 +183,7 @@
 
 /* MIS Regsiters */
 #define        LAN887X_MIS_100T1_SMI_REG26                      (0x1AU)
-#define        LAN887X_MIS_100T1_SMI_FORCE_TX_EN                BIT(9)
 #define        LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN             BIT(8)
-#define        LAN887X_MIS_100T1_SMI_FORCE_ED_ON_2              BIT(6)
-#define        LAN887X_MIS_100T1_SMI_FORCE_ED_ON_1              BIT(3)
-#define        LAN887X_MIS_100T1_SMI_REG26_SEL_  \
-                    (LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN | \
-                     LAN887X_MIS_100T1_SMI_FORCE_ED_ON_2)
-#define       LAN887X_MIS_100T1_SMI_REG26_TX_DRV_EN_ \
-                (LAN887X_MIS_100T1_SMI_FORCE_ED_ON_1 | \
-                 LAN887X_MIS_100T1_SMI_HW_INIT_SEQ_EN | \
-                 LAN887X_MIS_100T1_SMI_FORCE_TX_EN)
 
 #define        LAN887X_MIS_CFG_REG0                             (0xa00U)
 #define        LAN887X_MIS_CFG_REG0_RX_BIT_REV                  BIT(4)
