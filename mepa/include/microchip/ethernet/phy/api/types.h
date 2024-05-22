@@ -429,6 +429,7 @@ typedef struct {
     uint16_t             revision;        /**< Chip revision. */
     mepa_phy_cap_t       cap;             /**< PHY capability 1G or 10G phy. */
     mepa_port_no_t       ts_base_port;    /**< Timestamping base port number. VSC-phys like vsc8574 have 2 different timestamping base ports 0 and 1 in a phy. See note above. */
+    void                *ts_base;         /**< Timestamping base port */
 } mepa_phy_info_t;
 
 /** \brief Debug layer */

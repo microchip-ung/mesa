@@ -1217,6 +1217,7 @@ static mepa_rc indy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info
     phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3 : MEPA_CAP_TS_MASK_NONE;
     phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
     phy_info->ts_base_port = base_data ? base_data->port_no : 0;
+    phy_info->ts_base = data->base_dev;
 
     return MEPA_RC_OK;
 }

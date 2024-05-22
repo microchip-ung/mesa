@@ -972,6 +972,7 @@ static mepa_rc phy_1g_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_in
             phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
         }
         phy_info->ts_base_port = phy_id.phy_api_base_no;
+        phy_info->ts_base = data->base_dev;
     }
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
 }
@@ -1154,6 +1155,7 @@ static mepa_rc phy_10g_info_get(struct mepa_device *dev, mepa_phy_info_t *const 
             phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
         }
         phy_info->ts_base_port = (phy_id.channel_id > 1) ? (phy_id.phy_api_base_no + 2) : phy_id.phy_api_base_no;
+        phy_info->ts_base = data->base_dev;
     }
     return rc == MESA_RC_OK ? MEPA_RC_OK : MEPA_RC_ERROR;
 }
