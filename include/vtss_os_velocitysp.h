@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_OS_LMSTAX_H_
-#define _VTSS_OS_LMSTAX_H_
+#ifndef _VTSS_OS_VELOCITYSP_H_
+#define _VTSS_OS_VELOCITYSP_H_
 
 #include "lm_utils.h"
 #include "lm_switch.h"
@@ -102,4 +102,4 @@ int lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 #define VTSS_PROF_ENTER(id, sub) lm_os_prof_enter(id, sub)
 #define VTSS_PROF_EXIT(id, sub)  lm_os_prof_exit(id, sub)
 
-#endif //  _VTSS_OS_LMSTAX_H_
+#endif //  _VTSS_OS_VELOCITYSP_H_

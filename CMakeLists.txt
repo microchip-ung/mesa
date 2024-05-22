@@ -16,7 +16,7 @@ option(BUILD_DOXYGEN     "Build doxygen" OFF)
 option(MESA_PRE_AG       "Use pre-generated mesa-ag layer if exist" ON)
 option(BUILD_MESA_DEMO   "Build the MESA demo" ON)
 option(MESA_OPSYS_LINUX  "Build the MESA for Linux" ON)
-option(MESA_OPSYS_LMSTAX "Build the MESA for LMStaX" OFF)
+option(MESA_OPSYS_VELOCITYSP "Build the MESA for VelocitySP" OFF)
 option(MESA_WRAP         "Generate and build the MESA Wrapper" ON)
 
 mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
@@ -35,7 +35,7 @@ if (${MESA_OPSYS_LINUX})
     MATH(EXPR OS_CNT "${OS_CNT} + 1")
 endif ()
 
-if (${MESA_OPSYS_LMSTAX})
+if (${MESA_OPSYS_VELOCITYSP})
     MATH(EXPR OS_CNT "${OS_CNT} + 1")
 endif ()
 
@@ -179,8 +179,8 @@ set(LIST_OF_API_TARGETS)
 
 if (${MESA_OPSYS_LINUX})
     set(GLOBAL_DEFS -DVTSS_OPSYS_LINUX -DVTSS_OPT_SYMREG=1)
-elseif (${MESA_OPSYS_LMSTAX})
-    set(GLOBAL_DEFS -DVTSS_OPSYS_LMSTAX -DVTSS_OPT_SYMREG=0)
+elseif (${MESA_OPSYS_VELOCITYSP})
+    set(GLOBAL_DEFS -DVTSS_OPSYS_VELOCITYSP -DVTSS_OPT_SYMREG=0)
 endif ()
 
 macro(API_TARGET)

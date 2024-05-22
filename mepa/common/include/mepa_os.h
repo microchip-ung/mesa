@@ -23,8 +23,8 @@
 //	Linux or FreeRTOS.
 //
 
-#if defined(MEPA_OPSYS_LMSTAX)
- #include <mepa_os_lmstax.h>
+#if defined(MEPA_OPSYS_VELOCITYSP)
+ #include <mepa_os_velocitysp.h>
 #elif defined(MEPA_OPSYS_PLATFORM)
  #include <mepa_os_platform.h>
 #else
