@@ -1154,7 +1154,8 @@ static mepa_rc lan887x_int_reset(mepa_device_t *dev, const lan887x_reset_typ typ
         }
     }
 
-    if (typ == LAN887X_RST_SOFT_EXT) {
+    if (typ == LAN887X_RST_SOFT_EXT ||
+        typ == LAN887X_RST_HARD) {
         //clear config
         MEPA_RC_GOTO(rc, lan887x_phy_cfg_clr(dev));
     }
