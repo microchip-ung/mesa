@@ -605,12 +605,11 @@ static mepa_rc indy_poll(mepa_device_t *dev, mepa_status_t *status)
         RD(dev, INDY_DIGITAL_AX_AN_STATUS, &val2);
         RD(dev, INDY_CONTROL, &val);
         if (status->speed == MEPA_SPEED_100M && ((val2 & INDY_F_LINK_DET) && !status->link)) {
-            MEPA_MSLEEP(2000);
-            RD(dev, INDY_BASIC_STATUS, &val2);
-            if(!(val2 & INDY_F_BASIC_STATUS_LINK_STATUS)) {
-               val |= INDY_F_CONTROL_SOFT_RESET;
-               WRM(dev, INDY_CONTROL, val, INDY_F_CONTROL_SOFT_RESET);
-               T_I(MEPA_TRACE_GRP_GEN, "soft reset for link up");
+            if((data->loop_cnt++ > 2 * data->rep_cnt)) {
+                val |= INDY_F_CONTROL_SOFT_RESET;
+                WRM(dev, INDY_CONTROL, val, INDY_F_CONTROL_SOFT_RESET);
+                T_I(MEPA_TRACE_GRP_GEN, "DSP soft reset for link up on Port %d", data->port_no);
+                data->loop_cnt = 0;
             }
         }
         // MEPA 503 workaround ends here
