@@ -49,7 +49,7 @@ examples and does not include the needed error handling.
 // 2. set base-port appropriately
 // 3. know which PHY it is using
 // 4. know appropriate PTP configuration for the PHY
-// 5. ensure 1PPS pulse on GPIO3
+// 5. ensure 1PPS pulse on GPIO
 // 6. handle ptp interrupts
 ///////////////////////////////////////
 
@@ -322,7 +322,7 @@ load operation bit which loads time should be cleared.
 Sequence is as below:
 
 * `mepa_ts_ltc_set()` to load TS registers.
-* Wait for 1PPS pulse on GPIO3.
+* Wait for 1PPS pulse on a GPIO.
 * Up on 1PPS, `mepa_ts_ltc_ls_en()` with `MEPA_TS_CMD_LOAD` to update the PHY LTC from
 TS registers.
 
@@ -335,7 +335,7 @@ registers and the API `mepa_ts_ltc_get()` can be used to read the saved time.
 Sequence is as below:
 
 * `mepa_ts_ltc_ls_en()` with `MEPA_TS_CMD_SAVE`.
-* Wait for 1PPS pulse on GPIO3.
+* Wait for 1PPS pulse on a GPIO.
 * `mepa_ts_ltc_get()` to read the saved time. SAVE bit will be cleared.
 
 When 1PPS pulse is received, we can either perform LOAD/SAVE operation.
