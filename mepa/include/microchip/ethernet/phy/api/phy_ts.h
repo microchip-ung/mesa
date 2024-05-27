@@ -113,7 +113,6 @@ typedef struct {
 /** \brief Local TIME Counter Load/Save Enable commands */
 typedef enum {
     MEPA_TS_CMD_LOAD,
-    MEPA_TS_CMD_LOAD_ON_PPS,
     MEPA_TS_CMD_SAVE,
     MEPA_TS_ADJ_CMD_CLEAR,
 } mepa_ts_ls_type_t;
