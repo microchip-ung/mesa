@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #define CLK_PERIOD_250_MHZ  4 // 4 nano seconds clock period.
+#define CLK_PERIOD_200_MHZ  5 // 5 nano seconds clock period.
 
 static  uint16_t indy_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
                                  // 1000,  100,    10 speeds
@@ -558,12 +559,28 @@ static mepa_rc indy_ts_clock_rateadj_set(mepa_device_t *dev, const mepa_ts_scale
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t val = 0;
     mepa_device_t *base_dev = data->base_dev;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
+
     MEPA_ASSERT(adj == NULL);
     MEPA_ENTER(dev);
     if (base_dev == dev) {
         uint64_t adj_abs = MEPA_LLABS(*adj), adj_val = 0;
+        uint8_t period;
 
-        adj_val = MEPA_DIV64(((1LL << 16) * CLK_PERIOD_250_MHZ * adj_abs), 1000000000ULL);
+        switch (base_data->ts_state.clk_freq) {
+        case MEPA_TS_CLOCK_FREQ_25M:
+        case MEPA_TS_CLOCK_FREQ_250M:
+            period = CLK_PERIOD_250_MHZ;
+            break;
+        case MEPA_TS_CLOCK_FREQ_200M:
+            period = CLK_PERIOD_200_MHZ;
+            break;
+        default:
+            period = CLK_PERIOD_250_MHZ;
+            break;
+        }
+
+        adj_val = MEPA_DIV64(((1LL << 16) * period * adj_abs), 1000000000ULL);
         if (adj_val >= (1LL << 30)) { // width of frequency register is 30 bits => maximum value is less than (1 << 30).
             T_W(MEPA_TRACE_GRP_TS, "High Rate Adjust value  :: input adj %lld Adj Value : %llu Port : %d\n", *adj, adj_val, data->port_no);
         } else {
