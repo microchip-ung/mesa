@@ -1490,14 +1490,15 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(6);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1513,20 +1514,20 @@ static mepa_rc indy_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16_t 
         T_I(MEPA_TRACE_GRP_TS, "RX IP/PTP Encap :: Port : %d  IP Ver: %d IP Match Mode : %d: UDP SPort chk : %d UDP SPort chk : %d  S Port: %d D Port :%d\n",
             data->port_no, pkt_conf->ip_class_conf.ip_ver, pkt_conf->ip_class_conf.ip_match_mode, pkt_conf->ip_class_conf.udp_sport_en,
             pkt_conf->ip_class_conf.udp_dport_en, pkt_conf->ip_class_conf.udp_sport, pkt_conf->ip_class_conf.udp_dport);
-        parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_LAYER2_EN;
         parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_PEER_NONPEER_MIX;
         l2_en = l2_en | INDY_PTP_RX_PARSE_L2_MAC_EN_F(pkt_conf->eth_class_conf.mac_match_select);
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+            parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
+                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(6);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(2);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | INDY_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(indy_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
