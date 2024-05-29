@@ -2261,7 +2261,7 @@ void GetDataPerBit(uint8_t byArr_Ports[], uint8_t startIndex, uint16_t ulData, i
 
 BT_Event_Cause_t tBT_event_cause = {};
 
-
+mesa_bool_t conf_all_ports_event_cause[POE_MAX_PORTS];
 
 /*---------------------------------------------------------------------
  *
@@ -2302,8 +2302,8 @@ static mesa_rc meba_poe_pd69200_bt_event_cause_get( const meba_poe_ctrl_inst_t* 
         return rc;
     }
 
-    GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 0, buf[2], 8);
-    GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 8, buf[3], 8);
+    GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 0,  buf[2], 8);
+    GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 8,  buf[3], 8);
     GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 16, buf[4], 8);
     GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 24, buf[5], 8);
     GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 32, buf[6], 8);
@@ -2323,13 +2323,19 @@ static mesa_rc meba_poe_pd69200_bt_event_cause_get( const meba_poe_ctrl_inst_t* 
         usDeviceEvent >>= 1;
     }
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[%s] vmain_fault=%d, bit0_Vmain_in_range=%d, bit1_over_power_indication=%d, bit2_over_power_indication_in_watts=%d",
+    // for printing purpose: check if any port has event
+    mesa_bool_t has_port_events = FALSE;
+    if((buf[2] != 0) || (buf[3] != 0) || (buf[4] != 0) || (buf[5] != 0) || ( buf[6] != 0) || ( buf[7] != 0)) {
+         has_port_events = TRUE;
+    }
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[%s] vmain_fault=%d, bit0_Vmain_in_range=%d, bit1_over_power_indication=%d, bit2_over_power_indication_in_watts=%d, has_port_event=%d",
           fname,
           ptBT_Event_Cause->tSystem_event.vmain_fault,
           ptBT_Event_Cause->tSystem_ok_reg.bit0_Vmain_in_range,
           ptBT_Event_Cause->tSystem_ok_reg.bit1_over_power_indication,
-          ptBT_Event_Cause->tSystem_ok_reg.bit2_over_power_indication_in_watts
-          );
+          ptBT_Event_Cause->tSystem_ok_reg.bit2_over_power_indication_in_watts,
+          has_port_events);
 
     char buffer[500];
 
@@ -3484,6 +3490,10 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_cfg_set(
           (port_cfg->bPoe_plus_mode) ?  "Enabled" : "Disabled",
           (req_port_cfg->bPoe_plus_mode) ?  "Enabled" : "Disabled");
 
+
+    // set flag to read status form this port
+    conf_all_ports_event_cause[handle] = true;
+
     uint8_t enable = 0; // Disable
     if (req_port_cfg->enable) {
         enable = 1; // Enable
@@ -4322,6 +4332,34 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_chip_initialization(
 }
 
 
+// PoE Port status as defined by 802.3.
+char* get_poe_ieee_port_state_description(meba_poe_ieee_port_state_t port_state)
+{
+    switch (port_state)
+    {
+    case MEBA_POE_IEEE_PORT_STATE_NOT_SUPPORTED:
+        return "not supported";
+    case MEBA_POE_IEEE_PORT_STATE_DISABLED:
+        return "disabled";
+    case MEBA_POE_IEEE_PORT_STATE_SEARCHING:
+        return "searching";
+    case MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER:
+        return "delivering power";
+    case MEBA_POE_IEEE_PORT_STATE_FAULT:
+        return "fault";
+    case MEBA_POE_IEEE_PORT_STATE_TEST:
+        return "test";
+    case MEBA_POE_IEEE_PORT_STATE_OTHER_FAULT:
+        return "other fault";
+    default:
+        {
+            return "?????";
+        }
+    }
+}
+
+
+
 char* get_prebt_title_by_ports_status(uint8_t bt_port_status)
 {
     switch (bt_port_status)
@@ -4520,30 +4558,58 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_status_get(
     }
 
     mesa_bool_t bRead_lldp_pse_data = FALSE;
-    mesa_bool_t has_event = tBT_event_cause.all_ports_event_cause[handle];
+    mesa_bool_t has_event = FALSE;
+
+    // any event occur on this port
+    if (tBT_event_cause.all_ports_event_cause[handle])
+    {
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has port event cause", __FUNCTION__, handle);
+    }
 
     //in case of lldp event - lets read all status info
     if(lldp_ports_event[handle])
     {
         bRead_lldp_pse_data = TRUE;
         has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has lldp port event", __FUNCTION__, handle);
     }
 
-     // the status should not stay at the other ststuses for long time
+    // in case that port was configured - lets read all status info
+    if(conf_all_ports_event_cause[handle])
+    {
+        conf_all_ports_event_cause[handle] = false; // reset flag
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has config event", __FUNCTION__, handle);
+    }
+
+    // the status should not stay at the other statuses for long time
     if((current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_DISABLED) &&
        (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_TEST) &&
        (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER) &&
-       (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_SEARCHING))
-    {
-        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s port= %d, meba_poe_ieee_port_state=%d", __FUNCTION__, handle, current_port_status->port_status.meba_poe_ieee_port_state);
+       (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_SEARCHING) &&
+       (current_port_status->port_status.poe_internal_port_status != PREBT_0x25_OFF_IMPROPER_CAP_DET_MODE)) {
         has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, not in steady IEEE status, poe ieee port state=%s, poe internal status=%s",
+              __FUNCTION__,
+              handle,
+              get_poe_ieee_port_state_description(current_port_status->port_status.meba_poe_ieee_port_state),
+              get_prebt_title_by_ports_status(current_port_status->port_status.poe_internal_port_status));
+    }
+
+    if (current_port_status->port_status.poe_internal_port_status == BT_0x22_OFF_Configuration_change) {
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has internal temporary disabled status=%s",
+              __FUNCTION__,
+              handle,
+              get_prebt_title_by_ports_status(current_port_status->port_status.poe_internal_port_status));
+    }
+
+    if (has_event) {
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has_event", __FUNCTION__, handle);
     }
 
     mesa_bool_t bRead_port_status_and_port_class = has_event;
-
-
-    //DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s port= %d, has_event=%d", __FUNCTION__, handle, has_event);
-
 
     //-------------------- get_extended_port_status --------------------//
 
@@ -4558,7 +4624,6 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_status_get(
                     inst,
                     handle,
                     &tPrebt_extended_port_status));
-
 
          current_port_status->port_status.bt_port_counters.udl_count = tPrebt_extended_port_status.udl_count;
          current_port_status->port_status.bt_port_counters.ovl_count = tPrebt_extended_port_status.ovl_count;
@@ -5840,7 +5905,7 @@ mesa_rc meba_poe_pd69200_bt_get_BT_port_status(
     *last_shutdown_error_status = buf[9];
     *port_event                 = buf[10];
 
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[%s] CH=%d ,port status=%d ,enable=%d ,assigned class=%d ,measured port pwr=%lu ,last shutdown err status=%d ,port event=%d",
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "[%s] CH=%d ,port status=0x%X ,enable=%d ,assigned class=%d ,measured port pwr=%lu ,last shutdown err status=0x%X ,port event=%d",
           fname,
           channel,
          *port_status,
@@ -6062,9 +6127,11 @@ mesa_rc meba_poe_ctrl_pd69200_bt_port_cfg_set(
         return MESA_RC_OK;
     }
 
+    // set flag to read status form this port
+    conf_all_ports_event_cause[handle] = true;
+
     // read parameters from PoE
-    MESA_RC(meba_poe_pd69200_bt_get_BT_port_parameters(
-            inst ,handle,port_cfg_POEMCU));
+    MESA_RC(meba_poe_pd69200_bt_get_BT_port_parameters(inst ,handle, port_cfg_POEMCU));
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "[ReqGlobalCfg_____]       ,Legacy PD-Class Mode=%d ,oper mode changed=%d",
             global_cfg->global_legacy_pd_class_mode,
@@ -6443,7 +6510,8 @@ mesa_rc meba_poe_ctrl_pd69200_bt_globals_cfg_set(
 }
 
 
-char* get_BT_title_by_ports_status(uint8_t bt_port_status)
+// PoE port internal status read from poe mcu.
+char* get_bt_port_internal_status_description(uint8_t bt_port_status)
 {
     switch (bt_port_status)
     {
@@ -6551,6 +6619,91 @@ char* get_BT_title_by_ports_status(uint8_t bt_port_status)
             return "?????";
         }
     }
+}
+
+
+typedef struct {
+    uint8_t     System_Events_Mask_Register;
+    uint8_t     Device_Events_Mask_Register;
+    uint8_t     Port_Events_Mask_Register;
+} bt_events_interrupt_mask_t;
+
+
+
+static
+mesa_rc meba_poe_pd69200_bt_get_BT_events_interrupt_mask(
+    const meba_poe_ctrl_inst_t  *const inst,
+    bt_events_interrupt_mask_t         *cfg_events)
+{
+    // Transmit the command
+    uint8_t buf[PD_BUFFER_SIZE] = {
+        REQUEST_KEY,
+        DUMMY_SEQ_NUM,
+        GLOBAL_KEY,
+        BT_IRQ_MASK_KEY,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE
+    };
+
+    char *fname = "Get BT Events Interrupt Mask";
+    MESA_RC(pd69200_tx_rx(inst, __FUNCTION__, __LINE__, buf, fname));
+
+    cfg_events->System_Events_Mask_Register = buf[2] & 0x3;  //
+    cfg_events->Device_Events_Mask_Register = buf[3] & 0xF;  //
+    cfg_events->Port_Events_Mask_Register   = buf[4] & 0x1F; //
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[%s] system events=0x%X ,device events=0x%X ,port events=0x%X",
+          fname,
+          cfg_events->System_Events_Mask_Register,
+          cfg_events->Device_Events_Mask_Register,
+          cfg_events->Port_Events_Mask_Register);
+
+    return MESA_RC_OK;
+}
+
+
+static
+mesa_rc meba_poe_pd69200_bt_set_BT_events_interrupt_mask(
+    const meba_poe_ctrl_inst_t* const inst,
+    bt_events_interrupt_mask_t        cfg_events)
+{
+    uint8_t buf[PD_BUFFER_SIZE] = {
+        COMMAND_KEY,
+        DUMMY_SEQ_NUM,
+        GLOBAL_KEY,
+        BT_IRQ_MASK_KEY,
+        cfg_events.System_Events_Mask_Register,
+        cfg_events.Device_Events_Mask_Register,
+        cfg_events.Port_Events_Mask_Register,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE,
+        DUMMY_BYTE
+    };
+
+    char *fname = "Set BT Events Interrupt Mask";
+    MESA_RC(pd69200_tx_rx(inst, __FUNCTION__, __LINE__, buf, fname))
+
+    DEBUG(inst, MEBA_TRACE_LVL_INFO, "[%s] setting: system events=0x%X ,device events=0x%X ,port events=0x%X",
+          fname,
+          cfg_events.System_Events_Mask_Register,
+          cfg_events.Device_Events_Mask_Register,
+          cfg_events.Port_Events_Mask_Register);
+
+    return MESA_RC_OK;
 }
 
 
@@ -6669,32 +6822,61 @@ mesa_rc meba_poe_ctrl_pd69200_bt_port_status_get(
     }
 
     mesa_bool_t bRead_lldp_pse_data = FALSE;
-    mesa_bool_t has_event = tBT_event_cause.all_ports_event_cause[handle];
+    mesa_bool_t has_event = FALSE;
 
-    //in case of lldp event - lets read all status info
+    // any event occur on this port
+    if (tBT_event_cause.all_ports_event_cause[handle])
+    {
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has port event cause", __FUNCTION__, handle);
+    }
+
+    // in case of lldp event - lets read all status info
     if(lldp_ports_event[handle])
     {
         bRead_lldp_pse_data = TRUE;
         has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has lldp port event", __FUNCTION__, handle);
     }
 
-    // the status should not stay at the other ststuses for long time
+    // in case that port was configured - lets read all status info
+    if(conf_all_ports_event_cause[handle])
+    {
+        conf_all_ports_event_cause[handle] = false; // reset flag
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has config event", __FUNCTION__, handle);
+    }
+
+    // the status should not stay at the other statuses for long time
     if((current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_DISABLED) &&
        (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_TEST) &&
        (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER) &&
-       (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_SEARCHING))
-    {
-        DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s port= %d, meba_poe_ieee_port_state=%d", __FUNCTION__, handle, current_port_status->port_status.meba_poe_ieee_port_state);
+       (current_port_status->port_status.meba_poe_ieee_port_state != MEBA_POE_IEEE_PORT_STATE_SEARCHING) &&
+       (current_port_status->port_status.poe_internal_port_status != BT_0x25_OFF_Improper_Cap_Det_results_or_Det_val_indicating_short)) {
         has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, not in steady IEEE status, poe ieee port state=%s, poe internal status=%s",
+              __FUNCTION__,
+              handle,
+              get_poe_ieee_port_state_description(current_port_status->port_status.meba_poe_ieee_port_state),
+              get_bt_port_internal_status_description(current_port_status->port_status.poe_internal_port_status));
+    }
+
+    if (current_port_status->port_status.poe_internal_port_status == BT_0x22_OFF_Configuration_change) {
+        has_event = TRUE;
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has internal temporary disabled status=%s",
+              __FUNCTION__,
+              handle,
+	          get_bt_port_internal_status_description(current_port_status->port_status.poe_internal_port_status));
+    }
+
+    if (has_event) {
+        DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s port= %d, has_event", __FUNCTION__, handle);
     }
 
     mesa_bool_t bRead_port_status_and_port_class = has_event;
     mesa_bool_t bRead_port_measurements = has_event || poe_delivering_pwr[handle];
 
-//  DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s port= %d, has_event=%d", __FUNCTION__, handle, has_event);
-
     if (bRead_port_status_and_port_class) {
-
         uint8_t  port_state;
         uint8_t  enable;
         uint8_t  assigned_class;
@@ -6712,14 +6894,13 @@ mesa_rc meba_poe_ctrl_pd69200_bt_port_status_get(
                     &last_shutdown_error_status,
                     &port_event));
 
-
         bCounters_related_event = ((port_event & 4) != 0); // Counters Related Event bit 2 active - lets read counters
 
         current_port_status->port_status.assigned_pd_class_a = (assigned_class & 0xF0) >> 4;
         current_port_status->port_status.assigned_pd_class_b = assigned_class & 0xF;
 
         if (current_port_status->port_status.poe_internal_port_status != port_state) {
-            strncpy( current_port_status->port_status.poe_port_status_description , get_BT_title_by_ports_status(port_state), MAX_STR_SIZE-1);
+            strncpy( current_port_status->port_status.poe_port_status_description , get_bt_port_internal_status_description(port_state), MAX_STR_SIZE-1);
         }
 
         current_port_status->port_status.poe_internal_port_status = port_state;
@@ -7367,6 +7548,15 @@ mesa_rc meba_poe_ctrl_pd69200_bt_chip_initialization(
            __FUNCTION__, inst->adapter_name, tPoE_parameters.poe_init_params.power_supply_max_power_w, power_limit_w, current_global_cfg->power_supply_poe_limit_w);
 
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
+
+     // sets the interrupt mask, which enables or disables interrupt function events (enable all events)
+     bt_events_interrupt_mask_t        cfg_events;
+     cfg_events.System_Events_Mask_Register = 3;
+     cfg_events.Device_Events_Mask_Register = 0xF;
+     cfg_events.Port_Events_Mask_Register   = 0x1F;
+
+     MESA_RC(meba_poe_pd69200_bt_set_BT_events_interrupt_mask(inst, cfg_events));
+     MESA_RC(meba_poe_pd69200_bt_get_BT_events_interrupt_mask(inst, &cfg_events));
 
     //--- individual_masks ---//
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing BT individual masks parameters", __FUNCTION__, inst->adapter_name);
