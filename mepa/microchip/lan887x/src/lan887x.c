@@ -62,6 +62,8 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B},
     { "mx_chip_top_regs:SGMII_PCS_CFG", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG},
     { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035},
+    { "mx_chip_top_regs:QSGMII_ANEG", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG},
+    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL},
     // start - SGMII debugging
     { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041},
     { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209},
@@ -462,11 +464,21 @@ static mepa_rc lan887x_sgmii_setup(mepa_device_t *const dev)
                                               LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG,
                                               (LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN |
                                                LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_RST)));
+        //QSGMII ANEG Enable
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                              LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG,
+                                              LAN887X_MX_CHIP_TOP_QSGMII_ANEG_EN));
+
         T_I( MEPA_TRACE_GRP_GEN, "PHY port=%u SGMII aneg enabled!\n", data->port_no);
     } else {
         MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
                                                 LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG,
                                                 LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN));
+
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG,
+                                                LAN887X_MX_CHIP_TOP_QSGMII_ANEG_EN));
+
         T_I( MEPA_TRACE_GRP_GEN, "PHY port=%u SGMII aneg disabled!\n", data->port_no);
     }
 
@@ -903,6 +915,7 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_bool_t re_config = PHY_FALSE;
+    lan887x_reset_typ type = LAN887X_RST_SOFT;
 
     if ((config->man_neg != MEPA_MANUAL_NEG_CLIENT &&
          config->man_neg != MEPA_MANUAL_NEG_REF) ||
@@ -919,7 +932,13 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
         data->conf.flow_control = config->flow_control;
         data->conf.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
         data->conf.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
-        data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
+
+        // Setup MAC ANEG
+        if (data->conf.mac_if_aneg_ena != config->mac_if_aneg_ena) {
+            re_config = PHY_TRUE;
+            data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
+            type = LAN887X_RST_SOFT_MAC;
+        }
 
         // Setup Speed
         if (data->conf.speed != speed) {
@@ -944,7 +963,7 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (re_config == PHY_TRUE) {
             //config change and admin enable
             if (data->conf.admin.enable == PHY_TRUE) {
-                MEPA_RC_GOTO(rc, lan887x_int_reset(dev, LAN887X_RST_SOFT));
+                MEPA_RC_GOTO(rc, lan887x_int_reset(dev, type));
             } else {
                 //Power down
                 MEPA_RC_GOTO(rc, phy_reg_set_bits(dev, MII_BMCR, BMCR_PDOWN));

@@ -258,6 +258,11 @@
 #define LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_RST                  BIT(4)
 #define LAN887X_MX_CHIP_TOP_SGMII_PCS_ANEG_EN                   BIT(3)
 
+#define LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG                     (0xF020U)
+#define LAN887X_MX_CHIP_TOP_QSGMII_ANEG_EN                      BIT(0)
+
+#define LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL                      (0xF028U)
+
 /**********************************/
 //     TC10 Registers
 /**********************************/
