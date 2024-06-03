@@ -42,11 +42,25 @@ typedef struct {
 #define MEPA_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? 1 : 0)
 
 #define MEPA_MTIMER_START(timer, msec) { \
-    lm_os_timeval_init((lm_os_timeval_t *)&((timer)->timeout));  \
-    (timer)->timeout.tv_usec+=msec*1000; \
-    if ((timer)->timeout.tv_usec>=1000000) { (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000; (timer)->timeout.tv_usec%=1000000; } \
+    uint64_t ns = lm_os_ext_time_get(); \
+    uint64_t sec = (ns / 1000000000U); \
+    uint64_t usec = ((ns % 1000000000U) / 1000000U); \
+    (timer)->timeout.tv_sec = (int32_t)sec; \
+    (timer)->timeout.tv_usec = (int32_t)usec; \
+    (timer)->timeout.tv_usec += msec * 1000; \
+    if ((timer)->timeout.tv_usec >= 1000000) { \
+        (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000; \
+        (timer)->timeout.tv_usec %= 1000000; \
+    } \
 }
 
-#define MEPA_MTIMER_TIMEOUT(timer) (lm_os_timeval_init((lm_os_timeval_t *)&((timer)->now)) && MEPA_TIMERCMP((timer)->now, (timer)->timeout, >))
+#define MEPA_MTIMER_TIMEOUT(timer) ({ \
+    uint64_t ns = lm_os_ext_time_get(); \
+    uint64_t sec = (ns / 1000000000U); \
+    uint64_t usec = ((ns % 1000000000U) / 1000000U); \
+    (timer)->now.tv_sec = (int32_t)sec; \
+    (timer)->now.tv_usec = (int32_t)usec; \
+    MEPA_TIMERCMP((timer)->now, (timer)->timeout, >); \
+})
 
 #endif //  _MEPA_OS_VELOCITYSP_H_
