@@ -59,16 +59,15 @@ typedef struct {
 
 #define MEPA_MTIMER_CANCEL(timer) /**< No action in this implementation. */
 
-/**< Time of day struct */
-typedef struct {
-    time_t sec; /**< Time of day in seconds */
-} mepa_timeofday_t;
-
-#define MEPA_TIME_OF_DAY(tod) { \
-    struct timeval tve; \
-    (void)gettimeofday(&tve,NULL);  \
-    tod.sec = tve.tv_sec; \
-} /**< Time of day macro */
+static inline time_t MEPA_UPTIME_SECONDS(void)
+{
+    struct timespec time;
+    if (clock_gettime(CLOCK_MONOTONIC, &time) == 0) {
+        return time.tv_sec;
+    } else {
+        return 0;
+    }
+}
 
 #define MEPA_LLABS(arg)               llabs(arg)
 #define MEPA_ABS(arg)                 abs(arg)

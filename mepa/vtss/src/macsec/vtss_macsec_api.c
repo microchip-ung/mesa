@@ -8,7 +8,7 @@
 #include "../phy_10g/chips/venice/vtss_venice_regs_fc_buffer.h"
 #if defined(VTSS_FEATURE_MACSEC)
 
-#define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_MACSEC // Must come before #include "vtss_state.h"
+#define VTSS_TRACE_GROUP VTSS_PHY_TRACE_GROUP_MACSEC // Must come before #include "vtss_state.h"
 #include "../common/vtss_phy_common.h"
 #if defined (VTSS_OPT_PHY_TIMESTAMP)
 #include "../ts/vtss_phy_ts.h"
@@ -1704,7 +1704,7 @@ static vtss_rc vtss_macsec_init_set_priv(vtss_state_t                      *vtss
                     VTSS_F_MACSEC_INGR_IG_CC_PARAMS2_IG_CP_TAG_PARSE_STAG |
                     VTSS_F_MACSEC_INGR_IG_CC_PARAMS2_IG_CP_TAG_PARSE_QINQ);
 
-        /* Enable octet incrment mode to increment validated/decrypted counter even when validate frames is disabled */
+        /* Enable octet increment mode to increment validated/decrypted counter even when validate frames is disabled */
         if (vtss_state->macsec_conf[port_no].glb.macsec_revb == TRUE) {
             CSR_WARM_WR(port_no, VTSS_MACSEC_EGR_POST_PROC_CTL_DEBUG_REGS_PP_CTRL,
                         VTSS_F_MACSEC_EGR_POST_PROC_CTL_DEBUG_REGS_PP_CTRL_MACSEC_OCTET_INCR_MODE);
@@ -2987,7 +2987,7 @@ static vtss_rc macsec_sa_enable(vtss_state_t *vtss_state, vtss_port_no_t p, u32 
 
 static vtss_rc macsec_sa_inuse(vtss_state_t *vtss_state, vtss_port_no_t p, u32 record, BOOL egr, BOOL enable)
 {
-    VTSS_D("Set sa_inuse bit: sa:%d dir:%s enable:%d", record, egr ? "egr" : "ingr", enable );
+    VTSS_D("Set sa_inuse bit: sa:%d dir:%s enable:%d", record, egr ? "egr" : "ingr", enable);
     if (egr) {
         CSR_WARM_WRM(p, VTSS_MACSEC_EGR_SA_MATCH_FLOW_CONTROL_PARAMS_EGR_SAM_FLOW_CTRL_EGR(record),
                      (enable ? VTSS_F_MACSEC_EGR_SA_MATCH_FLOW_CONTROL_PARAMS_EGR_SAM_FLOW_CTRL_EGR_SA_IN_USE : 0),
@@ -3199,7 +3199,6 @@ static vtss_rc vtss_macsec_rx_sa_disable_priv(vtss_state_t              *vtss_st
 {
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
     u32 sc;
-    mepa_timeofday_t tod;
     VTSS_MACSEC_ASSERT(an >= VTSS_MACSEC_SA_PER_SC_MAX, "AN is invalid");
 
     VTSS_RC(sc_from_sci_get(vtss_state, port.port_no, secy, sci, &sc));
@@ -3219,8 +3218,7 @@ static vtss_rc vtss_macsec_rx_sa_disable_priv(vtss_state_t              *vtss_st
     secy->rx_sc[sc]->sa[an]->status.in_use = 0;
     secy->rx_sc[sc]->sa[an]->enabled = 0;
 
-    MEPA_TIME_OF_DAY(tod);
-    secy->rx_sc[sc]->sa[an]->status.stopped_time = tod.sec; // TimeOfDay in seconds
+    secy->rx_sc[sc]->sa[an]->status.stopped_time = MEPA_UPTIME_SECONDS();
     return VTSS_RC_OK;
 }
 
@@ -3230,7 +3228,6 @@ static vtss_rc vtss_macsec_tx_sa_disable_priv(vtss_state_t              *vtss_st
                                               const u16                 an)
 {
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
-    mepa_timeofday_t tod;
 
     VTSS_MACSEC_ASSERT(an >= VTSS_MACSEC_SA_PER_SC_MAX, "AN is invalid");
 
@@ -3256,11 +3253,10 @@ static vtss_rc vtss_macsec_tx_sa_disable_priv(vtss_state_t              *vtss_st
         secy->tx_sc.status.encoding_sa = 0;
         secy->tx_sc.status.enciphering_sa = 0;
     }
-    MEPA_TIME_OF_DAY(tod);
-    secy->tx_sc.sa[an]->status.stopped_time = tod.sec; // TimeOfDay in seconds
+
+    secy->tx_sc.sa[an]->status.stopped_time = MEPA_UPTIME_SECONDS();
     return VTSS_RC_OK;
 }
-
 
 static vtss_rc vtss_macsec_control_frame_match_conf_set_priv(vtss_state_t                                 *vtss_state,
                                                              const vtss_port_no_t                         port_no,
@@ -4559,7 +4555,6 @@ static vtss_rc vtss_macsec_rx_sc_add_priv(vtss_state_t              *vtss_state,
     u16 sc_secy = 0, sc_conf = 0, sc;
     u16 max_sc_rx;
     BOOL found_sc_in_secy = 0, found_sc_in_conf = 0;
-    mepa_timeofday_t tod;
 
     if (!check_resources(vtss_state, port.port_no, 1, secy_id)) {
         VTSS_E("HW resources exhausted, port_no:%d  port_id:%d, secy_id:%d", port.port_no, port.port_id, secy_id);
@@ -4605,8 +4600,7 @@ static vtss_rc vtss_macsec_rx_sc_add_priv(vtss_state_t              *vtss_state,
     secy->rx_sc[sc_secy]->conf.replay_protect = secy->conf.replay_protect;
     secy->rx_sc[sc_secy]->conf.replay_window = secy->conf.replay_window;
     secy->rx_sc[sc_secy]->conf.confidentiality_offset = secy->conf.confidentiality_offset;
-    MEPA_TIME_OF_DAY(tod);
-    secy->rx_sc[sc_secy]->status.created_time = tod.sec; // TimeOfDay in seconds
+    secy->rx_sc[sc_secy]->status.created_time = MEPA_UPTIME_SECONDS();
     secy->rx_sc[sc_secy]->in_use = 1;
 
     return VTSS_RC_OK;
@@ -4617,14 +4611,14 @@ static vtss_rc vtss_macsec_tx_sc_set_priv(vtss_state_t              *vtss_state,
                                           const u32                 secy_id)
 {
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
-    mepa_timeofday_t tod;
+    time_t uptime_seconds;
 
     VTSS_RC(is_sci_valid(vtss_state, port.port_no, &secy->sci));
 
-    MEPA_TIME_OF_DAY(tod);
-    secy->tx_sc.status.created_time = tod.sec; // 802.1AE 10.7.12
-    secy->tx_sc.status.started_time = tod.sec; // 802.1AE 10.7.12
-    secy->tx_sc.status.stopped_time = 0;       // 802.1AE 10.7.12
+    uptime_seconds = MEPA_UPTIME_SECONDS();
+    secy->tx_sc.status.created_time = uptime_seconds; // 802.1AE 10.7.12
+    secy->tx_sc.status.started_time = uptime_seconds; // 802.1AE 10.7.12
+    secy->tx_sc.status.stopped_time = 0;              // 802.1AE 10.7.12
     secy->tx_sc.in_use = 1;
     memcpy(&secy->tx_sc.status.sci,  &secy->sci, sizeof(vtss_macsec_sci_t));
     return VTSS_RC_OK;
@@ -4643,7 +4637,6 @@ static vtss_rc vtss_macsec_rx_sa_set_priv(vtss_state_t                  *vtss_st
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
     vtss_macsec_match_pattern_t *match = &secy->pattern[VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT][VTSS_MACSEC_DIRECTION_INGRESS];
     u32 sc, record = 0;
-    mepa_timeofday_t tod;
     BOOL create_record = 1;
     vtss_macsec_internal_secy_t secy_tmp;
     vtss_macsec_internal_rx_sa_t sa_tmp;
@@ -4732,8 +4725,7 @@ static vtss_rc vtss_macsec_rx_sa_set_priv(vtss_state_t                  *vtss_st
         secy->rx_sc[sc]->sa[an]->status.lowest_pn = lowest_pn.pn;
         secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn = lowest_pn; // Rev-B
         secy->rx_sc[sc]->sa[an]->in_use = 1;
-        MEPA_TIME_OF_DAY(tod);
-        secy->rx_sc[sc]->sa[an]->status.created_time = tod.sec; // TimeOfDay in seconds
+        secy->rx_sc[sc]->sa[an]->status.created_time = MEPA_UPTIME_SECONDS();
     }
 
     if (vtss_state->warm_start_cur) {
@@ -5057,7 +5049,6 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
     vtss_macsec_match_pattern_t *match = &secy->pattern[VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT][VTSS_MACSEC_DIRECTION_EGRESS];
     u32 record = 0;
-    mepa_timeofday_t tod;
     BOOL create_record = 1;
     vtss_macsec_internal_secy_t secy_tmp;
     vtss_macsec_internal_tx_sa_t sa_tmp;
@@ -5136,8 +5127,7 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
         }
         secy->tx_sc.sa[an]->status.pn_status.next_pn = next_pn;
         secy->tx_sc.sa[an]->in_use = 1;
-        MEPA_TIME_OF_DAY(tod);
-        secy->tx_sc.sa[an]->status.created_time = tod.sec; // TimeOfDay in seconds
+        secy->tx_sc.sa[an]->status.created_time = MEPA_UPTIME_SECONDS();
     }
     if (vtss_state->warm_start_cur) {
         return VTSS_RC_OK;
@@ -5172,7 +5162,7 @@ static vtss_rc vtss_macsec_tx_sa_activate_priv(vtss_state_t                  *vt
                                                const u16                     an)
 {
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
-    mepa_timeofday_t tod;
+    time_t uptime_seconds;
     u32 old_an, i;
     BOOL an_in_use = 0;
     if (vtss_state->sync_calling_private) {
@@ -5224,8 +5214,9 @@ static vtss_rc vtss_macsec_tx_sa_activate_priv(vtss_state_t                  *vt
         secy->tx_sc.sa[old_an]->enabled = 0;
         secy->tx_sc.sa[old_an]->status.in_use = 0;
     }
-    MEPA_TIME_OF_DAY(tod);
-    secy->tx_sc.sa[an]->status.started_time = tod.sec; // TimeOfDay in seconds
+
+    uptime_seconds = MEPA_UPTIME_SECONDS();
+    secy->tx_sc.sa[an]->status.started_time = uptime_seconds;
     secy->tx_sc.sa[an]->enabled = 1;
     secy->tx_sc.sa[an]->status.in_use = 1;
     an_in_use = 0;
@@ -5240,7 +5231,7 @@ static vtss_rc vtss_macsec_tx_sa_activate_priv(vtss_state_t                  *vt
     }
 
     if (!an_in_use) {
-        secy->tx_sc.status.started_time = tod.sec;
+        secy->tx_sc.status.started_time = uptime_seconds;
     }
     secy->tx_sc.status.encoding_sa = an;
     secy->tx_sc.status.enciphering_sa = an;
@@ -5254,7 +5245,7 @@ static vtss_rc vtss_macsec_rx_sa_activate_priv(vtss_state_t                  *vt
                                                const vtss_macsec_sci_t       *const sci,
                                                const u16                     an)
 {
-    mepa_timeofday_t tod;
+    time_t uptime_seconds;
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
     u32 sc, i, sa_in_use = 0;
 
@@ -5287,8 +5278,8 @@ static vtss_rc vtss_macsec_rx_sa_activate_priv(vtss_state_t                  *vt
         return VTSS_RC_OK;
     }
 
-    MEPA_TIME_OF_DAY(tod);
-    secy->rx_sc[sc]->sa[an]->status.started_time = tod.sec; // TimeOfDay in seconds
+    uptime_seconds = MEPA_UPTIME_SECONDS();
+    secy->rx_sc[sc]->sa[an]->status.started_time = uptime_seconds;
     secy->rx_sc[sc]->sa[an]->status.in_use = 1;
     secy->rx_sc[sc]->sa[an]->enabled = 1;
 
@@ -5302,7 +5293,7 @@ static vtss_rc vtss_macsec_rx_sa_activate_priv(vtss_state_t                  *vt
         }
     }
     if (!sa_in_use) {
-        secy->rx_sc[sc]->status.started_time = tod.sec;
+        secy->rx_sc[sc]->status.started_time = uptime_seconds;
     }
     return VTSS_RC_OK;
 }
@@ -6019,6 +6010,8 @@ static vtss_rc vtss_macsec_uncontrolled_counters_get_priv(vtss_state_t          
 #ifdef BYPASS_IEEE_SECTION_10_7_3
     u64 ctrl_if_in_octets  = 0;
 #endif
+
+    memset(counters, 0, sizeof(*counters));
 
     // From IEEE 802.1AE-2006 - Section 10.7.3 : The ifInDiscards and ifInErrors counts are zero, as the operation of the Uncontrolled Port provides no error checking or occasion to discard packets, beyond that
     //                                           provided by its users or by the entity supporting the Common Port.
@@ -8514,6 +8507,9 @@ vtss_rc vtss_macsec_secy_cap_get(const vtss_inst_t             inst,
     VTSS_D("Port: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_macsec_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        // The actual number of Rx and Tx SAs could be read in bits[7:0] of
+        // VTSS_MACSEC_INGR_EIP160_IP_VER_CFG_REGS_EIP160_CONFIG and
+        // VTSS_MACSEC_EGR_EIP160_IP_VER_CFG_REGS_EIP160_CONFIG
         cap->max_peer_scs = vtss_state->macsec_capability[port_no].max_sc_cnt;
 	cap->max_receive_keys = vtss_state->macsec_capability[port_no].max_sa_cnt;
 	cap->max_transmit_keys = vtss_state->macsec_capability[port_no].max_sa_cnt;

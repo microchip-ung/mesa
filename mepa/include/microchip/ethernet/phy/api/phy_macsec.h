@@ -57,12 +57,12 @@ typedef enum {
 
 /** \brief The mepa_macsec_port_t is a unique identifier to a SecY.
  * This identifier is defined by three properties:
- *  - port_no:    A reference the physical port
+ *  - port_no:    A reference to the physical port
  *  - service_id: A reference to a given encapsulation service. The user of the
  *                API may choose any number, this is not used in hardware, but
  *                in cases where external-virtual ports are used this is
  *                required to have a unique identifier to a given SecY.
- *  - port_id:    The port ID which used in the SCI tag.
+ *  - port_id:    The port ID used in the SCI tag.
  * */
 typedef struct {
     mepa_port_no_t           port_no;                         /**< Physical port no */
@@ -257,7 +257,6 @@ mepa_rc mepa_macsec_init_get(struct mepa_device *dev,
  *  The entity is created with given parameters.
  *  The controlled port is disabled by default and must be enabled before normal processing.
  *  Classification pattern must be configured to classify traffic to a SecY instance
- *
  */
 mepa_rc mepa_macsec_secy_conf_add(struct mepa_device *dev,
                                   const mepa_macsec_port_t port,
@@ -266,11 +265,10 @@ mepa_rc mepa_macsec_secy_conf_add(struct mepa_device *dev,
 /** Create a SecY entity of a MACsec port
  * The SecY is updated with given parameters.
  * Note that the SecY must exist
- * SecY update with new parameters i.e. Replay Window size etc, it will
- * update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
- * will not change. Tx/Rx SA Status Next PN and Lowest PN shows different
- * as compare with existing Tx/Rx SA Status.
- *
+ * SecY update with new parameters i.e. Replay Window size etc, will affect new
+ * SA's only. Existing parameters i.e. Next PN and Lower PN will not change.
+ * Tx/Rx SA Status Next PN and Lowest PN shows differently compared to existing
+ * Tx/Rx SA Status.
  */
 mepa_rc mepa_macsec_secy_conf_update(struct mepa_device *dev,
                                      const mepa_macsec_port_t port,
@@ -297,7 +295,7 @@ mepa_rc mepa_macsec_secy_controlled_get(struct mepa_device *dev,
                                         const mepa_macsec_port_t port,
                                         mepa_bool_t *const enable);
 
-/** Get status from a SecY port, controlled, uncontrolled or common. */
+/** Get status from a SecY port, controlled, uncontrolled and common. */
 mepa_rc mepa_macsec_secy_port_status_get(struct mepa_device *dev,
                                          const mepa_macsec_port_t port,
                                          mepa_macsec_secy_port_status_t *const status);
@@ -322,7 +320,7 @@ mepa_rc mepa_macsec_rx_sc_add(struct mepa_device *dev,
 
 /** Instead of inheriting the configuration from the SecY the Rx SC can use its own configuration.
 * RxSC update with new parameters i.e. Replay Window size etc, it will
-* update newly create SA's only. Existing parameters i.e. Next PN and Lower PN
+* update newly created SA's only. Existing parameters i.e. Next PN and Lower PN
 * will not change. Rx SA Status Next PN and Lowest PN shows different
 * as compare with existing Rx SA Status.
 */
@@ -405,7 +403,7 @@ mepa_rc mepa_macsec_rx_sa_set(struct mepa_device *dev,
 
 /** Get the Rx SA configuration of the active SA.
 
- * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  */
@@ -420,7 +418,8 @@ mepa_rc mepa_macsec_rx_sa_get(struct mepa_device *dev,
 
 /** Activate the SA associated with the AN.
     The reception switches from a previous SA to the SA identified by the AN.
-    Note that the reception using the new SA does not necessarily begin immediately. **/
+    Note that the reception using the new SA does not necessarily begin immediately.
+ */
 mepa_rc mepa_macsec_rx_sa_activate(struct mepa_device *dev,
                                    const mepa_macsec_port_t port,
                                    const mepa_macsec_sci_t *const sci,
@@ -448,7 +447,7 @@ mepa_rc mepa_macsec_rx_sa_lowest_pn_update(struct mepa_device *dev,
                                            const uint32_t lowest_pn);
 
 /** Rx SA status get
- * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  */
@@ -497,7 +496,7 @@ mepa_rc mepa_macsec_rx_seca_lowest_pn_update(struct mepa_device *dev,
 
 /**Create an Tx SA which is associated with the Tx SC within the SecY.
  * This SA is not in use until mepa_macsec_tx_sa_activate() is performed.
- * If SA was created before any change in parameters like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * If SA was created before any change in parameters like Replay Window etc. Lowest PN may appear to be consistent with newly
  * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  *
@@ -540,7 +539,7 @@ mepa_rc mepa_macsec_tx_sa_del(struct mepa_device *dev,
                               const uint16_t an);
 
 /**Tx SA status
- * If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  * updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  * the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  */
@@ -612,7 +611,7 @@ typedef struct {
 /** \brief Counter structure for SecY ports */
 typedef struct {
     uint64_t if_in_octets;                                    /**< In octets       */
-    uint64_t if_in_pkts;                                      /**< Out octets      */
+    uint64_t if_in_pkts;                                      /**< In packets      */
     uint64_t if_in_ucast_pkts;                                /**< In unicasts   - available from Rev B */
     uint64_t if_in_multicast_pkts;                            /**< In multicasts - available from Rev B */
     uint64_t if_in_broadcast_pkts;                            /**< In broadcasts - available from Rev B */
@@ -648,7 +647,7 @@ typedef struct {
 /* Possible values for the mepa_macsec_secy_cap_t:ciphersuite_cap */
 #define MEPA_MACSEC_CAP_GCM_AES_128       0x0001              /**< GCM-AES-128 cipher suite capability */
 #define MEPA_MACSEC_CAP_GCM_AES_256       0x0002              /**< GCM-AES-256 cipher suite capability */
-#define MEPA_MACSEC_CAP_GCM_AES_XPN_128   0x0004              /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
+#define MEPA_MACSEC_CAP_GCM_AES_XPN_128   0x0004              /**< GCM-AES-XPN-128 cipher suite capability (extended PN) */
 #define MEPA_MACSEC_CAP_GCM_AES_XPN_256   0x0008              /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
 
 /** \brief Capabilities as defined by 802.1AE */
@@ -675,7 +674,7 @@ mepa_rc mepa_macsec_common_counters_get(struct mepa_device *dev,
                                         mepa_macsec_common_counters_t *const counters);
 
 
-/** Get the capabilities of the SecY as define by 802.1AE. */
+/** Get the capabilities of the SecY as defined by 802.1AE. */
 mepa_rc mepa_macsec_secy_cap_get(struct mepa_device *dev,
                                  const mepa_port_no_t port_no,
                                  mepa_macsec_secy_cap_t *const cap);
@@ -832,8 +831,8 @@ mepa_rc mepa_macsec_control_frame_match_conf_get(struct mepa_device *dev,
 
 /** \brief Matching patterns,
  * When traffic is passed through the MACsec processing block, it will be match
- * against a set of rules. If non of the rules matches, it will be matched
- * against the default rules (one and only on of the default rules will always
+ * against a set of rules. If none of the rules matches, it will be matched
+ * against the default rules (one and only one of the default rules will always
  * match) defined in mepa_macsec_default_action_policy_t.
  *
  * The classification rules are associated with a MACsec port and an action. The
@@ -1506,4 +1505,4 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
 
 
 #include <microchip/ethernet/hdr_end.h>
-#endif /**< _MEPA_TS_API_H_ */
+#endif /**< _MEPA_MACSEC_API_H_ */

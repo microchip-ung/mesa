@@ -562,6 +562,7 @@ typedef enum
 {
     VTSS_PHY_TRACE_GROUP_DEFAULT,       /**< Default trace group */
     VTSS_PHY_TRACE_GROUP_TS,            /**< Timestamping */
+    VTSS_PHY_TRACE_GROUP_MACSEC,        /**< MACsec */
 
     VTSS_PHY_TRACE_GROUP_COUNT          /**< Number of trace groups */
 } vtss_phy_trace_group_t;

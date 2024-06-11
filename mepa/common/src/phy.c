@@ -555,7 +555,7 @@ mepa_rc mepa_phy_info_get(struct mepa_device *dev,
 mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
                                const mepa_bool_t iso_en)
 {
-    if (!dev || !dev->drv->mepa_driver_phy_info_get) {
+    if (!dev || !dev->drv->mepa_driver_isolate_mode_conf) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
@@ -2856,8 +2856,9 @@ mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_con
 uint32_t mepa_capability(struct mepa_device *dev, uint32_t capability)
 {
     if (!dev->drv->mepa_capability) {
-        return MESA_RC_NOT_IMPLEMENTED;
+        return 0;
     }
+
     return dev->drv->mepa_capability(dev, capability);
 }
 

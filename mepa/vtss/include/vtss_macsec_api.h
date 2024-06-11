@@ -68,8 +68,8 @@ extern "C" {
     Tag and header bypassing
     ========================
 
-    Additionally the API provide support for external-virtual ports (port
-    virtalization done outside the SECtag). This includes protecting streams
+    Additionally, the API provides support for external-virtual ports (port
+    virtualization done outside the SECtag). This includes protecting streams
     which are encapsulated in VLAN-tag, double VLAN tag and MPLS tunnels. This
     is an extension to what is defined in IEEE 802.1AE.
 
@@ -523,7 +523,7 @@ vtss_rc vtss_macsec_rx_sa_set(const vtss_inst_t             inst,
  *
  * \return VTSS_RC_OK when successful; VTSS_RC_ERROR if parameters are invalid.
  *
- * Note: If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * Note: If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  *       updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  *       the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  *
@@ -610,7 +610,7 @@ vtss_rc vtss_macsec_rx_sa_lowest_pn_update(const vtss_inst_t            inst,
  * \param status       [OUT]    SC status
  *
  * \return VTSS_RC_OK when successful; VTSS_RC_ERROR if parameters are invalid.
- * Note: If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * Note: If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  *       updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  *       the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  */
@@ -702,7 +702,7 @@ vtss_rc vtss_macsec_rx_seca_lowest_pn_update(const vtss_inst_t            inst,
  *
  * \return VTSS_RC_OK when successful; VTSS_RC_ERROR if parameters are invalid.
  *
- * Note: If SA was created before any change in parameters like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * Note: If SA was created before any change in parameters like Replay Window etc. Lowest PN may appear to be consistent with newly
  *       updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  *       the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  *
@@ -785,7 +785,7 @@ vtss_rc vtss_macsec_tx_sa_del(const vtss_inst_t         inst,
  * \param status       [OUT]    SC status
  *
  * \return VTSS_RC_OK when successful; VTSS_RC_ERROR if parameters are invalid.
- * Note: If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+ * Note: If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
  *       updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
  *       the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
  */
@@ -896,7 +896,7 @@ vtss_rc vtss_macsec_common_counters_get(const vtss_inst_t               inst,
                                         vtss_macsec_common_counters_t   *const counters);
 
 
-/** \brief Get the capabilities of the SecY as define by 802.1AE.
+/** \brief Get the capabilities of the SecY as defined by 802.1AE.
  *
  * \param inst        [IN]     VTSS-API instance.
  * \param port_no     [IN]     VTSS-API port no.

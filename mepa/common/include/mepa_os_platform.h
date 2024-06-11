@@ -41,9 +41,10 @@ typedef struct {
     mepa_timeval_t now;
 } mepa_mtimer_t;
 
-#define MEPA_TIME_OF_DAY(t) { \
-	t.now = os_platform_get_system_time();  \
-} /**< System time macro */
+static inline time_t MEPA_UPTIME_SECONDS(void)
+{
+    return os_platform_get_uptime_seconds();
+}
 
 #define MEPA_MTIMER_TIMEOUT(timer) (((((timer)->now = os_platform_get_system_time()) - (timer)->timeout) > 0)?(((timer)->now/TICKS_PER_MS_300MHZ > MAX_ALLOWED_TIME_DIFF)? MEPA_OS_TRUE:MEPA_OS_FALSE):MEPA_OS_FALSE) /**< Timer timeout macro */
 

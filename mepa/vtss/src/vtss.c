@@ -84,8 +84,9 @@ static void trace_func(const vtss_phy_trace_group_t group,
     va_list args;
 
     if (MEPA_TRACE_FUNCTION) {
-        // Map from VTSS to MEPA trace group/level
-        data.group = (group == VTSS_PHY_TRACE_GROUP_TS ? MEPA_TRACE_GRP_TS : MEPA_TRACE_GRP_GEN);
+        // There must be a one-to-one-mapping between vtss_phy_trace_group_t and
+        // mepa_trace_group_t, or this piece of code won't work.
+        data.group = group;
         data.level = (level == VTSS_PHY_TRACE_LEVEL_ERROR ? MEPA_TRACE_LVL_ERROR :
                       level == VTSS_PHY_TRACE_LEVEL_INFO ? MEPA_TRACE_LVL_INFO :
                       level == VTSS_PHY_TRACE_LEVEL_DEBUG ? MEPA_TRACE_LVL_DEBUG :
@@ -1389,6 +1390,7 @@ static mepa_rc phy_eee_status_get(mepa_device_t *dev, u8 *const advertisement, B
 static uint32_t phy_1g_capability(struct mepa_device *dev , uint32_t capability)
 {
     uint32_t c = 0;
+#ifdef VTSS_FEATURE_MACSEC
     switch(capability) {
     case MEPA_CAP_MACSEC_SECY_CNT:
         c = MEPA_MACSEC_1G_MAX_SA/2;
@@ -1402,6 +1404,7 @@ static uint32_t phy_1g_capability(struct mepa_device *dev , uint32_t capability)
         c = MEPA_MACSEC_1G_MAX_SA/2;
     break;
     }
+#endif
     return c;
 }
 

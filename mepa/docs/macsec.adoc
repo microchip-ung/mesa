@@ -238,7 +238,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
                            This SA is not enabled until vtss_macsec_rx_sa_activate() is performed.
 
 `mepa_macsec_rx_sa_get()`: Get the Rx SA configuration of the active SA.
-                           If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                           If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
                            updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
                            the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
 
@@ -253,7 +253,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
 `mepa_macsec_rx_sa_lowest_pn_update()`: Set (update) the packet number (pn) value to value in lowest_pn
 
 `mepa_macsec_rx_sa_status_get()`: Rx SA status
-                                  If SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                                  If SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
                                   updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
                                   the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
 
@@ -270,7 +270,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
 
 `mepa_macsec_tx_sa_set()`: Create an Tx SA which is associated with the Tx SC within the SecY.
                            This SA is not in use until vtss_macsec_tx_sa_activate() is performed.
-                           If SA was created before any change in parameters like Replay Widow etc. Lowest PN may appear to be consistent with newly
+                           If SA was created before any change in parameters like Replay Window etc. Lowest PN may appear to be consistent with newly
                            updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
                            the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's
 
@@ -283,7 +283,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
 
 `mepa_macsec_tx_sa_del()`: This function deletes Tx SA object identified by an. The Tx SA must be disabled before deleted.
 
-`mepa_macsec_tx_sa_status_get()`: TX SA status, if SA was created before any change on parameter like Replay Widow etc. Lowest PN may appear to be consistent with newly
+`mepa_macsec_tx_sa_status_get()`: TX SA status, if SA was created before any change on parameter like Replay Window etc. Lowest PN may appear to be consistent with newly
                            updated value, but the actual value will be according to the SA's creation time. One has to subtract the change in the
                            the value obtained from API to get the actual value. Updating parameters like Replay Window doesn't change the older SA's.
 
@@ -297,7 +297,7 @@ Secure Channel Identifier (SCI) or by MAC virtual port.
 === Header / TAG Bypass
 
 Additionally the API provide support for external-virtual ports (port
-virtalization done outside the SECtag). This includes protecting streams
+virtualization done outside the SECtag). This includes protecting streams
 which are encapsulated in VLAN-tag, double VLAN tag and MPLS tunnels. This
 is an extension to what is defined in IEEE 802.1AE.
 

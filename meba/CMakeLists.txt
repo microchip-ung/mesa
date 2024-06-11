@@ -108,6 +108,9 @@ MEBA_LIB(LIB_NAME caracal MEBA_SRC_FOLDER caracal
 MEBA_LIB(LIB_NAME jr2 MEBA_SRC_FOLDER jr2
          STATIC_DEPENDENCIES    mepa_jr2)
 
+MEBA_LIB(LIB_NAME jr2_macsec MEBA_SRC_FOLDER jr2
+         STATIC_DEPENDENCIES    mepa_jr2_macsec)
+
 MEBA_LIB(LIB_NAME jr2_bringup MEBA_SRC_FOLDER jr2
          STATIC_DEPENDENCIES    mepa_jr2_bringup)
 
@@ -125,7 +128,6 @@ MEBA_LIB(LIB_NAME sparx5 MEBA_SRC_FOLDER sparx5
 
 MEBA_LIB(LIB_NAME sparx5_macsec MEBA_SRC_FOLDER sparx5
          STATIC_DEPENDENCIES    mepa_sparx5_macsec)
-
 
 MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
          STATIC_DEPENDENCIES    mepa_sparx5_bringup)
