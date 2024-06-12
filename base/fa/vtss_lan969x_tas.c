@@ -247,18 +247,18 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
         REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(chip_port) |
                                     VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port, port_conf->ot)) |
-                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(vtss_state->ts.conf.tsn_domain) |
                                     VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
     } else {
         REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(chip_port) |
                                     VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port, FALSE)) |
-                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(vtss_state->ts.conf.tsn_domain) |
                                     VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
     }
 #else
     REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_PORT_NUM(chip_port) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_HSCH_POS(FA_HSCH_TAS_SE(chip_port, FALSE)) |
-                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(vtss_state->ts.conf.tsn_domain) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 #endif
 

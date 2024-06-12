@@ -166,6 +166,37 @@ BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *t
     return FALSE;
 }
 
+// TSN global configuration
+vtss_rc vtss_ts_conf_set(const vtss_inst_t           inst,
+                         const vtss_ts_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        vtss_state->ts.conf.tsn_domain = conf->tsn_domain;
+        rc = vtss_cil_ts_conf_set(vtss_state, conf);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_ts_conf_get(const vtss_inst_t  inst,
+                         vtss_ts_conf_t    *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        conf->tsn_domain = vtss_state->ts.conf.tsn_domain;
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+
 /* Get the current time in a Timestamp format, and the corresponding time counter */
 vtss_rc vtss_ts_timeofday_get(const vtss_inst_t             inst,
                               vtss_timestamp_t              *const ts,
@@ -1366,8 +1397,8 @@ void vtss_ts_debug_print(vtss_state_t *vtss_state,
                          const vtss_debug_printf_t pr,
                          const vtss_debug_info_t   *const info)
 {
-    u32               i,j;
-    vtss_ts_conf_t *ts_conf;
+    u32                i,j;
+    vtss_ts_configs_t *ts_conf;
     vtss_ts_port_conf_t *ts_port_conf;
     vtss_ts_timestamp_status_t *status;
     BOOL first = TRUE;

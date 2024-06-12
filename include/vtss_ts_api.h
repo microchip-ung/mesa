@@ -102,6 +102,21 @@ extern "C" {
 /** \brief This is the max time offset adjustment that os done without setting ports in disabled state */
 #define VTSS_HW_TIME_MAX_FINE_ADJ   25
 
+// TSN global configuration
+typedef struct {
+    // PTP domain number [0..VTSS_TS_DOMAIN_ARRAY_SIZE-1]
+    // This is the PTP (TOD/Clock) domain for TSN features:
+    // TAS - PRFP - RTE
+    u8  tsn_domain;
+} vtss_ts_conf_t;
+
+// TSN global configuration
+vtss_rc vtss_ts_conf_set(const vtss_inst_t           inst,
+                         const vtss_ts_conf_t *const conf);
+
+vtss_rc vtss_ts_conf_get(const vtss_inst_t        inst,
+                         vtss_ts_conf_t    *const conf);
+
 /**
  * \brief Set the current time in a Timestamp format.
  * \param inst [IN]     handle to an API instance.

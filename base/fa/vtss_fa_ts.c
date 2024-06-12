@@ -1167,6 +1167,23 @@ static vtss_rc fa_ts_seq_cnt_get(vtss_state_t *vtss_state,
     return rc;
 }
 
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state,
+                             const vtss_ts_conf_t *const conf)
+{
+    u32 i;
+
+    REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG,
+           VTSS_F_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG_PTP_DOMAIN(conf->tsn_domain));
+
+    for (i = 0; i < RT_TAS_NUMBER_OF_LISTS; ++i) {
+        REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM(i),
+                VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM);
+        REG_WRM(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(conf->tsn_domain),
+                VTSS_M_HSCH_TAS_LIST_CFG_LIST_TOD_DOM);
+    }
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 #if VTSS_OPT_DEBUG_PRINT

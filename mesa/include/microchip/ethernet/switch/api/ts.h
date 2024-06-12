@@ -16,6 +16,23 @@
 #include <microchip/ethernet/switch/api/security.h>
 #include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
 
+// TS global configuration
+typedef struct {
+    // PTP domain number [0..MESA_CAP_TS_DOMAIN_CNT-1]
+    // This is the PTP (TOD) domain for TSN features:
+    // TAS - PRFP - RTE
+    uint8_t  tsn_domain;
+} mesa_ts_conf_t CAP(TS);
+
+// TSN global configuration
+mesa_rc mesa_ts_conf_set(const mesa_inst_t           inst,
+                         const mesa_ts_conf_t *const conf)
+    CAP(TS);
+
+mesa_rc mesa_ts_conf_get(const mesa_inst_t        inst,
+                         mesa_ts_conf_t    *const conf)
+    CAP(TS);
+
 /** \brief This is the max time offset adjustment that os done without setting ports in disabled state */
 #define MESA_HW_TIME_MAX_FINE_ADJ   25
 

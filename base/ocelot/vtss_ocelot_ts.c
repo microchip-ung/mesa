@@ -1239,6 +1239,12 @@ VTSS_D("io pin %d, pin cfg: %u, domain: %u, freq: %u", io, ext_io_mode->pin, ext
 #endif
 }
 
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state,
+                             const vtss_ts_conf_t *const conf)
+{
+    return VTSS_RC_OK;
+}
+
 /* - Initialization ------------------------------------------------ */
 
 static vtss_rc srvl_ts_init(vtss_state_t *vtss_state)

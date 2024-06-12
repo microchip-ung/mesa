@@ -3022,7 +3022,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     REG_WR(VTSS_HSCH_TAS_STARTUP_CFG, VTSS_F_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE) ? obsolete_list_idx : list_idx) |
                                       VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time/256));
     REG_WR(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_LENGTH(gcl_length) |
-                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(0) |
+                                   VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(vtss_state->ts.conf.tsn_domain) |
                                    VTSS_F_HSCH_TAS_LIST_CFG_LIST_BASE_ADDR(entry_idx));
 
     /* Configure the profile(s) */

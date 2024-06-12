@@ -44,7 +44,8 @@ typedef struct {
     i32 outstanding_corr;       /* value to be subtracted from hw time to get PTP time during the adjustment period */
     BOOL awaiting_adjustment; /* set when a clock onetime adjustment has been set, cleared after one sec */
     u32  clk_set_trunc;         /* In order to make the clock counter wrap at a 1 sec, the time is truncated to a multiplum of this value, which is set in tie initialization function, depending on the internal PTP clock rate */
-} vtss_ts_conf_t;
+    u8   tsn_domain;          /* This is the PTP (TOD/Clock) domain for TSN features */
+} vtss_ts_configs_t;
 
 typedef struct {
     vtss_timeinterval_t ingress_latency;
@@ -98,6 +99,9 @@ typedef struct {
     i32 last;
 } vtss_oam_timestamp_status_t;
 #endif /* VTSS_ARCH_OCELOT */
+
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state,
+                             const vtss_ts_conf_t *const conf);
 
 typedef struct {
     /* CIL function pointers */
@@ -195,7 +199,7 @@ typedef struct {
     vtss_rc (* link_up)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
 
     /* Configuration/state */
-    vtss_ts_conf_t              conf;
+    vtss_ts_configs_t           conf;
     vtss_ts_internal_mode_t     int_mode;
     vtss_ts_port_conf_t         port_conf[VTSS_PORT_ARRAY_SIZE];
     vtss_ts_timestamp_status_t  status[VTSS_TS_ID_SIZE];

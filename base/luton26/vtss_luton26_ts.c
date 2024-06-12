@@ -77,7 +77,7 @@ l26_ts_timeofday_get(vtss_state_t      *vtss_state,
                      vtss_timestamp_t  *ts,
                      u64               *tc)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32 value;
     u32 value_ns;
     i32 x;
@@ -106,7 +106,7 @@ l26_ts_timeofday_get(vtss_state_t      *vtss_state,
 static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io,
                                                 vtss_timestamp_t *ts, u64 *tc)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32 value;
     u32 value_ns;
     i32 x;
@@ -162,7 +162,7 @@ static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t *vtss_state, u32 io,
 static vtss_rc
 l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32 corr;
 
     if (conf->awaiting_adjustment) {
@@ -212,7 +212,7 @@ l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
 static vtss_rc
 l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32 corr;
     u32 value;
     u32 value1;
@@ -240,7 +240,7 @@ l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 static vtss_rc l26_ts_timeofday_set_delta(vtss_state_t *vtss_state,
                                           const vtss_timestamp_t *ts, BOOL negative)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32 corr;
 
     if (conf->awaiting_adjustment) {
@@ -280,7 +280,7 @@ static u32 l26_ts_ns_cnt_get(vtss_inst_t inst)
 static vtss_rc
 l26_ts_timeofday_one_sec(vtss_state_t *vtss_state)
 {
-    vtss_ts_conf_t *conf = &vtss_state->ts.conf;
+    vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32 value, value1;
 
     if (conf->awaiting_adjustment) {
@@ -642,6 +642,12 @@ static vtss_rc l26_ts_status_change(vtss_state_t         *vtss_state,
         rc = rc2;
     }
     return rc;
+}
+
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state,
+                             const vtss_ts_conf_t *const conf)
+{
+    return VTSS_RC_OK;
 }
 
 /* - Debug print --------------------------------------------------- */

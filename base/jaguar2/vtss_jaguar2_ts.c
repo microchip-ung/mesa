@@ -1185,6 +1185,11 @@ static vtss_rc jr2_ts_seq_cnt_get(vtss_state_t *vtss_state,
     return rc;
 }
 
+vtss_rc vtss_cil_ts_conf_set(vtss_state_t *vtss_state, const vtss_ts_conf_t *const conf)
+{
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc jr2_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)

@@ -841,6 +841,14 @@ static vtss_rc lan966x_ts_link_up(vtss_state_t *vtss_state, const vtss_port_no_t
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state,
+                             const vtss_ts_conf_t *const conf)
+{
+    REG_WR(ANA_SG_PTP_DOMAIN_CFG, ANA_SG_PTP_DOMAIN_CFG_PTP_DOMAIN(conf->tsn_domain));
+    REG_WR(QSYS_PTP_DOMAIN_CFG, QSYS_PTP_DOMAIN_CFG_PTP_DOMAIN(conf->tsn_domain));
+    return VTSS_RC_OK;
+}
+
 #if VTSS_OPT_DEBUG_PRINT
 
 /* - Debug print --------------------------------------------------- */
