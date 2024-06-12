@@ -38,21 +38,15 @@ def equal_interval_gcl_reconfig_test
     cycle_time_ext = time_interval / 2                           # GCL cycle time extension
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][0] = true
-    gcl[0]["time_interval"] = time_interval
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][3] = true
-    gcl[1]["time_interval"] = time_interval
-    gcl[2]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
-    gcl[2]["gate_open"][7] = true
-    gcl[2]["time_interval"] = time_interval
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,true,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":time_interval}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -254,21 +248,15 @@ def jira_mesa_898_test
     cycle_time = 3*time_interval
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][0] = true
-    gcl[0]["time_interval"] = time_interval
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][3] = true
-    gcl[1]["time_interval"] = time_interval
-    gcl[2]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
-    gcl[2]["gate_open"][7] = true
-    gcl[2]["time_interval"] = time_interval
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,true,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":time_interval}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -356,15 +344,12 @@ def jira_mesa_899_test
     sleep 2
 
     t_i ("Create GCL gce_cnt #{$gce_cnt}")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], $gce_cnt)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = true}
-    gcl[0]["time_interval"] = 10000
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = true}
-    gcl[1]["time_interval"] = 10000
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,true,true,true,true,true,true,true],
+            "time_interval":10000},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,true,true,true,true,true,true,true],
+            "time_interval":1000}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -455,23 +440,12 @@ def jira_appl_3396_test
     test "Time aware scheduling JIRA APPL-3396" do
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][0] = true
-    gcl[0]["gate_open"][1] = true
-    gcl[0]["gate_open"][2] = true
-    gcl[0]["gate_open"][3] = true
-    gcl[0]["time_interval"] = 128
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][4] = true
-    gcl[1]["gate_open"][5] = true
-    gcl[1]["gate_open"][6] = true
-    gcl[1]["gate_open"][7] = true
-    gcl[1]["time_interval"] = 128
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,true,true,true,false,false,false,false],
+            "time_interval":128},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,true,true,true,true],
+            "time_interval":128}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 2, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -577,24 +551,13 @@ def jira_appl_4898_test
     $ts.dut.run("mesa-cmd deb sym read XQS:QLIMIT_SHR[0-3]:QLIMIT_SHR_FILL_STAT")
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $loop_port0, 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
-#    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][7] = true
-    gcl[0]["time_interval"] = 125000
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][0] = true
-    gcl[1]["gate_open"][1] = true
-    gcl[1]["gate_open"][2] = true
-    gcl[1]["gate_open"][3] = true
-    gcl[1]["gate_open"][4] = true
-    gcl[1]["gate_open"][5] = true
-    gcl[1]["gate_open"][6] = true
-    gcl[1]["time_interval"] = 875000
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC",
+#          {"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":125000},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC",
+            "gate_open":[true,true,true,true,true,true,true,false],
+            "time_interval":875000}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $loop_port0, 2, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -702,17 +665,12 @@ def jira_appl_3433_test
     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $loop_port0, 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][2] = true
-    gcl[0]["time_interval"] = interval1
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = true}
-    gcl[1]["gate_open"][2] = false
-    gcl[1]["time_interval"] = interval2
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC",
+            "gate_open":[false,false,true,false,false,false,false,false],
+            "time_interval":interval1},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC",
+            "gate_open":[true,true,false,true,true,true,true,true],
+            "time_interval":interval2}]
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $loop_port0, 2, gcl)
 
     t_i ("Get TOD of domain 0")
@@ -826,24 +784,21 @@ def equal_interval_1_prio_3_port_test
     cycle_time = 3*time_interval
 
     t_i ("Initialize GCL configuration")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg[0]], 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["time_interval"] = time_interval
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["time_interval"] = time_interval
-    gcl[2]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
-    gcl[2]["time_interval"] = time_interval
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,false],
+            "time_interval":time_interval}]
 
     t_i ("Create GCL on all egress ports")
     eg.each do |eg_idx|
-        gcl[1]["gate_open"][eg_idx] = true  #Enable this prio
+        gcl[1][:gate_open][eg_idx] = true  #Enable this prio
         $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg_idx], 3, gcl)
-        gcl[1]["gate_open"][eg_idx] = false     #This prio must be false in next loop
+        gcl[1][:gate_open][eg_idx] = false     #This prio must be false in next loop
     end
 
     t_i ("Get TOD of domain 0")

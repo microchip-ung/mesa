@@ -15,21 +15,17 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     cycle_time = 3*time_interval
 
     t_i ("Create GCL")
-    conf = $ts.dut.call("mesa_qos_tas_port_gcl_conf_get", $ts.dut.p[eg], 256)
-    gcl = conf[0]
-    gce_cnt = conf[1]
-    gcl[0]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[0]["gate_open"].each_index {|i| gcl[0]["gate_open"][i] = false}
-    gcl[0]["gate_open"][0] = true
-    gcl[0]["time_interval"] = time_interval
-    gcl[1]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[1]["gate_open"].each_index {|i| gcl[1]["gate_open"][i] = false}
-    gcl[1]["gate_open"][3] = true
-    gcl[1]["time_interval"] = time_interval
-    gcl[2]["gate_operation"] = "MESA_QOS_TAS_GCO_SET_GATE_STATES"
-    gcl[2]["gate_open"].each_index {|i| gcl[2]["gate_open"][i] = false}
-    gcl[2]["gate_open"][7] = true
-    gcl[2]["time_interval"] = time_interval
+
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,true,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":time_interval}]
+
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[ig[0]], 3, gcl)       # Create dummy GCL in order to test that multiple lists are possible
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
