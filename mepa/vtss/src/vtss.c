@@ -1133,10 +1133,6 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         return MEPA_RC_ERROR;
     }
 
-    mepa_port_speed_t speed =
-        config->speed == MESA_SPEED_2500M || config->speed == MESA_SPEED_AUTO
-        ? MESA_SPEED_1G
-        : config->speed;
 
     if (config->speed == MESA_SPEED_1G || config->speed == MESA_SPEED_AUTO) {
         /* Need to flip the lanes to match JR XAUI-lane-0 and 8487 XAUI-lane-0
