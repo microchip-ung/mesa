@@ -109,117 +109,6 @@ static void cli_cmd_packet_tx(cli_req_t *req)
     }
 }
 
-typedef struct {
-    int        fd;
-    mesa_vid_t vid;
-} tap_entry_t;
-
-static tap_entry_t tap_table[MESA_VIDS];
-static int tap_cnt;
-
-static void tap_read(int fd, void *ref)
-{
-    uint8_t               frame[1600], *f = &frame[4]; // Make room for tag
-    int                   n;
-    mesa_packet_tx_info_t tx_info;
-    tap_entry_t           *tap = ref;
-
-    T_I("enter");
-    if ((n = read(fd, f, sizeof(frame) - 4)) < 14) {
-        T_E("read() failed, n: %u", n);
-        return;
-    }
-
-    if (mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
-        T_E("tx_info_init() failed");
-        return;
-
-    }
-    tx_info.switch_frm = 1;
-    f = &frame[0];
-    memmove(f, f + 4, 12);
-    f[12] = 0x81;
-    f[13] = 0x00;
-    f[14] = ((tap->vid >> 8) & 0xff);
-    f[15] = ((tap->vid >> 0) & 0xff);
-    n += 4;
-    if (mesa_packet_tx_frame(NULL, &tx_info, f, n) != MESA_RC_OK) {
-        T_E("tx_frame() failed");
-    } else {
-        T_I("Tx %u bytes", n);
-    }
-}
-
-static void cli_cmd_tap_add(cli_req_t *req)
-{
-    int          fd;
-    struct ifreq ifr;
-    char         name[16];
-    const char   *dev = "/dev/net/tun";
-    char         buf[1024];
-    uint8_t      mac[6];
-    tap_entry_t  *tap = &tap_table[req->vid];
-
-    if (tap->fd > 0) {
-        cli_printf("TAP interface already exists\n");
-        return;
-    }
-
-    // Create TAP interface
-    if ((fd = open(dev, O_RDWR)) < 0) {
-        cli_printf("open(%s) failed: %s\n", dev, strerror(errno));
-        return;
-    }
-
-    sprintf(name, "vtss.tap.%u", req->vid);
-    memset(&ifr, 0, sizeof(ifr));
-    ifr.ifr_flags = (IFF_TAP | IFF_NO_PI);
-    strncpy(ifr.ifr_name, name, IFNAMSIZ);
-    if (ioctl(fd, TUNSETIFF, (void *)&ifr) < 0) {
-	close(fd);
-        return;
-    }
-
-    // Set MAC address and state
-    get_mac_addr(mac);
-    snprintf(buf, sizeof(buf), "ip link set %s address %02x:%02x:%02x:%02x:%02x:%02x up",
-             name, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    if (system(buf) != 0) {
-        close(fd);
-        return;
-    }
-
-    if (fd_read_register(fd, tap_read, tap) < 0) {
-        cli_printf("Read registrations exceeded\n");
-        close(fd);
-        return;
-    }
-
-    tap->fd = fd;
-    tap->vid = req->vid;
-    tap_cnt++;
-
-    // Add MAC address entries
-    ip_mac_setup(req->vid, 1);
-}
-
-static void cli_cmd_tap_del(cli_req_t *req)
-{
-    tap_entry_t *tap = &tap_table[req->vid];
-
-    if (tap->fd == 0) {
-        cli_printf("TAP interface has not been added\n");
-        return;
-    }
-    (void)fd_read_register(tap->fd, NULL, NULL);
-    close(tap->fd);
-    tap->fd = 0;
-    tap_cnt--;
-
-    // Delete MAC address entries
-    ip_mac_setup(req->vid, 0);
-}
-
 static cli_cmd_t cli_cmd_table[] = {
     {
         "Packet Forward [<queue_list>] [<port_no>]",
@@ -230,16 +119,6 @@ static cli_cmd_t cli_cmd_table[] = {
         "Packet Tx [<port_list>] [<length>] [<count>]",
         "Send broadcast frame to ports",
         cli_cmd_packet_tx
-    },
-    {
-        "Interface TAP Add <vid>",
-        "Add TAP interface",
-        cli_cmd_tap_add
-    },
-    {
-        "Interface TAP Delete <vid>",
-        "Delete TAP interface",
-        cli_cmd_tap_del
     },
 };
 
@@ -316,9 +195,8 @@ static void packet_poll(void)
     mesa_packet_rx_info_t rx_info;
     mesa_packet_tx_info_t tx_info;
     mesa_port_no_t        iport = MESA_PORT_NO_NONE;
-    int                   fd, n;
 
-    if (tap_cnt == 0 && !packet_conf.poll) {
+    if (!packet_conf.poll) {
         return;
     }
 
@@ -330,16 +208,6 @@ static void packet_poll(void)
         rx_info.port_no, rx_info.length, rx_info.tag.vid, rx_info.xtr_qu_mask);
     T_D_HEX(frame, rx_info.length);
     
-    // Check if the VID matches a TAP interface
-    if ((fd = tap_table[rx_info.tag.vid].fd) > 0) {
-        if ((n = write(fd, frame, rx_info.length)) == rx_info.length) {
-            T_I("wrote %u bytes", n);
-        } else {
-            T_E("wrote %u bytes, got %u", n, rx_info.length);
-        }
-        return;
-    }
-
     /* Check if forwarding is enabled for Rx queue */
     for (queue = 0; queue < MESA_PACKET_RX_QUEUE_CNT; queue++) {
         if (rx_info.xtr_qu_mask & (1 << queue)) {
