@@ -1159,13 +1159,20 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
                                                &ctrl) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
-    } else {
-        mode.xaui_lane_flip = false;
-        mode.oper_mode = VTSS_PHY_LAN_MODE;
+	return MEPA_RC_OK;
+    } else if(config->speed == MESA_SPEED_10G) {
+        mode.oper_mode = config->conf_10g.oper_mode;
+	mode.interface  = config->conf_10g.interface_mode;
+        mode.h_media = config->conf_10g.h_media;
+	mode.l_media = config->conf_10g.l_media;
+	mode.channel_id = config->conf_10g.channel_id;
         if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &mode) !=
             MEPA_RC_OK) {
             return MEPA_RC_ERROR;
-        }
+	}
+    } else {
+	T_E(data, MEPA_TRACE_GRP_GEN, "Speed not specified for 10g conf set");
+        return MEPA_RC_ERROR;
     }
 
     return MEPA_RC_OK;

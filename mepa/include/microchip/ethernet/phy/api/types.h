@@ -192,6 +192,69 @@ typedef enum {
     MEPA_PHY_MEDIA_FORCE_AMS_SEL_COPPER,     /**< Force AMS Override to Force Selection - Copper Media */
 } mepa_phy_media_force_ams_sel_t;
 
+/** \brief 10G Phy operating mode enum type */
+typedef enum {
+    MEPA_PHY_LAN_MODE,          /**< LAN mode: Single clock (XREFCK=156,25 MHz), no recovered clock output  */
+    MEPA_PHY_WAN_MODE,          /**< WAN mode:\n */
+                                /**< 848X:   Dual clock (XREFCK=156,25 MHz, WREFCK=155,52 MHz), no recovered clock output\n */
+                                /**< Venice: Single clock (XREFCK), no recovered clock output\n */
+    MEPA_PHY_1G_MODE,           /**< 8488:   1G pass-through mode\n */
+                                /**< Venice: 1G mode, Single clock (XREFCK=156,25 MHz), no recovered clock output */
+    MEPA_PHY_LAN_SYNCE_MODE,    /**< LAN SyncE:\n */
+                                /**< if hl_clk_synth == 1:\n */
+                                /**< 8488:   Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+                                /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+                                /**< if hl_clk_synth == 0:\n */
+                                /**< 8488:   Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
+                                /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
+    MEPA_PHY_WAN_SYNCE_MODE,    /**< WAN SyncE:\n */
+                                /**< if hl_clk_synth == 1:\n */
+                                /**< 8488:   Single clock (WREFCK=155,52 MHz or 622,08 MHz), recovered clock output enabled\n */
+                                /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+                                /**< if hl_clk_synth == 0:\n */
+                                /**< 8488:   Dual clock (WREFCK=155,52 MHz or 622,08 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
+                                /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
+    MEPA_PHY_LAN_MIXED_SYNCE_MODE, /**< 8488:   Channels are in different modes, channel being configured is in LAN\n */
+                                   /**< Venice: Same as VTSS_PHY_LAN_SYNCE_MODE */
+    MEPA_PHY_WAN_MIXED_SYNCE_MODE, /**< 8488:   Channels are in different modes, channel being configured is in WAN\n */
+                                   /**< Venice: Same as VTSS_PHY_WAN_SYNCE_MODE */
+    MEPA_PHY_REPEATER_MODE,    /**< Malibu: Repeater mode,better jitter performance  */
+} phy10g_oper_mode_t;
+
+/** \brief Phy Interface modes */
+typedef enum {
+    MEPA_PHY_XAUI_XFI,          /**< XAUI  <-> XFI - Interface mode. */
+    MEPA_PHY_XGMII_XFI,         /**< XGMII <-> XFI - Interface mode. Only for VSC8486 */
+    MEPA_PHY_RXAUI_XFI,         /**< RXAUI <-> XFI - Interface mode. Only for Venice */
+    MEPA_PHY_SGMII_LANE_0_XFI,  /**< SGMII <-> XFI - LANE 0. Only for Venice */
+    MEPA_PHY_SGMII_LANE_3_XFI,  /**< SGMII <-> XFI - LANE 3. Only for Venice */
+    MEPA_PHY_SFI_XFI,           /**< SFI   <-> XFI - Interface mode. Only for Malibu*/
+} phy10g_interface_mode_t;
+
+/** \brief 10G Phy Media type */
+typedef enum {
+    MEPA_MEDIA_TYPE_SR,         /**< SR,10GBASE-SR */
+    MEPA_MEDIA_TYPE_SR2,        /**< SR,10GBASE-SR */
+    MEPA_MEDIA_TYPE_DAC,        /**< DAC,Direct attach cable */
+    MEPA_MEDIA_TYPE_ZR,         /**< ZR,10GBASE-ZR */
+    MEPA_MEDIA_TYPE_KR,         /**< KR,10GBASE-KR */
+    MEPA_MEDIA_TYPE_SR_SC,      /**< SR,10GBASE-SR with software control*/
+    MEPA_MEDIA_TYPE_SR2_SC,     /**< SR,10GBASE-SR with software control*/
+    MEPA_MEDIA_TYPE_DAC_SC,     /**< DAC,Direct attach cable with software control*/
+    MEPA_MEDIA_TYPE_ZR_SC,      /**< ZR,10GBASE-ZR with software control*/
+    MEPA_MEDIA_TYPE_ZR2_SC,     /**< ZR,10GBASE-ZR with software control with ld_lev_ini:40*/
+    MEPA_MEDIA_TYPE_KR_SC,      /**< KR,10GBASE-KR with software control*/
+    MEPA_MEDIA_TYPE_NONE,       /**< None          */
+} phy10g_media_t;
+
+typedef struct {
+    phy10g_oper_mode_t oper_mode;
+    phy10g_interface_mode_t interface_mode;
+    uint32_t channel_id;
+    phy10g_media_t h_media;
+    phy10g_media_t l_media;
+}phy10g_conf_t;
+
 /** \brief Represents the configuration that is applied to PHY. */
 typedef struct {
     mepa_port_speed_t speed;       /**< Forced port speed */
@@ -204,6 +267,7 @@ typedef struct {
     mepa_manual_neg_t man_neg;     /**< manual negotiation control in 1G instead of using auto-negotiation */
     mepa_media_mode_t mdi_mode;    /**< Preferred media mode */
     mepa_phy_media_force_ams_sel_t force_ams_mode_sel; /**< Force AMS Media Select */
+    phy10g_conf_t conf_10g;
 } mepa_conf_t;
 
 /** \brief  MEPA event mask */
