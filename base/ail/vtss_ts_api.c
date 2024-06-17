@@ -260,6 +260,25 @@ vtss_rc vtss_ts_domain_timeofday_get(const vtss_inst_t             inst,
     return rc;
 }
 
+/* Get the current time in Timestamp format from two domains simultaneously. */
+vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t             inst,
+                                           const u32                     domain1,
+                                           const u32                     domain2,
+                                           vtss_timestamp_t              *const ts1,
+                                           vtss_timestamp_t              *const ts2)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(ts.multi_domain_timeofday_get, domain1, domain2, ts1, ts2);
+    }
+    VTSS_EXIT();
+
+    return rc;
+}
+
 /* Get the time at the next 1PPS pulse edge in a Timestamp format. */
 vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t             inst,
                                        vtss_timestamp_t                     *const ts)

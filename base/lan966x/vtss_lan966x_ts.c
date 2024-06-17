@@ -96,6 +96,42 @@ static vtss_rc lan966x_ts_timeofday_get(vtss_state_t     *vtss_state,
     return lan966x_ts_domain_timeofday_get(vtss_state, 0, ts, tc);
 }
 
+static vtss_rc lan966x_ts_multi_domain_timeofday_get(vtss_state_t *vtss_state, uint32_t domain1, uint32_t domain2, vtss_timestamp_t *ts1, vtss_timestamp_t *ts2)
+{
+    uint32_t reg = (1 << domain1) | (1 << domain2), value;
+
+    REG_WRM(PTP_DOM_CFG, PTP_DOM_CFG_TOD_FREEZE(reg), PTP_DOM_CFG_TOD_FREEZE_M);
+    REG_RD(PTP_CUR_SEC_MSB(domain1), &value);
+    ts1->sec_msb = PTP_CUR_SEC_MSB_CUR_SEC_MSB_X(value);
+    REG_RD(PTP_CUR_SEC_LSB(domain1), &ts1->seconds);
+    REG_RD(PTP_CUR_NSEC(domain1), &value);
+    ts1->nanoseconds = PTP_CUR_NSEC_CUR_NSEC_X(value);
+    if (ts1->nanoseconds >= 0x3ffffff0 && ts1->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        VTSS_RC(vtss_timestampSubSec(ts1));
+        ts1->nanoseconds = 999999984 + (ts1->nanoseconds & 0xf);
+    }
+    REG_RD(PTP_CUR_NSEC_FRAC(domain1), &value);
+    ts1->nanosecondsfrac = PTP_CUR_NSEC_FRAC_CUR_NSEC_FRAC_X(value) << 8;
+
+    REG_RD(PTP_CUR_SEC_MSB(domain2), &value);
+    ts2->sec_msb = PTP_CUR_SEC_MSB_CUR_SEC_MSB_X(value);
+    REG_RD(PTP_CUR_SEC_LSB(domain2), &ts2->seconds);
+    REG_RD(PTP_CUR_NSEC(domain2), &value);
+    ts2->nanoseconds = PTP_CUR_NSEC_CUR_NSEC_X(value);
+    if (ts2->nanoseconds >= 0x3ffffff0 && ts2->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        VTSS_RC(vtss_timestampSubSec(ts2));
+        ts2->nanoseconds = 999999984 + (ts2->nanoseconds & 0xf);
+    }
+    REG_RD(PTP_CUR_NSEC_FRAC(domain2), &value);
+    ts2->nanosecondsfrac = PTP_CUR_NSEC_FRAC_CUR_NSEC_FRAC_X(value) << 8;
+
+    REG_WRM(PTP_DOM_CFG, PTP_DOM_CFG_TOD_FREEZE(0), PTP_DOM_CFG_TOD_FREEZE_M);
+    VTSS_I("ts1 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts1->sec_msb, ts1->seconds, ts1->nanoseconds, ts1->nanosecondsfrac);
+    VTSS_I("ts2 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts2->sec_msb, ts2->seconds, ts2->nanoseconds, ts2->nanosecondsfrac);
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc lan966x_ts_domain_timeofday_prev_pps_get(vtss_state_t *vtss_state, u32 domain, vtss_timestamp_t *ts)
 {
     u64 tc;
@@ -1075,6 +1111,7 @@ vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->timestamp_get = lan966x_ts_timestamp_get;
         state->timestamp_id_release = lan966x_ts_timestamp_id_release;
         state->status_change = lan966x_ts_status_change;
+        state->multi_domain_timeofday_get = lan966x_ts_multi_domain_timeofday_get;
         state->domain_timeofday_get = lan966x_ts_domain_timeofday_get;
         state->domain_timeofday_set = lan966x_ts_domain_timeofday_set;
         state->domain_timeofday_set_delta = lan966x_ts_domain_timeofday_set_delta;

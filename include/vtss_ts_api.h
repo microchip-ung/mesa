@@ -306,6 +306,25 @@ vtss_rc vtss_ts_domain_timeofday_get(const vtss_inst_t             inst,
                                      u64                           *const tc);
 
 /**
+ * \brief Get the current time in a Timestamp format from two domains simultanesouly
+ *        at same instance of time. This will be useful in comparing two different clocks.
+ * \param inst    [IN]   handle to an API instance
+ * \param domain1 [IN]   Clock domain1.
+ * \param domain2 [IN]   Clock domain1.
+ * \param ts1     [OUT]  pointer to a TimeStamp retrieved from clock domain 1.
+ * \param ts2     [OUT]  pointer to a TimeStamp retrieved from clock domain 2.
+ * Architecture:
+ *  Same as vtss_ts_timeofday_get but involves multiple domains.
+ *
+ * \return Return code.
+ */
+vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t             inst,
+                                           const u32                     domain1,
+                                           const u32                     domain2,
+                                           vtss_timestamp_t              *const ts1,
+                                           vtss_timestamp_t              *const ts2);
+
+/**
  * \brief Get the time at the next 1PPS pulse edge in a Timestamp format.
  * \param inst [IN]     handle to an API instance
  * \param ts   [OUT]    pointer to a TimeStamp structure
