@@ -1159,7 +1159,7 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
                                                &ctrl) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
-	return MEPA_RC_OK;
+        return MEPA_RC_OK;
     } else if(config->speed == MESA_SPEED_10G) {
         mode.oper_mode = config->conf_10g.oper_mode;
 	mode.interface  = config->conf_10g.interface_mode;
@@ -1175,6 +1175,44 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         return MEPA_RC_ERROR;
     }
 
+    return MEPA_RC_OK;
+}
+
+static mepa_rc phy_10g_conf_get(mepa_device_t *dev, mepa_conf_t *config)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    vtss_phy_10g_mode_t mode = {};
+    vtss_phy_10g_clause_37_control_t ctrl_get;
+    memset(config, 0 , sizeof(mepa_conf_t));
+    if (vtss_phy_10g_mode_get(data->vtss_instance, data->port_no, &mode) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (vtss_phy_10g_clause_37_control_get(data->vtss_instance, data->port_no, &ctrl_get) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+
+    if(mode.oper_mode == VTSS_PHY_1G_MODE) {
+        config->speed = MESA_SPEED_1G;
+        config->adv_dis = true;
+    } else {
+        config->speed = MESA_SPEED_10G;
+        config->adv_dis = true;
+        config->conf_10g.oper_mode = mode.oper_mode;
+        config->conf_10g.interface_mode = mode.interface;
+        config->conf_10g.channel_id = mode.channel_id;
+        config->conf_10g.h_media = mode.h_media;
+        config->conf_10g.l_media = mode.l_media;
+    }
+
+    if(ctrl_get.enable == TRUE) {
+        config->speed = MESA_SPEED_AUTO;
+        config->adv_dis = false;
+        config->aneg.speed_1g_fdx = true;
+        config->flow_control = (ctrl_get.advertisement.symmetric_pause || ctrl_get.advertisement.asymmetric_pause) ? true:false;
+        config->mac_if_aneg_ena = true;
+    }
+    config->fdx = true;
     return MEPA_RC_OK;
 }
 
@@ -1888,6 +1926,7 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_capability = malibu_10g_capability,
             .mepa_driver_poll = phy_10g_poll,
             .mepa_driver_conf_set = phy_10g_conf_set,
+            .mepa_driver_conf_get = phy_10g_conf_get,
             .mepa_driver_if_set = mscc_if_set,
             .mepa_driver_if_get = malibu_10g_if_get,
             .mepa_driver_power_set = malibu_10g_power_set,
