@@ -903,8 +903,9 @@ vtss_rc csr_rd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOOL i
     u32                        reg_addr = 0;
     u16                        reg_value[2];
     u32                        offset, target, base_addr;
-    BOOL                       use_base_port = TRUE, is_cross_connected = FALSE;
+    BOOL                       use_base_port = TRUE;
 #ifdef VTSS_CHIP_10G_PHY
+    BOOL                       is_cross_connected = FALSE;
     vtss_phy_10g_family_t      phy_family = VTSS_PHY_FAMILY_10G_NONE;
     vtss_port_no_t port=0;
 
@@ -945,7 +946,7 @@ vtss_rc csr_rd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOOL i
             } else {
                 VTSS_RC(vtss_phy_1g_spi_read_write(vtss_state, port_no, 0, 1, (u8)target, (u16)offset, value));
             }
-            VTSS_N("SPI 1G: RD port %u is_32_bit %s : reg %0xX%0x = 0x%0x", port_no, is32 ? "TRUE" : "FALSE", mmd, addr, *value);
+            VTSS_N("SPI 1G: RD port %u is_32_bit %s_: reg %0xX%0x = 0x%0x", port_no, is32 ? "TRUE" : "FALSE", mmd, addr, *value);
 #endif /* VTSS_CHIP_10G_PHY */
         }
         return VTSS_RC_OK;
@@ -989,9 +990,10 @@ vtss_rc csr_wr(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOOL i
 {
 
     u16               reg_value_upper, reg_value_lower;
-    BOOL              clause45 = FALSE, use_base_port = TRUE, is_cross_connected = FALSE;
+    BOOL              clause45 = FALSE, use_base_port = TRUE;
     u32               offset, target, base_addr, reg_addr;
 #ifdef VTSS_CHIP_10G_PHY
+    BOOL                       is_cross_connected = FALSE;
     vtss_phy_10g_family_t      phy_family = VTSS_PHY_FAMILY_10G_NONE;
     vtss_port_no_t port=0;
 
@@ -1154,12 +1156,13 @@ vtss_rc csr_rd_64(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOO
     u32                        reg_addr = 0;
     u16                        reg_value[4];
     u32                        offset, target, base_addr;
-    BOOL                       use_base_port = TRUE, is_cross_connected = FALSE;
+    BOOL                       use_base_port = TRUE;
     u32                        value_low, value_hi;
 #ifdef VTSS_CHIP_CU_PHY
     u64                        value_64;
 #endif /* VTSS_CHIP_CU_PHY */
 #ifdef VTSS_CHIP_10G_PHY
+    BOOL                       is_cross_connected = FALSE;
     vtss_phy_10g_family_t      phy_family = VTSS_PHY_FAMILY_10G_NONE;
 
     phy_family = vtss_state->phy_10g_state[port_no].family;
@@ -1270,9 +1273,10 @@ vtss_rc csr_wr_64(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOO
     u32                        reg_addr = 0;
     u16                        reg_val;
     u32                        offset, target, base_addr;
-    BOOL                       use_base_port = TRUE, is_cross_connected = FALSE;
+    BOOL                       use_base_port = TRUE;
     u32                        value_low, value_hi;
 #ifdef VTSS_CHIP_10G_PHY
+    BOOL                       is_cross_connected = FALSE;
     vtss_phy_10g_family_t      phy_family = VTSS_PHY_FAMILY_10G_NONE;
 
     phy_family = vtss_state->phy_10g_state[port_no].family;

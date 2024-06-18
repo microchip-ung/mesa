@@ -831,6 +831,8 @@ static vtss_rc vtss_phy_100BaseT_long_linkup_workaround(vtss_state_t *vtss_state
     u16                   tr_reg18 = 0;
     u16                   reg0val = 0;
     u16                   reg4val = 0;
+    u16                   reg5val = 0;
+    u16                   reg6val = 0;
     u16                   reg9val = 0;
     u16                   retryCnt100 = 0;
     u16                   speed_sel = 0;
@@ -897,14 +899,39 @@ static vtss_rc vtss_phy_100BaseT_long_linkup_workaround(vtss_state_t *vtss_state
                 }
             } else { /* ANEG ENABLED */
                 par_det100_ena = reg4val & (0x1 << 7) ? TRUE:FALSE; // 100 HDX is Advertised, therefore PD Enabled for 100M
-                if (par_det100_ena) {
+                VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_AUTONEGOTIATION_LINK_PARTNER_ABILITY, &reg5val));
+                VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_AUTONEGOTIATION_EXPANSION, &reg6val));
+                VTSS_I("ANEG Mode: par_det100_ena:0x%x,  Reg4Val: 0x%04x, Cu Media, Speed=100M, retryCnt100: %d, Reg05:0x%04x, Reg06:0x%04x", par_det100_ena, reg4val,                                         retryCnt100, reg5val, reg6val);
+
+		if (par_det100_ena) {
+                /* retryCnt100 only increments if ANEG has completed and the link has transitioned to involve the PCS */
                     if (retryCnt100 >= VTSS_FORCED_LONG_LINKUP_COUNTER_WINDOW) {
                         VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
                         VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MODE_CONTROL,
                                    VTSS_F_PHY_MODE_CONTROL_AUTO_NEG_ENA | VTSS_F_PHY_MODE_CONTROL_RESTART_AUTO_NEG,
                                    VTSS_F_PHY_MODE_CONTROL_AUTO_NEG_ENA | VTSS_F_PHY_MODE_CONTROL_RESTART_AUTO_NEG)); // Restart ANEG
-                    }
+                        VTSS_I("ANEG Mode - ANEG RESTART - Cu Media, Speed=100M, reg4val:0x%04x, retryCnt100: %d, Reg05:0x%04x, Reg06:0x%04x", reg4val, retryCnt100, reg5val                                   , reg6val);
+		    }
                 }
+
+                /* retryCnt100 only increments if ANEG has completed and the link has transitioned to involve the PCS */
+                /* In some cases, If ANEG has not completed successfully, a problem can arise where the link will not come up */
+                /* The Signature of this event is that Link Partner Params have been received and Expansion Page has been     */
+                /* Received, However there is an indication that the Link Partner is not ANEG Capable                         */
+                /* In this case, ANEG needs to be restarted.                                                                  */
+                /* If retryCnt100 is greater than 3, ANEG would have completed successfully                                   */
+                if (((retryCnt100 > 0) && (reg5val > 0) &&
+                     (reg6val & (VTSS_PHY_AUTONEGOTIATION_EXPANSION_LOCAL_PHY_NXT_PG_CAPABLE |
+                                 VTSS_PHY_AUTONEGOTIATION_EXPANSION_PAGE_RECEIVED)) &&
+                     !(reg6val & VTSS_PHY_AUTONEGOTIATION_EXPANSION_PAGE_LP_ANEG_CAPABLE)))  {
+
+                        VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
+                        VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MODE_CONTROL,
+                                   VTSS_F_PHY_MODE_CONTROL_AUTO_NEG_ENA | VTSS_F_PHY_MODE_CONTROL_RESTART_AUTO_NEG,
+                                   VTSS_F_PHY_MODE_CONTROL_AUTO_NEG_ENA | VTSS_F_PHY_MODE_CONTROL_RESTART_AUTO_NEG)); // Restart ANEG
+                        VTSS_I("ANEG Mode - ANEG RESTART - Cu Media, Speed=100M, reg4val:0x%04x, retryCnt100: %d, Reg05:0x%04x, Reg06:0x%04x", reg4val, retryCnt100, reg5val                                   , reg6val);
+                    }
+
             } /* End of ANEG */
         }
             VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
@@ -10141,12 +10168,14 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
             default:
                 break;
             }
-
+	}
+       if(!status->link || status->link_down) {
             /* Bz#23788 Work-Around for 100BT Link break Issue, after restoring link it does not come up for a long time. */
             /* This only currently applies to Families VIPER and NANO */
             switch (ps->family) {
                 case VTSS_PHY_FAMILY_TESLA:
                     if (ps->type.revision >= VTSS_PHY_TESLA_REV_E) {
+                        VTSS_I("Tesla Family > Rev E");
                         VTSS_RC(vtss_phy_100BaseT_long_linkup_workaround(vtss_state, port_no, TRUE));
                     }
                     break;
@@ -10157,7 +10186,7 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                     break;
                 default:
                     break;
-            }
+	    }
         }
 
         /* Handle link up event */
