@@ -1008,7 +1008,6 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
     data->temp_init_flag = false;
     if (rst_conf->reset_point == MEPA_RESET_POINT_PRE) {
         // The following call pre-populates the PHY_INST with initization params
-        init_parm.channel_conf = VTSS_CHANNEL_AUTO;
         if(vtss_phy_10g_init(data->vtss_instance, data->port_no, &init_parm) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
@@ -1166,8 +1165,8 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         mode.h_media = config->conf_10g.h_media;
 	mode.l_media = config->conf_10g.l_media;
 	mode.channel_id = config->conf_10g.channel_id;
-        if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &mode) !=
-            MEPA_RC_OK) {
+	mode.channel_high_to_low = config->conf_10g.channel_high_to_low;
+        if (vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &mode) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
 	}
     } else {

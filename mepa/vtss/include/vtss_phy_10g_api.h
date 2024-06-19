@@ -372,6 +372,7 @@ typedef struct {
     BOOL               is_init;         /**< To identify intialization Phase */
     BOOL               sd6g_calib_done; /**<to identify initialization Phase for ib calibration */
     BOOL               alternate_port_ena; /**<to enable cross-connect functionality in Malibu */
+    BOOL               channel_high_to_low; /**< If Channel Id decreasing w.r.t to increase in port number enable this */
 } vtss_phy_10g_mode_t; 
 
 typedef u16 vtss_gpio_10g_no_t; /**< GPIO type for 10G ports*/

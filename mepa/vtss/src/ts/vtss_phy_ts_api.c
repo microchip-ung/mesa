@@ -1663,13 +1663,26 @@ vtss_rc vtss_phy_10g_id_get_priv(vtss_state_t *vtss_state,
                 return VTSS_RC_ERROR;
             }
         } else {
-            if (phy_id->channel_id <= 1) {
-                phy_id->phy_api_base_no = vtss_state->phy_10g_state[port_no].phy_api_base_no;
-            } else {
-                /* Assumes that channel 0 i.e base port is last in the order of front panel ports */
-                phy_id->phy_api_base_no = get_front_port_from_channel_id(vtss_state, port_no, 2, vtss_state->phy_10g_state[port_no].chip_no);
+            if (!vtss_state->phy_10g_state[port_no].mode.channel_high_to_low) {
+                if (phy_id->channel_id <= 1) {
+                    phy_id->phy_api_base_no = vtss_state->phy_10g_state[port_no].phy_api_base_no;
+                } else {
+                    /* Assumes that channel 0 i.e base port is last in the order of front panel ports */
+                    phy_id->phy_api_base_no = get_front_port_from_channel_id(vtss_state, port_no, 2, vtss_state->phy_10g_state[port_no].chip_no);
+                }
+             } else {
+                /* When Channel id in the PHY is decreasing with respect to increasing port Number
+                 * then "ts_base_port" of channel 3 and channel 2 is equal to port number of channel 2
+                 * and "ts_base_port" of channel 1 and channel 0 is equal to port number of channe 0
+                 * this is because channel 0 and 1 share one PTP engine and Channel 2 and 3 share one PTP Engine
+                 * "phy_api_base_no" is equal to first port number of the PHY.
+                 */
+                if(phy_id->channel_id == 3 || phy_id->channel_id == 2) {
+                    phy_id->phy_api_base_no = vtss_state->phy_10g_state[port_no].phy_api_base_no + 1;
+                } else {
+                    phy_id->phy_api_base_no = vtss_state->phy_10g_state[port_no].phy_api_base_no + 3;
+                }
             }
-
         }
     }
 

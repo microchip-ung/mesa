@@ -735,6 +735,10 @@ static vtss_rc vtss_phy_10g_reset_blocks(vtss_state_t *vtss_state,
                  vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8489)) {
             VTSS_RC(vtss_mmd_wr(vtss_state, port_no, MMD_GLOBAL, 0x8000, 0xffff));
         }
+        if(vtss_state->phy_10g_state[port_no].family == VTSS_PHY_FAMILY_MALIBU && vtss_state->phy_channel_id == 0) {
+            VTSS_RC(vtss_mmd_wr(vtss_state, port_no, MMD_GLOBAL, 0x8000, 0xffff));
+            VTSS_RC(vtss_mmd_wr(vtss_state, port_no, MMD_GLOBAL, 0x2, 0xffff));
+        }
     }
 
 
@@ -888,6 +892,7 @@ static vtss_rc vtss_phy_10g_set_channel(vtss_state_t *vtss_state, const vtss_por
 
     VTSS_D("Enter");
     if (vtss_state->phy_10g_state[port_no].channel_id_lock) {
+        vtss_state->phy_10g_state[port_no].mode.channel_id = vtss_state->phy_10g_state[port_no].channel_id;
         return VTSS_RC_OK; /* Channel id is set  */
     }
     mode = &vtss_state->phy_10g_state[port_no].mode;
@@ -969,19 +974,32 @@ static vtss_rc vtss_phy_10g_set_channel(vtss_state_t *vtss_state, const vtss_por
             switch(mode->channel_id) {
             case VTSS_CHANNEL_0:
                 vtss_state->phy_10g_state[port_no].channel_id = 0;
+                vtss_state->phy_10g_state[port_no].chip_no = vtss_state->phy_chip_no;
                 break;
             case VTSS_CHANNEL_1:
                 vtss_state->phy_10g_state[port_no].channel_id = 1;
+                vtss_state->phy_10g_state[port_no].chip_no = vtss_state->phy_chip_no;
                 break;
             case VTSS_CHANNEL_2:
                 vtss_state->phy_10g_state[port_no].channel_id = 2;
+                vtss_state->phy_10g_state[port_no].chip_no = vtss_state->phy_chip_no;
                 break;
             case VTSS_CHANNEL_3:
                 vtss_state->phy_10g_state[port_no].channel_id = 3;
+                vtss_state->phy_10g_state[port_no].chip_no = vtss_state->phy_chip_no;
                 break;
             default:
                 VTSS_E("Channel id not supported for this Phy");
                 return VTSS_RC_ERROR;
+            }
+
+            if((!mode->channel_high_to_low) && (mode->channel_id == VTSS_CHANNEL_3)) {
+                vtss_state->phy_channel_id = 0;
+                vtss_state->phy_chip_no++;
+            }
+            if((mode->channel_high_to_low) && (mode->channel_id == VTSS_CHANNEL_0)) {
+                vtss_state->phy_channel_id = 0;
+                vtss_state->phy_chip_no++;
             }
         } else if ((vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8488) ||
                 (vtss_state->phy_10g_state[port_no].type == VTSS_PHY_TYPE_8487) ||
@@ -1000,6 +1018,14 @@ static vtss_rc vtss_phy_10g_set_channel(vtss_state_t *vtss_state, const vtss_por
                 VTSS_E("Channel id not supported for this Phy");
                 return VTSS_RC_ERROR;
             }
+            if((!mode->channel_high_to_low) && (mode->channel_id == VTSS_CHANNEL_1)) {
+                vtss_state->phy_channel_id = 0;
+                vtss_state->phy_chip_no++;
+            }
+            if((mode->channel_high_to_low) && (mode->channel_id == VTSS_CHANNEL_0)) {
+                vtss_state->phy_channel_id = 0;
+                vtss_state->phy_chip_no++;
+            }
         } else {
             vtss_state->phy_channel_id = 0;  /* only one channel in this phy */
         }
@@ -1010,12 +1036,13 @@ static vtss_rc vtss_phy_10g_set_channel(vtss_state_t *vtss_state, const vtss_por
         vtss_state->phy_10g_state[port_no].mode.is_init = FALSE;
     }
 
-    if (vtss_state->phy_10g_state[port_no].channel_id == 0) {
+    if(vtss_state->phy_10g_state[port_no].mode.channel_high_to_low && vtss_state->phy_10g_state[port_no].channel_id == 3) {
         vtss_state->phy_10g_api_base_no = port_no;
+    } else if (!vtss_state->phy_10g_state[port_no].mode.channel_high_to_low && vtss_state->phy_10g_state[port_no].channel_id == 0) {
+         vtss_state->phy_10g_api_base_no = port_no;
     }
 
     vtss_state->phy_10g_state[port_no].phy_api_base_no = vtss_state->phy_10g_api_base_no;
-    
     /* Default alternate port number is same, used in case of Cross connect */
     vtss_state->phy_10g_state[port_no].alt_port_no = port_no;
     
@@ -2528,8 +2555,6 @@ static vtss_rc vtss_phy_10g_init_private (vtss_state_t *vtss_state,
     VTSS_RC(vtss_phy_10g_identify_private(vtss_state, port_no));
     /* Reset what is needed */
     VTSS_RC(VTSS_RC_COLD(vtss_phy_10g_reset_blocks(vtss_state, port_no)));
-    /* Register the channel id       */
-    VTSS_RC(vtss_phy_10g_set_channel(vtss_state, port_no));
     /* Initialize default software state according to PHY identified */
     VTSS_RC(vtss_phy_10g_set_default_conf(vtss_state,port_no));
 
@@ -2574,7 +2599,6 @@ vtss_rc vtss_phy_10g_init (const vtss_inst_t inst,
     vtss_rc      rc;
     VTSS_ENTER();
     if ((rc = vtss_inst_phy_10G_port_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->phy_10g_state[port_no].mode.channel_id = init_conf->channel_conf;
         if((rc = vtss_phy_10g_init_private(vtss_state, port_no)) != VTSS_RC_OK) {
             VTSS_E("vtss_phy_10g_init_private failed on port %u ",port_no);
         }
