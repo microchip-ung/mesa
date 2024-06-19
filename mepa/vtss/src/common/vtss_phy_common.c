@@ -1612,7 +1612,7 @@ vtss_rc phy_10g_mac_conf(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL 
                     (phy10g ? VTSS_F_HOST_MAC_CONFIG_MAC_PKTINF_CFG_RF_RELAY_ENA : 0) |
                     VTSS_F_HOST_MAC_CONFIG_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
                     VTSS_F_HOST_MAC_CONFIG_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
-                    (phy10g ? VTSS_F_HOST_MAC_CONFIG_MAC_PKTINF_CFG_ENABLE_TX_PADDING : VTSS_BIT(28)));
+                    ((phy10g || macsec_ena) ? VTSS_F_HOST_MAC_CONFIG_MAC_PKTINF_CFG_ENABLE_TX_PADDING : VTSS_BIT(28)));
 
         CSR_WARM_WRM(port_no, VTSS_HOST_MAC_CONFIG_MAC_MODE_CFG, 0,
                      VTSS_F_HOST_MAC_CONFIG_MAC_MODE_CFG_DISABLE_DIC);
