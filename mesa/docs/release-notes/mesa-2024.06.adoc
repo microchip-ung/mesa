@@ -1,0 +1,45 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2024.06
+
+== MESA-2024.06
+
+|===
+|Version:          |MESA-2024.06
+|Previous Version: |MESA-2024.03
+|Date:             |2024-06-27
+|Description:      |Roadmap release
+|===
+
+=== Pre-Announcement of MEPA/MESA Split
+
+The MESA-2024.06 release is expected to be the last release which also serves as
+the official MEPA source.
+
+During the 2024.06-2024.09 cycle, the MEPA development will be moved to its own
+repository, and eventually a github repository will be created to publish the
+future MEPA releases.
+
+MESA will continue to have an inline copy of MEPA in the ususal place (the
+`/mepa` folder in the root). But this inline copy may not be in sync with the
+yet to come MEPA stand-alone repository. The MEPA copy inlined in MESA, will be
+the version used during the test and qualification phase of the release.
+
+Rule of thumb (from 2024.09 and beyond):
+
+- MESA/Switch users should not see any changes. They should use the version of
+  MEPA inlined in the MESA repository/release.
+- Standalone MEPA users (if using the PHY without a MESA supported switch -
+  could be a KSZ switch, a switch from another vendor or in a NIC design),
+  should in the future pull MEPA release from the designated MEPA repository
+  instead of using MESA.
+
+
+=== Configurable TS domain for TSN features
+
+Two new APIs (`mesa_ts_conf_set` and `mesa_ts_conf_get`) have been added to
+allow global time-stamping configuration.
+
+In the current form, this can be used to control which PTP domain the various
+TSN features shall use.
