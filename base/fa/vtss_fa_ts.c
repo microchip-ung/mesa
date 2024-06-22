@@ -113,6 +113,42 @@ static vtss_rc fa_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_times
     return fa_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
 }
 
+static vtss_rc fa_ts_multi_domain_timeofday_get(vtss_state_t *vtss_state, uint32_t domain1, uint32_t domain2, vtss_timestamp_t *ts1, vtss_timestamp_t *ts2)
+{
+    uint32_t reg = (1 << domain1) | (1 << domain2), value;
+
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(reg), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain1), &value);
+    ts1->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain1), &ts1->seconds);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain1), &value);
+    ts1->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
+    if (ts1->nanoseconds >= 0x3ffffff0 && ts1->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        VTSS_RC(vtss_timestampSubSec(ts1));
+        ts1->nanoseconds = 999999984 + (ts1->nanoseconds & 0xf);
+    }
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain1), &value);
+    ts1->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8;
+
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain2), &value);
+    ts2->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain2), &ts2->seconds);
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain2), &value);
+    ts2->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
+    if (ts2->nanoseconds >= 0x3ffffff0 && ts2->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        VTSS_RC(vtss_timestampSubSec(ts2));
+        ts2->nanoseconds = 999999984 + (ts2->nanoseconds & 0xf);
+    }
+    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain2), &value);
+    ts2->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8;
+
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(0), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
+    VTSS_I("ts1 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts1->sec_msb, ts1->seconds, ts1->nanoseconds, ts1->nanosecondsfrac);
+    VTSS_I("ts2 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts2->sec_msb, ts2->seconds, ts2->nanoseconds, ts2->nanosecondsfrac);
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_ts_domain_timeofday_set(vtss_state_t *vtss_state, u32 domain, const vtss_timestamp_t *ts)
 {
     /* must be in IDLE mode before the time can be loaded */
@@ -2031,6 +2067,7 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->timeofday_next_pps_get = fa_ts_timeofday_next_pps_get;
         state->timeofday_prev_pps_get = fa_ts_timeofday_prev_pps_get;
         state->domain_timeofday_next_pps_get = fa_ts_domain_timeofday_next_pps_get;
+        state->multi_domain_timeofday_get = fa_ts_multi_domain_timeofday_get;
         state->timeofday_offset_set = fa_ts_timeofday_offset_set;
         state->domain_timeofday_offset_set = fa_ts_domain_timeofday_offset_set;
         state->adjtimer_set = fa_ts_adjtimer_set;

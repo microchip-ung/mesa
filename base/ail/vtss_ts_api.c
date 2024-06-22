@@ -270,6 +270,11 @@ vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t             inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
+    if (domain1 >= VTSS_TS_DOMAIN_ARRAY_SIZE || domain2 >= VTSS_TS_DOMAIN_ARRAY_SIZE) {
+        VTSS_I("Invalid clock domain inputs.");
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(ts.multi_domain_timeofday_get, domain1, domain2, ts1, ts2);
