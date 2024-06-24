@@ -1193,16 +1193,16 @@ static mepa_rc phy_10g_conf_get(mepa_device_t *dev, mepa_conf_t *config)
 
     if(mode.oper_mode == VTSS_PHY_1G_MODE) {
         config->speed = MESA_SPEED_1G;
-        config->adv_dis = true;
     } else {
         config->speed = MESA_SPEED_10G;
-        config->adv_dis = true;
-        config->conf_10g.oper_mode = mode.oper_mode;
-        config->conf_10g.interface_mode = mode.interface;
-        config->conf_10g.channel_id = mode.channel_id;
-        config->conf_10g.h_media = mode.h_media;
-        config->conf_10g.l_media = mode.l_media;
     }
+    config->adv_dis = true;
+    config->conf_10g.oper_mode = mode.oper_mode;
+    config->conf_10g.interface_mode = mode.interface;
+    config->conf_10g.channel_id = mode.channel_id;
+    config->conf_10g.h_media = mode.h_media;
+    config->conf_10g.l_media = mode.l_media;
+    config->conf_10g.channel_high_to_low = mode.channel_high_to_low;
 
     if(ctrl_get.enable == TRUE) {
         config->speed = MESA_SPEED_AUTO;

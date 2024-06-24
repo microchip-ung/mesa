@@ -3467,7 +3467,7 @@ vtss_rc vtss_phy_10g_clause_37_control_get(const vtss_inst_t                 ins
     if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         if (control->line ) {
             *control = vtss_state->phy_10g_state[port_no].clause_37;
-        } else if(control->host) {
+        } else if(control->host || control->l_h) {
             *control = vtss_state->phy_10g_state[port_no].host_clause_37;
         }
     }
