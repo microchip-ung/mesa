@@ -1860,6 +1860,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_PORT_CFG_TRANS_NETID_SEL(trans_netid ? 2 : 0) |
            VTSS_F_RB_PORT_CFG_NETID(netid) |
            VTSS_F_RB_PORT_CFG_LANID(lan_id) |
+           VTSS_F_RB_PORT_CFG_RING_LANID(lan_id) |
            VTSS_F_RB_PORT_CFG_HSR_AWARE_ENA(hsr_aware) |
            VTSS_F_RB_PORT_CFG_PRP_AWARE_ENA(prp_aware));
 
