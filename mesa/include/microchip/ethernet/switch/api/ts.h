@@ -235,11 +235,13 @@ mesa_rc mesa_ts_domain_timeofday_get(const mesa_inst_t inst,
  *        at same instance of time. This will be useful in comparing two different clocks.
  * \param inst    [IN]   handle to an API instance
  * \param domain1 [IN]   Clock domain1.
- * \param domain2 [IN]   Clock domain1.
+ * \param domain2 [IN]   Clock domain2.
  * \param ts1     [OUT]  pointer to a TimeStamp retrieved from clock domain 1.
  * \param ts2     [OUT]  pointer to a TimeStamp retrieved from clock domain 2.
  * Architecture:
  *  Same as mesa_ts_timeofday_get but involves multiple domains.
+ *
+ *  NOTE: This is an experimental API, it may change in the future.
  *
  * \return Return code.
  */
