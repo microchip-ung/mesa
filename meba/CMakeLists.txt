@@ -3,7 +3,7 @@
 
 project(meba)
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
 include_directories(include)
 include_directories(../mesa/include)
