@@ -43,6 +43,7 @@ if File.exists? $ws
     exit 1
 end
 
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
 $ws = File.expand_path($ws)
 $api = File.expand_path($api)
 if $out_folder
@@ -81,7 +82,7 @@ end
 
 $l.info run "hostname"
 $l.info run "whoami"
-run "sudo /usr/local/bin/mscc-download-pkg -t webstax2 #{$appl}"
+run "sudo #{$top}/.cmake/mscc-download-pkg -t webstax2 #{$appl}"
 run "tar -xzf /opt/mscc/webstax2/#{$appl}  --strip-components=2"
 run "rm -rf vtss_api"
 run "mkdir vtss_api"
