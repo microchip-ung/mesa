@@ -3995,20 +3995,6 @@ static void fa_debug_qos_mapping(vtss_state_t              *vtss_state,
 }
 #endif
 
-#define FA_DSM_CAL_ROW_CNT 9
-#define FA_DSM_CAL_COL_CNT 13
-static const u8 fa_dsm_cal[FA_DSM_CAL_ROW_CNT][FA_DSM_CAL_COL_CNT] = {
-    {57,12, 0, 1, 2,16,17,18,19,20,21,22,23},
-    {58,13, 3, 4, 5,24,25,26,27,28,29,30,31},
-    {59,14, 6, 7, 8,32,33,34,35,36,37,38,39},
-    {60,15, 9,10,11,40,41,42,43,44,45,46,47},
-    {61,48,49,50,99,99,99,99,99,99,99,99,99},
-    {62,51,52,53,99,99,99,99,99,99,99,99,99},
-    {56,63,54,55,99,99,99,99,99,99,99,99,99},
-    {64,99,99,99,99,99,99,99,99,99,99,99,99},
-    {65,99,99,99,99,99,99,99,99,99,99,99,99}
-};
-
 #if defined(VTSS_FEATURE_QOS_TAS)
 static char *debug_tas_state_string(u32 value)
 {
@@ -4182,7 +4168,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                              const vtss_debug_info_t   *const info)
 {
     vtss_port_no_t      port_no, chip_port;
-    u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, div = 0, len;
+    u32                 i, j, max_burst, min_token, value = 0, service_pol_set_idx = 0, div = 0;
     u32                 qno, src, prio, dst;
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_port_no_t      tas_port=0;
@@ -4945,48 +4931,6 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 
             pr("\n");
         }
-
-        vtss_debug_print_header(pr, "DSM calendar (index)");
-        for (i = 0; i < FA_DSM_CAL_ROW_CNT; i++) {
-            REG_RD(VTSS_DSM_TAXI_CAL_CFG(i), &value);
-            len = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(value);
-            pr("%u: ", i);
-            for (j = 0; j <= len; j++) {
-                REG_WR(VTSS_DSM_TAXI_CAL_CFG(i), VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(j));
-                REG_RD(VTSS_DSM_TAXI_CAL_CFG(i), &value);
-                pr("%02u%s",
-                   VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_VAL(value),
-                   j == len ? "\n" : (j % 8) == 7 ? "-" : ".");
-            }
-        }
-        pr("\n");
-
-        vtss_debug_print_header(pr, "DSM calendar (devices)");
-        for (i = 0; i < FA_DSM_CAL_ROW_CNT; i++) {
-            REG_RD(VTSS_DSM_TAXI_CAL_CFG(i), &value);
-            len = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(value);
-            pr("%u: ", i);
-            for (j = 0; j <= len; j++) {
-                REG_WR(VTSS_DSM_TAXI_CAL_CFG(i), VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(j));
-                REG_RD(VTSS_DSM_TAXI_CAL_CFG(i), &value);
-                value = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_VAL(value);
-                pr("%02u%s",
-                   value < FA_DSM_CAL_COL_CNT ? fa_dsm_cal[i][value] : 88,
-                   j == len ? "\n" : (j % 8) == 7 ? "-" : ".");
-            }
-        }
-        pr("\n");
-
-        vtss_debug_print_header(pr, "DSM groups");
-        for (i = 0; i < FA_DSM_CAL_ROW_CNT; i++) {
-            pr("%u: ", i);
-            for (j = 0; j < FA_DSM_CAL_COL_CNT; j++) {
-                pr("%02u%s",
-                   fa_dsm_cal[i][j],
-                   j == (FA_DSM_CAL_COL_CNT - 1) ? "\n" : (j % 8) == 7 ? "-" : ".");
-            }
-        }
-        pr("\n");
 
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             char buf[32];
