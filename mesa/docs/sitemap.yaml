@@ -17,6 +17,9 @@ pages:
         - name: "MESA-2024.06"
           src:  "mesa/docs/release-notes/mesa-2024.06.adoc"
 
+        - name: "MESA-2024.06"
+          src:  "mesa/docs/release-notes/mesa-2024.06.adoc"
+
         - name: "MESA-2024.03"
           src:  "mesa/docs/release-notes/mesa-2024.03.adoc"
 
