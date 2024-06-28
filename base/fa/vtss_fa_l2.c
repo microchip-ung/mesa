@@ -1895,7 +1895,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
     case VTSS_RB_MODE_HSR_HSR:
         mode = FA_RB_MODE_HSR_HSR;
         hsr = 1;
-        ct_ena = 0x3f;
+        ct_ena = 0x05;
         break;
     default:
         ena = 0;
