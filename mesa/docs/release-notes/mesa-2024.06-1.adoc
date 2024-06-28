@@ -1,0 +1,18 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2024.06-1
+
+== MESA-2024.06-1
+
+|===
+|Version:          |MESA-2024.06-1
+|Previous Version: |MESA-2024.06
+|Date:             |2024-06-28
+|Description:      |Roadmap release
+|===
+
+
+=== LAN969x: RedBox in HSR-HSR mode may cause frame corruption on HSR ring
+
+Forwarding of HSR frames has been changed to do store-and-forward.
