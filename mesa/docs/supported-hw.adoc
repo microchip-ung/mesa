@@ -102,6 +102,7 @@ The following tables lists the supported HW in this release.
 | Others   | VSC8484
 | Others   | VSC8486
 | LAN8814  | LAN8814
+| LAN8840  | LAN8840
 |===
 
 === Third-Party PHYs
