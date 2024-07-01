@@ -2381,8 +2381,14 @@ vtss_rc tas_profile_free(vtss_state_t *vtss_state,  u32 profile_idx)
     return VTSS_RC_OK;
 }
 
+#if !VTSS_OPT_LIGHT
+// Include FA TAS list code
+#define VTSS_FA_TAS_LIST
+#endif
+
 static u32 tas_list_allocate(vtss_state_t *vtss_state,  u32 length)
 {
+#if defined(VTSS_FA_TAS_LIST)
     u32                     blocks, req_blocks, list_idx, row_idx, slot_cnt, block_idx = RT_TAS_NUMBER_OF_BLOCKS_PER_ROW;
     vtss_tas_entry_row_t    *row;
     vtss_tas_list_t         *tas_lists = vtss_state->qos.tas.tas_lists;
@@ -2453,19 +2459,25 @@ static u32 tas_list_allocate(vtss_state_t *vtss_state,  u32 length)
     VTSS_D("Exit list_idx %u", list_idx);
 
     return list_idx;
+#else
+    return lan969x_tas_list_allocate(vtss_state, length);
+#endif
 }
 
 static vtss_rc tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
 {
+#if defined(VTSS_FA_TAS_LIST)
     u32                     entry_idx, row_idx, block_idx, block_num;
     vtss_tas_list_t         *tas_lists = vtss_state->qos.tas.tas_lists;
     vtss_tas_entry_row_t    *tas_entry_rows = vtss_state->qos.tas.tas_entry_rows;
     vtss_tas_entry_block_t  (*tas_entry_blocks)[VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW] = vtss_state->qos.tas.tas_entry_blocks;
+#endif
 
     if (LA_TGT) {
         return lan969x_tas_list_free(vtss_state,  list_idx);
     }
 
+#if defined(VTSS_FA_TAS_LIST)
     if (list_idx >= RT_TAS_NUMBER_OF_LISTS) {
         VTSS_D("list_idx %u >= RT_TAS_NUMBER_OF_LISTS", list_idx);
         return VTSS_RC_ERROR;
@@ -2498,7 +2510,7 @@ static vtss_rc tas_list_free(vtss_state_t *vtss_state,  u32 list_idx)
     tas_lists[list_idx].profile_idx = TAS_PROFILE_IDX_NONE;
     tas_lists[list_idx].hold_profile_idx = TAS_PROFILE_IDX_NONE;
     tas_lists[list_idx].entry_idx = TAS_ENTRY_IDX_NONE;
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2980,6 +2992,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
                               u32 list_idx, u32 obsolete_list_idx,
                               vtss_qos_tas_port_conf_t *port_conf, u32 startup_time)
 {
+#if defined(VTSS_FA_TAS_LIST)
     u32                 i, value, time_interval_sum = 0, scheduled, maxsdu;
     u32                 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32                 hold_profile_idx = vtss_state->qos.tas.tas_lists[list_idx].hold_profile_idx;
@@ -2991,11 +3004,13 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     u32                 cycle_time = port_conf->cycle_time;
     u32                 gcl_length = port_conf->gcl_length;
     vtss_qos_tas_gce_t  *gcl = port_conf->gcl;
+#endif
 
     if (LA_TGT) {
         return lan969x_tas_list_start(vtss_state, port_no, list_idx, obsolete_list_idx, port_conf, startup_time);
     }
 
+#if defined(VTSS_FA_TAS_LIST)
     VTSS_D("Enter list_idx %u  startup_time %u  obsolete_list_idx %u  entry_idx %u  profile_idx %u    hold_profile_idx %u  chip_port %u",
            list_idx, startup_time, obsolete_list_idx, entry_idx, profile_idx, hold_profile_idx, chip_port);
 
@@ -3078,7 +3093,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     /* Start the list */
     tas_list_state_write(vtss_state, list_idx, TAS_LIST_STATE_ADVANCING);
-
+#endif
     return VTSS_RC_OK;
 }
 

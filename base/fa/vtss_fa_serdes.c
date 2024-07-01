@@ -3702,6 +3702,7 @@ u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     }
 }
 
+#if defined(VTSS_FEATURE_SD_25G)
 static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode)
 {
     vtss_sd25g28_setup_args_t sd_cfg = {0};
@@ -3789,6 +3790,7 @@ static vtss_rc fa_sd25g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vt
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_SD_25G
 
 static vtss_rc fa_sd10g_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_serdes_mode_t mode, u32 sd_type)
 {
@@ -3908,7 +3910,9 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no,  vtss_s
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
 
     if (sd_type == FA_SERDES_TYPE_25G) {
+#if defined(VTSS_FEATURE_SD_25G)
         VTSS_RC(fa_sd25g_cfg(vtss_state, port_no,  mode));
+#endif
     } else {
         VTSS_RC(fa_sd10g_cfg(vtss_state, port_no,  mode, sd_type));
     }

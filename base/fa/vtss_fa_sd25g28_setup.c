@@ -20,6 +20,7 @@
 
 #include <vtss/api/options.h>  // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_FEATURE_SD_25G)
 #include "vtss_fa_inc.h"
 
 
@@ -536,5 +537,6 @@ vtss_rc vtss_ant_sd25g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd25g28
     return rc;
 }
 
+#endif // VTSS_FEATURE_SD_25G
 #endif
 #endif // defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
