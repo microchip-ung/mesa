@@ -36,8 +36,8 @@ conf:
   # these names are used.
   #
   # MANDATORY.
-  friendly_name_prv: MESA-2024.03
-  friendly_name_cur: MESA-2024.06
+  friendly_name_prv: MESA-2024.06
+  friendly_name_cur: MESA-2024.06-1
 
   # Disclaimer input file. Will be added as is between a small header and the
   # new-features section of the release note.
