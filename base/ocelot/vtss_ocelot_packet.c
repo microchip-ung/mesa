@@ -1358,19 +1358,36 @@ static vtss_rc srvl_tx_hdr_encode(      vtss_state_t          *const state,
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1, 28 - 0, 2); // POP_CNT = 1, i.e. pop one tag, expected inserted by application.
         }
     } else {
-        u32            port_cnt, rew_op = 0, rew_val = 0, pop_cnt = 3 /* Disable rewriter */;
+        u32            mi_port, port_cnt, rew_op = 0, rew_val = 0, pop_cnt = 3 /* Disable rewriter */;
         u64            chip_port_mask;
         vtss_chip_no_t chip_no;
         vtss_port_no_t stack_port_no, port_no;
+        BOOL           miroring = FALSE;
 
         VTSS_RC(vtss_cmn_logical_to_chip_port_mask(state, info->dst_port_mask, &chip_port_mask, &chip_no, &stack_port_no, &port_cnt, &port_no));
 
+        mi_port = state->l2.mirror_conf.port_no;
 #ifdef VTSS_FEATURE_MIRROR_CPU
-        // Add mirror port if enabled. Mirroring of directed frames must occur through the port mask.
-        if (state->l2.mirror_conf.port_no != VTSS_PORT_NO_NONE && state->l2.mirror_cpu_ingress) {
-            chip_port_mask |= VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, state->l2.mirror_conf.port_no));
+        // Add mirror port if CPU ingress mirroring is enabled. Mirroring of directed frames must occur through the port mask.
+        if (mi_port < state->port_count && state->l2.mirror_cpu_ingress) {
+            // CPU port ingress mirroring is enabled
+            miroring = TRUE;
         }
 #endif
+        // Add mirror port if egress mirroring is enabled on port in dst_port_mask
+        if (mi_port < state->port_count) {
+            for (u32 i = 0; i < state->port_count; i++) {
+                if ((info->dst_port_mask & (1 << i)) && state->l2.mirror_egress[i]) {
+                    // Egress mirroring on a destination port is enabled
+                    miroring = TRUE;
+                    break;
+                }
+            }
+        }
+        if (miroring && state->l2.port_state[mi_port]) { // Mirroring is requested and the link is up
+            chip_port_mask |= VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, mi_port));
+        }
+
 
         if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
             VTSS_RC(srvl_ptp_action_to_ifh(info->ptp_action, info->ptp_id, &rew_op));

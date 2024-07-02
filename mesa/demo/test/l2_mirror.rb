@@ -81,7 +81,6 @@ test_table = [
             {tx: {idx: 0, eth: "dmac 01:80:c2:00:00:00"}, rx: {idx: [3]}}
         ]
     },
-=begin
     {
         txt: "mirror-egress-cpu-tx",
         mir: {idx: 0},
@@ -92,7 +91,6 @@ test_table = [
             {tx: {idx: 2, ifh: {idx: 1}}, rx: {idx: [0,1]}}
         ]
     },
-=end
 ]
 
 def cmd_frame(eth, tag)

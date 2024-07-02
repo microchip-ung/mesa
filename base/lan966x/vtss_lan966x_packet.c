@@ -300,7 +300,8 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                                      u32                   *const ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, etype_ofs;
+    u32            mi_port, port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, etype_ofs;
+    bool miroring = FALSE;
 #if defined(VTSS_FEATURE_VOP)
     u32            seq_num_chip_port = 0;
 #endif
@@ -340,20 +341,31 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
     } else {
         IFH_SET(ifh, BYPASS, 1);
 
-        // Destination port mask, including CPU mirroring
+        // Destination port mask
         dst_mask = info->dst_port_mask;
-        port_no = state->l2.mirror_conf.port_no;
-        if (port_no < state->port_count && state->l2.mirror_cpu_ingress) {
-            dst_mask |= VTSS_BIT(port_no);
+        mi_port = state->l2.mirror_conf.port_no;
+        if (mi_port < state->port_count && state->l2.mirror_cpu_ingress) {
+            // CPU port ingress mirroring is enabled
+            miroring = TRUE;
         }
+
         for (port_no = 0; port_no < state->port_count; port_no++) {
             if (dst_mask & (1 << port_no)) {
 #if defined(VTSS_FEATURE_VOP)
                 seq_num_chip_port = VTSS_CHIP_PORT_FROM_STATE(state, port_no);
 #endif
                 mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, port_no));
+
+                if ((mi_port < state->port_count) && state->l2.mirror_egress[port_no]) {
+                    // Egress mirroring on a destination port is enabled
+                    miroring = TRUE;
+                }
             }
         }
+        if (miroring && state->l2.port_state[mi_port]) { // Mirroring is requested and the link is up
+            mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, mi_port)); // Include monitor port
+        }
+
         IFH_SET(ifh, DSTS, mask);
 
         // PTP rewrite operations

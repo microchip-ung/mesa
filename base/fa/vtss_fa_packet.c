@@ -869,7 +869,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
     BOOL                rewrite = TRUE, setup_cl = FALSE, afi = FALSE;
-    u32                 pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
+    u32                 mi_port, pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
 
     if (bin_hdr == NULL) {
         // Caller wants us to return the number of bytes required to fill
@@ -922,8 +922,11 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t                *const vtss_state,
         // Not a switched frame.
         IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46, SRC_PORT_WID); // FWD.SRC_PORT = CPU
 
-        // Add mirror port if enabled.
-        if (vtss_state->l2.mirror_conf.port_no != VTSS_PORT_NO_NONE && vtss_state->l2.mirror_cpu_ingress) {
+        // Add mirror port if CPU ingress mirroring or egress mirroring on dst_port is enabled.
+        mi_port = vtss_state->l2.mirror_conf.port_no;
+        if ((mi_port < vtss_state->port_count) &&
+            (vtss_state->l2.mirror_cpu_ingress || vtss_state->l2.mirror_egress[info->dst_port]) &&
+            vtss_state->l2.port_state[mi_port]) {
             IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE, 2);  /* FWD.MIRROR_PROBE = Ingress mirror probe. 1-based in this field */
         }
 
