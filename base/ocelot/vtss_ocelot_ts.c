@@ -722,6 +722,7 @@ static vtss_rc srvl_ts_status_change(vtss_state_t         *vtss_state,
                    VTSS_F_DEV_PORT_MODE_PTP_PREDICT_CFG_PTP_PHASE_PREDICT_CFG(1));
             break;
         case VTSS_PORT_INTERFACE_VAUI:
+        case VTSS_PORT_INTERFACE_SGMII_2G5:
             /* SerDes 2.5G */
             if (port >= 5 && port <= 6) {
                 rx_delay = 220;
@@ -820,6 +821,7 @@ static vtss_rc srvl_ts_status_change(vtss_state_t         *vtss_state,
             }
             break;
         case VTSS_PORT_INTERFACE_VAUI:
+        case VTSS_PORT_INTERFACE_SGMII_2G5:
             /* SerDes 2.5G */
             if (port == 5 || port == 8 || port == 10) {
                 rx_delay += 50 - 80;

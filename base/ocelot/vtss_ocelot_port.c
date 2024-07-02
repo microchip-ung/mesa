@@ -1558,6 +1558,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     case VTSS_PORT_INTERFACE_INTERNAL:
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
+        mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
@@ -1836,7 +1838,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         SRVL_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt), 
                 disable ? 0 : VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
         
-        if (conf->if_type == VTSS_PORT_INTERFACE_SGMII) {
+        if (conf->if_type == VTSS_PORT_INTERFACE_SGMII || conf->if_type == VTSS_PORT_INTERFACE_SGMII_2G5) {
             SRVL_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt), 0);
         } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
             /* Complete SGMII aneg */
