@@ -1148,7 +1148,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     BOOL                   oos_fix = FALSE;
 
 #if defined(VTSS_FEATURE_PORT_PCS_CONF)
-    if (if_type == VTSS_PORT_INTERFACE_SGMII || if_type == VTSS_PORT_INTERFACE_QSGMII) {
+    if (if_type == VTSS_PORT_INTERFACE_SGMII_2G5 || if_type == VTSS_PORT_INTERFACE_SGMII ||
+        if_type == VTSS_PORT_INTERFACE_QSGMII) {
         if ((conf->pcs == VTSS_PORT_PCS_ENABLE) || (conf->pcs == VTSS_PORT_PCS_DISABLE)) {
             return l26_port_oos_fix(vtss_state, port, conf->pcs);
         }
@@ -1207,8 +1208,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     case VTSS_PORT_INTERFACE_NO_CONNECTION:
         disable = 1;
         break;
+
     case VTSS_PORT_INTERFACE_INTERNAL:
     case VTSS_PORT_INTERFACE_SGMII:
+    case VTSS_PORT_INTERFACE_SGMII_2G5:
+        mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
@@ -1268,7 +1272,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         return VTSS_RC_ERROR;
     }
     /* (re-)configure the Serdes macros to 100FX / 1000BaseX / 2500 */
-    if (mode != vtss_state->port.serdes_mode[port_no] && mode != VTSS_SERDES_MODE_SGMII) {
+    if ((mode != vtss_state->port.serdes_mode[port_no] && if_type == VTSS_PORT_INTERFACE_SGMII_2G5) ||
+        (mode != vtss_state->port.serdes_mode[port_no] && mode != VTSS_SERDES_MODE_SGMII)) {
 
         VTSS_RC(serdes_instance_get(vtss_state, port, &instance, &serdes6g));
         if (mode == VTSS_SERDES_MODE_2G5 && !serdes6g) {
@@ -1435,7 +1440,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
                 }
             }
 
-            if (conf->if_type == VTSS_PORT_INTERFACE_SGMII) {
+            if (conf->if_type == VTSS_PORT_INTERFACE_SGMII || conf->if_type == VTSS_PORT_INTERFACE_SGMII_2G5) {
                 L26_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt), 0);
             } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
                 /* Complete SGMII aneg */
