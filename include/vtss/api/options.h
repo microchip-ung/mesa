@@ -75,7 +75,6 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #if !VTSS_OPT_LIGHT
-#define VTSS_FEATURE_SD_25G                       /**< SerDes 25G */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
 #define VTSS_FEATURE_QCL_KEY_TYPE                 /**< QoS: QoS Control Lists, different key types per port */
@@ -178,6 +177,7 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #if !VTSS_OPT_LIGHT
+#define VTSS_FEATURE_SD_25G                       /**< SerDes 25G */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
 #define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
