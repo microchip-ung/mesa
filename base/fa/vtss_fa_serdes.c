@@ -395,8 +395,8 @@ static u32 kr_drv_2_ampcode(u32 ipdriver, u32 vcdriver)
     }
 }
 
-vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
-                               u16 *tap_dly, u16 *tap_adv, u16 *ampl)
+static vtss_rc fa_port_25g_kr_tap_get(vtss_state_t *vtss_state, vtss_port_no_t port_no,
+                                      u16 *tap_dly, u16 *tap_adv, u16 *ampl)
 {
     u32 sd_indx, sd_type, sd25g_tgt, val1, ipdriver, vcdriver;
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
@@ -1045,6 +1045,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_10g_calc(u32 p, const u16 coef
     return sts_code;
 }
 
+#if defined(VTSS_FEATURE_SD_25G)
 // GUC algorithm for 25G TxEQ KR tuning
 static vtss_port_kr_status_codes_t fa_coef_status_25g_calc(u32 p, const u16 coef_in,
                                                           u32 *amp_code, u32 *tap_dly, u32 *tap_adv, u16 *status_out, BOOL verify_only)
@@ -1510,6 +1511,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
 
     return sts_code;;
 }
+#endif // VTSS_FEATURE_SD_25G
 
 vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                           const vtss_port_no_t port_no,
@@ -1534,6 +1536,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
             int_status = fa_coef_status_10g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1); // 10G Verify
         }
     } else {     // 25GSD @ 25GG
+#if defined(VTSS_FEATURE_SD_25G)
         if (vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G) {
             int_status = fa_coef_status_25g_calc(port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 0); // 25G Calculate
             if (int_status == VTSS_KR_STS_UPDATED) {
@@ -1545,6 +1548,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t *vtss_state,
                 int_status = fa_coef_status_25g_10g_calc(vtss_state, port_no, coef_in, &amplitude, &tap_dly, &tap_adv, &sts_tmp, 1);// 25GSD@10G Verify
             }
         }
+#endif
     }
 
     if (coef2sts(sts_tmp) == VTSS_COEF_UPDATED ||
@@ -2640,6 +2644,7 @@ static u32 two_complement(u32 val, u32 mask)
     return val;
 }
 
+#if defined(VTSS_FEATURE_SD_25G)
 static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt
 #if VTSS_OPT_DEBUG_PRINT
                                         , const vtss_debug_printf_t pr
@@ -2918,6 +2923,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_SD_25G
 
 #if VTSS_OPT_DEBUG_PRINT
 #define FA_DEBUG_LANE(pr, addr, i, name) FA_TGT ? vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i, \
@@ -3400,7 +3406,9 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t *vtss_state,
         if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
             VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
+#if defined(VTSS_FEATURE_SD_25G)
             VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action, port_no, &ret_val, 0));
+#endif
         }
     } else if (info->action == 5) {
         // Read DFE settings
@@ -3495,11 +3503,13 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state,
 #endif
                                      action, port_no, ret_val, 1);
     } else {
+#if defined(VTSS_FEATURE_SD_25G)
         rc = fa_serdes_25g_eye_setup(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
                                      NULL,
 #endif
                                      action, port_no, ret_val, 1);
+#endif // VTSS_FEATURE_SD_25G
     }
 
     return rc;

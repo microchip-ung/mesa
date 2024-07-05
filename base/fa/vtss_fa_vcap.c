@@ -1358,9 +1358,13 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
     vtss_vcap_vid_t        g_idx = key->g_idx;
     vtss_vcap_vr_t         *dscp, *sport, *dport;
     fa_clm_key_info_t      info;
-    BOOL                   sipv6_copy = 0, ip = 0;
-    vtss_vcap_bit_t        first, y1731 = VTSS_VCAP_BIT_ANY;
+    BOOL                   sipv6_copy = 0;
+    vtss_vcap_bit_t        first;
     vtss_port_no_t         port_no;
+#if !VTSS_OPT_LIGHT
+    BOOL                   ip = 0;
+    vtss_vcap_bit_t        y1731 = VTSS_VCAP_BIT_ANY;
+#endif
 
     VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = type;
@@ -1404,7 +1408,9 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         if (etype->etype.value[0] == 0x89 && etype->etype.value[1] == 0x02 &&
             etype->etype.mask[0] == 0xff && etype->etype.mask[1] == 0xff) {
             /* Match OAM frame */
+#if !VTSS_OPT_LIGHT
             y1731 = VTSS_VCAP_BIT_1;
+#endif
             info.tcp_udp = VTSS_VCAP_BIT_1; /* This must be set to indicate Y.1731 frame */
             info.sport.value[1] = etype->mel.value;
             info.sport.mask[1] = etype->mel.mask;
@@ -1436,7 +1442,9 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         break;
     case VTSS_IS1_TYPE_IPV4:
     case VTSS_IS1_TYPE_IPV6:
+#if !VTSS_OPT_LIGHT
         ip = 1;
+#endif
         if (key->key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR) {
             x6_type = CLM_X6_TYPE_NORMAL_5TUPLE_IP4;
         }
@@ -1515,6 +1523,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
     }
 
     if (data->tg == FA_VCAP_TG_X1) {
+#if !VTSS_OPT_LIGHT
         /* X1 key: SGL_MLBS */
         fa_vcap_key_set(data, CLM_KO_X1_TYPE, CLM_KL_X1_TYPE, CLM_X1_TYPE_SGL_MLBS, VTSS_BITMASK(CLM_KL_X1_TYPE));
         fa_vcap_key_bit_set(data, CLM_KO_X1_FIRST, first);
@@ -1580,6 +1589,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         fa_vcap_key_u48_set(data, CLM_KO_MLL_L2_DMAC_0, &key->mac.dmac);
         fa_vcap_key_u48_set(data, CLM_KO_MLL_L2_SMAC_0, &key->mac.smac);
         fa_vcap_key_set(data, CLM_KO_MLL_ETYPE_MPLS, CLM_KL_MLL_ETYPE_MPLS, key->frame.mll.upstream ? 2 : 1, VTSS_BITMASK(CLM_KL_MLL_ETYPE_MPLS));
+#endif // !VTSS_OPT_LIGHT
     } else if (data->tg == FA_VCAP_TG_X6) {
         /* X6 key */
         fa_vcap_key_set(data, CLM_KO_X6_TYPE, CLM_KL_X6_TYPE, x6_type, x6_mask);
@@ -1594,6 +1604,8 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
                 fa_vcap_key_bit_set(data, CLM_KO_X6_IGR_PORT_MASK_0 + port, VTSS_VCAP_BIT_0);
             }
         }
+        // For LIGHT builds, the entry may be X6 if the port list is empty
+#if !VTSS_OPT_LIGHT
         fa_vcap_key_bit_set(data, CLM_KO_X6_L2_MC, key->mac.dmac_mc);
         fa_vcap_key_bit_set(data, CLM_KO_X6_L2_BC, key->mac.dmac_bc);
 
@@ -1646,6 +1658,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
             fa_vcap_key_bit_set(data, CLM_KO_NORMAL_5TUPLE_IP4_TCP, info.tcp);
             fa_vcap_key_u8_set(data, CLM_KO_NORMAL_5TUPLE_IP4_L4_RNG, &info.range);
         }
+#endif // !VTSS_OPT_LIGHT
     } else {
         /* X12 key */
         fa_vcap_key_set(data, CLM_KO_X12_TYPE, CLM_KL_X12_TYPE, CLM_X12_TYPE_NORMAL_7TUPLE, VTSS_BITMASK(CLM_KL_X12_TYPE));
@@ -1717,6 +1730,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
            action->oam_detect == VTSS_OAM_DETECT_DOUBLE_TAGGED ? 4 :
            action->oam_detect == VTSS_OAM_DETECT_TRIPLE_TAGGED ? 5 : 0);
     if (data->type == FA_VCAP_TG_X1) {
+#if !VTSS_OPT_LIGHT
         /* X1 action: MLBS_REDUCED */
         /* TBD_MPLS */
     } else if (data->type == FA_VCAP_TG_X2) {
@@ -1749,6 +1763,7 @@ static vtss_rc fa_clm_entry_add(vtss_state_t *vtss_state,
         FA_ACT_SET(CLM, CLASSIFICATION_NXT_KEY_TYPE, action->nxt_key_type);
         FA_ACT_SET(CLM, CLASSIFICATION_NXT_IDX_CTRL, action->nxt_idx_enable ? 1 : 0);
         FA_ACT_SET(CLM, CLASSIFICATION_NXT_IDX, action->nxt_idx);
+#endif // !VTSS_OPT_LIGHT
     } else {
         /* X3 action: FULL */
         FA_ACT_ENA_SET(CLM, FULL_DSCP, action->dscp_enable, action->dscp);
@@ -1911,6 +1926,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         case FA_VCAP_TG_X2:
             type = fa_act_get(data, CLM_AO_X2_TYPE, CLM_AL_X2_TYPE);
             pr("type:%u (%s) ", type, type == CLM_X2_TYPE_MLBS ? "mlbs" : "classification");
+#if !VTSS_OPT_LIGHT
             if (type == CLM_X2_TYPE_MLBS) {
                 /* TBD_MPLS */
                 break;
@@ -1970,6 +1986,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             FA_DEBUG_ACT(CLM, "nxt_normalize", CLASSIFICATION_NXT_NORMALIZE);
             FA_DEBUG_ACT(CLM, "nxt_idx_ctrl", CLASSIFICATION_NXT_IDX_CTRL);
             FA_DEBUG_ACT(CLM, "nxt_idx", CLASSIFICATION_NXT_IDX_CTRL);
+#endif // !VTSS_OPT_LIGHT
             break;
 
         case FA_VCAP_TG_X3:
@@ -2063,6 +2080,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
     case FA_VCAP_TG_X2:
         type = fa_entry_bs_get(data, CLM_KO_X2_TYPE, CLM_KL_X2_TYPE);
         FA_DEBUG_BITS(CLM, "type", X2_TYPE);
+#if !VTSS_OPT_LIGHT
         pr("(%s) ", type == CLM_X2_TYPE_TRI_VID ? "tri_vid" : type == CLM_X2_TYPE_DBL_MLBS ? "dbl_mlbs" : type == CLM_X2_TYPE_TRI_VID_IDX ? "tri_vid_idx" : "etag");
         FA_DEBUG_BITS(CLM, "first", X2_FIRST);
         if (type != CLM_X2_TYPE_TRI_VID) {
@@ -2092,6 +2110,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_BITS(CLM, "l4_rng", TRI_VID_L4_RNG);
         FA_DEBUG_BITS(CLM, "oam_y1731", TRI_VID_OAM_Y1731);
         FA_DEBUG_BITS(CLM, "oam_mel_flags", TRI_VID_OAM_MEL_FLAGS);
+#endif // !VTSS_OPT_LIGHT
         break;
 
     case FA_VCAP_TG_X3:
@@ -2115,6 +2134,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_BITS(CLM, "port_mask_sel", X6_IGR_PORT_MASK_SEL);
         pr("\n");
         fa_debug_bits(data, "port_mask", CLM_KO_X6_IGR_PORT_MASK_0, RT_CHIP_PORTS);
+#if !VTSS_OPT_LIGHT
         FA_DEBUG_BITS(CLM, "l2_mc", X6_L2_MC);
         FA_DEBUG_BITS(CLM, "l2_bc", X6_L2_BC);
         FA_DEBUG_BITS(CLM, "vlan_tags", X6_VLAN_TAGS);
@@ -2173,6 +2193,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         pr("\n");
         FA_DEBUG_BITS(CLM, "ip_payload", NORMAL_5TUPLE_IP4_IP_PAYLOAD_5TUPLE);
         break;
+#endif // !VTSS_OPT_LIGHT
 
     case FA_VCAP_TG_X12:
         type = fa_entry_bs_get(data, CLM_KO_X12_TYPE, CLM_KL_X12_TYPE);
