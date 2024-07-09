@@ -4471,6 +4471,7 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
 {
     if (bt) {
@@ -4512,10 +4513,10 @@ static char *fa_kr_aneg_rate(u32 reg)
     }
 }
 
-vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
-                         const vtss_debug_printf_t pr,
-                         const vtss_debug_info_t   *const info,
-                         vtss_port_no_t port_no)
+static vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
+                                const vtss_debug_printf_t pr,
+                                const vtss_debug_info_t   *const info,
+                                vtss_port_no_t port_no)
 {
     u32 val;
     u32 tgt; u32 p = VTSS_CHIP_PORT(port_no);
@@ -4648,6 +4649,7 @@ vtss_rc fa_debug_chip_kr(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_PORT_KR_IRQ
 
 static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
                                     const vtss_debug_printf_t pr,
@@ -4695,6 +4697,7 @@ static vtss_rc fa_debug_serdes(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 static vtss_rc fa_debug_kr(vtss_state_t *vtss_state,
                            const vtss_debug_printf_t pr,
                            const vtss_debug_info_t   *const info)
@@ -4718,6 +4721,7 @@ static vtss_rc fa_debug_kr(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif // VTSS_FEATURE_PORT_KR_IRQ
 
 static vtss_rc fa_debug_mux(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
@@ -5109,7 +5113,9 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, fa_debug_port_cnt, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, fa_debug_wm, vtss_state, pr, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_SERDES, fa_debug_serdes, vtss_state, pr, info));
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, fa_debug_kr, vtss_state, pr, info));
+#endif
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MUX, fa_debug_mux, vtss_state, pr, info));
     return VTSS_RC_OK;
 }

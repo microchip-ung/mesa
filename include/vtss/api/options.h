@@ -123,9 +123,6 @@
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_10G                          /**< 10G ports */
-#if !defined(VTSS_OPT_FPGA)
-#define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
-#endif
 #define VTSS_FEATURE_MISC                         /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                  /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                 /**< Port control */
@@ -177,6 +174,9 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #if !VTSS_OPT_LIGHT
+#if !defined(VTSS_OPT_FPGA)
+#define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
+#endif
 #define VTSS_FEATURE_SD_25G                       /**< SerDes 25G */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
