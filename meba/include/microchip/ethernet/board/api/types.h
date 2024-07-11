@@ -405,31 +405,31 @@ typedef enum {
     MEBA_EVENT_PTP_PIN_5,
 
     // TS More than one engine find match
-    MEBA_EVENT_INGR_ENGINE_ERR, // 13
+    MEBA_EVENT_INGR_ENGINE_ERR, // 15
 
     // TS Preamble too short to append timestamp
-    MEBA_EVENT_INGR_RW_PREAM_ERR, // 14
+    MEBA_EVENT_INGR_RW_PREAM_ERR, // 16
 
     // TS FCS error in ingress
-    MEBA_EVENT_INGR_RW_FCS_ERR, // 15
+    MEBA_EVENT_INGR_RW_FCS_ERR, // 17
 
     // TS More than one engine find match
-    MEBA_EVENT_EGR_ENGINE_ERR, // 16
+    MEBA_EVENT_EGR_ENGINE_ERR, // 18
 
     // TS FCS error in egress
-    MEBA_EVENT_EGR_RW_FCS_ERR, // 17
+    MEBA_EVENT_EGR_RW_FCS_ERR, // 19
 
     // TS Timestamp captured in Tx TSFIFO
-    MEBA_EVENT_EGR_TIMESTAMP_CAPTURED, // 18
+    MEBA_EVENT_EGR_TIMESTAMP_CAPTURED, // 20
 
     // TS Tx TSFIFO overflow
-    MEBA_EVENT_EGR_FIFO_OVERFLOW, // 19
+    MEBA_EVENT_EGR_FIFO_OVERFLOW, // 21
 
     // General Purpose Push Button
-    MEBA_EVENT_PUSH_BUTTON, // 20
+    MEBA_EVENT_PUSH_BUTTON, // 22
 
     // SFP Module Detect
-    MEBA_EVENT_MOD_DET, //21
+    MEBA_EVENT_MOD_DET, //23
 
     // KR activity
     MEBA_EVENT_KR,
