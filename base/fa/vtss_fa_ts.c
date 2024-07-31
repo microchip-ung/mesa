@@ -1285,7 +1285,7 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
 
     /* ANA_ACL::PTP_MASTER */
     vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MASTER_CFG");
-    for (idx = 0; idx <= VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
+    for (idx = 0; idx < VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
         vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
