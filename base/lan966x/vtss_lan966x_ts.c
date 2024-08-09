@@ -666,6 +666,7 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
 
     VTSS_D("chip_port %u  interface %d  speed %u", port, interface, speed);
     REG_RD(DEV_PCS1G_LINK_STATUS(port), &value);
+
     switch (interface) {
     case VTSS_PORT_INTERFACE_GMII:
         if (speed == VTSS_SPEED_1G) {   /* 1 Gbps */
@@ -673,6 +674,15 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
             tx_delay = gmii_delay[port].tx;
             rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
         }
+        break;
+    case VTSS_PORT_INTERFACE_RGMII:
+    case VTSS_PORT_INTERFACE_RGMII_RXID:
+    case VTSS_PORT_INTERFACE_RGMII_TXID:
+    case VTSS_PORT_INTERFACE_RGMII_ID:
+        /* There are currently no delay values calculated by simulation */
+        /* The assumption is that TS is done in the PHY */
+        rx_delay = 100000;
+        tx_delay = 100000;
         break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_SERDES:
