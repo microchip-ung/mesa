@@ -2323,6 +2323,7 @@ static vtss_rc fa_serdes_set(vtss_state_t *vtss_state, const vtss_port_no_t port
 
      if (vtss_state->port.bulk_state != VTSS_PORT_BULK_DISABLED) {
         vtss_state->port.sd28_mode[indx] = serdes_mode;
+        vtss_state->port.serdes_mode[port_no] = serdes_mode;
         return VTSS_RC_OK;
     }
     vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
