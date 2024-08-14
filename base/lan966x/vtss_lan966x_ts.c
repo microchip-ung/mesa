@@ -707,6 +707,8 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
             rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
         }
         break;
+    case VTSS_PORT_INTERFACE_NO_CONNECTION:
+        return VTSS_RC_OK;
     default:
         VTSS_E("unsupported interface: %u", interface);
         return VTSS_RC_ERROR;
