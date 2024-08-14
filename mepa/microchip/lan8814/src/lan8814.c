@@ -229,6 +229,9 @@ static mepa_rc indy_rev_workaround(mepa_device_t *dev)
         // In Indy internal phy clock generation stops when link goes down.
         EP_WR(dev, INDY_CLOCK_MANAGEMENT_MODE_5, 0x27e);
         EP_RD(dev, INDY_LINK_QUALITY_MONITOR_SETTING, &val);
+        // Enable cr_debug_mode
+        // This forces Indy internal phy clock generation even when link is down.
+        EP_WRM(dev, INDY_OPERATION_MODE_STRAP_LOW,  0x8, 0x8);
     }
     // work-around for model 0x27 done.
     if (data->dev.model != 0x26) {
