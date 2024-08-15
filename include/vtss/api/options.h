@@ -74,6 +74,7 @@
 #define VTSS_FEATURE_QCL_KEY_INNER_TAG            /**< QoS: QoS Control Lists has inner tag */
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
+#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
@@ -82,7 +83,6 @@
 #define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
 #define VTSS_FEATURE_STORM_POLICER_DROP_COUNTER   /**< Storm policers has drop counters */
 #define VTSS_FEATURE_VLAN_TX_TAG                  /**< VLAN tagging per (VID, port) */
-#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
@@ -173,6 +173,7 @@
 
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
+#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #if !VTSS_OPT_LIGHT
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
@@ -213,7 +214,6 @@
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
 #define VTSS_FEATURE_VLAN_PORT_V2                 /**< VLAN port configuration, V2 features */
 #define VTSS_FEATURE_VLAN_TX_TAG                  /**< VLAN tagging per (VID, port) */
-#define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                 /**< Automatic MAC address ageing */
