@@ -41,6 +41,11 @@ typedef struct {
     vtss_rc (* dev_all_event_enable)(struct vtss_state_s *vtss_state,
                                      vtss_port_no_t port,
                                      vtss_dev_all_event_type_t ev_mask, BOOL enable);
+
+    vtss_rc (* mdio_conf_set)(struct vtss_state_s *vtss_state,
+                              const u8 ctrl_id,
+                              const vtss_mdio_conf_t *const conf);
+
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
     vtss_rc (* sgpio_conf_set)(struct vtss_state_s *vtss_state,
                                const vtss_chip_no_t     chip_no,

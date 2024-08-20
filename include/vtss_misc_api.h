@@ -505,6 +505,26 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
                                   const vtss_dev_all_event_type_t  ev_mask,
                                   const BOOL                       enable);
 
+/** \brief MDIO controller */
+typedef struct
+{
+    u32                miim_freq;   /*< Frequency of the MDIO bus in hz */
+} vtss_mdio_conf_t;
+
+/**
+ * \brief Set MDIO controller config
+ *
+ * \param inst     [IN] Target instance reference.
+ * \param ctrl_id  [IN] Controller instance id
+ * \param conf     [IN] MDIO configuration
+ *
+ * \return Return code.
+ **/
+
+vtss_rc vtss_mdio_conf_set(const vtss_inst_t inst,
+                           const u8 ctrl_id,
+                           const vtss_mdio_conf_t *const conf);
+
 #endif /* VTSS_FEATURE_MISC */
 
 /* - GPIOs --------------------------------------------------------- */

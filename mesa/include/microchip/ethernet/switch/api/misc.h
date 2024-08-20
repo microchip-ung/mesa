@@ -695,6 +695,23 @@ mesa_rc  mesa_irq_enable(const mesa_inst_t inst,
                          mesa_bool_t enable)
     CAP(MISC_IRQ_CONTROL);
 
+
+// MDIO controller
+typedef struct
+{
+    uint32_t    miim_freq; // Frequency of the MDIO bus in hz
+} mesa_mdio_conf_t;
+
+// Configure MDIO controller
+// param inst     [IN] Target instance reference.
+// param ctrl_id  [IN] Controller instance id
+// param conf     [IN] MDIO configuration
+// return Return code.
+mesa_rc mesa_mdio_conf_set(const mesa_inst_t inst,
+                           const uint8_t ctrl_id,
+                           const mesa_mdio_conf_t *const conf);
+
+
 /* - API tod functions -------------------------------------- */
 
 // Get the current hw nanosec time

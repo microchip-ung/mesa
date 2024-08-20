@@ -678,6 +678,38 @@ static vtss_rc fa_poll_1sec(vtss_state_t *vtss_state)
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
 }
 
+vtss_rc fa_mdio_conf_set(vtss_state_t *vtss_state, u8 ctrl_id,
+                         const vtss_mdio_conf_t *const conf)
+{
+    u32 val;
+    u32 clk = vtss_state->init_conf.core_clock.freq;
+
+    if (ctrl_id >= vtss_state->port.miim_ctrl_cnt) {
+        VTSS_E("controller id not supported");
+        return VTSS_RC_ERROR;
+    }
+
+    if  (clk == VTSS_CORE_CLOCK_180MHZ) {
+        clk = 180000000;
+    } else if (clk == VTSS_CORE_CLOCK_250MHZ) {
+        clk = 250000000;
+    } else if (clk == VTSS_CORE_CLOCK_328MHZ) {
+        clk = 328000000;
+    } else if (clk == VTSS_CORE_CLOCK_500MHZ) {
+         clk = 500000000;
+    } else if (clk == VTSS_CORE_CLOCK_625MHZ) {
+         clk = 625000000;
+    }
+
+    val = clk / (conf->miim_freq *  2) - 1;
+    REG_WRM(VTSS_DEVCPU_GCB_MII_CFG(ctrl_id),
+            VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(val),
+            VTSS_M_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE);
+
+    return VTSS_RC_OK;
+}
+
+
 /* =================================================================
  *  Miscellaneous - GPIO
  * =================================================================*/
@@ -1321,6 +1353,7 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->ptp_event_enable = fa_ptp_event_enable;
         state->dev_all_event_poll = fa_dev_all_event_poll;
         state->dev_all_event_enable = fa_dev_all_event_enable;
+        state->mdio_conf_set = fa_mdio_conf_set;
 #ifdef VTSS_FEATURE_IRQ_CONTROL
         state->intr_cfg = fa_intr_cfg;
         state->intr_pol_negation = fa_intr_pol_negation;

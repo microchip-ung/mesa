@@ -107,6 +107,20 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t  inst)
     return rc;
 }
 
+vtss_rc vtss_mdio_conf_set(const vtss_inst_t inst, const u8 ctrl_id,
+                           const vtss_mdio_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc = VTSS_RC_ERROR;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = VTSS_FUNC(misc.mdio_conf_set, ctrl_id, conf);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 vtss_rc vtss_ptp_event_poll(const vtss_inst_t      inst,
                             vtss_ptp_event_type_t  *const ev_mask)
 {
