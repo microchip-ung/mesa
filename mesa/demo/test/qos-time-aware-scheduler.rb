@@ -1001,6 +1001,312 @@ def tas_in_domain_1_test(eg, ig)
     end
 end
 
+def restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    t_i("*************Start GCL again")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    conf["base_time"]["nanoseconds"] = 0
+    conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
+    conf["gate_enabled"] = true
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    base_time_seconds = conf["base_time"]["seconds"]
+
+    t_i ("Check GCL is pending")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Wait for GCL to start")
+    sleep 5
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+    erate = 990000000/3
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+
+    return base_time_seconds
+end
+
+def jira_mesa_977_stop_test(eg, ig)
+    test "jira_mesa_stop_977_test" do
+
+    frame_size = 500
+    frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
+    frame_tx_interval_count = 1000            # Number of frame transmitted in a GCL entry time interval
+    time_interval = frame_tx_interval_count * frame_tx_time_nano
+    cycle_time = 3*time_interval
+
+    t_i ("Create GCL")
+
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,true,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":time_interval}]
+
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 100000
+    tod[0]["nanoseconds"] = 555555
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    t_i ("*************Start GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["max_sdu"][0] = frame_size + (frame_size/2)
+    conf["max_sdu"][3] = frame_size + (frame_size/2)
+    conf["max_sdu"][7] = frame_size + (frame_size/2)
+    conf["ot"] = false
+    conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+    conf["cycle_time"] = cycle_time
+    conf["cycle_time_ext"] = 256
+    conf["base_time"]["nanoseconds"] = 0
+    conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
+    conf["base_time"]["sec_msb"] = 0
+    conf["gate_enabled"] = true
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    base_time_seconds = conf["base_time"]["seconds"]
+
+    t_i ("Check GCL is pending")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Wait for GCL to start")
+    sleep 5
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+    erate = 990000000/3
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+
+    t_i("*************Set TOD back in time before current base time");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = base_time_seconds - 10
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    t_i ("*************Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+
+    sleep 10
+
+    t_i("*************Set TOD back in time after base time but before current TOD");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = base_time_seconds + 5
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    t_i ("*************Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+
+    sleep 1
+
+    t_i("*************Set TOD after current TOD");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = tod[0]["seconds"] + 10
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    t_i ("*************Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+
+    t_i ("*************Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+    end
+end
+
+def jira_mesa_977_restart_test(eg, ig)
+    test "jira_mesa_stop_977_test" do
+
+    frame_size = 500
+    frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
+    frame_tx_interval_count = 1000            # Number of frame transmitted in a GCL entry time interval
+    time_interval = frame_tx_interval_count * frame_tx_time_nano
+    cycle_time = 3*time_interval
+
+    t_i ("Create GCL")
+
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[true,false,false,false,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,true,false,false,false,false],
+            "time_interval":time_interval},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_GATE_STATES",
+            "gate_open":[false,false,false,false,false,false,false,true],
+            "time_interval":time_interval}]
+
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 100000
+    tod[0]["nanoseconds"] = 555555
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    t_i ("*************Start GCL")
+    conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
+    conf["max_sdu"][0] = frame_size + (frame_size/2)
+    conf["max_sdu"][3] = frame_size + (frame_size/2)
+    conf["max_sdu"][7] = frame_size + (frame_size/2)
+    conf["ot"] = false
+    conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+    conf["cycle_time"] = cycle_time
+    conf["cycle_time_ext"] = 256
+    conf["base_time"]["nanoseconds"] = 0
+    conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
+    conf["base_time"]["sec_msb"] = 0
+    conf["gate_enabled"] = true
+    conf["config_change"] = true
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    base_time_seconds = conf["base_time"]["seconds"]
+
+    t_i ("Check GCL is pending")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] != true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    t_i ("Wait for GCL to start")
+    sleep 5
+
+    t_i ("Check GCL is started")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+
+    $ts.dut.run("mesa-cmd mac flush")
+    $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
+    erate = 990000000/3
+   #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+    measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+
+    t_i("*************Set TOD back in time before current base time");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = base_time_seconds - 10
+    tod[0]["nanoseconds"] = tod[0]["nanoseconds"] - 1000
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+
+    sleep 10
+
+    t_i("*************Set TOD back in time after base time but before current TOD");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = base_time_seconds + 5
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+
+    sleep 1
+
+    t_i("*************Set TOD after current TOD");
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = tod[0]["seconds"] + 10
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+
+    sleep 1
+
+    t_i ("*************Stop GCL")
+    conf["gate_enabled"] = false
+    conf["config_change"] = false
+    $ts.dut.call("mesa_qos_tas_port_conf_set", $ts.dut.p[eg], conf)
+
+    t_i ("Wait for GCL to stop")
+    sleep 2
+
+    t_i ("Check GCL is stopped")
+    status = $ts.dut.call("mesa_qos_tas_port_status_get", $ts.dut.p[eg])
+    if (status["config_pending"] == true)
+        t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+    end
+    end
+end
+
 test "test_run" do
     eg = rand(3)    # Get a random egress port between 0 and 3
     ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
@@ -1012,6 +1318,9 @@ test "test_run" do
 
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test
+    jira_mesa_977_stop_test(eg, ig)
+    jira_mesa_977_restart_test(eg, ig)
+
     jira_mesa_899_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         jira_mesa_898_test
