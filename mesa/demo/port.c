@@ -1878,6 +1878,7 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
         entry->sfp_type = MEBA_SFP_TRANSRECEIVER_NONE;
         entry->sfp_status.tx_fault = TRUE;
         entry->sfp_status.los = TRUE;
+        entry->sfp_device = NULL;
         return;
     }
     // Read SFP ROM
@@ -1992,7 +1993,9 @@ void port_poll(meba_inst_t inst)
                     port_setup(port_no, FALSE, FALSE);
                     ps->link = FALSE;
                 } else {
+                    // Go back to board defaults
                     MEBA_WRAP(meba_port_entry_get, inst, port_no, &entry->meba);
+                    port_setup(port_no, FALSE, FALSE);
                 }
             }
         }
