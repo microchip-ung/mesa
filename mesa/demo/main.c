@@ -435,11 +435,16 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
         break;
 
     case MESA_CHIP_FAMILY_OCELOT:
-        // TODO, it currently assumes that we are PCB123
+        // Currently only supporting: 7513/mux_mode_0 and 7514/mux_mode_4
+#if defined(VTSS_CHIP_7514)
+        target = 0x7514;
+        mux_mode = MESA_PORT_MUX_MODE_4;
+#else
+        target = 0x7513;
+        mux_mode = MESA_PORT_MUX_MODE_0;
+#endif
         board = "Ocelot Ref (pcb123)";
-        mux_mode = 1;
         break;
-
     case MESA_CHIP_FAMILY_JAGUAR2:
         if (REF_BOARD_PCB == -1) {
             if (!get_env("pcb", &REF_BOARD_PCB)) {
