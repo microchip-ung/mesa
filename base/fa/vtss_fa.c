@@ -1108,13 +1108,13 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
             }
         } else { // Laguna
             if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
-                return FA_CAL_SPEED_1G;
+                return FA_CAL_SPEED_2G5; // Equals 1.25G
             } else if (port_no == RT_CHIP_PORT_VD0) {
-                return FA_CAL_SPEED_10G;  // IPMC
+                return FA_CAL_SPEED_NONE; // IPMC idles only
             } else if (port_no == RT_CHIP_PORT_VD1) {
-                return FA_CAL_SPEED_NONE; // OAM only idle
+                return FA_CAL_SPEED_NONE; // OAM idles only
             } else if (port_no == RT_CHIP_PORT_VD2) {
-                return FA_CAL_SPEED_10G;  // IPinIP
+                return FA_CAL_SPEED_NONE; // IPinIP idles only
             } else {
                 // Unknown internal port
                 return FA_CAL_SPEED_NONE;
