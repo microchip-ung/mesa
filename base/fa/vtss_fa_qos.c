@@ -3531,8 +3531,9 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
                                          const vtss_port_no_t       port_no,
                                          vtss_qos_tas_port_status_t *const status)
 {
-    u32                   list_idx = TAS_LIST_IDX_NONE;
-    vtss_tas_gcl_state_t  *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
+    u32                      list_idx = TAS_LIST_IDX_NONE;
+    vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
+    vtss_qos_tas_port_conf_t current_port_conf;
 
     VTSS_MEMSET(status, 0, sizeof(*status));
 
@@ -3564,6 +3565,18 @@ static vtss_rc fa_qos_tas_port_status_get(vtss_state_t              *vtss_state,
 #else
     tas_gate_state_read(vtss_state, port_no, status->gate_open, FALSE);
 #endif
+
+    /* Read operational information of the current list */
+    /* Calculate the current GCL */
+    if (tas_current_port_conf_calc(vtss_state, port_no, &current_port_conf) != VTSS_RC_OK) {
+        VTSS_D("Calculate the current GCL failed");
+        return VTSS_RC_ERROR;
+    }
+
+    VTSS_MEMCPY(status->cur_gcl, current_port_conf.gcl, sizeof(status->cur_gcl));
+    status->cur_gcl_length = current_port_conf.gcl_length;
+    status->cur_cycle_time = current_port_conf.cycle_time;
+    status->cur_base_time = current_port_conf.base_time;
 
     return VTSS_RC_OK;
 }

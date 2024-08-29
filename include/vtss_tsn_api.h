@@ -404,6 +404,12 @@ typedef struct {
 
     // The current port open states for the corresponding traffic classes.
     BOOL                gate_open[VTSS_QUEUE_ARRAY_SIZE];
+
+    // The information about the current GCL - if any
+    vtss_qos_tas_gce_t  cur_gcl[VTSS_QOS_TAS_GCL_LEN_MAX];
+    uint32_t            cur_gcl_length;
+    uint32_t            cur_cycle_time;
+    vtss_timestamp_t    cur_base_time;
 } vtss_qos_tas_port_status_t;
 
 // Get Time Aware Shaper (802.1Qbv) status for port.
