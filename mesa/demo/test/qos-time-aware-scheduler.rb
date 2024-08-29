@@ -1036,14 +1036,8 @@ def restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
     return base_time_seconds
 end
 
-def jira_mesa_977_stop_test(eg, ig)
+def jira_mesa_977_stop_test(eg, ig, domain)
     test "jira_mesa_stop_977_test" do
-
-    domain = 1
-    t_i("Set the TAS TOD domain to #{domain}")
-    conf = $ts.dut.call("mesa_ts_conf_get")
-    conf["tsn_domain"] = domain
-    $ts.dut.call("mesa_ts_conf_set", conf)
 
     frame_size = 500
     frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
@@ -1199,14 +1193,8 @@ def jira_mesa_977_stop_test(eg, ig)
     end
 end
 
-def jira_mesa_977_restart_test(eg, ig)
+def jira_mesa_977_restart_test(eg, ig, domain)
     test "jira_mesa_stop_977_test" do
-
-    domain = 2
-    t_i("Set the TAS TOD domain to #{domain}")
-    conf = $ts.dut.call("mesa_ts_conf_get")
-    conf["tsn_domain"] = domain
-    $ts.dut.call("mesa_ts_conf_set", conf)
 
     frame_size = 500
     frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
@@ -1330,8 +1318,28 @@ test "test_run" do
 
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test
-    jira_mesa_977_stop_test(eg, ig)
-    jira_mesa_977_restart_test(eg, ig)
+
+    domain = 1
+    t_i("Set the TAS TOD domain to #{domain}")
+    conf = $ts.dut.call("mesa_ts_conf_get")
+    conf["tsn_domain"] = domain
+    $ts.dut.call("mesa_ts_conf_set", conf)
+
+    jira_mesa_977_stop_test(eg, ig, domain)
+
+    domain = 2
+    t_i("Set the TAS TOD domain to #{domain}")
+    conf = $ts.dut.call("mesa_ts_conf_get")
+    conf["tsn_domain"] = domain
+    $ts.dut.call("mesa_ts_conf_set", conf)
+
+    jira_mesa_977_restart_test(eg, ig, domain)
+
+    domain = 0
+    t_i("Set the TAS TOD domain to #{domain}")
+    conf = $ts.dut.call("mesa_ts_conf_get")
+    conf["tsn_domain"] = domain
+    $ts.dut.call("mesa_ts_conf_set", conf)
 
     jira_mesa_899_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))

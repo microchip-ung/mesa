@@ -3170,7 +3170,7 @@ static int tas_base_time_in_future(vtss_state_t *vtss_state,  vtss_timestamp_t  
     vtss_timestamp_t  tod_time, distance_time;
 
     /* Get current time */
-    _vtss_ts_domain_timeofday_get(vtss_state, 0, &tod_time, &tc);
+    _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &tod_time, &tc);
 
     /* Check if base time is in the past */
     if (vtss_timestampLarger(&tod_time, base_time)) {
@@ -3247,7 +3247,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     vtss_qos_tas_port_conf_t trunk_port_conf, stop_port_conf, current_port_conf;
     vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     vtss_tas_list_t          *tas_lists = vtss_state->qos.tas.tas_lists;
-    vtss_timestamp_t         current_end_time, old_cycle_start_time, stop_base_time;
+    vtss_timestamp_t         current_end_time, old_cycle_start_time, stop_base_time, current_base_time;
     u64                      tc;
     int                      rc;
 
@@ -3284,6 +3284,16 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             if (!tas_cycle_time_ok(new_port_conf)) {
                 VTSS_D("Check of cycle time failed");
                 return VTSS_RC_ERROR;
+            }
+
+            if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
+                /* Calculate if new base time is before current base time */
+                tas_list_base_time_read(vtss_state, gcl_state->curr_list_idx, &current_base_time);
+                if (vtss_timestampLarger(&current_base_time, &new_port_conf->base_time)) {
+                    /* New base time is before current base time so the current list has to be cancelled */
+                    tas_list_cancel(vtss_state, gcl_state->curr_list_idx);
+                    gcl_state->curr_list_idx = TAS_LIST_IDX_NONE;
+                }
             }
 
             /* Check for correct cycle extension time */
@@ -3475,28 +3485,13 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
         /* Check if a list is currently running - must be stopped by a stop list */
         if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
             /* Calculate first possible base time of stop list. This is TOD plus two times the current cycle time */
-            _vtss_ts_domain_timeofday_get(vtss_state, 0, &stop_base_time, &tc);
-             VTSS_D("stop base_time seconds %u  nanoseconds %u  sec_msb %u", stop_base_time.seconds, stop_base_time.nanoseconds, stop_base_time.sec_msb);
-             VTSS_D("current base_time seconds %u  nanoseconds %u  sec_msb %u", current_port_conf.base_time.seconds, current_port_conf.base_time.nanoseconds, current_port_conf.base_time.sec_msb);
+            _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &stop_base_time, &tc);
 
-            /* Check if current base time is in the future. This should not happen as gcl_state say that list is started */
-            if (vtss_timestampLarger(&current_port_conf.base_time, &stop_base_time)) {
-                VTSS_D("current list base time is in the future");
-                stop_base_time = current_port_conf.base_time;
-            }
-
-            if (vtss_timestampAddNano(&stop_base_time, 2 * current_port_conf.cycle_time) != VTSS_RC_OK) {
-                VTSS_D("Calculate first possible base time of stop list failed.  cycle_time %u", current_port_conf.cycle_time);
-                return VTSS_RC_ERROR;
-            }
-            /* Calculate the end time of current list cycle */
-            if (!tas_current_end_time_calc(vtss_state, gcl_state->curr_list_idx, &stop_base_time, &current_end_time)) {
-                VTSS_D("Calculate the end time of current list cycle failed");
-                return VTSS_RC_ERROR;
-            }
+            /* Cancel the current list */
+            tas_list_cancel(vtss_state, gcl_state->curr_list_idx);
 
             /* Calculate the stop GCL and stop startup time */
-            tas_stop_port_conf_calc(vtss_state, &current_end_time, new_port_conf->gate_open, &current_port_conf, &stop_port_conf);
+            tas_stop_port_conf_calc(vtss_state, &stop_base_time, new_port_conf->gate_open, &current_port_conf, &stop_port_conf);
             stop_startup_time = current_port_conf.cycle_time;   /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). In this case this is equal to cycle time as there will be no gap between current list cycle end and stop list cycle start */
 
             /* Allocate stop list */
@@ -4805,7 +4800,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 
 #define PRIO_MASK 0x01
 #define CYCLE_TIME 12480000
-    if (tas_state_act && (div > 1)) { /* SAT state analyze must be printed */
+    if (tas_state_act && (div > 1)) { /* TAS state analyze must be printed */
         vtss_port_no_t   chip_port = VTSS_CHIP_PORT(tas_port-1);
         u32              gate_state, index = 0, rc = 0;
         u64              tc;
@@ -4815,7 +4810,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             vtss_timestamp_t ts;
         } buffer[1000];
 
-        _vtss_ts_domain_timeofday_get(NULL, 0, &ts0, &tc);
+        _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
 #if defined(VTSS_FEATURE_QOS_OT)
         if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
             rc = (vtss_fa_wr(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE_CTRL), FA_HSCH_TAS_SE(chip_port, vtss_state->qos.tas.port_conf[tas_port-1].ot)) != VTSS_RC_OK) ? (rc + 1) : rc;
@@ -4824,7 +4819,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         rc = (vtss_fa_wr(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE_CTRL), FA_HSCH_TAS_SE(chip_port, FALSE)) != VTSS_RC_OK) ? (rc + 1) : rc;
 #endif
         while (1) {
-            _vtss_ts_domain_timeofday_get(NULL, 0, &ts1, &tc);
+            _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
             rc = (vtss_fa_rd(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE), &gate_state) != VTSS_RC_OK) ? (rc + 1) : rc;
             if ((index == 0) || (gate_state != buffer[index-1].gate_state)) {
                 buffer[index].gate_state = (u8)(gate_state);
@@ -4844,7 +4839,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
         pr("index %u  ts1.seconds %u  ts0.seconds %u  rc %u\n", index, ts1.seconds, ts0.seconds, rc);
     }
 
-    if (tas_count_act && (div > 1)) { /* SAT counter analyze must be printed */
+    if (tas_count_act && (div > 1)) { /* TAS counter analyze must be printed */
         vtss_port_no_t  chip_port = VTSS_CHIP_PORT(tas_port-1);
         u32 count, old_count, equal_count, index = 0;
         BOOL interval_start;
@@ -4856,13 +4851,13 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
             vtss_timestamp_t ts;
         } buffer[1000];
 
-        _vtss_ts_domain_timeofday_get(NULL, 0, &ts0, &tc);
+        _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
         REG_RD(VTSS_ASM_RX_UC_CNT(chip_port), &old_count);
         interval_start = FALSE;
         equal_count = 0;
         index = 0;
         while (1) {
-            _vtss_ts_domain_timeofday_get(NULL, 0, &ts1, &tc);
+            _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
             REG_RD(VTSS_ASM_TX_UC_CNT(chip_port), &count);
             equal_count = (count == old_count) ? (equal_count + 1) : 0;
             if ((equal_count == 0) && (interval_start == TRUE)) {    // Start of interval
