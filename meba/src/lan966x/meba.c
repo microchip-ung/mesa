@@ -409,7 +409,7 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
             return true;
 
         case MEBA_CAP_TEMP_SENSORS:
-            return 0;
+            return 1;
 
         case MEBA_CAP_BOARD_PORT_COUNT:
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
@@ -488,6 +488,33 @@ static mesa_rc lan966x_port_entry_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc lan966x_sensor_get(meba_inst_t inst,
+				  meba_sensor_t type,
+				  int six,
+				  int *value)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+    int16_t temp = 0;
+
+    T_N(inst, "Called %d:%d", type, six);
+
+    switch (type) {
+    case MEBA_SENSOR_BOARD_TEMP:
+      rc = mesa_temp_sensor_get(NULL, &temp);
+      break;
+    case MEBA_SENSOR_PORT_TEMP:
+      rc = mesa_temp_sensor_get(NULL, &temp);
+    }
+
+
+    if (rc == MESA_RC_OK) {
+        T_N(inst, "Temp %d:%d = %d", type, six, temp);
+        *value = temp;
+    } else {
+        T_N(inst, "Temp %d:%d = [not read:%d]", type, six, rc);
+    }
+    return rc;
+}
 static mesa_rc lan966x_reset(meba_inst_t inst,
                              meba_reset_point_t reset)
 {
@@ -521,12 +548,13 @@ static mesa_rc lan966x_reset(meba_inst_t inst,
     case MEBA_PORT_RESET_POST:
     case MEBA_STATUS_LED_INITIALIZE:
     case MEBA_FAN_INITIALIZE:
-    case MEBA_SENSOR_INITIALIZE:
     case MEBA_INTERRUPT_INITIALIZE:
     case MEBA_SYNCE_DPLL_INITIALIZE:
     case MEBA_POE_INITIALIZE:
         break;
-
+    case MEBA_SENSOR_INITIALIZE:
+        (void)mesa_temp_sensor_init(NULL, true);
+        break;
     case MEBA_PHY_INITIALIZE:
         inst->phy_devices = (mepa_device_t **)&board->phy_devices;
         inst->phy_device_cnt = board->port_cnt;
@@ -1059,6 +1087,7 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_capability                 = lan966x_capability;
     inst->api.meba_port_entry_get             = lan966x_port_entry_get;
     inst->api.meba_reset                      = lan966x_reset;
+    inst->api.meba_sensor_get                 = lan966x_sensor_get;
     inst->api.meba_sfp_i2c_xfer               = lan966x_sfp_i2c_xfer;
     inst->api.meba_sfp_insertion_status_get   = lan966x_sfp_insertion_status_get;
     inst->api.meba_sfp_status_get             = lan966x_sfp_status_get;

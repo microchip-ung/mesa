@@ -42,7 +42,47 @@ static vtss_rc lan966x_fan_rotation_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 #endif
+/* ================================================================= *
+ *  Temperature Sensor
+ * ================================================================= */
+#if defined(VTSS_FEATURE_TEMP_SENSOR)
+static vtss_rc lan966x_temp_sensor_init(vtss_state_t *vtss_state,
+                                    const BOOL enable)
+{
+    // Enable/Disable
+    REG_WRM(CHIP_TOP_PVT_SENSOR_CFG,
+	    enable ? CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M : 0,
+	    CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M);
 
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_temp_sensor_get(vtss_state_t *vtss_state,
+                                       i16  *temp_celsius)
+{
+    u32 val;
+    int64_t x, r;
+    int64_t scale = 1e+15;  // Scale factor for calculations
+
+    REG_RD(CHIP_TOP_PVT_SENSOR_STAT, &val);
+    val = CHIP_TOP_PVT_SENSOR_STAT_DATA(val);
+
+    // Convert val to int64_t
+    x = (int64_t)val;
+
+    // Calculate as according to sensor spec
+    r = -34627;                 // -3.4627E-11 * 10^15
+    r = (r * x) + 110230000;    //  1.1023E-7  * 10^15
+    r = (r * x) - 191650000000; // -1.9165E-4  * 10^15
+    r = (r * x) + 3.0604e+14;   //  3.0604E-1  * 10^15
+    r = (r * x) - 5.6197e+16;   // -5.6197E1   * 10^15
+
+    // Convert r back to an integer for temp_celsius
+    *temp_celsius = (i16)(r / scale);
+
+    return VTSS_RC_OK;
+}
+#endif
 /* ================================================================= *
  *  Miscellaneous
  * ================================================================= */
@@ -644,6 +684,10 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->fan.cool_lvl_set = lan966x_fan_cool_lvl_set;
         vtss_state->fan.rotation_get = lan966x_fan_rotation_get;
 #endif
+#if defined(VTSS_FEATURE_TEMP_SENSOR)
+        vtss_state->temp_sensor.chip_temp_init = lan966x_temp_sensor_init;
+        vtss_state->temp_sensor.chip_temp_get  = lan966x_temp_sensor_get;
+#endif /* VTSS_FEATURE_TEMP_SENSOR */
         state->gpio_count = VTSS_GPIOS;
         break;
 
