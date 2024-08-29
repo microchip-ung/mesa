@@ -1001,9 +1001,9 @@ def tas_in_domain_1_test(eg, ig)
     end
 end
 
-def restart_gcl(conf, eg, ig, frame_size, cycle_time)
+def restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
     t_i("*************Start GCL again")
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     conf["base_time"]["nanoseconds"] = 0
     conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
     conf["gate_enabled"] = true
@@ -1039,6 +1039,12 @@ end
 def jira_mesa_977_stop_test(eg, ig)
     test "jira_mesa_stop_977_test" do
 
+    domain = 1
+    t_i("Set the TAS TOD domain to #{domain}")
+    conf = $ts.dut.call("mesa_ts_conf_get")
+    conf["tsn_domain"] = domain
+    $ts.dut.call("mesa_ts_conf_set", conf)
+
     frame_size = 500
     frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
     frame_tx_interval_count = 1000            # Number of frame transmitted in a GCL entry time interval
@@ -1059,11 +1065,11 @@ def jira_mesa_977_stop_test(eg, ig)
 
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    t_i ("Get TOD of domain 0")
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    t_i ("Get TOD of domain #{domain}")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = 100000
     tod[0]["nanoseconds"] = 555555
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     t_i ("*************Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -1105,9 +1111,9 @@ def jira_mesa_977_stop_test(eg, ig)
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
 
     t_i("*************Set TOD back in time before current base time");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = base_time_seconds - 10
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
@@ -1125,14 +1131,14 @@ def jira_mesa_977_stop_test(eg, ig)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
 
     sleep 10
 
     t_i("*************Set TOD back in time after base time but before current TOD");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = base_time_seconds + 5
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
@@ -1150,14 +1156,14 @@ def jira_mesa_977_stop_test(eg, ig)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
 
     sleep 1
 
     t_i("*************Set TOD after current TOD");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = tod[0]["seconds"] + 10
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
@@ -1175,7 +1181,7 @@ def jira_mesa_977_stop_test(eg, ig)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
 
     t_i ("*************Stop GCL")
     conf["gate_enabled"] = false
@@ -1196,6 +1202,12 @@ end
 def jira_mesa_977_restart_test(eg, ig)
     test "jira_mesa_stop_977_test" do
 
+    domain = 2
+    t_i("Set the TAS TOD domain to #{domain}")
+    conf = $ts.dut.call("mesa_ts_conf_get")
+    conf["tsn_domain"] = domain
+    $ts.dut.call("mesa_ts_conf_set", conf)
+
     frame_size = 500
     frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
     frame_tx_interval_count = 1000            # Number of frame transmitted in a GCL entry time interval
@@ -1216,11 +1228,11 @@ def jira_mesa_977_restart_test(eg, ig)
 
     $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $ts.dut.p[eg], 3, gcl)
 
-    t_i ("Get TOD of domain 0")
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    t_i ("Get TOD of domain #{domain}")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = 100000
     tod[0]["nanoseconds"] = 555555
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     t_i ("*************Start GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -1262,32 +1274,32 @@ def jira_mesa_977_restart_test(eg, ig)
     measure(ig, eg, frame_size, 2,     false,            false,           [erate,erate,erate], [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
 
     t_i("*************Set TOD back in time before current base time");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = base_time_seconds - 10
     tod[0]["nanoseconds"] = tod[0]["nanoseconds"] - 1000
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
-    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
 
     sleep 10
 
     t_i("*************Set TOD back in time after base time but before current TOD");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = base_time_seconds + 5
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
-    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time)
+    base_time_seconds = restart_gcl(conf, eg, ig, frame_size, cycle_time, domain)
 
     sleep 1
 
     t_i("*************Set TOD after current TOD");
-    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod = $ts.dut.call("mesa_ts_domain_timeofday_get", domain)
     tod[0]["seconds"] = tod[0]["seconds"] + 10
-    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    $ts.dut.call("mesa_ts_domain_timeofday_set", domain, tod[0])
 
     sleep 1
 
