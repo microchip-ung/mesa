@@ -274,8 +274,9 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
             return 1;
         case MEBA_CAP_1588_CLK_ADJ_DAC:
         case MEBA_CAP_1588_REF_CLK_SEL:
-        case MEBA_CAP_TEMP_SENSORS:
             return 0;
+        case MEBA_CAP_TEMP_SENSORS:
+            return 1;
         case MEBA_CAP_BOARD_PORT_COUNT:
         case MEBA_CAP_BOARD_PORT_MAP_COUNT:
             return board->port_cnt;
@@ -1004,6 +1005,28 @@ static mesa_rc lan969x_gpio_func_info_get(meba_inst_t inst,
     return rc;
 }
 
+static mesa_rc lan969x_sensor_get(meba_inst_t inst,
+                                  meba_sensor_t type,
+                                  int six,
+                                  int *value)
+{
+    mesa_rc rc = MESA_RC_ERROR;
+    int16_t temp = 0;
+
+    T_N(inst, "Called %d:%d", type, six);
+
+    if (type == MEBA_SENSOR_BOARD_TEMP) {
+        rc = mesa_temp_sensor_get(NULL, &temp);
+    }
+    if (rc == MESA_RC_OK) {
+        T_N(inst, "Temp %d:%d = %d", type, six, temp);
+        *value = temp;
+    } else {
+        T_N(inst, "Temp %d:%d = [not read:%d]", type, six, rc);
+    }
+    return rc;
+}
+
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
     meba_board_state_t *board;
@@ -1065,7 +1088,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_capability                 = lan969x_capability;
     inst->api.meba_port_entry_get             = lan969x_port_entry_get;
     inst->api.meba_reset                      = lan969x_reset;
-    inst->api.meba_sensor_get                 = NULL;
+    inst->api.meba_sensor_get                 = lan969x_sensor_get;
     inst->api.meba_sfp_i2c_xfer               = lan969x_sfp_i2c_xfer;
     inst->api.meba_sfp_insertion_status_get   = lan969x_sfp_insertion_status_get;
     inst->api.meba_sfp_status_get             = lan969x_sfp_status_get;
