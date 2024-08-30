@@ -831,10 +831,17 @@ static mesa_rc ext0_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 static mesa_rc cu_phy_handler(meba_inst_t inst, meba_board_state_t *board,
                               mesa_irq_t irq, meba_event_signal_t signal_notifier)
 {
+    mesa_port_no_t port_no;
+
     if (board->type == BOARD_TYPE_ADARO || board->type == BOARD_TYPE_SUNRISE) {
         return MESA_RC_ERROR;
     }
-    return meba_generic_phy_event_check(inst, irq - MESA_IRQ_CU_PHY_0, signal_notifier);
+    // Map the irq value to the port_no for the PHY in question.
+    // If the internal PHYs are used and port mapping is customized,
+    // then the irq -> port_no mapping below must be adjusted too.
+    port_no = (irq == MESA_IRQ_CU_PHY_0 ? 0 : 1);
+
+    return meba_generic_phy_event_check(inst, port_no, signal_notifier);
 }
 
 static mesa_rc lan966x_irq_handler(meba_inst_t inst,
