@@ -302,6 +302,7 @@ if $do_internal_checks
     begin
         #release_note()
         #run "cp images/release_note_*.txt #{$ws}"
+        run "touch #{$ws}/release_note_abc.txt" # A file gotta exist or a promote will fail.
     rescue
         $res.addSibling(ResultNode.new("Release note", "Failed"))
     end
