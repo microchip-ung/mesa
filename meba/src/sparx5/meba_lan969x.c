@@ -895,6 +895,9 @@ static mesa_rc lan969x_irq_handler(meba_inst_t inst,
     case MESA_IRQ_PTP_RDY:
         signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
         return MESA_RC_OK;
+    case MESA_IRQ_OAM:
+        signal_notifier(MEBA_EVENT_VOE, 0);
+        return MESA_RC_OK;
     case MESA_IRQ_SGPIO:
         return sgpio_handler(inst, board, signal_notifier);
     case MESA_IRQ_EXT0:
@@ -926,6 +929,7 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     switch (chip_irq) {
     case MESA_IRQ_PTP_SYNC:
     case MESA_IRQ_PTP_RDY:
+    case MESA_IRQ_OAM:
     case MESA_IRQ_SGPIO:
     case MESA_IRQ_EXT0:
     case MESA_IRQ_GPIO:
