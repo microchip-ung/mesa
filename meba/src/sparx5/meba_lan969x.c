@@ -114,10 +114,24 @@ static port_map_t port_table_pcb8398[] = {
     {21, MESA_MIIM_CONTROLLER_0, 25, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 1},
     {22, MESA_MIIM_CONTROLLER_0, 26, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 1},
     {23, MESA_MIIM_CONTROLLER_0, 27, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 1},
-    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 6, 0, 0},
-    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 7, 1, 0},
-    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 8, 2, 0},
-    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 9, 3, 0},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 24, 0, 0},
+    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 25, 1, 0},
+    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 26, 2, 0},
+    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 27, 3, 0},
+    {29, MESA_MIIM_CONTROLLER_0, 3,  MESA_PORT_INTERFACE_RGMII_TXID, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0, 0, 0},
+};
+
+static port_map_t port_table_pcb8422[] = {
+    {0,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 0, 0, 0},
+    {4,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 4, 1, 0},
+    {8,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 8, 2, 0},
+    {12, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 12, 3, 0},
+    {16, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 16, 4, 0},
+    {20, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 20, 5, 0},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 24, 6, 0},
+    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 25, 7, 0},
+    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 26, 8, 0},
+    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,  LAGUNA_CAP_10G_FDX,            MESA_BW_10G, 27, 9, 0},
     {29, MESA_MIIM_CONTROLLER_0, 3,  MESA_PORT_INTERFACE_RGMII_TXID, MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0, 0, 0},
 };
 
@@ -161,7 +175,10 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
     board->port_cnt = port_cnt;
     for (port_no = 0; port_no < port_cnt; port_no++) {
         port_entry_map(&board->port[port_no].map, &map[port_no]);
-        board->port[port_no].ts_phy = map[port_no].ts_phy;
+
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+            board->port[port_no].ts_phy = map[port_no].ts_phy;
+        }
         // Initialise phy base port.
         if (board->type == BOARD_TYPE_LAGUNA_PCB8398 && port_no < 24) {
             board->port[port_no].map.phy_base_port = (port_no / 4) * 4;
@@ -173,7 +190,7 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_sgpio_conf_t  conf;
-    uint32_t gpio_no, port;
+    uint32_t gpio_no, i, p;
 
     switch (board->type) {
     case BOARD_TYPE_SUNRISE:
@@ -210,17 +227,22 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
     }
 
-    /* SGPIO group controls:
-       sgpio port 0  : i2c mux
-       sgpio port 1  : RS422
-       sgpio port 6-9: SFP LEDs and SFP signals */
-    if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
+    if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) != MESA_RC_OK) {
+        T_E(inst, "Could not get sgpio conf");
+    }
+
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+        /* SGPIO group controls:
+           sgpio port 0  : i2c mux
+           sgpio port 1  : RS422
+           sgpio port 6-9: SFP LEDs and SFP signals */
+
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 4;
 
         conf.port_conf[0].mode[0] = MESA_SGPIO_MODE_ON;
-        /* MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
-        for (uint32_t i = 1; i < 4; i++) {
+        /* 3 bit MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
+        for (i = 1; i < 4; i++) {
             conf.port_conf[0].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
         }
         conf.port_conf[0].mode[0] = MESA_SGPIO_MODE_ON; // POE enabled
@@ -231,24 +253,54 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         conf.port_conf[1].mode[2] = MESA_SGPIO_MODE_ON;
         conf.port_conf[1].mode[3] = MESA_SGPIO_MODE_ON;
 
-        // SGPIO Output port 6-9:
+        // SGPIO Output ports (for both boards):
         // bit 0: LED1
         // bit 1: LED2
         // bit 2: TxDisable
         // bit 3: RateSelect
 
-        // SGPIO Input port 6-9:
+        // SGPIO Input ports (for both boards)::
         // bit 0: LOS
         // bit 1: ModDetect
         // bit 2: TxFault
 
-        for (port = 6; port <= 9; port++) {
-            conf.port_conf[port].enabled = 1;
-            conf.port_conf[port].mode[0] =  MESA_SGPIO_MODE_OFF; // Turn on Green SFP LED while booting
-            conf.port_conf[port].mode[1] =  MESA_SGPIO_MODE_OFF; // Turn on Red SFP LED while booting
+        for (p = 0; p < board->port_cnt; p++) {
+            if (is_sfp_port(board->port[p].map.cap)) {
+                uint32_t sgport = meba_port_map[p].sgpio_port;
+                conf.port_conf[sgport].enabled = 1;
+                // Turn on SFP LEDs while booting
+                conf.port_conf[sgport].mode[0] = MESA_SGPIO_MODE_OFF;
+                conf.port_conf[sgport].mode[1] = MESA_SGPIO_MODE_OFF;
+            }
+        }
+    } else if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        // The SGPIO ports are mapped to the port device of the chip, one to one mapping
+        conf.bmode[0] = MESA_SGPIO_BMODE_5;
+        conf.bit_count = 4;
+
+        for (p = 0; p < board->port_cnt; p++) {
+            if (is_sfp_port(board->port[p].map.cap)) {
+                uint32_t sgport = meba_port_map[p].sgpio_port;
+                conf.port_conf[sgport].enabled = 1;
+                // Turn on SFP LEDs  while booting
+                conf.port_conf[sgport].mode[2] = MESA_SGPIO_MODE_ON;
+                conf.port_conf[sgport].mode[3] = MESA_SGPIO_MODE_ON;
+            }
+        }
+        /* 4 bit MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
+        conf.port_conf[28].enabled = 1;
+        for (i = 0; i < 4; i++) {
+            conf.port_conf[28].mode[i] = MESA_SGPIO_MODE_NO_CHANGE;
         }
 
-        (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+        /* Set bit 2 and 3 to high. This sets the RS422 1PPS driver output to tristate */
+        conf.port_conf[29].enabled = 1;
+        conf.port_conf[29].mode[2] = MESA_SGPIO_MODE_ON;
+        conf.port_conf[29].mode[3] = MESA_SGPIO_MODE_ON;
+    }
+
+    if (mesa_sgpio_conf_set(NULL, 0, 0, &conf)  != MESA_RC_OK) {
+        T_E(inst, "Could not set sgpio conf");
     }
 
     // Status LED off (application will turn on)
@@ -256,6 +308,13 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
     (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
     (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
 
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        mesa_mdio_conf_t mdio = {};
+        mdio.miim_freq = 1600000; // 1.6Mhz is what PCB8422 supports
+        if (mesa_mdio_conf_set(NULL, 0, &mdio) != MESA_RC_OK) {
+            T_E(inst, "Could not set MDIO speed");
+        }
+    }
     // GPIO 62 is used for PHY reset
     gpio_no = 62;
     (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
@@ -303,7 +362,8 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
         case MEBA_CAP_CPU_PORTS_COUNT:
             return 0;
         case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
-            if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+            if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
+                board->type == BOARD_TYPE_LAGUNA_PCB8422) {
                 meba_synce_clock_hw_id_t dpll_type;
 
                 if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK)) {
@@ -448,11 +508,18 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t inst,
     mesa_rc            rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_sgpio_conf_t  conf;
-    mesa_sgpio_mode_t  sgmode = (state->enable ? MESA_SGPIO_MODE_OFF: MESA_SGPIO_MODE_ON);
+    mesa_sgpio_mode_t  sgmode;
     uint8_t            sgport = meba_port_map[port_no].sgpio_port;
 
     if (board->type == BOARD_TYPE_SUNRISE) {
         return rc;
+    }
+
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+        sgmode = (state->enable ? MESA_SGPIO_MODE_OFF : MESA_SGPIO_MODE_ON);
+    } else {
+        // BOARD_TYPE_LAGUNA_PCB8422
+        sgmode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
     }
 
     if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE &&
@@ -547,7 +614,8 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
         case MEBA_STATUS_LED_INITIALIZE:
             break;
         case MEBA_PORT_LED_INITIALIZE:
-            if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+            if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
+                board->type == BOARD_TYPE_LAGUNA_PCB8422) {
                 mepa_gpio_conf_t conf = {};
                 mesa_sgpio_conf_t sgconf;
                 uint8_t sgport;
@@ -677,15 +745,18 @@ static mesa_rc lan969x_event_enable(meba_inst_t inst,
         return rc;    // Dummy for now
 
     case MEBA_EVENT_LOS:
-        if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
+            board->type == BOARD_TYPE_LAGUNA_PCB8422) {
             // bit 0: LOS
             // bit 1: ModDetect
             // bit 2: TxFault
             for (port_no = 0; port_no < board->port_cnt-1; port_no++) {
-                if ((sgport = meba_port_map[port_no].sgpio_port) > 0) {
-                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 0, enable); // LOS
-                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 2, enable); // TxFault
+                if (!is_sfp_port(board->port[port_no].map.cap)) {
+                    continue;
                 }
+                sgport = meba_port_map[port_no].sgpio_port;
+                (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 0, enable); // LOS
+                (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, 2, enable); // TxFault
             }
             for (port_no = 0; port_no < board->port_cnt-1; port_no++) {
                 if (is_phy_port(board->port[port_no].map.cap)) {
@@ -800,12 +871,17 @@ static mesa_rc gpio_handler(meba_inst_t inst, meba_board_state_t *board, meba_ev
 
     switch (board->type) {
         case BOARD_TYPE_LAGUNA_PCB8398:
+        case BOARD_TYPE_LAGUNA_PCB8422:
             if (gpio_events[2]) {
                 if ((rc = mesa_gpio_event_enable(NULL, 0, 2, false)) != MESA_RC_OK) {
                     T_E(inst, "mesa_gpio_event_enable = %d", rc);
                 }
                 signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
                 handled++;
+            }
+            if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+                // No Indy on this board
+                break;
             }
             // Interrupt from all Indy PHYs are OR'ed together on
             // GPIO11. As long as there is one Indy PHY with a pending
@@ -952,13 +1028,6 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
-static mesa_rc lan969x_serdes_tap_get(meba_inst_t inst, mesa_port_no_t port_no,
-                                      mesa_port_speed_t speed, mesa_port_serdes_tap_enum_t tap,
-                                      uint32_t *const ret_val)
-{
-    return MESA_RC_NOT_IMPLEMENTED;
-}
-
 static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
 {
     meba_board_state_t *board = INST2BOARD(inst);
@@ -966,6 +1035,9 @@ static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_
 
     if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
         *conf = pcb8398_rs422_conf;
+    } else if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        T_E(inst, "RS422 conf not defined yet");
+        return VTSS_RC_ERROR;
     } else {
         *conf = other_rs422_conf;
     }
@@ -990,9 +1062,10 @@ static mesa_rc lan969x_gpio_func_info_get(meba_inst_t inst,
     mesa_rc rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
 
-    if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
+        board->type == BOARD_TYPE_LAGUNA_PCB8422) {
         if (gpio_func < PCB8398_GPIO_FUNC_INFO_SIZE) {
-            *info = pcb8398_gpio_func_info[gpio_func];
+            *info = pcb8398_gpio_func_info[gpio_func]; // PCB8398 and PCB8842 have identical GPIOs
         } else {
             T_E(inst, "Invalid gpio_func %u", gpio_func);
             rc = MESA_RC_ERROR;
@@ -1045,7 +1118,7 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
         goto error_out;
     }
 
-    // Get the port count from uboot
+    // Get the port count from uboot (if any)
     if (meba_conf_get_hex(inst, "pcb_var", &pcb_var) == MESA_RC_OK) {
         port_cnt = pcb_var;
     }
@@ -1058,7 +1131,8 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
-    if (board->type == 0x8398) {
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
+        board->type == BOARD_TYPE_LAGUNA_PCB8422) {
         // This board has onboard DPLL for Synce/PTP
         // Use its 25Mhz ref clock for 1588 (and Core):
         inst->props.ref_freq = MESA_CORE_REF_CLK_25MHZ;
@@ -1067,10 +1141,17 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     switch (board->type) {
     case BOARD_TYPE_LAGUNA_PCB8398:
         if (port_cnt == 0) {
-            port_cnt = sizeof(port_table_pcb8398)/sizeof(port_map_t); // whole table as default
+            port_cnt = sizeof(port_table_pcb8398)/sizeof(port_map_t);
         }
         lan966x_init_port_table(inst, port_cnt, port_table_pcb8398);
         meba_port_map = port_table_pcb8398;
+        break;
+    case BOARD_TYPE_LAGUNA_PCB8422:
+        if (port_cnt == 0) {
+            port_cnt = sizeof(port_table_pcb8422)/sizeof(port_map_t);
+        }
+        lan966x_init_port_table(inst, port_cnt, port_table_pcb8422);
+        meba_port_map = port_table_pcb8422;
         break;
     case BOARD_TYPE_SUNRISE:
         lan966x_init_port_table(inst, 5, port_table_sunrise);
@@ -1102,7 +1183,6 @@ meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *c
     inst->api.meba_irq_requested              = lan969x_irq_requested;
     inst->api.meba_event_enable               = lan969x_event_enable;
     inst->api.meba_deinitialize               = NULL;
-    inst->api.meba_serdes_tap_get             = lan969x_serdes_tap_get;
     inst->api.meba_ptp_rs422_conf_get         = lan969x_ptp_rs422_conf_get;
     inst->api.meba_gpio_func_info_get         = lan969x_gpio_func_info_get;
     inst->api_synce                           = meba_synce_get();

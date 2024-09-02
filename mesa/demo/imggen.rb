@@ -139,6 +139,12 @@ $machines = {
                 { :name => "lan9698_ev23x71a_0_at_lan969x", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8398_0.dtso"},
             ]
           },
+          {
+            :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/lan969x_appl_ev89p81a.dtb",
+            :overlays => [
+                { :name => "lan9698_ev89p81a_0_at_lan969x", :file => "#{$p_mesa}/meba/dt/meba_lan969x_8422_0.dtso"},
+            ]
+          },
         ],
         :fdtaddr => "/bits/ 64 <0x6fff0000>",
         :rootfs => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/rootfs.tar",

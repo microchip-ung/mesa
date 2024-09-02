@@ -2182,8 +2182,9 @@ meba_inst_t meba_initialize(size_t callouts_size,
         fprintf(stderr, "Could not read pcb type\n");
         goto error_out;
     }
-
-    if (pcb == BOARD_TYPE_SUNRISE || pcb == BOARD_TYPE_LAGUNA_PCB8398) {
+    if (pcb == BOARD_TYPE_SUNRISE ||
+        pcb == BOARD_TYPE_LAGUNA_PCB8398 ||
+        pcb == BOARD_TYPE_LAGUNA_PCB8422) {
         // Laguna design
         return lan969x_initialize(inst, callouts);
     }
