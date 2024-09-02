@@ -386,9 +386,9 @@ typedef enum {
 
 
 typedef enum {
-    MEBA_POE_FIRMWARE_TYPE_PREBT = 0,
-    MEBA_POE_FIRMWARE_TYPE_BT,
-    MEBA_POE_FIRMWARE_TYPE_NONE
+    MEBA_POE_FIRMWARE_TYPE_NONE = 0,
+    MEBA_POE_FIRMWARE_TYPE_PREBT,
+    MEBA_POE_FIRMWARE_TYPE_BT
 } meba_poe_firmware_type_t;
 
 
@@ -544,9 +544,8 @@ typedef struct {
     // poe firmware info
     uint8_t         prod_number_detected;
 
-    uint16_t        sw_version_detected;
-    uint8_t         sw_version_high_detected;
-    uint8_t         sw_version_low_detected;
+    uint8_t         sw_version_major_detected;
+    uint8_t         sw_version_minor_detected;
 
     uint8_t         param_number_detected;
     uint8_t         prod_number_from_file;
@@ -730,6 +729,10 @@ struct meba_poe_ctrl_api;
 
 // PoE Controller instance
 typedef struct {
+
+    // PoE MCU index.
+    int index;
+
     // Function pointers.
     struct meba_poe_ctrl_api   *api;
 

@@ -132,6 +132,7 @@ mesa_rc meba_poe_caracal_system_initialize(
 
             tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+            caracal_pd69200_system.controllers[0].index = 0;
             meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
                                        "pd69x00bt",
                                        meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device, poe_12c0),
@@ -160,6 +161,7 @@ mesa_rc meba_poe_caracal_system_initialize(
 
             tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+            caracal_pd69200_system.controllers[0].index = 0;
             meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
                                        "pd69x00at",
                                        meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device, poe_12c0),
@@ -217,6 +219,7 @@ default:  //caracal board
 
              tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+             caracal_pd69200_system.controllers[0].index = 0;
              meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0],
                                      "pd69x00",
                                      meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device, poe_12c0),
@@ -245,6 +248,7 @@ default:  //caracal board
 
              tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+             caracal_pd69200_system.controllers[0].index = 0;
              meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0],
                                      "pd69x00",
                                      meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device, poe_12c0),

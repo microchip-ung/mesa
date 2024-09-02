@@ -54,6 +54,10 @@
 #define JR2_POE_CONTROLLER_1_I2C_ADDRESS     0x14
 #define JR2_POE_CONTROLLER_2_I2C_ADDRESS     0x28
 
+// using two PoE MCUs
+// if marked - single PoE MCU (only the first table sparx5_pd69200_4pairs_port_map_1 will be applied)
+// otherwise - 2 PoE MCUs are applied
+#define JR2_TWO_POE_CONTROLLERS
 
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.

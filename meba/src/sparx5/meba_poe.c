@@ -61,7 +61,9 @@ meba_poe_system_t sparx5_pd69200_system;
 static
 i2c_config_t sparx5_i2c_config[] =
 { { "/dev/i2c-0", SPARX5_POE_CONTROLLER_1_I2C_ADDRESS },
+  #ifdef SPARX5_TWO_POE_CONTROLLERS
   { "/dev/i2c-0", SPARX5_POE_CONTROLLER_2_I2C_ADDRESS }
+  #endif //SPARX5_TWO_POE_CONTROLLERS
 };
 
 i2c_config_t lan969_i2c_config[] =
@@ -85,8 +87,6 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
     /* sparx5_ctrl.api = ....; */
     /* sparx5_ctrl.private_data = ....; */
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
-    sparx5_pd69200_system.controller_count = 2;
-    sparx5_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * sparx5_pd69200_system.controller_count);
 
     uint8_t poe_12c0 = sparx5_i2c_config[0].i2c_address;
     if (inst->poe_i2c_tags.poe_12c0 != 0)
@@ -94,14 +94,19 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
         poe_12c0 = inst->poe_i2c_tags.poe_12c0;
         //T_I("%s=%d", "poe_12c0", poe_12c0);
     }
-
+  #ifdef SPARX5_TWO_POE_CONTROLLERS
     uint8_t poe_12c1 = sparx5_i2c_config[1].i2c_address;
     if (inst->poe_i2c_tags.poe_12c1 != 0)
     {
         poe_12c1 = inst->poe_i2c_tags.poe_12c1;
         //T_I("%s=%d", "poe_12c1", poe_12c1);
     }
+    sparx5_pd69200_system.controller_count = 2;
+  #else
+     sparx5_pd69200_system.controller_count = 1;
+  #endif //SPARX5_TWO_POE_CONTROLLERS
 
+    sparx5_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * sparx5_pd69200_system.controller_count);
     // overide tMeba_poe_init_params params if using H file parameters
     if(tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w        = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
@@ -126,6 +131,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        sparx5_pd69200_system.controllers[0].index = 0;
         meba_pd69200bt_driver_init(&sparx5_pd69200_system.controllers[0],
                                    "pd69x00",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device, poe_12c0),
@@ -140,7 +146,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    inst->iface.debug,
                                    tPoE_parameters);
 
-
+  #ifdef SPARX5_TWO_POE_CONTROLLERS
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
@@ -153,6 +159,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        sparx5_pd69200_system.controllers[1].index = 1;
         meba_pd69200bt_driver_init(&sparx5_pd69200_system.controllers[1],
                                    "pd69x00-2",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device, poe_12c1),
@@ -166,6 +173,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    sizeof(sparx5_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                    inst->iface.debug,
                                    tPoE_parameters);
+  #endif //SPARX5_TWO_POE_CONTROLLERS
     } else if(tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_PREBT) {
 	// overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
@@ -179,6 +187,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        sparx5_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&sparx5_pd69200_system.controllers[0],
                                    "pd69x00",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[0].i2c_device, poe_12c0),
@@ -191,7 +200,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    sizeof(sparx5_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                    inst->iface.debug,
                                    tPoE_parameters);
-
+  #ifdef SPARX5_TWO_POE_CONTROLLERS
 	// overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
@@ -204,6 +213,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        sparx5_pd69200_system.controllers[1].index = 1;
         meba_pd69200_driver_init(&sparx5_pd69200_system.controllers[1],
                                    "pd69x00-2",
                                    meba_pd69200_i2c_adapter_open(sparx5_i2c_config[1].i2c_device, poe_12c1),
@@ -216,6 +226,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    sizeof(sparx5_power_supplies)/sizeof(meba_poe_psu_input_prob_t),
                                    inst->iface.debug,
                                    tPoE_parameters);
+  #endif //SPARX5_TWO_POE_CONTROLLERS
     } else {
             return MESA_RC_ERROR;
     }
@@ -262,6 +273,7 @@ mesa_rc meba_poe_lan969x_pcb8398_system_initialize(
 
     tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+    sparx5_pd69200_system.controllers[0].index = 0;
     meba_pd69200bt_driver_init(&sparx5_pd69200_system.controllers[0],
                                "pd69x00",
                                meba_pd69200_i2c_adapter_open(lan969_i2c_config[0].i2c_device, poe_12c0),

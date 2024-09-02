@@ -109,6 +109,7 @@ mesa_rc meba_poe_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        ocelot_pd69200_system.controllers[0].index = 0;
         meba_pd69200bt_driver_init(&ocelot_pd69200_system.controllers[0],
                                  "pd69x00",
                                  meba_pd69200_i2c_adapter_open(ocelot_i2c_config.i2c_device, poe_12c0),
@@ -141,6 +142,7 @@ mesa_rc meba_poe_system_initialize(
 
         tPoE_parameters.poe_init_params = *tPoe_init_params;
 
+        ocelot_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&ocelot_pd69200_system.controllers[0],
                                  "pd69x00",
                                  meba_pd69200_i2c_adapter_open(ocelot_i2c_config.i2c_device, poe_12c0),

@@ -50,8 +50,14 @@
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
-#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS     0x14
-#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS     0x28
+#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS     0x2C
+#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS     0x3C
+
+
+// using two PoE MCUs
+// if marked - single PoE MCU (only the first table sparx5_pd69200_4pairs_port_map_1 will be applied)
+// otherwise - 2 PoE MCUs are applied
+#define SPARX5_TWO_POE_CONTROLLERS
 
 
 // poe gpio reset pin number
