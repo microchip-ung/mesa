@@ -38,7 +38,7 @@ if $ws.nil? or $api.nil? or $appl.nil?
     exit 1
 end
 
-if File.exists? $ws
+if File.exist? $ws
     puts "Work-space exists already, please provide a non-existing works space path"
     exit 1
 end

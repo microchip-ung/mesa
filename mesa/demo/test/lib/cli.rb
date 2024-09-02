@@ -234,10 +234,10 @@ class CliRs232Transport < CliTransport
         @id = options.fetch(:id, "CliTransport")
         raise "Invalid rs232 specification: #{target}" unless target =~ /^rs232:([^:]+),(230400|115200|57600|38400|19200|9600|4800|2400|1200|300),([noeNOE]),([5678]),([12])(,transient)?$/
         @dev, baudrate, parity, databits, stopbits, @transient = $1, $2.to_i, $3.upcase, $4.to_i, $5.to_i, $6
-        raise "No such character device on host: #{@dev}" unless @transient || (File.exists?(@dev) && File.chardev?(@dev))
+        raise "No such character device on host: #{@dev}" unless @transient || (File.exist?(@dev) && File.chardev?(@dev))
 
         lock_name = "/var/lock/LCK..#{File.basename(@dev)}"
-        raise "CLI: Serial port lock file exists, maybe from minicom? #{lock_name}" if File.exists?(lock_name)
+        raise "CLI: Serial port lock file exists, maybe from minicom? #{lock_name}" if File.exist?(lock_name)
 
         @setup = {
             "baud"      => baudrate,

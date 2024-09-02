@@ -386,7 +386,7 @@ step $res, "API Doc" do
     run "ls", "doc"
 end
 
-if File.exists? "./mesa-doc.html"
+if File.exist? "./mesa-doc.html"
     %x{"cp -r ./mesa-doc.html images/."}
 end
 

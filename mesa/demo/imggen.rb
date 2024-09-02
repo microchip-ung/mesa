@@ -298,7 +298,7 @@ end
 
 def sys cmd, input = nil
     exception = nil
-    raise "IMGGEN: #{$o[:name]}> Input file: #{input} does not exists!!!" if input and (not File.exists? input)
+    raise "IMGGEN: #{$o[:name]}> Input file: #{input} does not exists!!!" if input and (not File.exist? input)
 
     begin
         stdout, stderr, status = Open3.capture3(cmd)
@@ -336,7 +336,7 @@ def sys cmd, input = nil
             s += "#{stderr}\n"
         end
         if input
-            if File.exists? input
+            if File.exist? input
                 s += "INPUT-FILE-EXISTS: #{input}\n"
             else
                 s += "INPUT-FILE-NO-EXISTS: #{input}\n"

@@ -982,7 +982,7 @@ class LinuxBridgeIfFactory
     @@created = []
 
     def LinuxBridgeIfFactory.capable?
-        File.exists?(BRCTL) && File.executable?(BRCTL)
+        File.exist?(BRCTL) && File.executable?(BRCTL)
     end
 
     def LinuxBridgeIfFactory.exists?(ifname)
