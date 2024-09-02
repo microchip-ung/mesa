@@ -356,9 +356,6 @@ $checks.each do |c|
     puts "Running: #{c[:cmd]}"
     o, e, s = Open3.capture3(c[:cmd])
 
-    r = ResultNode.from_file("#{c[:dir]}/status.json")
-    r.name = c[:name]
-
     if o.chomp.size > 0
         puts "STDOUT:"
         puts o
@@ -368,6 +365,9 @@ $checks.each do |c|
         puts "STDERR:"
         puts e
     end
+
+    r = ResultNode.from_file("#{c[:dir]}/status.json")
+    r.name = c[:name]
 
     puts "Status: #{c[:name]} -> #{r.status}"
     res.addSibling(r)
