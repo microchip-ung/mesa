@@ -75,7 +75,9 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
+#if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_TEMP_SENSOR                  /**< Temperature Sensor */
+#endif
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
