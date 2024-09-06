@@ -1558,6 +1558,8 @@ static vtss_rc lan966x_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vts
         if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
             /* Calculate first possible base time of stop list. This is TOD plus two times the current cycle time */
             _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &stop_base_time, &tc);
+            /* Add 1 ms to assure start in the future */
+            (void)vtss_timestampAddNano(&stop_base_time, 1*1000*1000);
 
             /* Cancel the current list */
             tas_list_cancel(vtss_state, gcl_state->curr_list_idx);
