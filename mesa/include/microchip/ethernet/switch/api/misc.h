@@ -749,13 +749,13 @@ typedef struct {
 // enable [IN]       Set to true if sensor shall be active else false
 mesa_rc mesa_temp_sensor_init(const mesa_inst_t inst,
                               const mesa_bool_t enable)
-    CAP(MISC_FAN);
+    CAP(MISC_TEMP_SENSOR);
 
 // Read temperature sensor value
 // temperature [OUT]      Temperature from sensor (range from -46 to 135 degC)
 mesa_rc mesa_temp_sensor_get(const mesa_inst_t     inst,
                              int16_t               *temperature)
-    CAP(MISC_FAN);
+    CAP(MISC_TEMP_SENSOR);
 
 // FAN PWM frequency
 typedef enum
