@@ -1588,7 +1588,8 @@ vtss_rc vtss_cil_l2_psfp_gate_status_get(vtss_state_t *vtss_state,
     REG_RD(VTSS_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3, &value);
     status->close_invalid_rx = VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_INVALID_RX(value);
     status->close_octets_exceeded = VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_OCTETS_EXCEEDED(value);
-    return VTSS_FUNC(ts.timeofday_get, &status->current_time, &tc);
+    return _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain,
+                                         &status->current_time, &tc);
 }
 
 vtss_rc vtss_cil_l2_psfp_filter_conf_set(vtss_state_t *vtss_state, const vtss_psfp_filter_id_t id)

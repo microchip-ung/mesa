@@ -1182,7 +1182,8 @@ vtss_rc vtss_cil_l2_psfp_gate_status_get(vtss_state_t *vtss_state,
     status->close_invalid_rx = ANA_SG_CFG_3_INVALID_RX_X(value);
     status->close_octets_exceeded = ANA_SG_CFG_3_OCTETS_EXCEEDED_X(value);
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    return VTSS_FUNC(ts.timeofday_get, &status->current_time, &tc);
+    return _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain,
+                                         &status->current_time, &tc);
 #else
     return VTSS_RC_OK;
 #endif
