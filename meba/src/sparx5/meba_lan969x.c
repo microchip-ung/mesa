@@ -1083,6 +1083,7 @@ static mesa_rc lan969x_sensor_get(meba_inst_t inst,
                                   int six,
                                   int *value)
 {
+#if defined(VTSS_FEATURE_TEMP_SENSOR)
     mesa_rc rc = MESA_RC_ERROR;
     int16_t temp = 0;
 
@@ -1099,6 +1100,9 @@ static mesa_rc lan969x_sensor_get(meba_inst_t inst,
         T_N(inst, "Temp %d:%d = [not read:%d]", type, six, rc);
     }
     return rc;
+#else
+    return MESA_RC_ERROR;
+#endif
 }
 
 meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
