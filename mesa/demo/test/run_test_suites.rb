@@ -130,7 +130,7 @@ puts "-----Start test on all 'sequential' systems.-----"
 seq_done = false
 while (!seq_done)
     seq_done = true
-    ["33", "34", "35", "36"].each_with_index do |s, i|
+    ["33", "34", "35", "36", "37"].each_with_index do |s, i|
         t = $sequential_threads[i]
         if (t == nil)
             t = start_server_sequential(s)
