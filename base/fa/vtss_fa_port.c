@@ -564,6 +564,10 @@ static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
         return FALSE; // This is the primary device
     }
 
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USXGMII) {
+        return FALSE; // Can run all speeds
+    }
+
     if ((((vtss_state->port.current_speed[port_no] <= VTSS_SPEED_2500M) && (vtss_state->port.conf[port_no].speed > VTSS_SPEED_2500M))) ||
        ((vtss_state->port.current_speed[port_no] > VTSS_SPEED_2500M) && (vtss_state->port.conf[port_no].speed <= VTSS_SPEED_2500M)) ||
        (vtss_state->port.current_speed[port_no] == VTSS_SPEED_UNDEFINED)) {
@@ -3389,7 +3393,8 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         VTSS_RC(fa_port_flush(vtss_state, port_no, TRUE));
         /* Re-configure Serdes if needed */
         if (serdes_mode != vtss_state->port.sd28_mode[sd_indx] ||
-            vtss_state->port.current_speed[port_no] != conf->speed ||
+            ((vtss_state->port.current_speed[port_no] != conf->speed) &&
+             (vtss_state->port.sd28_mode[sd_indx] != VTSS_SERDES_MODE_USXGMII)) ||
             vtss_state->port.current_mt[port_no] != conf->serdes.media_type) {
             VTSS_RC(fa_serdes_set(vtss_state, port_no, serdes_mode));
         }

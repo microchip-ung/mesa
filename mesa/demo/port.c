@@ -187,7 +187,6 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
         return MESA_RC_OK;
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_XAUI:
-    case MESA_PORT_INTERFACE_USXGMII:
         if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
             entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_SR) {
             if ((speed_in == MESA_SPEED_25G) && (cap & MEBA_PORT_CAP_10G_FDX)) {
@@ -211,6 +210,9 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
             return MESA_RC_OK;
         }
         break;
+    case MESA_PORT_INTERFACE_USXGMII:
+        *speed_out = speed_in;
+        return MESA_RC_OK;
     default:
         break;
     }
@@ -231,8 +233,9 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     if (device != NULL) {
         device->drv->meba_sfp_driver_if_get(device, p_conf->speed, &mac_if);
     } else {
-
-        if ((mac_if != MESA_PORT_INTERFACE_SGMII_CISCO) &&
+        if (mac_if == MESA_PORT_INTERFACE_USXGMII) {
+            // Do nothing
+        } else if ((mac_if != MESA_PORT_INTERFACE_SGMII_CISCO) &&
             (p_conf->speed == MESA_SPEED_1G || p_conf->speed == MESA_SPEED_2500M)) {
             mac_if = MESA_PORT_INTERFACE_SERDES;
         } else if (p_conf->speed == MESA_SPEED_100M) {
