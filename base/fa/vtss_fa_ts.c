@@ -113,39 +113,30 @@ static vtss_rc fa_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_times
     return fa_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
 }
 
-static vtss_rc fa_ts_multi_domain_timeofday_get(vtss_state_t *vtss_state, uint32_t domain1, uint32_t domain2, vtss_timestamp_t *ts1, vtss_timestamp_t *ts2)
+static vtss_rc fa_ts_multi_domain_timeofday_get(vtss_state_t *vtss_state, const uint32_t domain_cnt, vtss_timestamp_t *const ts)
 {
-    uint32_t reg = (1 << domain1) | (1 << domain2), value;
+    uint32_t value, domain;
+    vtss_timestamp_t *t_stamp;
 
-    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(reg), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain1), &value);
-    ts1->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain1), &ts1->seconds);
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain1), &value);
-    ts1->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
-    if (ts1->nanoseconds >= 0x3ffffff0 && ts1->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
-        VTSS_RC(vtss_timestampSubSec(ts1));
-        ts1->nanoseconds = 999999984 + (ts1->nanoseconds & 0xf);
-    }
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain1), &value);
-    ts1->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8;
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(7), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
 
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain2), &value);
-    ts2->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain2), &ts2->seconds);
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain2), &value);
-    ts2->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
-    if (ts2->nanoseconds >= 0x3ffffff0 && ts2->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
-        VTSS_RC(vtss_timestampSubSec(ts2));
-        ts2->nanoseconds = 999999984 + (ts2->nanoseconds & 0xf);
+    for (domain = 0; domain < domain_cnt; domain++) {
+        t_stamp = &ts[domain];
+        REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain), &value);
+        t_stamp->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
+        REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain), &t_stamp->seconds);
+        REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain), &value);
+        t_stamp->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
+        if (t_stamp->nanoseconds >= 0x3ffffff0 && t_stamp->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+            VTSS_RC(vtss_timestampSubSec(t_stamp));
+            t_stamp->nanoseconds = 999999984 + (t_stamp->nanoseconds & 0xf);
+        }
+        REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain), &value);
+        t_stamp->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8;
+        VTSS_I("domain %u ts sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", domain, t_stamp->sec_msb, t_stamp->seconds, t_stamp->nanoseconds, t_stamp->nanosecondsfrac);
     }
-    REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain2), &value);
-    ts2->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8;
 
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(0), VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
-    VTSS_I("ts1 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts1->sec_msb, ts1->seconds, ts1->nanoseconds, ts1->nanosecondsfrac);
-    VTSS_I("ts2 sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts2->sec_msb, ts2->seconds, ts2->nanoseconds, ts2->nanosecondsfrac);
-
     return VTSS_RC_OK;
 }
 

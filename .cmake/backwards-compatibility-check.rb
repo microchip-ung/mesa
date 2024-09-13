@@ -341,8 +341,13 @@ $default_configs = "istax_multi.mk"
 #      $default_configs)                # Configs to build
 
 # Change in poe related types
+#check("backwards-check",               # Name of check
+#      "b98d35ebf2@poe_appl_updates_09_02_24",    # Apl release to use
+#      $default_configs)                # Configs to build
+
+# Change in PTP multi domain timestamp read.
 check("backwards-check",               # Name of check
-      "b98d35ebf2@poe_appl_updates_09_02_24",    # Apl release to use
+      "bbf146998f@master.APPL-6095",   # Apl release to use
       $default_configs)                # Configs to build
 
 # This will be activated when we get to the 4.2 release

@@ -122,11 +122,9 @@ typedef struct {
                                     BOOL                 negative);
     vtss_rc (* timeofday_offset_set)(struct vtss_state_s *vtss_state,
                                      i32                     offset);
-    vtss_rc (* multi_domain_timeofday_get)(const vtss_inst_t             inst,
-                                           const u32                     domain1,
-                                           const u32                     domain2,
-                                           vtss_timestamp_t              *const ts1,
-                                           vtss_timestamp_t              *const ts2);
+    vtss_rc (* multi_domain_timeofday_get)(struct vtss_state_s *vtss_state,
+                                           const uint32_t      domain_cnt,
+                                           vtss_timestamp_t    *const ts);
     vtss_rc (* domain_timeofday_get)(struct vtss_state_s *vtss_state,
                                      u32                 domain,
                                      vtss_timestamp_t    *ts,

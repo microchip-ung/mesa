@@ -159,6 +159,35 @@ static vtss_rc jr2_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_time
     return jr2_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
 }
 
+static vtss_rc jr2_ts_multi_domain_timeofday_get(vtss_state_t *vtss_state, const uint32_t domain_cnt, vtss_timestamp_t *const ts)
+{
+#if defined(VTSS_ARCH_JAGUAR_2_C)
+    uint32_t value, domain;
+    vtss_timestamp_t *t_stamp;
+
+    JR2_WRM(VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG, VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG_PTP_TOD_FREEZE(7), VTSS_M_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG_PTP_TOD_FREEZE);
+    for (domain = 0; domain < domain_cnt; domain++) {
+        t_stamp = &ts[domain];
+        JR2_RD(VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_SEC_MSB(domain), &value);
+        t_stamp->sec_msb = VTSS_X_DEVCPU_PTP_PTP_STATUS_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
+        JR2_RD(VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_SEC_LSB(domain), &t_stamp->seconds);
+        JR2_RD(VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSEC(domain), &value);
+        t_stamp->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
+        if (t_stamp->nanoseconds >= 0x3ffffff0 && t_stamp->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+            VTSS_RC(vtss_timestampSubSec(t_stamp));
+            t_stamp->nanoseconds = 999999984 + (t_stamp->nanoseconds & 0xf);
+        }
+        t_stamp->nanosecondsfrac = 0;
+        VTSS_I("domain %u ts sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", domain, t_stamp->sec_msb, t_stamp->seconds, t_stamp->nanoseconds, t_stamp->nanosecondsfrac);
+    }
+
+    JR2_WRM(VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG, VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG_PTP_TOD_FREEZE(0), VTSS_M_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG_PTP_TOD_FREEZE);
+    return VTSS_RC_OK;
+#else
+    return VTSS_RC_ERROR;
+#endif
+}
+
 static vtss_rc jr2_ts_domain_timeofday_set(vtss_state_t *vtss_state, u32 domain, const vtss_timestamp_t *ts)
 {
     //truncate nanosec value
@@ -1336,6 +1365,7 @@ vtss_rc vtss_jr2_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->timeofday_next_pps_get = jr2_ts_timeofday_next_pps_get;
         state->timeofday_prev_pps_get = jr2_ts_timeofday_prev_pps_get;
         state->domain_timeofday_next_pps_get = jr2_ts_domain_timeofday_next_pps_get;
+        state->multi_domain_timeofday_get = jr2_ts_multi_domain_timeofday_get;
         state->timeofday_offset_set = jr2_ts_timeofday_offset_set;
         state->domain_timeofday_offset_set = jr2_ts_domain_timeofday_offset_set;
         state->adjtimer_set = jr2_ts_adjtimer_set;

@@ -260,24 +260,22 @@ vtss_rc vtss_ts_domain_timeofday_get(const vtss_inst_t             inst,
     return rc;
 }
 
-/* Get the current time in Timestamp format from two domains simultaneously. */
-vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t             inst,
-                                           const u32                     domain1,
-                                           const u32                     domain2,
-                                           vtss_timestamp_t              *const ts1,
-                                           vtss_timestamp_t              *const ts2)
+/* Get the current time in timestamp format from multiple clock domains simultaneously. */
+vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t inst,
+                                           const uint32_t    domain_cnt,
+                                           vtss_timestamp_t  *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    if (domain1 >= VTSS_TS_DOMAIN_ARRAY_SIZE || domain2 >= VTSS_TS_DOMAIN_ARRAY_SIZE) {
-        VTSS_I("Invalid clock domain inputs.");
+    if (domain_cnt > VTSS_TS_DOMAIN_ARRAY_SIZE) {
+        VTSS_I("API not supported for reading clock domains more than %d", VTSS_TS_DOMAIN_ARRAY_SIZE);
         return VTSS_RC_ERROR;
     }
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.multi_domain_timeofday_get, domain1, domain2, ts1, ts2);
+        rc = VTSS_FUNC(ts.multi_domain_timeofday_get, domain_cnt, ts);
     }
     VTSS_EXIT();
 

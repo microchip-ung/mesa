@@ -231,25 +231,20 @@ mesa_rc mesa_ts_domain_timeofday_get(const mesa_inst_t inst,
     CAP(TS);
 
 /**
- * \brief Get the current time in a Timestamp format from two domains simultanesouly
+ * \brief Get the current time in timestamp format from multiple domains simultanesouly
  *        at same instance of time. This will be useful in comparing two different clocks.
- * \param inst    [IN]   handle to an API instance
- * \param domain1 [IN]   Clock domain1.
- * \param domain2 [IN]   Clock domain2.
- * \param ts1     [OUT]  pointer to a TimeStamp retrieved from clock domain 1.
- * \param ts2     [OUT]  pointer to a TimeStamp retrieved from clock domain 2.
+ * \param inst       [IN]   handle to an API instance.
+ * \param domain_cnt [IN]   Number of supported clock domains from which timestamps must be read.
+ * \param ts         [OUT]  Array containing timestamps from each clock domain at the time of execution.
+ *                          Timestamps are read starting from clock domain 0.
  * Architecture:
  *  Same as mesa_ts_timeofday_get but involves multiple domains.
  *
- *  NOTE: This is an experimental API, it may change in the future.
- *
  * \return Return code.
  */
-mesa_rc mesa_ts_multi_domain_timeofday_get(const mesa_inst_t             inst,
-                                           const uint32_t                domain1,
-                                           const uint32_t                domain2,
-                                           mesa_timestamp_t              *const ts1,
-                                           mesa_timestamp_t              *const ts2)
+mesa_rc mesa_ts_multi_domain_timeofday_get(const mesa_inst_t inst,
+                                           const uint32_t    domain_cnt,
+                                           mesa_timestamp_t  *const ts)
     CAP(TS);
 
 /**
