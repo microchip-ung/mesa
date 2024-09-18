@@ -847,7 +847,7 @@ def equal_interval_1_prio_3_port_test
     t_i ("Wait for GCL to stop")
     sleep 2
 
-    t_i ("Test witout TAS on all egress ports")
+    t_i ("Test without TAS on all egress ports")
     eg.each do |eg_idx|
         $ts.dut.run("mesa-cmd mac flush")
         $ts.pc.run("sudo ef tx #{$ts.pc.p[eg_idx]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
@@ -1194,7 +1194,7 @@ def jira_mesa_977_stop_test(eg, ig, domain)
 end
 
 def jira_mesa_977_restart_test(eg, ig, domain)
-    test "jira_mesa_stop_977_test" do
+    test "jira_mesa_977_restart_test" do
 
     frame_size = 500
     frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G

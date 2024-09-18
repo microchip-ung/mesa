@@ -2913,6 +2913,9 @@ static void tas_gcl_state_update(vtss_state_t *vtss_state, const vtss_port_no_t 
 
 static vtss_rc tas_list_cancel(vtss_state_t *vtss_state, u32 list_index)
 {
+    if (list_index == TAS_LIST_IDX_NONE) {
+        return VTSS_RC_OK;
+    }
     tas_list_state_write(vtss_state, list_index, TAS_LIST_STATE_ADMIN);
     tas_list_free(vtss_state, list_index);
 
@@ -3025,7 +3028,7 @@ static vtss_rc tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t por
     /* List must be in ADMIN state */
     REG_RD(VTSS_HSCH_TAS_LIST_STATE, &value);
     if (VTSS_X_HSCH_TAS_LIST_STATE_LIST_STATE(value) != TAS_LIST_STATE_ADMIN) {
-        VTSS_D("The TAS list is not in admin state");
+        VTSS_D("The TAS list is not in admin state  index %u", list_idx);
         return VTSS_RC_ERROR;
     }
 
@@ -3400,17 +3403,23 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             /* Check if trunk list must be started */
             if (trunk_list_idx != TAS_LIST_IDX_NONE) {
                 /* Calculate the truncated GCL and startup time*/
-                tas_trunk_port_conf_calc(&current_port_conf, &current_end_time, &new_port_conf->base_time, &trunk_port_conf);
-                trunk_startup_time = current_port_conf.cycle_time;   /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). In this case this is equel to cycle time as there will be no gap between current list cycle end and trunk list cycle start */
-                /* Start the trunk list */
-                if (tas_list_start(vtss_state, port_no, trunk_list_idx, obsolete_list_idx, &trunk_port_conf, trunk_startup_time) != VTSS_RC_OK) {
-                    /* Start failed */
+                if (tas_trunk_port_conf_calc(&current_port_conf, &current_end_time, &new_port_conf->base_time, &trunk_port_conf)) {
+                    trunk_startup_time = current_port_conf.cycle_time;   /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). In this case this is equel to cycle time as there will be no gap between current list cycle end and trunk list cycle start */
+                    /* Start the trunk list */
+                    if (tas_list_start(vtss_state, port_no, trunk_list_idx, obsolete_list_idx, &trunk_port_conf, trunk_startup_time) != VTSS_RC_OK) {
+                        /* Start failed */
+                        tas_list_free(vtss_state, trunk_list_idx);
+                        tas_list_free(vtss_state, list_idx);
+                        VTSS_I("The trunk TAS list could not start");
+                        return VTSS_RC_ERROR;
+                    }
+                    obsolete_list_idx = trunk_list_idx;
+                } else {
+                    /* A valid trunk list configuration cannot be calculated - start without trunk list */
                     tas_list_free(vtss_state, trunk_list_idx);
-                    tas_list_free(vtss_state, list_idx);
-                    VTSS_I("The trunk TAS list could not start");
-                    return VTSS_RC_ERROR;
+                    trunk_list_idx = TAS_LIST_IDX_NONE;
+
                 }
-                obsolete_list_idx = trunk_list_idx;
             }
 
             /* Start the new list */
@@ -3487,8 +3496,8 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
             /* Calculate first possible base time of stop list. This is TOD plus two times the current cycle time */
             _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &stop_base_time, &tc);
 
-            /* Cancel the current list */
-            tas_list_cancel(vtss_state, gcl_state->curr_list_idx);
+            /* Force the list to stop NOW */
+            tas_list_state_write(vtss_state, gcl_state->curr_list_idx, TAS_LIST_STATE_ADMIN);
 
             /* Calculate the stop GCL and stop startup time */
             tas_stop_port_conf_calc(vtss_state, &stop_base_time, new_port_conf->gate_open, &current_port_conf, &stop_port_conf);
@@ -4107,6 +4116,12 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,  const vtss_debug_
         pr("    %s: %u\n", "BASE_TIME_SEC_LSB", value);
         REG_RD(VTSS_HSCH_TAS_BASE_TIME_SEC_MSB, &value);
         pr("    %s: %u\n", "BASE_TIME_SEC_MSB", value);
+        REG_RD(VTSS_HSCH_TAS_NEXT_OPER_TIME_NSEC, &value);
+        pr("    %s: %u\n", "NEXT_OPER_TIME_NSEC", value);
+        REG_RD(VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_LSB, &value);
+        pr("    %s: %u\n", "NEXT_OPER_TIME_SEC_LSB", value);
+        REG_RD(VTSS_HSCH_TAS_NEXT_OPER_TIME_SEC_MSB, &value);
+        pr("    %s: %u\n", "NEXT_OPER_TIME_SEC_MSB", value);
         REG_RD(VTSS_HSCH_TAS_CYCLE_TIME_CFG, &value);
         pr("    %s: %u\n", "CYCLE_TIME_CFG", value);
         REG_RD(VTSS_HSCH_TAS_STARTUP_CFG, &value);
@@ -4748,7 +4763,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                     }
                 }
             }
-            pr("\n");
+            pr("\n\n");
 
 #if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
             pr("GCL Entries allocated:\n");
@@ -4776,7 +4791,7 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
                     }
                 }
             }
-            pr("\n");
+            pr("\n\n");
 
             pr("Entry rows:\n");
             pr("Row   in_use  slot_size\n");
@@ -4790,6 +4805,9 @@ static vtss_rc fa_debug_qos(vtss_state_t *vtss_state,
 #endif
         }
         pr("GCL register configuration:\n");
+        REG_RD(VTSS_HSCH_TAS_CFG_CTRL, &value);
+        pr("    %s: %u\n", "LIST_NUM_MAX", VTSS_X_HSCH_TAS_CFG_CTRL_LIST_NUM_MAX(value));
+        pr("    %s: %u\n", "ALWAYS_GUARD_BAND_SCH_Q", VTSS_X_HSCH_TAS_CFG_CTRL_ALWAYS_GUARD_BAND_SCH_Q(value));
         for (i = 0; i < RT_TAS_NUMBER_OF_LISTS; i++) {
             if ((div > 1) && (tas_list_idx != i)) {   /* A specific TAS list must be printed - this is not the one */
                 continue;
