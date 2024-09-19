@@ -1759,7 +1759,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     u32 lan_id = conf->lan_id, netid = conf->net_id;
     u32 prxy_smac_msk = FA_RB_MSK_ALL, prxy_dmac_msk = FA_RB_MSK_ALL;
     u32 node_smac_msk = FA_RB_MSK_ALL, node_dmac_msk = FA_RB_MSK_ALL;
-    u32 sv;
+    u32 sv, pnt_ena = 1;
 
     lre = (j < 2 ? 1 : 0);
     switch (conf->mode) {
@@ -1812,6 +1812,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
             hsr_filter = FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
             trans_netid = conf->net_id;
+            pnt_ena = 0;                    // Don't enable PNT on interlink port
         }
         break;
     default:
@@ -1833,7 +1834,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) |
            VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(age) |
            VTSS_F_RB_TBL_CFG_UPD_DISC_TBL_ENA(1) |
-           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(1) |
+           VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(pnt_ena) |
            VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1) |
            VTSS_F_RB_TBL_CFG_NEW_HOST_TBL_DIS(ht == FA_HT_NONE ? 1 : 0));
 
