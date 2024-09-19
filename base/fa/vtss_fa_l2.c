@@ -1955,6 +1955,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
         port = VTSS_CHIP_PORT(port_a == VTSS_PORT_NO_NONE ? conf->port_b : port_a);
         REG_WRM_SET(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+        REG_WRM_SET(VTSS_QFWD_SWITCH_PORT_MODE(port), VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA);
     }
 
     // NetId filtering on Interlink
