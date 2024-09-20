@@ -51,8 +51,36 @@ Intel driver for GPY211 version 2.7.1.
 Intel documentation will be delivered by MaxLinear.
 
 
-LAN969x: RedBox in HSR-HSR mode may cause frame corruption on HSR ring
-======================================================================
+MEPA/MESA Split
+===============
 
-Forwarding of HSR frames has been changed to do store-and-forward.
+MEPA-Only customers shall no longer use this repo to pull MEPA updates.
+
+MESA will continue to have an inline copy of MEPA in the usual place (the
+`/mepa` folder in the root). But this inline copy may not be in sync with the
+yet-to-come MEPA stand-alone repository. The MEPA copy inlined in MESA will be
+the version used during the test and qualification phase of the release.
+
+Rule of thumb:
+
+- MESA/Switch users should not see any changes. They should use the version of
+  MEPA inlined in the MESA repository/release.
+- Standalone MEPA users (if using the PHY without a MESA supported switch -
+  could be a KSZ switch, a switch from another vendor or in a NIC design),
+  should in the future pull MEPA from the designated MEPA repository
+  instead of using MESA.
+
+
+Signature change of mesa_ts_multi_domain_timeofday_get
+======================================================
+
+The signature of mesa_ts_multi_domain_timeofday_get() function has changed to
+return  an array of time stamps.
+
+
+New mesa_mdio_conf_set API added
+================================
+
+A new API to configure the MDIO Bus frequency has been added.
+
 

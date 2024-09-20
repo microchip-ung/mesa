@@ -1,0 +1,42 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2024.09
+
+== MESA-2024.09
+
+|===
+|Version:          |MESA-2024.09
+|Previous Version: |MESA-2024.06
+|Date:             |2024-09-27
+|Description:      |Roadmap release
+|===
+
+=== MEPA/MESA Split
+
+MEPA-Only customers shall no longer use this repo to pull MEPA updates.
+
+MESA will continue to have an inline copy of MEPA in the usual place (the
+`/mepa` folder in the root). But this inline copy may not be in sync with the
+yet-to-come MEPA stand-alone repository. The MEPA copy inlined in MESA will be
+the version used during the test and qualification phase of the release.
+
+Rule of thumb:
+
+- MESA/Switch users should not see any changes. They should use the version of
+  MEPA inlined in the MESA repository/release.
+- Standalone MEPA users (if using the PHY without a MESA supported switch -
+  could be a KSZ switch, a switch from another vendor or in a NIC design),
+  should in the future pull MEPA from the designated MEPA repository
+  instead of using MESA.
+
+
+=== Signature change of mesa_ts_multi_domain_timeofday_get
+
+The signature of mesa_ts_multi_domain_timeofday_get() function has changed to
+return  an array of time stamps.
+
+
+=== New mesa_mdio_conf_set API added
+
+A new API to configure the MDIO Bus frequency has been added.
