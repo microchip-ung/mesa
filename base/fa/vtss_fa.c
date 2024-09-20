@@ -431,6 +431,7 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 static u32 fa_target_bw(vtss_state_t *vtss_state)
 {
     switch (vtss_state->create.target) {
+    // Fireant:
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7546TSN:
         return 65000;
@@ -446,21 +447,23 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     case VTSS_TARGET_7558:
     case VTSS_TARGET_7558TSN:
         return 201000;
+    // Laguna:
+    case VTSS_TARGET_LAN9691VAO:
+        return 46000;
     case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9694TSN:
-    case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9694:
-        return 68000;
+        return 48000;
     case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
     case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9696:
-        return 88000;
+        return 66000;
     case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
     case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:
-        return 106000;
+        return 102000;
 
     default: {}
     }
