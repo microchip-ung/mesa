@@ -1824,7 +1824,10 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
         if (!conf->nt_dmac_disable) {
             node_dmac_msk = FA_RB_MSK_AB;  // Discard on Interlink if DMAC is node
         }
-        prxy_dmac_msk = FA_RB_MSK_C; // Discard on LRE if DMAC is proxy
+
+        // If Mode U is enabled, forward frames with DMAC in PNT to I/L and
+        // other LRE port. Otherwise only forward it to I/L.
+        prxy_dmac_msk = conf->mode_u ? FA_RB_MSK_ALL : FA_RB_MSK_C;
     }
 
     age = (ht == FA_HT_PROXY ? FA_RB_AGE_IDX_PNT : FA_RB_AGE_IDX_NT);

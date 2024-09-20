@@ -2853,6 +2853,7 @@ typedef struct {
     vtss_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
     vtss_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
     BOOL               sv_discard;      // Interlink-to-LRE Supervision frame discard flag
+    BOOL               mode_u;          // Any HSR mode: Forward frames Rx'd on LRE with DMAC in PNT to other LRE port
 } vtss_rb_conf_t;
 
 // Get RedBox configuration.

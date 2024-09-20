@@ -1633,6 +1633,7 @@ typedef struct {
     mesa_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
     mesa_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
     mesa_bool_t        sv_discard;      // Interlink-to-LRE Supervision frame discard flag
+    mesa_bool_t        mode_u;          // Any HSR mode: Forward frames Rx'd on LRE with DMAC in PNT to other LRE port
 } mesa_rb_conf_t;
 
 // Get RedBox configuration.
