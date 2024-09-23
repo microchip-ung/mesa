@@ -160,10 +160,9 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
     if (ts_props.ts_feature_is_PTS) {
         u32 packet_ns = fa_packet_unpack32(frm);
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
-            /* convert to jaguar 32 bit NSF */
-            VTSS_D("ts_cnt before %u", packet_ns);
-            (void)fa_packet_ns_to_ts_cnt(vtss_state, packet_ns, ts_cnt);
-            VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
+            //'ts_cnt' should be similar 'tc' returned from fa_ts_io_pin_timeofday_get.
+            //packet contains only nano seconds part in reserved field. Hence, only nano seconds are returned.
+            *ts_cnt = (u64)packet_ns << 16;
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             /* convert to jaguar 32 bit NSF */
