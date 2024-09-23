@@ -1319,21 +1319,23 @@ test "test_run" do
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test
 
-    domain = 1
-    t_i("Set the TAS TOD domain to #{domain}")
-    conf = $ts.dut.call("mesa_ts_conf_get")
-    conf["tsn_domain"] = domain
-    $ts.dut.call("mesa_ts_conf_set", conf)
+    if ($ts.dut.port_list.length == 4)
+        domain = 1
+        t_i("Set the TAS TOD domain to #{domain}")
+        conf = $ts.dut.call("mesa_ts_conf_get")
+        conf["tsn_domain"] = domain
+        $ts.dut.call("mesa_ts_conf_set", conf)
 
-    jira_mesa_977_stop_test(eg, ig, domain)
+        jira_mesa_977_stop_test(eg, ig, domain)
 
-    domain = 2
-    t_i("Set the TAS TOD domain to #{domain}")
-    conf = $ts.dut.call("mesa_ts_conf_get")
-    conf["tsn_domain"] = domain
-    $ts.dut.call("mesa_ts_conf_set", conf)
+        domain = 2
+        t_i("Set the TAS TOD domain to #{domain}")
+        conf = $ts.dut.call("mesa_ts_conf_get")
+        conf["tsn_domain"] = domain
+        $ts.dut.call("mesa_ts_conf_set", conf)
 
-    jira_mesa_977_restart_test(eg, ig, domain)
+        jira_mesa_977_restart_test(eg, ig, domain)
+    end
 
     domain = 0
     t_i("Set the TAS TOD domain to #{domain}")
