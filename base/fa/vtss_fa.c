@@ -878,7 +878,7 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
     VTSS_I("Resetting switch core and memories - done");
     return VTSS_RC_OK;
 }
-#if 0
+
 static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
 {
     u32 chip_id = vtss_state->misc.chip_id.part_number;
@@ -888,31 +888,31 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
     }
 
     switch (vtss_state->create.target) {
-    case VTSS_TARGET_LAN9698RED:
+    case VTSS_TARGET_LAN9698RED: // Laguna-100-RED
         if (chip_id == VTSS_TARGET_LAN9698RED) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9696RED:
+    case VTSS_TARGET_LAN9696RED: // Laguna-60-RED
         if (chip_id == VTSS_TARGET_LAN9696RED ||
             chip_id == VTSS_TARGET_LAN9698RED) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9694RED:
+    case VTSS_TARGET_LAN9694RED: // Laguna-40-RED
         if (chip_id == VTSS_TARGET_LAN9694RED ||
             chip_id == VTSS_TARGET_LAN9696RED ||
             chip_id == VTSS_TARGET_LAN9698RED) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9698TSN:
+    case VTSS_TARGET_LAN9698TSN: // Laguna-100-TSN
         if (chip_id == VTSS_TARGET_LAN9698TSN ||
             chip_id == VTSS_TARGET_LAN9698RED) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9696TSN:
+    case VTSS_TARGET_LAN9696TSN: // Laguna-60-TSN
         if (chip_id == VTSS_TARGET_LAN9696TSN ||
             chip_id == VTSS_TARGET_LAN9698TSN ||
             chip_id == VTSS_TARGET_LAN9696RED ||
@@ -920,7 +920,7 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9694TSN:
+    case VTSS_TARGET_LAN9694TSN: // Laguna-40-TSN
         if (chip_id == VTSS_TARGET_LAN9694TSN ||
             chip_id == VTSS_TARGET_LAN9696TSN ||
             chip_id == VTSS_TARGET_LAN9698TSN ||
@@ -930,14 +930,14 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9693VAO:
+    case VTSS_TARGET_LAN9693VAO: // Laguna-100-VAO
         if (chip_id == VTSS_TARGET_LAN9693VAO ||
             chip_id == VTSS_TARGET_LAN9698RED ||
             chip_id == VTSS_TARGET_LAN9698TSN) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9692VAO:
+    case VTSS_TARGET_LAN9692VAO: // Laguna-65-VAO
         if (chip_id == VTSS_TARGET_LAN9692VAO ||
             chip_id == VTSS_TARGET_LAN9693VAO ||
             chip_id == VTSS_TARGET_LAN9696RED ||
@@ -947,18 +947,20 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9691VAO:
+    case VTSS_TARGET_LAN9691VAO: // Laguna-40-VAO
         if (chip_id == VTSS_TARGET_LAN9691VAO ||
             chip_id == VTSS_TARGET_LAN9692VAO ||
             chip_id == VTSS_TARGET_LAN9693VAO ||
+            chip_id == VTSS_TARGET_LAN9694TSN ||
             chip_id == VTSS_TARGET_LAN9696TSN ||
             chip_id == VTSS_TARGET_LAN9698TSN ||
+            chip_id == VTSS_TARGET_LAN9694RED ||
             chip_id == VTSS_TARGET_LAN9696RED ||
             chip_id == VTSS_TARGET_LAN9698RED) {
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9698:
+    case VTSS_TARGET_LAN9698: // Laguna-100
         if (chip_id == VTSS_TARGET_LAN9698 ||
             chip_id == VTSS_TARGET_LAN9693VAO ||
             chip_id == VTSS_TARGET_LAN9698RED ||
@@ -966,7 +968,7 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9696:
+    case VTSS_TARGET_LAN9696: // Laguna-60
         if (chip_id == VTSS_TARGET_LAN9696 ||
             chip_id == VTSS_TARGET_LAN9698 ||
             chip_id == VTSS_TARGET_LAN9692VAO ||
@@ -978,7 +980,7 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
             return VTSS_RC_OK;
         }
         goto err_exit;
-    case VTSS_TARGET_LAN9694:
+    case VTSS_TARGET_LAN9694: // Laguna-40
         return VTSS_RC_OK;
     default:
         VTSS_E("Target (%x) not supported",vtss_state->create.target);
@@ -986,10 +988,10 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
     }
 
 err_exit:
-    VTSS_E("Chip (%x) does not support the target (%x)",chip_id, vtss_state->create.target);
+    VTSS_E("Chip:'0x%x' does not support the target:'0x%x'",chip_id, vtss_state->create.target);
     return VTSS_RC_ERROR;
 }
-#endif
+
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
     u32 i;
@@ -1057,10 +1059,10 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
-#if 0 // disabling as chip is default at 0x969A and needs to be programmed
+
     /* Compare API target with chip part number */
     VTSS_RC(vtss_fa_verify_target(vtss_state));
-#endif
+
     /* Initialize function groups */
     VTSS_RC(vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_INIT));
     VTSS_PROF_EXIT(LM_PROF_ID_MESA_INIT, 1);
@@ -1208,11 +1210,11 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
         this_bw = (spd == FA_CAL_SPEED_1G ? 1000 : spd == FA_CAL_SPEED_2G5 ? 2500 :
                    spd == FA_CAL_SPEED_5G ? 5000 : spd == FA_CAL_SPEED_10G ? 10000 : 25000);
 
-        if (port_no < VTSS_PORTS) {
+        if (port < RT_CHIP_PORTS) {
             port_bw += this_bw;
         }
 
-        if (port_no >= VTSS_PORTS) {
+        if (port_no >= RT_CHIP_PORTS) {
             this_bw = this_bw/2; // Internal ports are granted half the value
         }
         bw += this_bw;
@@ -1225,7 +1227,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
     }
 
     if (port_bw > fa_target_bw(vtss_state)) {
-        VTSS_E("The configured port BW (%d) is above BW supported by target (VSC%x / %d Mbps)",
+        VTSS_E("The configured port BW (%d) is above BW supported by target (d%x / %d Mbps)",
                port_bw, vtss_state->create.target, fa_target_bw(vtss_state));
         return VTSS_RC_ERROR;
     }
@@ -1845,7 +1847,7 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state,
 vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
                               const vtss_debug_printf_t pr)
 {
-    u32 cal, bw = 0, this_bw = 0, val;
+    u32 cal, bw = 0, this_bw = 0, val,  port_bw = 0;
     fa_cal_speed_t spd;
 
     for (u32 port = 0; port < RT_CHIP_PORTS_ALL; port++) {
@@ -1864,7 +1866,9 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
            port == RT_CHIP_PORT_VD2 ? "(IPinIP)" : "");
         this_bw = (spd == FA_CAL_SPEED_1G ? 1000 : spd == FA_CAL_SPEED_2G5 ? 2500 :
                    spd == FA_CAL_SPEED_5G ? 5000 : spd == FA_CAL_SPEED_10G ? 10000 : 25000);
-        if (port >= RT_CHIP_PORTS) {
+        if (port < RT_CHIP_PORTS) {
+            port_bw += this_bw;
+        } else {
             this_bw = this_bw/2; // Internal ports are granted half the value
         }
         bw += this_bw;
@@ -1888,8 +1892,10 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state,
         }
     }
 
-    pr("Total assigned BW:%d Mb\n",bw);
-    pr("Max core BW:%d Mb\n",clock2bw(vtss_state->init_conf.core_clock.freq));
+    pr("Total assigned port BW:%d Mb\n",port_bw);
+    pr("Total allowed port BW :%d Mb\n",fa_target_bw(vtss_state));
+    pr("Total assigned BW     :%d Mb\n",bw);
+    pr("Max switchcore BW     :%d Mb\n",clock2bw(vtss_state->init_conf.core_clock.freq));
 
     return VTSS_RC_OK;
 }
