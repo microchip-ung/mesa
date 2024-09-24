@@ -427,6 +427,8 @@ static void vtss_debug_print_init(vtss_state_t *vtss_state,
         return;
 
     pr("Target     : 0x%04X\n", vtss_state->create.target);
+    pr("Chip / Rev : 0x%04X / %d\n", vtss_state->misc.chip_id.part_number,
+       vtss_state->misc.chip_id.revision);
 #if defined(VTSS_FEATURE_PORT_MUX)
     pr("Mux mode   : 0x%04x\n", vtss_state->init_conf.mux_mode);
 #endif /* VTSS_FEATURE_PORT_MUX */
