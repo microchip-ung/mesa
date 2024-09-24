@@ -473,10 +473,11 @@ static vtss_rc lan966x_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_por
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+static vtss_rc lan966x_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL mode_domain_config)
 {
-    vtss_ts_mode_t         mode = vtss_state->ts.port_conf[port_no].mode.mode;
-    u32                    domain = vtss_state->ts.port_conf[port_no].mode.domain;
+    vtss_ts_operation_mode_t *o_mode = &vtss_state->ts.port_conf[port_no].mode;
+    vtss_ts_mode_t         mode = o_mode->mode;
+    u32                    domain = o_mode->domain;
     vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
     u32                    mode_val = 0;
     u32                    port = VTSS_CHIP_PORT(port_no);
@@ -524,6 +525,47 @@ static vtss_rc lan966x_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port
             PTP_DOM_CFG_ENA(1<<domain),
             PTP_DOM_CFG_ENA(1<<domain));
 
+#if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+    u32 tx_pch_mode = 0, rx_pch_mode = 0;
+    switch (o_mode->rx_pch_mode) {
+    case VTSS_TS_PCH_RX_MODE_NONE:
+        rx_pch_mode = 0;
+        break;
+    case VTSS_TS_PCH_RX_MODE_32_0:
+        rx_pch_mode = 1;
+        break;
+    case VTSS_TS_PCH_RX_MODE_28_4:
+        rx_pch_mode = 2;
+        break;
+    case VTSS_TS_PCH_RX_MODE_24_8:
+        rx_pch_mode = 3;
+        break;
+    case VTSS_TS_PCH_RX_MODE_16_16:
+        rx_pch_mode = 4;
+        break;
+    }
+
+    switch (o_mode->tx_pch_mode) {
+    case VTSS_TS_PCH_TX_MODE_NONE:
+        tx_pch_mode = 0;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_NONE:
+        tx_pch_mode = 1;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT:
+        tx_pch_mode = 2;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC:
+        tx_pch_mode = 3;
+        break;
+    }
+
+    REG_WR(SYS_PCH_CFG(port),
+           SYS_PCH_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
+           SYS_PCH_CFG_PCH_TX_MODE(tx_pch_mode) |
+           SYS_PCH_CFG_PCH_RX_MODE(rx_pch_mode) |
+           SYS_PCH_CFG_PCH_ERR_MODE(3));
+#endif
     return VTSS_RC_OK;
 }
 

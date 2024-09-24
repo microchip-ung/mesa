@@ -516,6 +516,7 @@ vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t *vtss_state, vtss_stat_idx_t *stat_idx, vtss_evc_counters_t *const cnt, BOOL clr);
 #endif
 BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port);
+BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 
 
 /* QoS functions */

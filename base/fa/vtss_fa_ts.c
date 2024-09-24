@@ -473,13 +473,93 @@ static vtss_rc fa_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL mode_domain_config)
 {
-    vtss_ts_mode_t         mode = vtss_state->ts.port_conf[port_no].mode.mode;
-    u32                    domain = vtss_state->ts.port_conf[port_no].mode.domain;
-    vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
-    u32                    mode_val = 0;
-    u32                    port = VTSS_CHIP_PORT(port_no);
+    vtss_port_conf_t         *conf  = &vtss_state->port.conf[port_no];
+    vtss_ts_operation_mode_t *o_mode = &vtss_state->ts.port_conf[port_no].mode;
+    vtss_ts_mode_t            mode = o_mode->mode;
+    u32                       domain = o_mode->domain;
+    vtss_ts_internal_fmt_t    fmt = vtss_state->ts.int_mode.int_fmt;
+    u32                       mode_val = 0;
+    u32                       port = VTSS_CHIP_PORT(port_no);
+
+#if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+    BOOL high_dev = fa_is_high_speed_device(vtss_state, port_no);
+    u32  tx_pch_mode = 0, rx_pch_mode = 0;
+    switch (o_mode->rx_pch_mode) {
+    case VTSS_TS_PCH_RX_MODE_NONE:
+        rx_pch_mode = 0;
+        break;
+    case VTSS_TS_PCH_RX_MODE_32_0:
+        rx_pch_mode = 1;
+        break;
+    case VTSS_TS_PCH_RX_MODE_28_4:
+        rx_pch_mode = 2;
+        break;
+    case VTSS_TS_PCH_RX_MODE_24_8:
+        rx_pch_mode = 3;
+        break;
+    case VTSS_TS_PCH_RX_MODE_16_16:
+        rx_pch_mode = 4;
+        break;
+    }
+
+    switch (o_mode->tx_pch_mode) {
+    case VTSS_TS_PCH_TX_MODE_NONE:
+        tx_pch_mode = 0;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_NONE:
+        tx_pch_mode = 1;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT:
+        tx_pch_mode = 2;
+        break;
+    case VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC:
+        tx_pch_mode = 3;
+        break;
+    }
+
+    if (high_dev) {
+        REG_WRM(VTSS_DEV10G_PTP_CFG(VTSS_TO_HIGH_DEV(port)),
+               VTSS_F_DEV10G_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
+               VTSS_F_DEV10G_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
+               VTSS_F_DEV10G_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
+               VTSS_F_DEV10G_PTP_CFG_PCH_ERR_MODE(3),
+               VTSS_M_DEV10G_PTP_CFG_PCH_SUB_PORT_ID |
+               VTSS_M_DEV10G_PTP_CFG_PTP_PCH_TX_ENA |
+               VTSS_M_DEV10G_PTP_CFG_PTP_PCH_RX_MODE |
+               VTSS_M_DEV10G_PTP_CFG_PCH_ERR_MODE);
+    } else {
+        if ((conf->if_type == VTSS_PORT_INTERFACE_RGMII) ||
+            (conf->if_type == VTSS_PORT_INTERFACE_RGMII_RXID) ||
+            (conf->if_type == VTSS_PORT_INTERFACE_RGMII_TXID) ||
+            (conf->if_type == VTSS_PORT_INTERFACE_RGMII_ID)) {
+            REG_WRM(VTSS_DEVRGMII_PTP_CFG(VTSS_TO_DEV2G5(port)),
+                   VTSS_F_DEVRGMII_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
+                   VTSS_F_DEVRGMII_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
+                   VTSS_F_DEVRGMII_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
+                   VTSS_F_DEVRGMII_PTP_CFG_PCH_ERR_MODE(3),
+                   VTSS_M_DEVRGMII_PTP_CFG_PCH_SUB_PORT_ID |
+                   VTSS_M_DEVRGMII_PTP_CFG_PTP_PCH_TX_ENA |
+                   VTSS_M_DEVRGMII_PTP_CFG_PTP_PCH_RX_MODE |
+                   VTSS_M_DEVRGMII_PTP_CFG_PCH_ERR_MODE);
+        } else {
+            REG_WRM(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port)),
+                VTSS_F_DEV1G_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
+                VTSS_F_DEV1G_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
+                VTSS_F_DEV1G_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
+                VTSS_F_DEV1G_PTP_CFG_PCH_ERR_MODE(3),
+                VTSS_M_DEV1G_PTP_CFG_PCH_SUB_PORT_ID |
+                VTSS_M_DEV1G_PTP_CFG_PTP_PCH_TX_ENA |
+                VTSS_M_DEV1G_PTP_CFG_PTP_PCH_RX_MODE |
+                VTSS_M_DEV1G_PTP_CFG_PCH_ERR_MODE);
+        }
+    }
+#endif
+
+    if (!mode_domain_config) {
+        return VTSS_RC_OK;
+    }
 
     if (mode == TS_MODE_INTERNAL) {
         switch (fmt) {

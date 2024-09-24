@@ -577,7 +577,7 @@ static BOOL fa_change_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     }
 }
 
-static BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
+BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USXGMII ||
         vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_10G) {
        return TRUE;

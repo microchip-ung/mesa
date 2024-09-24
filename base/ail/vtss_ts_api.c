@@ -908,14 +908,14 @@ vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t              inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-        if ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
-                (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode)) {
-            vtss_state->ts.port_conf[port_no].mode = *mode;
-            rc = VTSS_FUNC_COLD(ts.operation_mode_set,port_no);
-        }
+        BOOL mode_domain_config;
+        mode_domain_config = ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
+                              (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode)) ? TRUE : FALSE;
+        vtss_state->ts.port_conf[port_no].mode = *mode;
+        rc = VTSS_FUNC_COLD(ts.operation_mode_set, port_no, mode_domain_config);
 #else
         vtss_state->ts.port_conf[port_no].mode = *mode;
-        rc = VTSS_FUNC_COLD(ts.operation_mode_set,port_no);
+        rc = VTSS_FUNC_COLD(ts.operation_mode_set, port_no, TRUE);
 #endif
     }
     VTSS_EXIT();

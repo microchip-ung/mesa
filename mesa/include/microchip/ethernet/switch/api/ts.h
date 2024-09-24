@@ -700,10 +700,29 @@ typedef enum  {
     MESA_TX_MODE_MAX
 } mesa_ts_mode_t CAP(TS);
 
+typedef enum {
+    MESA_TS_PCH_TX_MODE_NONE,                    /**< No PCH in transmitted frames */
+    MESA_TS_PCH_TX_MODE_ENCRYPT_NONE,            /**< PCH added on transmitted frames */
+    MESA_TS_PCH_TX_MODE_ENCRYPT_BIT,             /**< PCH added with encryption bit set */
+    MESA_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC, /**< PCH added with encryption bit set to inverted SMAC(40), which is then cleared.#xD */
+} mesa_ts_pch_tx_mode_t CAP(PCH);
+
+/**< Set mode for ingress timestamps, in terms of nsec.subns bit widths */
+typedef enum {
+    MESA_TS_PCH_RX_MODE_NONE,  /**< No PCH expected */
+    MESA_TS_PCH_RX_MODE_32_0,  /**< 32.0 mode */
+    MESA_TS_PCH_RX_MODE_28_4,  /**< 28.4 mode */
+    MESA_TS_PCH_RX_MODE_24_8,  /**< 24.8 mode */
+    MESA_TS_PCH_RX_MODE_16_16, /**< 16.16 mode */
+} mesa_ts_pch_rx_mode_t CAP(PCH);
+
 /** \brief Timestamp operation */
 typedef struct mesa_ts_operation_mode_t {
-    mesa_ts_mode_t mode;   /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
-    uint32_t       domain; /**< Hardware timestamping domain for a port */
+    mesa_ts_mode_t        mode;        /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
+    uint32_t              domain;      /**< Hardware timestamping domain for a port */
+    mesa_ts_pch_tx_mode_t tx_pch_mode CAP(PCH); /**< PCH TX mode */
+    mesa_ts_pch_rx_mode_t rx_pch_mode CAP(PCH); /**< PCH RX mode */
+    uint32_t              pch_port_id CAP(PCH); /**< PCH sub-portID. */
 } mesa_ts_operation_mode_t CAP(TS);
 
 

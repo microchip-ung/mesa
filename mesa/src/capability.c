@@ -1827,6 +1827,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_TS_PCH:
+#if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+        c = 1;
+#endif
+        break;
+
     // TOD
     case MESA_CAP_TOD_SAMPLES_PR_SEC:
         c = 1;

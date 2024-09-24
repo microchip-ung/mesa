@@ -110,6 +110,7 @@
 #define VTSS_FEATURE_RCL                          /**< Real-time Control List */
 #define VTSS_FEATURE_VOP_V0                       /**< Version 0 OAM implementation. VOP is inheritet from Serval-1 (version 1) platform but not compleately */
 #define VTSS_FEATURE_VOP_TAGGING                  /**< VOE can handle different tagging by configuration of the VOE residence port */
+#define VTSS_FEATURE_TIMESTAMP_PCH                /**< TS PCH hardware support */
 #endif // !VTSS_OPT_LIGHT
 #endif /* VTSS_ARCH_LAN966X */
 
@@ -254,6 +255,7 @@
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
+#define VTSS_FEATURE_TIMESTAMP_PCH                /**< TS PCH hardware support */
 #endif // !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */

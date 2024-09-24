@@ -16,12 +16,7 @@ check_capabilities do
            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x)")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
-    loop_pair_check
-    $loop_port0 = $ts.dut.looped_port_list[0]
-    $loop_port1 = $ts.dut.looped_port_list[1]
 end
-
-loop_pair_check
 
 $port0 = 0
 $npi_port = 1
@@ -193,6 +188,121 @@ def tod_internal_mode_egress_node_test
 
     end
 end
+
+def check_pch_cfg(pch, port_id_chk, tx_mode_chk, rx_mode_chk, err_mode_chk)
+    test "check_pch_cfg" do
+    if (pch[:port_id] != port_id_chk)
+        t_e("Unexpected port_id #{pch[:port_id]}  port_id_chk #{port_id_chk}")
+    end
+    if (pch[:tx_mode] != tx_mode_chk)
+        t_e("Unexpected tx_mode #{pch[:tx_mode]}  tx_mode_chk #{tx_mode_chk}")
+    end
+    if (pch[:rx_mode] != rx_mode_chk)
+        t_e("Unexpected rx_mode #{pch[:rx_mode]}  rx_mode_chk #{rx_mode_chk}")
+    end
+    if (pch[:err_mode] != err_mode_chk)
+        t_e("Unexpected err_mode #{pch[:err_mode]}  err_mode_chk #{err_mode_chk}")
+    end
+    end
+end
+
+
+def pch_read(port)
+    port_map_pcb_135 = Array[0,1,2,3,4,5,6,7,8,9]
+    port_map_pcb_134 = Array[12,13,14,15,48,49,50,51,52,53,]
+    port_map_pcb_8291 = Array[0,1,4]
+    port_map_pcb_8309 = Array[0,1,2,3,4]
+    port_map_pcb_8422 = Array[0,4,8,12,16,20,24,25,26,27]
+
+    ret = {}
+    if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
+        if ($ts.dut.pcb == 8291)
+            out = $ts.dut.run("symreg SYS:PTPPORT[#{port_map_pcb_8291[port]}]:PCH_CFG")
+        else
+        if ($ts.dut.pcb == 8309)
+            out = $ts.dut.run("symreg SYS:PTPPORT[#{port_map_pcb_8309[port]}]:PCH_CFG")
+        else
+            out = $ts.dut.run("symreg SYS:PTPPORT[#{port}]:PCH_CFG")
+        end
+        end
+        split = out[:out].split(" ")
+        regval = split[2].to_i(16)
+        ret[:port_id] = (regval & 0x780) >> 7
+        ret[:tx_mode] = (regval & 0x60) >> 5
+        ret[:rx_mode] = (regval & 0x1C) >> 2
+        ret[:err_mode] = regval & 0x03
+    end
+    if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ||
+        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
+        if ($ts.dut.pcb == 134)
+            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_134[port]}]:PTP_CFG_STATUS:PTP_CFG")
+        else
+        if ($ts.dut.pcb == 135)
+            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_135[port]}]:PTP_CFG_STATUS:PTP_CFG")
+        else
+        if ($ts.dut.pcb == 8422)
+            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_8422[port]}]:PTP_CFG_STATUS:PTP_CFG")
+        else
+            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port}]:PTP_CFG_STATUS:PTP_CFG")
+        end
+        end
+        end
+        split = out[:out].split(" ")
+        regval = split[13].to_i
+        ret[:port_id] = (regval & 0xF00) >> 8
+        ret[:tx_mode] = (regval & 0x18) >> 3
+        ret[:rx_mode] = regval & 0x07
+        ret[:err_mode] = (regval & 0x6000) >> 13
+        if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+            ret[:err_mode] = 3
+        end
+    end
+    return ret
+end
+
+test "PCH operation" do
+    # Test PCH operation mode
+    if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ||
+        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ||
+        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
+        port = $ts.dut.port_list[0]
+
+        pch = pch_read(port)
+        check_pch_cfg(pch, 0, 0, 0, 3)
+
+        conf = $ts.dut.call("mesa_ts_operation_mode_get", port)
+        conf["domain"] = 0
+        conf["mode"] = "MESA_TS_MODE_NONE"
+        conf["tx_pch_mode"] = "MESA_TS_PCH_TX_MODE_ENCRYPT_BIT"
+        conf["rx_pch_mode"] = "MESA_TS_PCH_RX_MODE_28_4"
+        conf["pch_port_id"] = 0x05
+        $ts.dut.call("mesa_ts_operation_mode_set", port, conf)
+
+        pch = pch_read(port)
+        check_pch_cfg(pch, 0x05, 2, 2, 3)
+
+        conf["tx_pch_mode"] = "MESA_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC"
+        conf["rx_pch_mode"] = "MESA_TS_PCH_RX_MODE_16_16"
+        conf["pch_port_id"] = 0x0A
+        $ts.dut.call("mesa_ts_operation_mode_set", port, conf)
+
+        pch = pch_read(port)
+        check_pch_cfg(pch, 0x0A, 3, 4, 3)
+
+        conf["tx_pch_mode"] = "MESA_TS_PCH_TX_MODE_NONE"
+        conf["rx_pch_mode"] = "MESA_TS_PCH_RX_MODE_NONE"
+        conf["pch_port_id"] = 0
+        $ts.dut.call("mesa_ts_operation_mode_set", port, conf)
+
+        pch = pch_read(port)
+        check_pch_cfg(pch, 0, 0, 0, 3)
+    end
+end
+
+t_i("Do loop pair check")
+loop_pair_check
+$loop_port0 = $ts.dut.looped_port_list[0]
+$loop_port1 = $ts.dut.looped_port_list[1]
 
 test "test_conf" do
     $ts.dut.run("mesa-cmd port mode #{$loop_port0+1} 1000fdx")

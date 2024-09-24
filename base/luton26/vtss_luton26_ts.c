@@ -535,7 +535,7 @@ l26_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 }
 
 static vtss_rc
-l26_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+l26_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL mode_domain_config)
 {
     return VTSS_RC_ERROR;
 }

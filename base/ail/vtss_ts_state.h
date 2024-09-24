@@ -168,7 +168,8 @@ typedef struct {
     vtss_rc (* delay_asymmetry_set)(struct vtss_state_s *vtss_state,
                                     vtss_port_no_t     port_no);
     vtss_rc (* operation_mode_set)(struct vtss_state_s *vtss_state,
-                                   vtss_port_no_t     port_no);
+                                   vtss_port_no_t     port_no,
+                                   BOOL               mode_domain_config);
     vtss_rc (* internal_mode_set) (struct vtss_state_s *vtss_state);
     vtss_rc (* timestamp_get)(struct vtss_state_s *vtss_state);
     vtss_rc (* timestamp_convert)(struct vtss_state_s *vtss_state,

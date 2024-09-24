@@ -666,7 +666,7 @@ vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t               inst,
  */
 vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t              inst,
                                     const vtss_port_no_t           port_no,
-                                    const vtss_timeinterval_t             *const ingress_latency);
+                                    const vtss_timeinterval_t      *const ingress_latency);
 
 /**
  * \brief Get the ingress latency.
@@ -768,11 +768,35 @@ typedef enum  {
 #define TS_MODE_INTERNAL VTSS_TS_MODE_INTERNAL /**< Backward compatibility */
 #define TX_MODE_MAX      VTSS_TX_MODE_MAX      /**< Backward compatibility */
 
+#if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+/**< Enable insertion of PCH in preamble on the port */
+typedef enum {
+    VTSS_TS_PCH_TX_MODE_NONE,                    /**< No PCH in transmitted frames */
+    VTSS_TS_PCH_TX_MODE_ENCRYPT_NONE,            /**< PCH added on transmitted frames */
+    VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT,             /**< PCH added with encryption bit set */
+    VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC, /**< PCH added with encryption bit set to inverted SMAC(40), which is then cleared.#xD */
+} vtss_ts_pch_tx_mode_t;
+
+/**< Set mode for ingress timestamps, in terms of nsec.subns bit widths */
+typedef enum {
+    VTSS_TS_PCH_RX_MODE_NONE,  /**< No PCH expected */
+    VTSS_TS_PCH_RX_MODE_32_0,  /**< 32.0 mode */
+    VTSS_TS_PCH_RX_MODE_28_4,  /**< 28.4 mode */
+    VTSS_TS_PCH_RX_MODE_24_8,  /**< 24.8 mode */
+    VTSS_TS_PCH_RX_MODE_16_16, /**< 16.16 mode */
+} vtss_ts_pch_rx_mode_t;
+#endif
+
 /** \brief Timestamp operation */
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode;                /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X)
     u32            domain;              /**< Hardware timestamping domain for a port */
+#endif
+#if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+    vtss_ts_pch_tx_mode_t tx_pch_mode;     /**< PCH TX mode */
+    vtss_ts_pch_rx_mode_t rx_pch_mode;     /**< PCH RX mode */
+    u32                   pch_port_id;     /**< PCH sub-portID. */
 #endif
 } vtss_ts_operation_mode_t;
 

@@ -536,7 +536,7 @@ static vtss_rc jr2_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL mode_domain_config)
 {
     vtss_ts_mode_t         mode = vtss_state->ts.port_conf[port_no].mode.mode;
     u32                    domain = vtss_state->ts.port_conf[port_no].mode.domain;
