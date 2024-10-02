@@ -490,11 +490,15 @@ vtss_rc vtss_cil_l2_learn_port_mode_set(vtss_state_t *vtss_state, const vtss_por
     u64               pmask = vtss_jr2_pmask(VTSS_CHIP_PORT(port_no)), pmask_zero = 0;
     vtss_port_no_t    port_iter;
     u32               cnt = 0;
+    u32               port = VTSS_CHIP_PORT(port_no);
 
     JR2_WRM_PMASK(VTSS_ANA_L2_COMMON_LRN_SECUR_CFG,        (mode->discard   ? pmask : pmask_zero), pmask); // Drop unknown smac
     JR2_WRM_PMASK(VTSS_ANA_L2_COMMON_LRN_SECUR_LOCKED_CFG,                    pmask,               pmask); // Always drop move of locked entries
     JR2_WRM_PMASK(VTSS_ANA_L2_COMMON_AUTO_LRN_CFG,         (mode->automatic ? pmask : pmask_zero), pmask); // Enable H/W-based learning
     JR2_WRM_PMASK(VTSS_ANA_L2_COMMON_LRN_COPY_CFG,         (mode->cpu       ? pmask : pmask_zero), pmask); // Copy incoming learn frames to CPU
+    JR2_WRM(VTSS_ANA_L2_PORT_LIMIT_PORT_LIMIT_CTRL(port),
+            VTSS_F_ANA_L2_PORT_LIMIT_PORT_LIMIT_CTRL_PORT_LRN_CNT_LIMIT(mode->learn_limit),
+            VTSS_M_ANA_L2_PORT_LIMIT_PORT_LIMIT_CTRL_PORT_LRN_CNT_LIMIT); // Learn limit on this port
 
     // Unfortunately, it's not possible to control per port, whether we want
     // copies of frames whose MAC address is statically learned on another port

@@ -19,6 +19,45 @@ $mac_table = [ "00:00:00:00:00:01",
                "00:00:00:00:00:03",
                "00:00:00:00:00:04" ]
 
+test "learn limit" do
+if $ts.dut.call("mesa_capability", "MESA_CAP_L2_LEARN_LIMIT") == 1
+    idx_tx = 0
+    idx_list = [1,2,3]
+    port = $ts.dut.port_list[idx_tx]
+
+    t_i("Set learn limit on port #{port}")
+    conf = $ts.dut.call "mesa_learn_port_mode_get", port
+    conf["automatic"] = true
+    conf["discard"] = false
+    conf["one_shot"] = false
+    conf["learn_limit"] = 10
+    $ts.dut.call "mesa_learn_port_mode_set", port, conf
+
+    for smac in 1..15
+        cmd = "eth dmac 00:00:00:00:00:FF smac 00:00:00:00:00:%02x " % [smac]
+        run_ef_tx_rx_cmd($ts, idx_tx, idx_list, cmd)
+    end
+
+    cnt = 0
+    vid_mac = { vid: 1, mac: { addr: [0,0,0,0,0,0] } }
+    15.times {
+        entry = $ts.dut.try_ignore "mesa_mac_table_get_next", vid_mac
+        if (entry.nil?)
+            break
+        end
+        vid_mac = entry["vid_mac"]
+        cnt = cnt + 1
+    }
+
+    if (cnt != 10)
+        t_e("Unexpected MAC count")
+    end
+
+    conf["learn_limit"] = 0
+    $ts.dut.call "mesa_learn_port_mode_set", port, conf
+end
+end
+
 test "conf" do
     t_i("Setting learn mode per port")
     $ts.dut.port_list.each_with_index do |port, idx|

@@ -839,6 +839,18 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_L2_ONE_SHOT:
+#if defined(VTSS_FEATURE_MAC_ONE_SHOT_LEARNING)
+        c = 1;
+#endif
+        break;
+
+    case MESA_CAP_L2_LEARN_LIMIT:
+#if defined(VTSS_FEATURE_MAC_PORT_LEARN_LIMIT)
+        c = 1;
+#endif
+        break;
+
     // Layer 3
     case MESA_CAP_L3:
 #if defined(VTSS_FEATURE_LAYER3)

@@ -263,9 +263,12 @@ vtss_rc vtss_mac_table_status_get(const vtss_inst_t        inst,
 /** \brief Learning mode */
 typedef struct 
 {
-    BOOL automatic;  /**< Automatic learning done by switch chip (default enabled) */
-    BOOL cpu;        /**< Learn frames copied to CPU (default disabled) */
-    BOOL discard;    /**< Learn frames discarded (default disabled) */
+    BOOL automatic;   /**< Automatic learning done by switch chip (default enabled) */
+    BOOL cpu;         /**< Learn frames copied to CPU (default disabled) */
+    BOOL discard;     /**< Learn frames discarded (default disabled) */
+#if defined(VTSS_FEATURE_MAC_PORT_LEARN_LIMIT)
+    u32  learn_limit; /**< Learn limit in number of entries. '0' means disable */
+#endif
 } vtss_learn_mode_t;
 
 /**

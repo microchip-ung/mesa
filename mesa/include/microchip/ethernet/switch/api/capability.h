@@ -136,6 +136,8 @@ typedef enum {
     MESA_CAP_L2_RCL,                        /**< Real-time Control List */
     MESA_CAP_L2_MAC_INDEX_TABLE,            /**< Index-based MAC address table */
     MESA_CAP_L2_REDBOX_CNT,                 /**< Number of RedBoxes */
+    MESA_CAP_L2_ONE_SHOT,                   /**< Learn frames cannot move to other port */
+    MESA_CAP_L2_LEARN_LIMIT,                /**< MAC learning limit per port */
 
     // Layer 3
     MESA_CAP_L3 = 500,                      /**< Layer 3 switching */

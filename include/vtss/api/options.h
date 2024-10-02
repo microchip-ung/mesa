@@ -178,6 +178,7 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
+#define VTSS_FEATURE_MAC_PORT_LEARN_LIMIT         /**< MAC learning limit per port */
 #if !VTSS_OPT_LIGHT
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
@@ -393,6 +394,7 @@
 #define VTSS_FEATURE_IPV6_MC_SIP                 /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                /**< Automatic MAC address ageing */
 #define VTSS_FEATURE_MAC_CPU_QUEUE               /**< CPU queue per MAC address */
+#define VTSS_FEATURE_MAC_PORT_LEARN_LIMIT        /**< MAC learning limit per port */
 #define VTSS_FEATURE_LAYER3                      /**< Layer 3 (routing) */
 #define VTSS_FEATURE_EEE                         /**< Energy Efficient Ethernet */
 #define VTSS_FEATURE_FAN                         /**< Fan control */

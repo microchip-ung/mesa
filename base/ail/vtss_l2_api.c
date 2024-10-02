@@ -328,8 +328,8 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
             if (port_no == vtss_state->port_count &&
                 pgid_entry->cpu_copy == cpu_copy && pgid_entry->cpu_queue == cpu_queue) {
                 VTSS_D("reusing pgid: %u", pgid);
+                *new = pgid;
                 if (do_alloc) {
-                    *new = pgid;
                     pgid_entry->references++;
                 }
                 return VTSS_RC_OK;
@@ -858,7 +858,7 @@ static vtss_rc vtss_mac_index_del(vtss_state_t *vtss_state,
 vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
                      vtss_mac_user_t user, const vtss_mac_table_entry_t *const entry)
 {
-    u32                    pgid, pgid_old, port_count = vtss_state->port_count;
+    u32                    pgid, pgid_old, port_count = vtss_state->port_count, member_cnt = 0;
     vtss_mac_table_entry_t old_entry = {0};
     vtss_mac_entry_t       *mac_entry;
     vtss_port_no_t         port_no;
@@ -873,8 +873,8 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
            vid_mac.mac.addr[0], vid_mac.mac.addr[1], vid_mac.mac.addr[2],
            vid_mac.mac.addr[3], vid_mac.mac.addr[4], vid_mac.mac.addr[5]);
 
-    if (!entry->locked) {
-        VTSS_E("entry must be locked");
+    if (!entry->locked && (entry->copy_to_cpu || entry->copy_to_cpu_smac)) {
+        VTSS_E("Dynamic entry must not have copy to CPU");
         return VTSS_RC_ERROR;
     }
 
@@ -891,6 +891,12 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
     member = vtss_state->l2.pgid_table[pgid].member;
     for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
         member[port_no] = VTSS_BOOL(entry->destination[port_no]);
+        member_cnt += (member[port_no] == TRUE) ? 1 : 0;
+    }
+
+    if (!entry->locked && (member_cnt > 1)) {
+        VTSS_E("Dynamic entry must have one member port only");
+        return VTSS_RC_ERROR;
     }
 
     // Check if a PGID can be allocated
@@ -905,6 +911,7 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
         if (pgid_old == VTSS_PGID_NONE || vtss_state->l2.pgid_table[pgid_old].references > 1) {
             // New PGID allocation is needed
             VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, cpu_copy, cpu_queue, 0));
+            pgid = VTSS_PGID_NONE;
         }
     }
 
@@ -914,15 +921,17 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
     } else
 #endif
     {
-        /* Add all locked entries to state block */
-        if ((mac_entry = vtss_mac_entry_add(vtss_state, user, &entry->vid_mac)) == NULL) {
-            return VTSS_RC_ERROR;
-        }
-        for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++)
-            VTSS_PORT_BF_SET(mac_entry->member, port_no, entry->destination[port_no]);
-        mac_entry->cpu_copy = cpu_copy;
-        mac_entry->cpu_copy_smac = entry->copy_to_cpu_smac;
-        mac_entry->cpu_queue = cpu_queue;
+        if (entry->locked) {
+            /* Add all locked entries to state block */
+            if ((mac_entry = vtss_mac_entry_add(vtss_state, user, &entry->vid_mac)) == NULL) {
+                return VTSS_RC_ERROR;
+            }
+            for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++)
+                VTSS_PORT_BF_SET(mac_entry->member, port_no, entry->destination[port_no]);
+            mac_entry->cpu_copy = cpu_copy;
+            mac_entry->cpu_copy_smac = entry->copy_to_cpu_smac;
+            mac_entry->cpu_queue = cpu_queue;
+         }
     }
 
     /* No further processing in warm start mode */
@@ -946,7 +955,7 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
         }
 
         /* Allocate new PGID */
-        VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, cpu_copy, cpu_queue, 1));
+        VTSS_RC(vtss_pgid_alloc(vtss_state, &pgid, member, cpu_copy, cpu_queue, entry->locked));
     }
 
     vtss_state->l2.mac_status.learned = 1;
