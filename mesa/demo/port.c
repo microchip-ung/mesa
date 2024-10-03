@@ -1827,9 +1827,11 @@ static void port_init(meba_inst_t inst)
         }
     }
 
-    for (port_no = 0; port_no < port_cnt; port_no++) {
-        if (mesa_ts_status_change(NULL, port_no) != MESA_RC_OK) {
-            cli_printf("mesa_ts_status_change(%u) failed\n", port_no);
+    if (mesa_capability(NULL, MESA_CAP_TS)) {
+        for (port_no = 0; port_no < port_cnt; port_no++) {
+            if (mesa_ts_status_change(NULL, port_no) != MESA_RC_OK) {
+                cli_printf("mesa_ts_status_change(%u) failed\n", port_no);
+            }
         }
     }
 
@@ -2029,7 +2031,9 @@ void port_poll(meba_inst_t inst)
             if (port_is_aneg_mode(entry)) {
                 port_setup(port_no, TRUE, FALSE);
             }
-            mesa_ts_status_change(NULL, port_no);
+            if (mesa_capability(NULL, MESA_CAP_TS)) {
+                mesa_ts_status_change(NULL, port_no);
+            }
         }
 
         /* Get port counters from the API */

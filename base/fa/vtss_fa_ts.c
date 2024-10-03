@@ -2127,6 +2127,10 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     vtss_ts_state_t *state = &vtss_state->ts;
     u32             port, port_no;
 
+    if (!vtss_state->vtss_features[FEATURE_TIMESTAMP]) {
+        return VTSS_RC_OK;
+    }
+
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         state->timeofday_get = fa_ts_timeofday_get;

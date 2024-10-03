@@ -802,6 +802,12 @@ static vtss_rc fa_vlan_counters_update(vtss_state_t         *vtss_state,
         return VTSS_RC_ERROR;
     }
 
+    if (vid >= RT_EVC_STAT_CNT) {
+        // Temporary workaround
+        // Will be removed together with RT constants
+        return VTSS_RC_OK;
+    }
+
     for (i = 0; i < 3; i++) {
         chip_counter = (i == 0 ? &cnt->rx_unicast : i == 1 ? &cnt->rx_multicast : &cnt->rx_broadcast);
 

@@ -205,6 +205,7 @@ typedef enum {
     FEATURE_MRP_V1,               // Version 1 MRP implementation
     FEATURE_PORT_DYNAMIC,         // Dynamic port reconfiguration
     FEATURE_MAC_INDEX_TABLE,      // Index-based MAC address table
+    FEATURE_TIMESTAMP,            // 1588 timestamp feature for PTP
     FEATURE_LAST
 } vtss_feature_t;
 #endif

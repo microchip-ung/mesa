@@ -1720,31 +1720,51 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // Timestamping
     case MESA_CAP_TS:
 #if defined(VTSS_FEATURE_TIMESTAMP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_LATENCY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_LATENCY_COMP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_ORG_TIME:
 #if defined(VTSS_FEATURE_TIMESTAMP_ORG_TIME)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_P2P_DELAY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_ASYMMETRY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
     case MESA_CAP_TS_HW_TIME_CNT_PR_SEC:
@@ -1790,19 +1810,31 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_MISSING_INTERRUPT:
 #if defined(VTSS_MISSING_TIMESTAMP_INTERRUPT)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_MISSING_TX_INTERRUPT:
 #if defined(VTSS_MISSING_TX_TIMESTAMP_INTERRUPT)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_ALT_CLOCK:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)  /* TBD_henrikb */
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
@@ -1811,13 +1843,21 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_DELAY_REQ_AUTO_RESP:
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
     case MESA_CAP_TS_PTP_RS422:
 #if defined(VTSS_FEATURE_PTP_RS422)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 
@@ -1829,7 +1869,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_PCH:
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        c = mesa_feature(inst, FEATURE_TIMESTAMP);
+#else
         c = 1;
+#endif
 #endif
         break;
 

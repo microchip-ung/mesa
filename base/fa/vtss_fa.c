@@ -2430,6 +2430,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER] = TRUE;
         vtss_state->vtss_features[FEATURE_PSFP] = TRUE;
+        vtss_state->vtss_features[FEATURE_TIMESTAMP] = TRUE;
         break;
     case VTSS_TARGET_LAN9694TSN:
     case VTSS_TARGET_LAN9696TSN:
@@ -2443,6 +2444,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_QOS_OT] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
+        vtss_state->vtss_features[FEATURE_TIMESTAMP] = TRUE;
         break;
     case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9696RED:
@@ -2456,6 +2458,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_QOS_OT] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP] = TRUE;
         vtss_state->vtss_features[FEATURE_MRP_V1] = TRUE;
+        vtss_state->vtss_features[FEATURE_TIMESTAMP] = TRUE;
         vtss_state->vtss_features[FEATURE_REDBOX] = TRUE;
         break;
     default:
