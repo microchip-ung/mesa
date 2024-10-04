@@ -203,7 +203,6 @@ typedef enum {
     FEATURE_QOS_OT,               // Operational Technology traffic handling
     FEATURE_MRP,                  // IEC 62439-2 MRP
     FEATURE_MRP_V1,               // Version 1 MRP implementation
-    FEATURE_PORT_DYNAMIC,         // Dynamic port reconfiguration
     FEATURE_MAC_INDEX_TABLE,      // Index-based MAC address table
     FEATURE_TIMESTAMP,            // 1588 timestamp feature for PTP
     FEATURE_LAST

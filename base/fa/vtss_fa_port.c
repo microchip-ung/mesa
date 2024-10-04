@@ -3572,8 +3572,7 @@ static vtss_rc fa_calendar_check(vtss_state_t *vtss_state, const vtss_port_no_t 
     vtss_port_interface_t cur_if;
     u32 st;
 
-    if (!vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] ||
-        !fa_multi_serdes_chk(new_sd, old_sd)) {
+    if (!fa_multi_serdes_chk(new_sd, old_sd)) {
         // Calender check only needed for single to multi port serdes change
         return VTSS_RC_OK;
     }

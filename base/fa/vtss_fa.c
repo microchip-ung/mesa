@@ -2418,13 +2418,11 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9696:
     case VTSS_TARGET_LAN9698:
         vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         break;
     case VTSS_TARGET_LAN9691VAO:
     case VTSS_TARGET_LAN9692VAO:
     case VTSS_TARGET_LAN9693VAO:
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
@@ -2435,7 +2433,6 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9694TSN:
     case VTSS_TARGET_LAN9696TSN:
     case VTSS_TARGET_LAN9698TSN:
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
@@ -2449,7 +2446,6 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9698RED:
-        vtss_state->vtss_features[FEATURE_PORT_DYNAMIC] = TRUE;
         vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = TRUE;
         vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = TRUE;
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;

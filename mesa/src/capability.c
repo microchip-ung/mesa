@@ -2161,11 +2161,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_DYNAMIC:
 #if defined(VTSS_FEATURE_PORT_DYNAMIC)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-        c = mesa_feature(inst, FEATURE_PORT_DYNAMIC);
-#else
         c = 1;
-#endif
 #endif
         break;
 
