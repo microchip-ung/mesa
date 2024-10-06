@@ -5775,26 +5775,26 @@ void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t* inst)
     meba_poe_parameters_t tPoE_parameters = ((poe_driver_private_t *)(inst->private_data))->tPoE_parameters;
 
     // 15W
-    prod.port_type_operation_mode[0][0] = BT_Compliant_4P_15w_2P_15w;               // BT 15W standard
-    prod.port_type_operation_mode[0][1] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;    // BT 15W legacy
+    prod.port_type_operation_mode[0][0] = tPoE_parameters.bt_operation_mode_compliant_15w_default;       // BT compliant 15w
+    prod.port_type_operation_mode[0][1] = tPoE_parameters.bt_operation_mode_none_compliant_15w_default;  // BT non compliant 15w legacy
     prod.port_type_operation_mode[0][2] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;    // poh - BT 15W legacy
     prod.port_type_operation_mode[0][3] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;    // ignore-pd-class - BT 15W legacy
 
     // 30W
-    prod.port_type_operation_mode[1][0] = BT_AFAT_Compliant_30w;                    // PREBT AF/AT 30W standard
-    prod.port_type_operation_mode[1][1] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;    // BT 30W legacy
+    prod.port_type_operation_mode[1][0] = tPoE_parameters.bt_operation_mode_compliant_30w_default;       // BT compliant 30w
+    prod.port_type_operation_mode[1][1] = tPoE_parameters.bt_operation_mode_none_compliant_30w_default;  // BT non compliant 30w legacy
     prod.port_type_operation_mode[1][2] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;    // poh - BT 30W legacy
     prod.port_type_operation_mode[1][3] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;    // ignore-pd-class - BT 30W legacy
 
     // 60W
-    prod.port_type_operation_mode[2][0] = BT_Compliant_4P_60w_2P_30w;               // BT 60W standard
-    prod.port_type_operation_mode[2][1] = BT_Non_Compliant_4P_60w_2P_30w_Legacy;    // BT 60W legacy
+    prod.port_type_operation_mode[2][0] = tPoE_parameters.bt_operation_mode_compliant_60w_default;       // BT compliant 60w
+    prod.port_type_operation_mode[2][1] = tPoE_parameters.bt_operation_mode_none_compliant_60w_default;  // BT non compliant 60w legacy
     prod.port_type_operation_mode[2][2] = BT_Non_Compliant_4P_60w_2P_30w_Legacy;    // poh - BT 60W legacy
     prod.port_type_operation_mode[2][3] = tPoE_parameters.bt_operation_mode_legacy_60W_ignore_pd_class_default;  // ignore-pd-class
 
-    // 90W standard
-    prod.port_type_operation_mode[3][0] = BT_Compliant_4P_90w_2P_30w;               // BT 90W standard
-    prod.port_type_operation_mode[3][1] = BT_Non_Compliant_4P_90w_2P_30w_Legacy;    // BT 90W legacy
+    // 90W
+    prod.port_type_operation_mode[3][0] = tPoE_parameters.bt_operation_mode_compliant_90w_default;        // BT compliant 90w
+    prod.port_type_operation_mode[3][1] = tPoE_parameters.bt_operation_mode_none_compliant_90w_default;   // BT non compliant 90w legacy
     prod.port_type_operation_mode[3][2] = tPoE_parameters.bt_operation_mode_legacy_90W_poh_default;              // poh
     prod.port_type_operation_mode[3][3] = tPoE_parameters.bt_operation_mode_legacy_90W_ignore_pd_class_default;  // ignore-pd-class
 

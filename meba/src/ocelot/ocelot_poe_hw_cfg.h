@@ -141,6 +141,20 @@ meba_poe_port_properties_t ocelot_pd69200_4pairs_port_map[] =
 // This parameter sets a combination of various port behaviors: Legacy detection, port power, classification fingers, and 4-pair operation.
 // see Microchip PD692x0 BT Serial Communication Protocol Table 3-5. 4-Pair/2-Pair Non-Compliant Modes
 
+// BT complient port operation Mode
+#define OCELOT_BT_COMPLIANT_15W_DEFAULT        3           // Type4 BT compliant up to 90W
+#define OCELOT_BT_COMPLIANT_30W_DEFAULT        9           // Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
+#define OCELOT_BT_COMPLIANT_60W_DEFAULT        1           // Type3 BT compliant up to 30W
+#define OCELOT_BT_COMPLIANT_90W_DEFAULT        0           // Type3 BT compliant up to 15W
+
+// BT none complient port operation Mode
+#define OCELOT_BT_NON_COMPLIANT_15W_DEFAULT    0x13        // BT Non Compliant 4P 15w 2P 15w Legacy
+#define OCELOT_BT_NON_COMPLIANT_30W_DEFAULT    0x12        // BT Non Compliant 4P 30w 2P 30w Legacy
+#define OCELOT_BT_NON_COMPLIANT_60W_DEFAULT    0x11        // BT Non Compliant 4P 60w 2P 30w Legacy
+#define OCELOT_BT_NON_COMPLIANT_90W_DEFAULT    0x10        // BT Non Compliant 4P 90w 2P 30w Legacy
+
+
+// special legacy operation modes (applicable for 60w and 90w)
 #define OCELOT_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT              0x25  // Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
 #define OCELOT_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT  0x21  // Lagacy + IGNORE_PD_CLASS 60W
 #define OCELOT_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT  0x26  // Lagacy + IGNORE_PD_CLASS 90W

@@ -28,7 +28,19 @@ typedef struct {
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
     meba_poe_port_max_power_t   ePoE_port_max_power_default;
 
-    // BT Port Operation Mode for legacy
+    // BT complient port operation Mode
+    uint8_t bt_operation_mode_compliant_15w_default;
+    uint8_t bt_operation_mode_compliant_30w_default;
+    uint8_t bt_operation_mode_compliant_60w_default;
+    uint8_t bt_operation_mode_compliant_90w_default;
+
+    // BT none complient port operation Mode
+    uint8_t bt_operation_mode_none_compliant_15w_default;
+    uint8_t bt_operation_mode_none_compliant_30w_default;
+    uint8_t bt_operation_mode_none_compliant_60w_default;
+    uint8_t bt_operation_mode_none_compliant_90w_default;
+
+    // BT special modes Port Operations Mode for legacy
     uint8_t bt_operation_mode_legacy_90W_poh_default;
     uint8_t bt_operation_mode_legacy_60W_ignore_pd_class_default;
     uint8_t bt_operation_mode_legacy_90W_ignore_pd_class_default;

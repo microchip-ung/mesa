@@ -11,12 +11,24 @@ meba_poe_parameters_t tPoE_parameters =
     .ePoE_Controller_Type_default = JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT, // PD692x0 family detection method
     .ePoE_port_max_power_default  = JR2_BT_PORT_MAX_POWER_DEFAULT,           // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
 
-    // Port Operation Mode for legacy
+    // BT complient port operation Mode
+    .bt_operation_mode_compliant_15w_default = JR2_BT_COMPLIANT_15W_DEFAULT,
+    .bt_operation_mode_compliant_30w_default = JR2_BT_COMPLIANT_30W_DEFAULT,
+    .bt_operation_mode_compliant_60w_default = JR2_BT_COMPLIANT_60W_DEFAULT,
+    .bt_operation_mode_compliant_90w_default = JR2_BT_COMPLIANT_90W_DEFAULT,
+
+    // BT none complient port operation Mode
+    .bt_operation_mode_none_compliant_15w_default = JR2_BT_NON_COMPLIANT_15W_DEFAULT,
+    .bt_operation_mode_none_compliant_30w_default = JR2_BT_NON_COMPLIANT_30W_DEFAULT,
+    .bt_operation_mode_none_compliant_60w_default = JR2_BT_NON_COMPLIANT_60W_DEFAULT,
+    .bt_operation_mode_none_compliant_90w_default = JR2_BT_NON_COMPLIANT_90W_DEFAULT,
+
+    // special Port operation modes for legacy
     .bt_operation_mode_legacy_90W_poh_default             = JR2_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT,
     .bt_operation_mode_legacy_60W_ignore_pd_class_default = JR2_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT,
     .bt_operation_mode_legacy_90W_ignore_pd_class_default = JR2_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT,
 
-    .reset_poe_gpio_number                           = JR2_RESET_POE_GPIO_NUMBER,
+    .reset_poe_gpio_number                              = JR2_RESET_POE_GPIO_NUMBER,
 
     .indv_mask_prebt_led_stream_type_default            = JR2_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT,            // prebt led stream type
     .indv_mask_prebt_ignore_higher_priority_default     = JR2_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
