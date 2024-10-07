@@ -2403,6 +2403,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     case VTSS_TARGET_7556:
     case VTSS_TARGET_7558:
         vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = TRUE;
+        vtss_state->vtss_features[FEATURE_TIMESTAMP] = TRUE;
         break;
     case VTSS_TARGET_7546TSN:
     case VTSS_TARGET_7549TSN:
@@ -2413,6 +2414,7 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         vtss_state->vtss_features[FEATURE_SYNCE] = TRUE;
         vtss_state->vtss_features[FEATURE_FRER]  = TRUE;
         vtss_state->vtss_features[FEATURE_PSFP]  = TRUE;
+        vtss_state->vtss_features[FEATURE_TIMESTAMP] = TRUE;
         break;
     case VTSS_TARGET_LAN9694:
     case VTSS_TARGET_LAN9696:
