@@ -5,6 +5,7 @@
 // Commit ID: 0ae094c5beb24bfb82787768bce4e6f969c0175c (dirty)
 
 #include "vtss_fa_cil.h"
+#if 0
 #if defined(VTSS_ARCH_FA)
 #include "fla_regs_def.h"
 static unsigned int fla_grp_regs[GRP_OFFSET_LAST];
@@ -721,4 +722,5 @@ void fla_init_regs(vtss_state_t *vtss_state, BOOL FA)
 	vtss_state->reg_group_cnt = fla_grp_regs_cnt;
 	vtss_state->reg_cnt = fla_reg_cnt;
 }
+#endif
 #endif

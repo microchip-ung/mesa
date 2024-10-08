@@ -237,28 +237,27 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state,
         system_clock_freq_in_1us = 500;
     }
 
-    if (LA_TGT) {
-        // Clock cycles per us
-        REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
-                VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
-                VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
+#if defined(VTSS_ARCH_LAN969X)
+    // Clock cycles per us
+    REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
+            VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
+            VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
-        // Enable/Disable
-        REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
-                enable ? 1 : 0,
-                VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA);
-    } else {
-        // Clock cycles per us
-        REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
-                VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
-                VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
+    // Enable/Disable
+    REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
+            enable ? 1 : 0,
+            VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA);
+#else
+    // Clock cycles per us
+    REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
+            VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
+            VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
-        // Enable/Disable
-        REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
-                enable ? 1 : 0,
-                VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA);
-    }
-
+    // Enable/Disable
+    REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
+            enable ? 1 : 0,
+            VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA);
+#endif
 
     return VTSS_RC_OK;
 }
@@ -268,28 +267,28 @@ static vtss_rc fa_temp_sensor_get(vtss_state_t *vtss_state,
 {
     u32 val;
 
-    if (LA_TGT) {
-        REG_RD(VTSS_CHIP_TOP_TEMP_SENSOR_STAT, &val);
+#if defined(VTSS_ARCH_LAN969X)
+    REG_RD(VTSS_CHIP_TOP_TEMP_SENSOR_STAT, &val);
 
-        // Check if the data is valid.
-        if (!VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
-            return VTSS_RC_ERROR;
-        }
-
-        // See VML:'
-        *temp_celsius = ((i16)(VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
-
-    } else {
-        REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &val);
-
-        // Check if the data is valid.
-        if (!VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
-            return VTSS_RC_ERROR;
-        }
+    // Check if the data is valid.
+    if (!VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+        return VTSS_RC_ERROR;
+    }
 
     // See VML:'
-    *temp_celsius = ((i16)(VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val) * 3522 / 4096 - 1094) / 10);
+    val = VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP(val);
+#else
+    REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &val);
+
+    // Check if the data is valid.
+    if (!VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+        return VTSS_RC_ERROR;
     }
+
+    // See VML:'
+    val = VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val);
+#endif
+    *temp_celsius = (((i16)(val) * 3522 / 4096 - 1094) / 10);
 
     return VTSS_RC_OK;
 }
@@ -451,28 +450,17 @@ static vtss_rc fa_intr_pol_negation(vtss_state_t *vtss_state)
 
 #define IRQ_DEST(conf) ((u32) (FA_IRQ_DEST_EXT0 + conf->destination))
 
-static vtss_rc fa_misc_irq_destination(vtss_state_t *vtss_state,
-                                        u32 mask,
-                                        u32 destination)
-{
-    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT0), mask);
-    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT1), mask);
-    REG_WRM_SET(VTSS_CPU_DST_INTR_MAP(destination), mask);
-    return VTSS_RC_OK;
-}
-
 static vtss_rc fa_misc_irq_remap(vtss_state_t *vtss_state,
                                   u32 mask,
                                   const vtss_irq_conf_t *const conf)
 {
-    if (LA_TGT) {
-        return VTSS_RC_OK;
-    }
-
+#if defined(VTSS_ARCH_SPARX5)
     u32 destination = IRQ_DEST(conf);
 
     /* Map to requested (single) destination */
-    VTSS_RC(fa_misc_irq_destination(vtss_state, mask, destination));
+    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT0), mask);
+    REG_WRM_CLR(VTSS_CPU_DST_INTR_MAP(FA_IRQ_DEST_EXT1), mask);
+    REG_WRM_SET(VTSS_CPU_DST_INTR_MAP(destination), mask);
 
     /* Always use sticky IRQ's */
     REG_WRM_CLR(VTSS_CPU_INTR_BYPASS, mask);
@@ -500,6 +488,7 @@ static vtss_rc fa_misc_irq_remap(vtss_state_t *vtss_state,
         REG_WRM_CTL(VTSS_CPU_PCIE_INTR_COMMON_CFG(0), (external0|external1),
                     VTSS_F_CPU_PCIE_INTR_COMMON_CFG_PCIE_INTR_ENA(1));
     }
+#endif
 
     /* TBD - EXT  IRQ */
     return VTSS_RC_OK;
@@ -548,11 +537,8 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t *vtss_state,
 
 static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
+#if defined(VTSS_ARCH_SPARX5)
     u32 val, uio_irqs, dest;
-
-    if (LA_TGT) {
-        return VTSS_RC_OK;
-    }
 
     VTSS_MEMSET(status, 0, sizeof(*status));
 
@@ -614,6 +600,7 @@ static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *s
     if (val & (VTSS_BIT(FA_IRQ_GPIO))) {
         status->active |= VTSS_BIT(VTSS_IRQ_GPIO);
     }
+#endif
 
     return VTSS_RC_OK;
 }
@@ -719,7 +706,10 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
                             const vtss_gpio_no_t   gpio_no,
                             const vtss_gpio_mode_t mode)
 {
-    u32 mask, alt_0 = 0, alt_1 = 0, alt_2 = 0;
+    u32 mask, alt_0 = 0, alt_1 = 0;
+#if defined(VTSS_ARCH_LAN969X)
+    u32 alt_2 = 0;
+#endif
 
     if (gpio_no >= 64) {
         mask = VTSS_BIT(gpio_no - 64);
@@ -731,7 +721,9 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
 
     // Disable IRQ
     if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
         REG_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, mask);
+#endif
     } else if (gpio_no >= 32) {
         REG_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, mask);
     } else {
@@ -742,7 +734,9 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
     case VTSS_GPIO_IN:
     case VTSS_GPIO_IN_INT:
         if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
             REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_OE2, mode == VTSS_GPIO_OUT, mask);
+#endif
         } else if (gpio_no >= 32) {
             REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_OE1, mode == VTSS_GPIO_OUT, mask);
         } else {
@@ -760,38 +754,41 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t *vtss_state,
         alt_1 = mask;
         break;
     case VTSS_GPIO_ALT_3:
-        if (FA_TGT) {
-            VTSS_E("illegal mode");
-            return VTSS_RC_ERROR;
-        }
+#if defined(VTSS_ARCH_LAN969X)
         alt_2 = mask;
+#else
+        VTSS_E("illegal mode");
+        return VTSS_RC_ERROR;
+#endif
         break;
     default:
         VTSS_E("illegal mode");
         return VTSS_RC_ERROR;
     }
     if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(0), alt_0, mask);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(1), alt_1, mask);
-        if (LA_TGT) {
-            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(2), alt_2, mask);
-        }
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(2), alt_2, mask);
+#endif
     } else if (gpio_no >= 32) {
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(0), alt_0, mask);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(1), alt_1, mask);
-        if (LA_TGT) {
-            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(2), alt_2, mask);
-        }
+#if defined(VTSS_ARCH_LAN969X)
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT1(2), alt_2, mask);
+#endif
     } else {
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(0), alt_0, mask);
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(1), alt_1, mask);
-        if (LA_TGT) {
-            REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(2), alt_2, mask);
-        }
+#if defined(VTSS_ARCH_LAN969X)
+        REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT(2), alt_2, mask);
+#endif
     }
     if (mode == VTSS_GPIO_IN_INT) {
         if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
             REG_WRM_SET(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, mask);
+#endif
         } else if (gpio_no >= 32) {
             REG_WRM_SET(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, mask);
         } else {
@@ -807,11 +804,13 @@ static vtss_rc fa_gpio_read(vtss_state_t *vtss_state,
                               const vtss_gpio_no_t  gpio_no,
                               BOOL                  *const value)
 {
-    u32 val, mask;
+    u32 val = 0, mask = 0;
 
     if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
         mask = VTSS_BIT(gpio_no - 64);
         REG_RD(VTSS_DEVCPU_GCB_GPIO_IN2, &val);
+#endif
     } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
         REG_RD(VTSS_DEVCPU_GCB_GPIO_IN1, &val);
@@ -833,12 +832,14 @@ static vtss_rc fa_gpio_write(vtss_state_t *vtss_state,
     u32 mask;
 
     if (gpio_no >= 64) {
+#if defined(VTSS_ARCH_LAN969X)
         mask = VTSS_BIT(gpio_no - 64);
         if (value) {
             REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_SET2, mask);
         } else {
             REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_CLR2, mask);
         }
+#endif
     } else if (gpio_no >= 32) {
         mask = VTSS_BIT(gpio_no - 32);
         if (value) {
@@ -882,16 +883,16 @@ static vtss_rc fa_gpio_event_poll(vtss_state_t          *vtss_state,
         events[i] = (pending & 1 << (i - 32)) ? TRUE : FALSE;
     }
 
-    if (LA_TGT) {
-        REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR2, &pending);
-        REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, &mask);
-        pending &= mask;
-        REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
+#if defined(VTSS_ARCH_LAN969X)
+    REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR2, &pending);
+    REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, &mask);
+    pending &= mask;
+    REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
 
-        for (i = 64; i < vtss_state->misc.gpio_count; i++) {
-            events[i] = (pending & 1 << (i - 64)) ? TRUE : FALSE;
-        }
+    for (i = 64; i < vtss_state->misc.gpio_count; i++) {
+        events[i] = (pending & 1 << (i - 64)) ? TRUE : FALSE;
     }
+#endif
 
     return VTSS_RC_OK;
 }
@@ -919,34 +920,38 @@ static vtss_rc fa_gpio_event_enable(vtss_state_t          *vtss_state,
 
 static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
 {
-    u32  grp, bit;
+    u32 bit;
 
+#if defined(VTSS_ARCH_SPARX5)
     // Gotta change the interrupt type for all SGPIOs from its default,
     // which is level, to something else to avoid spurious interrupts
     // when failing or unable (due to board layout) to initialize the
     // polarity of the level interrupts correct.
-    for (grp = 0; grp < vtss_state->misc.sgpio_group_count; grp++) {
+    for (u32 grp = 0; grp < vtss_state->misc.sgpio_group_count; grp++) {
         for (bit = 0; bit < 4; bit++) {
             // Enable rising edge triggered interrupt
             REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(grp, bit), 0xFFFFFFFF);
             REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(grp, bit), 0xFFFFFFFF);
         }
     }
-
+#else
+    for (bit = 0; bit < 4; bit++) {
+        // Enable rising edge triggered interrupt
+        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(bit), 0xFFFFFFFF);
+        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(bit), 0xFFFFFFFF);
+    }
+#endif
     return VTSS_RC_OK;
 }
 
 /* PCS signal detect to SGPIO bit mapping  */
 static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_ARCH_SPARX5)
     vtss_port_no_t port_no;
     vtss_port_sgpio_map_t *sd_map;
     u32 bit_index;
     BOOL ena;
-
-    if (LA_TGT) {
-        return VTSS_RC_OK;
-    }
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         sd_map = &vtss_state->port.map[port_no].sd_map;
@@ -967,7 +972,7 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
         bit_index = sd_map->group * 32 * 4 + sd_map->port * 4 + sd_map->bit;
         REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
     }
-
+#endif
     return VTSS_RC_OK;
 }
 
@@ -979,9 +984,13 @@ static vtss_rc fa_sgpio_event_poll(vtss_state_t             *vtss_state,
 {
     u32 i, val;
 
-    REG_RD(VTSS_DEVCPU_GCB_SIO_INTR_IDENT(FA_TGT ? group : 0, bit), &val);
+#if defined(VTSS_ARCH_SPARX5)
+    REG_RD(VTSS_DEVCPU_GCB_SIO_INTR_IDENT(group, bit), &val);
     REG_WR(VTSS_DEVCPU_GCB_SIO_INTR(group, bit), val);  /* Clear pending */
-
+#else
+    REG_RD(VTSS_DEVCPU_GCB_SIO_INTR_IDENT(bit), &val);
+    REG_WR(VTSS_DEVCPU_GCB_SIO_INTR(bit), val);  /* Clear pending */
+#endif
 
     VTSS_I("SGPIO%u Interrupt ident for bit %u: 0x%08x", group, bit, val);
 
@@ -1004,11 +1013,20 @@ static vtss_rc fa_sgpio_event_enable(vtss_state_t             *vtss_state,
 
     if (enable) {
         VTSS_D("group:%d mask:0x%X, bit:0x%X, 0x%X", group, mask, bit, VTSS_F_DEVCPU_GCB_SIO_INTR_ENA_SIO_INTR_ENA(1 << bit));
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR(FA_TGT ? group : 0, bit), mask, mask); // Clear any pending interrupts, so we don't get any spurious interrupt when we enable.
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(FA_TGT ? group : 0 , bit), mask, mask);  // Enable only the group/bit in question.
+#if defined(VTSS_ARCH_SPARX5)
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR(group, bit), mask, mask); // Clear any pending interrupts, so we don't get any spurious interrupt when we enable.
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(group, bit), mask, mask);  // Enable only the group/bit in question.
+#else
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR(bit), mask, mask);
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(bit), mask, mask);
+#endif
     } else {
         VTSS_D("Disable port:%d, group:%d, bit:%d", port, group, bit);
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(FA_TGT ? group : 0, bit), 0, mask);
+#if defined(VTSS_ARCH_SPARX5)
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(group, bit), 0, mask);
+#else
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_ENA(bit), 0, mask);
+#endif
     }
 
     return VTSS_RC_OK;
@@ -1027,8 +1045,6 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
         if (conf->port_conf[port].enabled)
             val |= VTSS_BIT(port);
     }
-
-   REG_WR(VTSS_DEVCPU_GCB_SIO_PORT_ENA(FA_TGT ? group : 0), val);
 
     /*
      * Setup general configuration register
@@ -1068,34 +1084,35 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
         }
     }
 
-    REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG(FA_TGT ? group : 0),
-            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
-            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
-            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
-            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
-            VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1),
-            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 |
+    value = (VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
+             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
+             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
+             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
+             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1));
+    mask = (VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1 |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT);
-
-    if (FA_TGT) {
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(FA_TGT ? group : 0),
-                // Configuring the denominator of the system clock frequency:
-                // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
-                // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
-                // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
-                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50),
-                VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
-    }
-    if (LA_TGT) {
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(FA_TGT ? group : 0),
-                // Configuring the denominator of the system clock frequency:
-                // VTSS_CORE_CLOCK_328MHZ -> SIO clock = 328MHz / 328 =  1   MHz
-                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(65), /* Max 5Mhz on some boards */
-                VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
-    }
+#if defined(VTSS_ARCH_SPARX5)
+    REG_WR(VTSS_DEVCPU_GCB_SIO_PORT_ENA(group), val);
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG(group), value, mask);
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(group),
+            // Configuring the denominator of the system clock frequency:
+            // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
+            // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
+            // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50),
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+#else
+    REG_WR(VTSS_DEVCPU_GCB_SIO_PORT_ENA, val);
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG, value, mask);
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
+            // Configuring the denominator of the system clock frequency:
+            // VTSS_CORE_CLOCK_328MHZ -> SIO clock = 328MHz / 328 =  1   MHz
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(65), /* Max 5Mhz on some boards */
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+#endif
 
     /*
      * Configuration of output data values
@@ -1111,7 +1128,11 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
 
     for (port = 0; port < 32; port++) {
         mask = (1 << port);
-        REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(FA_TGT ? group : 0, port), &val);
+#if defined(VTSS_ARCH_SPARX5)
+        REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(group, port), &val);
+#else
+        REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(port), &val);
+#endif
         for (pol = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
             if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_NO_CHANGE) {
                 continue;
@@ -1130,16 +1151,24 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t *vtss_state,
             // Setup the interrupt polarity
             pol_high = conf->port_conf[port].int_pol_high[bit_idx];
             value = (pol_high ? 0 : mask);
-            REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_POL(FA_TGT ? group : 0, bit_idx), value, mask);
+#if defined(VTSS_ARCH_SPARX5)
+            REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_POL(group, bit_idx), value, mask);
+#else
+            REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_POL(bit_idx), value, mask);
+#endif
             VTSS_N("group:%d, port:%d, bit_idx:%d, int_pol_high:%d", group, port, bit_idx, pol_high);
         }
-        REG_WRM(VTSS_DEVCPU_GCB_SIO_PORT_CFG(FA_TGT ? group : 0, port),
-                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE(0) | // While PCB-134 is unstable
-                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY(pol) |
-                VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE(val),
-                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE |
-                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY |
-                VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE);
+        value = (VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE(0) | // While PCB-134 is unstable
+                 VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY(pol) |
+                 VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE(val));
+        mask =  (VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE |
+                 VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_POLARITY |
+                 VTSS_M_DEVCPU_GCB_SIO_PORT_CFG_BIT_SOURCE);
+#if defined(VTSS_ARCH_SPARX5)
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_PORT_CFG(group, port), value, mask);
+#else
+        REG_WRM(VTSS_DEVCPU_GCB_SIO_PORT_CFG(port), value, mask);
+#endif
     }
 
     return VTSS_RC_OK;
@@ -1153,7 +1182,11 @@ static vtss_rc fa_sgpio_read(vtss_state_t *vtss_state,
     u32 i, port, value;
 
     for (i = 0; i < 4; i++) {
-        REG_RD(VTSS_DEVCPU_GCB_SIO_INPUT_DATA(FA_TGT ? group : 0, i), &value);
+#if defined(VTSS_ARCH_SPARX5)
+        REG_RD(VTSS_DEVCPU_GCB_SIO_INPUT_DATA(group, i), &value);
+#else
+        REG_RD(VTSS_DEVCPU_GCB_SIO_INPUT_DATA(i), &value);
+#endif
         for (port = 0; port < 32; port++) {
             data[port].value[i] = VTSS_BOOL(value & (1 << port));
         }
@@ -1197,19 +1230,37 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
         VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
         vtss_fa_debug_reg_header(pr, name);
         for (i = 0; i < 4; i++) {
+#if defined(VTSS_ARCH_SPARX5)
             FA_DEBUG_SIO_INST(pr, INPUT_DATA(g,i), i, "INPUT_DATA");
             FA_DEBUG_SIO_INST(pr, INTR_POL(g,i), i, "INTR_POL");
             FA_DEBUG_SIO_INST(pr, INTR(g,i), i, "INTR");
             FA_DEBUG_SIO_INST(pr, INPUT_DATA(g,i), i, "INPUT_DATA");
             FA_DEBUG_SIO_INST(pr, INTR_POL(g,i), i, "INTR_POL");
             FA_DEBUG_SIO_INST(pr, INTR(g,i), i, "INTR");
-
+#else
+            FA_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
+            FA_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
+#endif
         }
+#if defined(VTSS_ARCH_SPARX5)
         FA_DEBUG_SIO(pr, PORT_ENA(g), "PORT_ENA");
         FA_DEBUG_SIO(pr, CFG(g), "CFG");
         FA_DEBUG_SIO(pr, CLOCK(g), "CLOCK");
+#else
+        FA_DEBUG_SIO(pr, PORT_ENA, "PORT_ENA");
+        FA_DEBUG_SIO(pr, CFG, "CFG");
+        FA_DEBUG_SIO(pr, CLOCK, "CLOCK");
+#endif
         for (i = 0; i < 32; i++) {
+#if defined(VTSS_ARCH_SPARX5)
             FA_DEBUG_SIO_INST(pr, PORT_CFG(g,i), i, "PORT_CFG");
+#else
+            FA_DEBUG_SIO_INST(pr, PORT_CFG(i), i, "PORT_CFG");
+#endif
         }
         pr("\n");
     }

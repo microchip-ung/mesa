@@ -4,7 +4,7 @@
 
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_QOS
 #include "vtss_fa_cil.h"
-#if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_QOS_TAS)
+#if defined(VTSS_ARCH_FA) && defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
 #include "vtss_fa_lan969x_tas.h"
 
 static u32 tas_op_type_calc(vtss_qos_tas_gco_t  gate_operation)

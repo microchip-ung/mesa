@@ -22,9 +22,12 @@
 #include "../ail/vtss_sd10g28_procs.h"
 #include "../ail/vtss_sd25g28_procs.h"
 #include "vtss_fa_reg.h"
+#if defined(VTSS_ARCH_SPARX5)
+#include "vtss_fa_regs.h"
+#else
+#include "vtss_la_regs.h"
+#endif
 #include "fla_const_enum.h"
-#include "fla_regs_def.h"
-#include "fla_merged_regs.h" // New FA/LA merged header files
 #include "fla_vcap_regs.h"   // New FA/LA merged VCAP header files
 
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
@@ -178,7 +181,7 @@ void vtss_fa_reg_error(const char *file, int line, char *txt);
 // @param rc  - register repl count
 
 
-static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw, int gc, int rc)
+static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, int rc)
 {
 #if VTSS_OPT_TRACE
     if ((gi >= gc) || (ri >= rc)) {
@@ -189,66 +192,57 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
     return (t + (o) + ((gi) * (gw)) + (ri) + (rw));
 }
 
-#define IOREG(dsg, t, o, gi, gw, ri, rw, gc, rc) __ioreg(dsg, t, o, gi, gw, ri, rw, gc, rc)
+#define IOREG(t, o, gi, gw, ri, rw, gc, rc) __ioreg(t, o, gi, gw, ri, rw, gc, rc)
 
 #define REG_ADDR(p) IOREG(p)
 
 #define REG_RD(...) REG_RD_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
+#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
-        if ((dsg != 0) && vtss_state->chip_design != dsg)              \
-            vtss_fa_reg_error(__FILE__, __LINE__,                      \
-                              "Register not existing in this chip!");  \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         vtss_rc __rc = vtss_fa_rd(vtss_state, o, value);               \
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
 #else
-#define REG_RD_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
+#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         (void)vtss_fa_rd(vtss_state, o, value);                        \
     } while (0)
 #endif
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
+#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
-        if ((dsg != 0) && vtss_state->chip_design != dsg)              \
-            vtss_fa_reg_error(__FILE__, __LINE__,                      \
-                              "Register not existing in this chip!");  \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         vtss_rc __rc = vtss_fa_wr(vtss_state, o, value);               \
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
 #else
-#define REG_WR_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value)           \
+#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         (void)vtss_fa_wr(vtss_state, o, value);                        \
     } while (0)
 #endif
 
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_WRM_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value, mask)    \
+#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)         \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
-        if ((dsg != 0) && vtss_state->chip_design != dsg)              \
-            vtss_fa_reg_error(__FILE__, __LINE__,                      \
-                              "Register not existing in this chip!");  \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         vtss_rc __rc = vtss_fa_wrm(vtss_state, o, value, mask);        \
         if (__rc != VTSS_RC_OK)                                        \
             return __rc;                                               \
     } while (0)
 #else
-#define REG_WRM_(dsg, tgt, off, gr, gw, r, ro, gc, rc, value, mask)    \
+#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)         \
     do {                                                               \
-        u32 o = __ioreg(dsg, tgt, off, gr, gw, r, ro, gc, rc);         \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);              \
         (void)vtss_fa_wrm(vtss_state, o, value, mask);                 \
     } while (0)
 #endif
@@ -325,25 +319,33 @@ static inline u32 __ioreg(int dsg, int t, int o, int gi, int gw, int ri, int rw,
 /* ================================================================= *
  *  Port masks
  * ================================================================= */
-#define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]);                               \
-                                        if (FA_TGT) REG_WR(_t##1, (_m).m[1]);                \
-                                        if (FA_TGT) REG_WR(_t##2, (_m).m[2]);                }
-#define REG_WRX_PMASK(_t, x, _m)      {                                                      \
-                                       REG_WR(_t(x), (_m).m[0]);                             \
-                                       if (FA_TGT) REG_WR(_t##1(x), (_m).m[1]);              \
-                                       if (FA_TGT) REG_WR(_t##2(x), (_m).m[2]);              }
-#define REG_WRM_PMASK(_t, _v, _m)     { REG_WRM(_t, (_v).m[0], (_m).m[0]);                   \
-                                        if (FA_TGT) REG_WRM(_t##1, (_v).m[1], (_m).m[1]);    \
-                                        if (FA_TGT) REG_WRM(_t##2, (_v).m[2], (_m).m[2]);    }
-#define REG_RD_PMASK(_t, _m)          { REG_RD(_t, &(_m)->m[0]);                             \
-                                        if (FA_TGT) REG_RD(_t##1, &(_m)->m[1]);              \
-                                        if (FA_TGT) REG_RD(_t##2, &(_m)->m[2]);              }
-#define REG_RDX_PMASK(_t, x, _m)      { REG_RD(_t(x), &(_m)->m[0]);                          \
-                                        if (FA_TGT) REG_RD(_t##1(x), &(_m)->m[1]);           \
-                                        if (FA_TGT) REG_RD(_t##2(x), &(_m)->m[2]);           }
-#define REG_WRXM_PMASK(_t, x, _v, _m) { REG_WRM(_t(x), (_v).m[0], (_m).m[0]);                \
-                                        if (FA_TGT) REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]); \
-                                        if (FA_TGT) REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]); }
+#if defined(VTSS_ARCH_SPARX5)
+#define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]);          \
+                                        REG_WR(_t##1, (_m).m[1]);       \
+                                        REG_WR(_t##2, (_m).m[2]);       }
+#define REG_WRX_PMASK(_t, x, _m)      { REG_WR(_t(x), (_m).m[0]);       \
+                                        REG_WR(_t##1(x), (_m).m[1]);    \
+                                        REG_WR(_t##2(x), (_m).m[2]);    }
+#define REG_WRM_PMASK(_t, _v, _m)     { REG_WRM(_t, (_v).m[0], (_m).m[0]);    \
+                                        REG_WRM(_t##1, (_v).m[1], (_m).m[1]); \
+                                        REG_WRM(_t##2, (_v).m[2], (_m).m[2]); }
+#define REG_RD_PMASK(_t, _m)          { REG_RD(_t, &(_m)->m[0]);        \
+                                        REG_RD(_t##1, &(_m)->m[1]);     \
+                                        REG_RD(_t##2, &(_m)->m[2]);     }
+#define REG_RDX_PMASK(_t, x, _m)      { REG_RD(_t(x), &(_m)->m[0]);     \
+                                        REG_RD(_t##1(x), &(_m)->m[1]);  \
+                                        REG_RD(_t##2(x), &(_m)->m[2]);  }
+#define REG_WRXM_PMASK(_t, x, _v, _m) { REG_WRM(_t(x), (_v).m[0], (_m).m[0]);    \
+                                        REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]); \
+                                        REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]); }
+#else
+#define REG_WR_PMASK(_t, _m)          { REG_WR(_t, (_m).m[0]); }
+#define REG_WRX_PMASK(_t, x, _m)      { REG_WR(_t(x), (_m).m[0]); }
+#define REG_WRM_PMASK(_t, _v, _m)     { REG_WRM(_t, (_v).m[0], (_m).m[0]); }
+#define REG_RD_PMASK(_t, _m)          { REG_RD(_t, &(_m)->m[0]); }
+#define REG_RDX_PMASK(_t, x, _m)      { REG_RD(_t(x), &(_m)->m[0]); }
+#define REG_WRXM_PMASK(_t, x, _v, _m) { REG_WRM(_t(x), (_v).m[0], (_m).m[0]); }
+#endif
 
 static inline u32 fla_get_const(vtss_state_t *vtss_state, u32 constant)
 {
@@ -449,7 +451,7 @@ u32 vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type);
 u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);
-vtss_rc vtss_fa_cmu_cfg(vtss_state_t *vtss_state, u32 cmu_id);
+vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state, u32 cmu, u32 value, u32 mask);
 u32 vtss_fa_sd10g28_get_cmu (vtss_state_t *vtss_state, u8 cmu_type, vtss_port_no_t port_no);
 u32 vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);

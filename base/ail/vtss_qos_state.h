@@ -455,12 +455,6 @@ typedef struct {
     vtss_tas_entry_block_t   tas_entry_blocks[VTSS_TAS_NUMBER_OF_ROWS][VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW];
     vtss_tas_entry_row_t     tas_entry_rows[VTSS_TAS_NUMBER_OF_ROWS];
 #endif
-
-#if (defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)) && defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
-    vtss_tas_entry_block_t   tas_entry_blocks[VTSS_TAS_NUMBER_OF_ROWS][VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW];
-    vtss_tas_entry_row_t     tas_entry_rows[VTSS_TAS_NUMBER_OF_ROWS];
-#endif
-
     vtss_tas_gcl_state_t     tas_gcl_state[VTSS_PORT_ARRAY_SIZE];
     vtss_qos_tas_conf_t      global_conf;
     vtss_qos_tas_port_conf_t port_conf[VTSS_PORT_ARRAY_SIZE];

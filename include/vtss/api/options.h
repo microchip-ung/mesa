@@ -138,7 +138,6 @@
 #define VTSS_FEATURE_PORT_CONF_BULK               /**< Bulk port configuration support for fast configuration */
 #define VTSS_FEATURE_PFC                          /**< 802.1Qbb Priority Flow Control */
 #define VTSS_FEATURE_LAYER2                       /**< Layer 2 (switching) */
-#define VTSS_FEATURE_MAC_INDEX_TABLE              /**< Index-based MAC address table */
 #define VTSS_FEATURE_PACKET                       /**< CPU Rx/Tx frame configuration */
 #define VTSS_FEATURE_PACKET_INJ_ENCAP             /**< Packet Tx supports injection with specific encapsulation */
 #define VTSS_FEATURE_PACKET_PORT_REG_DISCARD      /**< Packet discard registration per port */
@@ -176,14 +175,13 @@
 #define VTSS_FEATURE_LAYER3                       /**< Layer 3 (routing) */
 
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
-#define VTSS_FEATURE_QOS_TAS_LIST_LINKED          /**< QoS: Time Aware Scheduling list elements are linked */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_MAC_PORT_LEARN_LIMIT         /**< MAC learning limit per port */
+
 #if !VTSS_OPT_LIGHT
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_PORT_KR_IRQ                  /**< 10G/25GBase KR, 802.3ap clause 72 (training) and clause 73 (aneg). IRQ controlled */
 #endif
-#define VTSS_FEATURE_SD_25G                       /**< SerDes 25G */
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_KEY_DMAC                 /**< QoS: QoS Control Lists has destination MAC address */
 #define VTSS_FEATURE_QCL_KEY_DIP                  /**< QoS: QoS Control Lists has destination IP address */
@@ -210,11 +208,6 @@
 #define VTSS_FEATURE_QOS_DSCP_CLASS_DP_AWARE      /**< QoS: DSCP classification is DP aware */
 #define VTSS_FEATURE_QOS_DSCP_REMARK              /**< QoS: Has DSCP remarking */
 #define VTSS_FEATURE_QOS_DSCP_REMARK_V2           /**< QoS: 2. version of DSCP remarking */
-#define VTSS_FEATURE_QOS_OT                       /**< Operational Technology traffic handling */
-// #define VTSS_FEATURE_PACKET_TX                   /**< CPU Tx frame */
-// #define VTSS_FEATURE_PACKET_RX                   /**< CPU Rx frame */
-// #define VTSS_FEATURE_PACKET_GROUPING             /**< Extraction and injection occurs through extraction and injection groups rather than queues. */
-// #define VTSS_FEATURE_PACKET_PORT_REG             /**< Packet registration per port */
 #define VTSS_FEATURE_PACKET_PORT_L2CP_REG         /**< Packet registration per port and L2CP */
 #define VTSS_FEATURE_PVLAN                        /**< Private VLANs */
 #define VTSS_FEATURE_VLAN_PORT_V2                 /**< VLAN port configuration, V2 features */
@@ -249,43 +242,30 @@
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
 
-// VTSS_ARCH_LAN969X and VTSS_ARCH_S5I specific features
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS     /**< QoS: Has Egress Queue Shapers */
-#define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
-#define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
-#define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
 #define VTSS_FEATURE_TIMESTAMP_PCH                /**< TS PCH hardware support */
+
 #endif // !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
-#if 0 // All feature are included and availble runtime based on target skew.
+// VTSS_ARCH_SPARX5 specific features
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_FEATURE_SD_25G                       /**< SerDes 25G */
+#endif
+
+// VTSS_ARCH_LAN969X specific features
 #if defined(VTSS_ARCH_LAN969X)
-/* For Laguna "VTSS_ARCH_S5I" features are always included and run-time enabled based on "vtss_target_type_t" */
-#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
+#if !VTSS_OPT_LIGHT
+#define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */
 #define VTSS_FEATURE_MRP                         /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_MRP_V1                      /**< Version 1 MRP implementation. */
-//Fix me #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
-#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
-#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
-#define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
-#define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #define VTSS_FEATURE_REDBOX                      /**< PRP/HSR RedBox */
-#define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
-#endif // VTSS_ARCH_LAN969X
-
-#if defined(VTSS_ARCH_S5I)
-#define VTSS_FEATURE_QOS_FRAME_PREEMPTION        /**< QoS: Frame Preemption support (802.1Qbu and 802.3br) */
-#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
-#define VTSS_FEATURE_FRER                        /**< IEEE 802.1CB: Frame Replication and Elimination for Reliability */
-#define VTSS_FEATURE_PSFP                        /**< IEEE 802.1Qci: Per-Stream Filtering and Policing */
-#elif defined(VTSS_ARCH_SPARX5)
-#define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
-#endif /* VTSS_ARCH_SPARX5_CE */
+#endif // !VTSS_OPT_LIGHT
 #endif
 
 #if defined(VTSS_CHIP_SPARX_IV_44) || defined(VTSS_CHIP_SPARX_IV_52) || defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)

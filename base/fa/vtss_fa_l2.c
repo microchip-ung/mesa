@@ -3582,13 +3582,21 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
             VTSS_M_ANA_L2_LRN_CFG_VSTAX_BASIC_LRN_MODE_ENA);
 
     /* Setup own UPSIDs */
-    for(u8 i = 0; i < (FA_TGT ? 3 : 1); i++) {
+#if defined(VTSS_ARCH_SPARX5)
+    for(i = 0; i < 3; i++) {
         REG_WR(VTSS_ANA_AC_PS_COMMON_OWN_UPSID(i), i);
         REG_WR(VTSS_ANA_ACL_OWN_UPSID(i), i);
         REG_WR(VTSS_ANA_CL_OWN_UPSID(i), i);
         REG_WR(VTSS_ANA_L2_OWN_UPSID(i), i);
         REG_WR(VTSS_REW_OWN_UPSID(i), i);
     }
+#else
+    REG_WR(VTSS_ANA_AC_PS_COMMON_OWN_UPSID, 0);
+    REG_WR(VTSS_ANA_ACL_OWN_UPSID, 0);
+    REG_WR(VTSS_ANA_CL_OWN_UPSID, 0);
+    REG_WR(VTSS_ANA_L2_OWN_UPSID, 0);
+    REG_WR(VTSS_REW_OWN_UPSID, 0);
+#endif
 
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {
@@ -3646,11 +3654,11 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(i),
                VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(value));
     }
-    if (LA_TGT) {
-        // Include blocked frames in MaxSDU discard counter
-        REG_WR(VTSS_ANA_AC_TSN_SF_TSN_SF,
-               VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(1));
-    }
+#if defined(VTSS_ARCH_LAN969X)
+    // Include blocked frames in MaxSDU discard counter
+    REG_WR(VTSS_ANA_AC_TSN_SF_TSN_SF,
+           VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(1));
+#endif
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
         for (i = 0; i < VTSS_REDBOX_CNT; i++) {

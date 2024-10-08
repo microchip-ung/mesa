@@ -155,6 +155,7 @@ void vtss_fa_debug_cnt(const vtss_debug_printf_t pr, const char *col1, const cha
 }
 #endif
 
+#if defined(VTSS_ARCH_LAN969X)
 /* Read or write register indirectly */
 static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
                                        u32 addr, u32 *value, BOOL is_write)
@@ -202,6 +203,7 @@ static vtss_rc lag_reg_indirect_access(vtss_state_t *vtss_state,
 do_exit:
     return result;
 }
+#endif
 
 #if defined(VTSS_SDX_CNT)
 static void fa_evc_counter_update(u32 frames, u32 lsb, u32 msb, vtss_chip_counter_pair_t *chip_counter,
@@ -470,6 +472,7 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     return 0;
 }
 
+#if defined(VTSS_ARCH_LAN969X)
 static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
 {
     vtss_core_ref_clk_t r_freq = vtss_state->init_conf.core_clock.ref_freq;
@@ -603,11 +606,13 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
 
     return VTSS_RC_OK;
 }
+#endif
 
 static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 {
     vtss_core_clock_freq_t freq, f = vtss_state->init_conf.core_clock.freq;
     freq = f;
+    u32 clk_period, pol_upd_int, val;
 
     /* Verify if core clock frequency is supported on target */
     /* If 'VTSS_CORE_CLOCK_DEFAULT' then the highest supported freq. is used */
@@ -678,8 +683,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
 
-    u32 clk_div, clk_period, pol_upd_int, val;
-    if (FA_TGT) {
+#if defined(VTSS_ARCH_SPARX5)
+    {
+        u32 clk_div;
+
         switch (freq) {
         case VTSS_CORE_CLOCK_250MHZ:
             clk_div = 10;
@@ -738,12 +745,13 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_SEL |
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_ROT_ENA |
                 VTSS_M_CLKGEN_LCPLL1_CORE_CLK_CFG_CORE_CLK_ENA);
-    } else {
+    }
+#else
+    {
         // Laguna only: Configure REF+CORE PLLs
         // If VTSS_CORE_REF_CLK_DEFAULT then pin strappings controls the Ref clock
         // with: 0 = 25Mhz, 1 = 39Mh
         if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_DEFAULT) {
-            u32 val;
             REG_RD(VTSS_CHIP_TOP_HW_STAT, &val);
             if (VTSS_X_CHIP_TOP_HW_STAT_REFCLK_SEL(val) == 1) {
                 vtss_state->init_conf.core_clock.ref_freq = VTSS_CORE_REF_CLK_39MHZ;
@@ -754,9 +762,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         VTSS_RC(fa_core_ref_clk_config(vtss_state));
 
         pol_upd_int = 820; // Laguna default
-    }
 
-    if (LA_TGT) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG,
                 VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
                 VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
@@ -768,32 +774,40 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1),
                 VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
     }
+#endif
 
     clk_period = vtss_fa_clk_period(freq);
+    val = (clk_period / 100);
 
-    if (FA_TGT) {
-        REG_WRM(VTSS_HSCH_SYS_CLK_PER,
-                VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(clk_period/100),
-                VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS);
-    }
+#if defined(VTSS_ARCH_SPARX5)
+    REG_WRM(VTSS_HSCH_SYS_CLK_PER,
+            VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(val),
+            VTSS_M_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS);
+#endif
 
     REG_WRM(VTSS_ANA_AC_POL_COMMON_BDLB_DLB_CTRL,
-            VTSS_F_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_F_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS(val),
             VTSS_M_ANA_AC_POL_COMMON_BDLB_DLB_CTRL_CLK_PERIOD_01NS);
 
     REG_WRM(VTSS_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL,
-            VTSS_F_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_F_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS(val),
             VTSS_M_ANA_AC_POL_COMMON_BUM_SLB_DLB_CTRL_CLK_PERIOD_01NS);
 
     REG_WRM(VTSS_LRN_AUTOAGE_CFG_1,
-            VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(clk_period/100),
+            VTSS_F_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS(val),
             VTSS_M_LRN_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
 
-    for(u8 i = 0; i < (FA_TGT ? 3 : 1); i++) {
+#if defined(VTSS_ARCH_SPARX5)
+    for(u8 i = 0; i < 3; i++) {
         REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK(i),
-                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(clk_period/100),
+                VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(val),
                 VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
     }
+#else
+    REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(val),
+            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
+#endif
 
     REG_WRM(VTSS_HSCH_TAS_STATEMACHINE_CFG,
             VTSS_F_HSCH_TAS_STATEMACHINE_CFG_REVISIT_DLY((256 * 1000) / clk_period),
@@ -999,12 +1013,14 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 1);
     // Reset switch core if using SPI from external CPU
     VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 2);
+#if defined(VTSS_ARCH_LAN969X)
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
         VTSS_MSLEEP(100);
         u32 val = 0;
         lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
     }
+#endif
 
     /* Initialize Switchcore and internal RAMs */
     if (fa_init_switchcore(vtss_state) != VTSS_RC_OK) {
@@ -1338,13 +1354,13 @@ static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *cale
 {
     u32 val;
 
-    if (LA_TGT) {
-        REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
-        u32 active_calendar = VTSS_X_DSM_TAXI_CAL_CFG_CAL_SEL_STAT(val);
-        REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi),
-                VTSS_F_DSM_TAXI_CAL_CFG_CAL_PGM_SEL(!active_calendar),
-                VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_SEL);
-    }
+#if defined(VTSS_ARCH_LAN969X)
+    REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
+    u32 active_calendar = VTSS_X_DSM_TAXI_CAL_CFG_CAL_SEL_STAT(val);
+    REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi),
+            VTSS_F_DSM_TAXI_CAL_CFG_CAL_PGM_SEL(!active_calendar),
+            VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_SEL);
+#endif
 
     REG_WRM_SET(VTSS_DSM_TAXI_CAL_CFG(taxi),
                 VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_ENA);
@@ -1365,11 +1381,11 @@ static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *cale
     if (val != len - 1) {
         VTSS_E("Calendar length is not correct (%d)",val);
     }
-    if (LA_TGT) {
-        REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi),
-                VTSS_F_DSM_TAXI_CAL_CFG_CAL_SWITCH(1),
-                VTSS_M_DSM_TAXI_CAL_CFG_CAL_SWITCH);
-    }
+#if defined(VTSS_ARCH_LAN969X)
+    REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi),
+            VTSS_F_DSM_TAXI_CAL_CFG_CAL_SWITCH(1),
+            VTSS_M_DSM_TAXI_CAL_CFG_CAL_SWITCH);
+#endif
     return VTSS_RC_OK;
 }
 
@@ -2476,8 +2492,6 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 #endif
     /* FA: chip_design = 1,  LA: chip_design = 2 */
     vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
-    /* Initilize Fireant or Laguna registers  */
-    fla_init_regs(vtss_state, FA_TGT);
     /* Initilize Fireant and Laguna constants  */
     fla_init_const(vtss_state, FA_TGT);
 

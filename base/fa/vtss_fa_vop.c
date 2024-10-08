@@ -1448,9 +1448,13 @@ static vtss_rc fa_debug_vop(vtss_state_t               *vtss_state,
         D_COM(pr, HMO_TIMER_CFG);
         D_COM(pr, LOC_SCAN_STICKY);
         D_COM(pr, MASTER_INTR_CTRL);
-        for (i = 0; i < (FA_TGT ? 2 : 1); ++i) {
+#if defined(VTSS_ARCH_SPARX5)
+        for (i = 0; i < 2; ++i) {
             D_COM_I(pr, VOE32_INTR, i);
-        }
+    }
+#else
+        D_COM(pr, VOE32_INTR);
+#endif
         for (i = 0; i < (FA_TGT ? 7 : 2); ++i) {
             D_COM_I(pr, INTR, i);
         }

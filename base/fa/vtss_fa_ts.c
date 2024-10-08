@@ -485,7 +485,7 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
 
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
     BOOL high_dev = fa_is_high_speed_device(vtss_state, port_no);
-    u32  tx_pch_mode = 0, rx_pch_mode = 0;
+    u32  tx_pch_mode = 0, rx_pch_mode = 0, val = 0, msk = 0;
     switch (o_mode->rx_pch_mode) {
     case VTSS_TS_PCH_RX_MODE_NONE:
         rx_pch_mode = 0;
@@ -520,20 +520,26 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
     }
 
     if (high_dev) {
+#if defined(VTSS_ARCH_LAN969X)
+        val = VTSS_F_DEV10G_PTP_CFG_PCH_ERR_MODE(3);
+        msk = VTSS_M_DEV10G_PTP_CFG_PCH_ERR_MODE;
+#endif
         REG_WRM(VTSS_DEV10G_PTP_CFG(VTSS_TO_HIGH_DEV(port)),
                VTSS_F_DEV10G_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
                VTSS_F_DEV10G_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
                VTSS_F_DEV10G_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
-               VTSS_F_DEV10G_PTP_CFG_PCH_ERR_MODE(3),
+               val,
                VTSS_M_DEV10G_PTP_CFG_PCH_SUB_PORT_ID |
                VTSS_M_DEV10G_PTP_CFG_PTP_PCH_TX_ENA |
                VTSS_M_DEV10G_PTP_CFG_PTP_PCH_RX_MODE |
-               VTSS_M_DEV10G_PTP_CFG_PCH_ERR_MODE);
+               msk);
     } else {
+        vtss_port_conf_t *conf  = &vtss_state->port.conf[port_no];
         if ((conf->if_type == VTSS_PORT_INTERFACE_RGMII) ||
             (conf->if_type == VTSS_PORT_INTERFACE_RGMII_RXID) ||
             (conf->if_type == VTSS_PORT_INTERFACE_RGMII_TXID) ||
             (conf->if_type == VTSS_PORT_INTERFACE_RGMII_ID)) {
+#if defined(VTSS_ARCH_LAN969X)
             REG_WRM(VTSS_DEVRGMII_PTP_CFG(VTSS_TO_DEV2G5(port)),
                    VTSS_F_DEVRGMII_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
                    VTSS_F_DEVRGMII_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
@@ -543,16 +549,21 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
                    VTSS_M_DEVRGMII_PTP_CFG_PTP_PCH_TX_ENA |
                    VTSS_M_DEVRGMII_PTP_CFG_PTP_PCH_RX_MODE |
                    VTSS_M_DEVRGMII_PTP_CFG_PCH_ERR_MODE);
+#endif
         } else {
+#if defined(VTSS_ARCH_LAN969X)
+            val = VTSS_F_DEV1G_PTP_CFG_PCH_ERR_MODE(3);
+            msk = VTSS_M_DEV1G_PTP_CFG_PCH_ERR_MODE;
+#endif
             REG_WRM(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port)),
-                VTSS_F_DEV1G_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
-                VTSS_F_DEV1G_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
-                VTSS_F_DEV1G_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
-                VTSS_F_DEV1G_PTP_CFG_PCH_ERR_MODE(3),
-                VTSS_M_DEV1G_PTP_CFG_PCH_SUB_PORT_ID |
-                VTSS_M_DEV1G_PTP_CFG_PTP_PCH_TX_ENA |
-                VTSS_M_DEV1G_PTP_CFG_PTP_PCH_RX_MODE |
-                VTSS_M_DEV1G_PTP_CFG_PCH_ERR_MODE);
+                    VTSS_F_DEV1G_PTP_CFG_PCH_SUB_PORT_ID(o_mode->pch_port_id) |
+                    VTSS_F_DEV1G_PTP_CFG_PTP_PCH_TX_ENA(tx_pch_mode) |
+                    VTSS_F_DEV1G_PTP_CFG_PTP_PCH_RX_MODE(rx_pch_mode) |
+                    val,
+                    VTSS_M_DEV1G_PTP_CFG_PCH_SUB_PORT_ID |
+                    VTSS_M_DEV1G_PTP_CFG_PTP_PCH_TX_ENA |
+                    VTSS_M_DEV1G_PTP_CFG_PTP_PCH_RX_MODE |
+                    msk);
         }
     }
 #endif
@@ -649,6 +660,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
     return port_no;
 }
 
+#if defined(VTSS_ARCH_SPARX5)
 static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32  value;
@@ -702,7 +714,7 @@ static vtss_rc fa_ts_timestamp_get(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
-
+#else
 static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32  value;
@@ -756,6 +768,7 @@ static vtss_rc la_ts_timestamp_get(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
+#endif
 
 typedef struct {
     u32 rx;
@@ -785,7 +798,9 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
     io_delay_t            *dv_factor = NULL;
     io_delay_t            delay_var_factor[5] =     {{64000,  128000}, {25600, 51200}, {12400, 15500}, {18600, 24800}, {0000, 0000}};  /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
+#if defined(VTSS_FEATURE_SD_25G)
     io_delay_t            delay_var_factor_25G[5] = {{128000, 128000}, {51200, 51200}, {49600, 37200}, {24800, 18600}, {6200, 6200}};  /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
+#endif
 
     VTSS_D("Enter  port_no %d", port_no);
     (void)delay_var_factor;
@@ -822,10 +837,12 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
         /* Read the GUC variable delay and correct the factor in case of SD_LANE_TARGET and 5G and lane > 12 */
         if (sd_type == FA_SERDES_TYPE_25G) {
+#if defined(VTSS_FEATURE_SD_25G)
             REG_RD(VTSS_SD25G_CFG_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
             sd_rx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
             sd_tx_delay_var = VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
             dv_factor = delay_var_factor_25G;
+#endif
         } else {
             REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
             sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
@@ -941,23 +958,20 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         /* Single-Lane SerDes at 4 Gbps (QSGMII) */
         rx_delay = qsgmii_1G_delay[port].rx;
         tx_delay = qsgmii_1G_delay[port].tx;
-
-        if (LA_TGT) {
-            REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4), &value);
+#if defined(VTSS_ARCH_SPARX5)
+        if ((port % 8) < 4) {
+            /* USGMII */
+            REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
+            delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
+        } else {
+            /* QSGMII */
+            REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 8), &value);
             delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
         }
-
-        if (FA_TGT) {
-            if ((port % 8) < 4) {
-                /* USGMII */
-                REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
-                delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
-            } else {
-                /* QSGMII */
-                REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 8), &value);
-                delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
-            }
-        }
+#else
+        REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4), &value);
+        delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
+#endif
         rx_delay += (delay_var * 200) - ((port % 4) * 2000);
         tx_delay += (port % 4) * 2000;
 
@@ -965,6 +979,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
         break;
     case VTSS_PORT_INTERFACE_USGMII:
+#if defined(VTSS_ARCH_SPARX5)
         REG_RD(VTSS_PORT_CONF_USGMII_STAT(port / 8), &value);
         delay_var = VTSS_X_PORT_CONF_USGMII_STAT_DELAY_VAR(value);
         rx_delay += (delay_var * 100) - ((port % 4) * 1000);
@@ -972,6 +987,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
 
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) / 65536;      /* Add the variable TX delay in the SERDES */
+#endif
         break;
     case VTSS_PORT_INTERFACE_USXGMII:
     case VTSS_PORT_INTERFACE_QXGMII:
@@ -1057,7 +1073,8 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
         break;
     }
 
-    if (LA_TGT) {
+#if defined(VTSS_ARCH_LAN969X)
+    {
         uint32_t i, enable;
         enable = 1;
         value = 0;
@@ -1120,6 +1137,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
                     VTSS_M_DEV1G_PHAD_CTRL_PHAD_ENA);
         }
     }
+#endif
 
     /* rx_delay and tx_delay are in picoseconds.  */
     VTSS_I(" port_no %d speed %d interface %d rx_dly %u tx_dly %u", port_no, speed, interface, rx_delay, tx_delay);
@@ -1317,16 +1335,15 @@ static vtss_rc fa_debug_ts(vtss_state_t *vtss_state, const vtss_debug_printf_t p
 
     /* REW:PTP_CTRL */
     vtss_fa_debug_reg_header(pr, "REW:PTP_CTRL");
-    if (FA_TGT) {
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
-    }
-    if (LA_TGT) {
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC), "PTP_TWOSTEP_STAMP");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
-    }
+#if defined(VTSS_ARCH_SPARX5)
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP), "PTP_TWOSTEP_STAMP");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+#else
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL), "PTP_TWOSTEP_CTRL");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC), "PTP_TWOSTEP_STAMP");
+    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS), "PTP_TWOSTEP_STAMP_SUBNS");
+#endif
 
     /* DEVCPU_PTP:PTP_CFG */
     vtss_fa_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
@@ -2158,12 +2175,11 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->delay_asymmetry_set = fa_ts_delay_asymmetry_set;
         state->operation_mode_set = fa_ts_operation_mode_set;
         state->internal_mode_set = fa_ts_internal_mode_set;
-        if (FA_TGT) {
-            state->timestamp_get = fa_ts_timestamp_get;
-        }
-        if (LA_TGT) {
-            state->timestamp_get = la_ts_timestamp_get;
-        }
+#if defined(VTSS_ARCH_SPARX5)
+        state->timestamp_get = fa_ts_timestamp_get;
+#else
+        state->timestamp_get = la_ts_timestamp_get;
+#endif
         state->status_change = fa_ts_status_change;
         state->timestamp_id_release = fa_ts_timestamp_id_release;
         state->external_io_mode_set = fa_ts_external_io_mode_set;
