@@ -33,6 +33,7 @@ meba_poe_parameters_t tPoE_parameters =
     .indv_mask_prebt_led_stream_type_default            = CARACAL_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT,            // prebt led stream type
     .indv_mask_prebt_ignore_higher_priority_default     = CARACAL_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,     // power higher priority port.
     .indv_mask_prebt_supports_legact_detection_default  = CARACAL_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT,  // En/Dis support of legacy detection.
+    .indv_mask_prebt_supports_backoff_default           = CARACAL_INDV_MASK_PREBT_SUPPORTS_BACKOFF_DEFAULT,           // En/Dis supports backoff.
     .indv_mask_prebt_message_ready_notify_default       = CARACAL_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT,       // en/Dis MESSAGE_READY pin notification.
     .indv_mask_prebt_layer2_lldp_enable_default         = CARACAL_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT,         // En/Dis Layer 2 PD commands.
     .indv_mask_prebt_layer2_priority_by_PD_default      = CARACAL_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT,      // accept/ignored Port Priority recived from the PD

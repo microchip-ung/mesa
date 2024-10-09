@@ -197,6 +197,12 @@
 #define JR2_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT     0
 
 
+// 0x11 Supports backoff
+// '0' Alternative A - Backoff is disabled (endspan).
+// '1' Alternative B - Backoff is enabled (Endspan that utilizes Alternative B pairs as specified in the IEEE 802.3AF/AT standard).
+#define JR2_INDV_MASK_PREBT_SUPPORTS_BACKOFF_DEFAULT     0
+
+
 // 0x16 LED stream type
 // '0' LED stream disabled.
 // '1' LED stream supports unicolor 2-Pair system

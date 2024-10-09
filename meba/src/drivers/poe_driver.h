@@ -57,6 +57,9 @@ typedef struct {
     // prebt - En/Dis support of legacy detection.
     uint8_t indv_mask_prebt_supports_legact_detection_default;
 
+    // prebt - En/Dis supports backoff
+    uint8_t indv_mask_prebt_supports_backoff_default;
+
     // prebt - en/Dis MESSAGE_READY pin notification.
     uint8_t indv_mask_prebt_message_ready_notify_default;
 
