@@ -145,7 +145,7 @@ static void vtss_mac_pages_update(vtss_state_t *vtss_state)
     u32              i,count;
     vtss_mac_entry_t *cur;
 
-    for (i = 0, cur = vtss_state->l2.mac_list_used; i < vtss_state->l2.mac_ptr_size && cur!=NULL ; i++) {
+    for (i = 0, cur = vtss_state->l2.mac_list_used; i < VTSS_MAC_PTR_SIZE && cur!=NULL ; i++) {
         vtss_state->l2.mac_list_ptr[i] = cur;
 
         /* Move one page forward */
@@ -711,7 +711,7 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
             // Find next byte, then bit indicating a valid address
             n = (k % 8);
             m = (1 << n);
-            while (k < vtss_state->l2.mac_index_cnt) {
+            while (k < VTSS_MAC_INDEX_CNT) {
                 if (m && e->valid[k / 8] < m) {
                     // Next byte
                     k += (8 - n);
@@ -734,7 +734,7 @@ static vtss_rc vtss_mac_index_get(vtss_state_t *vtss_state,
                 }
             }
         }
-    } else if (oi.oui == t->oui && oi.idx < vtss_state->l2.mac_index_cnt) {
+    } else if (oi.oui == t->oui && oi.idx < VTSS_MAC_INDEX_CNT) {
         // Get specific entry
         for (i = 0; i < t->cnt; i++) {
             j = t->vidx[i];
@@ -795,8 +795,8 @@ static vtss_rc vtss_mac_index_add(vtss_state_t *vtss_state,
         VTSS_E("new OUI 0x%06x does not match old OUI 0x%06x", oi.oui, t->oui);
         return VTSS_RC_ERROR;
     }
-    if (oi.idx >= vtss_state->l2.mac_index_cnt) {
-        VTSS_E("MAC/idx 0x%06x/%u exceeds block size %u", oi.idx, oi.idx, vtss_state->l2.mac_index_cnt);
+    if (oi.idx >= VTSS_MAC_INDEX_CNT) {
+        VTSS_E("MAC/idx 0x%06x/%u exceeds block size %u", oi.idx, oi.idx, VTSS_MAC_INDEX_CNT);
         return VTSS_RC_ERROR;
     }
 
@@ -2884,7 +2884,7 @@ vtss_rc vtss_vce_del(const vtss_inst_t    inst,
 static vtss_rc vtss_psfp_gate_id_check(vtss_state_t *vtss_state,
                                        const vtss_psfp_gate_id_t id)
 {
-    if (id < vtss_state->l2.psfp.max_gate_cnt) {
+    if (id < VTSS_PSFP_GATE_CNT) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal gate id: %u", id);
@@ -3013,7 +3013,7 @@ vtss_rc vtss_psfp_gate_status_get(const vtss_inst_t         inst,
 static vtss_rc vtss_psfp_filter_id_check(vtss_state_t *vtss_state,
                                          const vtss_psfp_filter_id_t id)
 {
-    if (id < vtss_state->l2.psfp.max_filter_cnt) {
+    if (id < VTSS_PSFP_FILTER_CNT) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal filter id: %u", id);
@@ -3845,7 +3845,7 @@ vtss_rc vtss_dlb_policer_status_get(const vtss_inst_t           inst,
 #if defined(VTSS_FEATURE_FRER)
 static vtss_rc vtss_frer_cstream_id_check(vtss_state_t *vtss_state, const vtss_frer_cstream_id_t id)
 {
-    if (id < vtss_state->l2.max_cstream_cnt) {
+    if (id < VTSS_CSTREAM_CNT) {
         return VTSS_RC_OK;
     }
     VTSS_E("illegal cstream id: %u", id);
@@ -4503,7 +4503,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t *vtss_state,
     if (eflow != NULL) {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_FEATURE_VOP)
-        if (eflow->conf.voe_idx < vtss_state->oam.port_voe_base_idx) {      /* Do not point to a Port VOE */
+        if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) {      /* Do not point to a Port VOE */
             entry.action.mep_idx_enable = 1;
             entry.action.mep_idx = eflow->conf.voe_idx;
         }
@@ -5250,10 +5250,6 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 
     if (vtss_state->create_pre) {
         // Preprocessing
-        state->mac_table_max = VTSS_MAC_ADDRS;
-#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-        state->mac_index_cnt = VTSS_MAC_INDEX_CNT;
-#endif
 #if defined(VTSS_SDX_CNT)
         state->sdx_info.max_count = VTSS_SDX_CNT;
 #endif
@@ -5264,17 +5260,11 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 #endif
 #if defined(VTSS_FEATURE_FRER)
         state->ms_table.hdr.max_count = VTSS_MSTREAM_CNT;
-        state->max_cstream_cnt = VTSS_CSTREAM_CNT;
-        state->max_mstream_cnt = VTSS_MSTREAM_CNT;
-#endif
-#if defined(VTSS_FEATURE_PSFP)
-        state->psfp.max_filter_cnt = VTSS_PSFP_FILTER_CNT;
-        state->psfp.max_gate_cnt = VTSS_PSFP_GATE_CNT;
 #endif
         return VTSS_RC_OK;
     }
 
-    vtss_state->l2.vlan_conf.s_etype = VTSS_ETYPE_TAG_S; /* Default S-tag Ethernet type */
+    state->vlan_conf.s_etype = VTSS_ETYPE_TAG_S; /* Default S-tag Ethernet type */
 
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         vlan = &vtss_state->l2.vlan_port_conf[port_no];
@@ -5331,13 +5321,12 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
             mstp_entry->state[port_no] = VTSS_STP_STATE_FORWARDING;
     }
 #endif
-    vtss_state->l2.mac_ptr_size = (state->mac_table_max / VTSS_MAC_PTR_SIZE);
     vtss_state->l2.aggr_mode.smac_enable = 1;
 
     vtss_state->l2.mirror_conf.port_no = VTSS_PORT_NO_NONE;
 
     /* Initialize MAC address table */
-    for (i = 0; i < vtss_state->l2.mac_table_max; i++) {
+    for (i = 0; i < VTSS_MAC_ADDRS; i++) {
         /* Insert first in free list */
         vtss_state->l2.mac_table[i].next = vtss_state->l2.mac_list_free;
         vtss_state->l2.mac_list_free = &vtss_state->l2.mac_table[i];
@@ -6793,7 +6782,7 @@ static void vtss_debug_print_frer(vtss_state_t *vtss_state,
     }
 
     for (i = 0; i < 2; i++) {
-        for (j = 0; j < vtss_state->l2.max_cstream_cnt; j++) {
+        for (j = 0; j < VTSS_CSTREAM_CNT; j++) {
             conf = &vtss_state->l2.cstream_conf[j];
             if (conf->recovery == 0) {
                 continue;
@@ -6878,7 +6867,7 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
     char buf[64];
     vtss_psfp_state_t *psfp = &vtss_state->l2.psfp;
 
-    for (i = 0; i < vtss_state->l2.psfp.max_filter_cnt; i++) {
+    for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
         vtss_psfp_filter_conf_t   *conf = &psfp->filter[i];
         vtss_psfp_filter_status_t status;
         if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
@@ -6898,7 +6887,7 @@ static void vtss_debug_print_psfp(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < vtss_state->l2.psfp.max_gate_cnt; i++) {
+    for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         vtss_psfp_gate_conf_t   *conf = &psfp->gate[i];
         vtss_psfp_gate_status_t status;
         if (info->full || conf->enable) {
@@ -8664,8 +8653,8 @@ static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
     u32                    pgid;
 
     vtss_debug_print_value(pr, "Age time", vtss_state->l2.mac_age_time);
-    vtss_debug_print_value(pr, "MAC table size", sizeof(vtss_mac_entry_t)*vtss_state->l2.mac_table_max);
-    vtss_debug_print_value(pr, "MAC table maximum", vtss_state->l2.mac_table_max);
+    vtss_debug_print_value(pr, "MAC table size", sizeof(vtss_mac_entry_t) * VTSS_MAC_ADDRS);
+    vtss_debug_print_value(pr, "MAC table maximum", VTSS_MAC_ADDRS);
     vtss_debug_print_value(pr, "MAC table count", vtss_state->l2.mac_table_count);
     pr("\n");
 

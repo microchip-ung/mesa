@@ -116,7 +116,11 @@ typedef struct {
 // FireAnt/Laguna
 // ----------------------------------------
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_FRM_CNT  4096
+#else
+#define VTSS_AFI_FRM_CNT  512
+#endif
 #define VTSS_AFI_FP_WID   (FA_TGT ? 15 : 14)
 #define VTSS_AFI_DSTP_WID (FA_TGT ? 7 : 6)
 
@@ -477,12 +481,6 @@ typedef struct {
 
     // Switch core's clock period in picoseconds
     u64 clk_period_ps;
-
-    u32 slow_inj_cnt;
-    u32 fast_inj_cnt;
-    u32 frm_cnt;
-    u64 fast_inj_bps_min;
-    u64 fast_inj_bps_max;
 } vtss_afi_state_t;
 
 vtss_rc vtss_afi_inst_create(struct vtss_state_s *vtss_state);

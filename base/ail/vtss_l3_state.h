@@ -163,11 +163,6 @@ vtss_rc vtss_cil_l3_debug_sticky_clear(struct vtss_state_s *vtss_state);
 
 typedef struct {
     u32                        checksum;
-    u16                        rleg_cnt;
-    u16                        rleg_stat_cnt;
-    u16                        rleg_discard;
-    u16                        arp_cnt;
-    u16                        mc_tbl_cnt;
     vtss_l3_common_conf_t      common;
     vtss_l3_rleg_conf_t        rleg_conf[VTSS_RLEG_CNT];
     vtss_l3_statistics_t       statistics;

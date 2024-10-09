@@ -966,7 +966,7 @@ static vtss_rc jr2_sgpio_init(vtss_state_t *vtss_state)
     // which is level, to something else to avoid spurious interrupts
     // when failing or unable (due to board layout) to initialize the
     // polarity of the level interrupts correct.
-    for (grp = 0; grp < vtss_state->misc.sgpio_group_count; grp++) {
+    for (grp = 0; grp < VTSS_SGPIO_GROUPS; grp++) {
         for (bit = 0; bit < 4; bit++) {
             // Enable rising edge triggered interrupt
 #if defined(VTSS_ARCH_SERVAL_T)

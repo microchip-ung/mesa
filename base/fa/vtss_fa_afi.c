@@ -90,7 +90,7 @@ static vtss_rc fa_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t 
     // TTI Table
     pr("\nTTI Table\n");
     fa_afi_debug_frame_hdr(pr, "Idx  TickIdx TmrLen Period [us] Jit ", "---- ------- ------ ----------- --- ");
-    for (idx = 0; idx < vtss_state->afi.slow_inj_cnt; idx++) {
+    for (idx = 0; idx < VTSS_AFI_SLOW_INJ_CNT; idx++) {
         u32  tick_idx, tmr_len;
 
         REG_RD(VTSS_AFI_TTI_TIMER(idx), &val);
@@ -118,7 +118,7 @@ static vtss_rc fa_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t 
     // DTI Table
     pr("\nDTI table\n");
     fa_afi_debug_frame_hdr(pr, "Idx ", "--- ");
-    for (idx = 0; idx < vtss_state->afi.fast_inj_cnt; idx++) {
+    for (idx = 0; idx < VTSS_AFI_FAST_INJ_CNT; idx++) {
         BOOL first = 1;
 
         REG_RD(VTSS_AFI_DTI_CTRL(idx), &val);
@@ -517,7 +517,7 @@ static vtss_rc fa_afi_up_flows_pause_resume(vtss_state_t *vtss_state, vtss_port_
     VTSS_I("Enter. %sing up-flows on port_no = %u", pause ? "Paus" : "Resum", port_no);
 
     // Pause or resume all DTIs egressing VD1 (ingressing #port_no)
-    for (dti_idx = 0; dti_idx < vtss_state->afi.fast_inj_cnt; dti_idx++) {
+    for (dti_idx = 0; dti_idx < VTSS_AFI_FAST_INJ_CNT; dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
         if (dti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
@@ -530,7 +530,7 @@ static vtss_rc fa_afi_up_flows_pause_resume(vtss_state_t *vtss_state, vtss_port_
     }
 
     // Pause or resume all TTIs egressing VD1 (ingressing #port_no).
-    for (tti_idx = 0; tti_idx < vtss_state->afi.slow_inj_cnt; tti_idx++) {
+    for (tti_idx = 0; tti_idx < VTSS_AFI_SLOW_INJ_CNT; tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
         if (tti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
@@ -603,7 +603,7 @@ static vtss_rc fa_afi_frm_gone_wait(vtss_state_t *vtss_state, u32 idx, vtss_port
         // Assumption:
         // Each poll takes at least 50 clk cycles.
         // One TTI is processed every 4 clk cycles.
-        poll_cnt_max = (vtss_state->afi.slow_inj_cnt * 4) / 50;
+        poll_cnt_max = (VTSS_AFI_SLOW_INJ_CNT * 4) / 50;
     }
 
     // We're now ready for removal injection. A removal injection from the AFI
@@ -1160,7 +1160,7 @@ static vtss_rc fa_afi_qu_ref_update(vtss_state_t *vtss_state, vtss_port_no_t por
     // Injection must already have been stopped on #port_no.
 
     // Update the queue number for all DTIs egressing #port_no (down-flows)
-    for (dti_idx = 0; dti_idx < vtss_state->afi.fast_inj_cnt; dti_idx++) {
+    for (dti_idx = 0; dti_idx < VTSS_AFI_FAST_INJ_CNT; dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
         if (dti->state != VTSS_AFI_ENTRY_STATE_FREE && dti->port_no == port_no) {
@@ -1169,7 +1169,7 @@ static vtss_rc fa_afi_qu_ref_update(vtss_state_t *vtss_state, vtss_port_no_t por
     }
 
     // Update the queue number for all TTIs egressing #port_no (down-flows)
-    for (tti_idx = 0; tti_idx < vtss_state->afi.slow_inj_cnt; tti_idx++) {
+    for (tti_idx = 0; tti_idx < VTSS_AFI_SLOW_INJ_CNT; tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
         if (tti->state != VTSS_AFI_ENTRY_STATE_FREE && tti->port_no == port_no) {
@@ -1301,7 +1301,7 @@ static vtss_rc fa_afi_init(vtss_state_t *vtss_state)
     // with the required amount of time.
     // To make sure that this very first frame isn't transmitted
     // by accident, we therefore disable all TTI timers during boot.
-    for (idx = 0; idx < vtss_state->afi.slow_inj_cnt; idx++) {
+    for (idx = 0; idx < VTSS_AFI_SLOW_INJ_CNT; idx++) {
         REG_WRM(VTSS_AFI_TTI_TIMER(idx), VTSS_F_AFI_TTI_TIMER_TIMER_ENA(0), VTSS_M_AFI_TTI_TIMER_TIMER_ENA);
     }
 
@@ -1340,14 +1340,6 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
         state->port_admin_stop   = fa_afi_port_admin_stop;
         state->link_state_change = fa_afi_link_state_change;
         state->qu_ref_update     = fa_afi_qu_ref_update;
-
-        state->slow_inj_cnt      = RT_AFI_SLOW_INJ_CNT;
-        state->fast_inj_bps_min  = RT_AFI_FAST_INJ_BPS_MIN;
-        state->fast_inj_bps_max  = RT_AFI_FAST_INJ_BPS_MAX;
-        if (LA_TGT) {
-            state->fast_inj_cnt = 16;
-            state->frm_cnt = 512;
-        }
 
         // Initialize ports to started = 1. This corresponds to
         // calling fa_afi_port_admin_start() during boot.

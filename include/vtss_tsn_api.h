@@ -16,6 +16,9 @@
 #elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_MSTREAM_CNT 512
 #define VTSS_CSTREAM_CNT 256
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_MSTREAM_CNT 256
+#define VTSS_CSTREAM_CNT 128
 #else
 #define VTSS_MSTREAM_CNT 1024
 #define VTSS_CSTREAM_CNT 512
@@ -155,6 +158,8 @@ typedef u16 vtss_psfp_gate_id_t;
 #define VTSS_PSFP_GATE_CNT  VTSS_STREAM_CNT
 #elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_PSFP_GATE_CNT 256
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_PSFP_GATE_CNT 255
 #else
 #define VTSS_PSFP_GATE_CNT 1023
 #endif
@@ -245,6 +250,8 @@ typedef u16 vtss_psfp_filter_id_t;
 #define VTSS_PSFP_FILTER_CNT VTSS_STREAM_CNT
 #elif defined(VTSS_ARCH_LAN966X)
 #define VTSS_PSFP_FILTER_CNT 256
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_PSFP_FILTER_CNT 255
 #else
 #define VTSS_PSFP_FILTER_CNT 1023
 #endif

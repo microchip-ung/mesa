@@ -139,7 +139,7 @@ vtss_rc rleg_id_get_new(vtss_state_t              *vtss_state,
     u32 free_id = 0xffffffff; // just to make lint happy
     BOOL found_free = FALSE;
 
-    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
+    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == new_rleg->vlan) {
             E("rleg_id_get_new failed, as vlan %d is allready used by rleg %d",
               rleg_conf[i].vlan, i);
@@ -181,7 +181,7 @@ vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
     if (vlan == 0)
         return VTSS_RC_ERROR;
 
-    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
+    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == vlan) {
             if (rleg_id)
                 *rleg_id = i;
@@ -288,7 +288,7 @@ static vtss_rc rleg_update(vtss_state_t              *vtss_state,
     u32 i;
     vtss_rc rc = VTSS_RC_ERROR;
 
-    for (i = 0; i < vtss_state->l3.rleg_cnt; ++i) {
+    for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == conf->vlan) {
             rleg_conf[i] = *conf;
             D("Updating rleg: rleg_id = %d, vlan = %d", i, conf->vlan);
@@ -861,7 +861,7 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
             if (discard) {
                 // Discard route, ensure non-zero DMAC and use reserved router leg
                 nb->dmac.addr[5] = 0xff;
-                nb->rleg = vtss_state->l3.rleg_discard;
+                nb->rleg = VTSS_RLEG_DISCARD;
             }
         }
         I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
@@ -1008,7 +1008,7 @@ static BOOL mc_tbl_find(vtss_state_t *vtss_state,
 
     if (rlegs == NULL) {
         // Find an empty table entry
-        for (i = 0; i < vtss_state->l3.mc_tbl_cnt; ++i) {
+        for (i = 0; i < VTSS_MC_TBL_CNT; ++i) {
             if (tbl[i].cnt == 0) {
                 for (a = 0; a < 4; a++) {
                     tbl[i].rlegs[a] = 0;
@@ -1022,7 +1022,7 @@ static BOOL mc_tbl_find(vtss_state_t *vtss_state,
         return FALSE;
     } else {
         // Find an specific table entry
-        for (i = 0; i < vtss_state->l3.mc_tbl_cnt; ++i) {
+        for (i = 0; i < VTSS_MC_TBL_CNT; ++i) {
             if (tbl[i].cnt == 0) {
                 continue;
             }
@@ -1871,7 +1871,7 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         VTSS_MEMSET(counters, 0, sizeof(*counters));
-        for (i = 0; i < vtss_state->l3.rleg_cnt; i++) {
+        for (i = 0; i < VTSS_RLEG_CNT; i++) {
             if (vtss_state->l3.rleg_conf[i].vlan != 0 &&
                 vtss_cil_l3_rleg_counters_get(vtss_state, i) == VTSS_RC_OK) {
                 /* Summarize router leg counters */
@@ -2273,7 +2273,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
     pr("============\n");
     pr("ID   RLEG IPv4UC IPv6UC IPv4MC IPv6MC IPv4ICMP IPv6ICMP vlan vrid0 vrid1 mc_limit ttl_limit\n");
     pr("---- ---- ------ ------ ------ ------ -------- -------- ---- ----- ----- -------- ---------\n");
-    for (i = 0; i < l3->rleg_cnt; i++) {
+    for (i = 0; i < VTSS_RLEG_CNT; i++) {
         const vtss_l3_rleg_conf_t *r = &l3->rleg_conf[i];
 
         if ( (!r->ipv4_unicast_enable) &&
@@ -2465,7 +2465,7 @@ void vtss_debug_print_l3(vtss_state_t *vtss_state,
     pr("============\n");
     pr("ID   Count  RPF-VMID  Rlegs IDs\n");
     pr("---- ------ --------  --------\n");
-    for (i = 0; i < l3->mc_tbl_cnt; i++) {
+    for (i = 0; i < VTSS_MC_TBL_CNT; i++) {
         vtss_l3_mc_tbl_t *t = &vtss_state->l3.mc_tbl[i];
         if (t->cnt == 0) {
             continue;
@@ -2502,25 +2502,20 @@ vtss_rc vtss_l3_inst_create(vtss_state_t *vtss_state)
 
     if (vtss_state->create_pre) {
         // Preprocessing
-        l3->rleg_cnt = VTSS_RLEG_CNT;
-        l3->arp_cnt = VTSS_ARP_CNT;
-        l3->mc_tbl_cnt = VTSS_MC_TBL_CNT;
         return VTSS_RC_OK;
     }
 
     // Calculate derived constants
-    l3->rleg_stat_cnt = (l3->rleg_cnt + 1);
-    l3->rleg_discard = l3->rleg_cnt;
-    l3->arp.row_cnt = (l3->arp_cnt / VTSS_L3_ARP_COL_CNT);
+    l3->arp.row_cnt = (VTSS_ARP_CNT / VTSS_L3_ARP_COL_CNT);
 
     /* Fill up free lists */
-    for (i = 0; i < (l3->arp_cnt + VTSS_L3_NH_MAX); i++) {
+    for (i = 0; i < (VTSS_ARP_CNT + VTSS_L3_NH_MAX); i++) {
         nh = &l3->nh.table[i];
         nh->next = l3->nh.free;
         l3->nh.free = nh;
         l3->nh.free_cnt++;
     }
-    for (i = 0; i <= (l3->arp_cnt / 2); i++) {
+    for (i = 0; i <= (VTSS_ARP_CNT / 2); i++) {
         grp = &l3->nh_grp.table[i];
         grp->next = l3->nh_grp.free;
         l3->nh_grp.free = grp;

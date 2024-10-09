@@ -63,7 +63,11 @@
 #define VTSS_FEATURE_IS2_B           /* VCAP IS2_B */
 #define VTSS_FEATURE_ES2             /* VCAP ES2 */
 #endif
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_VCAP_SUPER_BLK_CNT  10  /* Number of VCAP_SUPER blocks */
+#else
+#define VTSS_VCAP_SUPER_BLK_CNT  6  /* Number of VCAP_SUPER blocks */
+#endif
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_STREAM_CNT + VTSS_LPM_CNT) // Full CLM rules, X1 LPM rules
@@ -1246,6 +1250,8 @@ typedef struct {
 #elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_FA_ES0_CNT VTSS_STREAM_CNT
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_FA_ES0_CNT 1536
 #else
 #define VTSS_FA_ES0_CNT 4096
 #endif
@@ -1265,7 +1271,11 @@ typedef struct {
 #endif /* VTSS_FEATURE_ES0 */
 
 #if defined(VTSS_FEATURE_ES2)
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_FA_ES2_CNT 2048 /* 1024 rows allowing 2048 half rules */
+#else
+#define VTSS_FA_ES2_CNT 512  /* 512 rows allowing 256 half rules */
+#endif
 #define VTSS_ES2_CNT    VTSS_FA_ES2_CNT
 
 /* ES2 information */

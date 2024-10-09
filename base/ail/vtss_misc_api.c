@@ -186,8 +186,8 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t                inst,
 #if defined(VTSS_GPIOS)
 static vtss_rc vtss_gpio_no_check(vtss_state_t *vtss_state, const vtss_gpio_no_t gpio_no)
 {
-    if (gpio_no > vtss_state->misc.gpio_count) {
-        VTSS_E("%s: illegal gpio_no: %u/%u", vtss_func, gpio_no, vtss_state->misc.gpio_count);
+    if (gpio_no > VTSS_GPIOS) {
+        VTSS_E("%s: illegal gpio_no: %u/%u", vtss_func, gpio_no, VTSS_GPIOS);
         return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
@@ -287,7 +287,7 @@ vtss_rc vtss_gpio_event_enable(const vtss_inst_t       inst,
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 static vtss_rc vtss_sgpio_group_check(vtss_state_t *vtss_state, const vtss_sgpio_group_t group)
 {
-    if (group >= vtss_state->misc.sgpio_group_count) {
+    if (group >= VTSS_SGPIO_GROUPS) {
         VTSS_E("illegal SGPIO group: %u", group);
         return VTSS_RC_ERROR;
     }
@@ -663,12 +663,6 @@ vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
 
     if (vtss_state->create_pre) {
         // Preprocessing
-#if defined(VTSS_GPIOS)
-        state->gpio_count = VTSS_GPIOS;
-#endif
-#if defined(VTSS_SGPIO_GROUPS)
-        state->sgpio_group_count = VTSS_SGPIO_GROUPS;
-#endif
         return VTSS_RC_OK;
     }
 
@@ -724,7 +718,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t *vtss_state,
 
     /* Print CIL information for all devices and groups */
     for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
-        for (group = 0; group < vtss_state->misc.sgpio_group_count; group++) {
+        for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
             VTSS_SPRINTF(buf, "Device %u, Group %u", chip_no, group);
             vtss_debug_print_header(pr, buf);
             

@@ -639,7 +639,7 @@ static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state, const vtss_q
         VTSS_E("NULL map!");
         return VTSS_RC_ERROR;
     }
-    if ((map->id < VTSS_QOS_INGRESS_MAP_ID_START) || (map->id >= vtss_state->qos.imap_id_end)) {
+    if ((map->id < VTSS_QOS_INGRESS_MAP_ID_START) || (map->id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
         VTSS_E("Invalid ingress map id: %u!", map->id);
         return VTSS_RC_ERROR;
     }
@@ -735,7 +735,7 @@ vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t               inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((id < VTSS_QOS_INGRESS_MAP_ID_START) || (id >= vtss_state->qos.imap_id_end)) {
+        if ((id < VTSS_QOS_INGRESS_MAP_ID_START) || (id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
             VTSS_E("Invalid ingress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
@@ -756,7 +756,7 @@ vtss_rc vtss_qos_ingress_map_del_all(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (id = VTSS_QOS_INGRESS_MAP_ID_START; id < vtss_state->qos.imap_id_end; id++) {
+        for (id = VTSS_QOS_INGRESS_MAP_ID_START; id < VTSS_QOS_INGRESS_MAP_ID_END; id++) {
             (void)VTSS_FUNC(qos.ingress_map_del, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.imap);
@@ -823,7 +823,7 @@ static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
         VTSS_E("NULL map!");
         return VTSS_RC_ERROR;
     }
-    if ((map->id < VTSS_QOS_EGRESS_MAP_ID_START) || (map->id >= vtss_state->qos.emap_id_end)) {
+    if ((map->id < VTSS_QOS_EGRESS_MAP_ID_START) || (map->id >= VTSS_QOS_EGRESS_MAP_ID_END)) {
         VTSS_E("Invalid egress map id: %u!", map->id);
         return VTSS_RC_ERROR;
     }
@@ -922,7 +922,7 @@ vtss_rc vtss_qos_egress_map_del(const vtss_inst_t              inst,
     VTSS_D("map_id: %u", id);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (id < VTSS_QOS_EGRESS_MAP_ID_START || id >= vtss_state->qos.emap_id_end) {
+        if (id < VTSS_QOS_EGRESS_MAP_ID_START || id >= VTSS_QOS_EGRESS_MAP_ID_END) {
             VTSS_E("Invalid egress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
@@ -943,7 +943,7 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (id = VTSS_QOS_EGRESS_MAP_ID_START; id < vtss_state->qos.emap_id_end; id++) {
+        for (id = VTSS_QOS_EGRESS_MAP_ID_START; id < VTSS_QOS_EGRESS_MAP_ID_END; id++) {
             (void)VTSS_FUNC(qos.egress_map_del, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.emap);
@@ -1203,7 +1203,6 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         {
             vtss_qos_map_adm_t *m = &vtss_state->qos.imap;
 
-            vtss_state->qos.imap_id_end = VTSS_QOS_INGRESS_MAP_ID_END;
             m->id.entry_len = VTSS_QOS_INGRESS_MAP_IDS;
             m->ix[0].entry_len = VTSS_QOS_INGRESS_MAP_ROWS;
             m->ix[0].reserved  = VTSS_QOS_INGRESS_MAP_IX_RESERVED;
@@ -1213,7 +1212,6 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         {
             vtss_qos_map_adm_t *m = &vtss_state->qos.emap;
 
-            vtss_state->qos.emap_id_end = VTSS_QOS_EGRESS_MAP_ID_END;
             m->id.entry_len = VTSS_QOS_EGRESS_MAP_IDS;
             m->ix[0].entry_len = VTSS_QOS_EGRESS_MAP_ROWS;
             m->ix[0].reserved  = VTSS_QOS_EGRESS_MAP_IX_RESERVED;

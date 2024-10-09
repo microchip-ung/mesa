@@ -95,6 +95,10 @@ typedef struct {
 #define VTSS_JR_SDX_CNT  511
 #define VTSS_JR_POL_CNT  512  /* EVC policers */
 #define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_JR_SDX_CNT  1023
+#define VTSS_JR_POL_CNT  256  /* EVC policers */
+#define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
 #else
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_JR_POL_CNT  4096 /* EVC policers */
@@ -579,8 +583,6 @@ typedef struct {
     vtss_qos_map_id_entry_t imap_id[VTSS_QOS_INGRESS_MAP_IDS];    /* Allocation of id table. Only accessed through imap below */
     vtss_qos_map_ix_entry_t imap_ix[VTSS_QOS_INGRESS_MAP_ROWS];   /* Allocation of ix table. Only accessed through imap below */
     vtss_qos_map_adm_t      imap;                                 /* Generic table administration */
-    u16                     imap_id_end;
-    u16                     emap_id_end;
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)

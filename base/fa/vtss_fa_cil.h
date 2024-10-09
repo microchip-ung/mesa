@@ -11,9 +11,6 @@
 #define VTSS_ARCH_FA
 #endif
 
-// Set runtime constant, if smaller than AIL default
-#define VTSS_RT_SET(_vs, _rt) { if (_rt < _vs) _vs = _rt; }
-
 #if defined(VTSS_ARCH_FA)
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #include "../ail/vtss_state.h"
@@ -52,94 +49,106 @@
 //                               -----------
 //                               30 port devices + 14 'shadow' devices
 
-// FA/LA compile defines
+// CIL constants, which are different for FA/LA
+#if defined(VTSS_ARCH_SPARX5)
+#define RT_CHIP_PORTS                  65
+#define RT_SERDES_10G_START            13
+#define RT_SERDES_25G_START            25
+#define RT_SERDES_CNT                  33
+#define RT_CMU_CNT                     14
+#define RT_BUFFER_MEMORY               4194280
+#define RT_BUFFER_REFERENCE            22795
+#define RT_RES_CFG_MAX_PORT_IDX        560
+#define RT_RES_CFG_MAX_PRIO_IDX        630
+#define RT_RES_CFG_MAX_COLOUR_IDX      638
+#define RT_CORE_QUEUE_CNT              40460
+#define RT_TAS_NUMBER_OF_LISTS         (0x7F+1)
+#define RT_TAS_NUMBER_OF_PROFILES      100
+#define RT_TAS_NUMBER_OF_ENTRIES       (0x3FFF+1)
+#define RT_HSCH_LAYERS                 4
+#define RT_HSCH_L0_SES                 5040
+#define RT_HSCH_L1_SES                 64
+#define RT_HSCH_L2_SES                 70
+#define RT_HSCH_L3_QSHPS               (5040 * 2)
+#define RT_HSCH_MAX_RATE_GROUP_0       1048568
+#define RT_HSCH_MAX_RATE_GROUP_1       2621420
+#define RT_HSCH_MAX_RATE_GROUP_2       10485680
+#define RT_HSCH_MAX_RATE_GROUP_3       26214200
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_0  0
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_1  0
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_2  0
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_3  0
+#define RT_LB_GROUP_CNT                10
+#define RT_LB_SET_CNT                  4615
+#define RT_ACL_CNT_SIZE                4096
+#define RT_ES2_CNT_SIZE                2048
+#define RT_IP6PFX_CNT                  512
+#define RT_PGID_FA                     (2048 + 65)
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI   13
+#define RT_DSM_CAL_TAXIS               8
+#define RT_EXT_CLK_PIN                 1 // PIN configuration for external clock
+#define RT_ALT_LDST_PIN                2
+#define RT_ALT_PPS_PIN                 3
+#define RT_TOD_ACC_PIN                 4 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#else
+#define RT_CHIP_PORTS                  30
+#define RT_SERDES_10G_START            0
+#define RT_SERDES_25G_START            0
+#define RT_SERDES_CNT                  10
+#define RT_CMU_CNT                     6
+#define RT_BUFFER_MEMORY               1572864
+#define RT_BUFFER_REFERENCE            8548
+#define RT_RES_CFG_MAX_PORT_IDX        280
+#define RT_RES_CFG_MAX_PRIO_IDX        315
+#define RT_RES_CFG_MAX_COLOUR_IDX      323
+#define RT_CORE_QUEUE_CNT              9030
+#define RT_TAS_NUMBER_OF_LISTS         60
+#define RT_TAS_NUMBER_OF_PROFILES      60
+#define RT_TAS_NUMBER_OF_ENTRIES       (0x1FFF+1)
+#define RT_HSCH_LAYERS                 4
+#define RT_HSCH_L0_SES                 1120
+#define RT_HSCH_L1_SES                 32
+#define RT_HSCH_L2_SES                 35
+#define RT_HSCH_L3_QSHPS               1120
+#define RT_HSCH_MAX_RATE_GROUP_0       655355
+#define RT_HSCH_MAX_RATE_GROUP_1       1048568
+#define RT_HSCH_MAX_RATE_GROUP_2       6553550
+#define RT_HSCH_MAX_RATE_GROUP_3       10485680
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_0  1048568
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_1  2621420
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_2  6553550
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_3  10485680
+#define RT_LB_GROUP_CNT                5
+#define RT_LB_SET_CNT                  496
+#define RT_ACL_CNT_SIZE                1024
+#define RT_ES2_CNT_SIZE                512
+#define RT_IP6PFX_CNT                  256
+#define RT_PGID_FA                     (1024 + 30)
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI   10
+#define RT_DSM_CAL_TAXIS               5
+#define RT_EXT_CLK_PIN                 4 // PIN configuration for external clock
+#define RT_ALT_LDST_PIN                5
+#define RT_ALT_PPS_PIN                 4
+#define RT_TOD_ACC_PIN                 7 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#endif
+
+// Buffer cell size
 #define FA_BUFFER_CELL_SZ                   184 // FA=LA
 
-// FA/LA Runtime Defines
-#define RT_SERDES_10G_START                 fla_get_const(vtss_state, __RT_SERDES_10G_START)
-#define RT_SERDES_25G_START                 fla_get_const(vtss_state, __RT_SERDES_25G_START)
-#define RT_SERDES_CNT                       fla_get_const(vtss_state, __RT_SERDES_CNT)
-#define RT_CMU_CNT                          fla_get_const(vtss_state, __RT_CMU_CNT)
-#define RT_BUFFER_MEMORY                    fla_get_const(vtss_state, __RT_BUFFER_MEMORY)
-#define RT_BUFFER_REFERENCE                 fla_get_const(vtss_state, __RT_BUFFER_REFERENCE)
-#define RT_RES_CFG_MAX_PORT_IDX             fla_get_const(vtss_state, __RT_RES_CFG_MAX_PORT_IDX)
-#define RT_RES_CFG_MAX_PRIO_IDX             fla_get_const(vtss_state, __RT_RES_CFG_MAX_PRIO_IDX)
-#define RT_RES_CFG_MAX_COLOUR_IDX           fla_get_const(vtss_state, __RT_RES_CFG_MAX_COLOUR_IDX)
-#define RT_CORE_QUEUE_CNT                   fla_get_const(vtss_state, __RT_CORE_QUEUE_CNT)
-#define RT_CHIP_PORTS                       vtss_state->chip_const[__RT_CHIP_PORTS]
-#define RT_CHIP_PORT_CPU                    RT_CHIP_PORTS
-#define RT_CHIP_PORT_CPU_0                  (RT_CHIP_PORT_CPU + 0) /* 1. CPU Port */
-#define RT_CHIP_PORT_CPU_1                  (RT_CHIP_PORT_CPU + 1) /* 2. CPU Port */
-#define RT_CHIP_PORT_VD0                    (RT_CHIP_PORT_CPU + 2) /* VD0/Port used for IPMC */
-#define RT_CHIP_PORT_VD1                    (RT_CHIP_PORT_CPU + 3) /* VD1/Port used for AFI/OAM */
-#define RT_CHIP_PORT_VD2                    (RT_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
-#define RT_CHIP_PORTS_ALL                   (RT_CHIP_PORT_CPU + 5) /* Total number of ports */
-#define RT_PORT_ARRAY_SIZE                  (RT_CHIP_PORTS > VTSS_PORT_ARRAY_SIZE ? VTSS_PORT_ARRAY_SIZE : RT_CHIP_PORTS)
-#define RT_TAS_NUMBER_OF_LISTS              fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_LISTS)
-#define RT_TAS_NUMBER_OF_PROFILES           fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_PROFILES)
-#define RT_TAS_NUMBER_OF_ENTRIES            fla_get_const(vtss_state, __RT_TAS_NUMBER_OF_ENTRIES)
+// Port numbers
+#define RT_CHIP_PORT_CPU                  RT_CHIP_PORTS
+#define RT_CHIP_PORT_CPU_0                (RT_CHIP_PORT_CPU + 0) /* 1. CPU Port */
+#define RT_CHIP_PORT_CPU_1                (RT_CHIP_PORT_CPU + 1) /* 2. CPU Port */
+#define RT_CHIP_PORT_VD0                  (RT_CHIP_PORT_CPU + 2) /* VD0/Port used for IPMC */
+#define RT_CHIP_PORT_VD1                  (RT_CHIP_PORT_CPU + 3) /* VD1/Port used for AFI/OAM */
+#define RT_CHIP_PORT_VD2                  (RT_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
+#define RT_CHIP_PORTS_ALL                 (RT_CHIP_PORT_CPU + 5) /* Total number of ports */
+
+// TAS constants
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK  32
 #define RT_TAS_NUMBER_OF_BLOCKS_PER_ROW     (VTSS_QOS_TAS_GCL_LEN_MAX / VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK)
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_ROW    VTSS_QOS_TAS_GCL_LEN_MAX
 #define RT_TAS_NUMBER_OF_ROWS               (VTSS_TAS_NUMBER_OF_ENTRIES/VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW)
-#define RT_EVC_POL_CNT                      fla_get_const(vtss_state, __RT_EVC_POL_CNT)
-#define RT_EVC_STAT_CNT                     fla_get_const(vtss_state, __RT_EVC_STAT_CNT)
-#define RT_SDX_CNT                          fla_get_const(vtss_state, __RT_SDX_CNT)
-#define RT_HSCH_LAYERS                      fla_get_const(vtss_state, __RT_HSCH_LAYERS)
-#define RT_HSCH_L0_SES                      fla_get_const(vtss_state, __RT_HSCH_L0_SES)
-#define RT_HSCH_L1_SES                      fla_get_const(vtss_state, __RT_HSCH_L1_SES)
-#define RT_HSCH_L2_SES                      fla_get_const(vtss_state, __RT_HSCH_L2_SES)
-#define RT_HSCH_L3_QSHPS                    fla_get_const(vtss_state, __RT_HSCH_L3_QSHPS)
-#define RT_HSCH_MAX_RATE_GROUP_0            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_0)
-#define RT_HSCH_MAX_RATE_GROUP_1            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_1)
-#define RT_HSCH_MAX_RATE_GROUP_2            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_2)
-#define RT_HSCH_MAX_RATE_GROUP_3            fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_GROUP_3)
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_0       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_0)
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_1       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_1)
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_2       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_2)
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_3       fla_get_const(vtss_state, __RT_HSCH_MAX_RATE_QSHP_GROUP_3)
-#define RT_LB_GROUP_CNT                     fla_get_const(vtss_state, __RT_LB_GROUP_CNT)
-#define RT_LB_SET_CNT                       fla_get_const(vtss_state, __RT_LB_SET_CNT)
-#define RT_PGID_FA                          fla_get_const(vtss_state, __RT_PGID_FA)
-#define RT_MAC_INDEX_CNT                    fla_get_const(vtss_state, __RT_MAC_INDEX_CNT)
-#define RT_MAC_ADDRS                        fla_get_const(vtss_state, __RT_MAC_ADDRS)
-#define RT_DSM_CAL_MAX_DEVS_PER_TAXI        fla_get_const(vtss_state, __RT_DSM_CAL_MAX_DEVS_PER_TAXI)
-#define RT_DSM_CAL_TAXIS                    fla_get_const(vtss_state, __RT_DSM_CAL_TAXIS)
-#define RT_MSTREAM_CNT                      fla_get_const(vtss_state, __RT_MSTREAM_CNT)
-#define RT_CSTREAM_CNT                      fla_get_const(vtss_state, __RT_CSTREAM_CNT)
-#define RT_AFI_SLOW_INJ_CNT                 fla_get_const(vtss_state, __RT_AFI_SLOW_INJ_CNT)
-#define RT_AFI_FAST_INJ_BPS_MIN             1000ULL
-#define RT_AFI_FAST_INJ_BPS_MAX             (FA_TGT ? 25000000000ULL : 10000000000ULL)
-#define RT_PATH_SERVICE_VOE_CNT             fla_get_const(vtss_state, __RT_PATH_SERVICE_VOE_CNT)
-#define RT_PORT_VOE_BASE_IDX                fla_get_const(vtss_state, __RT_PORT_VOE_BASE_IDX)
-#define RT_PORT_VOE_CNT                     fla_get_const(vtss_state, __RT_PORT_VOE_CNT)
-#define RT_DOWN_VOI_CNT                     fla_get_const(vtss_state, __RT_DOWN_VOI_CNT)
-#define RT_UP_VOI_CNT                       fla_get_const(vtss_state, __RT_UP_VOI_CNT)
-#define RT_VOE_CNT                          ((RT_PATH_SERVICE_VOE_CNT) + (RT_PORT_VOE_CNT))
-#define RT_VOI_CNT                          ((RT_DOWN_VOI_CNT) + (RT_UP_VOI_CNT))
-#define RT_EVENT_MASK_ARRAY_SIZE            ((RT_VOE_CNT+31)/32)
-#define RT_ACL_CNT_SIZE                     fla_get_const(vtss_state, __RT_ACL_CNT_SIZE)
-#define RT_ES2_CNT_SIZE                     fla_get_const(vtss_state, __RT_ES2_CNT_SIZE)
-#define RT_ES0_CNT                          fla_get_const(vtss_state, __RT_ES0_CNT)
-#define RT_ES2_CNT                          fla_get_const(vtss_state, __RT_ES2_CNT)
-#define RT_FA_ES2_CNT                       fla_get_const(vtss_state, __RT_FA_ES2_CNT)
-#define RT_IP6PFX_CNT                       fla_get_const(vtss_state, __RT_IP6PFX_CNT)
-#define RT_VCAP_SUPER_BLK_CNT               fla_get_const(vtss_state, __RT_VCAP_SUPER_BLK_CNT)
-#define RT_VCAP_SUPER_RULE_CNT              (RT_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6)
-#define RT_QOS_EGRESS_MAP_IDS               fla_get_const(vtss_state, __RT_QOS_EGRESS_MAP_IDS)
-#define RT_QOS_EGRESS_MAP_ID_END            (VTSS_QOS_EGRESS_MAP_ID_START + RT_QOS_EGRESS_MAP_IDS)
-#define RT_QOS_INGRESS_MAP_IDS              fla_get_const(vtss_state, __RT_QOS_INGRESS_MAP_IDS)
-#define RT_QOS_INGRESS_MAP_ID_END           (VTSS_QOS_INGRESS_MAP_ID_START + RT_QOS_INGRESS_MAP_IDS)
-#define RT_QOS_EGRESS_MAP_ROWS              RT_QOS_EGRESS_MAP_IDS
-#define RT_QOS_INGRESS_MAP_ROWS             (RT_QOS_INGRESS_MAP_IDS * 2)
-#define RT_QOS_INGRESS_MAP_IX_RESERVED      (RT_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN)
-// PIN configuration for external clock
-#define RT_EXT_CLK_PIN                      fla_get_const(vtss_state, __RT_EXT_CLK_PIN)
-// PIN configuration for alternative clock
-#define RT_ALT_LDST_PIN                     fla_get_const(vtss_state, __RT_ALT_LDST_PIN)
-#define RT_ALT_PPS_PIN                      fla_get_const(vtss_state, __RT_ALT_PPS_PIN)
-// The last PTP pin is not connected to GPIO but can be used for TOD access
-#define RT_TOD_ACC_PIN                      fla_get_const(vtss_state, __RT_TOD_ACC_PIN)
 
 // FA/LA runtimes macros
 #define VTSS_PORT_IS_2G5(port)  fla_port_is_2G5(vtss_state, port)

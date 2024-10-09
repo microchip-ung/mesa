@@ -1128,7 +1128,7 @@ static vtss_rc lan969x_mrp_add(vtss_state_t          *vtss_state,
         voe_idx = p == 0 ? &mrp_data->p_voe_idx : p == 1 ? &mrp_data->s_voe_idx : &mrp_data->i_voe_idx;
         *voe_idx = vtss_fa_service_voe_alloc(vtss_state, VTSS_VOE_FUNCTION_MRP);
 
-        if (*voe_idx >= RT_PATH_SERVICE_VOE_CNT) {
+        if (*voe_idx >= VTSS_PATH_SERVICE_VOE_CNT) {
             VTSS_E("No free Service VOE was allocate");
             rc = VTSS_RC_ERROR;
             goto do_exit;
@@ -1908,7 +1908,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || mrp) { /* MRP configuration must be printed */
         pr("MRP Config:\n\n");
 
-        for (i = 0; i < RT_PATH_SERVICE_VOE_CNT; ++i) {
+        for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT; ++i) {
             if (mrp && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }
@@ -1953,7 +1953,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t               *vtss_state,
     if (!info->has_action || status) { /* MRP status must be printed */
         pr("MRP Status:\n\n");
 
-        for (i = 0; i < RT_PATH_SERVICE_VOE_CNT; ++i) {
+        for (i = 0; i < VTSS_PATH_SERVICE_VOE_CNT; ++i) {
             if (status && (div > 1) && (mrp_idx != i)) {   /* A specific MRP must be printed - this is not the one */
                 continue;
             }

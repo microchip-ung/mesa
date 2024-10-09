@@ -535,17 +535,17 @@ vtss_rc vtss_mdio_conf_set(const vtss_inst_t inst,
 #define VTSS_GPIOS         32
 #endif /* VTSS_ARCH_LUTON26/SERVAL */
 
-#if defined(VTSS_ARCH_JAGUAR_2)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         64
-#endif /* VTSS_ARCH_JAGUAR_2 */
+#endif /* VTSS_ARCH_JAGUAR_2/SPARX5 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
 #define VTSS_GPIOS         67
-#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
+#endif /* VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */
@@ -718,7 +718,7 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS 1
 #endif /* VTSS_ARCH_LUTON26/SERVAL/SERVAL_T */
@@ -728,7 +728,7 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t       inst,
 #define VTSS_SGPIO_GROUPS 3
 #endif /* VTSS_ARCH_JAGUAR_2_B/C */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS  3
 #endif /* VTSS_ARCH_SPARX5 */

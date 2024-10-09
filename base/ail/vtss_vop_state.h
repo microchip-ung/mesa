@@ -123,15 +123,6 @@ typedef struct {
     /* Internal */
     vtss_voe_internal_t   voe_internal[VTSS_VOE_CNT];
     vtss_voe_idx_t        voe_poll_idx;
-
-    u32                   path_service_voe_cnt;
-    u32                   port_voe_base_idx;
-    u32                   port_voe_cnt;
-    u32                   down_voi_cnt;
-    u32                   up_voi_cnt;
-    u32                   voe_cnt;
-    u32                   voi_cnt;
-    u32                   event_mask_array_size;
 } vtss_oam_state_t;
 
 vtss_rc vtss_oam_inst_create(struct vtss_state_s *vtss_state);

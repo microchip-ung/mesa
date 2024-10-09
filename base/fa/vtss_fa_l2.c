@@ -805,7 +805,7 @@ static vtss_rc fa_vlan_counters_update(vtss_state_t         *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    if (vid >= RT_EVC_STAT_CNT) {
+    if (vid >= VTSS_EVC_STAT_CNT) {
         // Temporary workaround
         // Will be removed together with RT constants
         return VTSS_RC_OK;
@@ -907,7 +907,7 @@ vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id
     voe_idx = VTSS_VOE_IDX_NONE;
 #endif
     /* VOE reference, do not point at Port VOE */
-    voe_valid = (voe_idx != VTSS_EVC_VOE_IDX_NONE && voe_idx < RT_PORT_VOE_BASE_IDX ? 1 : 0);
+    voe_valid = (voe_idx != VTSS_EVC_VOE_IDX_NONE && voe_idx < VTSS_PORT_VOE_BASE_IDX ? 1 : 0);
     independent_mel = (voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;    /* Independent MEL when no pointer to active VOE */
     REG_WR(VTSS_ANA_CL_OAM_MEP_CFG(isdx),
            VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX_ENA(voe_valid) |
@@ -2818,7 +2818,7 @@ static vtss_rc fa_debug_frer(vtss_state_t *vtss_state,
     u16              i, idx;
     char             buf[80];
 
-    for (i = 0; i < RT_MSTREAM_CNT; i++) {
+    for (i = 0; i < VTSS_MSTREAM_CNT; i++) {
         ms = &vtss_state->l2.ms.table[i];
         if (ms->cnt == 0) {
             continue;
@@ -2839,7 +2839,7 @@ static vtss_rc fa_debug_frer(vtss_state_t *vtss_state,
             }
         }
     }
-    for (i = 0; i < vtss_state->l2.max_cstream_cnt; i++) {
+    for (i = 0; i < VTSS_CSTREAM_CNT; i++) {
         if (vtss_state->l2.cstream_conf[i].recovery == 0) {
             continue;
         }
@@ -2866,7 +2866,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
     char buf[80];
     BOOL first = TRUE;
 
-    for (i = 0; i < vtss_state->l2.psfp.max_filter_cnt; i++) {
+    for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
         vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[i];
         if (info->full || conf->gate_enable || conf->max_sdu || conf->block_oversize.enable) {
             if (first) {
@@ -2881,7 +2881,7 @@ static vtss_rc fa_debug_psfp(vtss_state_t *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < vtss_state->l2.psfp.max_gate_cnt; i++) {
+    for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
             id = fa_psfp_sgid(i);
             VTSS_SPRINTF(buf, "PSFP Gate %u (%u)", i, id);
@@ -3606,7 +3606,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_REW_COMMON_CTRL, VTSS_F_REW_COMMON_CTRL_RTAG_TPID_ENA(1));
 
         /* Set FRER TicksPerSecond to 1000 */
-        i = (1000000000/(8*RT_MSTREAM_CNT*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
+        i = (1000000000/(8*VTSS_MSTREAM_CNT*vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq)));
         REG_WR(VTSS_EACL_FRER_CFG, VTSS_F_EACL_FRER_CFG_WATCHDOG_PRESCALER(i));
     }
 #endif
@@ -3714,8 +3714,8 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_FRER)
     if (vtss_state->vtss_features[FEATURE_FRER]) {
         /* Poll counters for 10 entries, giving 1536/10 = 153 seconds between each poll */
-        u32 mstream_cnt = state->max_mstream_cnt;
-        u32 cstream_cnt = state->max_cstream_cnt;
+        u32 mstream_cnt = VTSS_MSTREAM_CNT;
+        u32 cstream_cnt = VTSS_CSTREAM_CNT;
         for (i = 0; i < 10; i++) {
             idx = state->poll_idx;
             if (idx < mstream_cnt) {
@@ -3742,7 +3742,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
             REG_RD(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET, &value);
             if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(value)) {
                 idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(value);
-                if (idx < RT_EVC_POL_CNT) {
+                if (idx < VTSS_EVC_POL_CNT) {
                     vtss_state->l2.pol_status[idx].mark_all_red = 1;
                 }
                 VTSS_I("policer %u mark_all_red", idx);
@@ -3773,35 +3773,8 @@ vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-#if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-        state->mac_index_cnt               = RT_MAC_INDEX_CNT;
-#endif
-#if defined(VTSS_FEATURE_FRER)
-        if (vtss_state->vtss_features[FEATURE_FRER]) {
-            VTSS_RT_SET(state->ms_table.hdr.max_count, RT_MSTREAM_CNT);
-            VTSS_RT_SET(state->max_cstream_cnt, RT_CSTREAM_CNT);
-            VTSS_RT_SET(state->max_mstream_cnt, RT_MSTREAM_CNT);
-        }
-#endif
-#if defined(VTSS_FEATURE_PSFP)
-        if (vtss_state->vtss_features[FEATURE_PSFP]) {
-            if (LA_TGT) {
-                VTSS_RT_SET(state->psfp.max_filter_cnt, 255);
-                VTSS_RT_SET(state->psfp.max_gate_cnt, 255);
-            }
-        }
-#endif
         state->ac_count = 16;
 // FA-FIXME        state->vsi_info.max_count = VTSS_VSI_CNT;
-#if defined(VTSS_SDX_CNT)
-        VTSS_RT_SET(state->sdx_info.max_count, RT_SDX_CNT);
-#endif
-#if defined(VTSS_EVC_STAT_CNT)
-        VTSS_RT_SET(state->pol_table.hdr.max_count, RT_EVC_POL_CNT);
-        VTSS_RT_SET(state->istat_table.hdr.max_count, RT_EVC_STAT_CNT);
-        VTSS_RT_SET(state->estat_table.hdr.max_count, RT_EVC_STAT_CNT);
-#endif
-        VTSS_RT_SET(state->mac_table_max, RT_MAC_ADDRS);
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 40);

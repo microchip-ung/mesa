@@ -110,9 +110,7 @@ typedef struct {
     /* Configuration/state */
     vtss_chip_id_t                chip_id;
     BOOL                          jr2_a; /* Jaguar-2 revision A */
-    u32                           gpio_count;
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
-    u32                           sgpio_group_count;
     vtss_sgpio_conf_t             sgpio_conf[VTSS_CHIP_CNT][VTSS_SGPIO_GROUPS];
     vtss_sgpio_event_enable_t     sgpio_event_enabled[VTSS_CHIP_CNT][VTSS_SGPIO_GROUPS];
 #endif /* VTSS_FEATURE_SERIAL_GPIO */

@@ -205,15 +205,6 @@ static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)    {
 }
 #endif
 
-inline static uint32_t mesa_state(mesa_inst_t inst, vtss_state_t **vtss_state) {
-    if ((*vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-        VTSS_E("Unable to get state from inst = %p", inst);
-        MESA_ASSERT(0);
-        return 0;
-    }
-    return 1;
-}
-
 uint32_t mesa_capability(mesa_inst_t inst, int cap)
 {
     uint32_t c = 0;
@@ -250,14 +241,10 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_PORT_MIIM_CTRL_CNT: {
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->port.miim_ctrl_cnt;
-        }
-
+    case MESA_CAP_PORT_MIIM_CTRL_CNT:
+        c = VTSS_MIIM_CONTROLLERS;
         break;
-    }
+
     case MESA_CAP_PORT_BW:
 #if defined(VTSS_ARCH_JAGUAR_2)
         c = 1;
@@ -341,25 +328,17 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
 
     // Miscellaneous
-    case MESA_CAP_MISC_GPIO_CNT: {
+    case MESA_CAP_MISC_GPIO_CNT:
 #if defined(VTSS_GPIOS)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->misc.gpio_count;
-        }
+        c = VTSS_GPIOS;
 #endif
         break;
-    }
 
-    case MESA_CAP_MISC_SGPIO_CNT: {
+    case MESA_CAP_MISC_SGPIO_CNT:
 #if defined(VTSS_SGPIO_GROUPS)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->misc.sgpio_group_count;
-        }
+        c = VTSS_SGPIO_GROUPS;
 #endif
         break;
-    }
 
     case MESA_CAP_MISC_PORT_GPIO:
         // Unused
@@ -574,14 +553,10 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_AFI_SLOW_INJ_CNT: {
+    case MESA_CAP_AFI_SLOW_INJ_CNT:
 #if defined(VTSS_AFI_SLOW_INJ_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->afi.slow_inj_cnt;
-        }
+        c = VTSS_AFI_SLOW_INJ_CNT;
 #endif
-    }
         break;
 
     case MESA_CAP_AFI_SLOW_INJ_FPH_MAX:
@@ -590,14 +565,10 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_AFI_FAST_INJ_CNT: {
+    case MESA_CAP_AFI_FAST_INJ_CNT:
 #if defined(VTSS_AFI_FAST_INJ_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->afi.fast_inj_cnt;
-        }
+        c = VTSS_AFI_FAST_INJ_CNT;
 #endif
-    }
         break;
 
     case MESA_CAP_AFI_FAST_INJ_KBPS_MIN:
@@ -747,23 +718,16 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L2_FRER_MSTREAM_CNT: {
-#if defined(VTSS_FEATURE_FRER)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l2.max_mstream_cnt;
-        }
+    case MESA_CAP_L2_FRER_MSTREAM_CNT:
+#if defined(VTSS_MSTREAM_CNT)
+        c = VTSS_MSTREAM_CNT;
 #endif
-    }
         break;
-    case MESA_CAP_L2_FRER_CSTREAM_CNT:{
-#if defined(VTSS_FEATURE_FRER)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l2.max_cstream_cnt;
-        }
+
+    case MESA_CAP_L2_FRER_CSTREAM_CNT:
+#if defined(VTSS_CSTREAM_CNT)
+        c = VTSS_CSTREAM_CNT;
 #endif
-    }
         break;
 
     case MESA_CAP_L2_PSFP:
@@ -776,24 +740,16 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L2_PSFP_GATE_CNT: {
-#if defined(VTSS_FEATURE_PSFP)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l2.psfp.max_gate_cnt;
-        }
+    case MESA_CAP_L2_PSFP_GATE_CNT:
+#if defined(VTSS_PSFP_GATE_CNT)
+        c = VTSS_PSFP_GATE_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_L2_PSFP_FILTER_CNT: {
-#if defined(VTSS_FEATURE_PSFP)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l2.psfp.max_filter_cnt;
-        }
+    case MESA_CAP_L2_PSFP_FILTER_CNT:
+#if defined(VTSS_PSFP_FILTER_CNT)
+        c = VTSS_PSFP_FILTER_CNT;
 #endif
-    }
         break;
 
     case MESA_CAP_L2_VCL_KEY_DMAC:
@@ -858,15 +814,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L3_RLEG_CNT: {
+    case MESA_CAP_L3_RLEG_CNT:
 #if defined(VTSS_RLEG_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l3.rleg_cnt;
-        }
+        c = VTSS_RLEG_CNT;
 #endif
         break;
-    }
 
     case MESA_CAP_L3_LPM_CNT:
 #if defined(VTSS_LPM_CNT)
@@ -874,15 +826,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_L3_ARP_CNT: {
+    case MESA_CAP_L3_ARP_CNT:
 #if defined(VTSS_ARP_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->l3.arp_cnt;
-        }
+        c = VTSS_ARP_CNT;
 #endif
         break;
-    }
 
     // QoS
     case MESA_CAP_QOS_PRIO_CNT:
@@ -947,24 +895,16 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_QOS_INGRESS_MAP_CNT: {
+    case MESA_CAP_QOS_INGRESS_MAP_CNT:
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->qos.imap.id.entry_len;
-        }
+        c = VTSS_QOS_INGRESS_MAP_IDS;
 #endif
-    }
         break;
 
-    case MESA_CAP_QOS_EGRESS_MAP_CNT: {
+    case MESA_CAP_QOS_EGRESS_MAP_CNT:
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->qos.emap.id.entry_len;
-        }
+        c = VTSS_QOS_EGRESS_MAP_IDS;
 #endif
-    }
         break;
 
     case MESA_CAP_QOS_COSID_CLASSIFICATION:
@@ -1570,74 +1510,46 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_VOP_PATH_SERVICE_VOE_CNT: {
+    case MESA_CAP_VOP_PATH_SERVICE_VOE_CNT:
 #if defined(VTSS_PATH_SERVICE_VOE_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.path_service_voe_cnt;
-        }
+        c = VTSS_PATH_SERVICE_VOE_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_PORT_VOE_CNT: {
+    case MESA_CAP_VOP_PORT_VOE_CNT:
 #if defined(VTSS_PORT_VOE_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.port_voe_cnt;
-        }
+        c = VTSS_PORT_VOE_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_VOE_CNT: {
+    case MESA_CAP_VOP_VOE_CNT:
 #if defined(VTSS_VOE_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.voe_cnt;
-        }
+        c = VTSS_VOE_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_DOWN_VOI_CNT: {
+    case MESA_CAP_VOP_DOWN_VOI_CNT:
 #if defined(VTSS_DOWN_VOI_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.down_voi_cnt;
-        }
+        c = VTSS_DOWN_VOI_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_UP_VOI_CNT: {
+    case MESA_CAP_VOP_UP_VOI_CNT:
 #if defined(VTSS_UP_VOI_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.up_voi_cnt;
-        }
+        c = VTSS_UP_VOI_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_VOI_CNT: {
+    case MESA_CAP_VOP_VOI_CNT:
 #if defined(VTSS_VOI_CNT)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.voi_cnt;
-        }
+        c = VTSS_VOI_CNT;
 #endif
-    }
         break;
 
-    case MESA_CAP_VOP_EVENT_ARRAY_SIZE: {
+    case MESA_CAP_VOP_EVENT_ARRAY_SIZE:
 #if defined(VTSS_EVENT_MASK_ARRAY_SIZE)
-        vtss_state_t *vtss_state;
-        if (mesa_state(inst, &vtss_state)) {
-            c = vtss_state->oam.event_mask_array_size;
-        }
+        c = VTSS_EVENT_MASK_ARRAY_SIZE;
 #endif
-    }
         break;
 
     case MESA_CAP_VOP_EVENT_SUPPORTED:

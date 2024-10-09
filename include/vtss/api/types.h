@@ -349,7 +349,14 @@ typedef enum {
 #endif /* VTSS_PORT_COUNT < 9 */
 #endif /* VTSS_CHIP_SERVAL_TE10 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_LAN969X)
+#if (VTSS_PORT_COUNT < 30)
+#undef VTSS_PORT_COUNT
+#define VTSS_PORT_COUNT 30 /**< Number of ports */
+#endif /* VTSS_PORT_COUNT < 30 */
+#endif
+
+#if defined(VTSS_ARCH_SPARX5)
 #if (VTSS_PORT_COUNT < 65)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 65 /**< Number of ports */
@@ -582,8 +589,10 @@ typedef u32 vtss_wred_group_t;
 /** \brief Ingress map ID */
 typedef u16 vtss_qos_ingress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_INGRESS_MAP_IDS      256
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_QOS_INGRESS_MAP_IDS      64
 #else
 #define VTSS_QOS_INGRESS_MAP_IDS      128
 #endif
@@ -595,8 +604,10 @@ typedef u16 vtss_qos_ingress_map_id_t;
 /** \brief Egress map ID */
 typedef u16 vtss_qos_egress_map_id_t;
 
-#if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
 #define VTSS_QOS_EGRESS_MAP_IDS       512
+#elif defined(VTSS_ARCH_LAN969X)
+#define VTSS_QOS_EGRESS_MAP_IDS       128
 #else
 #define VTSS_QOS_EGRESS_MAP_IDS       256
 #endif

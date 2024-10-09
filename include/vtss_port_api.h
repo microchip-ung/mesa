@@ -23,10 +23,10 @@ typedef enum
     VTSS_MIIM_CONTROLLER_0    = 0,  /**< MIIM controller 0 */
     VTSS_MIIM_CONTROLLER_1    = 1,  /**< MIIM controller 1 */
 #endif
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
     VTSS_MIIM_CONTROLLER_2    = 2,  /**< MIIM controller 2 */
 #endif
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SPARX5)
     VTSS_MIIM_CONTROLLER_3    = 3,  /**< MIIM controller 3 */
 #endif
     VTSS_MIIM_CONTROLLERS,          /**< Number of MIIM controllers */

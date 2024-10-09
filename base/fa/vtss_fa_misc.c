@@ -671,7 +671,7 @@ vtss_rc fa_mdio_conf_set(vtss_state_t *vtss_state, u8 ctrl_id,
     u32 val;
     u32 clk = vtss_state->init_conf.core_clock.freq;
 
-    if (ctrl_id >= vtss_state->port.miim_ctrl_cnt) {
+    if (ctrl_id >= VTSS_MIIM_CONTROLLERS) {
         VTSS_E("controller id not supported");
         return VTSS_RC_ERROR;
     }
@@ -889,7 +889,7 @@ static vtss_rc fa_gpio_event_poll(vtss_state_t          *vtss_state,
     pending &= mask;
     REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
 
-    for (i = 64; i < vtss_state->misc.gpio_count; i++) {
+    for (i = 64; i < VTSS_GPIOS; i++) {
         events[i] = (pending & 1 << (i - 64)) ? TRUE : FALSE;
     }
 #endif
@@ -927,7 +927,7 @@ static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
     // which is level, to something else to avoid spurious interrupts
     // when failing or unable (due to board layout) to initialize the
     // polarity of the level interrupts correct.
-    for (u32 grp = 0; grp < vtss_state->misc.sgpio_group_count; grp++) {
+    for (u32 grp = 0; grp < VTSS_SGPIO_GROUPS; grp++) {
         for (bit = 0; bit < 4; bit++) {
             // Enable rising edge triggered interrupt
             REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(grp, bit), 0xFFFFFFFF);
@@ -1226,7 +1226,7 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
     FA_DEBUG_GPIO(pr, ALT1(0), "ALT1_0(32-63)");
     FA_DEBUG_GPIO(pr, ALT1(1), "ALT1_1(32-63)");
     pr("\n");
-    for (g = 0; g < vtss_state->misc.sgpio_group_count; g++) {
+    for (g = 0; g < VTSS_SGPIO_GROUPS; g++) {
         VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
         vtss_fa_debug_reg_header(pr, name);
         for (i = 0; i < 4; i++) {
@@ -1282,90 +1282,6 @@ static vtss_rc fa_debug_misc(vtss_state_t *vtss_state,
     FA_DEBUG_REG_NAME(pr, CPU, EXT_DST_INTR_POL, "EXT_DST_INTR_POL");
     FA_DEBUG_REG_NAME(pr, CPU, EXT_DST_INTR_DRV, "EXT_DST_INTR_DRV");
 
-    if (info->full) {
-        pr("\nRuntime constants:\n");
-        pr("RT_SERDES_10G_START                 :%d\n", RT_SERDES_10G_START);
-        pr("RT_SERDES_25G_STAR                  :%d\n", RT_SERDES_25G_START);
-        pr("RT_BUFFER_MEMORY                    :%d\n", RT_BUFFER_MEMORY);
-        pr("RT_BUFFER_REFERENCE                 :%d\n", RT_BUFFER_REFERENCE);
-        pr("RT_RES_CFG_MAX_PORT_IDX             :%d\n", RT_RES_CFG_MAX_PORT_IDX);
-        pr("RT_RES_CFG_MAX_PRIO_ID              :%d\n", RT_RES_CFG_MAX_PRIO_IDX);
-        pr("RT_RES_CFG_MAX_COLOUR_IDX           :%d\n", RT_RES_CFG_MAX_COLOUR_IDX);
-        pr("RT_CORE_QUEUE_CNT                   :%d\n", RT_CORE_QUEUE_CNT);
-        pr("RT_CHIP_PORTS                       :%d\n", RT_CHIP_PORTS);
-        pr("RT_CHIP_PORT_CPU                    :%d\n", RT_CHIP_PORT_CPU);
-        pr("RT_CHIP_PORT_CPU_0                  :%d\n", RT_CHIP_PORT_CPU_0);
-        pr("RT_CHIP_PORT_CPU_1                  :%d\n", RT_CHIP_PORT_CPU_1);
-        pr("RT_CHIP_PORT_VD0                    :%d\n", RT_CHIP_PORT_VD0);
-        pr("RT_CHIP_PORT_VD1                    :%d\n", RT_CHIP_PORT_VD1);
-        pr("RT_CHIP_PORT_VD2                    :%d\n", RT_CHIP_PORT_VD2);
-        pr("RT_CHIP_PORTS_ALL                   :%d\n", RT_CHIP_PORTS_ALL);
-        pr("RT_PORT_ARRAY_SIZE                  :%d\n", RT_PORT_ARRAY_SIZE);
-#if defined(VTSS_FEATURE_QOS_TAS)
-        pr("RT_TAS_NUMBER_OF_LISTS              :%d\n", RT_TAS_NUMBER_OF_LISTS);
-        pr("RT_TAS_NUMBER_OF_PROFILES           :%d\n", RT_TAS_NUMBER_OF_PROFILES);
-        pr("RT_TAS_NUMBER_OF_ENTRIES            :%d\n", RT_TAS_NUMBER_OF_ENTRIES);
-        pr("RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK  :%d\n", RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK);
-        pr("RT_TAS_NUMBER_OF_BLOCKS_PER_ROW     :%d\n", RT_TAS_NUMBER_OF_BLOCKS_PER_ROW);
-        pr("RT_TAS_NUMBER_OF_ENTRIES_PER_ROW    :%d\n", RT_TAS_NUMBER_OF_ENTRIES_PER_ROW);
-        pr("RT_TAS_NUMBER_OF_ROWS               :%d\n", RT_TAS_NUMBER_OF_ROWS);
-#endif
-        pr("RT_EVC_POL_CNT                      :%d\n", RT_EVC_POL_CNT);
-        pr("RT_EVC_STAT_CNT                     :%d\n", RT_EVC_STAT_CNT);
-        pr("RT_SDX_CNT                          :%d\n", RT_SDX_CNT);
-        pr("RT_HSCH_LAYERS                      :%d\n", RT_HSCH_LAYERS);
-        pr("RT_HSCH_L0_SES                      :%d\n", RT_HSCH_L0_SES);
-        pr("RT_HSCH_L1_SES                      :%d\n", RT_HSCH_L1_SES);
-        pr("RT_HSCH_L2_SES                      :%d\n", RT_HSCH_L2_SES);
-        pr("RT_HSCH_L3_QSHPS                    :%d\n", RT_HSCH_L3_QSHPS);
-        pr("RT_HSCH_MAX_RATE_GROUP_0            :%d\n", RT_HSCH_MAX_RATE_GROUP_0);
-        pr("RT_HSCH_MAX_RATE_GROUP_1            :%d\n", RT_HSCH_MAX_RATE_GROUP_1);
-        pr("RT_HSCH_MAX_RATE_GROUP_2            :%d\n", RT_HSCH_MAX_RATE_GROUP_2);
-        pr("RT_HSCH_MAX_RATE_GROUP_3            :%d\n", RT_HSCH_MAX_RATE_GROUP_3);
-        pr("RT_HSCH_MAX_RATE_QSHP_GROUP_0       :%d\n", RT_HSCH_MAX_RATE_QSHP_GROUP_0);
-        pr("RT_HSCH_MAX_RATE_QSHP_GROUP_1       :%d\n", RT_HSCH_MAX_RATE_QSHP_GROUP_1);
-        pr("RT_HSCH_MAX_RATE_QSHP_GROUP_2       :%d\n", RT_HSCH_MAX_RATE_QSHP_GROUP_2);
-        pr("RT_HSCH_MAX_RATE_QSHP_GROUP_3       :%d\n", RT_HSCH_MAX_RATE_QSHP_GROUP_3);
-        pr("RT_LB_GROUP_CNT                     :%d\n", RT_LB_GROUP_CNT);
-        pr("RT_LB_SET_CNT                       :%d\n", RT_LB_SET_CNT);
-        pr("RT_PGID_FA                          :%d\n", RT_PGID_FA);
-        pr("RT_MAC_INDEX_CNT                    :%d\n", RT_MAC_INDEX_CNT);
-        pr("RT_MAC_ADDRS                        :%d\n", RT_MAC_ADDRS);
-        pr("RT_DSM_CAL_MAX_DEVS_PER_TAXI        :%d\n", RT_DSM_CAL_MAX_DEVS_PER_TAXI);
-        pr("RT_DSM_CAL_TAXIS                    :%d\n", RT_DSM_CAL_TAXIS);
-        pr("RT_MSTREAM_CNT                      :%d\n", RT_MSTREAM_CNT);
-        pr("RT_CSTREAM_CNT                      :%d\n", RT_CSTREAM_CNT);
-        pr("RT_AFI_SLOW_INJ_CNT                 :%d\n", RT_AFI_SLOW_INJ_CNT);
-        pr("RT_AFI_FAST_INJ_BPS_MIN             :%llu\n", RT_AFI_FAST_INJ_BPS_MIN);
-        pr("RT_AFI_FAST_INJ_BPS_MAX             :%llu\n", RT_AFI_FAST_INJ_BPS_MAX);
-        pr("RT_PATH_SERVICE_VOE_CNT             :%d\n", RT_PATH_SERVICE_VOE_CNT);
-        pr("RT_PORT_VOE_BASE_IDX                :%d\n", RT_PORT_VOE_BASE_IDX);
-        pr("RT_PORT_VOE_CNT                     :%d\n", RT_PORT_VOE_CNT);
-        pr("RT_DOWN_VOI_CNT                     :%d\n", RT_DOWN_VOI_CNT);
-        pr("RT_UP_VOI_CNT                       :%d\n", RT_UP_VOI_CNT);
-        pr("RT_VOE_CNT                          :%d\n", RT_VOE_CNT);
-        pr("RT_VOI_CNT                          :%d\n", RT_VOI_CNT);
-        pr("RT_EVENT_MASK_ARRAY_SIZE            :%d\n", RT_EVENT_MASK_ARRAY_SIZE);
-        pr("RT_ACL_CNT_SIZE                     :%d\n", RT_ACL_CNT_SIZE);
-        pr("RT_ES2_CNT_SIZE                     :%d\n", RT_ES2_CNT_SIZE);
-        pr("RT_ES0_CNT                          :%d\n", RT_ES0_CNT);
-        pr("RT_ES2_CNT                          :%d\n", RT_ES2_CNT);
-#if defined(VTSS_FEATURE_VCAP)
-        pr("RT_VCAP_SUPER_BLK_CNT               :%d\n", RT_VCAP_SUPER_BLK_CNT);
-        pr("RT_VCAP_SUPER_RULE_CNT              :%d\n", RT_VCAP_SUPER_RULE_CNT);
-#endif
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-        pr("RT_QOS_INGRESS_MAP_IDS              :%d\n", RT_QOS_INGRESS_MAP_IDS);
-        pr("RT_QOS_INGRESS_MAP_ID_END           :%d\n", RT_QOS_INGRESS_MAP_ID_END);
-        pr("RT_QOS_INGRESS_MAP_ROWS             :%d\n", RT_QOS_INGRESS_MAP_ROWS);
-        pr("RT_QOS_INGRESS_MAP_IX_RESERVED      :%d\n", RT_QOS_INGRESS_MAP_IX_RESERVED);
-#endif
-#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-        pr("RT_QOS_EGRESS_MAP_IDS               :%d\n", RT_QOS_EGRESS_MAP_IDS);
-        pr("RT_QOS_EGRESS_MAP_ID_END            :%d\n", RT_QOS_EGRESS_MAP_ID_END);
-        pr("RT_QOS_EGRESS_MAP_ROWS              :%d\n", RT_QOS_EGRESS_MAP_ROWS);
-#endif
-    }
     return VTSS_RC_OK;
 }
 
@@ -1414,11 +1330,6 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->irq_status = fa_misc_irq_status;
         state->irq_enable = fa_misc_irq_enable;
 #endif  /* VTSS_FEATURE_IRQ_CONTROL */
-        if (FA_TGT) {
-            state->gpio_count = 64;
-        } else {
-            state->sgpio_group_count = 1;
-        }
 #if defined(VTSS_FEATURE_EEE)
         vtss_state->eee.port_conf_set   = fa_eee_port_conf_set;
 #endif /* VTSS_FEATURE_EEE */

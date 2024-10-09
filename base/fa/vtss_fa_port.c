@@ -718,7 +718,7 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_c
         return VTSS_RC_ERROR;
     }
     conf = &vtss_state->synce.in_conf[clk_port];
-    if (conf->port_no >= RT_PORT_ARRAY_SIZE) {
+    if (conf->port_no >= VTSS_PORTS) {
         VTSS_E("Invalid port no: %d\n", conf->port_no);
         return VTSS_RC_ERROR;
     }
@@ -847,12 +847,14 @@ static vtss_rc fa_miim_cmd(vtss_state_t *vtss_state,
     case VTSS_MIIM_CONTROLLER_1:
         i = 1;
         break;
+#if defined(VTSS_ARCH_SPARX5)
     case VTSS_MIIM_CONTROLLER_2:
         i = 2;
         break;
     case VTSS_MIIM_CONTROLLER_3:
         i = 3;
         break;
+#endif
     default:
         VTSS_E("illegal miim_controller: %d", miim_controller);
         return VTSS_RC_ERROR;
@@ -5217,13 +5219,8 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_port_state_t *state = &vtss_state->port;
-
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        if (LA_TGT) {
-            state->miim_ctrl_cnt = 2;
-        }
         break;
 
     case VTSS_INIT_CMD_INIT:

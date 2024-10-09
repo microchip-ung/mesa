@@ -326,9 +326,9 @@ vtss_rc vtss_cil_l2_ip_mc_update(vtss_state_t *vtss_state,
             }
         }
         VTSS_I("new dest needs %u, current: %u, max: %u",
-               mac_count, vtss_state->l2.mac_table_count, vtss_state->l2.mac_table_max);
+               mac_count, vtss_state->l2.mac_table_count, VTSS_MAC_ADDRS);
         
-        if ((vtss_state->l2.mac_table_count + mac_count) > vtss_state->l2.mac_table_max) {
+        if ((vtss_state->l2.mac_table_count + mac_count) > VTSS_MAC_ADDRS) {
             VTSS_I("no more MAC entries");
             return VTSS_RC_ERROR;
         }

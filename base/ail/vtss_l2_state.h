@@ -90,7 +90,7 @@ void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
 
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
 #define VTSS_MAC_INDEX_VID_CNT 4
-#if defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LAN969X)
 #define VTSS_MAC_INDEX_CNT     4096
 #elif defined(VTSS_ARCH_LAN966X_FPGA)
 #define VTSS_MAC_INDEX_CNT     512
@@ -301,8 +301,6 @@ typedef struct {
     vtss_psfp_gcl_t         oper_gcl[VTSS_PSFP_GATE_CNT];
     vtss_psfp_gcl_conf_t    oper_conf[VTSS_PSFP_GATE_CNT];
     vtss_psfp_filter_conf_t filter[VTSS_PSFP_FILTER_CNT];
-    u32                     max_filter_cnt;
-    u32                     max_gate_cnt;
 } vtss_psfp_state_t;
 #endif
 
@@ -778,17 +776,14 @@ typedef struct {
     vtss_mac_table_age_time_t     mac_age_time;
     vtss_mac_table_status_t       mac_status;
     u32                           mac_index_next;  /* Index for MAC table get next */
-    u32                           mac_table_max;   /* Maximum number of entries in mac_table */
     u32                           mac_table_count; /* Actual number of entries in mac_table */
     vtss_mac_entry_t              *mac_list_used;  /* Sorted list of entries */
     vtss_mac_entry_t              *mac_list_free;  /* Free list */
     vtss_mac_entry_t              mac_table[VTSS_MAC_ADDRS]; /* Sorted MAC address table */
     u32                           mac_ptr_count;   /* Number of valid pointers */
     vtss_mac_entry_t              *mac_list_ptr[VTSS_MAC_PTR_SIZE]; /* Pointer array */
-    u32                           mac_ptr_size;
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
     vtss_mac_index_table_t        mac_index_table;
-    u32                           mac_index_cnt;
 #endif
     u32                           ac_count;
     vtss_aggr_mode_t              aggr_mode;
@@ -847,8 +842,6 @@ typedef struct {
     vtss_frer_chip_counters_t ms_counters[VTSS_MSTREAM_CNT];
     vtss_frer_chip_counters_t cs_counters[VTSS_CSTREAM_CNT];
     u32                       poll_idx; /* Counter polling index */
-    u32                       max_cstream_cnt;
-    u32                       max_mstream_cnt;
 #endif
 #if defined(VTSS_FEATURE_PSFP)
     vtss_psfp_state_t psfp;

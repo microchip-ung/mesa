@@ -556,7 +556,7 @@ static vtss_rc vtss_miim_check(vtss_state_t           *vtss_state,
     port_map = &vtss_state->port.map[port_no];
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
-    if (*miim_controller < 0 || *miim_controller >= vtss_state->port.miim_ctrl_cnt) {
+    if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
         VTSS_E("illegal miim_controller:%d on port_no:%u, addr:0x%X, miim_addr:0x%X", *miim_controller, port_no, addr, *miim_addr);
         return VTSS_RC_ERROR;
     }
@@ -706,7 +706,7 @@ static vtss_rc vtss_mmd_check(vtss_state_t           *vtss_state,
     port_map = &vtss_state->port.map[port_no];
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
-    if (*miim_controller < 0 || *miim_controller >= vtss_state->port.miim_ctrl_cnt) {
+    if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
         VTSS_E("illegal miim_controller: %d on port_no: %u", *miim_controller, port_no);
         return VTSS_RC_ERROR;
     }
@@ -1007,7 +1007,6 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
 
     if (vtss_state->create_pre) {
         // Preprocessing
-        vtss_state->port.miim_ctrl_cnt = VTSS_MIIM_CONTROLLERS;
         return VTSS_RC_OK;
     }
 

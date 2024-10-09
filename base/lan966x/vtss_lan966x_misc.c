@@ -688,7 +688,6 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_state->temp_sensor.chip_temp_init = lan966x_temp_sensor_init;
         vtss_state->temp_sensor.chip_temp_get  = lan966x_temp_sensor_get;
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
-        state->gpio_count = VTSS_GPIOS;
         break;
 
     case VTSS_INIT_CMD_POLL:

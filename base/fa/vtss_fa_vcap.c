@@ -73,7 +73,7 @@ typedef enum {
    IS2: One default action for fourth lookup (143) and two unused (144-145)
    LPM: No default action */
 #define FA_VCAP_SUPER_SW_COUNT     12
-#define FA_VCAP_SUPER_BLK_COUNT    RT_VCAP_SUPER_BLK_CNT
+#define FA_VCAP_SUPER_BLK_COUNT    VTSS_VCAP_SUPER_BLK_CNT
 #define FA_VCAP_SUPER_ENTRY_COUNT  (FA_VCAP_SUPER_BLK_COUNT * VTSS_VCAP_SUPER_ROW_CNT)
 #define FA_VCAP_SUPER_ACTION_COUNT (FA_VCAP_SUPER_ENTRY_COUNT + 8*RT_CHIP_PORTS_ALL + 6)
 
@@ -81,6 +81,9 @@ typedef enum {
 #define FA_VCAP_SUPER_CLM_B_ACTION_BASE (FA_VCAP_SUPER_CLM_A_ACTION_BASE + 2*RT_CHIP_PORTS_ALL)
 #define FA_VCAP_SUPER_CLM_C_ACTION_BASE (FA_VCAP_SUPER_CLM_B_ACTION_BASE + 2*RT_CHIP_PORTS_ALL)
 #define FA_VCAP_SUPER_IS2_ACTION_BASE   (FA_VCAP_SUPER_CLM_C_ACTION_BASE + 2*RT_CHIP_PORTS_ALL)
+
+// Number of ES2 rows
+#define FA_ES2_CNT (VTSS_ES2_CNT / 2)
 
 static fa_vcap_props_t fa_vcap_info[] = {
     [FA_VCAP_SUPER] = {
@@ -393,8 +396,8 @@ static u32 fa_vcap_action_addr(vtss_state_t *vtss_state, vtss_vcap_type_t type, 
                 type == VTSS_VCAP_TYPE_CLM_A ? FA_VCAP_SUPER_CLM_A_ACTION_BASE :
                 type == VTSS_VCAP_TYPE_CLM_B ? FA_VCAP_SUPER_CLM_B_ACTION_BASE :
                 type == VTSS_VCAP_TYPE_CLM_C ? FA_VCAP_SUPER_CLM_C_ACTION_BASE :
-                type == VTSS_VCAP_TYPE_ES2 ? RT_FA_ES2_CNT :
-                type == VTSS_VCAP_TYPE_ES0 ? RT_ES0_CNT : 0);
+                type == VTSS_VCAP_TYPE_ES2 ? FA_ES2_CNT :
+                type == VTSS_VCAP_TYPE_ES0 ? VTSS_ES0_CNT : 0);
     u32 sw_cnt = (type == VTSS_VCAP_TYPE_ES0 ? 1 : FA_VCAP_SUPER_SW_COUNT);
 
     return ((base + lookup * RT_CHIP_PORTS_ALL + port) * sw_cnt);
@@ -1280,7 +1283,7 @@ static void fa_clm_qos_action_update(vtss_state_t *vtss_state,
     u32 sel = 0, idx = 0, key = 0;
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    if (map_id < RT_QOS_INGRESS_MAP_IDS) {
+    if (map_id < VTSS_QOS_INGRESS_MAP_IDS) {
         u32 ix;
         if ((ix = vtss_state->qos.imap.id.entry[map_id].ix) < VTSS_QOS_INGRESS_MAP_ROWS) {
             sel = 1; /* QoS ingress map table lookup #0 */
@@ -4078,7 +4081,7 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
             max = 32;
         }
 
-        for (i = 0; i < vtss_state->l3.rleg_cnt; i++) {
+        for (i = 0; i < VTSS_RLEG_CNT; i++) {
             mod = (i % max);
             if (mod == 0) {
                 found = FALSE;
@@ -4549,7 +4552,7 @@ typedef struct {
 static BOOL fa_es0_map_update(vtss_state_t *vtss_state, vtss_qos_egress_map_id_t map_id, fa_es0_map_t *map)
 {
     VTSS_MEMSET(map, 0, sizeof(*map));
-    if (map_id < RT_QOS_EGRESS_MAP_IDS) {
+    if (map_id < VTSS_QOS_EGRESS_MAP_IDS) {
         const vtss_qos_map_adm_t *const m = &vtss_state->qos.emap;
 
         map->idx = m->id.entry[map_id].ix;  // Index bits 11:3 in VCAP_ES0 MAP_n_IDX
@@ -5198,11 +5201,11 @@ static vtss_rc fa_vcap_info_init(vtss_state_t *vtss_state)
     fa_vcap_info[FA_VCAP_SUPER].sw_count = FA_VCAP_SUPER_SW_COUNT;
     fa_vcap_info[FA_VCAP_SUPER].entry_count = FA_VCAP_SUPER_ENTRY_COUNT;
     fa_vcap_info[FA_VCAP_SUPER].action_count = FA_VCAP_SUPER_ACTION_COUNT;
-    fa_vcap_info[FA_VCAP_ES0].entry_count = RT_ES0_CNT;
-    fa_vcap_info[FA_VCAP_ES0].action_count = (RT_ES0_CNT + RT_CHIP_PORTS);
+    fa_vcap_info[FA_VCAP_ES0].entry_count = VTSS_ES0_CNT;
+    fa_vcap_info[FA_VCAP_ES0].action_count = (VTSS_ES0_CNT + RT_CHIP_PORTS);
     fa_vcap_info[FA_VCAP_ES2].sw_count = FA_VCAP_SUPER_SW_COUNT;
-    fa_vcap_info[FA_VCAP_ES2].entry_count = RT_FA_ES2_CNT;
-    fa_vcap_info[FA_VCAP_ES2].action_count = (RT_FA_ES2_CNT + 74);
+    fa_vcap_info[FA_VCAP_ES2].entry_count = FA_ES2_CNT;
+    fa_vcap_info[FA_VCAP_ES2].action_count = (FA_ES2_CNT + 74);
     fa_vcap_info[FA_VCAP_IP6PFX].entry_count = RT_IP6PFX_CNT;
     fa_vcap_info[FA_VCAP_IP6PFX].action_count = RT_IP6PFX_CNT;
 
@@ -5424,8 +5427,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         /* VCAP_SUPER */
         vcap_super->block_map = fa_vcap_super_block_map;
         vcap_super->block_move = fa_vcap_super_block_move;
-        VTSS_RT_SET(vcap_super->block.max_count, RT_VCAP_SUPER_BLK_CNT);
-        VTSS_RT_SET(vcap_super->max_rule_count, RT_VCAP_SUPER_RULE_CNT);
 
         /* CLM_A */
         clm_a->entry_add = fa_clm_a_entry_add;
@@ -5477,7 +5478,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif
 
         /* ES0 */
-        VTSS_RT_SET(es0->max_count, RT_ES0_CNT);
         es0->entry_add = fa_es0_entry_add;
         es0->entry_del = fa_es0_entry_del;
         es0->entry_move = fa_es0_entry_move;
@@ -5488,8 +5488,8 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
 #if defined(VTSS_FEATURE_ES2)
         /* ES2 */
-        es2->max_count = RT_FA_ES2_CNT;
-        es2->max_rule_count = RT_ES2_CNT;
+        es2->max_count = FA_ES2_CNT;
+        es2->max_rule_count = VTSS_ES2_CNT;
         es2->entry_add = fa_es2_entry_add;
         es2->entry_del = fa_es2_entry_del;
         es2->entry_move = fa_es2_entry_move;

@@ -155,11 +155,17 @@
 #define VTSS_LPM_MC_CNT  0    /**< Length of LPM table for multicast entries */
 #define VTSS_MC_TBL_CNT  0    /**< Length of MC RLEG bit-mask table */
 #else
+#if defined(VTSS_ARCH_SPARX5)
 #define VTSS_RLEG_CNT    128  /**< Length of RLEG table */
-#define VTSS_LPM_CNT     3072 /**< Length of LPM table */
 #define VTSS_ARP_CNT     2048 /**< Length of ARP table */
-#define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
 #define VTSS_MC_TBL_CNT  2048 /**< Length of MC RLEG bit-mask table */
+#else
+#define VTSS_RLEG_CNT    126  /**< Length of RLEG table */
+#define VTSS_ARP_CNT     1024 /**< Length of ARP table */
+#define VTSS_MC_TBL_CNT  1024 /**< Length of MC RLEG bit-mask table */
+#endif
+#define VTSS_LPM_CNT     3072 /**< Length of LPM table */
+#define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
 #endif
 // A IPv4 unicast address occupies 1 entry in the LPM VCAP while
 // IPv6 unicast address occupies 2 entries.
