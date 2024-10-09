@@ -2492,8 +2492,6 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 #endif
     /* FA: chip_design = 1,  LA: chip_design = 2 */
     vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
-    /* Initilize Fireant and Laguna constants  */
-    fla_init_const(vtss_state, FA_TGT);
 
     /* Create function groups */
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);

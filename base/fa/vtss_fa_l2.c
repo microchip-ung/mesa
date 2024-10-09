@@ -903,11 +903,12 @@ vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id
 
 #if defined(VTSS_FEATURE_VOP)
     voe_idx = conf->voe_idx;
-#else
-    voe_idx = VTSS_VOE_IDX_NONE;
-#endif
     /* VOE reference, do not point at Port VOE */
     voe_valid = (voe_idx != VTSS_EVC_VOE_IDX_NONE && voe_idx < VTSS_PORT_VOE_BASE_IDX ? 1 : 0);
+#else
+    voe_idx = VTSS_VOE_IDX_NONE;
+    voe_valid = 0;
+#endif
     independent_mel = (voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;    /* Independent MEL when no pointer to active VOE */
     REG_WR(VTSS_ANA_CL_OAM_MEP_CFG(isdx),
            VTSS_F_ANA_CL_OAM_MEP_CFG_MEP_IDX_ENA(voe_valid) |

@@ -83,7 +83,7 @@ typedef enum {
 #define FA_VCAP_SUPER_IS2_ACTION_BASE   (FA_VCAP_SUPER_CLM_C_ACTION_BASE + 2*RT_CHIP_PORTS_ALL)
 
 // Number of ES2 rows
-#define FA_ES2_CNT (VTSS_ES2_CNT / 2)
+#define FA_ES2_CNT (VTSS_FA_ES2_CNT / 2)
 
 static fa_vcap_props_t fa_vcap_info[] = {
     [FA_VCAP_SUPER] = {

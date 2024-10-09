@@ -24,7 +24,6 @@
 #else
 #include "vtss_la_regs.h"
 #endif
-#include "fla_const_enum.h"
 #include "fla_vcap_regs.h"   // New FA/LA merged VCAP header files
 
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA

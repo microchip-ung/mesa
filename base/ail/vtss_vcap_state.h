@@ -1270,12 +1270,13 @@ typedef struct {
 } vtss_es0_info_t;
 #endif /* VTSS_FEATURE_ES0 */
 
-#if defined(VTSS_FEATURE_ES2)
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_FA_ES2_CNT 2048 /* 1024 rows allowing 2048 half rules */
 #else
 #define VTSS_FA_ES2_CNT 512  /* 512 rows allowing 256 half rules */
 #endif
+
+#if defined(VTSS_FEATURE_ES2)
 #define VTSS_ES2_CNT    VTSS_FA_ES2_CNT
 
 /* ES2 information */
