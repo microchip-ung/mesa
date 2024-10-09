@@ -319,10 +319,10 @@ typedef struct {
 typedef struct {
     uint8_t prebt_ignore_higher_priority;
     uint8_t prebt_supports_legacy_detection;
+    uint8_t prebt_supports_backoff;
     uint8_t prebt_message_ready_notify;
     uint8_t prebt_layer2_priority_by_PD;
     uint8_t prebt_matrix_support_4p;
-    uint8_t prebt_supports_backoff;
     uint8_t prebt_led_stream_type;
     uint8_t prebt_pse_powering_pse_checking;
     uint8_t prebt_enable_asic_refresh;
@@ -332,6 +332,9 @@ typedef struct {
     uint8_t prebt_lldp_best_effort;
     uint8_t prebt_auto_zone2_port_activation;
     uint8_t prebt_hocpp_high_over_current_pulse_protection;
+    uint8_t prebt_class4at_af_reported_as_class4;
+    uint8_t prebt_single_detection_fail_event;
+    uint8_t prebt_invalid_sig_count_once;
 } meba_poe_indv_mask_prebt_t;
 
 

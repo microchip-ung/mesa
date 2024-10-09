@@ -31,45 +31,46 @@
 #define SEQ_NUM_DO_NOT_CHK                      0xFF
 #define DUMMY_BYTE                              0x4E
 
-// BT individual masks - stay with defaults
-#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY            0x00
-#define INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION        0x10
-#define INDV_MASK_BT_I2C_RESTART_ENABLE                0x1B
-#define INDV_MASK_BT_PSE_POWERING_PSE_CHECKING         0x1F
-#define INDV_MASK_BT_LED_STREAM_TYPE                   0x20
-#define INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT     0x2C
-#define INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT       0x46
-#define INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY 0x4F
-#define INDV_MASK_BT_HOCPP                             0x50
+// BT individual masks - individual mask configure by user defaults
+#define INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00            0x00
+#define INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_0x10        0x10
+#define INDV_MASK_BT_I2C_RESTART_ENABLE_0x1B                0x1B
+#define INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_0x1F         0x1F
+#define INDV_MASK_BT_LED_STREAM_TYPE_0x20                   0x20
+#define INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C     0x2C
+#define INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_0x30 0x30
+#define INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_0x4F 0x4F
+#define INDV_MASK_BT_HOCPP_0x50                             0x50
+
+// BT individual masks - static configuration value
+#define INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT_0x46       0x46
 
 
-// BT individual masks - configuration depends on product
-#define INDV_MASK_BT_LED_STREAM_TYPE               0x20
-#define INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR 0x30
 
-// PREBT individual masks - stay with defaults
-#define INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY     0x00
-#define INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION  0x01
-#define INDV_MASK_PREBT_SUPPORTS_BACKOFF           0x11
-#define INDV_MASK_PREBT_MESSAGE_READY_NOTIFY       0x1E
-#define INDV_MASK_PREBT_LAYER2_LLDP_ENABLE         0x2E
-#define INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD      0x2F
-#define INDV_MASK_PREBT_MATRIX_SUPPORT_4P          0x34
+// PREBT individual masks - individual mask configure by user defaults
+#define INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_0x00     0x00
+#define INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01  0x01
+#define INDV_MASK_PREBT_SUPPORTS_BACKOFF_0x11           0x11
+#define INDV_MASK_PREBT_LED_STREAM_TYPE_0x16            0x16
+#define INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_0x1E       0x1E
+#define INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_0x2E         0x2E
+#define INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_0x2F      0x2F
+#define INDV_MASK_PREBT_MATRIX_SUPPORT_4P_0x34          0x34
 
-// PREBT individual masks - configuration depends on product
-#define INDV_MASK_PREBT_SUPPORTS_BACKOFF           0x11
-#define INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4 0x12
-#define INDV_MASK_PREBT_LED_STREAM_TYPE            0x16
-#define INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING  0x1F
-#define INDV_MASK_PREBT_ENABLE_ASIC_REFRESH        0x2A
-#define INDV_MASK_PREBT_LAYER2_LLDP_ENABLE         0x2E
-#define INDV_MASK_PREBT_CLASS_0_EQUAL_AF           0x38
-#define INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF       0x39
-#define INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT 0x46
-#define INDV_MASK_PREBT_LLDP_BEST_EFFORT           0x47
-#define INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION 0x49
-#define INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION 0x50
-#define INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE     0x55
+// PREBT individual masks - static configuration value
+#define INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4_0x12 0x12
+#define INDV_MASK_PREBT_CLASS_0_EQUAL_AF_0x38            0x38
+#define INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT_0x46 0x46
+#define INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE_0x55      0x55
+
+// PREBT individual masks - print value only
+#define INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING_0x1F  0x1F
+#define INDV_MASK_PREBT_ENABLE_ASIC_REFRESH_0x2A        0x2A
+#define INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF_0x39       0x39
+#define INDV_MASK_PREBT_LLDP_BEST_EFFORT_0x47           0x47
+#define INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION_0x49 0x49
+#define INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION_0x50 0x50
+
 
 #define LINE_SIZE_MAX         100 // PoE firmware file line max size in bytes
 #define POE_FIRMWARE_SIZE_MAX 2000000 // Maximum size of the PoE firmware in bytes (file mscc_firmware.txt)
@@ -80,6 +81,40 @@
 #define DEBUG(_inst, _lvl, _fmt, ...) do { ((poe_driver_private_t *)((_inst)->private_data))->debug(_lvl, __FILE__, __LINE__, "(%s) " _fmt, _inst->adapter_name, ##__VA_ARGS__); } while (0)
 
 #define POE_UNDETERMINED_CLASS 0xC
+
+
+//--- BT individual masks default values ---//
+
+//0x46 Single detection fail event
+// '0' When port detection consecutively fails, counter related event (Get BT Port Status, Port Event field bit 2)
+//     and the correlated invalid signature counter advances on every unsuccessful detection cycle.
+// '1' When port detection consecutively fails, counter related event bit (section Get BT Port Status, Port Event field bit 2) is set only at the first failure.
+//     The correlated invalid signature counter continues to advance on every unsuccessful detection cycle.
+static u8 bt_individual_mask__single_detection_fail_event_default = 1;
+
+
+//--- preBT individual masks default values ---//
+
+// 0x12	Class4at_AF_Reported_as_class4
+// '0'  When the port is set to AF mode, class4 will be reported and treated as class0. (According to IEEE802.3AF).
+// '1'  When the port is set to AF mode, class4 will be reported as class4, with class power limit of class0.
+static u8 prebt_individual_mask__class4at_AF_reported_as_class4_default = 1;
+
+// 0x38	Class 0 equal AF
+// '0'  Port that was detected as class 0 will behave based on port type configuration (see section ?4.3.5 field 6).
+// '1'  Class 0 will make the port behaves as AF, regardless of configured port type.
+static u8 prebt_individual_mask__Class_0_equal_AF_default = 0;
+
+// 0x46	Single detection fail event
+// '0'  When port detection constantly fails, Detection unsuccessful event (bit 2) in the interrupt register will be set on each failure.
+// '1'  When port detection constantly fails, Detection unsuccessful event (bit 2) in the interrupt register will be set only at the 1st failure.
+static u8 prebt_individual_mask__single_detection_fail_event_default = 1;
+
+//0x55  Invalid_Sig_count_once
+// '0'  Invalid signature counter counts regularly (Every invalid signature error will increment the counter once).
+// '1'  Invalid signature counter counts once when consecutive invalid detection conditions are detected.
+static u8 prebt_individual_mask__invalid_sig_count_once_default = 1;
+
 
 // Section 4.1. in PD69200 user guide - key definitions
 enum globals_keys_t
@@ -3363,9 +3398,9 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_globals_cfg_set(
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "PREBT Update configuration for controller");
 
     uint8_t supports_legacy_detection;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "supports_legacy_detection"));      // Supports Legacy detection.
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01, &supports_legacy_detection, "supports_legacy_detection"));      // Supports Legacy detection.
     if (supports_legacy_detection != cfg_global->legacy_detect) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, cfg_global->legacy_detect));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01, cfg_global->legacy_detect));
     }
 
     uint16_t  power_consumption_w;
@@ -3607,60 +3642,68 @@ mesa_rc meba_poe_ctrl_pd69200_version_get(
 
 mesa_rc print_indv_masks_prebt(const meba_poe_ctrl_inst_t* const inst, meba_poe_indv_mask_prebt_t *im_prebt)
 {
-    // --------------------- individual mask configure by defaults -------------------- //
-
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PREBT individual masks:");
+    // --------------------- // PREBT individual masks - individual mask configure by user defaults -------------------- //
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PREBT individual masks - individual mask configure by user defaults:");
 
     // Turn off lowest priority port, when a higher priority has a PD connected, see section 4.5.10
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, &im_prebt->prebt_ignore_higher_priority, "PREBT- ignore_higher_priority"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_0x00, &im_prebt->prebt_ignore_higher_priority, "PREBT- ignore_higher_priority"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- ignore_higher_priority=%d", im_prebt->prebt_ignore_higher_priority);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &im_prebt->prebt_supports_legacy_detection, "PREBT- supports_legacy_detection"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01, &im_prebt->prebt_supports_legacy_detection, "PREBT- supports_legacy_detection"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- supports_legacy_detection=%d", im_prebt->prebt_supports_legacy_detection);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF, &im_prebt->prebt_supports_backoff, "PREBT- supports_backoff"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF_0x11, &im_prebt->prebt_supports_backoff, "PREBT- supports_backoff"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- supports_backoff=%d", im_prebt->prebt_supports_backoff);
 
-    // Disable i2c ready interrupt
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY, &im_prebt->prebt_message_ready_notify, "PREBT- message_ready_notify"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- message_ready_notify=%d", im_prebt->prebt_message_ready_notify);
-
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, &im_prebt->prebt_layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- layer2_priority_by_PD=%d", im_prebt->prebt_layer2_priority_by_PD);
-
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, &im_prebt->prebt_matrix_support_4p, "PREBT- matrix_support_4p"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- matrix_support_4p=%d", im_prebt->prebt_matrix_support_4p);
-
-    // --------------------- individual mask configure by product -------------------- //
-
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF, &im_prebt->prebt_supports_backoff, "PREBT- Supports_backoff"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Supports_backoff=%d", im_prebt->prebt_supports_backoff);
-
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE, &im_prebt->prebt_led_stream_type, "PREBT- LED_stream_type"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE_0x16, &im_prebt->prebt_led_stream_type, "PREBT- LED_stream_type"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- LED_stream_type=%d", im_prebt->prebt_led_stream_type);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING, &im_prebt->prebt_pse_powering_pse_checking, "PREBT- PSE_powering_PSE_checking"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- PSE_powering_PSE_checking=%d", im_prebt->prebt_pse_powering_pse_checking);
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_0x1E, &im_prebt->prebt_message_ready_notify, "PREBT- message_ready_notify"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- message_ready_notify=%d", im_prebt->prebt_message_ready_notify);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_ENABLE_ASIC_REFRESH, &im_prebt->prebt_enable_asic_refresh, "PREBT- Enable_ASIC_Refresh"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Enable_ASIC_Refresh=%d", im_prebt->prebt_enable_asic_refresh);
-
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, &im_prebt->prebt_layer2_lldp_enable, "PREBT- Layer2_LLDP_enable"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_0x2E, &im_prebt->prebt_layer2_lldp_enable, "PREBT- Layer2_LLDP_enable"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Layer2_LLDP_enable=%d", im_prebt->prebt_layer2_lldp_enable);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF, &im_prebt->prebt_class_0_equal_af, "PREBT- Class_0_equal_AF"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_0x2F, &im_prebt->prebt_layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- layer2_priority_by_PD=%d", im_prebt->prebt_layer2_priority_by_PD);
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P_0x34, &im_prebt->prebt_matrix_support_4p, "PREBT- matrix_support_4p"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- matrix_support_4p=%d", im_prebt->prebt_matrix_support_4p);
+
+    // --------------------- PREBT individual masks - static configuration -------------------- //
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PREBT individual masks - static configuration:");
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4_0x12, &im_prebt->prebt_class4at_af_reported_as_class4, "PREBT- class4at_AF_reported_as_class4"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- class4at_AF_reported_as_class4=%d", im_prebt->prebt_class4at_af_reported_as_class4);
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF_0x38, &im_prebt->prebt_class_0_equal_af, "PREBT- Class_0_equal_AF"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Class_0_equal_AF=%d", im_prebt->prebt_class_0_equal_af);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF, &im_prebt->prebt_class_1_2_3_equal_af, "PREBT- Class_1_2_3_equal_AF"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT_0x46, &im_prebt->prebt_single_detection_fail_event, "PREBT- single_detection_fail_event"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- single_detection_fail_event=%d", im_prebt->prebt_single_detection_fail_event);
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE_0x55, &im_prebt->prebt_invalid_sig_count_once, "PREBT- invalid_sig_count_once"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- invalid_sig_count_once=%d", im_prebt->prebt_invalid_sig_count_once);
+
+    // --------------------- PREBT individual masks - print value only -------------------- //
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "PREBT individual masks - print value only:");
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_PSE_POWERING_PSE_CHECKING_0x1F, &im_prebt->prebt_pse_powering_pse_checking, "PREBT- PSE_powering_PSE_checking"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- PSE_powering_PSE_checking=%d", im_prebt->prebt_pse_powering_pse_checking);
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_ENABLE_ASIC_REFRESH_0x2A, &im_prebt->prebt_enable_asic_refresh, "PREBT- Enable_ASIC_Refresh"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Enable_ASIC_Refresh=%d", im_prebt->prebt_enable_asic_refresh);
+
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_1_2_3_EQUAL_AF_0x39, &im_prebt->prebt_class_1_2_3_equal_af, "PREBT- Class_1_2_3_equal_AF"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Class_1_2_3_equal_AF=%d", im_prebt->prebt_class_1_2_3_equal_af);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LLDP_BEST_EFFORT, &im_prebt->prebt_lldp_best_effort, "PREBT- LLDP_best_effort"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LLDP_BEST_EFFORT_0x47, &im_prebt->prebt_lldp_best_effort, "PREBT- LLDP_best_effort"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- LLDP_best_effort=%d", im_prebt->prebt_lldp_best_effort);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION, &im_prebt->prebt_auto_zone2_port_activation, "PREBT- Auto_Zone2_port_activation"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_AUTO_ZONE2_PORT_ACTIVATION_0x49, &im_prebt->prebt_auto_zone2_port_activation, "PREBT- Auto_Zone2_port_activation"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- Auto_Zone2_port_activation=%d", im_prebt->prebt_auto_zone2_port_activation);
 
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION, &im_prebt->prebt_hocpp_high_over_current_pulse_protection, "PREBT- HOCPP_high_over_current_pulse_protection"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_HOCPP_HIGH_OVER_CURRENT_PULSE_PROTECTION_0x50, &im_prebt->prebt_hocpp_high_over_current_pulse_protection, "PREBT- HOCPP_high_over_current_pulse_protection"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"PREBT- HOCPP_high_over_current_pulse_protection=%d", im_prebt->prebt_hocpp_high_over_current_pulse_protection);
 
     return MESA_RC_OK;
@@ -3669,52 +3712,51 @@ mesa_rc print_indv_masks_prebt(const meba_poe_ctrl_inst_t* const inst, meba_poe_
 
 mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t* const inst,  meba_poe_indv_mask_bt_t *im_BT)
 {
-
-    //------ BT individual masks - stay with defaults ------ //
-
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT individual masks:");
+    // --------------------- // BT individual masks - individual mask configure by user defaults -------------------- //
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "BT individual masks - individual mask configure by user defaults:");
 
     // Turn off lowest priority port, when a higher priority has a PD connected.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY, &im_BT->bt_ignore_high_priority, "BT- ignore_high_priority"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00, &im_BT->bt_ignore_high_priority, "BT- ignore_high_priority"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- ignore_high_priority=%d", im_BT->bt_ignore_high_priority);
 
     // Support High res detection.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION, &im_BT->bt_support_high_res_detection, "BT- support_high_res_detection"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_0x10, &im_BT->bt_support_high_res_detection, "BT- support_high_res_detection"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- support_high_res_detection=%d", im_BT->bt_support_high_res_detection);
 
     // I2C restart enable - Initializes the I2C module system after 10 seconds of inactivity.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE, &im_BT->bt_i2c_restart_enable, "BT- i2c_restart_enable"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE_0x1B, &im_BT->bt_i2c_restart_enable, "BT- i2c_restart_enable"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- i2c_restart_enable=%d", im_BT->bt_i2c_restart_enable);
 
-    // HOCPP - high_over Current Pulse Protection
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_HOCPP, &im_BT->bt_hocpp, "BT- hocpp"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- hocpp=%d", im_BT->bt_hocpp);
-
-    // Single detection fail event
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT, &im_BT->bt_single_detection_fail_event, "BT- single detection fail event"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- single_detection_fail_event=%d", im_BT->bt_single_detection_fail_event);
-
     // PSE powering PSE checking
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING, &im_BT->bt_pse_powering_pse_checking, "BT- pse_powering_pse_checking"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_0x1F, &im_BT->bt_pse_powering_pse_checking, "BT- pse_powering_pse_checking"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- pse_powering_pse_checking=%d", im_BT->bt_pse_powering_pse_checking);
 
-    // Layer2 Power Allocation Limit.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT, &im_BT->bt_layer2_power_allocation_limit, "BT- layer2_power_allocation_limit"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- layer2_power_allocation_limit=%d", im_BT->bt_layer2_power_allocation_limit);
-
-    // Support adding lldp half priority.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY, &im_BT->bt_support_lldp_half_priority, "BT- support_lldp_half_priority"));
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- support_lldp_half_priority=%d", im_BT->bt_support_lldp_half_priority);
-
-    //------ BT individual masks - configuration depends on product ---------//
-
     // Enable port poe led.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE, &im_BT->bt_led_stream_type, "BT- led_stream_type"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE_0x20, &im_BT->bt_led_stream_type, "BT- led_stream_type"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- led_stream_type=%d", im_BT->bt_led_stream_type);
 
+    // Layer2 Power Allocation Limit.
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C, &im_BT->bt_layer2_power_allocation_limit, "BT- layer2_power_allocation_limit"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- layer2_power_allocation_limit=%d", im_BT->bt_layer2_power_allocation_limit);
+
     // Port LED Blinks at invalid signature or connection-check error.
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR, &im_BT->bt_blinks_at_invalid_signature, "BT- blinks_at_invalid_signature"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_0x30, &im_BT->bt_blinks_at_invalid_signature, "BT- blinks_at_invalid_signature"));
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- blinks_at_invalid_signature=%d", im_BT->bt_blinks_at_invalid_signature);
+
+    // Support adding lldp half priority.
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_0x4F, &im_BT->bt_support_lldp_half_priority, "BT- support_lldp_half_priority"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- support_lldp_half_priority=%d", im_BT->bt_support_lldp_half_priority);
+
+    // HOCPP - high_over Current Pulse Protection
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_HOCPP_0x50, &im_BT->bt_hocpp, "BT- hocpp"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- hocpp=%d", im_BT->bt_hocpp);
+
+    // --------------------- BT individual masks - static configuration -------------------- //
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "BT individual masks - static configuration:");
+
+    // Single detection fail event
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT_0x46, &im_BT->bt_single_detection_fail_event, "BT- single detection fail event"));
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,"BT- single_detection_fail_event=%d", im_BT->bt_single_detection_fail_event);
 
     return MESA_RC_OK;
 }
@@ -4167,95 +4209,91 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_chip_initialization(
 
     // Disable i2c ready interrupt
     uint8_t message_ready_notify;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY, &message_ready_notify, "PREBT- message_ready_notify"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_0x1E, &message_ready_notify, "PREBT- message_ready_notify"));
     if (message_ready_notify != tPoE_parameters.indv_mask_prebt_message_ready_notify_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY  ,tPoE_parameters.indv_mask_prebt_message_ready_notify_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_0x1E  ,tPoE_parameters.indv_mask_prebt_message_ready_notify_default));
         bChangedFlag = true;
     }
 
     // Turn off lowest priority port, when a higher priority has a PD connected, see section 4.5.10
     uint8_t ignore_higher_priority;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, &ignore_higher_priority, "PREBT- ignore_higher_priority"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_0x00, &ignore_higher_priority, "PREBT- ignore_higher_priority"));
     if (ignore_higher_priority != tPoE_parameters.indv_mask_prebt_ignore_higher_priority_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY, tPoE_parameters.indv_mask_prebt_ignore_higher_priority_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_0x00, tPoE_parameters.indv_mask_prebt_ignore_higher_priority_default));
         bChangedFlag = true;
     }
 
     uint8_t supports_legacy_detection;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, &supports_legacy_detection, "PREBT- supports_legacy_detection"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01, &supports_legacy_detection, "PREBT- supports_legacy_detection"));
     if (supports_legacy_detection != tPoE_parameters.indv_mask_prebt_supports_legact_detection_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION, tPoE_parameters.indv_mask_prebt_supports_legact_detection_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_0x01, tPoE_parameters.indv_mask_prebt_supports_legact_detection_default));
         bChangedFlag = true;
     }
 
     uint8_t supports_backoff;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF, &supports_backoff, "PREBT- supports_backoff"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF_0x11, &supports_backoff, "PREBT- supports_backoff"));
     if (supports_backoff != tPoE_parameters.indv_mask_prebt_supports_backoff_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF, tPoE_parameters.indv_mask_prebt_supports_backoff_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SUPPORTS_BACKOFF_0x11, tPoE_parameters.indv_mask_prebt_supports_backoff_default));
         bChangedFlag = true;
     }
 
     uint8_t enable_LLDP_mode;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, &enable_LLDP_mode, "PREBT- enable_LLDP_mode"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_0x2E, &enable_LLDP_mode, "PREBT- enable_LLDP_mode"));
     if (enable_LLDP_mode != tPoE_parameters.indv_mask_prebt_layer2_lldp_enable_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE, tPoE_parameters.indv_mask_prebt_layer2_lldp_enable_default)); // Enable LLDP mode.
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_0x2E, tPoE_parameters.indv_mask_prebt_layer2_lldp_enable_default)); // Enable LLDP mode.
         bChangedFlag = true;
     }
 
     uint8_t layer2_priority_by_PD;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, &layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_0x2F, &layer2_priority_by_PD, "PREBT- layer2_priority_by_PD")); // get Allow the priority to be fetched from lldp
     if (layer2_priority_by_PD != tPoE_parameters.indv_mask_prebt_layer2_priority_by_PD_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD, tPoE_parameters.indv_mask_prebt_layer2_priority_by_PD_default)); // Allow the priority to be fetched from lldp
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_0x2F, tPoE_parameters.indv_mask_prebt_layer2_priority_by_PD_default)); // Allow the priority to be fetched from lldp
         bChangedFlag = true;
     }
 
     uint8_t matrix_support_4p;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, &matrix_support_4p, "PREBT- matrix_support_4p")); // get matrix support 4p
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P_0x34, &matrix_support_4p, "PREBT- matrix_support_4p")); // get matrix support 4p
     if (matrix_support_4p != tPoE_parameters.indv_mask_prebt_matrix_support_4P_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P, tPoE_parameters.indv_mask_prebt_matrix_support_4P_default)); // Allow matrix to support 4p
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_MATRIX_SUPPORT_4P_0x34, tPoE_parameters.indv_mask_prebt_matrix_support_4P_default)); // Allow matrix to support 4p
         bChangedFlag = true;
     }
 
     uint8_t led_stream_type;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE, &led_stream_type, "PREBT- led_stream_type"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE_0x16, &led_stream_type, "PREBT- led_stream_type"));
     if (led_stream_type != tPoE_parameters.indv_mask_prebt_led_stream_type_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE, tPoE_parameters.indv_mask_prebt_led_stream_type_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_LED_STREAM_TYPE_0x16, tPoE_parameters.indv_mask_prebt_led_stream_type_default));
         bChangedFlag = true;
     }
 
-    // Class4at_AF_Reported_as_class4
-    // When the port is set to AF mode, class4 will be reported as class4, with class power limit of class0.
+
     uint8_t class4at_AF_reported_as_class4;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4, &class4at_AF_reported_as_class4, "PREBT- class4at_AF_reported_as_class4"));
-    if (class4at_AF_reported_as_class4 != 1) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4, 1)); // When the port is set to AF mode, class4 will be reported as class4, with class power limit of class0
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4_0x12, &class4at_AF_reported_as_class4, "PREBT- class4at_AF_reported_as_class4"));
+    if (class4at_AF_reported_as_class4 != prebt_individual_mask__class4at_AF_reported_as_class4_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_CLASS4AT_AF_REPORTED_AS_CLASS4_0x12, prebt_individual_mask__class4at_AF_reported_as_class4_default)); // When the port is set to AF mode, class4 will be reported as class4, with class power limit of class0
         bChangedFlag = true;
     }
 
-    // Class_0_equal_AF
-    // Port that was detected as class 0 will behave based on port type configuration
+
     uint8_t Class_0_equal_AF;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF, &Class_0_equal_AF, "PREBT- Class_0_equal_AF"));
-    if (Class_0_equal_AF != 0) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF, 0)); // Port that was detected as class 0 will behave based on port type configuration
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF_0x38, &Class_0_equal_AF, "PREBT- Class_0_equal_AF"));
+    if (Class_0_equal_AF != prebt_individual_mask__Class_0_equal_AF_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_CLASS_0_EQUAL_AF_0x38, prebt_individual_mask__Class_0_equal_AF_default)); // Port that was detected as class 0 will behave based on port type configuration
         bChangedFlag = true;
     }
 
-    // Single detection fail event
-    // When port detection constantly fails, Detection unsuccessful event (bit 2) in the interrupt register will be set only at the 1st  failure.
+
     uint8_t single_detection_fail_event;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT, &single_detection_fail_event, "PREBT- single_detection_fail_event"));
-    if (single_detection_fail_event != 1) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT, 1));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT_0x46, &single_detection_fail_event, "PREBT- single_detection_fail_event"));
+    if (single_detection_fail_event != prebt_individual_mask__single_detection_fail_event_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_SINGLE_DETECTION_FAIL_EVENT_0x46, prebt_individual_mask__single_detection_fail_event_default));
         bChangedFlag = true;
     }
 
-    // Invalid_Sig_count_once
-    // Invalid signature counter counts once when consecutive invalid detection conditions are detected.
+
     uint8_t invalid_sig_count_once;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE, &invalid_sig_count_once, "PREBT- invalid_sig_count_once"));
-    if (invalid_sig_count_once != 1) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE, 1));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE_0x55, &invalid_sig_count_once, "PREBT- invalid_sig_count_once"));
+    if (invalid_sig_count_once != prebt_individual_mask__invalid_sig_count_once_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_PREBT_INVALID_SIG_COUNT_ONCE_0x55, prebt_individual_mask__invalid_sig_count_once_default));
         bChangedFlag = true;
     }
 
@@ -7550,90 +7588,86 @@ mesa_rc meba_poe_ctrl_pd69200_bt_chip_initialization(
     //--- individual_masks ---//
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing BT individual masks parameters", __FUNCTION__, inst->adapter_name);
 
-    // I2C restart enable - Initializes the I2C module system after 10 seconds of inactivity.
-    uint8_t i2c_restart_enable;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE, &i2c_restart_enable, "BT- i2c_restart_enable"));
-    if (i2c_restart_enable != tPoE_parameters.indv_mask_BT_i2c_restart_enable_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE, tPoE_parameters.indv_mask_BT_i2c_restart_enable_default));
-        bChangedFlag = true;
-    }
-
     // Turn off lowest priority port, when a higher priority has a PD connected.
     uint8_t ignore_high_priority;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY, &ignore_high_priority, "BT- ignore_high_priority"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00, &ignore_high_priority, "BT- ignore_high_priority"));
     if (ignore_high_priority != tPoE_parameters.indv_mask_BT_ignore_higher_priority_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY, tPoE_parameters.indv_mask_BT_ignore_higher_priority_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00, tPoE_parameters.indv_mask_BT_ignore_higher_priority_default));
         bChangedFlag = true;
     }
 
     // Support High res detection.
     uint8_t support_high_res_detection;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION, &support_high_res_detection, "BT- support_high_res_detection"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_0x10, &support_high_res_detection, "BT- support_high_res_detection"));
     if (support_high_res_detection != tPoE_parameters.indv_mask_BT_support_high_res_detection_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION, tPoE_parameters.indv_mask_BT_support_high_res_detection_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_0x10, tPoE_parameters.indv_mask_BT_support_high_res_detection_default));
         bChangedFlag = true;
     }
 
-    // Enable port poe led.
-    uint8_t led_stream_type;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE, &led_stream_type, "BT- led_stream_type"));
-    if (led_stream_type != tPoE_parameters.indv_mask_BT_led_stream_type_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE, tPoE_parameters.indv_mask_BT_led_stream_type_default));
-        bChangedFlag = true;
-    }
-
-    // HOCPP - high_over Current Pulse Protection
-    uint8_t hocpp;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_HOCPP, &hocpp, "BT- hocpp"));
-    if (hocpp != tPoE_parameters.indv_mask_BT_HOCPP_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_HOCPP, tPoE_parameters.indv_mask_BT_HOCPP_default));
-        bChangedFlag = true;
-    }
-
-    // When port detection consecutively fails, counter related event bit (section
-    // Get BT Port Status, Port Event field bit 2) is set only at the first failure.
-    // The correlated invalid signature counter continues to advance on every unsuccessful detection cycle.
-    tPoE_parameters.indv_mask_BT_bt_single_detection_fail_event_default = 1;
-
-    // Single detection fail event
-    uint8_t bt_single_detection_fail_event;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT, &bt_single_detection_fail_event, "BT- bt_single_detection_fail_event"));
-    if (bt_single_detection_fail_event != tPoE_parameters.indv_mask_BT_bt_single_detection_fail_event_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT, tPoE_parameters.indv_mask_BT_bt_single_detection_fail_event_default));
+    // I2C restart enable - Initializes the I2C module system after 10 seconds of inactivity.
+    uint8_t i2c_restart_enable;
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE_0x1B, &i2c_restart_enable, "BT- i2c_restart_enable"));
+    if (i2c_restart_enable != tPoE_parameters.indv_mask_BT_i2c_restart_enable_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_I2C_RESTART_ENABLE_0x1B, tPoE_parameters.indv_mask_BT_i2c_restart_enable_default));
         bChangedFlag = true;
     }
 
     // PSE powering PSE checking
     uint8_t pse_powering_pse_checking;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING, &pse_powering_pse_checking, "BT- pse_powering_pse_checking"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_0x1F, &pse_powering_pse_checking, "BT- pse_powering_pse_checking"));
     if (pse_powering_pse_checking != tPoE_parameters.indv_mask_BT_PSE_powering_PSE_checking_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING, tPoE_parameters.indv_mask_BT_PSE_powering_PSE_checking_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_0x1F, tPoE_parameters.indv_mask_BT_PSE_powering_PSE_checking_default));
+        bChangedFlag = true;
+    }
+
+    // Enable port poe led.
+    uint8_t led_stream_type;
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE_0x20, &led_stream_type, "BT- led_stream_type"));
+    if (led_stream_type != tPoE_parameters.indv_mask_BT_led_stream_type_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_LED_STREAM_TYPE_0x20, tPoE_parameters.indv_mask_BT_led_stream_type_default));
         bChangedFlag = true;
     }
 
     // Layer2 Power Allocation Limit.
     uint8_t layer2_power_allocation_limit;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT, &layer2_power_allocation_limit, "BT- layer2_power_allocation_limit"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C, &layer2_power_allocation_limit, "BT- layer2_power_allocation_limit"));
     if (layer2_power_allocation_limit != tPoE_parameters.indv_mask_BT_layer2_power_allocation_limit_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT, tPoE_parameters.indv_mask_BT_layer2_power_allocation_limit_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C, tPoE_parameters.indv_mask_BT_layer2_power_allocation_limit_default));
         bChangedFlag = true;
     }
 
     // Port LED Blinks at invalid signature or connection-check error.
     uint8_t blinks_at_invalid_signature;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR, &blinks_at_invalid_signature, "BT- blinks_at_invalid_signature"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_0x30, &blinks_at_invalid_signature, "BT- blinks_at_invalid_signature"));
     if (blinks_at_invalid_signature != tPoE_parameters.indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR, tPoE_parameters.indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_0x30, tPoE_parameters.indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default));
         bChangedFlag = true;
     }
 
     // Support adding lldp half priority.
     uint8_t support_lldp_half_priority;
-    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY, &support_lldp_half_priority, "BT- support_lldp_half_priority"));
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_0x4F, &support_lldp_half_priority, "BT- support_lldp_half_priority"));
     if (support_lldp_half_priority != tPoE_parameters.indv_mask_BT_support_adding_lldp_half_priority_default) {
-        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY, tPoE_parameters.indv_mask_BT_support_adding_lldp_half_priority_default));
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_0x4F, tPoE_parameters.indv_mask_BT_support_adding_lldp_half_priority_default));
         bChangedFlag = true;
     }
+
+    // HOCPP - high_over Current Pulse Protection
+    uint8_t hocpp;
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_HOCPP_0x50, &hocpp, "BT- hocpp"));
+    if (hocpp != tPoE_parameters.indv_mask_BT_HOCPP_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_HOCPP_0x50, tPoE_parameters.indv_mask_BT_HOCPP_default));
+        bChangedFlag = true;
+    }
+
+    // Single detection fail event
+    uint8_t bt_single_detection_fail_event;
+    MESA_RC(meba_poe_pd69200_get_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT_0x46, &bt_single_detection_fail_event, "BT- bt_single_detection_fail_event"));
+    if (bt_single_detection_fail_event != bt_individual_mask__single_detection_fail_event_default) {
+        MESA_RC(meba_poe_pd69200_set_individual_mask(inst, INDV_MASK_BT_SINGLE_DETECTION_FAIL_EVENT_0x46, bt_individual_mask__single_detection_fail_event_default));
+        bChangedFlag = true;
+    }
+
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing poe lldp parameters", __FUNCTION__, inst->adapter_name);
 
