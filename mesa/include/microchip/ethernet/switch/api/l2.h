@@ -114,7 +114,6 @@ typedef struct
     mesa_bool_t automatic; // Automatic learning done by switch chip (default enabled)
     mesa_bool_t cpu;       // Learn frames copied to CPU (default disabled)
     mesa_bool_t discard;   // Learn frames discarded (default disabled)
-    mesa_bool_t one_shot CAP(L2_ONE_SHOT);       // Learn frames cannot move to other port.
     uint32_t    learn_limit CAP(L2_LEARN_LIMIT); // Learn limit in number of entries. '0' means disable.
 } mesa_learn_mode_t;
 
