@@ -147,9 +147,9 @@ int meba_pd69200_i2c_adapter_open(const char *filename, uint8_t i2c_addr);
 */
 void meba_pd69200_driver_init(
     meba_poe_ctrl_inst_t       *inst,
-    char const                 *driver_name, 
-    int                         adapter_fd, 
-    meba_poe_ctrl_cap_t         capabilities, 
+    char const                 *driver_name,
+    int                         adapter_fd,
+    meba_poe_ctrl_cap_t         capabilities,
     meba_poe_port_properties_t *port_map,
     uint32_t                    port_map_length,
     meba_poe_psu_input_prob_t   *psu_map,
@@ -176,7 +176,7 @@ void meba_pd69200_driver_init(
 void meba_pd69200bt_driver_init(
     meba_poe_ctrl_inst_t       *inst,
     char const                 *driver_name,
-    int                         adapter_fd, 
+    int                         adapter_fd,
     meba_poe_ctrl_cap_t         capabilities,
     meba_poe_port_properties_t *port_map,
     uint32_t                    port_map_length,

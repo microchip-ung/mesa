@@ -242,4 +242,3 @@ meba_api_poe_t *meba_poe_get()
 {
     return &public_functions;
 }
-

@@ -58,8 +58,8 @@ meba_poe_parameters_t tPoE_parameters =
 meba_poe_psu_input_prob_t jr2_power_supplies[] =
 {
     {
-        .id = MEBA_POE_CTRL_PSU_ALL,                // PowerSupply-ID
-        .min_w = 0,                                 // PwrSuply Min-Pwr
+        .id = MEBA_POE_CTRL_PSU_ALL,                        // PowerSupply-ID
+        .min_w = 0,                                         // PwrSuply Min-Pwr
         .max_w = JR2_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT,  // PwrSuply Max-Pwr
         .def_w = JR2_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT,  // PwrSuply Def-Capab
         .system_pwr_usage_w = JR2_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT,    // System PwrUsage
@@ -132,7 +132,7 @@ mesa_rc meba_poe_jr2_system_initialize(
     {
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
-	        tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
+            tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev1 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
@@ -161,7 +161,7 @@ mesa_rc meba_poe_jr2_system_initialize(
             tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
 
-	    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
                tPoE_parameters.poe_init_params.max_poe_ports,
                tPoE_parameters.poe_init_params.power_supply_max_power_w,
                tPoE_parameters.poe_init_params.eMeba_poe_firmware_type);
@@ -186,7 +186,7 @@ mesa_rc meba_poe_jr2_system_initialize(
     {
         // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
-	        tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_2pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
+            tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_2pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev1 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
@@ -213,7 +213,7 @@ mesa_rc meba_poe_jr2_system_initialize(
             tPoE_parameters.poe_init_params.max_poe_ports = sizeof(jr2_pd69200_2pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
 
-	    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,"dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
             tPoE_parameters.poe_init_params.max_poe_ports,
             tPoE_parameters.poe_init_params.power_supply_max_power_w,
             tPoE_parameters.poe_init_params.eMeba_poe_firmware_type);
@@ -306,4 +306,3 @@ meba_api_poe_t *meba_poe_get()
 {
     return &public_functions;
 }
-

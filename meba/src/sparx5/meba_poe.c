@@ -189,7 +189,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    tPoE_parameters);
   #endif //SPARX5_TWO_POE_CONTROLLERS
     } else if(tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_PREBT) {
-	// overide tMeba_poe_init_params params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_1)/sizeof(meba_poe_port_properties_t);
         }
@@ -215,7 +215,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(
                                    inst->iface.debug,
                                    tPoE_parameters);
   #ifdef SPARX5_TWO_POE_CONTROLLERS
-	// overide tMeba_poe_init_params params if using H file parameters
+        // overide tMeba_poe_init_params params if using H file parameters
         if(tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->max_poe_ports = sizeof(sparx5_pd69200_4pairs_port_map_2)/sizeof(meba_poe_port_properties_t);
         }
@@ -386,4 +386,3 @@ meba_api_poe_t *meba_poe_get()
 {
     return &public_functions;
 }
-
