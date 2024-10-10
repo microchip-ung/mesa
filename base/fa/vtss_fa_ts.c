@@ -1557,6 +1557,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     VTSS_MEMSET(seriel_25G_kr_delay, 0, sizeof(seriel_25G_kr_delay));
     VTSS_MEMSET(seriel_25G_rs_delay, 0, sizeof(seriel_25G_rs_delay));
 
+#if defined(VTSS_ARCH_SPARX5)
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_250MHZ) {
         /* The below is based on numbers from front end simulation and is only valid for 250 MHZ. */
         seriel_1G_delay[ 0].rx = 23587;    seriel_1G_delay[ 0].tx = 129596;
@@ -2041,7 +2042,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         seriel_25G_rs_delay[62].rx = 449874;  seriel_25G_rs_delay[62].tx = 156792;
         seriel_25G_rs_delay[63].rx = 448318;  seriel_25G_rs_delay[63].tx = 155254;
     }
-
+#else
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_328MHZ) {
         /* The below is based on numbers from front end simulation and is only valid for 328 MHZ. (Laguna) */
         seriel_1G_delay[ 0].rx = 150666;    seriel_1G_delay[ 0].tx = 162490;
@@ -2127,7 +2128,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         seriel_10G_kr_delay[26].rx = 345538;   seriel_10G_kr_delay[26].tx = 180780;
         seriel_10G_kr_delay[27].rx = 345538;   seriel_10G_kr_delay[27].tx = 180780;
     }
-
+#endif
     return VTSS_RC_OK;
 }
 

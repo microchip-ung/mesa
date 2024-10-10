@@ -241,14 +241,12 @@
 #define VTSS_FEATURE_AFI_SWC                      /**< AFI */
 #define VTSS_AFI_V2                               /**< AFI API version 2 */
 #define VTSS_FEATURE_VOP                        /**< Y.1731/IEEE802.1ag OAM */
-
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS     /**< QoS: Has Egress Queue Shapers */
 #define VTSS_FEATURE_VLAN_COUNTERS               /**< VLAN counters are only supported for SMB devices without OAM */
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port change within a serdes  */
 #define VTSS_FEATURE_TIMESTAMP_PCH                /**< TS PCH hardware support */
-
-#endif // !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
+#endif // !VTSS_OPT_LIGHT
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
 
 // VTSS_ARCH_SPARX5 specific features
