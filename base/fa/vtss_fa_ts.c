@@ -483,7 +483,6 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
     u32                       port = VTSS_CHIP_PORT(port_no);
 
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
-    vtss_port_conf_t *conf  = &vtss_state->port.conf[port_no];
     BOOL high_dev = fa_is_high_speed_device(vtss_state, port_no);
     u32  tx_pch_mode = 0, rx_pch_mode = 0, val = 0, msk = 0;
     switch (o_mode->rx_pch_mode) {

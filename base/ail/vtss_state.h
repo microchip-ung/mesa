@@ -358,8 +358,6 @@ typedef struct vtss_state_s {
     // not available, so using the RedBox count, which is the same.
     u32 taxi_delay[VTSS_REDBOX_CNT];
 #endif
-
-    u8 chip_design; /* FA=1, LA=2 */
 #endif
 } vtss_state_t;
 

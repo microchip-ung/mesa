@@ -48,6 +48,14 @@
 //                               -----------
 //                               30 port devices + 14 'shadow' devices
 
+#if defined(VTSS_ARCH_SPARX5)
+#define FA_TGT 1
+#define LA_TGT 0
+#else
+#define FA_TGT 0
+#define LA_TGT 1
+#endif
+
 // CIL constants, which are different for FA/LA
 #if defined(VTSS_ARCH_SPARX5)
 #define RT_CHIP_PORTS                  65
@@ -454,8 +462,6 @@ u32 vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
 #define FA_SERDES_TYPE_6G  6
 #define FA_SERDES_TYPE_10G 10
 #define FA_SERDES_TYPE_25G 25
-#define FA_TGT (vtss_state->chip_design == 1)
-#define LA_TGT !FA_TGT
 vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *sd_indx, u32 *sd_type);
 u32 vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);

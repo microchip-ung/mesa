@@ -587,7 +587,6 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
     vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
-    const vtss_state_t  *const vtss_state = state; // For VTSS_CHIP_PORT_CPU_0/1
 
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
@@ -595,7 +594,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t          *const state,
     // (Laguna) Bit 279-287 (9 bits) are unused
 
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (state->vtss_features[FEATURE_REDBOX]) {
         // RedBox is bit 270-278 (9 bits)
         rb = ((xtr_hdr[1] & 0x7f) << 2) | ((xtr_hdr[2] & 0xc0) >> 6);
     }

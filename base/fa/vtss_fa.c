@@ -895,11 +895,10 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
 
 static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
 {
+#if defined(VTSS_ARCH_SPARX5)
+    return VTSS_RC_OK;
+#else
     u32 chip_id = vtss_state->misc.chip_id.part_number;
-
-    if (!LA_TGT) {
-        return VTSS_RC_OK;
-    }
 
     switch (vtss_state->create.target) {
     case VTSS_TARGET_LAN9698RED: // Laguna-100-RED
@@ -1004,6 +1003,7 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
 err_exit:
     VTSS_E("Chip:'0x%x' does not support the target:'0x%x'",chip_id, vtss_state->create.target);
     return VTSS_RC_ERROR;
+#endif
 }
 
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
@@ -1102,44 +1102,33 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t *vtss_state, vtss_port_no_t 
     if (port_no >= RT_CHIP_PORTS) {
         // Internal ports
         *port = (RT_CHIP_PORT_CPU + port_no - RT_CHIP_PORTS);
-        if (FA_TGT) { // Fireant
-            if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
-                return FA_CAL_SPEED_2G5; // Equals 1.25G
-            } else if (port_no == RT_CHIP_PORT_VD0) {
-                // IPMC only idle BW
-                return FA_CAL_SPEED_NONE;
-            } else if (port_no == RT_CHIP_PORT_VD1) {
-                if (max_bw - used_bw >= 25000) {
-                    return FA_CAL_SPEED_25G; // OAM equals 12.5G
-                } else if (max_bw - used_bw >= 10000) {
-                    return FA_CAL_SPEED_10G; // OAM equals 5G
-                } else if (max_bw - used_bw >= 5000) {
-                    return FA_CAL_SPEED_5G;  // OAM equals 2G5
-                } else if (max_bw - used_bw >= 2500) {
-                    return FA_CAL_SPEED_2G5;  // OAM equals 1.25G
-                } else {
-                    return FA_CAL_SPEED_1G;
-                }
-            } else if (port_no == RT_CHIP_PORT_VD2) {
-                // IPinIP gets only idle BW
-                return FA_CAL_SPEED_NONE;
+        if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
+            return FA_CAL_SPEED_2G5; // Equals 1.25G
+        } else if (port_no == RT_CHIP_PORT_VD0) {
+            // IPMC only idle BW
+            return FA_CAL_SPEED_NONE;
+        } else if (port_no == RT_CHIP_PORT_VD1) {
+#if defined(VTSS_ARCH_SPARX5)
+            if (max_bw - used_bw >= 25000) {
+                return FA_CAL_SPEED_25G; // OAM equals 12.5G
+            } else if (max_bw - used_bw >= 10000) {
+                return FA_CAL_SPEED_10G; // OAM equals 5G
+            } else if (max_bw - used_bw >= 5000) {
+                return FA_CAL_SPEED_5G;  // OAM equals 2G5
+            } else if (max_bw - used_bw >= 2500) {
+                return FA_CAL_SPEED_2G5;  // OAM equals 1.25G
             } else {
-                // Unknown internal port
-                return FA_CAL_SPEED_NONE;
+                return FA_CAL_SPEED_1G;
             }
-        } else { // Laguna
-            if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
-                return FA_CAL_SPEED_2G5; // Equals 1.25G
-            } else if (port_no == RT_CHIP_PORT_VD0) {
-                return FA_CAL_SPEED_NONE; // IPMC idles only
-            } else if (port_no == RT_CHIP_PORT_VD1) {
-                return FA_CAL_SPEED_NONE; // OAM idles only
-            } else if (port_no == RT_CHIP_PORT_VD2) {
-                return FA_CAL_SPEED_NONE; // IPinIP idles only
-            } else {
-                // Unknown internal port
-                return FA_CAL_SPEED_NONE;
-            }
+#else
+            return FA_CAL_SPEED_NONE; // OAM idles only
+#endif
+        } else if (port_no == RT_CHIP_PORT_VD2) {
+            // IPinIP gets only idle BW
+            return FA_CAL_SPEED_NONE;
+        } else {
+            // Unknown internal port
+            return FA_CAL_SPEED_NONE;
         }
     }
 
@@ -1438,8 +1427,10 @@ static vtss_rc fa_dsm_chk_calendar(vtss_state_t *vtss_state, u32 *calendar, i32 
 #define FA_CHIP_PORTS_ALL (65 + 5)
 
 /* MESA-641. Function ported from verification/TCL to manually calculate fifo size for DSM calendar */
-u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
+u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
+#if defined(VTSS_ARCH_SPARX5)
     u32 sys_clk = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
     u32 mac_width = 8;
     u32 fifo_width = 16;
@@ -1454,15 +1445,6 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
                                         11,12,13,14,15,16,17,18,        \
                                         4,6,8,4,6,8,6,8,                \
                                         2,2,2,2,2,2,2,4,2};
-    if (LA_TGT) {
-        switch (conf->speed) {
-        case VTSS_SPEED_100M:
-        case VTSS_SPEED_10M:
-            return 1;
-        default:
-            return 0;
-        }
-    }
 
     switch (conf->speed) {
     case VTSS_SPEED_25G:
@@ -1499,6 +1481,15 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
     tmp3 = tmp1 * tmp2 / 1000;
     tmp4 = (tmp3 + 2000 + 999) / 1000 + addition;
     return tmp4;
+#else
+    switch (conf->speed) {
+    case VTSS_SPEED_100M:
+    case VTSS_SPEED_10M:
+        return 1;
+    default:
+        return 0;
+    }
+#endif
 }
 
 #if VTSS_OPT_DEBUG_PRINT
@@ -2490,8 +2481,6 @@ vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 #if defined(VTSS_OPT_EMUL)
     VTSS_RC(vtss_fa_emul_init(vtss_state));
 #endif
-    /* FA: chip_design = 1,  LA: chip_design = 2 */
-    vtss_state->chip_design = fa_is_target(vtss_state) ? 1 : 2;
 
     /* Create function groups */
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_CREATE);
