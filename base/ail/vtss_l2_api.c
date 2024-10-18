@@ -917,6 +917,9 @@ vtss_rc vtss_mac_add(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
     if (entry->index_table) {
+        if (!entry->locked) {
+            return VTSS_RC_ERROR;
+        }
         VTSS_RC(vtss_mac_index_add(vtss_state, entry));
     } else
 #endif

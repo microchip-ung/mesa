@@ -203,6 +203,8 @@ test_table.each do |t|
     end
 end
 
+test_summary
+
 test "dump" do
     break
     $ts.dut.run("mesa-cmd debug api mac_table")
