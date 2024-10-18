@@ -1903,7 +1903,10 @@ static vtss_rc fa_port_buf_qlim_set(vtss_state_t *vtss_state)
         }
     }
 
-    if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
+#if defined(VTSS_FEATURE_QOS_OT)
+    if (!vtss_state->vtss_features[FEATURE_QOS_OT])
+#endif
+    {
         // Apply 100% to share 0
         if (fa_share_config(vtss_state, 0, 100) != VTSS_RC_OK) {
             VTSS_E("Could not setup WMs");
