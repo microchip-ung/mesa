@@ -1961,6 +1961,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
         port = VTSS_CHIP_PORT(port_a == VTSS_PORT_NO_NONE ? old->port_b : port_a);
         REG_WRM_CLR(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+        REG_WRM_CLR(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
     }
     if (ena) {
         // Enable IFH/preamble transfers for new interlink port
@@ -1968,6 +1969,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
         port = VTSS_CHIP_PORT(port_a == VTSS_PORT_NO_NONE ? conf->port_b : port_a);
         REG_WRM_SET(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+        REG_WRM_SET(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         REG_WRM_SET(VTSS_QFWD_SWITCH_PORT_MODE(port), VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA);
     }
 
@@ -3350,6 +3352,17 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         }
         fa_debug_rb_fld(pr, x, VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA,
                         "REW:RTAG_ETAG_CTRL:RB_ENA", NULL, TRUE, 2);
+
+        for (j = 0; j < 2; j++) {
+            x[j] = 0;
+            port = (j ? conf->port_b : conf->port_a);
+            if (port != VTSS_PORT_NO_NONE) {
+                port = VTSS_CHIP_PORT(port);
+                REG_RD(VTSS_REW_PTP_MISC_CFG(port), &x[j]);
+            }
+        }
+        fa_debug_rb_fld(pr, x, VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS,
+                        "REW:PTP_MISC_CFG:PTP_TAG_DIS", NULL, TRUE, 2);
 
         if (info->full) {
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {

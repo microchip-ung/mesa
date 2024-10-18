@@ -100,15 +100,23 @@ typedef enum
     MESA_ACL_PTP_RSP_DLY_REQ_RSP_NO_TS   // Auto response to Delay_Req, exludes receiveTimestamp update
 } mesa_acl_ptp_rsp_t CAP(ACL_SIP_CNT);
 
+// ACL PTP RedBox forwarding
+typedef struct {
+    mesa_bool_t enable; // Enable processing
+    mesa_bool_t srcid;  // SourcePortIdentity forwarding
+    mesa_bool_t reqid;  // RequestingPortIdentity forwarding
+} mesa_acl_ptp_rb_fwd_t;
+
 // ACL PTP action configuration
 typedef struct {
-    mesa_acl_ptp_rsp_t response;             // PTP Delay_Req/Response action
-    int8_t             log_message_interval; // PTP logMessageInterval [-8,7] returned in the Delay_Resp message
-    mesa_bool_t        copy_smac_to_dmac;    // PTP DMAC operation
-    mesa_bool_t        set_smac_to_port_mac; // PTP SMAC operation
-    uint8_t            dom_sel;              // PTP domain selector. PTP_DOM_SEL indexes the PTP configuration
-    mesa_udp_tcp_t     sport;                // UDP source port
-    mesa_udp_tcp_t     dport;                // UDP destination port
+    mesa_acl_ptp_rsp_t    response;             // PTP Delay_Req/Response action
+    int8_t                log_message_interval; // PTP logMessageInterval [-8,7] returned in the Delay_Resp message
+    mesa_bool_t           copy_smac_to_dmac;    // PTP DMAC operation
+    mesa_bool_t           set_smac_to_port_mac; // PTP SMAC operation
+    uint8_t               dom_sel;              // PTP domain selector. PTP_DOM_SEL indexes the PTP configuration
+    mesa_udp_tcp_t        sport;                // UDP source port
+    mesa_udp_tcp_t        dport;                // UDP destination port
+    mesa_acl_ptp_rb_fwd_t rb_fwd;               // RedBox forwarding
 } mesa_acl_ptp_action_conf_t CAP(ACL_SIP_CNT);
 
 // ACL address update

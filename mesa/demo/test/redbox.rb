@@ -729,6 +729,73 @@ test_table =
             {port: "c", name: "tx_dupl_multi", val: 1},
         ]
     },
+    {
+        # Refer to Laguna DOS section 8.1.3
+        txt: "PTP Transparent clock",
+        cfg: {mode: "PRP_SAN",
+              # Type 0: Sync
+              # Type 1: Delay_Req
+              # Type 9: Delay_Resp
+              acl: [{idx_rx: "c", idx_tx: "a", type: 0},
+                    {idx_rx: "a", idx_tx: "c", type: 1, srcid: true},
+                    {idx_rx: "c", idx_tx: "a", type: 9, reqid: true},
+                    {idx_rx: "a", idx_tx: "c", type: 0, srcid: true},
+                    {idx_rx: "c", idx_tx: "a", type: 1},
+                    {idx_rx: "a", idx_tx: "c", type: 9, srcid: true, reqid: true}]},
+        tab: [
+            # Upper Laguna, Sync frame to port A/B
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a"},
+                   {idx_rx: "b"}]},
+            # Upper Laguna, Delay_Req frame from port A
+            {frm: {ptp: {type: "request"}},
+             fwd: [{idx_tx: "a"},
+                   {idx_rx: "c", src: (2 << 12)}]},
+            # Upper Laguna, Delay_Req frame from port B
+            {frm: {ptp: {type: "request"}},
+             fwd: [{idx_tx: "b"},
+                   {idx_rx: "c", src: (3 << 12)}]},
+            # Upper Laguna, Delay_Resp frame to port A
+            {frm: {ptp: {type: "response", req: (2 << 12)}},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", req: 0}]},
+            # Upper Laguna, Delay_Resp frame to port B
+            {frm: {ptp: {type: "response", req: (3 << 12)}},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "b", req: 0}]},
+            # Lower Laguna, Sync frame from port A
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "a"},
+                   {idx_rx: "c", src: (2 << 12)}]},
+            # Lower Laguna, Sync frame from port B
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "b"},
+                   {idx_rx: "c", src: (3 << 12)}]},
+            # Lower Laguna, Delay_Req frame to port A/B
+            {frm: {ptp: {type: "request"}},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a"},
+                   {idx_rx: "b"}]},
+            # Lower Laguna, Delay_Resp frame from port A
+            {frm: {ptp: {type: "response"}},
+             fwd: [{idx_tx: "a"},
+                   {idx_rx: "c", src: (2 << 12)}]},
+            # Lower Laguna, Delay_Resp frame from port A (req = 3 discarded)
+            {frm: {ptp: {type: "response", req: (3 << 12)}},
+             fwd: [{idx_tx: "a"}]},
+            # Lower Laguna, Delay_Resp frame from port B
+            {frm: {ptp: {type: "response"}},
+             fwd: [{idx_tx: "b"},
+                   {idx_rx: "c", src: (3 << 12)}]},
+            # Lower Laguna, Delay_Resp frame from port B (req = 2 discarded)
+            {frm: {ptp: {type: "response", req: (2 << 12)}},
+             fwd: [{idx_tx: "b"}]},
+        ],
+        cnt: [
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_untagged", val: 8}]
+    },
 
     # HSR-PRP tests
     {
@@ -1227,9 +1294,14 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
     idx_list = []
     idx_tx = nil
     idx_tx_name = nil
-    smac = "01"
     f = fld_get(entry, :frm, {})
+    dmac = fld_get(f, :dmac, nil)
+    smac = "01"
     et = fld_get(f, :et, 0xeeee)
+    ptp = fld_get(f, :ptp, nil)
+    if (ptp != nil)
+        dmac = "01:1b:19:00:00:00"
+    end
     len = fld_get(f, :len, 46)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
@@ -1277,8 +1349,7 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 cmd += (" " + cmd_tx_ifh_push(info))
             end
             cmd += " eth"
-            if (f.key?:dmac)
-                dmac = f[:dmac]
+            if (dmac != nil)
                 cmd += " dmac #{dmac}"
                 bpdu = (dmac == "01:80:c2:00:00:00")
             end
@@ -1296,7 +1367,22 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 seqn = fld_get(hsr, :seqn, 1)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
             end
-            cmd += " et 0x#{et.to_s(16)} data pattern cnt #{len}"
+            if (ptp != nil)
+                type = fld_get(ptp, :type, "?")
+                cmd += " ptp-#{type} hdr-correctionField ign"
+                req = fld_get(ptp, :req, nil)
+                req = fld_get(e, :req, req)
+                if (req != nil)
+                    cmd += (" rpi-portNumber 0x%04x" % req)
+                end
+                src = fld_get(ptp, :src, nil)
+                src = fld_get(e, :src, src)
+                if (src != nil)
+                    cmd += (" hdr-portNumber 0x%04x" % src)
+                end
+            else
+                cmd += " et 0x#{et.to_s(16)} data pattern cnt #{len}"
+            end
             if (prp != nil)
                 seqn = fld_get(prp, :seqn, 1)
                 net_id = fld_get(prp, :net_id, 5)
@@ -1437,6 +1523,30 @@ def redbox_test(t)
             vlan_port_conf_set(idx, e)
         end
         $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(vlan_idx_list))
+    end
+
+    # ACE/PTP configuration
+    acl = fld_get(cfg, :acl, [])
+    acl.each_with_index do |ace, i|
+        conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
+        conf["id"] = (i + 1)
+        idx = rb_idx(ace[:idx_rx])
+        conf["port_list"] = "#{$ts.dut.p[idx]}"
+        ptp = conf["frame"]["etype"]["ptp"]
+        ptp["enable"] = true
+        h = ptp["header"]
+        h["value"][0] = ace[:type]
+        h["mask"][0] = 0xff
+        a = conf["action"]
+        a["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
+        idx = rb_idx(ace[:idx_tx])
+        a["port_list"] = "#{$ts.dut.p[idx]}"
+        a["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
+        fwd = a["ptp"]["rb_fwd"]
+        fwd["enable"] = true
+        fwd["srcid"] = fld_get(ace, :srcid, false)
+        fwd["reqid"] = fld_get(ace, :reqid, false)
+        $ts.dut.call("mesa_ace_add", 0, conf)
     end
 
     # NPI port
@@ -1589,6 +1699,14 @@ def redbox_test(t)
     # Restore VLAN port configuration
     vlan_idx_list.each do |idx|
         vlan_port_conf_set(idx, {})
+    end
+
+    # Delete ACL
+    acl.each_index do |i|
+        id = (i + 1)
+        cnt = $ts.dut.call("mesa_ace_counter_get", id)
+        t_i("ace[#{id}]: #{cnt}")
+        $ts.dut.call("mesa_ace_del", id)
     end
 
     # Restore NPI configuration

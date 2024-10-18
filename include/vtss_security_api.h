@@ -264,15 +264,23 @@ typedef enum
     VTSS_ACL_PTP_RSP_DLY_REQ_RSP_NO_TS   /**< Auto response to Delay_Req, exludes receiveTimestamp update */
 } vtss_acl_ptp_rsp_t;
 
+/** \brief ACL PTP RedBox forwarding */
+typedef struct {
+    BOOL enable; // Enable processing
+    BOOL srcid;  // SourcePortIdentity forwarding
+    BOOL reqid;  // RequestingPortIdentity forwarding
+} vtss_acl_ptp_rb_fwd_t;
+
 /** \brief ACL PTP action configuration */
 typedef struct {
-    vtss_acl_ptp_rsp_t response;             /**< PTP Delay_Req/Response action */
-    i8                 log_message_interval; /**< PTP logMessageInterval [-8,7] returned in the Delay_Resp message */
-    BOOL               copy_smac_to_dmac;    /**< PTP DMAC operation */
-    BOOL               set_smac_to_port_mac; /**< PTP SMAC operation */
-    u8                 dom_sel;              /**< PTP domain selector. PTP_DOM_SEL indexes the PTP configuration */
-    vtss_udp_tcp_t     sport;                /**< UDP source port */
-    vtss_udp_tcp_t     dport;                /**< UDP destination port */
+    vtss_acl_ptp_rsp_t    response;             /**< PTP Delay_Req/Response action */
+    i8                    log_message_interval; /**< PTP logMessageInterval [-8,7] returned in the Delay_Resp message */
+    BOOL                  copy_smac_to_dmac;    /**< PTP DMAC operation */
+    BOOL                  set_smac_to_port_mac; /**< PTP SMAC operation */
+    u8                    dom_sel;              /**< PTP domain selector. PTP_DOM_SEL indexes the PTP configuration */
+    vtss_udp_tcp_t        sport;                /**< UDP source port */
+    vtss_udp_tcp_t        dport;                /**< UDP destination port */
+    vtss_acl_ptp_rb_fwd_t rb_fwd;               /**< RedBox forwarding */
 } vtss_acl_ptp_action_conf_t;
 #endif
 

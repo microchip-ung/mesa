@@ -2611,6 +2611,12 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
                 ((ptp->set_smac_to_port_mac ? 1 : 0) << 5) +
                 (ptp->dom_sel << 6)));
 
+    if (LA_TGT) {
+        FA_ACT_SET(IS2, BASE_TYPE_RB_FWD_SEL, (ptp->rb_fwd.srcid ? 2 : 0) + (ptp->rb_fwd.reqid ? 1 : 0));
+        FA_ACT_SET(IS2, BASE_TYPE_RB_TC0_ENA, 0);
+        FA_ACT_SET(IS2, BASE_TYPE_RB_PTP_ENA, ptp->rb_fwd.enable);
+    }
+
     /* Unused: BASE_TYPE_TTL_UPDATE_ENA */
     /* Unused: BASE_TYPE_SAM_SEQ_ENA */
     if (action->ptp.response != VTSS_ACL_PTP_RSP_NONE) {
@@ -3193,6 +3199,11 @@ static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         FA_DEBUG_ACT(IS2, "rleg_stat_idx", BASE_TYPE_RLEG_STAT_IDX);
         FA_DEBUG_ACT(IS2, "igr_acl_ena", BASE_TYPE_IGR_ACL_ENA);
         FA_DEBUG_ACT(IS2, "egr_acl_ena", BASE_TYPE_EGR_ACL_ENA);
+        if (LA_TGT) {
+            FA_DEBUG_ACT(IS2, "rb_fwd_sel", BASE_TYPE_RB_FWD_SEL);
+            FA_DEBUG_ACT(IS2, "rb_tc0_ena", BASE_TYPE_RB_TC0_ENA);
+            FA_DEBUG_ACT(IS2, "rb_ptp_ena", BASE_TYPE_RB_PTP_ENA);
+        }
         cnt_id = fa_act_get(data, IS2_AO_BASE_TYPE_CNT_ID, IS2_AL_BASE_TYPE_CNT_ID);
         VTSS_RC(fa_is2_cnt_get(vtss_state, data->vcap_type, cnt_id, &cnt));
         pr("\ncnt[%u]: %u, cnt: %u", cnt_id, cnt, data->counter);
