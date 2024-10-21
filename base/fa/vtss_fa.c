@@ -2470,6 +2470,40 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
         return VTSS_RC_ERROR;
     }
 
+    // Features disabled at compile-time are always disabled at run-time
+#if !defined(VTSS_FEATURE_VLAN_COUNTERS)
+    vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
+    vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_SYNCE)
+    vtss_state->vtss_features[FEATURE_SYNCE] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_FRER)
+    vtss_state->vtss_features[FEATURE_FRER] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_PSFP)
+    vtss_state->vtss_features[FEATURE_PSFP] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_REDBOX)
+    vtss_state->vtss_features[FEATURE_REDBOX] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_QOS_OT)
+    vtss_state->vtss_features[FEATURE_QOS_OT] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_MRP)
+    vtss_state->vtss_features[FEATURE_MRP] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_MRP_V1)
+    vtss_state->vtss_features[FEATURE_MRP_V1] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_MAC_INDEX_TABLE)
+    vtss_state->vtss_features[FEATURE_MAC_INDEX_TABLE] = FALSE;
+#endif
+#if !defined(VTSS_FEATURE_TIMESTAMP)
+    vtss_state->vtss_features[FEATURE_TIMESTAMP] = FALSE;
+#endif
     return VTSS_RC_OK;
 }
 
