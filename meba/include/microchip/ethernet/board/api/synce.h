@@ -108,30 +108,30 @@ typedef enum {
 // the DPLL.
 typedef enum {
     // A port (SFP or Cu). A valid 'start' point for a synce board graph.
-    MEBA_SYNCE_DEV_TYPE_PORT,
+    MEBA_SYNCE_DEV_TYPE_PORT, // 0
 
     // A direct clock input. A valid 'start' point for a synce board graph.
-    MEBA_SYNCE_DEV_TYPE_CLOCK_IN,
+    MEBA_SYNCE_DEV_TYPE_CLOCK_IN, // 1
 
     // A divider used for breaking an edge into two segments so that each end
     // can be assigned a different frequency
-    MEBA_SYNCE_DEV_TYPE_DIVIDER,
+    MEBA_SYNCE_DEV_TYPE_DIVIDER, // 2
 
     // A DPLL, all 'clock' connections should end in a DPLL.
-    MEBA_SYNCE_DEV_TYPE_DPLL,
+    MEBA_SYNCE_DEV_TYPE_DPLL, // 3
 
     // A mux embedded in a PHY.
-    MEBA_SYNCE_DEV_TYPE_MUX_PHY,
+    MEBA_SYNCE_DEV_TYPE_MUX_PHY, // 4
 
     // A mux controlled/owned by the board.
-    MEBA_SYNCE_DEV_TYPE_MUX_BOARD,
+    MEBA_SYNCE_DEV_TYPE_MUX_BOARD, // 5
 
     // A mux embedded in the switch.
-    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH,
+    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH,  // 6
 
     // This value is for code to be able to determine the number of values
     // implemented in the enum type.
-    MEBA_SYNCE_DEV_TYPE_SIZE
+    MEBA_SYNCE_DEV_TYPE_SIZE // 7
 
 } meba_sync_dev_type_t;
 

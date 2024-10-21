@@ -535,6 +535,7 @@ typedef enum {
     VTSS_BOARD_LAN9668_ENDNODE_CARRIER_REF = 0x8309,
     VTSS_BOARD_LAN9668_EDS2_REF = 0x8385,
     VTSS_BOARD_LAN9694_PCB8398 = 0x8398, /* Laguna 24x1G + 4x10G port */
+    VTSS_BOARD_LAN9698_PCB8422 = 0x8422, /* Laguna 10 SFP */
 } vtss_board_type_t;
 
 typedef struct {
