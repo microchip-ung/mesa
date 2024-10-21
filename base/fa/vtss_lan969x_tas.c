@@ -281,10 +281,10 @@ vtss_rc lan969x_tas_list_start(vtss_state_t *vtss_state, const vtss_port_no_t po
 
     /* Configure the profile */
     for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        maxsdu = (max_sdu[i] / 64) + ( max_sdu[i] ? 1 : 0);
+        maxsdu = (max_sdu[i] / 64);
         REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i), VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
         REG_WR(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i), VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA((maxsdu != 0) ? 1 : 0) |
-                                                           VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(max_sdu[i]));
+                                                           VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(max_sdu[i] % 64));
     }
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
