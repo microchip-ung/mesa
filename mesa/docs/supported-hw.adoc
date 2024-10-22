@@ -84,7 +84,7 @@ The following tables lists the supported HW in this release.
 | Atom12   | VSC8512
 | Atom12   | VSC8522
 | Elise    | VSC8514
-| Malibu   | VSC8256
+| Malibu   | VSC8254
 | Malibu   | VSC8257
 | Malibu   | VSC8258
 | Venice   | VSC8489
