@@ -4403,9 +4403,10 @@ vtss_rc vtss_cil_port_conf_set_bulk(vtss_state_t *vtss_state)
         }
 
         /* Apply the config to serdes'es defined in 'vtss_state->port.bulk_port_mask' */
-        if ((sd_mode_org != VTSS_SERDES_MODE_DISABLE) &&
-            (vtss_fa_sd_cfg(vtss_state, start_port, sd_mode_org) != VTSS_RC_OK)) {
-            VTSS_E("Could not set common serdes");
+        if (vtss_state->port.bulk_port_mask > 0) {
+            if (vtss_fa_sd_cfg(vtss_state, start_port, sd_mode_org) != VTSS_RC_OK) {
+                VTSS_E("Could not set common serdes");
+            }
         }
 
         if (port_no == vtss_state->port_count) {
