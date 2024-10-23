@@ -728,7 +728,9 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const vtss_synce_c
 
     if (port_type == VTSS_SYNCE_CLOCK_INTERFACE) {  /* Port type is interface so the clock source is a SerDes */
         /* The SerDes number is the clock source */
-        (void)vtss_fa_port2sd(vtss_state, conf->port_no, &sd_indx, &sd_type);
+        if (VTSS_RC_OK != vtss_fa_port2sd(vtss_state, conf->port_no, &sd_indx, &sd_type)) {
+            return VTSS_RC_ERROR;
+        }
         if (sd_type == FA_SERDES_TYPE_10G) {
             sd_indx = sd_indx + RT_SERDES_10G_START;
         } else if (sd_type == FA_SERDES_TYPE_25G) {
@@ -4401,7 +4403,8 @@ vtss_rc vtss_cil_port_conf_set_bulk(vtss_state_t *vtss_state)
         }
 
         /* Apply the config to serdes'es defined in 'vtss_state->port.bulk_port_mask' */
-        if (vtss_fa_sd_cfg(vtss_state, start_port, sd_mode_org) != VTSS_RC_OK) {
+        if ((sd_mode_org != VTSS_SERDES_MODE_DISABLE) &&
+            (vtss_fa_sd_cfg(vtss_state, start_port, sd_mode_org) != VTSS_RC_OK)) {
             VTSS_E("Could not set common serdes");
         }
 
