@@ -326,9 +326,12 @@ typedef enum {
 
 // ACL key generation for ARP/IPv4/IPv6 frames
 typedef struct {
-    vtss_acl_key_t arp;  // ARP frame key
-    vtss_acl_key_t ipv4; // IPv4 frame key
-    vtss_acl_key_t ipv6; // IPv6 frame key
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+    vtss_acl_key_t etype; // ETYPE/LLC/SNAP frame key
+#endif
+    vtss_acl_key_t arp;   // ARP frame key
+    vtss_acl_key_t ipv4;  // IPv4 frame key
+    vtss_acl_key_t ipv6;  // IPv6 frame key
 } vtss_acl_frame_key_t;
 
 /** \brief ACL port configuration */
@@ -507,6 +510,9 @@ typedef struct
 /** \brief Frame data for VTSS_ACE_TYPE_ARP */
 typedef struct                                 
 {                                      
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+    vtss_ace_u48_t dmac;       // DMAC, VTSS_ACL_KEY_EXT
+#endif
     vtss_ace_u48_t smac;       /**< SMAC */
     vtss_ace_bit_t arp;        /**< Opcode ARP/RARP */
     vtss_ace_bit_t req;        /**< Opcode request/reply */

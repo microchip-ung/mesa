@@ -257,6 +257,7 @@
 // VTSS_ARCH_LAN969X specific features
 #if defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED         /**< QoS: Time Aware Scheduling list elements are linked */
+#define VTSS_FEATURE_ACL_EXT_ETYPE               /**< ACL Ethernet Type extended rules with MAC address matching */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_MAC_INDEX_TABLE             /**< Index-based MAC address table */
 #define VTSS_FEATURE_QOS_OT                      /**< Operational Technology traffic handling */

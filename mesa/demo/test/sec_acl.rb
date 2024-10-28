@@ -14,29 +14,26 @@ $idx_rx = 1
 $vid_a  = 10
 $vid_b  = 11
 
-test "conf" do
-    test "By default forward to one port only" do
-        port = $ts.dut.port_list[$idx_tx]
-        conf = $ts.dut.call("mesa_acl_port_conf_get", port)
-        action = conf["action"]
-        action["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
-        action["port_list"] = "#{$ts.dut.port_list[$idx_rx]}"
-        $ts.dut.call("mesa_acl_port_conf_set", port, conf)
-    end
+test("conf", false) do
+    t_i("By default forward to one port only")
+    port = $ts.dut.port_list[$idx_tx]
+    conf = $ts.dut.call("mesa_acl_port_conf_get", port)
+    action = conf["action"]
+    action["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
+    action["port_list"] = "#{$ts.dut.port_list[$idx_rx]}"
+    $ts.dut.call("mesa_acl_port_conf_set", port, conf)
 
-    test "All ports are C-ports" do
-        $ts.dut.port_list.each do |port|
-            conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
-            conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
-            $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
-        end
+    t_i("All ports are C-ports")
+    $ts.dut.port_list.each do |port|
+        conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
+        conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
+        $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
     end
     
-    test "Include all ports in VLANs" do
-        port_list = $ts.dut.p.join(",")
-        $ts.dut.call("mesa_vlan_port_members_set", $vid_a, port_list)
-        $ts.dut.call("mesa_vlan_port_members_set", $vid_b, port_list)
-    end
+    t_i("Include all ports in VLANs")
+    port_list = $ts.dut.p.join(",")
+    $ts.dut.call("mesa_vlan_port_members_set", $vid_a, port_list)
+    $ts.dut.call("mesa_vlan_port_members_set", $vid_b, port_list)
 end
 
 #---------- Frame testing -----------------------------------------------------
@@ -44,133 +41,155 @@ end
 # Each entry in the test table has these items:
 # 1: Text string printed during test
 # 2: ACE to be configured with discard action
-# 3: Frame[0] matching the ACE, must be discarded
-# 4: Frame[1] not matching the ACE, must be forwarded
+# 3: Optionally, a list of ingress port keys
+# 4: Frame[0] matching the ACE, must be discarded
+# 5: Frame[1] not matching the ACE, must be forwarded
 test_table =
     [
      {
          txt: "any/dmac",
          ace: {type: "ANY", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "01:02:03:04:05:06", cmd: "et 46"},
          f_1: {dmac: "01:02:03:04:06:07", cmd: "et 46"}
      },
      {
          txt: "any/smac",
          ace: {type: "ANY", smac: {v: [0,1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "et 46"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "et 46"}
      },
      {
          txt: "dmac_mc",
          ace: {type: "ANY", dmac_mc: 1},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "11:22:33:44:55:66", cmd: "et 0xaaaa"},
          f_1: {dmac: "00:11:22:33:44:55", cmd: "et 0xaaaa"}
      },
      {
          txt: "dmac_mc",
          ace: {type: "ANY", dmac_mc: 0},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "00:11:22:33:44:55", cmd: "et 0xaaaa"},
          f_1: {dmac: "11:22:33:44:55:66", cmd: "et 0xaaaa"}
      },
      {
          txt: "dmac_bc",
          ace: {type: "ANY", dmac_bc: 1},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "ff:ff:ff:ff:ff:ff", cmd: "et 0xaaaa"},
          f_1: {dmac: "00:11:22:33:44:55", cmd: "et 0xaaaa"}
      },
      {
          txt: "dmac_bc",
          ace: {type: "ANY", dmac_bc: 0},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "00:11:22:33:44:55", cmd: "et 0xaaaa"},
          f_1: {dmac: "ff:ff:ff:ff:ff:ff", cmd: "et 0xaaaa"}
      },
      {
          txt: "untagged",
          ace: {type: "ANY", tagged: 0},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {},
          f_1: {ot_vid: $vid_a}
      },
     {
          txt: "tagged",
          ace: {type: "ANY", tagged: 1},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {ot_vid: $vid_a},
          f_1: {}
      },
      {
          txt: "vid",
          ace: {type: "ANY", tagged: 1, vid: {v: $vid_a, m: 0xfff}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {ot_vid: $vid_a},
          f_1: {ot_vid: $vid_b}
      },
      {
          txt: "pcp",
          ace: {type: "ANY", tagged: 1, pcp: {v: 7, m: 0x7}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {ot_vid: $vid_a, ot_pcp: 7},
          f_1: {ot_vid: $vid_b}
      },
      {
          txt: "dei",
          ace: {type: "ANY", tagged: 1, dei: 1},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {ot_vid: $vid_a, ot_dei: 1},
          f_1: {ot_vid: $vid_b}
      },
      {
          txt: "etype/dmac",
          ace: {type: "ETYPE", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "01:02:03:04:05:06", cmd: "et 0xaaaa"},
          f_1: {dmac: "01:02:03:04:06:07", cmd: "et 0xaaaa"}
      },
      {
          txt: "etype/smac",
          ace: {type: "ETYPE", smac: {v: [0,1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "et 0xaaaa"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "et 0xaaaa"}
      },
      {
          txt: "etype/etype",
          ace: {type: "ETYPE", etype: {v: [0xaa,0xaa], m: [0xff,0xff]}}, 
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {cmd: "et 0xaaaa"},
          f_1: {cmd: "et 0xaabb"}
      },
      {
          txt: "etype/data",
          ace: {type: "ETYPE", data: {v: [1,2], m: [0xff, 0xff]}}, 
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {cmd: "et 0xaaaa data hex 0102"},
          f_1: {cmd: "et 0xaaaa data hex 0103"}
      },
      {
          txt: "llc/dmac",
          ace: {type: "LLC", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "01:02:03:04:05:06", cmd: "et 46"},
          f_1: {dmac: "01:02:03:04:05:07", cmd: "et 46"}
      },
      {
          txt: "llc/smac",
          ace: {type: "LLC", smac: {v: [0,1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "et 46"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "et 46"}
      },
      {
          txt: "llc/llc",
          ace: {type: "LLC", llc: {v: [1,2,3,0], m: [0xff,0xff,0xff,0x00]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {cmd: "et 46 data hex 010203"},
          f_1: {cmd: "et 46 data hex 010204"}
      },
      {
          txt: "snap/dmac",
          ace: {type: "SNAP", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {dmac: "01:02:03:04:05:06", cmd: "et 46 data hex aaaa03"},
          f_1: {dmac: "01:02:03:04:05:07", cmd: "et 46 data hex aaaa03"}
      },
      {
          txt: "snap/smac",
          ace: {type: "SNAP", smac: {v: [0,1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "et 46 data hex aaaa03"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "et 46 data hex aaaa03"}
      },
      {
          txt: "snap/snap",
          ace: {type: "SNAP", snap: {v: [1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff]}},
+         key: {etype: ["EXT", "DEFAULT"]},
          f_0: {cmd: "et 46 data hex aaaa030102030405"},
          f_1: {cmd: "et 46 data hex aaaa030102030406"}
      },
@@ -182,8 +201,16 @@ test_table =
          f_1: {dmac: "01:02:03:04:06:07", cmd: "arp"}
      },
      {
+         txt: "arp/dmac",
+         ace: {type: "ARP", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {arp: ["EXT"]},
+         f_0: {dmac: "01:02:03:04:05:06", cmd: "arp"},
+         f_1: {dmac: "01:02:03:04:06:07", cmd: "arp"}
+     },
+     {
          txt: "arp/smac",
          ace: {type: "ARP", smac: {v: [0,1,2,3,4,5], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
+         key: {arp: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "arp"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "arp"}
      },
@@ -272,147 +299,147 @@ test_table =
      {
          txt: "ipv4/ttl",
          ace: {type: "IPV4", ttl: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 ttl 1"},
          f_1: {cmd: "ipv4 ttl 0"}
      },
      {
          txt: "ipv4/fragment/MF",
          ace: {type: "IPV4", fragment: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 flags 1"},
          f_1: {cmd: "ipv4"}
      },
      {
          txt: "ipv4/fragment/FO",
          ace: {type: "IPV4", fragment: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 offset 1"},
          f_1: {cmd: "ipv4"}
      },
      {
          txt: "ipv4/options",
          ace: {type: "IPV4", options: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 ihl 6"},
          f_1: {cmd: "ipv4"}
      },
      {
          txt: "ipv4/ds",
          ace: {type: "IPV4", ds: {v: 15, m: 0xff}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 dscp 3 ecn 3"},
          f_1: {cmd: "ipv4"}
      },
      {
          txt: "ipv4/proto",
          ace: {type: "IPV4", proto: {v: 43, m: 0xff}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 proto 43"},
          f_1: {cmd: "ipv4 proto 42"}
      },
      {
          txt: "ipv4/sip",
          ace: {type: "IPV4", sip: {v: 0x01020304, m: 0xffffffff}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 sip 1.2.3.4"},
          f_1: {cmd: "ipv4 sip 1.2.3.5"}
      },
      {
          txt: "ipv4/dip",
          ace: {type: "IPV4", dip: {v: 0x05060708, m: 0xffffffff}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 dip 5.6.7.8"},
          f_1: {cmd: "ipv4 dip 5.6.7.9"}
      },
      {
          txt: "ipv4/sport",
          ace: {type: "IPV4", proto: {v: 17, m: 0xff}, sport: {l: 10, h: 11}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 udp sport 11"},
          f_1: {cmd: "ipv4 udp sport 12"}
      },
      {
          txt: "ipv4/dport",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, dport: {l: 12, h: 13}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp dport 12"},
          f_1: {cmd: "ipv4 tcp dport 14"}
      },
      {
          txt: "ipv4/fin",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_fin: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp fin 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/syn",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_syn: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp syn 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/rst",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_rst: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp rst 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/psh",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_psh: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp psh 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/ack",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_ack: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp ack 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/urg",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, tcp_urg: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp urg 1"},
          f_1: {cmd: "ipv4 tcp"}
      },
      {
          txt: "ipv4/sip_eq_dip",
          ace: {type: "IPV4", sip_eq_dip: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 sip 1.2.3.4 dip 1.2.3.4"},
          f_1: {cmd: "ipv4 sip 1.2.3.4 dip 1.2.3.5"}
      },
      {
          txt: "ipv4/sport_eq_dport",
          ace: {type: "IPV4", proto: {v: 17, m: 0xff}, sport_eq_dport: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 udp sport 11 dport 11"},
          f_1: {cmd: "ipv4 udp sport 11 dport 12"}
      },
      {
          txt: "ipv4/seq",
          ace: {type: "IPV4", proto: {v: 6, m: 0xff}, seq_zero: 1},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 tcp"},
          f_1: {cmd: "ipv4 tcp seqn 1"}
      },
      {
          txt: "ipv4/data",
          ace: {type: "IPV4", proto: {v: 10, m: 0xff}, data: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv4 proto 10 data hex 010203040506"},
          f_1: {cmd: "ipv4 proto 10 data hex 010203040507"}
      },
      {
          txt: "ipv4/sip_smac",
          ace: {type: "IPV4", sip_smac: {sip: 0x01020304, smac: [0,1,2,3,4,5]}},
-         key: {ipv4: ["DEFAULT","EXT"]},
+         key: {ipv4: ["DEFAULT", "EXT"]},
          f_0: {smac: "00:01:02:03:04:05", cmd: "ipv4 sip 1.2.3.4"},
          f_1: {smac: "00:01:02:03:04:06", cmd: "ipv4 sip 1.2.3.4"}
      },
@@ -447,7 +474,7 @@ test_table =
      {
          txt: "ipv6/proto",
          ace: {type: "IPV6", proto: {v: 43, m: 0xff}},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 next 43"},
          f_1: {cmd: "ipv6"}
      },
@@ -475,98 +502,98 @@ test_table =
      {
          txt: "ipv6/ttl",
          ace: {type: "IPV6", ttl: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 hlim 1"},
          f_1: {cmd: "ipv6 hlim 0"}
      },
      {
          txt: "ipv6/ds",
          ace: {type: "IPV6", ds: {v: 15, m: 0xff}},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 dscp 3 ecn 3"},
          f_1: {cmd: "ipv6"}
      },
      {
          txt: "ipv6/sport",
          ace: {type: "IPV6", proto: {v: 17, m: 0xff}, sport: {l: 10, h: 11}},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 udp sport 11"},
          f_1: {cmd: "ipv6 udp sport 12"}
      },
      {
          txt: "ipv6/dport",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, dport: {l: 12, h: 13}},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp dport 12"},
          f_1: {cmd: "ipv6 tcp dport 14"}
      },
      {
          txt: "ipv6/fin",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_fin: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp fin 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/syn",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_syn: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp syn 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/rst",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_rst: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp rst 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/psh",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_psh: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp psh 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/ack",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_ack: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp ack 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/urg",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, tcp_urg: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp urg 1"},
          f_1: {cmd: "ipv6 tcp"}
      },
      {
          txt: "ipv6/sip_eq_dip",
          ace: {type: "IPV6", sip_eq_dip: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 sip ::0102:0304 dip ::0102:0304"},
          f_1: {cmd: "ipv6 sip ::0102:0304 dip ::0102:0305"}
      },
      {
          txt: "ipv6/sport_eq_dport",
          ace: {type: "IPV6", proto: {v: 17, m: 0xff}, sport_eq_dport: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 udp sport 11 dport 11"},
          f_1: {cmd: "ipv6 udp sport 11 dport 12"}
      },
      {
          txt: "ipv6/seq",
          ace: {type: "IPV6", proto: {v: 6, m: 0xff}, seq_zero: 1},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 tcp"},
          f_1: {cmd: "ipv6 tcp seqn 1"}
      },
      {
          txt: "ipv6/data",
          ace: {type: "IPV6", proto: {v: 10, m: 0xff}, data: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
-         key: {ipv6: ["DEFAULT","EXT"]},
+         key: {ipv6: ["DEFAULT", "EXT"]},
          f_0: {cmd: "ipv6 next 10 data hex 010203040506"},
          f_1: {cmd: "ipv6 next 10 data hex 010203040507"}
      },
@@ -706,13 +733,16 @@ test_table.each do |t|
             next
         end
     end
+    skip_ext = false
     if (ipv4 or ipv6)
         if (acl_ext_mac == 0 and (v.key?:dmac or v.key?:smac))
             # IP/MAC filtering not supported
             next
         end
+    elsif (epid != 14)
+        # Extended filtering for non-IP only supported for Laguna
+        skip_ext = true
     end
-    skip_ext = false
     if (ipv4 and acl_ext_mac == 0)
         # Extended IPv4 rules not supported
         skip_ext = true
@@ -731,6 +761,10 @@ test_table.each do |t|
         k = t[:key]
         if (k.key?:arp)
             key_list = k[:arp]
+        end
+        if (k.key?:etype)
+            key_list = k[:etype]
+            frm = "etype"
         end
         if (k.key?:ipv4)
             key_list = k[:ipv4]
@@ -754,4 +788,10 @@ test_table.each do |t|
             ace_test(t, type_ext)
         end
     end
+end
+
+test_summary
+
+test "dump" do
+    #$ts.dut.run("mesa-cmd deb api ci acl")
 end

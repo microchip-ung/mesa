@@ -2748,6 +2748,13 @@ static u32 fa_l4_port_mask(vtss_vcap_udp_tcp_t *l4_port)
     return (l4_port->in_range && l4_port->low == l4_port->high ? 0xffff : 0);
 }
 
+typedef struct {
+    vtss_vcap_vid_t dport;
+    vtss_vcap_bit_t etype_len;
+    vtss_vcap_bit_t ip_snap;
+    vtss_vcap_bit_t ip4;
+} fa_is2_key_info_t;
+
 static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_type, vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, u32 counter)
 {
     fa_vcap_data_t          fa_data, *data = &fa_data;
@@ -2764,6 +2771,8 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
     vtss_vcap_u8_t          *proto = NULL;
     vtss_vcap_udp_tcp_t     *sport, *dport;
     vtss_vcap_u128_t        sip, dip;
+    vtss_vcap_vid_t         et;
+    fa_is2_key_info_t       info = {0};
     u32                     addr, i, n, l4_rng;
     u32                     type = IS2_X6_TYPE_MAC_ETYPE;
     u32                     mask = VTSS_BITMASK(IS2_KL_X6_TYPE);
@@ -2794,6 +2803,10 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
         is2->cnt_id = FA_ACE_CNT_ID_IPMC; /* Common counter for all IPMC rules */
         goto apply;
     }
+
+    et.value = ((etype->etype.value[0] << 8) + etype->etype.value[1]);
+    et.mask = ((etype->etype.mask[0] << 8) + etype->etype.mask[1]);
+    oam = (et.mask == 0xffff ? (et.value == 0x8902 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0) : VTSS_VCAP_BIT_ANY);
 
     if (key->type == VTSS_ACE_TYPE_IPV4) {
         /* IPv4 */
@@ -2834,70 +2847,129 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
         /* Unused: IS2_KO_X12_L3_DST */
         fa_vcap_key_u48_set(data, IS2_KO_X12_L2_DMAC_0, &key->dmac);
         fa_vcap_key_u48_set(data, IS2_KO_X12_L2_SMAC_0, &key->smac);
-        fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
-        fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L3_TTL_GT0, ipv4 ? ipv4->ttl : ipv6->ttl);
-        fa_vcap_key_u8_set(data, IS2_KO_IP_7TUPLE_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
-        if (ipv4) {
-            /* IPv4 */
-            VTSS_MEMSET(&sip, 0, sizeof(sip));
-            VTSS_MEMSET(&dip, 0, sizeof(dip));
-            if (ipv4->fragment != VTSS_ACE_BIT_ANY) {
-                // DIP bit 126-127 is L3_FRAGMENT_TYPE
-                m = (1 << 6);
-                dip.value[0] |= (ipv4->fragment == VTSS_ACE_BIT_1 ? m : 0);
-                dip.mask[0] |= m;
+
+        switch (key->type) {
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+        case VTSS_ACE_TYPE_ANY:
+            break;
+        case VTSS_ACE_TYPE_ETYPE:
+            info.etype_len = VTSS_VCAP_BIT_1;
+            info.ip_snap = VTSS_VCAP_BIT_0;
+            info.ip4 = VTSS_VCAP_BIT_0;
+            fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_OAM_Y1731, oam);
+            if (oam != VTSS_VCAP_BIT_1) {
+                info.dport = et;
             }
-            if (ipv4->options != VTSS_ACE_BIT_ANY) {
-                // DIP bit 124 is L3_OPTIONS
-                m = (1 << 4);
-                dip.value[0] |= (ipv4->options == VTSS_ACE_BIT_1 ? m : 0);
-                dip.mask[0] |= m;
-            }
-            for (i = 12; i < 16; i++) {
-                n = (15 - i)*8;
-                sip.value[i] = ((ipv4->sip.value >> n) & 0xff);
-                sip.mask[i] = ((ipv4->sip.mask >> n) & 0xff);
-                dip.value[i] = ((ipv4->dip.value >> n) & 0xff);
-                dip.mask[i] = ((ipv4->dip.mask >> n) & 0xff);
-            }
-        } else {
-            /* IPv6 */
-            sip = ipv6->sip;
-            dip = ipv6->dip;
-        }
-        fa_vcap_key_u128_set(data, IS2_KO_IP_7TUPLE_L3_IP6_DIP_0, &dip);
-        fa_vcap_key_u128_set(data, IS2_KO_IP_7TUPLE_L3_IP6_SIP_0, &sip);
-        if (vtss_vcap_udp_tcp_rule(proto)) {
-            /* UDP/TCP protocol match */
-            udp_tcp = VTSS_VCAP_BIT_1;
-            tcp = (proto->value == 6 ? 1 : 0);
-            fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
-            fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_DPORT, IS2_KL_IP_7TUPLE_L4_DPORT,
-                            dport->low, fa_l4_port_mask(dport));
-            fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_SPORT, IS2_KL_IP_7TUPLE_L4_SPORT,
-                            sport->low, fa_l4_port_mask(sport));
-            fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_RNG, IS2_KL_IP_7TUPLE_L4_RNG, l4_rng, l4_rng);
-            if (tcp) {
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_FIN, ipv4 ? ipv4->tcp_fin : ipv6->tcp_fin);
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_SYN, ipv4 ? ipv4->tcp_syn : ipv6->tcp_syn);
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_RST, ipv4 ? ipv4->tcp_rst : ipv6->tcp_rst);
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_PSH, ipv4 ? ipv4->tcp_psh : ipv6->tcp_psh);
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_ACK, ipv4 ? ipv4->tcp_ack : ipv6->tcp_ack);
-                fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_URG, ipv4 ? ipv4->tcp_urg : ipv6->tcp_urg);
-            } else if (key->ptp.enable) {
+            if (key->ptp.enable) {
                 fa_is2_ptp_key_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0, &key->ptp.header);
+            } else {
+                fa_vcap_key_u16_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 48, &etype->data);
             }
-        } else if (proto->mask == 0) {
-            /* Any IP protocol match */
-            udp_tcp = VTSS_VCAP_BIT_ANY;
-        } else {
-            /* Non-UDP/TCP protocol match */
-            udp_tcp = VTSS_VCAP_BIT_0;
-            fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_DPORT, IS2_KL_IP_7TUPLE_L4_DPORT,
-                            proto->value, proto->mask);
-            fa_vcap_key_u48_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 16, ipv4 ? &ipv4->data : &ipv6->data);
+            break;
+        case VTSS_ACE_TYPE_LLC:
+            info.etype_len = VTSS_VCAP_BIT_0;
+            info.ip_snap = VTSS_VCAP_BIT_0;
+            info.ip4 = VTSS_VCAP_BIT_0;
+            fa_vcap_key_u32_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 32, &llc->llc);
+            break;
+        case VTSS_ACE_TYPE_SNAP:
+            info.etype_len = VTSS_VCAP_BIT_0;
+            info.ip_snap = VTSS_VCAP_BIT_1;
+            info.ip4 = VTSS_VCAP_BIT_0;
+            for (i = 0; i < 3; i++) {
+                /* SNAP header */
+                fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 40 + i*8, 8, i == 0 ? 0x03 : 0xaa, 0xff);
+            }
+            fa_vcap_key_u40_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0, &snap->snap);
+            break;
+        case VTSS_ACE_TYPE_ARP:
+            info.etype_len = VTSS_VCAP_BIT_1;
+            info.ip_snap = VTSS_VCAP_BIT_0;
+            info.ip4 = VTSS_VCAP_BIT_0;
+            info.dport.value = 0x806;
+            info.dport.mask = 0xffff;
+            break;
+#endif
+        case VTSS_ACE_TYPE_IPV4:
+        case VTSS_ACE_TYPE_IPV6:
+            info.etype_len = VTSS_VCAP_BIT_1;
+            info.ip_snap = VTSS_VCAP_BIT_1;
+            info.ip4 = (ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+            fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L3_TTL_GT0, ipv4 ? ipv4->ttl : ipv6->ttl);
+            fa_vcap_key_u8_set(data, IS2_KO_IP_7TUPLE_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
+            if (ipv4) {
+                /* IPv4 */
+                VTSS_MEMSET(&sip, 0, sizeof(sip));
+                VTSS_MEMSET(&dip, 0, sizeof(dip));
+                if (ipv4->fragment != VTSS_ACE_BIT_ANY) {
+                    // DIP bit 126-127 is L3_FRAGMENT_TYPE
+                    m = (1 << 6);
+                    dip.value[0] |= (ipv4->fragment == VTSS_ACE_BIT_1 ? m : 0);
+                    dip.mask[0] |= m;
+                }
+                if (ipv4->options != VTSS_ACE_BIT_ANY) {
+                    // DIP bit 124 is L3_OPTIONS
+                    m = (1 << 4);
+                    dip.value[0] |= (ipv4->options == VTSS_ACE_BIT_1 ? m : 0);
+                    dip.mask[0] |= m;
+                }
+                for (i = 12; i < 16; i++) {
+                    n = (15 - i)*8;
+                    sip.value[i] = ((ipv4->sip.value >> n) & 0xff);
+                    sip.mask[i] = ((ipv4->sip.mask >> n) & 0xff);
+                    dip.value[i] = ((ipv4->dip.value >> n) & 0xff);
+                    dip.mask[i] = ((ipv4->dip.mask >> n) & 0xff);
+                }
+            } else {
+                /* IPv6 */
+                sip = ipv6->sip;
+                dip = ipv6->dip;
+            }
+            fa_vcap_key_u128_set(data, IS2_KO_IP_7TUPLE_L3_IP6_DIP_0, &dip);
+            fa_vcap_key_u128_set(data, IS2_KO_IP_7TUPLE_L3_IP6_SIP_0, &sip);
+            if (vtss_vcap_udp_tcp_rule(proto)) {
+                /* UDP/TCP protocol match */
+                udp_tcp = VTSS_VCAP_BIT_1;
+                tcp = (proto->value == 6 ? 1 : 0);
+                fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+                info.dport.value = dport->low;
+                info.dport.mask = fa_l4_port_mask(dport);
+                fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_SPORT, IS2_KL_IP_7TUPLE_L4_SPORT,
+                                sport->low, fa_l4_port_mask(sport));
+                fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_RNG, IS2_KL_IP_7TUPLE_L4_RNG, l4_rng, l4_rng);
+                if (tcp) {
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_FIN, ipv4 ? ipv4->tcp_fin : ipv6->tcp_fin);
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_SYN, ipv4 ? ipv4->tcp_syn : ipv6->tcp_syn);
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_RST, ipv4 ? ipv4->tcp_rst : ipv6->tcp_rst);
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_PSH, ipv4 ? ipv4->tcp_psh : ipv6->tcp_psh);
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_ACK, ipv4 ? ipv4->tcp_ack : ipv6->tcp_ack);
+                    fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_URG, ipv4 ? ipv4->tcp_urg : ipv6->tcp_urg);
+                } else if (key->ptp.enable) {
+                    fa_is2_ptp_key_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0, &key->ptp.header);
+                }
+            } else if (proto->mask == 0) {
+                /* Any IP protocol match */
+                udp_tcp = VTSS_VCAP_BIT_ANY;
+            } else {
+                /* Non-UDP/TCP protocol match */
+                udp_tcp = VTSS_VCAP_BIT_0;
+                info.dport.value = proto->value;
+                info.dport.mask = proto->mask;
+                fa_vcap_key_u48_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 16, ipv4 ? &ipv4->data : &ipv6->data);
+            }
+            fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_TCP_UDP, udp_tcp);
+            break;
+        default:
+            VTSS_E("unknown type: %u", key->type);
+            return VTSS_RC_ERROR;
         }
-        fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_TCP_UDP, udp_tcp);
+        fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_IP4, info.ip4);
+        fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_DPORT, IS2_KL_IP_7TUPLE_L4_DPORT,
+                        info.dport.value, info.dport.mask);
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+        fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_ETYPE_LEN, info.etype_len);
+        fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_IP_SNAP, info.ip_snap);
+#endif
         goto apply;
     }
 
@@ -2921,9 +2993,6 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
     case VTSS_ACE_TYPE_ETYPE:
         smac_dmac = 1;
         fa_vcap_key_bit_set(data, IS2_KO_MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_1);
-        oam = (etype->etype.mask[0] == 0xff && etype->etype.mask[1] == 0xff ?
-               (etype->etype.value[0] == 0x89 && etype->etype.value[1] == 0x02 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0) :
-               VTSS_VCAP_BIT_ANY);
         fa_vcap_key_bit_set(data, IS2_KO_MAC_ETYPE_OAM_Y1731, oam);
         if (oam != VTSS_VCAP_BIT_1) {
             fa_vcap_key_u16_set(data, IS2_KO_MAC_ETYPE_ETYPE, &etype->etype);
@@ -3272,6 +3341,10 @@ static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             return VTSS_RC_OK;
         }
 
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+        FA_DEBUG_BITS(IS2, "et_len", IP_7TUPLE_ETYPE_LEN);
+        FA_DEBUG_BITS(IS2, "ip_snap", IP_7TUPLE_IP_SNAP);
+#endif
         FA_DEBUG_BITS(IS2, "ip4", IP_7TUPLE_IP4);
         FA_DEBUG_BITS(IS2, "l3_ttl_gt0", IP_7TUPLE_L3_TTL_GT0);
         FA_DEBUG_BITS(IS2, "l3_tos", IP_7TUPLE_L3_TOS);
@@ -4108,8 +4181,11 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
             }
         }
     } else {
-        if (type == VTSS_HACL_TYPE_IPACL && key->type_ext &&
-            (key->type == VTSS_ACE_TYPE_IPV4 || key->type == VTSS_ACE_TYPE_IPV6)) {
+        if (type == VTSS_HACL_TYPE_IPACL &&
+#if !defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+            (key->type == VTSS_ACE_TYPE_IPV4 || key->type == VTSS_ACE_TYPE_IPV6) &&
+#endif
+            key->type_ext) {
             /* I-PACL: Encode as IPv4/IPv6 full rule */
             key_size = VTSS_VCAP_KEY_SIZE_FULL;
         }
@@ -4347,7 +4423,7 @@ static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
 {
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
     fa_vcap_data_t       vcap_data, *data = &vcap_data;
-    u32                  ipv4, ipv6, lookup = 0, port = VTSS_CHIP_PORT(port_no);
+    u32                  ipv4, ipv6, value, lookup = 0, port = VTSS_CHIP_PORT(port_no);
     u32                  addr, enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
     vtss_hacl_action_t   action;
 
@@ -4362,12 +4438,16 @@ static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     /* Key generation */
     ipv4 = (conf->key.ipv4 == VTSS_ACL_KEY_EXT ? 2 : conf->key.ipv4 == VTSS_ACL_KEY_DEFAULT ? 1 : 0);
     ipv6 = (conf->key.ipv6 == VTSS_ACL_KEY_EXT ? 1 : conf->key.ipv6 == VTSS_ACL_KEY_DEFAULT ? 3 : 0);
-    REG_WR(VTSS_ANA_ACL_VCAP_S2_KEY_SEL(port, lookup),
-           VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP4_MC_KEY_SEL(ipv4) |
-           VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP4_UC_KEY_SEL(ipv4) |
-           VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP6_MC_KEY_SEL(ipv6 == 3 ? 4 : ipv6) |
-           VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP6_UC_KEY_SEL(ipv6) |
-           VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_KEY_SEL(conf->key.arp == VTSS_ACL_KEY_ETYPE ? 0 : 1));
+    value = (VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP4_MC_KEY_SEL(ipv4) |
+             VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP4_UC_KEY_SEL(ipv4) |
+             VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP6_MC_KEY_SEL(ipv6 == 3 ? 4 : ipv6) |
+             VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_IP6_UC_KEY_SEL(ipv6) |
+             VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_KEY_SEL(conf->key.arp == VTSS_ACL_KEY_DEFAULT ? 1 : 0));
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+    value |= VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_ARP_7TUPLE_ENA(conf->key.arp == VTSS_ACL_KEY_EXT ? 1 : 0);
+    value |= VTSS_F_ANA_ACL_VCAP_S2_KEY_SEL_MAC_KEY_SEL(conf->key.etype == VTSS_ACL_KEY_EXT ? 1 : 0);
+#endif
+    REG_WR(VTSS_ANA_ACL_VCAP_S2_KEY_SEL(port, lookup), value);
 
     /* Setup action */
     VTSS_MEMSET(data, 0, sizeof(*data));
@@ -4440,6 +4520,9 @@ static vtss_rc fa_ace_add(vtss_state_t *vtss_state,
         key->snap.snap = snap->snap;
         break;
     case VTSS_ACE_TYPE_ARP:
+#if defined(VTSS_FEATURE_ACL_EXT_ETYPE)
+        key->dmac = arp->dmac;
+#endif
         key->smac = arp->smac;
         key->arp.arp = arp->arp;
         key->arp.req = arp->req;

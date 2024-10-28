@@ -170,9 +170,10 @@ typedef enum {
 
 // ACL key generation for ARP/IPv4/IPv6 frames
 typedef struct {
-    mesa_acl_key_t arp;  // ARP frame key
-    mesa_acl_key_t ipv4; // IPv4 frame key
-    mesa_acl_key_t ipv6; // IPv6 frame key
+    mesa_acl_key_t etype; // ETYPE/LLC/SNAP frame key
+    mesa_acl_key_t arp;   // ARP frame key
+    mesa_acl_key_t ipv4;  // IPv4 frame key
+    mesa_acl_key_t ipv6;  // IPv6 frame key
 } mesa_acl_frame_key_t;
 
 // ACL port configuration
@@ -324,6 +325,7 @@ typedef struct
 // Frame data for MESA_ACE_TYPE_ARP
 typedef struct
 {
+    mesa_ace_u48_t dmac;       // DMAC, MESA_ACL_KEY_EXT
     mesa_ace_u48_t smac;       // SMAC
     mesa_ace_bit_t arp;        // Opcode ARP/RARP
     mesa_ace_bit_t req;        // Opcode request/reply
