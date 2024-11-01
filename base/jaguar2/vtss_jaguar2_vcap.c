@@ -2648,9 +2648,9 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx,
         ptp = (ipv6->ptp.enable ? &ipv6->ptp.header : NULL);
     }
     sp.value = sport->low;
-    sp.mask = (sport->in_range && sport->low == sport->high ? 0xffff : 0);
+    sp.mask = sport->high;
     dp.value = dport->low;
-    dp.mask = (dport->in_range && dport->low == dport->high ? 0xffff : 0);
+    dp.mask = dport->high;
     range = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
              (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
 
@@ -3860,7 +3860,7 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
     vtss_res_t                  res;
     const vtss_ace_frame_ipv4_t *ipv4 = &ace->frame.ipv4;
     const vtss_ace_frame_ipv6_t *ipv6 = &ace->frame.ipv6;
-    const vtss_ace_udp_tcp_t    *sport = NULL, *dport = NULL;
+    vtss_ace_udp_tcp_t          *sport = NULL, *dport = NULL;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range;
     u32                         i, cnt_id = 0;
     vtss_vcap_key_size_t        key_size, key_lpm;
@@ -3905,12 +3905,12 @@ static vtss_rc jr2_ace_add(vtss_state_t *vtss_state,
             res.lpm.add_key[key_lpm] = 1;
         }
         if (vtss_vcap_udp_tcp_rule(&ipv4->proto)) {
-            sport = &ipv4->sport;
-            dport = &ipv4->dport;
+            sport = &entry.ace.frame.ipv4.sport;
+            dport = &entry.ace.frame.ipv4.dport;
         }
     } else if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ipv6->proto)) {
-        sport = &ipv6->sport;
-        dport = &ipv6->dport;
+        sport = &entry.ace.frame.ipv6.sport;
+        dport = &entry.ace.frame.ipv6.dport;
     }
     VTSS_RC(vtss_cmn_res_check(vtss_state, &res));
 

@@ -167,7 +167,7 @@ BOOL vtss_vcap_udp_tcp_rule(const vtss_vcap_u8_t *proto)
 }
 
 /* Allocate range checker */
-vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *table,
                               u32 *range,
                               vtss_vcap_range_chk_type_t type,
                               u32 min,
@@ -176,8 +176,8 @@ vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
     u32                   i, new = VTSS_VCAP_RANGE_CHK_NONE;
     vtss_vcap_range_chk_t *entry;
 
-    for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        entry = &range_chk_table->entry[i];
+    for (i = 0; i < table->max; i++) {
+        entry = &table->entry[i];
         if (entry->type == type && entry->min == min && entry->max == max) {
             /* Matching used entry */
             new = i;
@@ -197,7 +197,7 @@ vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
 
     VTSS_I("alloc range: %u, min: %u, max: %u", new, min, max);
 
-    entry = &range_chk_table->entry[new];
+    entry = &table->entry[new];
     entry->count++;
     entry->type = type;
     entry->min = min;
@@ -207,8 +207,7 @@ vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
 }
 
 /* Free VCAP range checker */
-vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *range_chk_table,
-                             u32 range)
+vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *table, u32 range)
 {
     vtss_vcap_range_chk_t *entry;
 
@@ -216,12 +215,12 @@ vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *range_chk_table,
     if (range == VTSS_VCAP_RANGE_CHK_NONE)
         return VTSS_RC_OK;
 
-    if (range >= VTSS_VCAP_RANGE_CHK_CNT) {
+    if (range >= table->max) {
         VTSS_E("illegal range: %u", range);
         return VTSS_RC_ERROR;
     }
 
-    entry = &range_chk_table->entry[range];
+    entry = &table->entry[range];
     if (entry->count == 0) {
         VTSS_E("illegal range free: %u", range);
         return VTSS_RC_ERROR;
@@ -236,20 +235,31 @@ vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *range_chk_table,
 }
 
 /* Allocate UDP/TCP range checker */
-vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *table,
                                       u32 *range,
-                                      const vtss_vcap_udp_tcp_t *port,
+                                      vtss_vcap_udp_tcp_t *port,
                                       BOOL sport)
 {
+    vtss_rc                    rc;
     vtss_vcap_range_chk_type_t type;
+    vtss_vcap_vr_t             vr;
 
-    if (port->low == port->high || (port->low == 0 && port->high == 0xffff)) {
-        /* No range checker required */
-        *range = VTSS_VCAP_RANGE_CHK_NONE;
-        return VTSS_RC_OK;
-    }
     type = (sport ? VTSS_VCAP_RANGE_TYPE_SPORT : VTSS_VCAP_RANGE_TYPE_DPORT);
-    return vtss_vcap_range_alloc(range_chk_table, range, type, port->low, port->high);
+    vr.type = VTSS_VCAP_VR_TYPE_RANGE_INCLUSIVE;
+    vr.vr.r.low = (port->in_range ? port->low : 0);
+    vr.vr.r.high = (port->in_range ? port->high : 0xffff);
+    rc = vtss_vcap_vr_alloc(table, range, type, &vr);
+    if (rc == VTSS_RC_OK) {
+        // Value/mask is returned in low/high fields
+        if (vr.type == VTSS_VCAP_VR_TYPE_VALUE_MASK) {
+            port->low = vr.vr.v.value;
+            port->high = vr.vr.v.mask;
+        } else {
+            port->low = 0;
+            port->high = 0;
+        }
+    }
+    return rc;
 }
 
 /* Try to convert a range to a value/mask.
@@ -295,7 +305,7 @@ BOOL vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr)
    NOTE: If it is possible to change an inclusive range to a value/mask,
    the vr is modified here in order to save a range checker.
 */
-vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
                            u32 *range,
                            vtss_vcap_range_chk_type_t type,
                            vtss_vcap_vr_t *vr)
@@ -326,7 +336,7 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
         *range = VTSS_VCAP_RANGE_CHK_NONE;
         return VTSS_RC_OK;
     }
-    return vtss_vcap_range_alloc(range_chk_table, range, type, vr->vr.r.low, vr->vr.r.high);
+    return vtss_vcap_range_alloc(table, range, type, vr->vr.r.low, vr->vr.r.high);
 }
 
 vtss_rc vtss_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_range_chk_table_t *range_new)
@@ -1879,6 +1889,7 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_ES2)
         state->es2.obj.max_count = VTSS_ES2_CNT;
 #endif
+        state->range.max = VTSS_VCAP_RANGE_CHK_CNT;
         return VTSS_RC_OK;
     }
 
@@ -2036,17 +2047,18 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 /* - Debug print --------------------------------------------------- */
 
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
-                                          const vtss_debug_printf_t pr,
-                                          const vtss_debug_info_t   *const info)
+static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t *table,
+                                      const char *name,
+                                      const vtss_debug_printf_t pr,
+                                      const vtss_debug_info_t   *const info)
 {
     u32                   i;
     vtss_vcap_range_chk_t *entry;
 
-    vtss_debug_print_header(pr, "Range Checkers");
+    vtss_debug_print_header(pr, name);
     pr("Index  Type  Count  Range\n");
-    for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        entry = &vtss_state->vcap.range.entry[i];
+    for (i = 0; i < table->max; i++) {
+        entry = &table->entry[i];
         pr("%-5u  %-4s  %-5u  %u-%u\n",
            i,
            entry->type == VTSS_VCAP_RANGE_TYPE_IDLE ? "IDLE" :
@@ -2060,6 +2072,13 @@ void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
            entry->max);
     }
     pr("\n");
+}
+
+void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
+                                          const vtss_debug_printf_t pr,
+                                          const vtss_debug_info_t   *const info)
+{
+    vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", pr, info);
 }
 #endif
 
@@ -2377,6 +2396,11 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         pr("\n");
     }
     pr("\n");
+
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers", pr, info);
+    vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers", pr, info);
+#endif
 #endif // VTSS_FEATURE_IS2
 
 #if defined(VTSS_FEATURE_VCAP)

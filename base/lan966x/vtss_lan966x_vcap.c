@@ -1207,9 +1207,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
     vtss_lan966x_vcap_bit_set(&def.dip_eq_sip, sip_eq_dip);
     def.tcp = (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
     def.l4_dport.value = dport->low;
-    def.l4_dport.mask = (dport->in_range && dport->low == dport->high ? 0xffff : 0);
+    def.l4_dport.mask = dport->high;
     def.l4_sport.value = sport->low;
-    def.l4_sport.mask = (sport->in_range && sport->low == sport->high ? 0xffff : 0);
+    def.l4_sport.mask = sport->high;
     def.l4_rng.value = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
                         (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
     def.l4_rng.mask = def.l4_rng.value;
@@ -1838,7 +1838,7 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
     vtss_is2_data_t             *is2 = &data.u.is2;
     vtss_is2_entry_t            entry;
     vtss_res_chg_t              chg;
-    const vtss_ace_udp_tcp_t    *sport = NULL, *dport = NULL;
+    vtss_ace_udp_tcp_t          *sport = NULL, *dport = NULL;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range;
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
     vtss_port_no_t              port_no;
@@ -1877,17 +1877,18 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
             chg.add_key[VTSS_VCAP_KEY_SIZE_QUARTER] = 1;
         }
         if (vtss_vcap_udp_tcp_rule(&ace->frame.ipv4.proto)) {
-            sport = &ace->frame.ipv4.sport;
-            dport = &ace->frame.ipv4.dport;
+            sport = &entry.ace.frame.ipv4.sport;
+            dport = &entry.ace.frame.ipv4.dport;
         }
     }
     if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ace->frame.ipv6.proto)) {
-        sport = &ace->frame.ipv6.sport;
-        dport = &ace->frame.ipv6.dport;
+        sport = &entry.ace.frame.ipv6.sport;
+        dport = &entry.ace.frame.ipv6.dport;
     }
     VTSS_RC(vtss_cmn_vcap_res_check(obj, &chg));
 
     vtss_vcap_is2_init(&data, &entry);
+    entry.ace = *ace;
     if (sport && dport) {
         // Allocate new range checkers
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
@@ -1899,7 +1900,6 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
 
     // Add main entry
     entry.first = 1;
-    entry.ace = *ace;
     if (sip_smac_new) {
         entry.host_match = 1;
         entry.ace.frame.ipv4.sip.value = ace->frame.ipv4.sip_smac.sip;

@@ -1099,7 +1099,12 @@ typedef struct {
 #define VTSS_VCAP_ID_GT   0xffffffffffffffff
 
 /* VCAP ranges */
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+// IS2/ES2 have more range checkers
+#define VTSS_VCAP_RANGE_CHK_CNT 16
+#else
 #define VTSS_VCAP_RANGE_CHK_CNT 8
+#endif
 #define VTSS_VCAP_RANGE_CHK_NONE 0xffffffff
 
 /* VCAP range checker type */
@@ -1122,6 +1127,7 @@ typedef struct {
 
 /* VCAP range checker table */
 typedef struct {
+    u32                   max;
     vtss_vcap_range_chk_t entry[VTSS_VCAP_RANGE_CHK_CNT];
 } vtss_vcap_range_chk_table_t;
 
@@ -1447,7 +1453,7 @@ vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *range_chk_table,
                              u32 range);
 vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
                                       u32 *range,
-                                      const vtss_vcap_udp_tcp_t *port,
+                                      vtss_vcap_udp_tcp_t *port,
                                       BOOL sport);
 BOOL vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr);
 vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *range_chk_table,

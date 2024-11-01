@@ -754,7 +754,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_type_t v
         *table = *new_table;
     }
 
-    for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
+    for (i = 0; i < table->max; i++) {
         entry = &table->entry[i];
         if (entry->count == 0)
             continue;
@@ -2743,11 +2743,6 @@ static void fa_is2_ptp_key_set(fa_vcap_data_t *data, u32 offset, vtss_ace_u32_t 
     fa_vcap_key_bytes_set(data, offset, val, msk, 8);
 }
 
-static u32 fa_l4_port_mask(vtss_vcap_udp_tcp_t *l4_port)
-{
-    return (l4_port->in_range && l4_port->low == l4_port->high ? 0xffff : 0);
-}
-
 typedef struct {
     vtss_vcap_vid_t dport;
     vtss_vcap_bit_t etype_len;
@@ -2933,9 +2928,9 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
                 tcp = (proto->value == 6 ? 1 : 0);
                 fa_vcap_key_bit_set(data, IS2_KO_IP_7TUPLE_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
                 info.dport.value = dport->low;
-                info.dport.mask = fa_l4_port_mask(dport);
+                info.dport.mask = dport->high;
                 fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_SPORT, IS2_KL_IP_7TUPLE_L4_SPORT,
-                                sport->low, fa_l4_port_mask(sport));
+                                sport->low, sport->high);
                 fa_vcap_key_set(data, IS2_KO_IP_7TUPLE_L4_RNG, IS2_KL_IP_7TUPLE_L4_RNG, l4_rng, l4_rng);
                 if (tcp) {
                     fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L4_FIN, ipv4 ? ipv4->tcp_fin : ipv6->tcp_fin);
@@ -3052,9 +3047,9 @@ static vtss_rc fa_is2_entry_add(vtss_state_t *vtss_state, vtss_vcap_type_t vcap_
             tcp = (proto->value == 6 ? 1 : 0);
             fa_vcap_key_bit_set(data, IS2_KO_IP4_TCP_UDP_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
             fa_vcap_key_set(data, IS2_KO_IP4_TCP_UDP_L4_DPORT, IS2_KL_IP4_TCP_UDP_L4_DPORT,
-                            dport->low, fa_l4_port_mask(dport));
+                            dport->low, dport->high);
             fa_vcap_key_set(data, IS2_KO_IP4_TCP_UDP_L4_SPORT, IS2_KL_IP4_TCP_UDP_L4_SPORT,
-                            sport->low, fa_l4_port_mask(sport));
+                            sport->low, sport->high);
             fa_vcap_key_set(data, IS2_KO_IP4_TCP_UDP_L4_RNG, IS2_KL_IP4_TCP_UDP_L4_RNG, l4_rng, l4_rng);
             if (tcp) {
                 fa_ace_key_bit_set(data, IS2_KO_IP4_TCP_UDP_L4_FIN, ipv4 ? ipv4->tcp_fin : ipv6->tcp_fin);
@@ -3621,9 +3616,9 @@ static vtss_rc fa_es2_entry_add(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, 
             tcp = (proto->value == 6 ? 1 : 0);
             fa_vcap_key_bit_set(data, ES2_KO_IP4_TCP_UDP_TCP, tcp ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
             fa_vcap_key_set(data, ES2_KO_IP4_TCP_UDP_L4_DPORT, ES2_KL_IP4_TCP_UDP_L4_DPORT,
-                            dport->low, fa_l4_port_mask(dport));
+                            dport->low, dport->high);
             fa_vcap_key_set(data, ES2_KO_IP4_TCP_UDP_L4_SPORT, ES2_KL_IP4_TCP_UDP_L4_SPORT,
-                            sport->low, fa_l4_port_mask(sport));
+                            sport->low, sport->high);
             l4_rng = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
                       (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
             fa_vcap_key_set(data, ES2_KO_IP4_TCP_UDP_L4_RNG, ES2_KL_IP4_TCP_UDP_L4_RNG, l4_rng, l4_rng);
@@ -4020,8 +4015,8 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
     const vtss_hace_key_t        *key = &hace->key;
     const vtss_hace_frame_ipv4_t *ipv4 = &key->ipv4;
     const vtss_hace_frame_ipv6_t *ipv6 = &key->ipv6;
-    const vtss_ace_udp_tcp_t     *sport = NULL, *dport = NULL;
-    vtss_vcap_range_chk_table_t  *range_old, range_new = vtss_state->vcap.range;
+    vtss_ace_udp_tcp_t           *sport = NULL, *dport = NULL;
+    vtss_vcap_range_chk_table_t  *range_old, range_new;
     vtss_vcap_key_size_t         key_size = VTSS_VCAP_KEY_SIZE_HALF;
     vtss_vcap_key_size_t         key_lpm = VTSS_VCAP_KEY_SIZE_TWELFTH;
     int                          i, add_cnt = 0, del_cnt = 0, max, mod;
@@ -4232,11 +4227,11 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
 
     /* Allocate and commit new range checkers */
     if (key->type == VTSS_ACE_TYPE_IPV4 && vtss_vcap_udp_tcp_rule(&ipv4->proto)) {
-        sport = &ipv4->sport;
-        dport = &ipv4->dport;
+        sport = &entry.ace.key.ipv4.sport;
+        dport = &entry.ace.key.ipv4.dport;
     } else if (key->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ipv6->proto)) {
-        sport = &ipv6->sport;
-        dport = &ipv6->dport;
+        sport = &entry.ace.key.ipv6.sport;
+        dport = &entry.ace.key.ipv6.dport;
     }
     if (sport && dport) {
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
@@ -5544,6 +5539,7 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         clm_c->vcap_super = vcap_super;
         state->clm_entry_update = fa_clm_entry_update;
         state->range_commit = fa_clm_range_commit;
+        state->range.max = 8;
 
 #if defined(VTSS_FEATURE_LPM)
         /* LPM */
@@ -5569,6 +5565,7 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2_b->entry_get = fa_is2_b_entry_get;
         is2_b->vcap_super = vcap_super;
         state->is2_entry_update = fa_is2_entry_update;
+        state->is2_range.max = VTSS_VCAP_RANGE_CHK_CNT;
 #endif
 
         /* ES0 */
@@ -5588,6 +5585,7 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         es2->entry_del = fa_es2_entry_del;
         es2->entry_move = fa_es2_entry_move;
         es2->entry_get = fa_es2_entry_get;
+        state->es2_range.max = VTSS_VCAP_RANGE_CHK_CNT;
 #endif
 
 #if defined(VTSS_FEATURE_IS2)

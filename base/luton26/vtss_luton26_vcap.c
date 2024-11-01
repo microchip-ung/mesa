@@ -962,11 +962,9 @@ static vtss_rc l26_is2_prepare_key(vtss_state_t *vtss_state,
             L26_ACL_CBITSET(145, *sip_eq_dip, entry, mask); /* DIP_EQ_SIP */
             
             /* L3_DPORT */
-            if (dport->in_range && dport->low == dport->high)
-                L26_ACL_FIELD(146, 16, dport->low, ACL_MASK_ONES, entry, mask);
+            L26_ACL_FIELD(146, 16, dport->low, dport->high, entry, mask);
             /* L3_SPORT */
-            if(sport->in_range && sport->low == sport->high)
-                L26_ACL_FIELD(162, 16, sport->low, ACL_MASK_ONES, entry, mask);
+            L26_ACL_FIELD(162, 16, sport->low, sport->high, entry, mask);
             /* L4_RNG */
             if (is2->srange != VTSS_VCAP_RANGE_CHK_NONE)
                 range |= (1<<is2->srange);
@@ -1448,7 +1446,7 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
     vtss_is2_data_t             *is2 = &data.u.is2;
     vtss_is2_entry_t            entry;
     vtss_ace_t                  *ace_copy = &entry.ace;
-    const vtss_ace_udp_tcp_t    *sport = NULL, *dport = NULL;
+    vtss_ace_udp_tcp_t          *sport = NULL, *dport = NULL;
     vtss_vcap_id_t              id, id_next;
     u32                         old = 0, old_ptp = 0, old_ip = 0, new_ptp = 0, new_ip = 0;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range; 
@@ -1516,14 +1514,15 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
     is2->drange = VTSS_VCAP_RANGE_CHK_NONE;
 
     if (ace->type == VTSS_ACE_TYPE_IPV4 && vtss_vcap_udp_tcp_rule(&ace->frame.ipv4.proto)) {
-        sport = &ace->frame.ipv4.sport;
-        dport = &ace->frame.ipv4.dport;
+        sport = &ace_copy->frame.ipv4.sport;
+        dport = &ace_copy->frame.ipv4.dport;
     } 
     if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ace->frame.ipv6.proto)) {
-        sport = &ace->frame.ipv6.sport;
-        dport = &ace->frame.ipv6.dport;
+        sport = &ace_copy->frame.ipv6.sport;
+        dport = &ace_copy->frame.ipv6.dport;
     }
 
+    *ace_copy = *ace;
     if (sport && dport) {
         /* Allocate new range checkers */
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
@@ -1553,7 +1552,6 @@ static vtss_rc l26_ace_add(vtss_state_t *vtss_state,
     /*** Step 5: Add IS2 entries */
 
     /* Add main entry */
-    *ace_copy = *ace;
     is2->entry = &entry;
     entry.first = 1;
     VTSS_MEMSET(&is2->action, 0, sizeof(is2->action));
