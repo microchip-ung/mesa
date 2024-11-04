@@ -1147,7 +1147,11 @@ typedef enum {
  ****************************************************************************/
 /** \brief ACL policer number */
 typedef u32 vtss_acl_policer_no_t;
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#define VTSS_ACL_POLICERS         32                                              /**< Number of ACL policers */
+#else
 #define VTSS_ACL_POLICERS         16                                              /**< Number of ACL policers */
+#endif
 #define VTSS_ACL_POLICER_NO_START 0                                               /**< ACL policer start number */
 #define VTSS_ACL_POLICER_NO_END   (VTSS_ACL_POLICER_NO_START + VTSS_ACL_POLICERS) /**< ACL policer end number */
 
