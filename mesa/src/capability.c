@@ -1938,11 +1938,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #elif defined(VTSS_ARCH_JAGUAR_2_C)
         c = 7;
 
-        /* Jaguar 3 architectures */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-        c = 8;
 #elif defined(VTSS_ARCH_LAN966X)
         c = 9;
+#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+        /* Jaguar 3 architectures */
+        c = 10;
 #else
 #error Unsupported platform
 #endif

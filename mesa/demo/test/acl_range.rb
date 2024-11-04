@@ -9,30 +9,29 @@ $ts = get_test_setup("mesa_pc_b2b_2x")
 
 # Test of IPv4/IPv6 UDP/TCP SPORT/DPORT range checkers.
 # Loop iterations (for 8 range checkers):
-# 0 : IPv4 UDP DPORT, single value (no range checker needed)
-# 1 : IPv4 TCP DPORT, wildcard (no range checker needed)
-# 2 : IPv4 UDP SPORT, range 1-2
-# 3 : IPv4 TCP SPORT, range 1-2 (reuse)
-# 4 : IPv6 UDP DPORT, range 1-3
-# 5 : IPv6 TCP DPORT, range 1-3 (reuse)
+# 0 : IPv4 UDP DPORT, range 1-2
+# 1 : IPv4 TCP DPORT, range 1-2 (reuse)
+# 2 : IPv4 UDP SPORT, range 1-3
+# 3 : IPv4 TCP SPORT, range 1-3 (reuse)
 # ...
-# 16: IPv4 UDP DPORT, range 1-9
-# 17: IPv4 TCP DPORT, range 1-9 (reuse)
-# 18: IPv4 UDP SPORT, range 1-10 (no more range checkers)
+# 14: IPv6 UDP SPORT, range 1-9
+# 15: IPv6 TCP SPORT, range 1-9 (reuse)
+# 16: IPv4 UDP DPORT, range 1-10 (no more range checkers)
+# 17: IPv4 TCP DPORT, single value (no range checker needed)
+# 18: IPv4 UDP SPORT, wildcard (no range checker needed)
 
-epid = cap_get("PACKET_IFH_EPID")
-range_cnt = (epid == 11 || epid == 14 ? 16 : 8)
+range_cnt = (cap_get("SOC_FAMILY") == 10 ? 16 : 8)
 ace_cnt = (2 * range_cnt + 3)
 ace_cnt.times do |idx|
     id = (idx + 1)
     min = 1
-    max = (min + (idx / 2))
-    if (idx == 0)
+    max = (2 + (idx / 2))
+    if (id == (ace_cnt - 1))
         # Single value test
-        min = 7
-        max = 7
+        min = 100
+        max = 100
     end
-    if (idx == 1)
+    if (id == ace_cnt)
         # Wildcard value test
         min = 0
         max = 0xffff
@@ -61,7 +60,7 @@ ace_cnt.times do |idx|
         k["low"] = min
         k["high"] = max
         ace["action"]["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
-        if (id == ace_cnt)
+        if (id == (ace_cnt - 2))
             # No more range checkers, expect error
             $ts.dut.call_err("mesa_ace_add", 0, ace)
             next
@@ -76,6 +75,10 @@ ace_cnt.times do |idx|
         cmd += (sport ? " sport" : " dport")
         cmd += " #{max}"
         run_ef_tx_rx_cmd($ts, idx_tx, [], cmd)
+
+        # Check counter
+        cnt = $ts.dut.call("mesa_ace_counter_get", id)
+        check_counter("ace[#{id}]", cnt, 1)
     end
 end
 
