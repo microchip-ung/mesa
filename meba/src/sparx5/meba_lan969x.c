@@ -1036,8 +1036,7 @@ static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_
     if (board->type == BOARD_TYPE_LAGUNA_PCB8398) {
         *conf = pcb8398_rs422_conf;
     } else if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
-        T_E(inst, "RS422 conf not defined yet");
-        return VTSS_RC_ERROR;
+        *conf = pcb8398_rs422_conf; // uses same configuration
     } else {
         *conf = other_rs422_conf;
     }
