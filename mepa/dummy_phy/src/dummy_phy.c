@@ -35,6 +35,15 @@ static mepa_rc dummy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     return MEPA_RC_OK;
 }
 
+static mepa_rc dummy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_info->cap = 0;
+    phy_info->part_number = 1234;
+    phy_info->revision = 5678;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
+    return MEPA_RC_OK;
+}
+
 static mepa_device_t *dummy_probe(mepa_driver_t                       *drv,
                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
@@ -64,6 +73,7 @@ mepa_drivers_t mepa_dummy_driver_init()
     dummy[0].mepa_driver_poll = dummy_1g_poll;
     dummy[0].mepa_driver_conf_set = dummy_conf_set;
     dummy[0].mepa_driver_probe = dummy_probe;
+    dummy[0].mepa_driver_phy_info_get = dummy_info_get,
     res.phy_drv = dummy;
     res.count = 1;
 
