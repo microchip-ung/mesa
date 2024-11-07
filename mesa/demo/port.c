@@ -1661,6 +1661,7 @@ static void port_init(meba_inst_t inst)
 
     // Port reset
     MEBA_WRAP(meba_reset, inst, MEBA_PHY_INITIALIZE);
+    // meba_reset() includes MEPA_RESET_POINT_PRE
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET);
 
     if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
@@ -1744,6 +1745,7 @@ static void port_init(meba_inst_t inst)
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
             mepa_reset_param_t phy_reset = {};
             phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
+            phy_reset.reset_point = MEPA_RESET_POINT_DEFAULT;
             T_I("phy_reset: %u", port_no);
             rc = (meba_phy_reset(inst, port_no, &phy_reset));
             if (rc == MESA_RC_NOT_IMPLEMENTED || rc == MESA_RC_OK) {
