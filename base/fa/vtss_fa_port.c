@@ -4449,22 +4449,33 @@ static vtss_rc fa_debug_chip_port(vtss_state_t *vtss_state,
     BOOL rs_fec = 0, r_fec = 0;
 
     if (fa_is_high_speed_device(vtss_state, port_no)) {
-        u32 value, val2, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
+        tgt = VTSS_TO_HIGH_DEV(port);
+        u32 value, val2, usx, pcs_st, pcs = VTSS_TO_PCS_TGT(port); // only for 5G/10G/25G PCS
         BOOL lock, hi_ber, spd25g = vtss_state->port.current_speed[port_no] == VTSS_SPEED_25G;
         FA_DEBUG_ALL(pr, DEV10G_DEV_RST_CTRL(tgt), port, "DEV10G_DEV_RST_CTRL");
         FA_DEBUG_10G_MAC(pr, TX_MONITOR_STICKY(tgt), port, "TX_MONITOR_STICKY");
         FA_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
         FA_DEBUG_10G_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
-       pr("\nLink status (MAC/PCS):\n");
+        if (conf->if_type == VTSS_PORT_INTERFACE_USXGMII) {
+//            REG_RD(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), &usx);
+            FA_DEBUG_ALL(pr, DEV10G_USXGMII_ANEG_STATUS(tgt), port, "USXGMII_ANEG_STATUS");
+            FA_DEBUG_ALL(pr, DEV10G_USXGMII_ANEG_CFG(tgt), port, "USXGMII_ANEG_CFG");
+        }
+        pr("\nLink status (MAC/PCS):\n");
         pr("port          local_fault   remote_fault  idle_state    rx_blk_lock   rx_hi_ber   rsfec/rfec\n");
         REG_RD(VTSS_DEV10G_MAC_TX_MONITOR_STICKY(tgt), &value);
         REG_RD(VTSS_DEV10G_PCS25G_STATUS(tgt), &val2);
         REG_RD(VTSS_PCS_10GBASE_R_PCS_STATUS(pcs), &pcs_st);
+        REG_RD(VTSS_DEV10G_USXGMII_PCS_STATUS(tgt), &usx);
         if (spd25g) {
             lock = VTSS_X_DEV10G_PCS25G_STATUS_BLOCK_LOCK(val2);
             hi_ber = VTSS_X_DEV10G_PCS25G_STATUS_HI_BER(val2);
         } else {
-            lock = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st);
+            if (conf->if_type == VTSS_PORT_INTERFACE_USXGMII) {
+                lock = VTSS_X_DEV10G_USXGMII_PCS_STATUS_USXGMII_BLOCK_LOCK(usx);
+            } else {
+                lock = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_BLOCK_LOCK(pcs_st);
+            }
             hi_ber = VTSS_X_PCS_10GBASE_R_PCS_STATUS_RX_HI_BER(pcs_st);
         }
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
