@@ -1769,28 +1769,40 @@ static const meba_synce_terminal_attr_t attr_laguna_28_w_zls30772_board[] = {
 };
 
 static const meba_synce_graph_element_t synce_graph_elements_laguna_10_board[] = {
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_0,                      switch_mux_port_in_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_1,                      switch_mux_port_in_1),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_2,                      switch_mux_port_in_2),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_3,                      switch_mux_port_in_3),
 
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_4,                      switch_mux_port_in_4),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_5,                      switch_mux_port_in_5),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_6,                      switch_mux_port_in_6),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_7,                      switch_mux_port_in_7),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_8,                      switch_mux_port_in_8),
-    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_9,                      switch_mux_port_in_9),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_0,                      divider_switch_mux_port_0_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_0_out,   switch_mux_port_in_0),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_1,                      divider_switch_mux_port_1_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_1_out,   switch_mux_port_in_1),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_2,                      divider_switch_mux_port_2_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_2_out,   switch_mux_port_in_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_3,                      divider_switch_mux_port_3_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_3_out,   switch_mux_port_in_3),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_4,                      divider_switch_mux_port_4_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_4_out,   switch_mux_port_in_4),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_5,                      divider_switch_mux_port_5_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_5_out,   switch_mux_port_in_5),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_6,                      divider_switch_mux_port_6_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_6_out,   switch_mux_port_in_6),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_7,                      divider_switch_mux_port_7_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_7_out,   switch_mux_port_in_7),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_8,                      divider_switch_mux_port_8_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_8_out,   switch_mux_port_in_8),
+    MESA_SYNCE_GRAPH_CONNECTION(           eth_port_9,                      divider_switch_mux_port_9_in),
+    MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_9_out,   switch_mux_port_in_9),
 
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_0),
-    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_1),
+
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_2),
+    MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_3),
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_10,          dpll_port_4)
+
 
 };
 
 static const meba_synce_terminal_attr_t attr_laguna_10_board[] = {
     //              device                 attr-type             attr-value
-    MESA_SYNCE_ATTR(dpll_port_0,           MEBA_ATTR_CLOCK_ID,   1),
-    MESA_SYNCE_ATTR(dpll_port_1,           MEBA_ATTR_CLOCK_ID,   2),
+    MESA_SYNCE_ATTR(dpll_port_2,           MEBA_ATTR_CLOCK_ID,   1),
+    MESA_SYNCE_ATTR(dpll_port_3,           MEBA_ATTR_CLOCK_ID,   2),
     MESA_SYNCE_ATTR(dpll_port_4,           MEBA_ATTR_CLOCK_ID,   3),
 
     MESA_SYNCE_ATTR(eth_port_0,            MEBA_ATTR_FREQ_10G,       MEBA_SYNCE_CLOCK_FREQ_80_565MHZ),
