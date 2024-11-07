@@ -153,7 +153,6 @@
 #define switch_mux_port_in_17             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 17)
 #define switch_mux_port_in_18             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 18)
 #define switch_mux_port_in_19             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 19)
-#define switch_mux_port_in_20             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 20)
 
 #define switch_mux_port_in_24             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 24)
 #define switch_mux_port_in_25             MESA_SYNCE_DEV_MUX_SWITCH(   600,      MESA_SYNCE_DEV_INPUT | 25)
@@ -1791,12 +1790,9 @@ static const meba_synce_graph_element_t synce_graph_elements_laguna_10_board[] =
     MESA_SYNCE_GRAPH_CONNECTION(           eth_port_9,                      divider_switch_mux_port_9_in),
     MESA_SYNCE_GRAPH_CONNECTION(           divider_switch_mux_port_9_out,   switch_mux_port_in_9),
 
-
     MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_1,            dpll_port_2),
     MESA_SYNCE_GRAPH_CONNECTION(           switch_mux_port_out_0,            dpll_port_3),
     MESA_SYNCE_GRAPH_CONNECTION(           station_clock_laguna_10,          dpll_port_4)
-
-
 };
 
 static const meba_synce_terminal_attr_t attr_laguna_10_board[] = {
@@ -1845,10 +1841,7 @@ static const meba_synce_terminal_attr_t attr_laguna_10_board[] = {
     MESA_SYNCE_ATTR(eth_port_9,            MEBA_ATTR_FREQ_5G,        MEBA_SYNCE_CLOCK_FREQ_40_283MHZ),
     MESA_SYNCE_ATTR(eth_port_9,            MEBA_ATTR_FREQ_2_5G,      MEBA_SYNCE_CLOCK_FREQ_312_5MHZ),
     MESA_SYNCE_ATTR(eth_port_9,            MEBA_ATTR_FREQ_1G,        MEBA_SYNCE_CLOCK_FREQ_125MHZ),
-
 };
-
-
 
 mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
 {
@@ -1857,12 +1850,10 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
     int board_type = inst->props.board_type;
     meba_board_state_t *board = INST2BOARD(inst);
 
-    printf("meba_synce_graph_get (%x) * ", board_type);
     if (meba_synce_spi_if_get_dpll_type(inst, &dpll_type) != MESA_RC_OK) {
         T_E(inst, "Failure probing DPLL type.");
         return MESA_RC_NOT_IMPLEMENTED;
     } else {
-        printf("meba_synce_graph_get %d * ", dpll_type);
         if (dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30771 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30772 ||
             dpll_type == MEBA_SYNCE_CLOCK_HW_ZL_30773 ||
@@ -1906,7 +1897,6 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
                 synce_graph.attr = attr_laguna_28_w_zls30772_board;
                 synce_graph.attr_length = MEBA_ARRSZ(attr_laguna_28_w_zls30772_board);
             } else if (board_type == VTSS_BOARD_LAN9698_PCB8422) {
-                printf("PCB8422 * ");
                 synce_graph.graph_length = MEBA_ARRSZ(synce_graph_elements_laguna_10_board);
                 synce_graph.graph = synce_graph_elements_laguna_10_board;
                 synce_graph.attr = attr_laguna_10_board;
@@ -1926,7 +1916,6 @@ mesa_rc meba_synce_mux_set(meba_inst_t  inst,
                            uint32_t     output)
 {
     T_I(inst, "Configure device: %d input %x output %x", dev_id, input, output);
-    printf("meba_synce_mux_set * ");
     int board_type = inst->props.board_type;
     mepa_device_t *phy_dev;
     mepa_synce_clock_conf_t conf;
@@ -1935,7 +1924,6 @@ mesa_rc meba_synce_mux_set(meba_inst_t  inst,
     if (board_type != VTSS_BOARD_FIREANT_PCB135_REF &&
         board_type != VTSS_BOARD_LAN9694_PCB8398 &&
         board_type != VTSS_BOARD_LAN9698_PCB8422) {
-        printf("Board type not yet implemented!");
         T_E(inst, "Board type not yet implemented.");
         return MESA_RC_NOT_IMPLEMENTED;
     }
