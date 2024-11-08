@@ -23,9 +23,7 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_FEATURE_IS1  /* VCAP IS1 */
-#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_IS2  /* VCAP IS2 */
-#endif
 #define VTSS_FEATURE_ES0  /* VCAP ES0 */
 #endif /* VTSS_ARCH_LAN966X */
 
@@ -58,9 +56,9 @@
 #define VTSS_FEATURE_CLM             /* VCAP CLM */
 #define VTSS_FEATURE_ES0             /* VCAP ES0 */
 #define VTSS_FEATURE_LPM             /* VCAP LPM */
-#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_IS2             /* VCAP IS2 */
 #define VTSS_FEATURE_IS2_B           /* VCAP IS2_B */
+#if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_ES2             /* VCAP ES2 */
 #endif
 #if defined(VTSS_ARCH_SPARX5)
@@ -70,7 +68,8 @@
 #endif
 #define VTSS_VCAP_SUPER_ROW_CNT  256 /* Number of rows in one block (full rules) */
 #if defined(VTSS_STREAM_CNT)
-#define VTSS_VCAP_SUPER_RULE_CNT (VTSS_STREAM_CNT + VTSS_LPM_CNT) // Full CLM rules, X1 LPM rules
+// Full CLM rules, X1 LPM rules, full IS2 rules
+#define VTSS_VCAP_SUPER_RULE_CNT (VTSS_STREAM_CNT + VTSS_LPM_CNT + VTSS_ACE_CNT)
 #else
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6) /* Six rules per row */
 #endif

@@ -3847,9 +3847,11 @@ static vtss_rc fa_debug_es2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
     }
     return VTSS_RC_OK;
 }
+#endif
 
 /* - Debug print --------------------------------------------------- */
 
+#if defined(VTSS_FEATURE_IS2)
 static vtss_rc fa_debug_acl(vtss_state_t *vtss_state,
                             const vtss_debug_printf_t pr,
                             const vtss_debug_info_t   *const info)
@@ -3901,8 +3903,12 @@ static vtss_rc fa_debug_acl(vtss_state_t *vtss_state,
 
     VTSS_RC(vtss_fa_debug_lpm(vtss_state, pr, info)); /* SIP/SMAC check in LPM */
     VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2, pr, info, fa_debug_is2));
+#if !VTSS_OPT_LIGHT
     VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2_B, pr, info, fa_debug_is2));
+#endif
+#if defined(VTSS_FEATURE_ES2)
     VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES2, pr, info, fa_debug_es2));
+#endif
     return VTSS_RC_OK;
 }
 
@@ -4061,6 +4067,7 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
             user = VTSS_IS2_USER_ERACL;
         }
         break;
+#if defined(VTSS_FEATURE_ES2)
     case VTSS_HACL_TYPE_EVACL:
     case VTSS_HACL_TYPE_EPACL:
         obj = &vtss_state->vcap.es2.obj;
@@ -4073,6 +4080,7 @@ static vtss_rc fa_hace_add(vtss_state_t *vtss_state,
             user = VTSS_ES2_USER_EPACL;
         }
         break;
+#endif
     default:
         VTSS_E("illegal HACL type");
         return VTSS_RC_ERROR;
@@ -4303,11 +4311,13 @@ static vtss_rc fa_hace_cmd(vtss_state_t *vtss_state,
         obj = &vtss_state->vcap.is2_b.obj;
         user = (type == VTSS_HACL_TYPE_IRACL ? VTSS_IS2_USER_IRACL : VTSS_IS2_USER_ERACL);
         break;
+#if defined(VTSS_FEATURE_ES2)
     case VTSS_HACL_TYPE_EVACL:
     case VTSS_HACL_TYPE_EPACL:
         obj = &vtss_state->vcap.es2.obj;
         user = (type == VTSS_HACL_TYPE_EVACL ? VTSS_ES2_USER_EVACL : VTSS_ES2_USER_EPACL);
         break;
+#endif
     default:
         VTSS_E("illegal HACL type");
         return VTSS_RC_ERROR;

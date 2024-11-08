@@ -78,6 +78,8 @@
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_TEMP_SENSOR                  /**< Temperature Sensor */
 #endif
+#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
+#define VTSS_FEATURE_ACL_EXT_DIP                  /**< ACL extended IPv6 rule with DIP matching */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                          /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                 /**< QoS: QoS Control Lists, match on either SMAC/SIP or DMAC/DIP */
@@ -90,8 +92,6 @@
 #define VTSS_FEATURE_IPV4_MC_SIP                  /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                  /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_EEE                          /**< Energy Efficient Ethernet */
-#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
-#define VTSS_FEATURE_ACL_EXT_DIP                  /**< ACL extended IPv6 rule with DIP matching */
 #define VTSS_FEATURE_LED_POW_REDUC                /**< LED power reduction */
 #define VTSS_FEATURE_MIRROR_CPU                   /**< CPU mirroring */
 //#define VTSS_FEATURE_EVC_POLICERS                 /**< EVC/ECE policers */
@@ -177,6 +177,11 @@
 #define VTSS_FEATURE_QOS_TAS                      /**< QoS: Time Aware Scheduling (802.1Qbv) */
 #define VTSS_FEATURE_VLAN_SVL                     /**< Shared VLAN Learning */
 #define VTSS_FEATURE_MAC_PORT_LEARN_LIMIT         /**< MAC learning limit per port */
+#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
+#define VTSS_FEATURE_HACL                         /**< Hierarchical Access Control Lists */
+#define VTSS_FEATURE_ACL_V2                      /**< Access Control Lists, V2 features */
+#define VTSS_FEATURE_ACL_EXT_DIP                 /**< ACL extended IPv6 rule with DIP matching */
+#define VTSS_FEATURE_ACL_EXT_MAC                 /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 
 #if !VTSS_OPT_LIGHT
 #if !defined(VTSS_OPT_FPGA)
@@ -221,11 +226,6 @@
 #define VTSS_FEATURE_FAN                          /**< Fan control */
 #define VTSS_FEATURE_TEMP_SENSOR                  /**< Temperature Sensor */
 #endif
-#define VTSS_FEATURE_ACL                          /**< Access Control Lists */
-#define VTSS_FEATURE_HACL                         /**< Hierarchical Access Control Lists */
-#define VTSS_FEATURE_ACL_V2                      /**< Access Control Lists, V2 features */
-#define VTSS_FEATURE_ACL_EXT_DIP                 /**< ACL extended IPv6 rule with DIP matching */
-#define VTSS_FEATURE_ACL_EXT_MAC                 /**< ACL extended IPv4/IPv6 rules with MAC address matching */
 #define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
 #define VTSS_FEATURE_PTP_RS422                   /**< Support for the RS422 serial/1PPS interface */
 #define VTSS_FEATURE_DELAY_REQ_AUTO_RESP         /**< Delay_Req/Resp processing supported in hardware */
@@ -638,6 +638,8 @@
 #else
 #define VTSS_STREAM_CNT 64
 #endif
+// Number of ACEs
+#define VTSS_ACE_CNT 64
 #endif
 
 /* ================================================================= *
