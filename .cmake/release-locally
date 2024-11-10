@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+set -e
+set -x
+
+.cmake/source-prepare.rb ws
+cd ws
+.cmake/create_cmake_project.rb -vfp arm arm
+.cmake/create_cmake_project.rb -vfp arm64 arm64
+.cmake/create_cmake_project.rb -vfp mipsel mipsel
+rm -rf build-arm build-arm64 build-mipsel
+cd ..
+mv ws/arm.tar .
+mv ws/arm64.tar .
+mv ws/mipsel.tar .
+.cmake/aggr-artifacts.rb

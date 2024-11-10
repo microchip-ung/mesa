@@ -6,18 +6,26 @@ presets:
     mipsel:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/bin/cmake"
         :legal:            "mipsel-mips32r2-linux-gnu/xstax/release/legal-info"
         :release_artifact: true
+        :package_list:
+        - "./licenses.txt"
+        - "./include_common/*"
+        - "./include_common/**/*"
+        - "./libvsc74??.{so,a}"
+        - "./libvsc751?.{so,a}"
+        - "./meba/libmeba_{caracal,jr2,ocelot,servalt}*.{a,so}"
+        - "./mesa/demo/*.mfi"
 
     mipsel-debug:
         :arch:             "mipsel"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "mipsel-mips32r2-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -39,18 +47,28 @@ presets:
     arm64:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/cmake"
         :legal:            "arm64-armv8_a-linux-gnu/xstax/release/legal-info"
         :release_artifact: true
+        :package_list:
+        - "./licenses.txt"
+        - "./include_common/*"
+        - "./include_common/**/*"
+        - "./liblan969x.{so,a}"
+        - "./libvsc75{46,49,52,56,58}.{so,a}"
+        - "./libvsc75{46,49,52,56,58}TSN.{so,a}"
+        - "./meba/*sparx5*.{a,so}"
+        - "./mesa/demo/*lan969*.{itb,ext4.gz,ubifs}"
+        - "./mesa/demo/*vsc75{46,49,52,56,58}*.{itb,ext4.gz,ubifs}"
 
     arm64-debug:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -60,7 +78,7 @@ presets:
     arm64-asan:
         :arch:             "arm64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug -DBUILD_ASAN=true"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "arm64-armv8_a-linux-gnu"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -70,18 +88,25 @@ presets:
     arm:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "arm-cortex_a8-linux-gnu/xstax/release/x86_64-linux/bin/cmake"
         :legal:            "arm-cortex_a8-linux-gnu/xstax/release/legal-info"
         :release_artifact: true
+        :package_list:
+        - "./licenses.txt"
+        - "./include_common/*"
+        - "./include_common/**/*"
+        - "./liblan966x.{a,so}"
+        - "./meba/*lan966*.{a,so}"
+        - "./mesa/demo/armv7_lan966{2,x}.itb"
 
     arm-debug:
         :arch:             "arm"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Debug"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_arch:       "arm-cortex_a8-linux-gnueabihf"
         :brsdk_branch:     "brsdk"
         :toolchainfile:    "arm-cortex_a8-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
@@ -91,7 +116,7 @@ presets:
     x86:
         :arch:             "x86_64"
         :cmake_flags:      "-DCMAKE_BUILD_TYPE=Release -DBUILD_MESA_DEMO=true"
-        :brsdk:            "2024.02.6-1128"
+        :brsdk:            "2024.02.6-1125"
         :brsdk_branch:     "brsdk"
         :toolchain_branch: "toolchain"
         :toolchainfile:    "x86_64-nocona-linux-gnu/standalone/release/x86_64-linux/share/buildroot/toolchainfile.cmake"

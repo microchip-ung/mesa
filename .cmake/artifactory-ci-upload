@@ -1,0 +1,945 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'json'
+require "digest"
+require 'optparse'
+require 'net/http'
+require 'net/https'
+require 'pathname'
+require "json_schemer"
+require 'thread'
+
+INLINE_SCHEMA = {
+  "$id" => "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/schemas/unge-artifact-generic-manifest-schema-1.json",
+  "$schema" => "https://json-schema.org/draft/2020-12/schema",
+  "title" => "UNGE Generic artifact manifest schema",
+  "type" => "object",
+  "description" => "An artifact menifest file to describe artifact metadata.",
+  "additionalProperties" => false,
+
+  "properties" => {
+    "schema-version" => {
+      "type" => "number",
+      "description" => "Schema version"
+    },
+
+    "build-info" => {
+      "type" => "object",
+      "description" => "Build information",
+      "properties" => {
+        "repo" => {
+          "type" => "string",
+          "description" => "Host name and path to the repository (<HOST>/<PATH>)"
+        },
+        "branch" => {
+          "type" => "string",
+          "description" => "Branch"
+        },
+        "build-no" => {
+          "type" => "string",
+          "description" => "Build number (as a string)"
+        },
+        "git-sha" => {
+          "type" => "string",
+          "description" => "git-sha"
+        },
+        "timestamp" => {
+          "type" => "string",
+          "description" => <<~END
+           Timestamp when this file is created in ISO8601 with second resolution
+           (do a'data -Iseconds')
+           END
+        }
+      },
+      "required" => ["repo", "branch", "build-no", "git-sha", "timestamp"]},
+
+    "retention" => {
+      "type" => "object",
+      "description" => "Retention information",
+      "properties" => {
+        "initial-retention-time-days" => {
+          "type" => "number",
+          "description" => "Number of days to keep this build"
+        }
+      },
+
+      "additionalProperties" => false,
+      "required" => ["initial-retention-time-days" ]
+    },
+
+    "files" => {
+      "type" => "array",
+      "description" => "List of files included in the artifact packet",
+      "items" => {
+        "type" => "object",
+        "description" => "A file in the artifact",
+        "properties" => {
+          "path" => {
+            "type" => "string",
+            "description" => "Path, relative to the manifestfile, to the given file"
+          },
+          "ci-path" => {
+            "type" => "string",
+            "description" => "Path of file in the CI environment"
+          },
+          "md5" => {
+            "type" => "string",
+            "description" => "MD5sum of the file content"
+          },
+          "size" => {
+            "type" => "number",
+            "description" => "Size of file"
+          }
+        },
+        "additionalProperties" => false,
+        "required" => ["path", "md5"]
+      },
+      "uniqueItems" => true
+    },
+
+    "dependencies" => {
+      "description" => "List of (artifactory hosted) dependencies",
+      "$ref" => "#/$defs/deps"
+    }
+  },
+
+  # Required keys in /
+  "required" => ["build-info", "retention", "files", "schema-version"],
+
+  "$defs" => {
+    "deps" => {
+      "type" => "array",
+      "items" => {
+        "$ref" => "#/$defs/dep"
+      },
+      "uniqueItems" => false, "minLength" => 1
+    },
+
+    "dep" => {
+      "type" => "object",
+      "allOf" => [
+
+        {
+          # Common properties
+          "properties" => {
+            "id" => {
+              "type" => "string",
+              "description" => <<~END
+                Fixed string which can be used for identification. This string
+                shall not include any version information.
+                END
+            },
+            "type" => {
+              "enum" => ["docker", "build-artifact", "generic-file"],
+              "description" => "Type of dependency."
+            }
+          },
+          "required" => ["type"]},
+
+        {
+          # Specialized properties
+          "oneOf" => [
+            {
+              ## DOCKER Dependency
+              "properties" => {
+                "type" => {"const" => "docker"},
+                "docker-tag" => {
+                  "type" => "string",
+                  "description" => "The version part of the docker image (the portion after the ':')."
+                },
+                "docker-sha" => {
+                  "type" => "string",
+                  "description" => "The string starting with 'sha256:...'"
+                },
+                "docker-path" => {
+                  "type" => "string",
+                  "description" => "This is the path to be used when doing docker push/pull."
+                }
+              },
+              "required" => ["docker-tag", "docker-sha", "docker-path"]},
+
+            {
+              ## BUILD-ARTIFACT Dependency
+              "properties" => {
+                "type" => {"const" => "build-artifact"},
+                "build-artifact-url" => {
+                  "type" => "string",
+                  "description" => <<~END
+                    The full URL (always use https) to the folder containing the
+                    manifest file. This URL should take you to a directory
+                    listing page, containing a manifest.json file among others.
+
+                    Typically it will look like this: https://artifacts-aws.devops.microchip.com/artifactory/<ARTIFACTORY-REPO>/<ONE-OR-MORE-PATH-ELEMENTS>/<GIT-REPO>/<BRANCH>/<BUILD-NO>"
+                    END
+                },
+                "build-artifact-version-string" => {
+                  "type" => "string",
+                  "description" => <<~END
+                    Files may include a stringified version as part of the file
+                    name, if this is the case, then this field can contain the
+                    version part to make it easier to predict the filename (and
+                    see if it is installed already) from the dependency file.
+                    END
+
+                }
+              },
+              "required" => ["build-artifact-url"]
+            },
+
+            {
+              ## GENERIC-FILE Dependency
+              "properties" => {
+                "type" => {"const" => "generic-file"},
+                "generic-file-url" => {
+                  "type" => "string",
+                  "description" => "This is the full URL (always use https) which can be used for download the file."
+                },
+                "generic-file-local-path" => {
+                  "type" => "string",
+                  "description" => "The path where this file was stored in the current CI job."
+                }
+              },
+              "required" => ["generic-file-url"]
+            }
+          ]
+        }
+      ],
+      "unevaluatedProperties" => false
+    }
+  }
+}
+
+
+$trace_mutex = Mutex.new
+
+def err msg
+    $trace_mutex.synchronize do
+        STDERR.puts "ERROR: #{msg}"
+        $err += 1
+    end
+end
+
+def warn msg
+    $trace_mutex.synchronize do
+        STDERR.puts "WARN:  #{msg}"
+    end
+end
+
+def info msg
+    $trace_mutex.synchronize do
+        puts "INFO:  #{msg}" if $verbose > 0
+    end
+end
+
+def dbg msg
+    $trace_mutex.synchronize do
+        puts "DBG:   #{msg}" if $verbose > 1
+    end
+end
+
+def validate_manifest_data json
+  err = $schema.validate(json).collect{|e| JSONSchemer::Errors.pretty(e) }
+  if err.size > 0
+    puts "Manifest file did not pass schema test:"
+    err.map{|e| puts "    #{e}"}
+    raise "invalid manifest data"
+  end
+end
+
+def load_manifest_file f
+    m = JSON.parse(f.read)
+    validate_manifest_data m
+    return m
+end
+
+def save_manifest_file f
+    f.seek 0
+    f.truncate 0
+    f.write $m.to_json
+    f.close
+end
+
+def add_file path_local, path_remote
+    info "File #{path_local} -> #{path_remote}"
+
+    rec = {
+        "path" => path_remote.to_s,
+        "ci-path" => path_local.to_s,
+        "md5" => Digest::MD5.file(path_local.to_s).to_s,
+        "size" => path_local.size,
+    }
+
+    $m_files << rec
+    $files << rec
+end
+
+def add_dep path_local, path_remote
+
+    return if File.zero?(path_local)
+
+    info "Dep #{path_local} -> #{path_remote}"
+
+    rec = {
+        "type" => "generic-file",
+        "generic-file-url" => "#{$target_url}/#{path_remote.to_s}",
+        "generic-file-local-path" => path_local.to_s,
+    }
+
+    $m_deps << rec
+end
+
+def process_upload_list f, pop_cnt = $upload_folder_pop_cnt
+    p = Pathname(f).cleanpath
+    return if p.symlink?
+
+    if p.directory?
+        dbg "Expanding directory #{p}" if $verbose > 0
+        Dir.glob("*", File::FNM_DOTMATCH, base: p.to_s).each do |f|
+            next if f == "." or f == ".."
+            pp = p + Pathname(f)
+            process_upload_list pp, pop_cnt
+        end
+        dbg "Expanding directory #{p} - DONE" if $verbose > 0
+
+    elsif p.file? and p.readable?
+        pp = p
+        if pop_cnt != 0
+            pp = p.ascend.collect{|x| x.basename}.reverse[pop_cnt..].inject(:+)
+        end
+        if pp.to_s == "" or pp.to_s == "/"
+            warn "Skipping invalid path after pop_cnt: #{p} -> #{pp}" if $verbose > 0
+        else
+            if $dep_generic_file_dst
+                add_dep(p, pp)
+            else
+                add_file(p, pp)
+            end
+        end
+    else
+        warn "Not a file or not readable: #{p}"
+    end
+end
+
+def size_of_txt a
+    if a.nil?
+        return "0b"
+    end
+
+    s = a.size
+
+    if s.to_s.size <= 4
+        return "#{s}B"
+    end
+
+    s /= 1024
+    if s.to_s.size <= 4
+        return "#{s}K"
+    end
+
+    s /= 1024
+    if s.to_s.size <= 4
+        return "#{s}M"
+    end
+
+    s /= 1024
+    return "#{s}G"
+end
+
+def uri_to_txt u
+    s = u.to_s
+    base = "https://artifacts-aws.devops.microchip.com/artifactory/"
+
+    if s.start_with? base
+        return s[base.size..]
+    else
+        return s
+    end
+end
+
+def http_req uri, req
+    http = Net::HTTP.new(uri.host, uri.port)
+    #http.set_debug_output($stdout)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    req.basic_auth $user, $token
+
+    if uri.to_s =~ /https.*https/
+      puts "!!!!!!!!!!!!!!!!!!!!!!!  URI looks wrong: #{uri}"
+      raise "URI looks wrong: #{uri}"
+    end
+
+    dbg "%-12s %5s             %s" % [req.method + "-START", size_of_txt(req.body), uri_to_txt(uri)]
+
+    ts_a = Time.now
+    res = http.request(req)
+    ts_b = Time.now
+
+    dbg "%-6s %3d %7.2f %5s/%-5s %s" % [req.method, res.code.to_i, ts_b - ts_a,
+                                        size_of_txt(req.body), size_of_txt(res.body), uri_to_txt(uri)]
+
+    # raise an excetion if not success
+    res.value
+
+    return res.body, res.code.to_i
+end
+
+def http_put url, data, params = {}
+    uri = URI(url)
+
+    if params.size >= 1
+        uri.query = URI.encode_www_form(params)
+    end
+
+    req = Net::HTTP::Put.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+    req.delete "Accept-Encoding"
+    req.delete "User-Agent"
+    req.body = data
+
+    http_req(uri, req)
+end
+
+def http_get_prop url
+    uri = URI(url + "?properties")
+
+    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+    req.delete "Accept-Encoding"
+    req.delete "User-Agent"
+
+    body, code = http_req(uri, req)
+    return body
+end
+
+def http_head url
+    uri = URI(url)
+
+    req = Net::HTTP::Head.new(uri)
+    body, code = http_req(uri, req)
+    return code
+end
+
+def http_get_keep_until url
+    puts "http_get_keep_until url: #{url}"
+    begin
+        body = http_get_prop url
+        m = JSON.parse(body)
+        # apparently this is an array
+        raise "unexpected array length: #{m.inspect}" if m.class != Array or m.size != 1
+        return Time.parse m["properties"]["unge-keep-until"][0]
+    rescue
+        return Time.new
+    end
+end
+
+def url_to_path url
+  base = "https://artifacts-aws.devops.microchip.com/artifactory/"
+  if url.start_with? base
+    return url[base.size..]
+  else
+    raise "Could not convert #{url} to base path"
+  end
+end
+
+def http_set_keep_until url, keep_until
+  base = "https://artifacts-aws.devops.microchip.com/artifactory"
+  path = url_to_path url
+  res = "#{base}/api/storage/#{path}"
+
+  http_put res, nil, {"properties" => "unge-keep-until=#{keep_until}", "recursive" => 0}
+end
+
+def http_get_deps url
+    u = "#{url}/manifest.json"
+    uri = URI(u)
+
+    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+    req.delete "Accept-Encoding"
+    req.delete "User-Agent"
+
+    body, code = http_req(uri, req)
+
+    file = JSON.parse(body)
+    validate_manifest_data file
+
+    return file["dependencies"]
+end
+
+def code_2xx? c
+    c >= 200 and c < 300
+end
+
+def a_exists_folder_or_path path
+    a = nil
+    if path[-1] == "/"
+        a = path[0..-2]
+    else
+        a = path
+    end
+
+    begin
+        code_a = http_head a
+    rescue
+        return false
+    else
+        return true
+    end
+end
+
+def a_upload path, data
+    if a_exists_folder_or_path path
+        if $skip_files_already_present
+            return
+        end
+        raise "Exists already, skipping: #{path}"
+    end
+
+    dbg "Uploading (#{size_of_txt(data)}) to #{path}"
+    body, code = http_put path, data
+    http_set_keep_until path, $keep_until
+end
+
+def update_keep_until_deps deps, indent = ""
+    threads=[]
+    dbg "#{indent}update_keep_until_deps - generics"
+
+    deps.filter{|x| x["type"] == "generic-file"}.each do |d|
+        dbg "#{indent}#{d.inspect}"
+        threads << Thread.new do
+            time = http_get_keep_until d["generic-file-url"]
+            if time < $keep_until
+                info "keep_until: #{indent}generic-file: Update: #{d["generic-file-url"]} #{time} -> #{$keep_until + $buffer}"
+                http_set_keep_until d["generic-file-url"], $keep_until + $buffer
+            else
+                dbg "keep_until: #{indent}generic-file: No-update: #{d["generic-file-url"]} #{time} >= #{$keep_until}"
+            end
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+
+    dbg "#{indent}update_keep_until_deps - non-generics"
+    deps.each do |d|
+      dbg "#{indent}#{d.inspect}"
+        if d["type"] == "generic-file"
+            # Handled above (in multiple threads)
+        elsif d["type"] == "build-artifact"
+            manifest_path = nil
+            if d["build-artifact-url"]
+                manifest_path = d["build-artifact-url"]
+            else
+                raise "No path and no build-artifact-url in #{d.inspect}"
+            end
+
+            manifest_file = manifest_path  + "/manifest.json"
+            time = http_get_keep_until manifest_file
+
+            if time < $keep_until
+                info "keep_until: #{indent}build-artifact: Update-recursive: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+                manifest_deps = http_get_deps manifest_path
+                update_keep_until_deps manifest_deps, indent + "    "
+
+                # Notice, update the keep-until of the manifest after the
+                # recursive call to ensure this operation is re-done in case
+                # the script crash or is interrupted
+                http_set_keep_until manifest_file, $keep_until + $buffer
+                info "keep_until: #{indent}build-artifact: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+            else
+                dbg "keep_until: #{indent}build-artifact: No-update: #{manifest_file} #{time} >= #{$keep_until}"
+            end
+
+        elsif d["type"] == "docker"
+            u = URI.parse("https://#{d["docker-path"]}")
+            repo = "unknown"
+            case u.port
+            when 7996
+                repo = "ung-docker-dev-local"
+            else
+                raise "Unexpected port: #{u.port}, in #{d.inspect}"
+            end
+            manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+            manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+
+            time = http_get_keep_until manifest_file
+            if time < $keep_until
+                http_set_keep_until manifest_file, $keep_until + $buffer
+                info "keep_until: #{indent}docker: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+            else
+                dbg "keep_until: #{indent}docker: No-update: #{manifest_file} #{time} >= #{$keep_until}"
+            end
+        else
+            raise "Unknown dependency type in: #{d.inspect}"
+        end
+    end
+end
+
+VERSION = "0.0.1"
+NR_THREADS = 100
+$err = 0
+$root = "ci"
+$token = ENV["ARTIFACTORY_PASS"]
+$user = ENV["ARTIFACTORY_USER"]
+$branch = ENV["GIT_BRANCH"]
+$sha = ENV["GIT_COMMIT"]
+$build_no = ENV["BUILD_NUMBER"]
+$days = 10
+$buffer = 5 * 24 * 60 * 60
+$verbose = 0
+$dep_file = []
+$dep_gen_mani = []
+$dep_gen_file = []
+$dep_docker = []
+$upload_list = []
+$upload_folder_pop_cnt = 0
+$schema = JSONSchemer.schema(INLINE_SCHEMA)
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = """Usage: artifactory-ci-upload [options] [FILES/FOLDERS...]
+
+This script will upload a list of file to artifactory, and once completed it
+will generate a manifest file as well.
+
+The listed files will be uploaded to
+ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/...
+
+In addition to the listed files, it will generate a manifest.json file following
+the schema at [1] and set the UNGE-KEEP-UNTIL property to the current date + the
+number of days specified with the --duration <DAYS> option.
+
+[1] https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/schemas/unge-artifact-generic-manifest-schema-1.json
+
+Options:"""
+    opts.separator("\nBuild/destination info:") ############################################
+    opts.on("--git-repo <REPO>", "Repository. Default: ${git remote get-url origin} with transport layer removed") do |r|
+        $repo = r
+    end
+
+    opts.on("--git-branch <BRANCH>", "Git branch. Default: $GIT_BRANCH' or ${git branch --show-current}") do |b|
+        $branch = b
+    end
+
+    opts.on("--git-sha <SHA>", "Git SHA. Default: $GIT_COMMIT or ${git rev-parse HEAD}") do |s|
+        $sha = s
+    end
+
+    opts.on("--build-no <NUM>", "Build number. Default: $BUILD_NUMBER") do |s|
+        $build_no = s
+    end
+
+    opts.separator("\nIncremental use:") ############################################
+    opts.separator("When used in incremental mode (-i) the manifest file (<FILE>) is stored locally,")
+    opts.separator("and not uploaded right away. If called multiple time, each invocation")
+    opts.separator("will lock and add to the file.")
+    opts.separator("Once called with -f, the manifest file is loaded from the disk and uploaded.\n")
+    opts.on("-i", "--incremental <FILE>", "Load/generate the manifest locally, but do not upload it.") do |a|
+        $incremental = true
+        $manifest_file = a
+    end
+
+    opts.on("-f", "--final <FILE>", "Load, update and upload the final manifest file.") do |a|
+        $final = true
+        $manifest_file = a
+    end
+
+    opts.on("--no-manifest", "Do not create a manufest file - just upload a generic") do |a|
+        $no_manifest = true
+    end
+
+    opts.separator("\nDependencies (only dependencies hosted on artifacts):")
+    opts.on("--dep-file <PATH>", "Path to dependency file.") do |a|
+        $dep_file << a
+    end
+
+    opts.separator("\nArtifactory settings:") ##################################
+    opts.on("-r", "--root <root-folder>", "Root foder in artifactory. Default: 'ci'") do |r|
+        $root = r
+    end
+
+    opts.on("-d", "--days <DAYS>", Integer, "Initial retention duration. Default: 10 days") do |d|
+        $days = d
+    end
+
+    opts.on("--dep-generic-file-dst <STRING>", "Instead of uploading the list of files to the usual\n",
+            "ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/... location, upload to the specified path\n",
+            "This will also add the files to the manifest.json file as a generic-file dependency.\n",
+            "If used as a cache, make sure to add the --skip-files-already-present flag\n",
+            "This option is not allowed to be used along with --git-repo, --git-branch, --git-sha or --build-no") do |s|
+        $dep_generic_file_dst = s
+    end
+
+    opts.on("--skip-files-already-present", "If a file is already there, just skip it") do
+        $skip_files_already_present = true
+    end
+
+    opts.on("-p", "--path-pop-cnt <CNT>", Integer, "Number of path elements to pop when creating files on artifactory") do |s|
+        $upload_folder_pop_cnt = s
+    end
+
+    opts.on("--user <USER>", "User. Default: $ARTIFACTORY_USER") do |d|
+        $user = d
+    end
+
+    opts.on("--token <TOKEN>", "Token. Default: $ARTIFACTORY_PASS") do |d|
+        $token = d
+    end
+
+    opts.separator("\nGeneral:") ###############################################
+    opts.on("--version", "Script version") do |p|
+        puts VERSION
+        exit
+    end
+
+    opts.on("-v", "--verbose", "Enable verbose trace output") do |d|
+        $verbose += 1
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+        puts opts
+        exit
+    end
+end
+
+opt_parser.summary_width = 30
+opt_parser.parse!(ARGV)
+
+$upload_list = ARGV.clone
+
+if $incremental and $final
+    puts "-i and -f are mutually exclusive"
+    exit -1
+end
+
+if $repo.nil?
+    $repo = %x{git remote get-url origin 2>/dev/null}.strip
+    if $?.to_i != 0
+        puts "No repo name"
+        exit -1
+    end
+end
+
+if $sha.nil?
+    $sha = %x{git rev-parse HEAD 2>/dev/null}.strip
+    if $?.to_i != 0
+        puts "No sha"
+        exit -1
+    end
+end
+
+if $branch.nil?
+    $branch = %x{git branch --show-current 2>/dev/null}.strip
+    if $?.to_i != 0
+        puts "No branch"
+        exit -1
+    end
+end
+
+if ($build_no.nil? or $build_no.size == 0) and not $no_manifest
+    puts "No build number!"
+    exit -1
+end
+
+case $repo
+when /(bitbucket\.microchip\.com)\/scm\/(.*)\/(.*)\.git/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+when /(bitbucket\.microchip\.com)\/(.*)\/(.*)\.git/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+when /(bitbucket\.microchip\.com)\/scm\/(.*)\/(.*)/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+when /(bitbucket\.microchip\.com)\/(.*)\/(.*)/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+else
+    puts "Repo name looks wrong!"
+    puts "Got: #{$repo}"
+    exit -1
+end
+$repo = "#{$git_host}/#{$git_org}/#{$git_repo_base}"
+
+if $upload_list.size == 0 and not $final
+    puts "No upload folder/file!"
+    exit -1
+end
+
+$ts = Time.now
+$m = nil
+
+load_manifest_from_file = false
+if $final or ($incremental and File.exist? $manifest_file)
+    load_manifest_from_file = true
+end
+
+if $manifest_file
+    $manifest_file_h = File.open($manifest_file, File::CREAT | File::RDWR)
+    $manifest_file_h.flock(File::LOCK_EX)
+end
+
+if load_manifest_from_file
+  begin
+    $m = load_manifest_file($manifest_file_h)
+  rescue
+    err "Error loading #{$manifest_file} as a manifest file"
+    raise
+  end
+  $ts = Time.parse $m["build-info"]["timestamp"]
+else
+    # Bootstrap the manifest file...
+    # NOTE: We will do this even in the case of not having a manifest file
+    # (generic use)
+    $m = {
+        "schema-version" =>  1,
+        "build-info" => {
+            "repo" => $repo,
+            "branch" => $branch,
+            "build-no" => $build_no.to_s,
+            "git-sha" => $sha,
+            "timestamp" => $ts,
+        },
+        "retention" => {
+            "initial-retention-time-days" => $days,
+        },
+        "files" => [],
+        "dependencies" => [],
+    }
+end
+
+if $m.nil?
+    puts "Failed to load the manifest file"
+    exit
+end
+
+$keep_until = $ts + ($days * 24 * 60 * 60)
+$m_build_info = $m["build-info"]
+$m_files = $m["files"]
+$files = []
+$m_deps = $m["dependencies"]
+
+if $repo != $m_build_info["repo"] or
+        $branch != $m_build_info["branch"] or
+        $build_no != $m_build_info["build-no"] or
+        $sha != $m_build_info["git-sha"] or
+        #$ts.to_s != $m_build_info["timestamp"] or
+        $days != $m["retention"]["initial-retention-time-days"]
+    puts "repo: #{$repo} != #{$m_build_info["repo"]}" if $repo != $m_build_info["repo"]
+    puts "branch: #{$branch} != #{$m_build_info["branch"]}" if $branch != $m_build_info["branch"]
+    puts "build_no: '#{$build_no}' != '#{$m_build_info["build-no"]}'" if $build_no != $m_build_info["build-no"]
+    puts "sha: #{$sha} != #{$m_build_info["git-sha"]}" if
+    puts "days: #{$days} != #{$m["retention"]["initial-retention-time-days"]}" if $days != $m["retention"]["initial-retention-time-days"]
+    puts "The provided repo/branch/build-no/git-sha/timestamp/days does not match what is loaded from the manifest file!"
+    exit -1
+end
+
+$base_url = "#{$root}/#{$git_org}/#{$git_repo_base}/#{$branch}/#{$build_no}"
+if $dep_generic_file_dst.nil?
+    $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$base_url}"
+else
+    $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$dep_generic_file_dst}"
+end
+
+if $verbose > 0
+    info "Version: #{VERSION}"
+    info "Input:"
+    info "  root:                       #{$root}"
+    info "  user:                       #{$user}"
+    info "  token:                      #{$token.gsub(/./, "x")}"
+    info "  branch:                     #{$branch}"
+    info "  repo:                       #{$repo}"
+    info "  build_no:                   #{$build_no}"
+    info "  sha:                        #{$sha}"
+    info "  days:                       #{$days}"
+    info "  ts:                         #{$ts}"
+    info "  keep_until:                 #{$keep_until}"
+    info "  verbose:                    #{$verbose}"
+    info "  dep_gen_mani:               #{$dep_gen_mani}"
+    info "  dep_gen_file:               #{$dep_gen_file}"
+    info "  dep_docker:                 #{$dep_docker}"
+    info "  upload_list:                #{$upload_list}"
+    info "  upload_folder_pop_cnt       #{$upload_folder_pop_cnt}"
+    info "  target url:                 #{$target_url}"
+    info "  local-manifest-file:        #{$manifest_file}"
+    info "  incremental                 #{$incremental}"
+    info "  final                       #{$final}"
+    info "  skip_files_already_present  #{$skip_files_already_present}"
+end
+
+$upload_list.each do |f|
+    process_upload_list f
+end
+
+if $dep_generic_file_dst
+    threads=[]
+    $m_deps.each do |e|
+        threads << Thread.new do
+            a_upload(e["generic-file-url"], File.binread(e["generic-file-local-path"]))
+            e.delete("local-path")
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+end
+
+if $dep_file.size > 0
+  dep_schema = $schema.ref("#/$defs/deps")
+
+  $dep_file.each do |f|
+    j = JSON.parse(File.read(f))
+    err = dep_schema.validate(j).collect{|e| JSONSchemer::Errors.pretty(e) }
+
+    if err.size > 0
+      puts "Schema error in #{f}:"
+      err.each do |e|
+        puts "  #{e}"
+      end
+    else
+      $m_deps += j
+    end
+
+  end
+end
+
+$m["dependencies"] = $m_deps
+
+if $incremental
+    save_manifest_file($manifest_file_h)
+    $manifest_file_h = nil
+end
+
+slice = $files.length / NR_THREADS
+slice = 1 if slice == 0
+
+threads=[]
+$files.each_slice(slice) do |s|
+    threads << Thread.new do
+        s.each do |e|
+            a_upload("#{$target_url}/#{e["path"]}", File.binread(e["ci-path"]))
+        end
+    end
+end
+threads.each do |t|
+    t.join
+end
+
+if $no_manifest
+
+elsif $final or $manifest_file.nil?
+    dbg "upload manifest: #{$target_url}/manifest.json"
+    http_put "#{$target_url}/manifest.json", $m.to_json
+
+    update_keep_until_deps $m_deps
+
+    if $final
+        save_manifest_file($manifest_file_h)
+        $manifest_file_h = nil
+        File.unlink($manifest_file)
+    end
+end

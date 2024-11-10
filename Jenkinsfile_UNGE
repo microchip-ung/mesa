@@ -1,0 +1,155 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+pipeline {
+    // Options directive is for configuration that applies to the whole job
+    options {
+        timestamps ()
+                // Only keep 5 builds at a time to avoid fill up the storage
+                buildDiscarder(logRotator(numToKeepStr:'5'))
+                // Make sure this build doesn't hang forever
+                timeout(time: 5, unit: 'HOURS')
+                skipDefaultCheckout()
+    }
+
+    // agent none;
+    agent { kubernetes { yamlFile '.cmake/pod-base.yaml' } }
+
+    environment {
+        USER_NAME = "jenkins"
+        WORK_DIR = "/home/$USER_NAME"
+        BLD_ID = "${env.BUILD_NUMBER}"
+        top = "${env.WORKSPACE}"
+        GIT_BRANCH = "${env.BRANCH_NAME}"
+    }
+
+    stages {
+        stage("git checkout") {
+            steps {
+                container('pod-mesa-base') {
+                    checkout([
+                             $class: 'GitSCM',
+                             branches: scm.branches,
+                             extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, shallow: false]],
+                             userRemoteConfigs: scm.userRemoteConfigs
+                    ])
+
+                      sh """
+                              git config --global --add safe.directory '*'
+                              git clean -qffdx
+                              .cmake/source-prepare.rb ws
+                              mkdir images
+                              """
+
+                              stash name: "src", includes: "ws.tar"
+                }
+            }
+        }
+
+        stage('Build in parallel') {
+            parallel {
+                stage("arm64") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mesa-build') {
+                            unstash name: "src"
+                                    sh "tar -xf ws.tar && rm ws.tar"
+                                    sh "./.cmake/create_cmake_project.rb -vfnp arm64 arm64"
+                                    stash name: "bin-arm64", includes: "arm64.tar"
+                        }
+                    }
+                }
+
+                stage("arm") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mesa-build') {
+                            unstash name: "src"
+                                    sh "tar -xf ws.tar && rm ws.tar"
+                                    sh "./.cmake/create_cmake_project.rb -vfnp arm arm"
+                                    stash name: "bin-arm", includes: "arm.tar"
+                        }
+                    }
+                }
+
+                stage("mips") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mesa-build') {
+                            unstash name: "src"
+                                    sh "tar -xf ws.tar && rm ws.tar"
+                                    sh "./.cmake/create_cmake_project.rb -vfnp mipsel mipsel"
+                                    stash name: "bin-mipsel", includes: "mipsel.tar"
+                        }
+                    }
+                }
+
+                stage("misc") {
+                    stages {
+                        stage('Copyright') {
+                            steps {
+                                container('pod-mesa-base') {
+                                    warnError (message: "Copyright error") {
+                                        sh './.cmake/copyright.rb'
+                                    }
+                                }
+                            }
+                        }
+
+                        stage('License') {
+                            steps {
+                                container('pod-mesa-base') {
+                                    warnError (message: "License error") {
+                                        sh './.cmake/build-licenses.rb'
+                                    }
+                                }
+                            }
+                        }
+
+                        stage('Docs') {
+                            steps {
+                                container('pod-mesa-base') {
+                                    warnError (message: "Docs error") {
+                                        sh './.cmake/build-docs.rb'
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        stage("aggr-bin's") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Test', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
+                    container('pod-mesa-base') {
+                        unstash name: "bin-mipsel"
+                        unstash name: "bin-arm64"
+                        unstash name: "bin-arm"
+                        sh ".cmake/aggr-artifacts.rb"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline Success! Project: ${env.JOB_NAME}, Build Number: ${env.BUILD_NUMBER}"
+        }
+        unstable {
+            echo "Pipeline Unstable! Project: ${env.JOB_NAME}, Build Number: ${env.BUILD_NUMBER}"
+        }
+        aborted {
+            echo "Pipeline Aborted! Project: ${env.JOB_NAME}, Build Number: ${env.BUILD_NUMBER}"
+        }
+        failure {
+            echo "Pipeline Failure! Project: ${env.JOB_NAME}, Build Number: ${env.BUILD_NUMBER}"
+        }
+        always {
+            archiveArtifacts artifacts: 'images/*'
+        }
+    }
+}
