@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'optparse'
+
+$opt = {
+  :server  => "herent-sw-pkg.microsemi.net",
+  :type    => "mesa",
+  :install => "/opt/mscc",
+}
+
+global = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} "
+
+  opts.on("-s", "--server <server>", "HTTP server") do |server|
+    $opt[:server] = server
+  end
+
+  opts.on("-t", "--type [TYPE]", "Select package type (Default #{$opt[:type].to_s})") do |type|
+    if type.to_s != ""
+      $opt[:type] = type
+    else
+      raise ArgumentError, "Invalid type #{type}"
+    end
+  end
+
+end.order!
+
+# Get exclusive lock
+fh = File.open("#{$opt[:install]}/.mscc-install-pkg-lock", File::CREAT)
+fh.flock(File::LOCK_EX)
+
+ARGV.each do |package|
+    type = $opt[:type]
+    dir = "jenkins/#{type}"
+    url = "http://#{$opt[:server]}/#{dir}/#{package}.tar.gz"
+    tmp_dir = "#{$opt[:install]}/.mscc-install-pkg-tmp"
+    if File.directory?("#{$opt[:install]}/#{package}")
+        puts "#{package} seems to be installed already."
+        exit 0
+    end
+
+    %x(rm -rf #{tmp_dir})
+    puts tmp_dir
+    %x(mkdir -p #{tmp_dir})
+
+    puts "wget -q -O - #{url} | tar -C #{tmp_dir} -xzf -"
+    %x(wget -q -O - #{url} | tar -C #{tmp_dir} -xzf -)
+    if $?.exitstatus != 0
+        st = $?.exitstatus
+        %x(rm -rf #{tmp_dir})
+        puts "Package #{package} failed to download/install"
+        exit st
+    end
+
+    %x(mv #{tmp_dir}/#{package} #{$opt[:install]}/#{package})
+    if $?.exitstatus != 0
+        st = $?.exitstatus
+        %x(rm -rf #{tmp_dir})
+        %x(rm -rf #{$opt[:install]}/#{package})
+        puts "Failed to move downloaded packet into the #{$opt[:install]} directory"
+        exit st
+    end
+
+    %x(rm -rf #{tmp_dir})
+
+    puts "Package #{package} installed"
+end
