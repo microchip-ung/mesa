@@ -2,1305 +2,1317 @@
 libvsc*.so:
 - :str: MESA_CAP_MISC_GPIO_CNT
   :int: 0
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_SGPIO_CNT
   :int: 1
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_PORT_GPIO
   :int: 2
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_INTERRUPTS
   :int: 3
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_IRQ_CONTROL
   :int: 4
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_FAN
   :int: 5
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_CHIP_FAMILY
   :int: 6
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_CPU_TYPE
   :int: 7
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_DAC_CONTROLS_LOCAL_OSC
   :int: 8
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_SWITCH_BW
   :int: 9
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_SGPIO_MAP
   :int: 10
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MISC_FPGA
   :int: 11
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CNT
   :int: 100
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_PFC
   :int: 101
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_FRAME_LENGTH_MAX
   :int: 102
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CNT_ETHER_LIKE
   :int: 103
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CNT_EVC
   :int: 104
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_MIIM_CTRL_CNT
   :int: 105
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_BW
   :int: 106
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_IFH
   :int: 107
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_INJ_HDR
   :int: 108
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_XTR_HDR
   :int: 109
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_10G
   :int: 110
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_MUX
   :int: 111
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_MUX_AUTO
   :int: 112
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_QS_CONF
   :int: 113
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_10GBASE_KR_V3
   :int: 114
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_KR
   :int: 115
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_KR_IRQ
   :int: 116
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CNT_PTP_PHYS_AND_VIRT
   :int: 117
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD
   :int: 118
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_PCS_CONF
   :int: 119
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_DYNAMIC
   :int: 120
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PORT_CONF_BULK
   :int: 121
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
   :int: 200
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_RX_GRP_CNT
   :int: 201
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_TX_GRP_CNT
   :int: 202
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_HDR_SIZE
   :int: 203
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_RX_IFH_SIZE
   :int: 204
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_TX_IFH_SIZE
   :int: 205
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_PORT_L2CP_REG
   :int: 206
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_PORT_IPMC
   :int: 207
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_VSTAX
   :int: 208
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_IFH_EPID
   :int: 209
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_FCS_DATA
   :int: 210
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_MASQ_PORT
   :int: 211
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_INS_TAG
   :int: 212
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_PTP_ACTION
   :int: 213
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_AUTO_TAGGING
   :int: 214
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_INJ_ENCAP
   :int: 215
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_V1
   :int: 300
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_V2
   :int: 301
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_SLOT_CNT
   :int: 302
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_SLOW_INJ_CNT
   :int: 303
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_SLOW_INJ_FPH_MAX
   :int: 304
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_FAST_INJ_CNT
   :int: 305
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_FAST_INJ_KBPS_MIN
   :int: 306
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_FAST_INJ_KBPS_MAX
   :int: 307
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_AFI_FAST_INJ_FRM_CNT
   :int: 308
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_MAC_ADDR_CNT
   :int: 400
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_AGGR_CNT
   :int: 401
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_PVLAN_CNT
   :int: 402
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_SRID_CNT
   :int: 403
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_SVL_FID_CNT
   :int: 404
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_VLAN_COUNTERS
   :int: 405
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_VCAP_PORT_CONF
   :int: 406
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_MIRROR_TAG
   :int: 407
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_IPV4_MC_SIP
   :int: 408
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_IPV6_MC_SIP
   :int: 409
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_SFLOW_TESTED
   :int: 410
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_MSTP_HW
   :int: 411
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX
   :int: 412
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_XFLOW
   :int: 413
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_XSTAT
   :int: 414
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_XDLB
   :int: 415
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_TPID_AWARE
   :int: 416
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_FRER
   :int: 417
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_FRER_MSTREAM_CNT
   :int: 418
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_FRER_CSTREAM_CNT
   :int: 419
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_PSFP
   :int: 420
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_PSFP_GATE_CNT
   :int: 421
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_PSFP_FILTER_CNT
   :int: 422
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_VCL_KEY_DMAC
   :int: 423
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_VCL_KEY_DIP
   :int: 424
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_FRER_IFLOW_POP
   :int: 425
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_RCL
   :int: 426
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_MAC_INDEX_TABLE
   :int: 427
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L2_REDBOX_CNT
   :int: 428
-  :val: 
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_L2_ONE_SHOT
+  :int: 429
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_L2_LEARN_LIMIT
+  :int: 430
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L3
   :int: 500
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L3_RLEG_CNT
   :int: 501
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L3_LPM_CNT
   :int: 502
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_L3_ARP_CNT
   :int: 503
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PRIO_CNT
   :int: 600
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_CNT
   :int: 601
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_DPL_CNT
   :int: 602
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_CNT
   :int: 603
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_WRED_GROUP_CNT
   :int: 604
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS
   :int: 605
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_GCE_CNT
   :int: 606
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_CT_MIN
   :int: 607
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_CT_MAX
   :int: 608
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_MAX_SDU_MIN
   :int: 609
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_MAX_SDU_MAX
   :int: 610
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT
   :int: 611
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_INGRESS_MAP_CNT
   :int: 612
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_MAP_CNT
   :int: 613
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_COSID_CLASSIFICATION
   :int: 614
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_SCHEDULER_CNT_DWRR
   :int: 615
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_CPU_PORT_SHAPER
   :int: 616
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_WRED
   :int: 617
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_DLB_CM
   :int: 618
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_RT
   :int: 619
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPER_FRAME
   :int: 620
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_SHAPERS_DLB
   :int: 621
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_DPBL
   :int: 622
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_EXT_TTM
   :int: 623
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_EB
   :int: 624
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB
   :int: 625
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH
   :int: 626
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_DSCP_REMARK_DP_AWARE
   :int: 627
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QCL_KEY_TYPE
   :int: 628
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QCL_DMAC_DIP
   :int: 629
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QCL_KEY_DMAC
   :int: 630
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QCL_KEY_DIP
   :int: 631
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QCL_KEY_INNER_TAG
   :int: 632
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_SHAPER_CALIBRATE
   :int: 633
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_FRAME_PREEMPTION
   :int: 634
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MIN
   :int: 635
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MAX
   :int: 636
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MIN
   :int: 637
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MAX
   :int: 638
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MIN
   :int: 639
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MAX
   :int: 640
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_FRAME_BURST_MIN
   :int: 641
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_POLICER_FRAME_BURST_MAX
   :int: 642
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MIN
   :int: 643
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MAX
   :int: 644
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MIN
   :int: 645
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MAX
   :int: 646
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_FRAME_RATE_MIN
   :int: 647
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_FRAME_RATE_MAX
   :int: 648
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_FRAME_BURST_MIN
   :int: 649
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_POLICER_FRAME_BURST_MAX
   :int: 650
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MIN
   :int: 651
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MAX
   :int: 652
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MIN
   :int: 653
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MAX
   :int: 654
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MIN
   :int: 655
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MAX
   :int: 656
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MIN
   :int: 657
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MAX
   :int: 658
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MIN
   :int: 659
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MAX
   :int: 660
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MIN
   :int: 661
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MAX
   :int: 662
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MIN
   :int: 663
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MAX
   :int: 664
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_FRAME_BURST_MIN
   :int: 665
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_QUEUE_SHAPER_FRAME_BURST_MAX
   :int: 666
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MIN
   :int: 667
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MAX
   :int: 668
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MIN
   :int: 669
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MAX
   :int: 670
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MIN
   :int: 671
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MAX
   :int: 672
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_FRAME_BURST_MIN
   :int: 673
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_GLOBAL_STORM_FRAME_BURST_MAX
   :int: 674
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_BIT_RATE_MIN
   :int: 675
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_BIT_RATE_MAX
   :int: 676
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_BIT_BURST_MIN
   :int: 677
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_BIT_BURST_MAX
   :int: 678
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MIN
   :int: 679
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MAX
   :int: 680
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MIN
   :int: 681
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MAX
   :int: 682
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_DSCP_CNT
   :int: 683
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_CPU_QUEUE_SHAPER
   :int: 684
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_QOS_OT
   :int: 685
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_CNT
   :int: 800
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICY_CNT
   :int: 801
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_SIP_CNT
   :int: 802
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_PTP_DELAY
   :int: 803
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_PTP_ONE_AND_TWO_STEP
   :int: 804
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_EVC_POLICER
   :int: 805
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_CNT_LM
   :int: 806
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_MAC_SWAP
   :int: 807
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_IFH_FLAG
   :int: 808
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_KEY_LOOKUP
   :int: 809
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_KEY_ISDX
   :int: 810
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_ACE_STATUS
   :int: 811
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_PACKET_RATE_MAX
   :int: 812
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_PACKET_RATE_GRAN
   :int: 813
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_PACKET_RATE_SMALL
   :int: 814
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_BIT_RATE_MAX
   :int: 815
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_POLICER_BIT_RATE_GRAN
   :int: 816
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_HACL
   :int: 817
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_EXT_DIP
   :int: 818
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_EXT_MAC
   :int: 819
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_ACL_MAC_IGR
   :int: 820
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_EVC_CNT
   :int: 900
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_CNT
   :int: 901
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_MPLS_PW_CNT
   :int: 902
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_POLICER_CNT
   :int: 903
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ENCAP_CNT
   :int: 904
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_L2CP_PROFILE_CNT
   :int: 905
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_NNI_LIST
   :int: 906
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_LEAF_LIST
   :int: 907
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_COSID_POLICERS
   :int: 908
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_POLICER_BLIND
   :int: 909
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_SERVAL
   :int: 910
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_CARACAL
   :int: 911
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_PORT
   :int: 912
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_PORT_EVC
   :int: 913
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ETREE
   :int: 914
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_POLICY
   :int: 915
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ETYPE
   :int: 916
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_LLC
   :int: 917
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_SNAP
   :int: 918
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_DMAC
   :int: 919
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_DIP
   :int: 920
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_INNER_TAG
   :int: 921
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_MASQ
   :int: 922
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_OT
   :int: 923
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_OT_VID
   :int: 924
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_PCP_MODE
   :int: 925
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_DEI_MODE
   :int: 926
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_PCP_DEI_PRES
   :int: 927
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_IT
   :int: 928
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_POLICER
   :int: 929
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_PRIO
   :int: 930
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_DPL
   :int: 931
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_ECE_ACT_DISCARD
   :int: 932
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_COUNTERS
   :int: 933
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_COSID_COUNTERS
   :int: 934
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_PORT_KEY_TYPE
   :int: 935
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_EVC_PORT_DMAC_DIP
   :int: 936
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MPLS
   :int: 1000
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MPLS_LOCAL_TC_MAP
   :int: 1001
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_HQOS_CNT
   :int: 1100
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_HQOS_STAT_CNT_SERVICE
   :int: 1101
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_HQOS_SHAPER_RT
   :int: 1102
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP
   :int: 1200
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_CFM
   :int: 1201
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_V0
   :int: 1202
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_V1
   :int: 1203
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_V2
   :int: 1204
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_TAGGING
   :int: 1205
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_PATH_SERVICE_VOE_CNT
   :int: 1206
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_PORT_VOE_CNT
   :int: 1207
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_VOE_CNT
   :int: 1208
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_DOWN_VOI_CNT
   :int: 1209
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_UP_VOI_CNT
   :int: 1210
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_VOI_CNT
   :int: 1211
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_USED_AS_PTP_PROTOCOL
   :int: 1212
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_EVENT_ARRAY_SIZE
   :int: 1213
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_EVENT_SUPPORTED
   :int: 1214
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP_CCM_DEFECT
   :int: 1215
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_CLOCK
   :int: 1300
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE
   :int: 1400
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_CLK_CNT
   :int: 1401
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_IN_TYPE
   :int: 1402
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_OUT_STATION
   :int: 1403
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_ANN_AUTO_TRANSMIT
   :int: 1404
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_USE_SWITCH_SELECTOR_WITH_PHY
   :int: 1405
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_ALWAYS_USE_COPPER_MEDIA_CLK
   :int: 1406
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_10G_DNU
   :int: 1407
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SYNCE_SEPARATE_TIMING_DOMAINS
   :int: 1408
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS
   :int: 1500
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_LATENCY_COMP
   :int: 1501
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_ORG_TIME
   :int: 1502
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_P2P_DELAY_COMP
   :int: 1503
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_ASYMMETRY_COMP
   :int: 1504
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_TIME_CNT_PR_SEC
   :int: 1505
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_TIME_NSEC_PR_CNT
   :int: 1506
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_TIME_WRAP_LIMIT
   :int: 1507
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_TIME_MIN_ADJ_RATE
   :int: 1508
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_IO_CNT
   :int: 1509
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_DOMAIN_CNT
   :int: 1510
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_RESP_CTRL_CNT
   :int: 1511
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_MISSING_INTERRUPT
   :int: 1512
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_MISSING_TX_INTERRUPT
   :int: 1513
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_ALT_CLOCK
   :int: 1514
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_OAM
   :int: 1515
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_DELAY_REQ_AUTO_RESP
   :int: 1516
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_PTP_RS422
   :int: 1517
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_MISSING_PTP_ON_INTERNAL_PORTS
   :int: 1518
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS
   :int: 1519
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_PPS_MODE_OVERRULES_CLK_OUT
   :int: 1520
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_PPS_OUT_OVERRULES_CLK_OUT
   :int: 1521
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HAS_PTP_IO_PIN
   :int: 1522
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HAS_ALT_PIN
   :int: 1523
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_PPS_IN_VIA_IO_PIN
   :int: 1524
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_USE_EXTERNAL_INPUT_SERVO
   :int: 1525
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_TOD_INTERNAL_TC_MODE
   :int: 1526
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_FWD_P2P_1STEP
   :int: 1527
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL
   :int: 1528
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_C_DTC_SUPPORTED
   :int: 1529
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_INTERNAL_MODE_SUPPORTED
   :int: 1530
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_TWOSTEP_ALWAYS_REQUIRED
   :int: 1531
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_INTERNAL_PORTS_REQ_TWOSTEP
   :int: 1532
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_BC_TS_COMBO_IS_SPECIAL
   :int: 1533
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1534
-  :val: 
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_TS_PCH
+  :int: 1535
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_TOD_SAMPLES_PR_SEC
-  :int: 1535
-  :val: 
+  :int: 1536
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_10G
   :int: 1600
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_TS
   :int: 1601
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED
   :int: 1602
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_TS_NUMBER_OF_ENGINES
   :int: 1603
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_10GBASE_KR
   :int: 1604
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_SOC_FAMILY
   :int: 1700
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_MACSEC
   :int: 1800
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_MACSEC_SA_CNT
   :int: 1801
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_MACSEC_SC_CNT
   :int: 1802
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_MACSEC_SECY_CNT
   :int: 1803
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_LUTON26
   :int: 1900
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_SERVAL
   :int: 1901
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_JAGUAR2
   :int: 1902
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_LBR_MCE_HW_SUPPORT
   :int: 1903
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_TST_BITRATE_MBPS
   :int: 1904
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MEP_PROP_DELAY_MEASUREMENT
   :int: 1905
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_HW_PROT
   :int: 2000
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_HW_PROT_MPLS
   :int: 2001
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_INIT_CORE_CLOCK
   :int: 2100
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MRP
   :int: 2200
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MRP_CNT
   :int: 2201
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MRP_V0
   :int: 2202
-  :val: 
+  :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_MRP_V1
   :int: 2203
-  :val: 
+  :val:
   :chip: libvsc*.so
