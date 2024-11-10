@@ -1,4 +1,6 @@
-build*
+build-arm
+build-arm64
+build-mipsel
 bin
 release_ws
 *~
