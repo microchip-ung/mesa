@@ -233,12 +233,6 @@ def compile(ws, odir, preset, c)
     end
 end
 
-# Create release note
-def release_note()
-    run "#{$top}/.cmake/release_note.rb", "release_note"
-    $res.addSibling(ResultNode.from_file("#{$top}/#{$yaml['conf']['output_dir']}/#{$yaml['conf']['json_status_release_note']}"))
-end
-
 # Check copyrights/licenses
 def copyright()
     run "#{$top}/.cmake/copyright.rb", "copyright_check"
@@ -299,13 +293,6 @@ rescue
 end
 
 if $do_internal_checks
-    begin
-        release_note()
-        run "cp images/release_note_*.txt #{$ws}"
-    rescue
-        $res.addSibling(ResultNode.new("Release note", "Failed"))
-    end
-
     begin
         licenses_create($ws)
     rescue
