@@ -1,0 +1,7 @@
+[
+    {
+        "id": "webstax",
+        "type": "generic-file",
+        "generic-file-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/webstax-src-for-backwards-campatibility/webstax2-internal-26e54eeb6d%40master.publish-source-bundle-to-artifactory.tar.gz"
+    }
+]
