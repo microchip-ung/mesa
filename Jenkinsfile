@@ -24,7 +24,7 @@ node('blademaster') {
                 $class: 'GitSCM',
                 branches: scm.branches,
                 doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '/gitref/mesa.git', shallow: false]],
+                extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, shallow: false]],
                 submoduleCfg: [],
                 userRemoteConfigs: scm.userRemoteConfigs
             ])
