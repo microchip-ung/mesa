@@ -716,6 +716,13 @@ typedef enum {
     MESA_TS_PCH_RX_MODE_16_16, /**< 16.16 mode */
 } mesa_ts_pch_rx_mode_t CAP(PCH);
 
+// RedBox discard mode for frames towards non-RedBox port
+typedef enum {
+    MESA_TS_RB_DISCARD_NONE, // No PRP role
+    MESA_TS_RB_DISCARD_A,    // Discard timing flow from port A
+    MESA_TS_RB_DISCARD_B,    // Discard timing flow from port B
+} mesa_ts_rb_discard_t;
+
 /** \brief Timestamp operation */
 typedef struct mesa_ts_operation_mode_t {
     mesa_ts_mode_t        mode;        /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
@@ -723,6 +730,7 @@ typedef struct mesa_ts_operation_mode_t {
     mesa_ts_pch_tx_mode_t tx_pch_mode CAP(PCH); /**< PCH TX mode */
     mesa_ts_pch_rx_mode_t rx_pch_mode CAP(PCH); /**< PCH RX mode */
     uint32_t              pch_port_id CAP(PCH); /**< PCH sub-portID. */
+    mesa_ts_rb_discard_t  rb_discard;  // RedBox discard mode
 } mesa_ts_operation_mode_t CAP(TS);
 
 

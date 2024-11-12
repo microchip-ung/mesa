@@ -558,6 +558,7 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s   *vtss_state,
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32 vtss_fa_vtss_pgid(const vtss_state_t *const vtss_state, u32 pgid);
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid);
+vtss_rc vtss_fa_rb_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_l2_debug_print(vtss_state_t *vtss_state,
                                  const vtss_debug_printf_t pr,

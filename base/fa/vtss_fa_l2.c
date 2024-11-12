@@ -1882,11 +1882,56 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
+// Find Interlink port
+#define FA_RB_PORT_C(_c) (_c->port_a == VTSS_PORT_NO_NONE ? _c->port_b : _c->port_a)
+
+vtss_rc vtss_fa_rb_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+{
+    vtss_rb_id_t   id;
+    vtss_rb_conf_t *conf;
+    vtss_port_no_t port_c;
+    u32            val, port;
+
+    // Timestamp configuration is used by default
+    switch (vtss_state->ts.port_conf[port_no].mode.rb_discard) {
+    case VTSS_TS_RB_DISCARD_A:
+        val = 2;
+        break;
+    case VTSS_TS_RB_DISCARD_B:
+        val = 3;
+        break;
+    default:
+        val = 0;
+        break;
+    }
+
+    // RedBox configuration may override the value
+    for (id = 0; id < VTSS_REDBOX_CNT; id++) {
+        conf = &vtss_state->l2.rb_conf[id];
+        if (conf->mode != VTSS_RB_MODE_DISABLED) {
+            port_c = FA_RB_PORT_C(conf);
+            if (port_no == port_c) {
+                // Port is interlink, override value
+                val = (conf->mode == VTSS_RB_MODE_HSR_PRP ? (conf->lan_id ? 3 : 2) : 0);
+            }
+        }
+    }
+
+    // Update rewriter register
+    port = VTSS_CHIP_PORT(port_no);
+    VTSS_E("port %u, val: %u", port, val);
+    REG_WRM(VTSS_REW_PTP_MISC_CFG(port),
+            VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(val),
+            VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN);
+    return VTSS_RC_OK;
+}
+
 vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
                                 const vtss_rb_id_t rb_id)
 {
     vtss_rb_conf_t *conf = &vtss_state->l2.rb_conf[rb_id];
     vtss_rb_conf_t *old = &vtss_state->l2.rb_conf_old;
+    vtss_port_no_t port_no;
     u32            tgt = fa_rb_tgt(rb_id);
     u32            mode, ena = 1, hsr = 0, ct_ena = 0;
     u32            port_a = 0, port_b = 0, next_a = 0, next_b = 0, net_id, j;
@@ -1957,20 +2002,22 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state,
            VTSS_F_RB_TAXI_IF_CFG_LREB_PORT_NO(port_b));
     if (old->mode != VTSS_RB_MODE_DISABLED) {
         // Disable IFH/preamble transfers for old interlink port
-        port_a = old->port_a;
-        port = VTSS_CHIP_PORT(port_a == VTSS_PORT_NO_NONE ? old->port_b : port_a);
+        port_no = FA_RB_PORT_C(old);
+        port = VTSS_CHIP_PORT(port_no);
         REG_WRM_CLR(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
         REG_WRM_CLR(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
+        VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
     }
     if (ena) {
         // Enable IFH/preamble transfers for new interlink port
-        port_a = conf->port_a;
-        port = VTSS_CHIP_PORT(port_a == VTSS_PORT_NO_NONE ? conf->port_b : port_a);
+        port_no = FA_RB_PORT_C(conf);
+        port = VTSS_CHIP_PORT(port_no);
         REG_WRM_SET(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
         REG_WRM_SET(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         REG_WRM_SET(VTSS_QFWD_SWITCH_PORT_MODE(port), VTSS_M_QFWD_SWITCH_PORT_MODE_PORT_ENA);
+        VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
     }
 
     // NetId filtering on Interlink
@@ -3363,6 +3410,8 @@ static vtss_rc fa_debug_redbox(vtss_state_t *vtss_state,
         }
         fa_debug_rb_fld(pr, x, VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS,
                         "REW:PTP_MISC_CFG:PTP_TAG_DIS", NULL, TRUE, 2);
+        fa_debug_rb_fld(pr, x, VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN,
+                        "REW:PTP_MISC_CFG:PTP_PRP_LAN", NULL, TRUE, 2);
 
         if (info->full) {
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {

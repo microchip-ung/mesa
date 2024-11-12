@@ -787,6 +787,15 @@ typedef enum {
 } vtss_ts_pch_rx_mode_t;
 #endif
 
+#if defined(VTSS_FEATURE_REDBOX)
+// RedBox discard mode for frames towards non-RedBox port
+typedef enum {
+    VTSS_TS_RB_DISCARD_NONE, // No PRP role
+    VTSS_TS_RB_DISCARD_A,    // Discard timing flow from port A
+    VTSS_TS_RB_DISCARD_B,    // Discard timing flow from port B
+} vtss_ts_rb_discard_t;
+#endif
+
 /** \brief Timestamp operation */
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode;                /**< Hardware Timestamping mode for a port(EXTERNAL or INTERNAL) */
@@ -797,6 +806,9 @@ typedef struct vtss_ts_operation_mode_t {
     vtss_ts_pch_tx_mode_t tx_pch_mode;     /**< PCH TX mode */
     vtss_ts_pch_rx_mode_t rx_pch_mode;     /**< PCH RX mode */
     u32                   pch_port_id;     /**< PCH sub-portID. */
+#endif
+#if defined(VTSS_FEATURE_REDBOX)
+    vtss_ts_rb_discard_t  rb_discard;  // RedBox discard mode
 #endif
 } vtss_ts_operation_mode_t;
 

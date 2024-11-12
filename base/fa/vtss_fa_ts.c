@@ -567,6 +567,10 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t *vtss_state, vtss_port_no_t
     }
 #endif
 
+#if defined(VTSS_FEATURE_REDBOX)
+    VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
+#endif
+
     if (!mode_domain_config) {
         return VTSS_RC_OK;
     }
