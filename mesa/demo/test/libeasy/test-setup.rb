@@ -1395,23 +1395,9 @@ def get_test_setup(setup, labels= {}, mesa_args = "", topo_name = "default")
         $global_test_setup = ts
 
         if (defined? ts.dut) and ts.dut.api == :mesa
-            ports = ts.dut.call("mesa_vlan_port_members_get", 1)
-            ports_a = ports.split(",").map(&:to_i)
-            if (ts.dut.looped_port_list != nil)    # Check for looped front ports and remove them from VLAN 1 to avoid looping
-                ts.dut.looped_port_list.each { |port|
-                    ports_a.delete(port)
-                }
-            end
-            if (ts.dut.looped_port_list_10g != nil)    # Check for looped front ports and remove them from VLAN 1 to avoid looping
-                ts.dut.looped_port_list_10g.each { |port|
-                    ports_a.delete(port)
-                }
-            end
-            ports = ports_a.join(',')
+            # Only include DUT normal ports in VLAN 1 (loop ports and admin port excluded)
+            ports = ts.dut.p.join(',')
             ts.dut.call("mesa_vlan_port_members_set", 1, ports)
-            if (ts.dut.port_admin != nil)
-                ts.dut.run("mesa-cmd port state #{ts.dut.port_admin} disable") # Disable the admin port
-            end
 
             cl = ts.dut.call("mesa_capability", "MESA_CAP_INIT_CORE_CLOCK")
             if (cl != 0)
