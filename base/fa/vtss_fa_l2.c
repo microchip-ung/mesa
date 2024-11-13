@@ -1919,7 +1919,6 @@ vtss_rc vtss_fa_rb_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 
     // Update rewriter register
     port = VTSS_CHIP_PORT(port_no);
-    VTSS_E("port %u, val: %u", port, val);
     REG_WRM(VTSS_REW_PTP_MISC_CFG(port),
             VTSS_F_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN(val),
             VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN);
