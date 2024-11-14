@@ -1620,6 +1620,7 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
     mesa_sgpio_conf_t  conf;
+    mepa_reset_param_t rst_conf = { };
 
     T_D(inst, "Called - %d", reset);
     switch (reset) {
@@ -1629,11 +1630,13 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
             phy_1g_mode_conf(inst);
             break;
         case MEBA_PORT_RESET:
-            if (((board->viper_present || board->tesla_present) || board->type == BOARD_TYPE_SPARX5_PCB135)  && !board->gpy241_present) {
+            if (((board->viper_present || board->tesla_present) || board->type == BOARD_TYPE_SPARX5_PCB135) && !board->gpy241_present) {
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
                     if (board->port[port_no].map.map.chip_port % 4 == 0 &&
                         (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
-                        if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
+                        rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;
+                        rst_conf.reset_point = MEPA_RESET_POINT_PRE;
+                        if ((rc = meba_phy_reset(inst, port_no, &rst_conf)) != MESA_RC_OK) {
                             T_E(inst, "Could not pre reset phy %d", port_no);
                         }
                     }
@@ -1650,7 +1653,9 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                 for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
                     if ((board->port[port_no].map.map.chip_port % 4 == 0) &&
                         (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
-                        if ((rc = vtss_phy_post_reset(PHY_INST, port_no)) != MESA_RC_OK) {
+                        rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;
+                        rst_conf.reset_point = MEPA_RESET_POINT_POST;
+                        if ((rc = meba_phy_reset(inst, port_no, &rst_conf)) != MESA_RC_OK) {
                             T_E(inst, "Could not post reset phy %d", port_no);
                         }
                         break;
