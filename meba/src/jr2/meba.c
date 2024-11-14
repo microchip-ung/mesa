@@ -1844,6 +1844,11 @@ static mesa_rc jr2_reset(meba_inst_t inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
+    mepa_reset_param_t  rst_conf = {};
+
+    rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;     // This makes NO Diff at this point
+    rst_conf.reset_point = MEPA_RESET_POINT_DEFAULT;// This is the param being used
+    rst_conf.framepreempt_en = 0;                   // FALSE
     T_D(inst, "Called - %d", reset);
     switch (reset) {
         case MEBA_BOARD_INITIALIZE:
@@ -1857,20 +1862,22 @@ static mesa_rc jr2_reset(meba_inst_t inst,
             break;
         case MEBA_PORT_RESET:
             if (board->port[0].map.map.miim_controller != MESA_MIIM_CONTROLLER_NONE) {
+                rst_conf.reset_point = MEPA_RESET_POINT_PRE;   // This is the param being used for pre-reset
                 if (board->type == BOARD_TYPE_JAGUAR2_CU48) {
-                    if ((rc = vtss_phy_pre_reset(PHY_INST, 0)) == MESA_RC_OK &&
-                        (rc = vtss_phy_pre_reset(PHY_INST, 12)) == MESA_RC_OK &&
-                        (rc = vtss_phy_pre_reset(PHY_INST, 24)) == MESA_RC_OK)
-                        rc = vtss_phy_pre_reset(PHY_INST, 36);
+                    if ((rc = meba_phy_reset(inst, 0,   &rst_conf)) == MESA_RC_OK &&
+                        (rc = meba_phy_reset(inst, 12,  &rst_conf)) == MESA_RC_OK &&
+                        (rc = meba_phy_reset(inst, 24,  &rst_conf)) == MESA_RC_OK)
+                        rc = meba_phy_reset(inst, 36,  &rst_conf);
                 } else if (board->type == BOARD_TYPE_JAGUAR2) {
-                    if ((rc = vtss_phy_pre_reset(PHY_INST, 0)) == MESA_RC_OK)
-                        rc = vtss_phy_pre_reset(PHY_INST, 4);
+                    if ((rc = meba_phy_reset(inst, 0,  &rst_conf)) == MESA_RC_OK)
+                        rc = meba_phy_reset(inst, 4,  &rst_conf);
                 } else if (board->type == BOARD_TYPE_SERVAL2_NID) { // This board has a Viper or a Tesla See schematics
-                    rc = vtss_phy_pre_reset(PHY_INST, 0);
+                    rc = meba_phy_reset(inst, 0,  &rst_conf);
                 } else if( board->type == BOARD_TYPE_JAGUAR2_AQR) {
                     jr2_hard_reset_wait_aqr(inst);
                 }
             }
+
             if (board->malibu_present) {
                 /* Initlize the 10G Malibu Phy */
                 malibu_init(inst);
