@@ -2593,6 +2593,10 @@ static vtss_rc fa_is2_action_set(vtss_state_t *vtss_state, fa_vcap_data_t *data,
         break;
     default:
         ptp_cmd = 0;
+        if (LA_TGT && ptp->rb_fwd.enable) {
+            // Activate PTP rewriter with configured egress delay only
+            ptp_add = 1;
+        }
         break;
     }
     switch (action->ptp.response) {

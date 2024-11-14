@@ -1369,7 +1369,7 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
             end
             if (ptp != nil)
                 type = fld_get(ptp, :type, "?")
-                cmd += " ptp-#{type} hdr-correctionField ign"
+                cmd += " ptp-#{type}"
                 req = fld_get(ptp, :req, nil)
                 req = fld_get(e, :req, req)
                 if (req != nil)
@@ -1541,7 +1541,7 @@ def redbox_test(t)
         a["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
         idx = rb_idx(ace[:idx_tx])
         a["port_list"] = "#{$ts.dut.p[idx]}"
-        a["ptp_action"] = "MESA_ACL_PTP_ACTION_ONE_STEP"
+        a["ptp_action"] = "MESA_ACL_PTP_ACTION_NONE"
         fwd = a["ptp"]["rb_fwd"]
         fwd["enable"] = true
         fwd["srcid"] = fld_get(ace, :srcid, false)
