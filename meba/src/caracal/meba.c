@@ -430,7 +430,14 @@ static mesa_rc caracal_reset(meba_inst_t inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc rc = MESA_RC_OK;
+    mepa_reset_param_t  rst_conf = { };
+
     T_D(inst, "Called - %d", reset);
+
+    rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;     // This makes NO Diff at this point
+    rst_conf.reset_point = MEPA_RESET_POINT_DEFAULT;// This is the param being used
+    rst_conf.framepreempt_en = 0;                   // FALSE
+
     switch (reset) {
         case MEBA_BOARD_INITIALIZE:
             {
@@ -506,15 +513,16 @@ static mesa_rc caracal_reset(meba_inst_t inst,
             break;
         case MEBA_PORT_RESET:
             // Internal PHY
-            if ((rc = vtss_phy_pre_reset(PHY_INST, 0)) != MESA_RC_OK) {
+            rst_conf.reset_point = MEPA_RESET_POINT_PRE;
+            if ((rc = meba_phy_reset(inst, 0,  &rst_conf)) != MESA_RC_OK) {
                 break;
             }
 
             if (board->type != BOARD_LUTON10 && board->type != BOARD_LUTON10_PDS408G) {
                 mesa_port_no_t port_idx;
-
-                // External PHY (Atom12)
-                rc = vtss_phy_pre_reset(PHY_INST, 12);
+                // External PHY
+                rst_conf.reset_point = MEPA_RESET_POINT_PRE;
+                rc = meba_phy_reset(inst, 12,  &rst_conf);
 
                 // Setup dual media port (fiber/cu), PHY 13 is external Atom12 PHY w/dual-media
                 (void) vtss_phy_write_masked(NULL, 13, 19 | VTSS_PHY_REG_GPIO, 0x8000, 0xC000); // Enable fiber-media SerDes in HSIO
@@ -543,7 +551,9 @@ static mesa_rc caracal_reset(meba_inst_t inst,
             }
             break;
         case MEBA_PORT_RESET_POST:
-            rc = vtss_phy_post_reset(PHY_INST, 0);
+            rst_conf.reset_point = MEPA_RESET_POINT_POST;   // This is the param being used
+            // Internal PHY
+            rc = meba_phy_reset(inst, 0,  &rst_conf);
             break;
         case MEBA_STATUS_LED_INITIALIZE:
             {
