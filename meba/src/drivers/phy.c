@@ -406,16 +406,21 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     // Intel/ML driver uses the old link-status
     status_mepa.link = status->link;
 
+    MESA_RC(inst->api.meba_port_entry_get(inst, port_no, &entry));
     MESA_RC(mesa_port_conf_get(NULL, port_no, &conf));
     switch (conf.if_type) {
     case MESA_PORT_INTERFACE_SERDES:
+    case MESA_PORT_INTERFACE_100FX:
     case MESA_PORT_INTERFACE_XAUI:
     case MESA_PORT_INTERFACE_SFI:
-    case MESA_PORT_INTERFACE_QXGMII:
     case MESA_PORT_INTERFACE_SGMII_CISCO:
-        // For certain interface types, switch and 10G PHY status are combined
+        // For certain interface types you get the status from the switch PCS
         break;
     default:
+        // Break if in-band-aneg is supported
+        if (entry.cap & MEBA_PORT_CAP_IN_BAND_STATUS) {
+            break;
+        }
         // Poll the PHY driver by default
         if (meba_phy_status_poll(inst, port_no, &status_mepa) == MESA_RC_OK) {
             status->link = status_mepa.link;
@@ -432,9 +437,8 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     // Get switch status by default
     MESA_RC(mesa_port_status_get(NULL, port_no, status));
 
-    // Check that it is Venice/Malibu
-    if (inst->api.meba_port_entry_get(inst, port_no, &entry) != MESA_RC_OK ||
-        (entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
+    // Check that it is Venice/Malibu - otherwise return
+    if ((entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
         vtss_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
         (id.family != VTSS_PHY_FAMILY_VENICE && id.family != VTSS_PHY_FAMILY_MALIBU)) {
         return MESA_RC_OK;

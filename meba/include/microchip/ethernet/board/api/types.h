@@ -94,6 +94,9 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // Dummy SW phy is used - no MIIM access
 #define MEBA_PORT_CAP_DUMMY_PHY         0x800000000
 
+// Supports in-band-status through SGMII control word
+#define MEBA_PORT_CAP_IN_BAND_STATUS      0x1000000000
+
 #define MEBA_PORT_CAP_HDX        \
         (MEBA_PORT_CAP_10M_HDX | \
          MEBA_PORT_CAP_100M_HDX)

@@ -408,22 +408,9 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
     mesa_rc              rc;
     port_entry_t         *entry = &port_table[port_no];
     mesa_port_status_t   *ps = &entry->status;;
-    mepa_status_t        status;
 
     T_N("Enter, port %d", port_no);
-    if (!entry->in_bound_status) {
-        status.link = ps->link;
-        if ((rc = meba_phy_status_poll(meba_global_inst, port_no, &status)) == MESA_RC_OK) {
-            ps->link = status.link;
-            ps->speed = status.speed;
-            ps->fdx = status.fdx;
-            ps->aneg = status.aneg;
-            ps->copper = status.copper;
-            ps->fiber = status.fiber;
-        } else {
-            T_E("meba_phy_status_poll(%u) failed", port_no);
-        }
-    } else if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
+    if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
         T_E("meba_port_status_get(%u) failed", port_no);
     }
     T_N("Exit, port %d", port_no);
@@ -1305,7 +1292,6 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
                     MEBA_WRAP(meba_reset, meba_global_inst, MEBA_PHY_INITIALIZE);
                     cli_printf("Re-initilize (probe) phys instances - done\n");
                 }
-                entry->in_bound_status = FALSE;
                 // Reset and setup phy
                 dynamic_phy_setup(iport);
 
@@ -1316,7 +1302,6 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
                         cli_printf("Error: Could not delete phy instance %d\n",iport);
                     }
                     cli_printf("Phy %d instance deleted\n",iport);
-                    entry->in_bound_status = TRUE;
                 }
             }
             if (conf.if_type == MESA_PORT_INTERFACE_NO_CONNECTION) {
@@ -1754,19 +1739,12 @@ static void port_init(meba_inst_t inst)
                 T_E("meba_phy_reset(%u) failed: %d", port_no, rc);
                 continue;
             }
-            if (entry->meba.mac_if == MESA_PORT_INTERFACE_QXGMII) {
-                entry->in_bound_status = TRUE;
-            } else {
-                entry->in_bound_status = FALSE;
-            }
-
         } else {
             /* Disable Clause 37 per default */
             mesa_port_clause_37_control_t ctrl = {0};
             if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) != MESA_RC_OK) {
                 T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             }
-            entry->in_bound_status = TRUE;
         }
 
         port_setup(port_no, FALSE, TRUE);
