@@ -1828,6 +1828,7 @@ static void port_init(meba_inst_t inst)
     sfp_drivers_prepend(meba_mac_to_mac_driver_init());
     sfp_drivers_prepend(meba_fs_driver_init());
 
+    // MEBA_PORT_RESET_POST includes MEPA_RESET_POINT_POST
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_RESET_POST);
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_LED_INITIALIZE);
 }
