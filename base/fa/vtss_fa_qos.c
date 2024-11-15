@@ -3235,7 +3235,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     u64                      tc;
     int                      rc;
 
-    VTSS_D("Enter  Enable %u", new_port_conf->gate_enabled);
+    VTSS_D("Enter  Enable %u  config_change %u", new_port_conf->gate_enabled, new_port_conf->config_change);
 
     list_idx = trunk_list_idx = obsolete_list_idx = stop_list_idx = TAS_LIST_IDX_NONE;
     profile_idx = trunk_profile_idx = TAS_PROFILE_IDX_NONE;
@@ -3482,7 +3482,7 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_por
 
             /* Calculate the stop GCL and stop startup time */
             tas_stop_port_conf_calc(vtss_state, &stop_base_time, new_port_conf->gate_open, &current_port_conf, &stop_port_conf);
-            stop_startup_time = current_port_conf.cycle_time;   /* STARTUP_TIME := first_cycle_start(B) - last_cycle_start(A). In this case this is equal to cycle time as there will be no gap between current list cycle end and stop list cycle start */
+            stop_startup_time = 2000;
 
             /* Allocate stop list */
             if ((stop_list_idx = tas_list_allocate(vtss_state, stop_port_conf.gcl_length)) == TAS_LIST_IDX_NONE) {
