@@ -976,6 +976,38 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+/* PCS signal detect to GPIO SD mapping  */
+/* Note the map functionality needs to be enabled through GPIO ALT mode */
+static vtss_rc fa_gpio_sd_map_set(vtss_state_t *vtss_state)
+{
+    vtss_port_no_t port_no;
+    vtss_gpio_sd_map_t *sd_map;;
+    u32 port;
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        sd_map = &vtss_state->port.map[port_no].sd_gpio_map;
+        if (!sd_map->enable) {
+            continue;
+        }
+        port = vtss_state->port.map[port_no].chip_port;
+#if defined(VTSS_ARCH_SPARX5)
+        if (sd_map->sfp_sd > 31) {
+            VTSS_E("SD index %d not supported",sd_map->sfp_sd);
+            return VTSS_RC_ERROR;
+        }
+        REG_WR(VTSS_DEVCPU_GCB_GPIO_SD_MAP(sd_map->sfp_sd), port);
+#else // Laguna
+        if (sd_map->sfp_sd > 9) {
+            VTSS_E("SD index %d not supported",sd_map->sfp_sd);
+            return VTSS_RC_ERROR;
+        }
+        REG_WR(VTSS_DEVCPU_GCB_GPIO_SD_DEV_MAP(sd_map->sfp_sd), port);
+#endif
+    }
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_sgpio_event_poll(vtss_state_t             *vtss_state,
                                     const vtss_chip_no_t     chip_no,
                                     const vtss_sgpio_group_t group,
@@ -1351,6 +1383,7 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     } else if (cmd == VTSS_INIT_CMD_PORT_MAP) {
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 20);
         VTSS_RC(fa_sgpio_sd_map_set(vtss_state));
+        VTSS_RC(fa_gpio_sd_map_set(vtss_state));
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 20);
     }
 

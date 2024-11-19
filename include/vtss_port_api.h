@@ -87,6 +87,13 @@ typedef struct
     u32                    bit;    /**< SGPIO bit (0-3) */
 } vtss_port_sgpio_map_t;
 
+/** \brief Signal detect mapping to GPIO */
+typedef struct
+{
+    BOOL enable; /**< Enable gpio to dev mapping */
+    u8 sfp_sd;   /**< SFP_SD<id> id, see GPIO ALT modes for chip */
+} vtss_gpio_sd_map_t;
+
  /** Signifies an unused chip port */
 #define CHIP_PORT_UNUSED -1
 
@@ -103,7 +110,10 @@ typedef struct
     vtss_chip_no_t         miim_chip_no;     /**< MII management chip number, multi-chip targets */
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_port_sgpio_map_t  sd_map;           /**< PCS signal detect to SGPIO bit map */
-#endif /*VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_SPARX5 */
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN966X)
+    vtss_gpio_sd_map_t     sd_gpio_map;      /**< PCS signal detect to GPIO SD map */
+#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X || VTSS_ARCH_LAN966X */
 } vtss_port_map_t;
 
 /**

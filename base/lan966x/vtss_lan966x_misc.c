@@ -568,6 +568,31 @@ static vtss_rc lan966x_sgpio_read(vtss_state_t *vtss_state,
 }
 #endif
 
+/* PCS signal detect to GPIO SD mapping  */
+/* Note the map functionality needs to be enabled through GPIO ALT mode */
+static vtss_rc lan966x_gpio_sd_map_set(vtss_state_t *vtss_state)
+{
+#if defined(GCB_GPIO_SD_DEV_MAP)
+    vtss_port_no_t port_no;
+    vtss_gpio_sd_map_t *sd_map;;
+    u32 port;
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        sd_map = &vtss_state->port.map[port_no].sd_gpio_map;
+        if (!sd_map->enable) {
+            continue;
+        }
+        port = vtss_state->port.map[port_no].chip_port;
+        if (sd_map->sfp_sd > 5) {
+            VTSS_E("SD index %d not supported",sd_map->sfp_sd);
+            return VTSS_RC_ERROR;
+        }
+        REG_WR(GCB_GPIO_SD_DEV_MAP(sd_map->sfp_sd), port);
+    }
+#endif
+    return VTSS_RC_OK;
+}
+
 #if VTSS_OPT_DEBUG_PRINT
 
 /* - Debug print --------------------------------------------------- */
@@ -693,7 +718,9 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_POLL:
         VTSS_RC(lan966x_misc_poll_1sec(vtss_state));
         break;
-
+    case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_RC(lan966x_gpio_sd_map_set(vtss_state));
+        break;
     default:
         break;
     }

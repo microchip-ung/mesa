@@ -39,6 +39,14 @@ typedef struct
     uint32_t               bit;    // SGPIO bit (0-3)
 } mesa_port_sgpio_map_t;
 
+// Signal detect mapping to GPIO SD */
+typedef struct
+{
+    mesa_bool_t enable;// Enable gpio to dev mapping for this dev
+    uint8_t sfp_sd;    // SFP_SD<id> id, see GPIO ALT modes for chip
+} mesa_gpio_sd_map_t;
+
+
 // Signifies an unused chip port
 #define CHIP_PORT_UNUSED -1
 
@@ -52,6 +60,7 @@ typedef struct
     uint8_t                miim_addr;             // PHY address, ignored for MESA_MIIM_CONTROLLER_NONE
     mesa_chip_no_t         miim_chip_no;          // MII management chip number, multi-chip targets
     mesa_port_sgpio_map_t  sd_map CAP(SGPIO_MAP); // PCS signal detect to SGPIO bit map
+    mesa_gpio_sd_map_t     sd_gpio_map CAP(GPIO_MAP); // PCS signal detect to GPIO SD map
 } mesa_port_map_t;
 
 // Set port map.
