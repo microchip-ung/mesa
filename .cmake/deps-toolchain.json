@@ -2,7 +2,7 @@
     {
         "id": "toolchain",
         "type": "build-artifact",
-        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/toolchain.jenkins_unge/28",
-        "build-artifact-version-string": "2024.02-028-toolchain.jenkins_unge"
+        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/toolchain.jenkins_unge/29",
+        "build-artifact-version-string": "2024.02-029-toolchain.jenkins_unge"
     }
 ]
