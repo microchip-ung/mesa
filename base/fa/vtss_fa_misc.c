@@ -944,35 +944,49 @@ static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-/* PCS signal detect to SGPIO bit mapping  */
+// Switch Device PCS signal detect to SGPIO bit mapping.
+// FA: 1) Bit 0 for sio ports (SD) are statically mapped to a port device
+//        The SIO to DEV mapping can be found in the datasheet
+//     2) The mapping can be overridden by manual mapping in the below function
+// LA: No static routing.
+//     The SIO to DEV (SD) mapping must be set in the below function
 static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
 {
-#if defined(VTSS_ARCH_SPARX5)
     vtss_port_no_t port_no;
     vtss_port_sgpio_map_t *sd_map;
     u32 bit_index;
-    BOOL ena;
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         sd_map = &vtss_state->port.map[port_no].sd_map;
         if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
             continue;
         }
+#if defined(VTSS_ARCH_SPARX5)
         /* Enable/disable mapping globally */
-        ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
+        BOOL ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
         REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG,
                 VTSS_F_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL(ena),
                 VTSS_M_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL);
-
         if (!ena) {
             return VTSS_RC_OK;
         }
+#endif
         /* Each device can be mapped to any of the bit in the SGPIOs which consist of:
-           3 groups, 32 ports in each group and 4 bits for each port = 384 bits */
+           1 (la) or 3 (fa) groups, 32 ports in each group and 4 bits for each port = 384 bits */
         bit_index = sd_map->group * 32 * 4 + sd_map->port * 4 + sd_map->bit;
+#if defined(VTSS_ARCH_SPARX5)
+        if (bit_index > 384) {
+            VTSS_E("sgpio index %d out of bounds",bit_index);
+            return VTSS_RC_ERROR;
+        }
+#else
+        if (bit_index > 128) {
+            VTSS_E("sgpio index %d out of bounds",bit_index);
+            return VTSS_RC_ERROR;
+        }
+#endif
         REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
     }
-#endif
     return VTSS_RC_OK;
 }
 
