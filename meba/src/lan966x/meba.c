@@ -129,6 +129,9 @@ static port_map_t port_table_endnode[] = {
 };
 
 #define CAP_SFP (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
+#define CAP_SD_EXT (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SFP_DETECT |  MEBA_PORT_CAP_SFP_ONLY)
+//#define CAP_SD_INT (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SFP_DETECT |  MEBA_PORT_CAP_SFP_ONLY | MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SD_HIGH)
+
 
 static port_map_t port_table_endnode_carrier[] = {
     //-------------------------------------------------------------------------------------------------------------------------------
@@ -137,8 +140,8 @@ static port_map_t port_table_endnode_carrier[] = {
     //-------------------------------------------------------------------------------------------------------------------------------
     { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 0    },
     { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 1    },
-    { 2    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH, false  , 2    },
-    { 3    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH, false  , 3    },
+    { 2    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | CAP_SD_EXT               , false  , 2    },
+    { 3    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP | CAP_SD_EXT               , false  , 3    },
     { 4    , MESA_MIIM_CONTROLLER_NONE, 0   , MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE                 , false  , 4    }
 };
 
@@ -349,6 +352,13 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->cap = map->cap;
     entry->poe_support = map->poe_support;
     entry->poe_port = map->poe_port;
+    if (is_sfp_port(map->cap)) {
+        // Map sgpio port <x>, bit 0 (Signal detect) to port dev <x>
+        entry->map.sd_map.action = MESA_SD_SGPIO_MAP_ENABLE;
+        entry->map.sd_map.group = 0;
+        entry->map.sd_map.bit = 0;
+        entry->map.sd_map.port = map->chip_port;
+    }
 }
 
 static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)

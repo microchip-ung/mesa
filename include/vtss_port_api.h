@@ -108,10 +108,8 @@ typedef struct
     vtss_miim_controller_t miim_controller;  /**< MII management controller */
     u8                     miim_addr;        /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
     vtss_chip_no_t         miim_chip_no;     /**< MII management chip number, multi-chip targets */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-    vtss_port_sgpio_map_t  sd_map;           /**< PCS signal detect to SGPIO bit map */
-#endif /* VTSS_ARCH_SPARX5 */
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN966X)
+    vtss_port_sgpio_map_t  sd_map;           /**< PCS signal detect to SGPIO bit map */
     vtss_gpio_sd_map_t     sd_gpio_map;      /**< PCS signal detect to GPIO SD map */
 #endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X || VTSS_ARCH_LAN966X */
 } vtss_port_map_t;

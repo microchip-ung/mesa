@@ -568,6 +568,34 @@ static vtss_rc lan966x_sgpio_read(vtss_state_t *vtss_state,
 }
 #endif
 
+// Switch Device PCS signal detect to SGPIO bit mapping.
+// No static SD SIO to DEV mapping.
+// The SIO to DEV (SD) mapping must be set in the below function
+static vtss_rc lan966x_sgpio_sd_map_set(vtss_state_t *vtss_state)
+{
+#if defined(GCB_HW_SGPIO_TO_SD_MAP_CFG)
+    vtss_port_no_t port_no;
+    vtss_port_sgpio_map_t *sd_map;
+    u32 bit_index;
+
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        sd_map = &vtss_state->port.map[port_no].sd_map;
+        if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
+            continue;
+        }
+        /* Each device can be mapped to any of the bit in the SGPIOs which consist of:
+           1  group, 32 ports in each group and 4 bits for each port = 128 bits */
+        bit_index = sd_map->port * 4 + sd_map->bit;
+        if (bit_index > 128) {
+            VTSS_E("sgpio index %d out of bounds",bit_index);
+            return VTSS_RC_ERROR;
+        }
+        REG_WR(GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
+    }
+#endif
+    return VTSS_RC_OK;
+}
+
 /* PCS signal detect to GPIO SD mapping  */
 /* Note the map functionality needs to be enabled through GPIO ALT mode */
 static vtss_rc lan966x_gpio_sd_map_set(vtss_state_t *vtss_state)
@@ -719,6 +747,7 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(lan966x_misc_poll_1sec(vtss_state));
         break;
     case VTSS_INIT_CMD_PORT_MAP:
+        VTSS_RC(lan966x_sgpio_sd_map_set(vtss_state));
         VTSS_RC(lan966x_gpio_sd_map_set(vtss_state));
         break;
     default:
