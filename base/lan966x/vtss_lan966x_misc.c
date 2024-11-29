@@ -581,11 +581,13 @@ static vtss_rc lan966x_sgpio_sd_map_set(vtss_state_t *vtss_state)
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         sd_map = &vtss_state->port.map[port_no].sd_map;
         if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
-            continue;
+            // Igonore means default, SD is bit 0 for each SGPIO port
+            bit_index = VTSS_CHIP_PORT(port_no) * 4;
+        } else {
+            /* Each device can be mapped to any of the bit in the SGPIOs which consist of:
+               1  group, 32 ports in each group and 4 bits for each port = 128 bits */
+            bit_index = sd_map->port * 4 + sd_map->bit;
         }
-        /* Each device can be mapped to any of the bit in the SGPIOs which consist of:
-           1  group, 32 ports in each group and 4 bits for each port = 128 bits */
-        bit_index = sd_map->port * 4 + sd_map->bit;
         if (bit_index > 128) {
             VTSS_E("sgpio index %d out of bounds",bit_index);
             return VTSS_RC_ERROR;

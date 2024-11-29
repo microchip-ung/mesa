@@ -958,10 +958,11 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         sd_map = &vtss_state->port.map[port_no].sd_map;
+#if defined(VTSS_ARCH_SPARX5)
         if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
+            // Static mapping is used
             continue;
         }
-#if defined(VTSS_ARCH_SPARX5)
         /* Enable/disable mapping globally */
         BOOL ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
         REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG,
@@ -980,7 +981,10 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
             return VTSS_RC_ERROR;
         }
 #else
-        if (bit_index > 128) {
+        if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
+            // Igonore means default, SD is bit 0 for each SGPIO port
+            bit_index = VTSS_CHIP_PORT(port_no) * 4;
+        } else if (bit_index > 128) {
             VTSS_E("sgpio index %d out of bounds",bit_index);
             return VTSS_RC_ERROR;
         }

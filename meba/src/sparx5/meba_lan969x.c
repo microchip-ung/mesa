@@ -163,13 +163,6 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->mac_if = map->mac_if;
     entry->cap = map->cap;
     entry->map.max_bw = map->max_bw;
-    if (is_sfp_port(map->cap)) {
-        // Map sgpio port <x>, bit 0 (Signal detect) to port dev <x>
-        entry->map.sd_map.action = MESA_SD_SGPIO_MAP_ENABLE;
-        entry->map.sd_map.group = 0;
-        entry->map.sd_map.bit = 0;
-        entry->map.sd_map.port = map->sgpio_port;
-    }
 }
 
 static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
