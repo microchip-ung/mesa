@@ -294,6 +294,18 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     meba_admin.enable = p_conf->admin.enable;
     MEBA_WRAP(meba_port_admin_state_set, meba_global_inst, port_no, &meba_admin);
 
+    if (mac_if == MESA_PORT_INTERFACE_SGMII_CISCO) {
+        mesa_port_conf_t  api;
+        meba_sfp_driver_conf_t sfp_conf = {};
+        sfp_conf.admin.enable = 1;
+
+        (void)mesa_port_conf_get(NULL, port_no, &api);
+        if (api.power_down && p_conf->admin.enable) {
+            // Re-configure the CuPHY as it has be down
+            (void)entry->sfp_device->drv->meba_sfp_driver_conf_set(entry->sfp_device, &sfp_conf);
+        }
+    }
+
     return MESA_RC_OK;
 }
 
