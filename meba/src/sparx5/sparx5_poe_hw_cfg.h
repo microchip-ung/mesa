@@ -50,8 +50,8 @@
 
 
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
-#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS     0x2C
-#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS     0x3C
+#define SPARX5_POE_CONTROLLER_1_I2C_ADDRESS     0x14
+#define SPARX5_POE_CONTROLLER_2_I2C_ADDRESS     0x28
 
 
 // using two PoE MCUs
