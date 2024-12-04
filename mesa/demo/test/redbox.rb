@@ -161,7 +161,7 @@ test_table =
         tab: [{proxy: {mac: 0x0c}},
               {fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {net_id: 7}},
-                     {idx_rx: "b", hsr: {net_id: 7}},
+                     {idx_rx: "b", hsr: {net_id: 7, lan_id: 1}},
                      {idx_rx: "d"}]},
               {proxy: {mac: 0x0c, cmd: "get", cnt: 1}}]
     },
@@ -171,7 +171,7 @@ test_table =
         tab: [{frm: {len: 1500},
                fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "b", hsr: {lan_id: 1}},
                      {idx_rx: "d"}]}]
     },
     {
@@ -180,7 +180,7 @@ test_table =
         tab: [{cnt: 10,
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a", hsr: {net_id: 7}},
-                     {idx_rx: "b", hsr: {net_id: 7}},
+                     {idx_rx: "b", hsr: {net_id: 7, lan_id: 1}},
                      {idx_rx: "c"}]},
               {proxy: {mac: 0x0d, cmd: "get", cnt: 10}}]
     },
@@ -204,7 +204,7 @@ test_table =
         txt: "port C to port B/D - port A disabled",
         cfg: {mode: "HSR_SAN", idx_dis: "a"},
         tab: [{fwd: [{idx_tx: "c"},
-                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "b", hsr: {lan_id: 1}},
                      {idx_rx: "d"}]},
               {fwd: [{idx_tx: "b", hsr: {}},
                      {idx_rx: "c"},
@@ -247,7 +247,7 @@ test_table =
                                      {idx: "d", pvid: 10, uvid: 10}]}},
         tab: [{fwd: [{idx_tx: "d"},
                      {idx_rx: "a", vid: 10, hsr: {net_id: 6}},
-                     {idx_rx: "b", vid: 10, hsr: {net_id: 6}}]}]
+                     {idx_rx: "b", vid: 10, hsr: {net_id: 6, lan_id: 1}}]}]
     },
     {
         txt: "DMAC-PNT filtering on Interlink->LRE",
@@ -257,7 +257,7 @@ test_table =
             {frm: {smac: ":cc"},
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a", hsr: {}},
-                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 1}},
                    {idx_rx: "d"}],
              flush: "c"},
             # Send to DMAC on Interlink, expect discard on LRE
@@ -283,7 +283,7 @@ test_table =
             {frm: {smac: ":cc"},
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a", hsr: {}},
-                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 1}},
                    {idx_rx: "d"}]},
             # Send to DMAC on LRE, expect discard on LRE
             {frm: {dmac: ":cc"},
@@ -309,7 +309,7 @@ test_table =
             {frm: {smac: ":cc"},
              fwd: [{idx_tx: "c"},
                    {idx_rx: "a", hsr: {}},
-                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 1}},
                    {idx_rx: "d"}],
              wait: 10},
             # Send from SMAC on LRE, expect discard on Interlink
@@ -420,7 +420,7 @@ test_table =
         tab: [{frm: {dmac: "01:15:4e:00:01:00", et: 0x88fb},
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
-                     {idx_rx: "b", hsr: {}}]}]
+                     {idx_rx: "b", hsr: {lan_id: 1}}]}]
     },
     {
         txt: "port A/B duplicate discard towards port A/B/C/D",
@@ -1791,7 +1791,7 @@ def redbox_pair_test
                {idx_rx: "d", prp: {}}]},
         {fwd: [{idx_tx: "c"},
                {idx_rx: "a", hsr: {}},
-               {idx_rx: "b", hsr: {}},
+               {idx_rx: "b", hsr: {lan_id: 1}},
                {idx_rx: "d", prp: {}}]},
         {fwd: [{idx_tx: "d", prp: {}},
                {idx_rx: "a", hsr: {}, prp: {}},

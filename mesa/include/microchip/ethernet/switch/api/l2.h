@@ -1627,7 +1627,7 @@ typedef struct {
     mesa_port_no_t     port_a;          // Port A or MESA_PORT_NO_NONE (connected to left neighbour RedBox)
     mesa_port_no_t     port_b;          // Port B or MESA_PORT_NO_NONE (connected to right neighbour RedBox)
     uint8_t            net_id;          // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
-    uint8_t            lan_id;          // LanId (0/1) used for HSR port Tx and Interlink Tx for HSR-PRP
+    uint8_t            lan_id;          // LanId (0/1) used for Interlink Tx for HSR-PRP
     mesa_bool_t        nt_dmac_disable; // Disable Node Table DMAC filtering
     mesa_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
     mesa_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [seconds]
