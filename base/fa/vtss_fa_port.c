@@ -3754,13 +3754,17 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
    VTSS_RC(vtss_fa_port_max_tags_set(vtss_state, port_no));
    /* Enable/disable serdes power saving mode  */
     VTSS_RC(fa_sd_power_save(vtss_state, port_no, conf->power_down));
-    if (!conf->power_down) {
-        if (use_primary_dev) {
-            VTSS_RC(fa_port_conf_high_set(vtss_state, port_no));
-        } else {
-            VTSS_RC(fa_port_conf_2g5_set(vtss_state, port_no));
-        }
+    if (conf->power_down) {
+        // No more config needed when in power_down
+        return VTSS_RC_OK;
     }
+
+    if (use_primary_dev) {
+        VTSS_RC(fa_port_conf_high_set(vtss_state, port_no));
+    } else {
+        VTSS_RC(fa_port_conf_2g5_set(vtss_state, port_no));
+    }
+
 #if defined(VTSS_FEATURE_SYNCE)
     if (vtss_state->vtss_features[FEATURE_SYNCE]) {
         vtss_synce_clk_port_t clk_port;
