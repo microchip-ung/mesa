@@ -688,13 +688,13 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
 
     VTSS_D("Enter  port_no %d", port_no);
 
-    if (!vtss_state->port.conf_set_called[port_no]) {
+    interface = vtss_state->port.current_if_type[port_no];
+    if (!vtss_state->port.conf_set_called[port_no] || interface == VTSS_PORT_INTERFACE_NO_CONNECTION) {
         VTSS_I("port %d status change called before port is configured", port_no);
         return VTSS_RC_OK;
     }
-    interface = vtss_state->port.current_if_type[port_no];
-    speed = vtss_state->port.current_speed[port_no];
 
+    speed = vtss_state->port.current_speed[port_no];
     port = VTSS_CHIP_PORT(port_no);
 
     VTSS_D("chip_port %u  interface %d  speed %u", port, interface, speed);
@@ -740,8 +740,6 @@ static vtss_rc lan966x_ts_status_change(vtss_state_t *vtss_state, const vtss_por
             rx_delay += 800 * DEV_PCS1G_LINK_STATUS_DELAY_VAR_X(value);      /* Add the variable delay in the device */
         }
         break;
-    case VTSS_PORT_INTERFACE_NO_CONNECTION:
-        return VTSS_RC_OK;
     default:
         VTSS_E("unsupported interface: %u", interface);
         return VTSS_RC_ERROR;

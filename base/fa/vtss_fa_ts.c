@@ -808,13 +808,14 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
     VTSS_D("Enter  port_no %d", port_no);
     (void)delay_var_factor;
     (void)value;
-    if (!vtss_state->port.conf_set_called[port_no]) {
+
+    interface = vtss_state->port.current_if_type[port_no];
+    if (!vtss_state->port.conf_set_called[port_no] || interface == VTSS_PORT_INTERFACE_NO_CONNECTION) {
         VTSS_I("port %d status change called before port is configured", port_no);
         return VTSS_RC_OK;
     }
-    interface = vtss_state->port.current_if_type[port_no];
-    speed = vtss_state->port.current_speed[port_no];
 
+    speed = vtss_state->port.current_speed[port_no];
     port = VTSS_CHIP_PORT(port_no);
 
     /* Calculate the lane information based on the port */
