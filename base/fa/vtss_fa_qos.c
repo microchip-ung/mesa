@@ -1638,13 +1638,14 @@ static vtss_rc fa_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
     // Port policer flow control configuration.
     VTSS_RC(vtss_fa_port_policer_fc_set(vtss_state, port_no));
 
-    if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
-        // IT bandwidth distribution configuration (DWRR).
-        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 1, conf->dwrr_enable, conf->dwrr_cnt, conf->queue_pct));
-    } else {
-        // Port bandwidth distribution configuration (DWRR).
-        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, conf->dwrr_enable, conf->dwrr_cnt, conf->queue_pct));
-    }
+    // Port bandwidth distribution configuration (DWRR).
+    // Fireant and Laguna has two different default scheduler hierarchy.
+    // Laguna a OT/IT capable hierarchy wiht boyh layer 1 and layer 2
+#if defined(VTSS_ARCH_SPARX5)
+    VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, conf->dwrr_enable, conf->dwrr_cnt, conf->queue_pct));
+#else
+    VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 1, conf->dwrr_enable, conf->dwrr_cnt, conf->queue_pct));
+#endif
 
     // Port shaper configuration. Use scheduler element in layer 2 indexed by chip_port.
     VTSS_RC(vtss_fa_qos_shaper_conf_set(vtss_state, &conf->shaper_port, 2, chip_port, chip_port, 0));
