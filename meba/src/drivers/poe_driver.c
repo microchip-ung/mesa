@@ -2353,7 +2353,8 @@ static mesa_rc meba_poe_pd69200_bt_event_cause_get( const meba_poe_ctrl_inst_t* 
     GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 32, buf[6], 8);
     GetDataPerBit(ptBT_Event_Cause->all_ports_event_cause, 40, buf[7], 8);
 
-    ptBT_Event_Cause->tSystem_event.vmain_fault = (buf[8] >> 5) & 1;        // 1 = When Vmain is out of range
+    // Vmain Fault Bit 1
+    ptBT_Event_Cause->tSystem_event.vmain_fault = (buf[8] >> 1) & 1;        // 1 = When Vmain is out of range
 
     ptBT_Event_Cause->tSystem_ok_reg.bit0_Vmain_in_range = buf[10] & 1;     // 1 = Vmain is in the defined PoE operational voltage range
     ptBT_Event_Cause->tSystem_ok_reg.bit1_over_power_indication = (buf[10] >> 1) & 1;
@@ -3086,7 +3087,7 @@ static mesa_rc meba_poe_pd69200_prepare_firmware_upgrade(const meba_poe_ctrl_ins
 
     if (version_check) {
         if (is_firmware_version_identical(inst, microsemi_firmware)) {
-            DEBUG(inst, MEBA_TRACE_LVL_WARNING, "%s: Firmware upgrade not needed - versions identical", inst->adapter_name);
+            DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: Firmware upgrade not needed - versions identical", inst->adapter_name);
             return MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE;
         }
     }
@@ -6917,14 +6918,6 @@ mesa_rc meba_poe_ctrl_pd69200_bt_port_status_get(
 
         current_port_status->port_status.poe_internal_port_status = port_state;
 
-        if (current_port_status->port_status.assigned_pd_class_a == 0xC) {
-            current_port_status->port_status.assigned_pd_class_a = POE_UNDETERMINED_CLASS;
-        }
-
-        if (current_port_status->port_status.assigned_pd_class_b == 0xC) {
-            current_port_status->port_status.assigned_pd_class_b = POE_UNDETERMINED_CLASS;
-        }
-
         current_port_status->port_status.power_mw = measured_port_power * 100;
 
         poe_controller[inst->index].poe_delivering_pwr[handle] = FALSE;
@@ -7201,24 +7194,12 @@ mesa_rc meba_poe_ctrl_pd69200_bt_port_status_get(
         current_port_status->port_status.power_assigned_mw = assigned_power_dW * 100; // Convert from deciwatt to milliWatts
 
         current_port_status->port_status.measured_pd_class_a = (measured_class & 0xF0) >> 4;
-        if (current_port_status->port_status.measured_pd_class_a == 0xC) {
-            current_port_status->port_status.measured_pd_class_a = POE_UNDETERMINED_CLASS;
-        }
 
         current_port_status->port_status.measured_pd_class_b = measured_class & 0xF;
-        if (current_port_status->port_status.measured_pd_class_b == 0xC) {
-            current_port_status->port_status.measured_pd_class_b = POE_UNDETERMINED_CLASS;
-        }
 
         current_port_status->port_status.requested_pd_class_a = (requested_class & 0xF0) >> 4;
-        if (current_port_status->port_status.requested_pd_class_a == 0xC) {
-            current_port_status->port_status.requested_pd_class_a = POE_UNDETERMINED_CLASS;
-        }
 
         current_port_status->port_status.requested_pd_class_b = requested_class & 0xF;
-        if (current_port_status->port_status.requested_pd_class_b == 0xC) {
-            current_port_status->port_status.requested_pd_class_b = POE_UNDETERMINED_CLASS;
-        }
 
         // auto_class_support = 0 : Autoclass detection not performed.
         // auto_class_support = 1 : The PD does not support physical auto class.
