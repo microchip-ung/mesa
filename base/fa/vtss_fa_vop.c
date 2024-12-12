@@ -197,7 +197,7 @@ vtss_rc vtss_fa_oam_vop_int_update(vtss_state_t *vtss_state)
             REG_RD(VTSS_VOP_INTR_ENA(i), &must_enable);
             must_enable &= 0x7ff;  /* Only bits 0-10 are valid */
 #if defined(VTSS_FEATURE_MRP)
-            if (!must_ena && LA_TGT) {
+            if (LA_TGT && !must_enable) {
                 REG_RD(VTSS_VOP_MRP_MRP_INTR_ENA(i), &must_enable);
             }
 #endif
