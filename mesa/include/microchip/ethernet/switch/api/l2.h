@@ -880,7 +880,7 @@ mesa_rc mesa_eflow_free(const mesa_inst_t     inst,
 typedef struct
 {
     mesa_bool_t          cnt_enable;          // Enable ingress counter mapping
-    mesa_egress_cnt_id_t cnt_id;              // Ingress counter ID
+    mesa_egress_cnt_id_t cnt_id;              // Egress counter ID
     mesa_voe_idx_t       voe_idx CAP(VOP);    // VOE index or MESA_VOE_IDX_NONE. 
                                               // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE will see OAM as data - else OAM will be handled by the VOE.
     mesa_voi_idx_t       voi_idx CAP(VOP_V2); // VOI index or MESA_VOI_IDX_NONE

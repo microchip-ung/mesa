@@ -1052,8 +1052,8 @@ static vtss_rc lan969x_mrp_del(vtss_state_t           *vtss_state,
             VTSS_E("mrp_uninit_port(%d) failed", p);
         }
 
-        if (vtss_fa_service_voe_free(vtss_state, VTSS_VOE_FUNCTION_MRP, voe_idx) != VTSS_RC_OK) {
-            VTSS_E("vtss_fa_service_voe_free(%d) failed", voe_idx);
+        if (vtss_fa_voe_free(vtss_state, VTSS_VOE_FUNCTION_MRP, voe_idx) != VTSS_RC_OK) {
+            VTSS_E("vtss_fa_voe_free(%d) failed", voe_idx);
         }
     }
 
@@ -1813,7 +1813,7 @@ static vtss_rc lan969x_mrp_event_mask_set(vtss_state_t         *vtss_state,
         REG_WR(VTSS_VOP_MRP_MRP_INTR_ENA(voe_idx), enable_mask);
     }
 
-    return VTSS_RC_OK;
+    return vtss_fa_oam_vop_int_update(vtss_state);
 }
 
 static vtss_rc lan969x_mrp_event_get(vtss_state_t         *vtss_state,

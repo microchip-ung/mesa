@@ -663,10 +663,11 @@ BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *t
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 #if defined(VTSS_FEATURE_VOP)
+vtss_rc vtss_fa_oam_vop_int_update(vtss_state_t *vtss_state);
 vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t *vtss_state, vtss_voe_function_t function);
-vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
-                                 vtss_voe_function_t  function,
-                                 vtss_voe_idx_t       voe_idx);
+vtss_rc vtss_fa_voe_free(vtss_state_t         *vtss_state,
+                         vtss_voe_function_t  function,
+                         vtss_voe_idx_t       voe_idx);
 #endif
 #endif /* VTSS_ARCH_FA */
 #endif /* _VTSS_FA_CIL_H_ */

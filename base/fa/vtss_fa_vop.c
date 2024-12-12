@@ -187,7 +187,7 @@ static vtss_rc fa_oam_vop_int_enable(vtss_state_t *vtss_state, BOOL enable)
 }
 
 /* Determine VOP interrupt flag -- clear if no enabled VOEs have interrupts enabled */
-static vtss_rc oam_vop_int_update(vtss_state_t *vtss_state)
+vtss_rc vtss_fa_oam_vop_int_update(vtss_state_t *vtss_state)
 {
     u32 i;
     u32 must_enable;
@@ -196,6 +196,11 @@ static vtss_rc oam_vop_int_update(vtss_state_t *vtss_state)
         if (vtss_state->oam.voe_alloc_data[i].allocated) {
             REG_RD(VTSS_VOP_INTR_ENA(i), &must_enable);
             must_enable &= 0x7ff;  /* Only bits 0-10 are valid */
+#if defined(VTSS_FEATURE_MRP)
+            if (!must_ena && LA_TGT) {
+                REG_RD(VTSS_VOP_MRP_MRP_INTR_ENA(i), &must_enable);
+            }
+#endif
         }
     }
 
@@ -337,7 +342,7 @@ static vtss_rc fa_voe_event_mask_set(vtss_state_t          *vtss_state,
     /* Write back the interrupt enable mask */
     REG_WR(VTSS_VOP_INTR_ENA(voe_idx), enable_mask);
 
-    return enable_mask ? fa_oam_vop_int_enable(vtss_state, TRUE) : oam_vop_int_update(vtss_state);
+    return vtss_fa_oam_vop_int_update(vtss_state);
 }
 
 static vtss_rc fa_voe_event_get(vtss_state_t          *vtss_state,
@@ -414,9 +419,9 @@ vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t         *vtss_state,
     return service_voe_alloc_idx;
 }
 
-vtss_rc vtss_fa_service_voe_free(vtss_state_t         *vtss_state,
-                                 vtss_voe_function_t  function,
-                                 vtss_voe_idx_t       voe_idx)
+static vtss_rc fa_service_voe_free(vtss_state_t         *vtss_state,
+                                   vtss_voe_function_t  function,
+                                   vtss_voe_idx_t       voe_idx)
 {
     vtss_voe_alloc_t  *alloc_data;
 
@@ -562,8 +567,9 @@ static vtss_rc fa_voe_alloc(vtss_state_t                 *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
-                           const vtss_voe_idx_t  voe_idx)
+vtss_rc vtss_fa_voe_free(vtss_state_t          *vtss_state,
+                         vtss_voe_function_t   function,
+                         const vtss_voe_idx_t  voe_idx)
 {
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t  *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
@@ -575,7 +581,7 @@ static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     if (voe_idx < VTSS_PATH_SERVICE_VOE_CNT) {
-        rc = vtss_fa_service_voe_free(vtss_state, VTSS_VOE_FUNCTION_OAM, voe_idx);
+        rc = fa_service_voe_free(vtss_state, function, voe_idx);
     } else {
         if (!alloc_data->allocated) {
             VTSS_D("VOE not allocated  voe_idx %u", voe_idx);
@@ -587,11 +593,17 @@ static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
     if ((rc = voe_default_set(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = oam_vop_int_update(vtss_state)) != VTSS_RC_OK) {
+    if ((rc = vtss_fa_oam_vop_int_update(vtss_state)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
 
     return(ret_rc);
+}
+
+static vtss_rc fa_voe_free(vtss_state_t          *vtss_state,
+                           const vtss_voe_idx_t  voe_idx)
+{
+    return vtss_fa_voe_free(vtss_state, VTSS_VOE_FUNCTION_OAM, voe_idx);
 }
 
 static vtss_rc fa_voe_conf_set(vtss_state_t           *vtss_state,
