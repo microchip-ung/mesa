@@ -2,7 +2,7 @@
     {
         "id": "bsp",
         "type": "build-artifact",
-        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/2024.12-soak.jenkins_unge/1",
-        "build-artifact-version-string": "2024.02.6-1-2024.12-soak.jenkins_unge"
+        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/2024.12-soak.jenkins_unge/2",
+        "build-artifact-version-string": "2024.02.6-2-2024.12-soak.jenkins_unge"
     }
 ]
