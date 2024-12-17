@@ -1,0 +1,50 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2024.12
+
+== MESA-2024.12
+
+|===
+|Version:          |MESA-2024.12
+|Previous Version: |MESA-2024.09
+|Date:             |2024-12-19
+|Description:      |Roadmap release
+|===
+
+=== Additional configuration options related to PTP/HSR (redbox)
+
+The `mesa_acl_ptp_action_conf_t` and `mesa_ts_operation_mode_t` structures have
+been extended with additional fields to control how PTP frames are processed.
+
+
+=== Additional MAC-tables configuration to support TC11
+
+The `mesa_learn_mode_t` type has been extended with a `one_shot` and
+`learn_limit` fields. The `one_shot` mode ensures that a learned entry cannot
+move to a different port, and `lean_limit` puts a budget on how many entries can
+be learned on a given port.
+
+Both features are added to support TC11.
+
+
+=== Support of in-band time-stamping via preamble (PHC)
+
+The `mesa_ts_operation_mode_t` structure has been extended with additional
+fields to support in-band timestamping. This feature requires a PHY supporting
+PCH as well.
+
+=== Support of HSR/Mode U
+
+The `mesa_rb_conf_t` structure has been extended with flag to support Mode U.
+
+Mode U enabled means:
+
+If a unicast frame arrives on an LRE port and the DMAC of the frame is in the
+PNT, forward it to the other LRE port (as well as to the interlink port).
+
+If Mode U is disabled, such a frame will only be forwarded to the interlink
+port.
+
+This overcomes issues where it can take up to PNT timeout (60 seconds by
+default) for frames to come through again if certain links are broken.
