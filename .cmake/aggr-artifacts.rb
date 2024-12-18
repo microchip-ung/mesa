@@ -9,6 +9,20 @@ require 'optparse'
 
 $res = 0
 $verbose = true
+$do_upload = true
+
+$opt = { }
+global = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options] output-folder"
+
+  opts.on("--no-upload", "Disable upload to artifactory") do
+    $do_upload = false
+  end
+
+  opts.on("-o NAME", "output name") do |n|
+    $out_name = n
+  end
+end.order!
 
 def run cmd
   if $verbose
@@ -81,32 +95,37 @@ else
     git_branch = %x(git symbolic-ref --short -q HEAD).chop
 end
 
-out_name = "mesa-#{git_id}@#{git_branch}"
+if $out_name.nil?
+  $out_name = "mesa-#{git_id}@#{git_branch}"
+end
 
 raise "No ws folder" if not File.exist? "./ws"
 
-run "cp -r ws #{out_name}"
-run "mkdir #{out_name}/bin"
-try "tar -C #{out_name}/bin -f arm.tar -x"
-try "tar -C #{out_name}/bin -f arm64.tar -x"
-try "tar -C #{out_name}/bin -f mipsel.tar -x"
-run "tar -czvf #{out_name}.tar.gz #{out_name}"
+run "cp -r ws #{$out_name}"
+run "mkdir #{$out_name}/bin"
+try "tar -C #{$out_name}/bin -f arm.tar -x"
+try "tar -C #{$out_name}/bin -f arm64.tar -x"
+try "tar -C #{$out_name}/bin -f mipsel.tar -x"
+run "tar -czvf #{$out_name}.tar.gz #{$out_name}"
 
 if File.exist? "./images"
-  run "cp #{out_name}/bin/mipsel/mesa/demo/*.mfi images/."
-  run "cp #{out_name}/bin/arm/mesa/demo/*.itb images/."
-  run "cp #{out_name}/bin/arm64/mesa/demo/*.itb images/."
+  run "cp #{$out_name}/bin/mipsel/mesa/demo/*.mfi images/."
+  run "cp #{$out_name}/bin/arm/mesa/demo/*.itb images/."
+  run "cp #{$out_name}/bin/arm64/mesa/demo/*.itb images/."
 end
-run "rm -rf #{out_name}"
+run "rm -rf #{$out_name}"
 
-cmd = [".cmake/artifactory-ci-upload"]
-cmd << "-vvv"
-cmd << "--dep-file .cmake/deps-bsp.json"
-cmd << "--dep-file .cmake/deps-docker.json"
-cmd << "--dep-file .cmake/deps-toolchain.json"
-cmd << "#{out_name}.tar.gz"
-sys cmd.join(" ")
+if $do_upload
+  cmd = [".cmake/artifactory-ci-upload"]
+  cmd << "-vvv"
+  cmd << "--dep-file .cmake/deps-bsp.json"
+  cmd << "--dep-file .cmake/deps-docker.json"
+  cmd << "--dep-file .cmake/deps-toolchain.json"
+  cmd << "#{$out_name}.tar.gz"
+  sys cmd.join(" ")
+end
 
-run "cp #{out_name}.tar.gz images/." if File.exist? "./images"
+run "cp #{$out_name}.tar.gz images/." if File.exist? "./images"
 
 exit $res
+

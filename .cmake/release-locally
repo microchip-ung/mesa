@@ -15,4 +15,6 @@ cd ..
 mv ws/arm.tar .
 mv ws/arm64.tar .
 mv ws/mipsel.tar .
-.cmake/aggr-artifacts.rb
+.cmake/aggr-artifacts.rb --no-upload -o $N
+
+
