@@ -166,7 +166,7 @@ global = OptionParser.new do |opts|
     $opt[:incremental] = true
   end
 
-  opts.on("--interanl", "Assumed running in-side Microchip network (default is auto-detect)") do
+  opts.on("--internal", "Assumed running in-side Microchip network (default is auto-detect)") do
     $opt[:run_internal] = true
   end
 
@@ -221,7 +221,7 @@ end
 
 base = nil
 
-# Not all presets uses a brsdk, some only uses the toolchain
+# Not all presets use a brsdk, some only use the toolchain
 if c[:brsdk_arch]
   brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
   brsdk_base = "/opt/mchp/#{brsdk_name}"
