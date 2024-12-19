@@ -414,8 +414,11 @@ mepa_rc meba_port_status_get(meba_inst_t inst, mepa_port_no_t port_no, mesa_port
     case MESA_PORT_INTERFACE_XAUI:
     case MESA_PORT_INTERFACE_SFI:
     case MESA_PORT_INTERFACE_SGMII_CISCO:
-        // For certain interface types you get the status from the switch PCS
-        break;
+        if ((entry.cap & MEBA_PORT_CAP_COPPER) == 0) {
+            // For non phys you get the status from the switch PCS
+            break;
+        }
+        // Fall through
     default:
         // Break if in-band-aneg is supported
         if (entry.cap & MEBA_PORT_CAP_IN_BAND_STATUS) {
