@@ -1858,9 +1858,11 @@ vtss_rc vtss_cil_port_kr_fw_req(vtss_state_t *vtss_state,
         u32 np0, np1, np2, fec;
         vtss_port_kr_conf_t *kr = &vtss_state->port.kr_conf[port_no];
 
+        // 1. Send NP with message code 5 (OUI of the 25G/50G Ethernet Consortium)
+        // 2. Send NP with message code 3 (Capabilities)
         fa_np_rx(vtss_state, port_no, &np0, &np1, &np2);
-        if (np0 == 0) {
-            fa_np_set(vtss_state, port_no, 0xe805, 0x03ac, 0x04bf); /* msg code #5 + OUI (DS1217) */
+        if ((np0 & 0xf) == 0 && (np0 & 0xf) != 5) {
+            fa_np_set(vtss_state, port_no, 0xe805, 0x0353, 0x04df); /* msg code #5 + OUI (DS1217) */
         } else  {
             if (kr->aneg.rs_fec_req) {
                 fec = VTSS_BIT(8) | VTSS_BIT(9); /* RFEC | RSFEC */
