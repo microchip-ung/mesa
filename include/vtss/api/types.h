@@ -379,9 +379,9 @@ typedef enum {
 
 /* The first logical port number is 0. */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PORT_NO_NONE    (0xffffffff) /**< Port number none */
-#define VTSS_PORT_NO_CPU     (0xfffffffe) /**< Port number for CPU for special purposes */
-#define VTSS_PORT_NO_START   (0)          /**< Port start number */
+#define VTSS_PORT_NO_NONE    (0xffffffffu) /**< Port number none */
+#define VTSS_PORT_NO_CPU     (0xfffffffeu) /**< Port number for CPU for special purposes */
+#define VTSS_PORT_NO_START   (0u)          /**< Port start number */
 #endif // _VTSS_MAIN_TYPES_H_
 #define VTSS_PORT_NO_END     (VTSS_PORT_NO_START+VTSS_PORTS) /**< Port end number */
 #define VTSS_PORT_ARRAY_SIZE VTSS_PORT_NO_END /**< Port number array size */
@@ -546,7 +546,7 @@ typedef u8 vtss_pct_t;
  **/
 typedef u32 vtss_bitrate_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_BITRATE_DISABLED 0xffffffff /**< Bitrate disabled */
+#define VTSS_BITRATE_DISABLED 0xffffffffu /**< Bitrate disabled */
 #endif // _VTSS_MAIN_TYPES_H_
 
 /**
