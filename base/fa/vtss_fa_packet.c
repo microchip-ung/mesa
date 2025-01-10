@@ -173,7 +173,10 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                    *vtss_state,
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
             VTSS_I("ts_cnt can not be retrieved from the packet supress warning for mode %d ", ts_props.phy_ts_mode);
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
-            VTSS_I("ts_cnt can not be retrieved from the packet supress warning for mode %d ", ts_props.phy_ts_mode);
+            //'ts_cnt' should be similar 'tc' returned from fa_ts_io_pin_timeofday_get.
+            // PHY passes ingress timestamp in reserved field.
+            *ts_cnt = (u64)packet_ns << 16;
+            *timestamp_ok = TRUE;
         } else {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
         }

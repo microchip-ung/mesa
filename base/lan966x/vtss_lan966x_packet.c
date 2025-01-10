@@ -115,6 +115,10 @@ static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                    *vtss_s
             // rxTime is similar to tc returned from lan966x_ts_io_pin_timeofday_get
             *rxTime = ((u64)lan966x_packet_unpack32(frm)) << 16;
             *timestamp_ok = rx_info->hw_tstamp_decoded;
+        } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
+            // rxTime is similar to tc returned from lan966x_ts_io_pin_timeofday_get
+            *rxTime = ((u64)lan966x_packet_unpack32(frm)) << 16;
+            *timestamp_ok = TRUE;
         } else {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
         }
