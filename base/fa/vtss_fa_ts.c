@@ -876,7 +876,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay += 800 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value);      /* Add the variable delay in the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
-                rx_delay += ((i32)sd_rx_delay_var * (i32)dv_factor[0].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 1G speed sd_rx_delay_var is signed */
+                rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[0].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 1G speed sd_rx_delay_var is signed */
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[0].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             }
@@ -888,7 +888,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay += 320 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value);      /* Add the variable delay in the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
-                rx_delay += ((i32)sd_rx_delay_var * (i32)dv_factor[1].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 2.5G speed sd_rx_delay_var is signed */
+                rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[1].rx) / (i32)65536;      /* Add the variable RX delay in the SERDES. On 25G SERDES 2.5G speed sd_rx_delay_var is signed */
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[1].rx) / 65536;      /* Add the variable RX delay in the SERDES */
             }
