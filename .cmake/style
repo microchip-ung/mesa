@@ -1,0 +1,216 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'open3'
+require 'thread'
+require 'optparse'
+
+$opt_check = false
+$opt_verbose = nil
+$opt_all_files = nil
+$opt_pre_commit = false
+$opt_threads = (%x{grep -c ^processor /proc/cpuinfo}.to_i * 1.5).to_i
+
+if not File.exist? "/.dockerenv"
+    if system("which dr > /dev/null 2>&1")
+        args = ["dr", "style"] + ARGV.clone
+        exec *args
+    end
+end
+
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
+Dir.chdir($top)
+
+opt_parser = OptionParser.new do |opts|
+    opts.banner = """Usage: style [options]
+
+Options:"""
+    opts.on("-v", "--verbose", "Be more verbose") do
+        $opt_verbose = 1
+    end
+
+    opts.on("-1", "--single-thread", "Only run single threaded") do
+        $opt_threads = 1
+    end
+
+    opts.on("-a", "--all", "Run on all files (default is to only update files changed)") do
+        $opt_all_files = 1
+    end
+
+    opts.on("-c", "--check", "Check that no files are changed after running the style checker") do
+        $opt_check = true
+    end
+
+    opts.on("-p", "--pre-commit", "Running in pre-commit mode") do
+        $opt_pre_commit = true
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+        puts opts
+        exit
+    end
+end
+
+opt_parser.parse!(ARGV)
+
+if $opt_check
+    %x{git diff-index --quiet HEAD}
+    if $?.to_i != 0
+        puts "Do not use \"-c\" with a non-clean workspace"
+        exit -1
+    end
+end
+
+
+files = []
+
+if $opt_pre_commit
+    files = %x{git diff --cached --name-only --diff-filter=ACMR}.split("\n")
+elsif $opt_all_files
+    files = %x{git ls-files}.split("\n")
+else
+    files = %x{git diff --name-only}.split("\n")
+    files += %x{git diff --cached --name-only}.split("\n")
+end
+
+files.uniq!
+
+files.select! do |x|
+    case x
+    when /^mepa/, /^phy_demo_appl/
+        false
+    when /base\/\w+\/.*_reg.h$/, /base\/\w+\/.*_regs.h$/
+        false
+    when /base\/\w+\/.*_reg_\w+.h$/, /base\/\w+\/.*_regs_\w+.h$/
+        false
+    when /_symregs.c$/
+        false
+    else
+        e = File.extname(x)
+        case e
+        when ".c", ".h", ".cpp", ".cxx", ".cc", ".hxx", ".hpp"
+            true
+        else
+            false
+        end
+    end
+end
+
+work_q = Queue.new
+mutex = Mutex.new
+
+files.each do |e|
+    work_q.push e
+end
+
+err = 0
+workers = (0...$opt_threads).map do
+    Thread.new do
+        while true
+            f = nil
+            c = nil
+            o = nil
+            e = nil
+            s = nil
+            msg = []
+            begin
+                f = work_q.pop(true)
+            rescue
+                break
+            end
+
+            if $opt_pre_commit
+                c = "git ls-files -s -- #{f}"
+                o, e, s = Open3.capture3(c)
+                msg << "#{c} -> #{s}"
+                STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                mode = o.split(" ")[0]
+                if s.to_i == 0
+                    c = "git show :#{f}"
+                    stage_file_in, e, s = Open3.capture3(c)
+                    msg << "#{c} -> #{s}"
+                    STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                end
+
+                if s.to_i == 0
+                    c = "git show :#{f} | clang-format-19 --assume-filename=#{f}"
+                    stage_file_out, e, s = Open3.capture3(c)
+                    msg << "#{c} -> #{s}"
+                    STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                end
+
+                if s.to_i == 0 and stage_file_in != stage_file_out
+                    puts "Style being applied on the fly for #{f}"
+
+                    # Fix the staged file
+                    c = "git show :#{f} | clang-format-19 --assume-filename=#{f} | git hash-object -t blob -w --path=#{f} --stdin"
+                    o, e, s = Open3.capture3(c)
+                    msg << "#{c} -> #{s}"
+                    STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                    sha = o.strip
+                    msg << "# SHA -> #{sha}"
+
+                    if s.to_i == 0
+                        c = "git update-index --replace --cacheinfo #{mode} #{sha} #{f}"
+                        o, e, s = Open3.capture3(c)
+                        msg << "#{c} -> #{s}"
+                        STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                    end
+
+                    # also fix the file in the wortree
+                    if s.to_i == 0
+                        c = "clang-format-19 -i #{f}"
+                        o, e, s = Open3.capture3(c)
+                        msg << "#{c} -> #{s}"
+                        STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+                    end
+                end
+
+            else
+                c = "clang-format-19 -i #{f}"
+                o, e, s = Open3.capture3(c)
+                msg << "#{c} -> #{s}"
+                STDERR.puts "#{c} ERROR: #{e}" if !s.success?
+            end
+
+            mutex.synchronize do
+                if s.to_i != 0
+                    err += 1
+                    puts msg.join("\n")
+                    puts "\n"
+                else
+                    if $opt_verbose
+                        puts "#{f} -> OK" if $opt_verbose
+                        puts msg.join("\n")
+                        puts "\n"
+                    end
+                end
+            end
+        end
+    end
+end
+
+workers.map(&:join)
+
+if $opt_check
+    o, s = Open3.capture2e("git diff-index --quiet HEAD")
+    if s.to_i != 0
+        puts "HINT: Install the pre-commit hook to avoid this next time!"
+        puts "      ./support/scripts/git-hooks/setup"
+        puts ""
+        puts "Detected changes after running style checker (return code: #{s.to_i}):"
+        puts o
+
+        o, s = Open3.capture2e("git diff")
+        puts o
+        exit -1
+    end
+end
+
+if err > 0
+    exit 1
+else
+    exit 0
+end
