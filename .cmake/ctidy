@@ -1,0 +1,286 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'pty'
+require 'json'
+require 'open3'
+require 'thread'
+require 'optparse'
+require 'pathname'
+
+$opt_path = nil
+$opt_threads = (%x{grep -c ^processor /proc/cpuinfo}.to_i * 1.5).to_i
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
+
+$opt_color = 0
+$opt_fixup = 1
+
+if $stdout.isatty
+    $opt_color = 1
+end
+
+opt_parser = OptionParser.new do |opts|
+    opts.banner = """Usage: ctidy [options]
+
+Options:"""
+    opts.on("-p", "--path path", "Path to compile_commands.json file (default to './build'") do |p|
+        $opt_path = p
+    end
+
+    opts.on("-m", "--module name", "Run tidy on a specific module") do |m|
+        $opt_select_module = m
+    end
+
+    opts.on("-j", "--threads number", "Number of threads (defaults to 10)") do |t|
+      $opt_threads = t.to_i
+    end
+
+    opts.on("-f", "--file file", "Run tidy on a specific file") do |f|
+        $opt_select_file = f
+    end
+
+    opts.on("-g", "--git", "Run tidy on files changed according to git") do
+        $opt_select_git = 1
+    end
+
+    opts.on("-a", "--all", "Run tidy on all files") do
+        $opt_select_all = 1
+    end
+
+    opts.on("-v", "--verbose", "Be more verbose") do
+        $opt_verbose = 1
+    end
+
+    opts.on("-e", "--editor", "Make it clang-tidy compatible to allow editor integration") do
+        $opt_editor = 1
+    end
+
+    opts.on("-c", "--color", "Run clang-tidy in a PTY to enable color output") do
+        $opt_color = 1
+    end
+
+    opts.on("--no-color", "Run clang-tidy in a PTY to enable color output") do
+        $opt_color = 0
+    end
+
+    opts.on("-n", "--no-fixes", "Disable fixup's") do
+        $opt_fixup = 0
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+        puts opts
+        exit
+    end
+end
+
+opt_parser.parse!(ARGV)
+
+if $opt_select_file
+    $opt_select_file = Pathname.new(File.expand_path($opt_select_file)).relative_path_from(Pathname.new(Dir.pwd)).to_s
+end
+
+def run cmd
+  o, e, s = Open3.capture3(cmd)
+  if $?.to_i != 0
+    raise "CMD: #{cmd} failed!"
+  end
+end
+
+select_cnt = 0
+select_cnt += 1 if $opt_select_module
+select_cnt += 1 if $opt_select_file
+select_cnt += 1 if $opt_select_git
+select_cnt += 1 if $opt_select_all
+
+if select_cnt != 1
+    puts "One and only one of the following options must be provided: --module <name>, --file <file>, --git or --all"
+    exit 1
+end
+
+if $opt_path.nil?
+    p = Dir.glob("#{$top}/build-*/compile_commands.json")
+    if p.size == 0
+        puts "No '--path' argument, and could not find a compile_commands.json file in the usual places"
+        exit 1
+    end
+
+    $opt_path = File.dirname(Pathname.new(p[0]).relative_path_from(Pathname.new($top)))
+    puts "Using compile_commands.json path: #{$opt_path}"
+end
+
+def clang_output_message r
+  cmd = r[:cmd]
+  o = r[:stdout]
+  e = r[:stderr]
+  time_spend = r[:timespend]
+
+  if $opt_editor
+    o.split("\n").each do |l|
+      if /^(.*)(:\d+:\d+: error:.*)/ =~ l
+        p = Pathname.new("#{top}/build/obj/cdb/#{$1}").relative_path_from(Pathname.new(Dir.pwd))
+        puts "#{p}#{$2}"
+      elsif /^(.*)(:\d+:\d+: warning:.*)/ =~ l
+        p = Pathname.new("#{top}/build/obj/cdb/#{$1}").relative_path_from(Pathname.new(Dir.pwd))
+        puts "#{p}#{$2}"
+      elsif /^(.*)(:\d+:\d+: fatal:.*)/ =~ l
+        p = Pathname.new("#{top}/build/obj/cdb/#{$1}").relative_path_from(Pathname.new(Dir.pwd))
+        puts "#{p}#{$2}"
+      else
+        puts l
+      end
+    end
+    STDERR.write e if e and e.size > 0
+  else
+    if o.size > 1
+      STDERR.puts ""
+      STDERR.puts "TIDY-ERROR: #{cmd}"
+      STDERR.puts "O: #{o}"
+      STDERR.puts ""
+      $cnt_err += 1
+    else
+      $cnt_ok += 1
+      puts "TIDY-OK: #{cmd}" if $opt_verbose
+    end
+  end
+end
+
+j = JSON.parse(File.read("#{$opt_path}/compile_commands.json"))
+
+$cnt_ok = 0
+$cnt_err = 0
+$confs = []
+work_q = Queue.new
+mutex = Mutex.new
+
+if $opt_select_git
+    git_files = %x{git diff --name-only}.split("\n")
+    git_files += %x{git diff --cached --name-only}.split("\n")
+
+    git_files.uniq!
+    git_files.collect! do |x|
+        e = File.extname(x)
+        case e
+        when ".cxx"
+            x
+        when ".c"
+            x
+        when ".icli"
+            "obj/#{File.basename(x, ".*" )}_icli.cxx"
+        else
+            nil
+        end
+    end
+
+    git_files.select! {|x| x}
+end
+
+j.each do |e|
+    f = e["file"]
+
+    ff = Pathname.new(f).relative_path_from(Pathname.new(Dir.pwd)).to_s
+
+    # Do not run tidy on these
+    next if ff =~ /test/
+    next if ff =~ /third-party/
+    next if ff =~ /os\/drivers\/src\/atf\//
+    next if ff =~ /os\/drivers\/src\/atf_inc\//
+    next if ff.end_with?(".o")
+    next if ff.end_with?(".S")
+
+    if $opt_select_all
+        # keep them all
+
+    elsif $opt_select_file
+        if /#{$opt_select_file}/ =~ ff
+            # keep it
+        else
+            next
+        end
+
+    elsif $opt_select_git
+        found_it = false
+
+        git_files.each do |x|
+            if /#{x}/ =~ ff
+                found_it = true
+                break
+            end
+        end
+
+        next if not found_it
+
+    elsif $opt_select_module
+        if /appl\/src\/#{$opt_select_module}\// =~ ff
+            # keep it
+        else
+            next
+        end
+    end
+
+    record = {:file => ff }
+    arg_fix = ""
+    if $opt_fixup == 1
+      arg_fix = "--fix"
+    end
+    # clang-analyzer-deadcode.DeadStores
+    record[:cmd] = "clang-tidy -p #{$opt_path} -checks=\"readability-braces-around-statements,-clang-diagnostic-unused-command-line-argument\" #{arg_fix} #{ff}"
+
+    work_q.push record
+
+end
+
+workers = (0...$opt_threads).map do
+    Thread.new do
+        begin
+            while record = work_q.pop(true)
+                cmd = record[:cmd]
+                o = ""
+                e = ""
+                s = 0
+
+                time_start  = Time.now
+                if $opt_color == 1
+                    PTY.spawn("#{cmd} 2> /dev/null") do |r, w, pid|
+                        begin
+                            while !r.eof?
+                                o += r.readpartial(4096)
+                            end
+                        rescue Errno::EIO
+                        end
+
+                        Process.wait(pid)
+                    end
+                    s = $?.to_i
+                else
+                    o, e, s = Open3.capture3(cmd)
+                end
+                time_end = Time.now
+                time_spend = time_end - time_start
+                record[:stdout] = o
+                record[:stderr] = e
+                record[:status] = s
+                record[:timespend] = time_spend
+
+                mutex.synchronize {
+                  clang_output_message record
+                }
+
+            end
+        rescue ThreadError
+        end
+    end
+end
+
+workers.map(&:join)
+if not $opt_editor
+    puts "Total: #{$cnt_ok + $cnt_err}, OK: #{$cnt_ok}, Error: #{$cnt_err}"
+end
+
+if $cnt_err > 0
+    exit 1
+else
+    exit 0
+end
