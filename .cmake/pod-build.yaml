@@ -1,6 +1,3 @@
-# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
-# SPDX-License-Identifier: MIT
-
 ---
 apiVersion: v1
 kind: Pod
@@ -8,15 +5,16 @@ metadata:
   name: ungsw-mesa-build-env
 spec:
   containers:
-    - name: pod-mesa-build
-      image: 'artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@sha256:f19f7c621934ff67d957ac7da38e397a0ab0c272dce4310b872d7c36018b7410'
-      imagePullPolicy: IfNotPresent
-      command: ['cat']
-      tty: true
-      resources:
-        requests:
-          cpu: "30"
-          memory: 60Gi
-        limits:
-          cpu: "30"
-          memory: 60Gi
+  - name: pod-mesa-build
+    image: artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@sha256:669f0da3adca587e977e0d267bfa0b6c87a486277d19e81107ca93101beef934
+    imagePullPolicy: IfNotPresent
+    command:
+    - cat
+    tty: true
+    resources:
+      requests:
+        cpu: '30'
+        memory: 60Gi
+      limits:
+        cpu: '30'
+        memory: 60Gi
