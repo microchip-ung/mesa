@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require "json"
+require "yaml"
+
+def sys cmd
+  puts "CMD: #{cmd}"
+  system cmd
+  if $?.to_i != 0
+    raise "\n----------------------------\n" +
+      "CMD Failed: #{cmd}\n" +
+      "Return code: #{$?.to_i}\n" +
+      "----------------------------"
+  end
+end
+
+def update_deps
+  j = JSON.parse(File.read("./.cmake/deps-docker.json"))
+  j.each do |r|
+    if r["id"] == "mesa-build-env"
+      r["docker-tag"] = $tag
+      r["docker-sha"] = $image_digest
+    end
+  end
+  File.write("./.cmake/deps-docker.json", JSON.pretty_generate(j, :indent => '    '))
+end
+
+def update_jenkins_yaml
+  y =YAML.load_file("./.cmake/pod-build.yaml")
+  y["spec"]["containers"][0]["image"] = "artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@#{$image_digest}"
+  File.write("./.cmake/pod-build.yaml", y.to_yaml)
+
+  y =YAML.load_file("./.cmake/pod-base.yaml")
+  y["spec"]["containers"][0]["image"] = "artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@#{$image_digest}"
+  File.write("./.cmake/pod-base.yaml", y.to_yaml)
+end
+
+$top = File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))
+Dir.chdir($top)
+
+$tag = %x{cat ./.cmake/deps-docker.json | jq -r '.[] | select(.id == "mesa-build-env") | ."docker-tag"'}.strip
+
+puts "You are about to push (hit ctrl-c if this is not what you want)"
+puts "  artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env:#{$tag}"
+puts ""
+puts ""
+
+puts "Please enter your microchip emp ID and password"
+sys "docker login artifacts-aws.devops.microchip.com:7996"
+sys "docker push artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env:#{$tag}"
+sys "docker logout artifacts-aws.devops.microchip.com:7996"
+
+$image_digest = %x{docker inspect --format='{{index .RepoDigests 0}}' artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env:#{$tag}}
+
+$image_digest.sub! /.*@/, ""
+$image_digest.strip!
+
+update_deps()
+update_jenkins_yaml()
+
+puts ""
+puts ""
+puts "Docker images has now been pushed to artifactory!"
+puts ""
+puts ""
+puts "You can optionally use the command below to save the same docker image on a local server such that your colleagues can pull locally:"
+puts ""
+puts "    docker save artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env:#{$tag} | pv | ssh soft00 dd of=/data/www/public_html/docker-cache/mesa-build-env:#{$tag}"
+puts ""
+puts "If you do that, then send out an email with the following command which can be used to download the newly published image:"
+puts "    curl mdi.microchip.com/docker-cache/mesa-build-env:#{$tag} | docker load"

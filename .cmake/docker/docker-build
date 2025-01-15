@@ -1,0 +1,99 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'yaml'
+require 'json'
+require 'open3'
+require 'thread'
+require 'optparse'
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = """Usage: docker-build [options]
+
+Options:"""
+  opts.on("-t", "--tag", "Tag to assign to the image. If not provided current tag + 1 will be used") do |t|
+    $tag = t
+  end
+
+  opts.on("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+opt_parser.parse!(ARGV)
+
+$top = File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))
+
+# Move to project root
+Dir.chdir($top)
+
+def run cmd
+  o, e, s = Open3.capture3(cmd)
+  if s.to_i != 0
+    raise "\n----------------------------\n" +
+      "CMD Failed: #{cmd}\n" +
+      "Return code: #{s.to_i}\n" +
+      "stdout:\n#{o}\n" +
+      "stderr:\n#{e}\n" +
+      "----------------------------"
+  end
+  return o
+end
+
+def sys cmd
+  puts "CMD: #{cmd}"
+  system cmd
+  if $?.to_i != 0
+    raise "\n----------------------------\n" +
+      "CMD Failed: #{cmd}\n" +
+      "Return code: #{$?.to_i}\n" +
+      "----------------------------"
+  end
+end
+
+def update_deps
+  j = JSON.parse(File.read("./.cmake/deps-docker.json"))
+  j.each do |r|
+    if r["id"] == "mesa-build-env"
+      r["docker-tag"] = $tag
+      r["docker-sha"] = $image_digest_mchp
+    end
+  end
+  File.write("./.cmake/deps-docker.json", JSON.pretty_generate(j, :indent => '    '))
+end
+
+def update_jenkins_yaml
+  y =YAML.load_file("./.cmake/pod-build.yaml")
+  y["spec"]["containers"][0]["image"] = "artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@#{$image_digest_mchp}"
+  File.write("./.cmake/pod-build.yaml", y.to_yaml)
+
+  y =YAML.load_file("./.cmake/pod-base.yaml")
+  y["spec"]["containers"][0]["image"] = "artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env@#{$image_digest_mchp}"
+  File.write("./.cmake/pod-base.yaml", y.to_yaml)
+end
+
+$tag_checked_in = %x{git show HEAD:./.cmake/deps-docker.json | jq -r '.[] | select(.id == "mesa-build-env") | ."docker-tag"'}
+
+if $tag.nil? and $tag_checked_in =~ /(\d+)/
+  $tag = "#{$1.to_i + 1}"
+  puts "Using tag: #{$tag}"
+end
+
+if $tag.nil?
+  raise "No tag provided and no tag could be generated!"
+end
+
+#sys "docker build --target build-env -t artifacts.microchip.com:7999/ung/lmstax/build-env:#{$tag} -f support/docker/Dockerfile ."
+sys "docker build --target build-env-mchp -t artifacts-aws.devops.microchip.com:7996/ung/mesa/mesa-build-env:#{$tag} -f .cmake/docker/Dockerfile ."
+
+$image_digest = "<none>"
+$image_digest_mchp = "<none>"
+
+update_deps()
+update_jenkins_yaml()
+
+puts "Docker image build completed and configuration files updated. Please review the diff and test the image before pushing."
+puts "DOCKER IMAGES NOT PUSHED"
