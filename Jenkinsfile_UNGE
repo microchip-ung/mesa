@@ -86,6 +86,16 @@ pipeline {
 
                 stage("misc") {
                     stages {
+                        stage('Style') {
+                            steps {
+                                container('pod-mesa-base') {
+                                    warnError (message: "Copyright error") {
+                                        sh './.cmake/style -c -a'
+                                    }
+                                }
+                            }
+                        }
+
                         stage('Copyright') {
                             steps {
                                 container('pod-mesa-base') {
