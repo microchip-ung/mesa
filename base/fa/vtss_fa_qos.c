@@ -423,6 +423,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state,
                 "Group %u.  Calculated pup tokens %u value exceeds max value for rate %" PRIu64
                 "",
                 i, pup_tokens, ir_in_bps);
+            (void)pup_tokens;
             continue;
         }
 
@@ -432,6 +433,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state,
             VTSS_D(
                 "Group %u.  Calculated bucket threshold %u value exceeds max value",
                 i, thres);
+            (void)thres;
             continue;
         }
 
@@ -441,6 +443,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state,
             VTSS_D(
                 "Group %u.  Calculated bucket threshold hysteresis %u value exceeds max value",
                 i, thres);
+            (void)thres;
             continue;
         }
 
@@ -3409,8 +3412,11 @@ static BOOL tas_current_end_time_calc(vtss_state_t     *vtss_state,
                                 &current_base_time);
 
         /* Get the cycle time of current list */
-        current_cycle_time =
-            tas_list_cycle_time_read(vtss_state, current_list_idx);
+        if (0 == (current_cycle_time =
+                      tas_list_cycle_time_read(vtss_state, current_list_idx))) {
+            VTSS_D("tas_list_cycle_time_read() returned 0");
+            return FALSE;
+        }
 
         /* Calculate the end time of current list as this: */
         /* current_end_time = current_base_time + ((new_base_time -
@@ -3732,12 +3738,12 @@ static vtss_rc tas_list_start(vtss_state_t             *vtss_state,
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
                                          const vtss_port_no_t port_no)
 {
-    u32                 i;
-    vtss_tas_profile_t *tas_profiles = vtss_state->qos.tas.tas_profiles;
-
     /* This must be done when the link comes up and link speed has been
      * negotiated. */
     if (FA_TGT) {
+        u32                 i;
+        vtss_tas_profile_t *tas_profiles = vtss_state->qos.tas.tas_profiles;
+
         /* The profile used on this port must be configured to actual speed */
         for (i = 0; i < RT_TAS_NUMBER_OF_PROFILES; ++i) {
             if (tas_profiles[i].in_use && tas_profiles[i].port_no == port_no) {
@@ -3898,8 +3904,7 @@ static vtss_rc fa_qos_tas_conf_set(vtss_state_t *vtss_state)
 static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t        *vtss_state,
                                         const vtss_port_no_t port_no)
 {
-    u32 i, profile_idx, trunk_profile_idx, trunk_startup_time,
-        stop_startup_time, time_gap,
+    u32 i, profile_idx, trunk_startup_time, stop_startup_time, time_gap,
         new_startup_time = 2000; /* two nanoseconds */
     u32 list_idx, trunk_list_idx, obsolete_list_idx, stop_list_idx;
     vtss_qos_tas_port_conf_t *new_port_conf =
@@ -3916,10 +3921,8 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t        *vtss_state,
     VTSS_D("Enter  Enable %u  config_change %u", new_port_conf->gate_enabled,
            new_port_conf->config_change);
 
-    list_idx = trunk_list_idx = obsolete_list_idx = stop_list_idx =
-        TAS_LIST_IDX_NONE;
-    profile_idx = trunk_profile_idx = TAS_PROFILE_IDX_NONE;
-    trunk_startup_time = stop_startup_time = time_gap = 0;
+    trunk_list_idx = TAS_LIST_IDX_NONE;
+    time_gap = 0;
     VTSS_MEMSET(&current_end_time, 0, sizeof(current_end_time));
 
     /* Update the GCL state */
@@ -4111,14 +4114,13 @@ static vtss_rc fa_qos_tas_port_conf_set(vtss_state_t        *vtss_state,
                                              &current_end_time,
                                              &new_port_conf->base_time,
                                              &trunk_port_conf)) {
-                    trunk_startup_time =
-                        current_port_conf
-                            .cycle_time; /* STARTUP_TIME := first_cycle_start(B)
-                                            - last_cycle_start(A). In this case
-                                            this is equel to cycle time as there
-                                            will be no gap between current list
-                                            cycle end and trunk list cycle start
-                                          */
+                    /* STARTUP_TIME := first_cycle_start(B)
+                         - last_cycle_start(A). In this case
+                         this is equel to cycle time as there
+                         will be no gap between current list
+                         cycle end and trunk list cycle start
+                    */
+                    trunk_startup_time = current_port_conf.cycle_time;
                     /* Start the trunk list */
                     if (tas_list_start(vtss_state, port_no, trunk_list_idx,
                                        obsolete_list_idx, &trunk_port_conf,
@@ -5028,23 +5030,31 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 #endif
     u64                  min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
-    BOOL                 show_act, basics_act, ingr_mapping_act, gen_pol_act,
-        service_pol_grp_act, service_pol_set_act, port_pol_act, storm_pol_act,
-        schedul_act, band_act, shape_act, leak_act, wred_act, tag_remark_act,
-        egr_mapping_act, tas_act, tas_state_act, tas_count_act, print_queue_act;
+    BOOL                 show_act, basics_act, gen_pol_act, service_pol_grp_act,
+        service_pol_set_act, port_pol_act, storm_pol_act, schedul_act, band_act,
+        shape_act, leak_act, wred_act, tag_remark_act, tas_act, tas_state_act,
+        tas_count_act, print_queue_act;
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
+    BOOL ingr_mapping_act;
+#endif
+#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+    BOOL egr_mapping_act;
+#endif
 
     VTSS_D("has_action %u  action %u", info->has_action, info->action);
 
-    show_act = basics_act = ingr_mapping_act = gen_pol_act =
-        service_pol_grp_act = service_pol_set_act = port_pol_act =
-            storm_pol_act = schedul_act = tas_act = band_act = shape_act =
-                leak_act = wred_act = tag_remark_act = egr_mapping_act =
-                    tas_state_act = tas_count_act = print_queue_act = FALSE;
+    show_act = basics_act = gen_pol_act = service_pol_grp_act =
+        service_pol_set_act = port_pol_act = storm_pol_act = schedul_act =
+            tas_act = band_act = shape_act = leak_act = wred_act =
+                tag_remark_act = tas_state_act = tas_count_act =
+                    print_queue_act = FALSE;
 
     if (info->has_action) { /* Action parameter is present */
         show_act = (info->action == 0) ? TRUE : FALSE;
         basics_act = (info->action == 1) ? TRUE : FALSE;
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
         ingr_mapping_act = (info->action == 2) ? TRUE : FALSE;
+#endif
         gen_pol_act = (info->action == 3) ? TRUE : FALSE;
         port_pol_act = (info->action == 4) ? TRUE : FALSE;
         storm_pol_act = (info->action == 5) ? TRUE : FALSE;
@@ -5057,7 +5067,9 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         leak_act = (info->action == 12) ? TRUE : FALSE;
         wred_act = (info->action == 13) ? TRUE : FALSE;
         tag_remark_act = (info->action == 14) ? TRUE : FALSE;
+#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
         egr_mapping_act = (info->action == 15) ? TRUE : FALSE;
+#endif
         service_pol_grp_act = (info->action == 16) ? TRUE : FALSE;
         service_pol_set_act = (info->action == 17) ? TRUE : FALSE;
         print_queue_act = (info->action == 18) ? TRUE : FALSE;
@@ -5218,8 +5230,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
     }
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    if (!info->has_action ||
-        ingr_mapping_act) { /* Ingress mapping configuration must be printed */
+    if (!info->has_action || ingr_mapping_act) {
+        /* Ingress mapping configuration must be printed */
         vtss_debug_print_header(pr, "QoS ingress mapping tables");
         fa_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.imap);
         pr("\n");

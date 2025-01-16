@@ -343,7 +343,7 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t          *vtss_state,
     u32 sticky, mask;
 
     /* PTP events */
-    *ev_mask = 0;
+    *ev_mask = VTSS_PTP_NONE_EV;
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR, &sticky);
     REG_WR(VTSS_DEVCPU_PTP_PTP_PIN_INTR, sticky);
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, &mask);

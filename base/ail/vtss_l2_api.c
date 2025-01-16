@@ -3909,7 +3909,7 @@ vtss_rc vtss_dlb_policer_free(const vtss_inst_t           inst,
 {
     vtss_state_t            *vtss_state;
     vtss_xpol_entry_t       *pol;
-    vtss_rc                  rc;
+    vtss_rc                  rc, rc1;
     vtss_dlb_policer_conf_t *conf;
 
     VTSS_ENTER();
@@ -3923,10 +3923,17 @@ vtss_rc vtss_dlb_policer_free(const vtss_inst_t           inst,
                 if (conf->enable == TRUE) {
                     conf->enable = FALSE;
                     vtss_state->l2.pol_conf[pol->idx + i] = *conf;
-                    rc = vtss_cil_l2_policer_update(vtss_state, pol->idx + i);
+                    if (VTSS_RC_OK !=
+                        (rc1 = vtss_cil_l2_policer_update(vtss_state,
+                                                          pol->idx + i))) {
+                        rc = rc1;
+                    }
                 }
             }
-            rc = vtss_cmn_policer_free(vtss_state, &pol->idx);
+            if (VTSS_RC_OK !=
+                (rc1 = vtss_cmn_policer_free(vtss_state, &pol->idx))) {
+                rc = rc1;
+            }
             pol->cnt = 0;
         }
     }

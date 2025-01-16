@@ -957,12 +957,19 @@ static vtss_rc fa_ts_status_change(vtss_state_t        *vtss_state,
 
     /* Calculate the lane information based on the port */
     (void)vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type);
+    dv_factor = delay_var_factor;
+#if defined(VTSS_FEATURE_SD_25G)
+    if (sd_type == FA_SERDES_TYPE_25G) {
+        dv_factor = delay_var_factor_25G;
+    }
+#endif
+
     if (sd_type == FA_SERDES_TYPE_10G) {
         sd_indx = sd_indx + RT_SERDES_10G_START;
     } else if (sd_type == FA_SERDES_TYPE_25G) {
         sd_indx = sd_indx + RT_SERDES_25G_START;
     } else if (sd_type == FA_SERDES_TYPE_6G) {
-        sd_indx = sd_indx;
+        sd_indx = sd_indx + 0;
     } else if (sd_type == FA_SERDES_TYPE_UNKNOWN) {
         /* Interface without SERDES */
         sd_indx = 0;
@@ -987,7 +994,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t        *vtss_state,
                 VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
             sd_tx_delay_var =
                 VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-            dv_factor = delay_var_factor_25G;
 #endif
         } else {
             REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
@@ -1002,7 +1008,6 @@ static vtss_rc fa_ts_status_change(vtss_state_t        *vtss_state,
                 delay_var_factor[2].rx = 37200;
                 delay_var_factor[2].tx = 49600;
             }
-            dv_factor = delay_var_factor;
         }
         VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var,
                sd_tx_delay_var);

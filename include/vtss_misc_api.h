@@ -399,6 +399,7 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t inst);
  *
  **/
 typedef enum {
+    VTSS_PTP_NONE_EV = 0,
     VTSS_PTP_SYNC_EV = (1 << 0), /*< PTP Synchronization pulse update */
     VTSS_PTP_EXT_SYNC_EV =
         (1 << 1), /*< PTP External Synchronization input  (Sync 0 on Serval)*/
