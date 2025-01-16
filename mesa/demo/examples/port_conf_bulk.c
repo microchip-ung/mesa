@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -21,7 +20,7 @@ static int port_bulk_init(int argc, const char *argv[])
     uint32_t port_to = ARGV_INT("port2", "Apply config to this port");
     uint32_t port_no;
     mesa_port_conf_t conf, *store;
-    uint32_t   port_cnt = mesa_port_cnt(NULL);
+    uint32_t         port_cnt = mesa_port_cnt(NULL);
 
     EXAMPLE_BARRIER(argc);
 
@@ -29,7 +28,8 @@ static int port_bulk_init(int argc, const char *argv[])
         return -1;
     }
 
-    // Force some configuration onto the ports to make them different - which enables re-config.
+    // Force some configuration onto the ports to make them different - which
+    // enables re-config.
     for (port_no = port_from; port_no <= port_to; port_no++) {
         RC(mesa_port_conf_get(NULL, port_no, &conf));
         store[port_no] = conf;
@@ -56,14 +56,8 @@ static int port_bulk_init(int argc, const char *argv[])
     return 0;
 }
 
-static int port_bulk_clean()
-{
-    return 0;
-}
+static int port_bulk_clean() { return 0; }
 
-static const char* port_bulk_help()
-{
-    return bulk_help_txt;
-}
+static const char *port_bulk_help() { return bulk_help_txt; }
 
 EXAMPLE(port_conf_bulk, port_bulk_init, NULL, port_bulk_clean, port_bulk_help);

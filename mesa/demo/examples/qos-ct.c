@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -52,9 +51,6 @@ static int ct_uninit(void)
     return 0;
 }
 
-static const char *ct_help(void)
-{
-    return "Cut-through example";
-}
+static const char *ct_help(void) { return "Cut-through example"; }
 
 EXAMPLE(ct, ct_init, NULL, ct_uninit, ct_help);

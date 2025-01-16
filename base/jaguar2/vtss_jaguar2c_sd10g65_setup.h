@@ -4,7 +4,6 @@
 #ifndef _VTSS_JAGUAR2C__API_SD10G65_H_UTE
 #define _VTSS_JAGUAR2C__API_SD10G65_H_UTE
 
-
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 
 /* ================================================================= *
@@ -21,19 +20,32 @@
  *                       Patrick Urban <patrick.urban@microsemi.com> or
  *                       Alexander Koch <alexander.koch@microsemi.com> or
  *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements:
- *                     Bugzilla: Tools->Victoria
+ *                     Please use Bugzilla for reporting issues or requesting
+ * enhancements: Bugzilla: Tools->Victoria
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
-#include <vtss/api/options.h>  // To get the ARCH define
+#include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_JAGUAR_2_C)
 
-vtss_rc vtss_jaguar2c_sd10g_setup_tx(vtss_state_t *vtss_state, const vtss_sd10g65_setup_tx_args_t config, vtss_port_no_t port_no);
-vtss_rc vtss_jaguar2c_sd10g_setup_rx(vtss_state_t *vtss_state, const vtss_sd10g65_setup_rx_args_t config, vtss_port_no_t port_no);
-vtss_rc vtss_jaguar2c_sd10g_power_down(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-vtss_rc vtss_jaguar2c_apc10g_setup(vtss_state_t *vtss_state, const vtss_sd10g65_setup_apc_args_t config, vtss_port_no_t port_no);
-vtss_rc vtss_jaguar2c_sd10g_setup_df2f(vtss_state_t *vtss_state, const vtss_sd10g65_setup_df2f_args_t config, vtss_port_no_t port_no);
-vtss_rc vtss_jaguar2c_sd10g_setup_f2df(vtss_state_t *vtss_state, const vtss_sd10g65_setup_f2df_args_t config, vtss_port_no_t port_no);
+vtss_rc vtss_jaguar2c_sd10g_setup_tx(vtss_state_t *vtss_state,
+                                     const vtss_sd10g65_setup_tx_args_t config,
+                                     vtss_port_no_t port_no);
+vtss_rc vtss_jaguar2c_sd10g_setup_rx(vtss_state_t *vtss_state,
+                                     const vtss_sd10g65_setup_rx_args_t config,
+                                     vtss_port_no_t port_no);
+vtss_rc vtss_jaguar2c_sd10g_power_down(vtss_state_t  *vtss_state,
+                                       vtss_port_no_t port_no);
+vtss_rc vtss_jaguar2c_apc10g_setup(vtss_state_t *vtss_state,
+                                   const vtss_sd10g65_setup_apc_args_t config,
+                                   vtss_port_no_t                      port_no);
+vtss_rc vtss_jaguar2c_sd10g_setup_df2f(vtss_state_t *vtss_state,
+                                       const vtss_sd10g65_setup_df2f_args_t
+                                                      config,
+                                       vtss_port_no_t port_no);
+vtss_rc vtss_jaguar2c_sd10g_setup_f2df(vtss_state_t *vtss_state,
+                                       const vtss_sd10g65_setup_f2df_args_t
+                                                      config,
+                                       vtss_port_no_t port_no);
 #endif
 #endif

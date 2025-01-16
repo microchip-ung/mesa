@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdarg.h>
@@ -12,25 +11,22 @@
 #include <fcntl.h>
 #include <zlib.h>
 
-static const char minusone = -1;  // sign extending does not work on BBB!!!
-static char base64_decoder[256] = {
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
-    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
-    -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
-    -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-};
+static const char minusone = -1; // sign extending does not work on BBB!!!
+static char       base64_decoder[256] = {
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+    61, -1, -1, -1, -1, -1, -1, -1, 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10,
+    11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1,
+    -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
+    43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 int write_block(int fd, const char *b, size_t s)
 {
@@ -53,7 +49,7 @@ int write_block(int fd, const char *b, size_t s)
 
 int base64_decode_inplace(char *buf, int src_len)
 {
-    int i, j, k;
+    int      i, j, k;
     uint32_t x[4], xx;
 
     if (buf == 0 || src_len == 0) {
@@ -62,9 +58,9 @@ int base64_decode_inplace(char *buf, int src_len)
 
     // Compact input buffer
     for (i = 0, j = 0; i < src_len; ++i) {
-        if (buf[i] == '=' || base64_decoder[(int) buf[i]] != minusone) {
-            //dprintf(2, "%d: i=%d j=%d in: %hhd out: %hhd\n", __LINE__, i, j,
-            //        buf[i], base64_decoder[(int) buf[i]]);
+        if (buf[i] == '=' || base64_decoder[(int)buf[i]] != minusone) {
+            // dprintf(2, "%d: i=%d j=%d in: %hhd out: %hhd\n", __LINE__, i, j,
+            //         buf[i], base64_decoder[(int) buf[i]]);
             buf[j++] = buf[i];
         }
     }
@@ -83,7 +79,7 @@ int base64_decode_inplace(char *buf, int src_len)
     for (i = 0, j = 0; i < src_len;) {
         int short1 = 0, short2 = 0;
         for (k = 0; k < 4; ++k)
-            x[k] = base64_decoder[(int) buf[i++]];
+            x[k] = base64_decoder[(int)buf[i++]];
 
         // Handle padding
         if (i == src_len) {
@@ -111,12 +107,12 @@ int base64_decode_inplace(char *buf, int src_len)
     return j;
 }
 
-int main(int argc, char * const argv[])
+int main(int argc, char *const argv[])
 {
-    int buf_size = 1024;
-    int buf_valid = 0;
+    int   buf_size = 1024;
+    int   buf_valid = 0;
     char *b = malloc(1024);
-    int res = -1, fd = -1;
+    int   res = -1, fd = -1;
 
     if (argc != 2) {
         dprintf(2, "Usage: base64decode <outout-file>\n");

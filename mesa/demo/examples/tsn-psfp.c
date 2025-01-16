@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -23,7 +22,7 @@ static int psfp_init(int argc, const char *argv[])
     mesa_psfp_gce_t         psfp_gcl[2];
     mesa_psfp_gate_conf_t   gate_conf;
     mesa_psfp_filter_conf_t filter_conf;
-    mesa_iflow_conf_t       iflow_conf; 
+    mesa_iflow_conf_t       iflow_conf;
     mesa_vce_t              vce;
     int                     i, max_cnt = 2;
 
@@ -121,9 +120,6 @@ static int psfp_uninit(void)
     return 0;
 }
 
-static const char *psfp_help(void)
-{
-    return "PSFP example\n";
-}
+static const char *psfp_help(void) { return "PSFP example\n"; }
 
 EXAMPLE(psfp, psfp_init, psfp_run, psfp_uninit, psfp_help);

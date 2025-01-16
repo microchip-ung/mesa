@@ -1,32 +1,28 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #ifndef _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
 #define _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
 
 #include <microchip/ethernet/board/api/types.h>
 #include <microchip/ethernet/switch/api/types.h>
 
-
 typedef struct {
-    const char *i2c_device;
+    const char   *i2c_device;
     const uint8_t i2c_address;
 } i2c_config_t;
 
-
 typedef void (*pointer_to_meba_poe_io_reset_t)(mesa_bool_t);
-
 
 typedef struct {
 
-    mesa_bool_t             is_bt;
+    mesa_bool_t is_bt;
 
     // PD692x0 family detection method
     meba_poe_controller_type_t ePoE_Controller_Type_default;
 
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    meba_poe_port_max_power_t   ePoE_port_max_power_default;
+    meba_poe_port_max_power_t ePoE_port_max_power_default;
 
     // BT complient port operation Mode
     uint8_t bt_operation_mode_compliant_15w_default;
@@ -46,10 +42,10 @@ typedef struct {
     uint8_t bt_operation_mode_legacy_90W_ignore_pd_class_default;
 
     // gpio number used to reset poe ports
-    uint8_t  reset_poe_gpio_number;
+    uint8_t reset_poe_gpio_number;
 
     // the final (from appl or from api h file) init parameters to init poe module
-    meba_poe_init_params_t  poe_init_params;
+    meba_poe_init_params_t poe_init_params;
 
     // prebt - power higher priority port.
     uint8_t indv_mask_prebt_ignore_higher_priority_default;
@@ -81,7 +77,8 @@ typedef struct {
     // bt - expand Resistor detection range up to range to 55 K.
     uint8_t indv_mask_BT_support_high_res_detection_default;
 
-    // bt - Initialization of the I2C module system after 10 seconds of inactivity.
+    // bt - Initialization of the I2C module system after 10 seconds of
+    // inactivity.
     uint8_t indv_mask_BT_i2c_restart_enable_default;
 
     // bt - led stream type
@@ -100,24 +97,25 @@ typedef struct {
     uint8_t indv_mask_BT_layer2_power_allocation_limit_default;
 
     // bt - Port LED Blinks at invalid signature or connection-check error
-    uint8_t indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
+    uint8_t
+        indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
 
     // bt - Support adding lldp half priority
     uint8_t indv_mask_BT_support_adding_lldp_half_priority_default;
 
-
-    // -----------  PREBT Power Management mode of operation  ----------------------//
+    // -----------  PREBT Power Management mode of operation
+    // ----------------------//
 
     // Selects the method of calculating total power consumption.
     uint8_t prebt_pm1_default;
 
-    // Selects the power limit at the port (maximum or according to class or predefined).
+    // Selects the power limit at the port (maximum or according to class or
+    // predefined).
     uint8_t prebt_pm2_default;
 
     // Selects the start condition. (Not recommended for new designs, keep 0x00).
     uint8_t prebt_pm3_default;
 } meba_poe_parameters_t;
-
 
 /**
  * \brief Open an I2C device and configure I2C address
@@ -126,7 +124,7 @@ typedef struct {
  * \param i2c_addr       [IN] i2c address to communicate with
  *
  * \return File descriptor for I2C driver
-*/
+ */
 int meba_pd69200_i2c_adapter_open(const char *filename, uint8_t i2c_addr);
 
 /**
@@ -144,18 +142,17 @@ int meba_pd69200_i2c_adapter_open(const char *filename, uint8_t i2c_addr);
  * \param debug             [OUT] Board debug output.
  *
  * \return meba_poe_ctrl_inst
-*/
-void meba_pd69200_driver_init(
-    meba_poe_ctrl_inst_t       *inst,
-    char const                 *driver_name,
-    int                         adapter_fd,
-    meba_poe_ctrl_cap_t         capabilities,
-    meba_poe_port_properties_t *port_map,
-    uint32_t                    port_map_length,
-    meba_poe_psu_input_prob_t   *psu_map,
-    uint32_t                    psu_map_length,
-    meba_debug_t                debug,
-    meba_poe_parameters_t       tMeba_poe_parameters);
+ */
+void meba_pd69200_driver_init(meba_poe_ctrl_inst_t       *inst,
+                              char const                 *driver_name,
+                              int                         adapter_fd,
+                              meba_poe_ctrl_cap_t         capabilities,
+                              meba_poe_port_properties_t *port_map,
+                              uint32_t                    port_map_length,
+                              meba_poe_psu_input_prob_t  *psu_map,
+                              uint32_t                    psu_map_length,
+                              meba_debug_t                debug,
+                              meba_poe_parameters_t       tMeba_poe_parameters);
 
 /**
  * \brief Initialize driver
@@ -172,17 +169,16 @@ void meba_pd69200_driver_init(
  * \param debug             [OUT] Board debug output.
  *
  * \return meba_poe_ctrl_inst
-*/
-void meba_pd69200bt_driver_init(
-    meba_poe_ctrl_inst_t       *inst,
-    char const                 *driver_name,
-    int                         adapter_fd,
-    meba_poe_ctrl_cap_t         capabilities,
-    meba_poe_port_properties_t *port_map,
-    uint32_t                    port_map_length,
-    meba_poe_psu_input_prob_t   *psu_map,
-    uint32_t                    psu_map_length,
-    meba_debug_t                debug,
-    meba_poe_parameters_t       tMeba_poe_parameters);
+ */
+void meba_pd69200bt_driver_init(meba_poe_ctrl_inst_t       *inst,
+                                char const                 *driver_name,
+                                int                         adapter_fd,
+                                meba_poe_ctrl_cap_t         capabilities,
+                                meba_poe_port_properties_t *port_map,
+                                uint32_t                    port_map_length,
+                                meba_poe_psu_input_prob_t  *psu_map,
+                                uint32_t                    psu_map_length,
+                                meba_debug_t                debug,
+                                meba_poe_parameters_t tMeba_poe_parameters);
 
 #endif // _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_

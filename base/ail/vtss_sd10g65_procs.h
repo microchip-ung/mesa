@@ -1,15 +1,16 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 /*---------------------------------------------------------------------------
- * $HeadURL: svn://svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_procs.h $
+ * $HeadURL:
+ *svn://svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_procs.h
+ *$
  *---------------------------------------------------------------------------*/
 
 /* ================================================================= *
  *               Note: This code is provided as part of the
- *                     Universal Tcl Environment (UTE) to provide 
- *                     consistent setup functions for 
+ *                     Universal Tcl Environment (UTE) to provide
+ *                     consistent setup functions for
  *       ^             - Verification
  *      / \            - Validation
  *     /   \           - Test Pattern Generation and
@@ -20,14 +21,13 @@
  *                       Patrick Urban <patrick.urban@microsemi.com> or
  *                       Alexander Koch <alexander.koch@microsemi.com> or
  *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements: 
- *                     Bugzilla: Tools->Victoria
+ *                     Please use Bugzilla for reporting issues or requesting
+ * enhancements: Bugzilla: Tools->Victoria
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
 #ifndef _VTSS_SD10G65_PROCS_H_
 #define _VTSS_SD10G65_PROCS_H_
-
 
 #ifdef USE_TCL_STUBS
 #include "ute_webstax_defines.h"
@@ -38,7 +38,6 @@
 /* ================================================================= *
  *  Data structures / types
  * ================================================================= */
-
 
 /** \brief Vitesse chip development name */
 typedef enum {
@@ -58,49 +57,49 @@ typedef enum {
 
 /** \brief SerDes mode type */
 typedef enum {
-        VTSS_SD10G65_MODE_10G_LAN,
-        VTSS_SD10G65_MODE_10G_ETH,
-        VTSS_SD10G65_MODE_10G_WAN,
-        VTSS_SD10G65_MODE_WAN,
-        VTSS_SD10G65_MODE_OTU2,
-        VTSS_SD10G65_MODE_OTU1e,
-        VTSS_SD10G65_MODE_OTU2e,
-        VTSS_SD10G65_MODE_FX100,
-        VTSS_SD10G65_MODE_SGMII,
-        VTSS_SD10G65_MODE_1G_LAN,
-        VTSS_SD10G65_MODE_NONE
+    VTSS_SD10G65_MODE_10G_LAN,
+    VTSS_SD10G65_MODE_10G_ETH,
+    VTSS_SD10G65_MODE_10G_WAN,
+    VTSS_SD10G65_MODE_WAN,
+    VTSS_SD10G65_MODE_OTU2,
+    VTSS_SD10G65_MODE_OTU1e,
+    VTSS_SD10G65_MODE_OTU2e,
+    VTSS_SD10G65_MODE_FX100,
+    VTSS_SD10G65_MODE_SGMII,
+    VTSS_SD10G65_MODE_1G_LAN,
+    VTSS_SD10G65_MODE_NONE
 } vtss_f_mode_t;
 
 /** \brief return values of pwr_down function */
 typedef struct {
-    u8  sbus_tx_cfg__sbus_bias_en[2];
-    u8  sbus_rx_cfg__sbus_bias_en[2];
-    u8  tx_synth_cfg0__synth_ena[2];
-    u8  tx_rcpll_cfg2__pll_ena[2];
-    u8  ob_cfg0__en_ob[1];
-    u8  rx_synth_cfg0__synth_ena[2];
-    u8  rx_rcpll_cfg2__pll_ena[2];
-    u8  ib_cfg8__ib_bias_mode[1];
-    u8  ib_cfg0__ib_dfe_ena[1];
-    u8  ib_cfg0__ib_ia_ena[1];
-    u8  ib_cfg0__ib_ld_ena[1];
-    u8  ib_cfg0__ib_clkdiv_ena[1];
-    u8  ib_cfg0__ib_eqz_ena[1];
-    u8  ib_cfg0__ib_sam_ena[1];
- } vtss_sd10g65_pwr_down_t;
+    u8 sbus_tx_cfg__sbus_bias_en[2];
+    u8 sbus_rx_cfg__sbus_bias_en[2];
+    u8 tx_synth_cfg0__synth_ena[2];
+    u8 tx_rcpll_cfg2__pll_ena[2];
+    u8 ob_cfg0__en_ob[1];
+    u8 rx_synth_cfg0__synth_ena[2];
+    u8 rx_rcpll_cfg2__pll_ena[2];
+    u8 ib_cfg8__ib_bias_mode[1];
+    u8 ib_cfg0__ib_dfe_ena[1];
+    u8 ib_cfg0__ib_ia_ena[1];
+    u8 ib_cfg0__ib_ld_ena[1];
+    u8 ib_cfg0__ib_clkdiv_ena[1];
+    u8 ib_cfg0__ib_eqz_ena[1];
+    u8 ib_cfg0__ib_sam_ena[1];
+} vtss_sd10g65_pwr_down_t;
 
 /** \brief Synthesizer frequency setup type */
 typedef struct {
-    u32             f_pll_khz;        /**< targeted sample frequency without ratio in kHz >                                        */
-    u32             ratio_num;        /**< numerator of a rational factor >                                                        */   
-    u32             ratio_den;        /**< denominator of a rational factor >                                                      */   
+    u32 f_pll_khz; /**< targeted sample frequency without ratio in kHz > */
+    u32 ratio_num; /**< numerator of a rational factor > */
+    u32 ratio_den; /**< denominator of a rational factor > */
 } vtss_sd10g65_f_pll_t;
 
 /** \brief Synthesizer settings calculation result */
 typedef struct {
-    u16 freq_mult;       /**< Frequency multiplier cfg > */
-    u64 synth_freqm;     /**< SYNTH_FREQ_M >             */
-    u64 synth_freqn;     /**< SYNTH_FREQ_N >             */
+    u16 freq_mult;   /**< Frequency multiplier cfg > */
+    u64 synth_freqm; /**< SYNTH_FREQ_M >             */
+    u64 synth_freqn; /**< SYNTH_FREQ_N >             */
 } vtss_sd10g65_synth_settings_calc_rslt_t;
 
 /** \brief Frequency decoder bypass result type */
@@ -111,39 +110,46 @@ typedef struct {
 
 /** \brief Syntesizer multiplier configuration calculation result */
 typedef struct {
-    u8  synth_speed_sel;      /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL >    */
-    u8  synth_fbdiv_sel;      /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
-    u32 synth_freqm_0;        /**< LSBs of SYNTH_FREQ_M >    */
-    u32 synth_freqn_0;        /**< LSBs of SYNTH_FREQ_N >    */
-    u8  synth_freqm_1;        /**< MSBs of SYNTH_FREQ_M >    */
-    u8  synth_freqn_1;        /**< MSBs of SYNTH_FREQ_N >    */
-    u8  synth_freq_mult_byp;  /**< Frequency multiplier decoder bypass > */
-    u8  synth_freq_mult_hi;   /**< Frequency multiplier MSBits in bypass mode > */
-    u16 synth_freq_mult;      /**< Frequency multiplier cfg > */
-    u8  tx_synth_ls_speed;    /**< Lane sync speed. Only used when setting up the synthesizer for a TX macro > */
-    u8  tx_synth_cs_speed;    /**< Common sync speed. Only used when setting up the synthesizer for a TX macro > */
-    u8  rx_synth_fb_step;     /**< selects step width for sync output. Only used when setting up the synthesizer for a RX macro > */
-    u8  rx_synth_i2_step;     /**< selects step width for integrator2. Only used when setting up the synthesizer for a RX macro > */
+    u8 synth_speed_sel; /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL
+                           >    */
+    u8 synth_fbdiv_sel; /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL
+                           >    */
+    u32 synth_freqm_0;  /**< LSBs of SYNTH_FREQ_M >    */
+    u32 synth_freqn_0;  /**< LSBs of SYNTH_FREQ_N >    */
+    u8  synth_freqm_1;  /**< MSBs of SYNTH_FREQ_M >    */
+    u8  synth_freqn_1;  /**< MSBs of SYNTH_FREQ_N >    */
+    u8  synth_freq_mult_byp; /**< Frequency multiplier decoder bypass > */
+    u8  synth_freq_mult_hi; /**< Frequency multiplier MSBits in bypass mode > */
+    u16 synth_freq_mult;    /**< Frequency multiplier cfg > */
+    u8  tx_synth_ls_speed;  /**< Lane sync speed. Only used when setting up the
+                               synthesizer for a TX macro > */
+    u8 tx_synth_cs_speed; /**< Common sync speed. Only used when setting up the
+                             synthesizer for a TX macro > */
+    u8 rx_synth_fb_step; /**< selects step width for sync output. Only used when
+                            setting up the synthesizer for a RX macro > */
+    u8 rx_synth_i2_step; /**< selects step width for integrator2. Only used when
+                            setting up the synthesizer for a RX macro > */
 } vtss_sd10g65_synth_mult_calc_rslt_t;
-
 
 /** \brief Parameters needed for setup_tx function */
 typedef struct {
-    vtss_chip_name_t     chip_name;   /**< Name of the vitesse chip >                                                              */
-    vtss_sd10g65_f_pll_t f_pll;       /**< targeted sample frequency / data rate >                                                 */
-    vtss_f_mode_t        f_mode;      /**< Optional mode for setting up the frequency.                                             */
-                                      /**<   Overwrites f_pll if !=  VTSS_SD10G65_MODE_NONE,                                       */
-                                      /**<   Mandatory for FX100 mode                                                              */
-    u8                   if_width;    /**< interface width 8, 10, 16, 20, 32 or 40 bit >                                           */
-    BOOL                 no_pwrcycle; /**< Omit initial power-cycle >                                                              */
-    BOOL                 ls_ena;      /**< Set synth_ls_ena for lane synchronization >                                             */
-    u8                   i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of SD10G65_RX setting (default: 35) > */
-    BOOL                 inp_loop;    /**< Enable input loop (bidi-loop to TXD output pad) >                                       */
-    BOOL                 pad_loop;    /**< Enable pad loop (core via OB to bidi-loop) >                                            */
-    BOOL                 invert;      /**< Enable inversion of output data >                                                       */
-    u8                   incr_levn;   /**< Set incr_levn to increase(0)/decrease(1) output level (default: 1) >                    */
-    u8                   ob_levn;     /**< Set output level to <val> (default: 7)                                                  */
-    BOOL                 mute;        /**< Mute Output Buffer. I e. send out common mode voltage >                                 */
+    vtss_chip_name_t     chip_name; /**< Name of the vitesse chip > */
+    vtss_sd10g65_f_pll_t f_pll; /**< targeted sample frequency / data rate > */
+    vtss_f_mode_t f_mode; /**< Optional mode for setting up the frequency. */
+    /**<   Overwrites f_pll if !=  VTSS_SD10G65_MODE_NONE, */
+    /**<   Mandatory for FX100 mode */
+    u8   if_width;    /**< interface width 8, 10, 16, 20, 32 or 40 bit >    */
+    BOOL no_pwrcycle; /**< Omit initial power-cycle > */
+    BOOL ls_ena;      /**< Set synth_ls_ena for lane synchronization >      */
+    u8   i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of
+                         SD10G65_RX setting (default: 35) > */
+    BOOL inp_loop;  /**< Enable input loop (bidi-loop to TXD output pad) >    */
+    BOOL pad_loop;  /**< Enable pad loop (core via OB to bidi-loop) >    */
+    BOOL invert;    /**< Enable inversion of output data >      */
+    u8   incr_levn; /**< Set incr_levn to increase(0)/decrease(1) output level
+                       (default: 1) >                    */
+    u8   ob_levn;   /**< Set output level to <val> (default: 7)     */
+    BOOL mute; /**< Mute Output Buffer. I e. send out common mode voltage > */
 } vtss_sd10g65_setup_tx_args_t;
 
 /** \brief return values of setup_tx function */
@@ -160,23 +166,31 @@ typedef struct {
     u8  sbus_tx_cfg__sbus_bias_speed_sel[1];
     u8  sbus_rx_cfg__sbus_bias_en[1];
     u8  sbus_rx_cfg__sbus_bias_speed_sel[1];
-  //u8  ob_cfg0__en_ob[1];
-  //u8  tx_rcpll_cfg2__pll_ena[1];
-  //u8  tx_synth_cfg0__synth_ena[1];
-    u8  tx_synth_cfg0__synth_spare_pool[1];
-    u8  tx_synth_cfg0__synth_off_comp_ena[1];
-    u8  hr_mode[1];
-    u8  tx_synth_cfg0__synth_speed_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL >    */
-    u8  tx_synth_cfg0__synth_fbdiv_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
-    u32 tx_synth_cfg3__synth_freqm_0[1];     /**< LSBs of SYNTH_FREQ_M >    */
-    u32 tx_synth_cfg4__synth_freqn_0[1];     /**< LSBs of SYNTH_FREQ_N >    */
-    u8  tx_synth_cfg1__synth_freqm_1[1];     /**< MSBs of SYNTH_FREQ_M >    */
-    u8  tx_synth_cfg1__synth_freqn_1[1];     /**< MSBs of SYNTH_FREQ_N >    */
-    u8  tx_synth_cfg1__synth_freq_mult_byp[1];     /**< Frequency multiplier decoder bypass > */
-    u8  tx_synth_cfg1__synth_freq_mult_hi[1];      /**< Frequency multiplier MSBits in bypass mode > */
-    u16 tx_synth_cfg1__synth_freq_mult[1];         /**< Frequency multiplier cfg > */
-    u8  tx_synth_cfg0__synth_ls_speed[1];    /**< Lane sync speed. Only used when setting up the synthesizer for a TX macro > */
-    u8  tx_synth_cfg0__synth_cs_speed[1];    /**< Common sync speed. Only used when setting up the synthesizer for a TX macro > */
+    // u8  ob_cfg0__en_ob[1];
+    // u8  tx_rcpll_cfg2__pll_ena[1];
+    // u8  tx_synth_cfg0__synth_ena[1];
+    u8 tx_synth_cfg0__synth_spare_pool[1];
+    u8 tx_synth_cfg0__synth_off_comp_ena[1];
+    u8 hr_mode[1];
+    u8 tx_synth_cfg0__synth_speed_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_SPEED_SEL >    */
+    u8 tx_synth_cfg0__synth_fbdiv_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
+    u32 tx_synth_cfg3__synth_freqm_0[1];       /**< LSBs of SYNTH_FREQ_M >    */
+    u32 tx_synth_cfg4__synth_freqn_0[1];       /**< LSBs of SYNTH_FREQ_N >    */
+    u8  tx_synth_cfg1__synth_freqm_1[1];       /**< MSBs of SYNTH_FREQ_M >    */
+    u8  tx_synth_cfg1__synth_freqn_1[1];       /**< MSBs of SYNTH_FREQ_N >    */
+    u8  tx_synth_cfg1__synth_freq_mult_byp[1]; /**< Frequency multiplier decoder
+                                                  bypass > */
+    u8 tx_synth_cfg1__synth_freq_mult_hi[1]; /**< Frequency multiplier MSBits in
+                                                bypass mode > */
+    u16 tx_synth_cfg1__synth_freq_mult[1];   /**< Frequency multiplier cfg > */
+    u8  tx_synth_cfg0__synth_ls_speed[1]; /**< Lane sync speed. Only used when
+                                             setting up the synthesizer for a TX
+                                             macro > */
+    u8 tx_synth_cfg0__synth_cs_speed[1];  /**< Common sync speed. Only used when
+                                             setting up the synthesizer for a TX
+                                             macro > */
     u8  chip_needs_hrate_toggle[1];
     u8  tx_synth_cfg0__synth_hrate_ena[10];
     u8  tx_synth_cfg0__synth_ena_sync_unit[1];
@@ -198,11 +212,11 @@ typedef struct {
     u8  ob_cfg1__predrv_c_ctrl[1];
     u32 ob_cfg2__d_filter[1];
 
-    u8  is_new_rcpll[1];
-    u8  tx_rcpll_cfg2__pll_vco_cur[1];
-    u8  tx_rcpll_cfg2__pll_vreg18[1];
-    u8  tx_rcpll_cfg2__pll_lpf_cur[1];
-    u8  tx_rcpll_cfg2__pll_lpf_res[1];
+    u8 is_new_rcpll[1];
+    u8 tx_rcpll_cfg2__pll_vco_cur[1];
+    u8 tx_rcpll_cfg2__pll_vreg18[1];
+    u8 tx_rcpll_cfg2__pll_lpf_cur[1];
+    u8 tx_rcpll_cfg2__pll_lpf_res[1];
 
     u16 tx_rcpll_cfg0__pllf_start_cnt[1];
     u8  tx_rcpll_cfg0__pllf_syn_clk_ena[1];
@@ -214,34 +228,45 @@ typedef struct {
     u8  tx_rcpll_cfg0__pllf_oor_recal_ena[2];
 } vtss_sd10g65_setup_tx_struct_t;
 
-
-
 // Add the code for the setup_rx
 
 /**
  * \brief Receiver preset for different cable types
- * \note _SC presets are only available for deviced that have the respective APC HW support
- *       Curently this is only Jagar2-RevC and Venice-RevC
+ * \note _SC presets are only available for deviced that have the respective APC
+ *HW support Curently this is only Jagar2-RevC and Venice-RevC
  **/
 typedef enum {
-    VTSS_SD10G65_ATE,          /**< Setup be used for ATE testing > */
-    VTSS_SD10G65_ATE_SC,       /**< Setup be used for ATE testing, with SmartControl > */
-    VTSS_SD10G65_ZR_HW,        /**< ZR with APC hardware algorithm > */
-    VTSS_SD10G65_ZR_SW,        /**< ZR with APC software algorithm > */
-    VTSS_SD10G65_ZR_SC,        /**< ZR with Smart Control; L/C control based on DFE1/2 > */
-    VTSS_SD10G65_DAC_HW,       /**< DAC (Direct attached copper) with APC hardware algorithm > */
-    VTSS_SD10G65_DAC_SW,       /**< DAC (Direct attached copper) with APC software algorithm > */
-    VTSS_SD10G65_DAC_SC,       /**< DAC (Direct attached copper) with Smart Control; L/C control based on DFE1/2 > */
-    VTSS_SD10G65_SR_HW,        /**< Short Range. Use SR presets also for limiting active DAC links and DAC presets also for linear optical SR links> */
-    VTSS_SD10G65_SR_SC,        /**< Short Range. with Smart Control; L/C control based on DFE1/2> */
-    VTSS_SD10G65_SR2_HW,       /**< Short Range. Use SR presets also for limiting active DAC links and DAC presets also for linear optical SR links> */
-    VTSS_SD10G65_SR2_SC,       /**< Short Range. with Smart Control; L/C control based on DFE1/2> */
+    VTSS_SD10G65_ATE,    /**< Setup be used for ATE testing > */
+    VTSS_SD10G65_ATE_SC, /**< Setup be used for ATE testing, with SmartControl >
+                          */
+    VTSS_SD10G65_ZR_HW,  /**< ZR with APC hardware algorithm > */
+    VTSS_SD10G65_ZR_SW,  /**< ZR with APC software algorithm > */
+    VTSS_SD10G65_ZR_SC,  /**< ZR with Smart Control; L/C control based on DFE1/2
+                            > */
+    VTSS_SD10G65_DAC_HW, /**< DAC (Direct attached copper) with APC hardware
+                            algorithm > */
+    VTSS_SD10G65_DAC_SW, /**< DAC (Direct attached copper) with APC software
+                            algorithm > */
+    VTSS_SD10G65_DAC_SC, /**< DAC (Direct attached copper) with Smart Control;
+                            L/C control based on DFE1/2 > */
+    VTSS_SD10G65_SR_HW,  /**< Short Range. Use SR presets also for limiting
+                            active DAC links and DAC presets also for linear
+                            optical SR links> */
+    VTSS_SD10G65_SR_SC,  /**< Short Range. with Smart Control; L/C control based
+                            on DFE1/2> */
+    VTSS_SD10G65_SR2_HW, /**< Short Range. Use SR presets also for limiting
+                            active DAC links and DAC presets also for linear
+                            optical SR links> */
+    VTSS_SD10G65_SR2_SC, /**< Short Range. with Smart Control; L/C control based
+                            on DFE1/2> */
     VTSS_SD10G65_BACKPLANE,    /**< Backplane > */
-    VTSS_SD10G65_BACKPLANE_SC, /**< Backplane with Smart Control; L/C control based on DFE1/2> */
+    VTSS_SD10G65_BACKPLANE_SC, /**< Backplane with Smart Control; L/C control
+                                  based on DFE1/2> */
     VTSS_SD10G65_B2B,          /**< Bord to Board> */
     VTSS_SD10G65_KR_HW,        /**< KR Backplane> */
-    VTSS_SD10G65_KR_SC,        /**< KR Backplane with Smart Control; L/C control based on DFE1/2> */
-    VTSS_SD10G65_PRESET_NONE   /**< No preset > */ 
+    VTSS_SD10G65_KR_SC, /**< KR Backplane with Smart Control; L/C control based
+                           on DFE1/2> */
+    VTSS_SD10G65_PRESET_NONE /**< No preset > */
 } vtss_sd10g65_preset_t;
 
 /** \brief Receiver preset values based on selected preset mode */
@@ -275,34 +300,36 @@ typedef struct {
     u8 sbus_loopdrv_ena;
 } vtss_sd10g65_loop_cfg_t;
 
-
-
 /** \brief Parameters needed for setup_rx function */
 typedef struct {
-    vtss_chip_name_t      chip_name;   /**< Name of the vitesse chip >                                 */
-    vtss_sd10g65_f_pll_t  f_pll;       /**< targeted sample frequency / data rate >                    */
-    vtss_f_mode_t         f_mode;      /**< Optional mode for setting up the frequency.                */
-                                       /**<   Overwrites f_pll if !=  VTSS_SD10G65_MODE_NONE,          */
-                                       /**<   Mandatory for FX100 mode                                 */
-    u8                    if_width;    /**< interface width 8, 10, 16, 20, 32 or 40 bit >              */
-    vtss_sd10g65_preset_t preset;      /**< Setup macro with link specific presets >                   */
-    BOOL                  no_pwrcycle; /**< Omit initial power-cycle >                                 */
-    BOOL                  fpwr_mode;   /**< Set the fpwr_mode (default: 1) > */
-    BOOL                  skip_cal;    /**< Skip ib_lat_neutral sequence (use in case IB is aleady calibrated) > */
-    u8                    i1_fsel;     /**< Set synth_i1_fsel, (default: 10) > */
-    u8                    i1_lim;      /**< Set synth_i1_lim,  (default: 10) > */
-    u8                    i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of SD10G65_RX setting (default: 35) > */
-    u8                    p_step;      /**< Set synth_p_step  (default: 1) > */
-    u8                    i1_step;     /**< Set synth_i1_step (default: 1) > */
-    BOOL                  i2_step;     /**< Set synth_i2_step parameter is used (default: FALSE)> */
-    u8                    i2_step_val; /**< Set synth_i2_step value(default: 0) > */
-    BOOL                  fb_step;     /**< Set synth_fb_step parameter is used (default: FALSE) > */
-    u8                    fb_step_val; /**< Set synth_fb_step value (default: 0) > */
-    BOOL                  inp_loop;    /**< Enable input loop (bidi-loop to TXD output pad) >           */
-    BOOL                  pad_loop;    /**< Enable pad loop (core via OB to bidi-loop) >                */
-    BOOL                  cmos_loop;   /**< Enable cmos loop (bidi-loop cmos input from core into IB) > */
-    BOOL                  lock2ref;    /**< Enable lock to reference clock instead of lock to data      */
-    BOOL                  invert;      /**< Enable inversion of input data >                            */
+    vtss_chip_name_t     chip_name; /**< Name of the vitesse chip > */
+    vtss_sd10g65_f_pll_t f_pll; /**< targeted sample frequency / data rate > */
+    vtss_f_mode_t f_mode; /**< Optional mode for setting up the frequency. */
+    /**<   Overwrites f_pll if !=  VTSS_SD10G65_MODE_NONE,          */
+    /**<   Mandatory for FX100 mode                                 */
+    u8 if_width; /**< interface width 8, 10, 16, 20, 32 or 40 bit > */
+    vtss_sd10g65_preset_t
+         preset;      /**< Setup macro with link specific presets >      */
+    BOOL no_pwrcycle; /**< Omit initial power-cycle > */
+    BOOL fpwr_mode;   /**< Set the fpwr_mode (default: 1) > */
+    BOOL skip_cal; /**< Skip ib_lat_neutral sequence (use in case IB is aleady
+                      calibrated) > */
+    u8 i1_fsel;    /**< Set synth_i1_fsel, (default: 10) > */
+    u8 i1_lim;     /**< Set synth_i1_lim,  (default: 10) > */
+    u8 i2_fsel;    /**< Set synth_i2_fsel, should be identical to i2_fsel of
+                      SD10G65_RX setting (default: 35) > */
+    u8   p_step;   /**< Set synth_p_step  (default: 1) > */
+    u8   i1_step;  /**< Set synth_i1_step (default: 1) > */
+    BOOL i2_step;  /**< Set synth_i2_step parameter is used (default: FALSE)> */
+    u8   i2_step_val; /**< Set synth_i2_step value(default: 0) > */
+    BOOL fb_step; /**< Set synth_fb_step parameter is used (default: FALSE) > */
+    u8   fb_step_val; /**< Set synth_fb_step value (default: 0) > */
+    BOOL inp_loop;  /**< Enable input loop (bidi-loop to TXD output pad) >    */
+    BOOL pad_loop;  /**< Enable pad loop (core via OB to bidi-loop) >    */
+    BOOL cmos_loop; /**< Enable cmos loop (bidi-loop cmos input from core into
+                       IB) > */
+    BOOL lock2ref; /**< Enable lock to reference clock instead of lock to data */
+    BOOL invert;   /**< Enable inversion of input data >   */
 } vtss_sd10g65_setup_rx_args_t;
 
 /** \brief return values of setup_rx function */
@@ -312,68 +339,72 @@ typedef struct {
     u32 f_pll_ratio_num[1];
     u32 f_pll_ratio_den[1];
     /* Initial power down-cycle (required for RCPLL ramp-up in some chips)  */
-    u8  pwrcycle[1];
-    u8  rx_synth_cfg0__synth_ena[10];
-    u8  rx_rcpll_cfg2__pll_ena[2];
-    u8  ib_cfg8__ib_bias_mode[2];
-    u8  ib_cfg0__ib_dfe_ena[2];
-    u8  ib_cfg0__ib_ia_ena[2];
-    u8  ib_cfg0__ib_ld_ena[2];
-    u8  ib_cfg0__ib_clkdiv_ena[2];
-    u8  ib_cfg0__ib_eqz_ena[2];
-    u8  ib_cfg0__ib_sam_ena[2];
+    u8 pwrcycle[1];
+    u8 rx_synth_cfg0__synth_ena[10];
+    u8 rx_rcpll_cfg2__pll_ena[2];
+    u8 ib_cfg8__ib_bias_mode[2];
+    u8 ib_cfg0__ib_dfe_ena[2];
+    u8 ib_cfg0__ib_ia_ena[2];
+    u8 ib_cfg0__ib_ld_ena[2];
+    u8 ib_cfg0__ib_clkdiv_ena[2];
+    u8 ib_cfg0__ib_eqz_ena[2];
+    u8 ib_cfg0__ib_sam_ena[2];
     /* Configure SBUS                                                       */
-    u8  sbus_special_handling[1];
-    u8  sbus_rx_cfg__sbus_loopdrv_ena[1];
-    u8  sbus_rx_cfg__sbus_spare_pool[1];
-    u8  sbus_rx_cfg__sbus_bias_en[1];
-    u8  sbus_rx_cfg__sbus_bias_speed_sel[1];
+    u8 sbus_special_handling[1];
+    u8 sbus_rx_cfg__sbus_loopdrv_ena[1];
+    u8 sbus_rx_cfg__sbus_spare_pool[1];
+    u8 sbus_rx_cfg__sbus_bias_en[1];
+    u8 sbus_rx_cfg__sbus_bias_speed_sel[1];
 
     /* Enable various bias circuits (SYNTH, PLL, IB)                        */
     // u8  rx_rcpll_cfg2__pll_ena[1];
     // u8  rx_synth_cfg0__synth_ena[1];
-    u8  rx_synth_cfg2__synth_aux_ena[1];
+    u8 rx_synth_cfg2__synth_aux_ena[1];
     // u8  ib_cfg0__ib_clkdiv_ena[1];
-    u8  ib_cfg0__ib_vbulk_sel[1];
+    u8 ib_cfg0__ib_vbulk_sel[1];
     // u8  ib_cfg0__ib_sam_ena[1];
     // u8  ib_cfg8__ib_bias_mode[1];
-    u8  ib_cfg8__ib_cml_curr[1];
-    u8  ib_cfg8__ib_bias_adj[1];
-    u8  chip_needs_hrate_toggle[1];
+    u8 ib_cfg8__ib_cml_curr[1];
+    u8 ib_cfg8__ib_bias_adj[1];
+    u8 chip_needs_hrate_toggle[1];
     /* Some register accesses to help the RCPLL come out of reset           */
-    u8  des_cfg0__des_if_mode_sel[4];
-    u8  des_cfg0__des_dis[2];
+    u8 des_cfg0__des_if_mode_sel[4];
+    u8 des_cfg0__des_dis[2];
 
     /* Configure RX-SYNTHESIZER                                             */
-    u8  rx_synth_cfg0__synth_spare_pool[1];
-    u8  rx_synth_cfg0__synth_off_comp_ena[1];
+    u8 rx_synth_cfg0__synth_spare_pool[1];
+    u8 rx_synth_cfg0__synth_off_comp_ena[1];
 
-    u8  rx_synth_cfg0__synth_speed_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL >    */
-    u8  rx_synth_cfg0__synth_fbdiv_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
-    u32 rx_synth_cfg3__synth_freqm_0[1];     /**< LSBs of SYNTH_FREQ_M >    */
-    u32 rx_synth_cfg4__synth_freqn_0[1];     /**< LSBs of SYNTH_FREQ_N >    */
-    u8  rx_synth_cfg1__synth_freqm_1[1];     /**< MSBs of SYNTH_FREQ_M >    */
-    u8  rx_synth_cfg1__synth_freqn_1[1];     /**< MSBs of SYNTH_FREQ_N >    */
-    u8  rx_synth_cfg1__synth_freq_mult_byp[1];     /**< Frequency multiplier decoder bypass > */
-    u8  rx_synth_cfg1__synth_freq_mult_hi[1];      /**< Frequency multiplier MSBits in bypass mode > */
-    u16 rx_synth_cfg1__synth_freq_mult[1];         /**< Frequency multiplier cfg > */
+    u8 rx_synth_cfg0__synth_speed_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_SPEED_SEL >    */
+    u8 rx_synth_cfg0__synth_fbdiv_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
+    u32 rx_synth_cfg3__synth_freqm_0[1];       /**< LSBs of SYNTH_FREQ_M >    */
+    u32 rx_synth_cfg4__synth_freqn_0[1];       /**< LSBs of SYNTH_FREQ_N >    */
+    u8  rx_synth_cfg1__synth_freqm_1[1];       /**< MSBs of SYNTH_FREQ_M >    */
+    u8  rx_synth_cfg1__synth_freqn_1[1];       /**< MSBs of SYNTH_FREQ_N >    */
+    u8  rx_synth_cfg1__synth_freq_mult_byp[1]; /**< Frequency multiplier decoder
+                                                  bypass > */
+    u8 rx_synth_cfg1__synth_freq_mult_hi[1]; /**< Frequency multiplier MSBits in
+                                                bypass mode > */
+    u16 rx_synth_cfg1__synth_freq_mult[1];   /**< Frequency multiplier cfg > */
     u8  fb_step_param_used[1];
     u8  rx_synth_cfg0__synth_fb_step[2];
     u8  i2_step_param_used[1];
     u8  rx_synth_cfg0__synth_i2_step[2];
 
-    u8  rx_synth_cfg0__synth_hrate_ena[10];
-    u8  rx_synth_cfg0__synth_i2_ena[1];  
-    u8  rx_synth_cfg0__synth_conv_ena[1];
-    u8  rx_synth_sync_ctrl__synth_sc_sync[1];
+    u8 rx_synth_cfg0__synth_hrate_ena[10];
+    u8 rx_synth_cfg0__synth_i2_ena[1];
+    u8 rx_synth_cfg0__synth_conv_ena[1];
+    u8 rx_synth_sync_ctrl__synth_sc_sync[1];
 
-    u8  rx_synth_cfg2__synth_phase_data[1];
-    u8  rx_synth_cfg2__synth_cpmd_dig_ena[1];
-    u8  rx_synth_cfg0__synth_p_step[1];
-    u8  rx_synth_cfg0__synth_i1_step[1];
+    u8 rx_synth_cfg2__synth_phase_data[1];
+    u8 rx_synth_cfg2__synth_cpmd_dig_ena[1];
+    u8 rx_synth_cfg0__synth_p_step[1];
+    u8 rx_synth_cfg0__synth_i1_step[1];
 
-    u8  rx_synth_cfg2__synth_dv_ctrl_i1e[1];
-    u8  rx_synth_cfg2__synth_dv_ctrl_i1m[1];
+    u8 rx_synth_cfg2__synth_dv_ctrl_i1e[1];
+    u8 rx_synth_cfg2__synth_dv_ctrl_i1m[1];
 
     u8  rx_synth_cdrlf__synth_integ3_ena[1];
     u32 rx_synth_cdrlf[1];
@@ -384,66 +415,66 @@ typedef struct {
     u8  rx_synth_cdrlf__synth_integ2_fsel[1];
 
     /* Configure IB                                                         */
-    u8  ib_cfg0__ib_rib_adj[1];
+    u8 ib_cfg0__ib_rib_adj[1];
     // u8  ib_cfg0__ib_eqz_ena[1];
     // u8  ib_cfg0__ib_dfe_ena[1];
     // u8  ib_cfg0__ib_ld_ena[1];
     // u8  ib_cfg0__ib_ia_ena[1];
-    u8  ib_cfg0__ib_ia_sdet_ena[1];
+    u8 ib_cfg0__ib_ia_sdet_ena[1];
 
-    u8  ib_cfg3__ib_eq_ld1_offset[1];
-    u8  ib_cfg3__ib_ldsd_divsel[1];
-    u8  ib_cfg3__ib_ia_sdet_level[1];
-    u8  ib_cfg3__ib_sdet_sel[1];
+    u8 ib_cfg3__ib_eq_ld1_offset[1];
+    u8 ib_cfg3__ib_ldsd_divsel[1];
+    u8 ib_cfg3__ib_ia_sdet_level[1];
+    u8 ib_cfg3__ib_sdet_sel[1];
 
-    u8  ib_cfg5__ib_offs_value[1];
-    u8  ib_cfg5__ib_calmux_ena[1];
+    u8 ib_cfg5__ib_offs_value[1];
+    u8 ib_cfg5__ib_calmux_ena[1];
 
-    u8  ib_cfg6__ib_sam_offs_adj[1];
-    u8  ib_cfg6__ib_auto_agc_adj[1];
+    u8 ib_cfg6__ib_sam_offs_adj[1];
+    u8 ib_cfg6__ib_auto_agc_adj[1];
 
-    u8  ib_cfg7__ib_dfe_gain_adj_s[1];
-    u8  ib_cfg7__ib_dfe_gain_adj[1];
-    u8  ib_cfg7__ib_dfe_offset_h[1];
+    u8 ib_cfg7__ib_dfe_gain_adj_s[1];
+    u8 ib_cfg7__ib_dfe_gain_adj[1];
+    u8 ib_cfg7__ib_dfe_offset_h[1];
 
-    u8  skip_cal[1];
+    u8 skip_cal[1];
 
-    u8  ib_cfg8__ib_lat_neutral[2];
+    u8 ib_cfg8__ib_lat_neutral[2];
 
-    u8  ib_cfg4__ib_eqz_c_adj_ib[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es0[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es1[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es2[1];
-    u8  ib_cfg4__ib_eqz_c_mode[1];
-    u8  ib_cfg4__ib_eqz_l_mode[1]; 
-    u8  ib_cfg4__ib_vscope_h_thres[1];
-    u8  ib_cfg4__ib_vscope_l_thres[1];
-    u8  ib_cfg4__ib_main_thres[1];
+    u8 ib_cfg4__ib_eqz_c_adj_ib[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es0[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es1[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es2[1];
+    u8 ib_cfg4__ib_eqz_c_mode[1];
+    u8 ib_cfg4__ib_eqz_l_mode[1];
+    u8 ib_cfg4__ib_vscope_h_thres[1];
+    u8 ib_cfg4__ib_vscope_l_thres[1];
+    u8 ib_cfg4__ib_main_thres[1];
 
-    u8  ib_cfg3__ib_set_sdet[1];
-    u8  ib_cfg0__ib_sig_sel[1]; 
-    u8  ib_cfg10__ib_loop_drv[1];   
-    u8  ib_cfg10__ib_loop_rec[1]; 
-    u8  ib_cfg11__ib_ena_400_inp[1]; 
-    u8  ib_cfg11__ib_tc_dfe[1];
-    u8  ib_cfg11__ib_tc_eq[1];
+    u8 ib_cfg3__ib_set_sdet[1];
+    u8 ib_cfg0__ib_sig_sel[1];
+    u8 ib_cfg10__ib_loop_drv[1];
+    u8 ib_cfg10__ib_loop_rec[1];
+    u8 ib_cfg11__ib_ena_400_inp[1];
+    u8 ib_cfg11__ib_tc_dfe[1];
+    u8 ib_cfg11__ib_tc_eq[1];
 
     /* Configure DES                                                        */
-    u8  moebdiv_cfg0__moebdiv_bw_cdr_sel_a[1];
-    u8  moebdiv_cfg0__moebdiv_bw_cdr_sel_b[1];
-    u8  moebdiv_cfg0__moebdiv_cpmd_swap[1];
-    u8  moebdiv_cfg0__moebdiv_dis[1];
+    u8 moebdiv_cfg0__moebdiv_bw_cdr_sel_a[1];
+    u8 moebdiv_cfg0__moebdiv_bw_cdr_sel_b[1];
+    u8 moebdiv_cfg0__moebdiv_cpmd_swap[1];
+    u8 moebdiv_cfg0__moebdiv_dis[1];
     // u8  des_cfg0__des_if_mode_sel[1];
-    u8  des_cfg0__des_inv_m[1];
-    u8  des_cfg0__des_inv_h[1];
-    u8  des_cfg0__des_inv_l[1];
+    u8 des_cfg0__des_inv_m[1];
+    u8 des_cfg0__des_inv_h[1];
+    u8 des_cfg0__des_inv_l[1];
 
     /* Configure RX-RCPLL                                                   */
-    u8  is_new_rcpll[1];
-    u8  rx_rcpll_cfg2__pll_vco_cur[1];
-    u8  rx_rcpll_cfg2__pll_vreg18[1];
-    u8  rx_rcpll_cfg2__pll_lpf_cur[1];
-    u8  rx_rcpll_cfg2__pll_lpf_res[1];
+    u8 is_new_rcpll[1];
+    u8 rx_rcpll_cfg2__pll_vco_cur[1];
+    u8 rx_rcpll_cfg2__pll_vreg18[1];
+    u8 rx_rcpll_cfg2__pll_lpf_cur[1];
+    u8 rx_rcpll_cfg2__pll_lpf_res[1];
 
     u16 rx_rcpll_cfg0__pllf_start_cnt[1];
     u8  rx_rcpll_cfg0__pllf_syn_clk_ena[1];
@@ -456,19 +487,20 @@ typedef struct {
 
 } vtss_sd10g65_setup_rx_struct_t;
 
-
 /** \brief Parameters needed for setup_f2df function */
 typedef struct {
-    vtss_chip_name_t      chip_name;   /**< Name of the vitesse chip >                                 */
-    vtss_sd10g65_f_pll_t  f_in;       /**< targeted sample frequency / data rate >                    */
-    BOOL                  no_pwrcycle; /**< Omit initial power-cycle >                                 */
-    u8                    i1_fsel;     /**< Set synth_i1_fsel, (default: 10) > */
-    u8                    i1_lim;      /**< Set synth_i1_lim,  (default: 10) > */
-    u8                    i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of SD10G65_RX setting (default: 35) > */
-    BOOL                  inp_loop;    /**< Enable input loop (bidi-loop to TXD output pad) >           */
-    BOOL                  pad_loop;    /**< Enable pad loop (core via OB to bidi-loop) >                */
-    BOOL                  cmos_loop;   /**< Enable cmos loop (bidi-loop cmos input from core into IB) > */
-    BOOL                  invert;
+    vtss_chip_name_t     chip_name; /**< Name of the vitesse chip > */
+    vtss_sd10g65_f_pll_t f_in; /**< targeted sample frequency / data rate > */
+    BOOL                 no_pwrcycle; /**< Omit initial power-cycle > */
+    u8                   i1_fsel;     /**< Set synth_i1_fsel, (default: 10) > */
+    u8                   i1_lim;      /**< Set synth_i1_lim,  (default: 10) > */
+    u8 i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of
+                       SD10G65_RX setting (default: 35) > */
+    BOOL inp_loop;  /**< Enable input loop (bidi-loop to TXD output pad) >  */
+    BOOL pad_loop;  /**< Enable pad loop (core via OB to bidi-loop) >  */
+    BOOL cmos_loop; /**< Enable cmos loop (bidi-loop cmos input from core into
+                       IB) > */
+    BOOL invert;
 } vtss_sd10g65_setup_f2df_args_t;
 
 /** \brief return values of setup_f2df function */
@@ -482,66 +514,70 @@ typedef struct {
     u32 f_pll_ratio_num[1];
     u32 f_pll_ratio_den[1];
     /* Initial power down-cycle (required for RCPLL ramp-up in some chips)  */
-    u8  pwrcycle[1];
-    u8  rx_synth_cfg0__synth_ena[10];
-    u8  rx_rcpll_cfg2__pll_ena[2];
-    u8  ib_cfg8__ib_bias_mode[2];
-    u8  ib_cfg0__ib_dfe_ena[3];
-    u8  ib_cfg0__ib_ia_ena[2];
-    u8  ib_cfg0__ib_ld_ena[2];
-    u8  ib_cfg0__ib_clkdiv_ena[2];
-    u8  ib_cfg0__ib_eqz_ena[2];
-    u8  ib_cfg0__ib_sam_ena[2];
+    u8 pwrcycle[1];
+    u8 rx_synth_cfg0__synth_ena[10];
+    u8 rx_rcpll_cfg2__pll_ena[2];
+    u8 ib_cfg8__ib_bias_mode[2];
+    u8 ib_cfg0__ib_dfe_ena[3];
+    u8 ib_cfg0__ib_ia_ena[2];
+    u8 ib_cfg0__ib_ld_ena[2];
+    u8 ib_cfg0__ib_clkdiv_ena[2];
+    u8 ib_cfg0__ib_eqz_ena[2];
+    u8 ib_cfg0__ib_sam_ena[2];
     /* Configure SBUS                                                       */
-    u8  sbus_special_handling[1];
-    u8  sbus_rx_cfg__sbus_loopdrv_ena[1];
-    u8  sbus_rx_cfg__sbus_spare_pool[1];
-    u8  sbus_rx_cfg__sbus_bias_en[1];
-    u8  sbus_rx_cfg__sbus_bias_speed_sel[1];
+    u8 sbus_special_handling[1];
+    u8 sbus_rx_cfg__sbus_loopdrv_ena[1];
+    u8 sbus_rx_cfg__sbus_spare_pool[1];
+    u8 sbus_rx_cfg__sbus_bias_en[1];
+    u8 sbus_rx_cfg__sbus_bias_speed_sel[1];
 
     /* Enable various bias circuits (SYNTH, PLL, IB)                        */
     // u8  rx_rcpll_cfg2__pll_ena[1];
     // u8  rx_synth_cfg0__synth_ena[1];
-    u8  rx_synth_cfg2__synth_aux_ena[1];
+    u8 rx_synth_cfg2__synth_aux_ena[1];
     // u8  ib_cfg0__ib_clkdiv_ena[1];
-    u8  ib_cfg0__ib_vbulk_sel[1];
+    u8 ib_cfg0__ib_vbulk_sel[1];
     // u8  ib_cfg0__ib_sam_ena[1];
     // u8  ib_cfg8__ib_bias_mode[1];
-    u8  ib_cfg8__ib_cml_curr[1];
-    u8  ib_cfg8__ib_bias_adj[1];
-    u8  chip_needs_hrate_toggle[1];
+    u8 ib_cfg8__ib_cml_curr[1];
+    u8 ib_cfg8__ib_bias_adj[1];
+    u8 chip_needs_hrate_toggle[1];
     /* Some register accesses to help the RCPLL come out of reset           */
-    u8  des_cfg0__des_if_mode_sel[4];
-    u8  des_cfg0__des_dis[2];
+    u8 des_cfg0__des_if_mode_sel[4];
+    u8 des_cfg0__des_dis[2];
 
     /* Configure RX-SYNTHESIZER                                             */
-    u8  rx_synth_cfg0__synth_spare_pool[1];
-    u8  rx_synth_cfg0__synth_off_comp_ena[1];
+    u8 rx_synth_cfg0__synth_spare_pool[1];
+    u8 rx_synth_cfg0__synth_off_comp_ena[1];
 
-    u8  rx_synth_cfg0__synth_speed_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL >    */
-    u8  rx_synth_cfg0__synth_fbdiv_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
-    u32 rx_synth_cfg3__synth_freqm_0[1];     /**< LSBs of SYNTH_FREQ_M >    */
-    u32 rx_synth_cfg4__synth_freqn_0[1];     /**< LSBs of SYNTH_FREQ_N >    */
-    u8  rx_synth_cfg1__synth_freqm_1[1];     /**< MSBs of SYNTH_FREQ_M >    */
-    u8  rx_synth_cfg1__synth_freqn_1[1];     /**< MSBs of SYNTH_FREQ_N >    */
-    u8  rx_synth_cfg1__synth_freq_mult_byp[1];     /**< Frequency multiplier decoder bypass > */
-    u8  rx_synth_cfg1__synth_freq_mult_hi[1];      /**< Frequency multiplier MSBits in bypass mode > */
-    u16 rx_synth_cfg1__synth_freq_mult[1];         /**< Frequency multiplier cfg > */
+    u8 rx_synth_cfg0__synth_speed_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_SPEED_SEL >    */
+    u8 rx_synth_cfg0__synth_fbdiv_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
+    u32 rx_synth_cfg3__synth_freqm_0[1];       /**< LSBs of SYNTH_FREQ_M >    */
+    u32 rx_synth_cfg4__synth_freqn_0[1];       /**< LSBs of SYNTH_FREQ_N >    */
+    u8  rx_synth_cfg1__synth_freqm_1[1];       /**< MSBs of SYNTH_FREQ_M >    */
+    u8  rx_synth_cfg1__synth_freqn_1[1];       /**< MSBs of SYNTH_FREQ_N >    */
+    u8  rx_synth_cfg1__synth_freq_mult_byp[1]; /**< Frequency multiplier decoder
+                                                  bypass > */
+    u8 rx_synth_cfg1__synth_freq_mult_hi[1]; /**< Frequency multiplier MSBits in
+                                                bypass mode > */
+    u16 rx_synth_cfg1__synth_freq_mult[1];   /**< Frequency multiplier cfg > */
     u8  rx_synth_cfg0__synth_fb_step[1];
     u8  rx_synth_cfg0__synth_i2_step[1];
 
-    u8  rx_synth_cfg0__synth_hrate_ena[10];
-    u8  rx_synth_cfg0__synth_i2_ena[1];  
-    u8  rx_synth_cfg0__synth_conv_ena[1];
-    u8  rx_synth_sync_ctrl__synth_sc_sync[1];
+    u8 rx_synth_cfg0__synth_hrate_ena[10];
+    u8 rx_synth_cfg0__synth_i2_ena[1];
+    u8 rx_synth_cfg0__synth_conv_ena[1];
+    u8 rx_synth_sync_ctrl__synth_sc_sync[1];
 
-    u8  rx_synth_cfg2__synth_phase_data[1];
-    u8  rx_synth_cfg2__synth_cpmd_dig_ena[1];
-    u8  rx_synth_cfg0__synth_p_step[1];
-    u8  rx_synth_cfg0__synth_i1_step[1];
+    u8 rx_synth_cfg2__synth_phase_data[1];
+    u8 rx_synth_cfg2__synth_cpmd_dig_ena[1];
+    u8 rx_synth_cfg0__synth_p_step[1];
+    u8 rx_synth_cfg0__synth_i1_step[1];
 
-    u8  rx_synth_cfg2__synth_dv_ctrl_i1e[2];
-    u8  rx_synth_cfg2__synth_dv_ctrl_i1m[2];
+    u8 rx_synth_cfg2__synth_dv_ctrl_i1e[2];
+    u8 rx_synth_cfg2__synth_dv_ctrl_i1m[2];
 
     u8  rx_synth_cdrlf__synth_integ3_ena[2];
     u32 rx_synth_cdrlf[2];
@@ -552,66 +588,66 @@ typedef struct {
     u8  rx_synth_cdrlf__synth_integ2_fsel[2];
 
     /* Configure IB                                                         */
-    u8  ib_cfg0__ib_rib_adj[1];
+    u8 ib_cfg0__ib_rib_adj[1];
     // u8  ib_cfg0__ib_eqz_ena[1];
     // u8  ib_cfg0__ib_dfe_ena[1];
     // u8  ib_cfg0__ib_ld_ena[1];
     // u8  ib_cfg0__ib_ia_ena[1];
-    u8  ib_cfg0__ib_ia_sdet_ena[1];
+    u8 ib_cfg0__ib_ia_sdet_ena[1];
 
-    u8  ib_cfg3__ib_eq_ld1_offset[1];
-    u8  ib_cfg3__ib_ldsd_divsel[1];
-    u8  ib_cfg3__ib_ia_sdet_level[2];
-    u8  ib_cfg3__ib_sdet_sel[2];
+    u8 ib_cfg3__ib_eq_ld1_offset[1];
+    u8 ib_cfg3__ib_ldsd_divsel[1];
+    u8 ib_cfg3__ib_ia_sdet_level[2];
+    u8 ib_cfg3__ib_sdet_sel[2];
 
-    u8  ib_cfg5__ib_offs_value[2];
-    u8  ib_cfg5__ib_calmux_ena[1];
+    u8 ib_cfg5__ib_offs_value[2];
+    u8 ib_cfg5__ib_calmux_ena[1];
 
-    u8  ib_cfg6__ib_sam_offs_adj[1];
-    u8  ib_cfg6__ib_auto_agc_adj[1];
+    u8 ib_cfg6__ib_sam_offs_adj[1];
+    u8 ib_cfg6__ib_auto_agc_adj[1];
 
-    u8  ib_cfg7__ib_dfe_gain_adj_s[1];
-    u8  ib_cfg7__ib_dfe_gain_adj[1];
-    u8  ib_cfg7__ib_dfe_offset_h[1];
+    u8 ib_cfg7__ib_dfe_gain_adj_s[1];
+    u8 ib_cfg7__ib_dfe_gain_adj[1];
+    u8 ib_cfg7__ib_dfe_offset_h[1];
 
-    u8  skip_cal[1];
+    u8 skip_cal[1];
 
-    u8  ib_cfg8__ib_lat_neutral[2];
+    u8 ib_cfg8__ib_lat_neutral[2];
 
-    u8  ib_cfg4__ib_eqz_c_adj_ib[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es0[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es1[1];
-    u8  ib_cfg4__ib_eqz_c_adj_es2[1];
-    u8  ib_cfg4__ib_eqz_c_mode[1];
-    u8  ib_cfg4__ib_eqz_l_mode[1]; 
-    u8  ib_cfg4__ib_vscope_h_thres[1];
-    u8  ib_cfg4__ib_vscope_l_thres[1];
-    u8  ib_cfg4__ib_main_thres[1];
+    u8 ib_cfg4__ib_eqz_c_adj_ib[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es0[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es1[1];
+    u8 ib_cfg4__ib_eqz_c_adj_es2[1];
+    u8 ib_cfg4__ib_eqz_c_mode[1];
+    u8 ib_cfg4__ib_eqz_l_mode[1];
+    u8 ib_cfg4__ib_vscope_h_thres[1];
+    u8 ib_cfg4__ib_vscope_l_thres[1];
+    u8 ib_cfg4__ib_main_thres[1];
 
-    u8  ib_cfg3__ib_set_sdet[1];
-    u8  ib_cfg0__ib_sig_sel[1]; 
-    u8  ib_cfg10__ib_loop_drv[1];   
-    u8  ib_cfg10__ib_loop_rec[1]; 
-    u8  ib_cfg11__ib_ena_400_inp[1]; 
-    u8  ib_cfg11__ib_tc_dfe[1];
-    u8  ib_cfg11__ib_tc_eq[1];
+    u8 ib_cfg3__ib_set_sdet[1];
+    u8 ib_cfg0__ib_sig_sel[1];
+    u8 ib_cfg10__ib_loop_drv[1];
+    u8 ib_cfg10__ib_loop_rec[1];
+    u8 ib_cfg11__ib_ena_400_inp[1];
+    u8 ib_cfg11__ib_tc_dfe[1];
+    u8 ib_cfg11__ib_tc_eq[1];
 
     /* Configure DES                                                        */
-    u8  moebdiv_cfg0__moebdiv_bw_cdr_sel_a[1];
-    u8  moebdiv_cfg0__moebdiv_bw_cdr_sel_b[1];
-    u8  moebdiv_cfg0__moebdiv_cpmd_swap[1];
-    u8  des_cfg0__des_inv_m[1];
-    u8  des_cfg0__des_inv_h[1];
-    u8  des_cfg0__des_inv_l[1];
-    u8  moebdiv_cfg0__moebdiv_dis[1];
+    u8 moebdiv_cfg0__moebdiv_bw_cdr_sel_a[1];
+    u8 moebdiv_cfg0__moebdiv_bw_cdr_sel_b[1];
+    u8 moebdiv_cfg0__moebdiv_cpmd_swap[1];
+    u8 des_cfg0__des_inv_m[1];
+    u8 des_cfg0__des_inv_h[1];
+    u8 des_cfg0__des_inv_l[1];
+    u8 moebdiv_cfg0__moebdiv_dis[1];
     // u8  des_cfg0__des_if_mode_sel[1];
 
     /* Configure RX-RCPLL                                                   */
-    u8  is_new_rcpll[1];
-    u8  rx_rcpll_cfg2__pll_vco_cur[1];
-    u8  rx_rcpll_cfg2__pll_vreg18[1];
-    u8  rx_rcpll_cfg2__pll_lpf_cur[1];
-    u8  rx_rcpll_cfg2__pll_lpf_res[1];
+    u8 is_new_rcpll[1];
+    u8 rx_rcpll_cfg2__pll_vco_cur[1];
+    u8 rx_rcpll_cfg2__pll_vreg18[1];
+    u8 rx_rcpll_cfg2__pll_lpf_cur[1];
+    u8 rx_rcpll_cfg2__pll_lpf_res[1];
 
     u16 rx_rcpll_cfg0__pllf_start_cnt[1];
     u8  rx_rcpll_cfg0__pllf_syn_clk_ena[1];
@@ -621,7 +657,6 @@ typedef struct {
 
     u16 rx_rcpll_cfg1__pllf_ref_cnt_end[1];
     u8  rx_rcpll_cfg0__pllf_oor_recal_ena[2];
-
 
     /* Perform setup_f2df config */
 
@@ -639,15 +674,15 @@ typedef struct {
     u8  ib_cfg9__ib_dfe_coef1[1];
 
     /* Setup the Signal Detect logic */
-    //u8  ib_cfg3__ib_sdet_sel[1];
+    // u8  ib_cfg3__ib_sdet_sel[1];
     /* Configure Signal detect clock divider */
-    u8  ib_cfg3__ib_sdet_clk_div[1]; 
-    //u8  ib_cfg3__ib_ia_sdet_level[1];
+    u8 ib_cfg3__ib_sdet_clk_div[1];
+    // u8  ib_cfg3__ib_ia_sdet_level[1];
     /* Manually calibrate the IB */
     // u8  ib_cfg5__ib_offs_value[1];
-    u8  ib_cfg5__ib_offs_blksel[4];    
-    u8  ib_cfg5__ib_ia_offs_cal_ena[2];
-    u8  rx_synth_cfg2__synth_dv_ctrl_i2e[1];
+    u8 ib_cfg5__ib_offs_blksel[4];
+    u8 ib_cfg5__ib_ia_offs_cal_ena[2];
+    u8 rx_synth_cfg2__synth_dv_ctrl_i2e[1];
     // u8  rx_synth_cfg2__synth_dv_ctrl_i1m[1];
     // u8  rx_synth_cfg2__synth_dv_ctrl_i1e[1];
     // u8  rx_synth_cdrlf__synth_integ3_ena[1];
@@ -673,18 +708,20 @@ typedef struct {
 
 /** \brief Parameters needed for setup_df2f function */
 typedef struct {
-    vtss_chip_name_t     chip_name;   /**< Name of the vitesse chip >                                                              */
-    vtss_sd10g65_f_pll_t f_out;       /**< Set frequency of output clock signal >                                                  */
-    BOOL                 use_par_clk; /**< Provide the geneated clock on the parallel interface towards the core rather then on the HS I/O */ 
-    BOOL                 no_pwrcycle; /**< Omit initial power-cycle >                                                              */
-    BOOL                 ls_ena;      /**< Set synth_ls_ena for lane synchronization >                                             */
-    u8                   i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of SD10G65_RX setting (default: 35) > */
-    BOOL                 inp_loop;    /**< Enable input loop (bidi-loop to TXD output pad) >                                       */
-    BOOL                 pad_loop;    /**< Enable pad loop (core via OB to bidi-loop) >                                            */
-    u8                   incr_levn;   /**< Set incr_levn to increase(0)/decrease(1) output level (default: 1) >                    */
-    u8                   ob_levn;     /**< Set output level to <val> (default: 7)                                                  */
+    vtss_chip_name_t     chip_name; /**< Name of the vitesse chip > */
+    vtss_sd10g65_f_pll_t f_out; /**< Set frequency of output clock signal > */
+    BOOL use_par_clk; /**< Provide the geneated clock on the parallel interface
+                         towards the core rather then on the HS I/O */
+    BOOL no_pwrcycle; /**< Omit initial power-cycle > */
+    BOOL ls_ena;      /**< Set synth_ls_ena for lane synchronization >      */
+    u8   i2_fsel;     /**< Set synth_i2_fsel, should be identical to i2_fsel of
+                         SD10G65_RX setting (default: 35) > */
+    BOOL inp_loop;  /**< Enable input loop (bidi-loop to TXD output pad) >    */
+    BOOL pad_loop;  /**< Enable pad loop (core via OB to bidi-loop) >    */
+    u8   incr_levn; /**< Set incr_levn to increase(0)/decrease(1) output level
+                       (default: 1) >                    */
+    u8 ob_levn;     /**< Set output level to <val> (default: 7)       */
 } vtss_sd10g65_setup_df2f_args_t;
-
 
 /** \brief return values of setup_df2f function */
 typedef struct {
@@ -705,23 +742,31 @@ typedef struct {
     u8  sbus_tx_cfg__sbus_bias_speed_sel[1];
     u8  sbus_rx_cfg__sbus_bias_en[1];
     u8  sbus_rx_cfg__sbus_bias_speed_sel[1];
-  //u8  ob_cfg0__en_ob[1];
-  //u8  tx_rcpll_cfg2__pll_ena[1];
-  //u8  tx_synth_cfg0__synth_ena[1];
-    u8  tx_synth_cfg0__synth_spare_pool[1];
-    u8  tx_synth_cfg0__synth_off_comp_ena[1];
-    u8  hr_mode[1];
-    u8  tx_synth_cfg0__synth_speed_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_SPEED_SEL >    */
-    u8  tx_synth_cfg0__synth_fbdiv_sel[1];   /**< configuration value for SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
-    u32 tx_synth_cfg3__synth_freqm_0[1];     /**< LSBs of SYNTH_FREQ_M >    */
-    u32 tx_synth_cfg4__synth_freqn_0[1];     /**< LSBs of SYNTH_FREQ_N >    */
-    u8  tx_synth_cfg1__synth_freqm_1[1];     /**< MSBs of SYNTH_FREQ_M >    */
-    u8  tx_synth_cfg1__synth_freqn_1[1];     /**< MSBs of SYNTH_FREQ_N >    */
-    u8  tx_synth_cfg1__synth_freq_mult_byp[1];     /**< Frequency multiplier decoder bypass > */
-    u8  tx_synth_cfg1__synth_freq_mult_hi[1];      /**< Frequency multiplier MSBits in bypass mode > */
-    u16 tx_synth_cfg1__synth_freq_mult[1];         /**< Frequency multiplier cfg > */
-    u8  tx_synth_cfg0__synth_ls_speed[1];    /**< Lane sync speed. Only used when setting up the synthesizer for a TX macro > */
-    u8  tx_synth_cfg0__synth_cs_speed[1];    /**< Common sync speed. Only used when setting up the synthesizer for a TX macro > */
+    // u8  ob_cfg0__en_ob[1];
+    // u8  tx_rcpll_cfg2__pll_ena[1];
+    // u8  tx_synth_cfg0__synth_ena[1];
+    u8 tx_synth_cfg0__synth_spare_pool[1];
+    u8 tx_synth_cfg0__synth_off_comp_ena[1];
+    u8 hr_mode[1];
+    u8 tx_synth_cfg0__synth_speed_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_SPEED_SEL >    */
+    u8 tx_synth_cfg0__synth_fbdiv_sel[1];      /**< configuration value for
+                                                  SYNTH_CFG0.SYNTH_FBDIV_SEL >    */
+    u32 tx_synth_cfg3__synth_freqm_0[1];       /**< LSBs of SYNTH_FREQ_M >    */
+    u32 tx_synth_cfg4__synth_freqn_0[1];       /**< LSBs of SYNTH_FREQ_N >    */
+    u8  tx_synth_cfg1__synth_freqm_1[1];       /**< MSBs of SYNTH_FREQ_M >    */
+    u8  tx_synth_cfg1__synth_freqn_1[1];       /**< MSBs of SYNTH_FREQ_N >    */
+    u8  tx_synth_cfg1__synth_freq_mult_byp[1]; /**< Frequency multiplier decoder
+                                                  bypass > */
+    u8 tx_synth_cfg1__synth_freq_mult_hi[1]; /**< Frequency multiplier MSBits in
+                                                bypass mode > */
+    u16 tx_synth_cfg1__synth_freq_mult[1];   /**< Frequency multiplier cfg > */
+    u8  tx_synth_cfg0__synth_ls_speed[1]; /**< Lane sync speed. Only used when
+                                             setting up the synthesizer for a TX
+                                             macro > */
+    u8 tx_synth_cfg0__synth_cs_speed[1];  /**< Common sync speed. Only used when
+                                             setting up the synthesizer for a TX
+                                             macro > */
     u8  chip_needs_hrate_toggle[1];
     u8  tx_synth_cfg0__synth_hrate_ena[10];
     u8  tx_synth_cfg0__synth_ena_sync_unit[1];
@@ -744,11 +789,11 @@ typedef struct {
     u8  ob_cfg1__predrv_c_ctrl[1];
     u32 ob_cfg2__d_filter[1];
 
-    u8  is_new_rcpll[1];
-    u8  tx_rcpll_cfg2__pll_vco_cur[1];
-    u8  tx_rcpll_cfg2__pll_vreg18[1];
-    u8  tx_rcpll_cfg2__pll_lpf_cur[1];
-    u8  tx_rcpll_cfg2__pll_lpf_res[1];
+    u8 is_new_rcpll[1];
+    u8 tx_rcpll_cfg2__pll_vco_cur[1];
+    u8 tx_rcpll_cfg2__pll_vreg18[1];
+    u8 tx_rcpll_cfg2__pll_lpf_cur[1];
+    u8 tx_rcpll_cfg2__pll_lpf_res[1];
 
     u16 tx_rcpll_cfg0__pllf_start_cnt[1];
     u8  tx_rcpll_cfg0__pllf_syn_clk_ena[1];
@@ -779,34 +824,40 @@ typedef struct {
     u8  dft_tx_pat_cfg__max_addr_gen_cfg[2];
     u8  interface_width[1];
 
-
 } vtss_sd10g65_setup_df2f_struct_t;
-
 
 /* ================================================================= *
  *  Function prototypes
  * ================================================================= */
 
-vtss_rc vtss_sd10g65_get_f_pll_from_f_mode(vtss_f_mode_t  f_mode,
+vtss_rc vtss_sd10g65_get_f_pll_from_f_mode(vtss_f_mode_t               f_mode,
                                            vtss_sd10g65_f_pll_t *const ret_val);
 
 vtss_rc vtss_sd10g65_pwr_down(vtss_sd10g65_pwr_down_t *const ret_val);
 
-vtss_rc vtss_sd10g65_setup_tx_args_init(vtss_sd10g65_setup_tx_args_t     *const init_val);
-vtss_rc vtss_sd10g65_setup_rx_args_init(vtss_sd10g65_setup_rx_args_t     *const init_val);
-vtss_rc vtss_sd10g65_setup_f2df_args_init(vtss_sd10g65_setup_f2df_args_t *const init_val);
-vtss_rc vtss_sd10g65_setup_df2f_args_init(vtss_sd10g65_setup_df2f_args_t *const init_val);
+vtss_rc vtss_sd10g65_setup_tx_args_init(vtss_sd10g65_setup_tx_args_t
+                                            *const init_val);
+vtss_rc vtss_sd10g65_setup_rx_args_init(vtss_sd10g65_setup_rx_args_t
+                                            *const init_val);
+vtss_rc vtss_sd10g65_setup_f2df_args_init(vtss_sd10g65_setup_f2df_args_t
+                                              *const init_val);
+vtss_rc vtss_sd10g65_setup_df2f_args_init(vtss_sd10g65_setup_df2f_args_t
+                                              *const init_val);
 
 vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
-                                    vtss_sd10g65_setup_tx_struct_t    *const ret_val);
+                                   vtss_sd10g65_setup_tx_struct_t
+                                       *const ret_val);
 
 vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
-                                   vtss_sd10g65_setup_rx_struct_t     *const ret_val );
+                                   vtss_sd10g65_setup_rx_struct_t
+                                       *const ret_val);
 
 vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config,
-                                     vtss_sd10g65_setup_f2df_struct_t     *const ret_val);
+                                     vtss_sd10g65_setup_f2df_struct_t
+                                         *const ret_val);
 
 vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config,
-                                     vtss_sd10g65_setup_df2f_struct_t    *const ret_val);
+                                     vtss_sd10g65_setup_df2f_struct_t
+                                         *const ret_val);
 
 #endif

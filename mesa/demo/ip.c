@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -24,30 +23,26 @@
 #include "trace.h"
 #include "cli.h"
 
-static mscc_appl_trace_module_t trace_module = {
-    .name = "ip"
-};
+static mscc_appl_trace_module_t trace_module = {.name = "ip"};
 
-enum {
-    TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
-};
+enum { TRACE_GROUP_DEFAULT, TRACE_GROUP_CNT };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
     // TRACE_GROUP_DEFAULT
-    {
-        .name = "default",
-        .level = MESA_TRACE_LEVEL_ERROR
-    },
+    {.name = "default", .level = MESA_TRACE_LEVEL_ERROR},
 };
 
 mesa_port_no_t ip_port = MESA_PORT_NO_NONE;
 
-#define SYS_CMD(cmd) { if (system(cmd) != 0) return MESA_RC_ERROR; }
+#define SYS_CMD(cmd)                                                           \
+    {                                                                          \
+        if (system(cmd) != 0)                                                  \
+            return MESA_RC_ERROR;                                              \
+    }
 
 static mesa_rc ip_interface_setup(char *create_name, char *name, int add)
 {
-    char buf[1024];
+    char    buf[1024];
     uint8_t mac[6];
 
     if (add) {
@@ -55,16 +50,20 @@ static mesa_rc ip_interface_setup(char *create_name, char *name, int add)
         get_mac_addr(mac);
 
         // Create interface
-        snprintf(buf, sizeof(buf), "ip link add %s address %02x:%02x:%02x:%02x:%02x:%02x type vtss_if_mux",
-                 create_name, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        snprintf(
+            buf, sizeof(buf),
+            "ip link add %s address %02x:%02x:%02x:%02x:%02x:%02x type vtss_if_mux",
+            create_name, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         SYS_CMD(buf);
 
         // Rename interface and set it up
-        snprintf(buf, sizeof(buf), "ip link set %s name %s up", create_name, name);
+        snprintf(buf, sizeof(buf), "ip link set %s name %s up", create_name,
+                 name);
         SYS_CMD(buf);
 
         // Set carrier up
-        snprintf(buf, sizeof(buf), "echo 1 > /sys/class/net/%s/carrier", create_name);
+        snprintf(buf, sizeof(buf), "echo 1 > /sys/class/net/%s/carrier",
+                 create_name);
         SYS_CMD(buf);
 
         // Set IFH interface up
@@ -114,10 +113,11 @@ void ip_mac_setup(mesa_vid_t vid, mesa_bool_t add)
 
 static void cli_cmd_ip_setup(cli_req_t *req, mesa_bool_t add)
 {
-    char                   name[16];
+    char name[16];
 
     if (ip_vid_enabled[req->vid] == add) {
-        cli_printf("IP is already %s on VID %u\n", add ? "enabled" : "disabled", req->vid);
+        cli_printf("IP is already %s on VID %u\n", add ? "enabled" : "disabled",
+                   req->vid);
         return;
     }
 
@@ -131,15 +131,9 @@ static void cli_cmd_ip_setup(cli_req_t *req, mesa_bool_t add)
     ip_mac_setup(req->vid, add);
 }
 
-static void cli_cmd_ip_add(cli_req_t *req)
-{
-    cli_cmd_ip_setup(req, 1);
-}
+static void cli_cmd_ip_add(cli_req_t *req) { cli_cmd_ip_setup(req, 1); }
 
-static void cli_cmd_ip_del(cli_req_t *req)
-{
-    cli_cmd_ip_setup(req, 0);
-}
+static void cli_cmd_ip_del(cli_req_t *req) { cli_cmd_ip_setup(req, 0); }
 
 static void cli_cmd_ip_status(cli_req_t *req)
 {
@@ -153,21 +147,9 @@ static void cli_cmd_ip_status(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {
-        "Interface IP Add <vid>",
-        "Add IP interface",
-        cli_cmd_ip_add
-    },
-    {
-        "Interface IP Delete <vid>",
-        "Delete IP interface",
-        cli_cmd_ip_del
-    },
-    {
-        "IP Status",
-        "Show IP management status",
-        cli_cmd_ip_status
-    },
+    {"Interface IP Add <vid>",    "Add IP interface",          cli_cmd_ip_add   },
+    {"Interface IP Delete <vid>", "Delete IP interface",       cli_cmd_ip_del   },
+    {"IP Status",                 "Show IP management status", cli_cmd_ip_status},
 };
 
 static void ip_cli_init(void)
@@ -175,7 +157,7 @@ static void ip_cli_init(void)
     int i;
 
     /* Register commands */
-    for (i = 0; i < sizeof(cli_cmd_table)/sizeof(cli_cmd_t); i++) {
+    for (i = 0; i < sizeof(cli_cmd_table) / sizeof(cli_cmd_t); i++) {
         mscc_appl_cli_cmd_reg(&cli_cmd_table[i]);
     }
 }
@@ -183,7 +165,7 @@ static void ip_cli_init(void)
 static mesa_rc ip_option(char *parm)
 {
     uint32_t uport;
-    char     *end;
+    char    *end;
 
     uport = strtoul(parm, &end, 0);
     if (*end != '\0' || uport == 0 || uport > mesa_port_cnt(NULL)) {
@@ -197,18 +179,15 @@ static mesa_rc ip_option(char *parm)
     return MESA_RC_OK;
 }
 
-static mscc_appl_opt_t ip_opt = {
-    "p:",
-    "<port>",
-    "Enable IP management port" ,
-    ip_option
-};
+static mscc_appl_opt_t ip_opt = {"p:", "<port>", "Enable IP management port",
+                                 ip_option};
 
-static int32_t chip_port_get(int32_t user_port) {
+static int32_t chip_port_get(int32_t user_port)
+{
     mesa_port_map_t *port_map;
-    int32_t port_cnt = mesa_port_cnt(NULL);
-    int32_t res = -1;
-    mesa_rc rc;
+    int32_t          port_cnt = mesa_port_cnt(NULL);
+    int32_t          res = -1;
+    mesa_rc          rc;
 
     port_map = calloc(port_cnt, sizeof(*port_map));
     if (!port_map) {
@@ -230,13 +209,14 @@ OUT:
 static mesa_rc ip_create_interface(void)
 {
     char create_name[32], name[32];
-    int chip_port = chip_port_get(ip_port);
+    int  chip_port = chip_port_get(ip_port);
 
     if (chip_port < 0) {
         return MESA_RC_ERROR;
     }
 
-    // Port interface is created using chip port number as this is used by the mux driver
+    // Port interface is created using chip port number as this is used by the
+    // mux driver
     sprintf(create_name, "vtss.port.%d", chip_port);
 
     // Port interface is then renamed based on CLI port number
@@ -245,7 +225,14 @@ static mesa_rc ip_create_interface(void)
     return ip_interface_setup(create_name, name, 1);
 }
 
-#define MESA_RC(expr) { mesa_rc _rc = (expr); if (_rc != MESA_RC_OK) { fprintf(stderr, "%s failed\n", #expr); return _rc; } }
+#define MESA_RC(expr)                                                          \
+    {                                                                          \
+        mesa_rc _rc = (expr);                                                  \
+        if (_rc != MESA_RC_OK) {                                               \
+            fprintf(stderr, "%s failed\n", #expr);                             \
+            return _rc;                                                        \
+        }                                                                      \
+    }
 
 static mesa_rc ip_init(mesa_bool_t warm)
 {
@@ -257,14 +244,15 @@ static mesa_rc ip_init(mesa_bool_t warm)
     if (ip_port == MESA_PORT_NO_NONE) {
         return MESA_RC_OK;
     }
-    
+
     // Exclude management port from default VLAN
     vid = MESA_VID_DEFAULT;
     MESA_RC(mesa_vlan_port_members_get(NULL, vid, &port_list));
     mesa_port_list_set(&port_list, ip_port, 0);
     MESA_RC(mesa_vlan_port_members_set(NULL, vid, &port_list));
 
-    // Redirect all frames from management port to the CPU using ACL default action
+    // Redirect all frames from management port to the CPU using ACL default
+    // action
     MESA_RC(mesa_acl_port_conf_get(NULL, ip_port, &conf));
     conf.action.cpu = 1;
     conf.action.port_action = MESA_ACL_PORT_ACTION_FILTER;
@@ -292,11 +280,8 @@ void mscc_appl_ip_init(mscc_appl_init_t *init)
         }
         break;
 
-    case MSCC_INIT_CMD_INIT_WARM:
-        ip_init(1);
-        break;
+    case MSCC_INIT_CMD_INIT_WARM: ip_init(1); break;
 
-    default:
-        break;
+    default: break;
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define _GNU_SOURCE
 #include <sys/signalfd.h>
 #include <sys/types.h>
@@ -19,22 +18,22 @@
 FILE *log_file;
 
 pid_t pid = -1;
-int wstatus = 0;
-int poll_timeout = 0;
-int child_running = 1;
-int pipe_stdin[2] = {-1, -1};
-int pipe_stdout[2] = {-1, -1};
-int pipe_stderr[2] = {-1, -1};
-int stdin_pipe = 1;
-int run_in_background = 0;
+int   wstatus = 0;
+int   poll_timeout = 0;
+int   child_running = 1;
+int   pipe_stdin[2] = {-1, -1};
+int   pipe_stdout[2] = {-1, -1};
+int   pipe_stderr[2] = {-1, -1};
+int   stdin_pipe = 1;
+int   run_in_background = 0;
 
 int lockfile = 0;
 #define LOCKFILE_PATH_SIZE 1024
-char lockfile_path[LOCKFILE_PATH_SIZE];
+char            lockfile_path[LOCKFILE_PATH_SIZE];
 struct timespec start_time;
 
-#define PREFIX_SIZE     40
-#define POSTFIX_SIZE    10
+#define PREFIX_SIZE   40
+#define POSTFIX_SIZE  10
 #define LINE_SIZE_MAX 100000
 #define BUF_SIZE      (204800)
 
@@ -49,19 +48,20 @@ struct fddata {
 
     struct timespec last_read_time;
 
-    char buf[BUF_SIZE];
+    char  buf[BUF_SIZE];
     char *data_begin, *data_end, *buf_begin, *buf_end;
 };
 
 struct str {
-    char *buf;
+    char  *buf;
     size_t buf_valid;
     size_t buf_size;
     size_t buf_free;
     size_t buf_alloc_step;
 };
 
-void fddata_init(struct fddata *fdd, int fd) {
+void fddata_init(struct fddata *fdd, int fd)
+{
     memset(fdd, 0, sizeof(*fdd));
     fdd->fd = fd;
     fdd->data_begin = &fdd->buf[0];
@@ -70,7 +70,8 @@ void fddata_init(struct fddata *fdd, int fd) {
     fdd->buf_end = &fdd->buf[BUF_SIZE];
 }
 
-int str_init(struct str *s, size_t alloc_size) {
+int str_init(struct str *s, size_t alloc_size)
+{
     memset(s, 0, sizeof(*s));
     s->buf_alloc_step = alloc_size;
     s->buf = malloc(s->buf_alloc_step);
@@ -84,16 +85,18 @@ int str_init(struct str *s, size_t alloc_size) {
     return 0;
 }
 
-void str_uninit(struct str *s) {
+void str_uninit(struct str *s)
+{
     if (s->buf)
         free(s->buf);
 
     memset(s, 0, sizeof(*s));
 }
 
-int str_pr_append(struct str *s, const char *fmt, ...) {
+int str_pr_append(struct str *s, const char *fmt, ...)
+{
     va_list ap;
-    int res;
+    int     res;
 
     while (1) {
         va_start(ap, fmt);
@@ -116,7 +119,8 @@ int str_pr_append(struct str *s, const char *fmt, ...) {
     return -1;
 }
 
-int str_write(int fd, struct str *s) {
+int str_write(int fd, struct str *s)
+{
     int res;
     int wr_cnt = 0;
 
@@ -131,7 +135,8 @@ int str_write(int fd, struct str *s) {
     return 0;
 }
 
-void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r) {
+void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r)
+{
     if ((b->tv_nsec - a->tv_nsec) < 0) {
         r->tv_sec = b->tv_sec - a->tv_sec - 1;
         r->tv_nsec = b->tv_nsec - a->tv_nsec + 1000000000;
@@ -143,10 +148,11 @@ void timespec_diff(struct timespec *a, struct timespec *b, struct timespec *r) {
     return;
 }
 
-const char *ts(char *buf, int size) {
+const char *ts(char *buf, int size)
+{
     struct timespec now;
     struct timespec rel;
-    int us, s, res;
+    int             us, s, res;
 
     res = clock_gettime(CLOCK_MONOTONIC, &now);
     if (res < 0) {
@@ -156,7 +162,7 @@ const char *ts(char *buf, int size) {
 
     timespec_diff(&start_time, &now, &rel);
 
-    s  = rel.tv_sec;
+    s = rel.tv_sec;
     if (rel.tv_nsec >= 999999500) {
         s++;
         us = 0;
@@ -170,25 +176,28 @@ const char *ts(char *buf, int size) {
     return buf;
 }
 
-int flock_fd = -1;
-void flock_enter() {
+int  flock_fd = -1;
+void flock_enter()
+{
     if (flock_fd == -1)
         return;
 
     flock(flock_fd, LOCK_EX);
 }
 
-void flock_exit() {
+void flock_exit()
+{
     if (flock_fd == -1)
         return;
 
     flock(flock_fd, LOCK_UN);
 }
 
-void pr(const char *msg, const char *fmt, ...) {
-    int i;
+void pr(const char *msg, const char *fmt, ...)
+{
+    int     i;
     va_list ap;
-    char ts_buf[32];
+    char    ts_buf[32];
 
     flock_enter();
 
@@ -196,7 +205,6 @@ void pr(const char *msg, const char *fmt, ...) {
 
     for (i = strlen(msg); i < 7; ++i)
         printf(" ");
-
 
     va_start(ap, fmt);
     vprintf(fmt, ap);
@@ -206,17 +214,13 @@ void pr(const char *msg, const char *fmt, ...) {
     flock_exit();
 }
 
+int report_error(const char *c) { return -1; }
 
-int report_error(const char *c) {
-    return -1;
-}
+int report_perror(const char *c) { return -1; }
 
-int report_perror(const char *c) {
-    return -1;
-}
-
-int child(int argc, char *const argv[], char *const envp[]) {
-    int i;
+int child(int argc, char *const argv[], char *const envp[])
+{
+    int      i;
     sigset_t mask;
 
     for (i = 0; i < 32; ++i)
@@ -236,7 +240,8 @@ int child(int argc, char *const argv[], char *const envp[]) {
     return execvpe(argv[0], argv, envp);
 }
 
-int select_fd(int *nfds, fd_set *fds, struct fddata *fdd) {
+int select_fd(int *nfds, fd_set *fds, struct fddata *fdd)
+{
     // File descriptor has been closed
     if (fdd->fd == -1)
         return 0;
@@ -249,8 +254,11 @@ int select_fd(int *nfds, fd_set *fds, struct fddata *fdd) {
     return 1;
 }
 
-int select_fd_rd(int *nfds, fd_set *fds, struct fddata *fdd,
-                 struct fddata *fdd_extra) {
+int select_fd_rd(int           *nfds,
+                 fd_set        *fds,
+                 struct fddata *fdd,
+                 struct fddata *fdd_extra)
+{
     // If it is a read, then we need to have some buffer space
     if (fdd->data_end == fdd->buf_end)
         return 0;
@@ -262,7 +270,8 @@ int select_fd_rd(int *nfds, fd_set *fds, struct fddata *fdd,
     return select_fd(nfds, fds, fdd);
 }
 
-int select_fd_wr(int *nfds, fd_set *fds, struct fddata *fdd) {
+int select_fd_wr(int *nfds, fd_set *fds, struct fddata *fdd)
+{
     // If it is a write, then we need some data to write
     if (fdd->data_begin == fdd->data_end)
         return 0;
@@ -270,7 +279,8 @@ int select_fd_wr(int *nfds, fd_set *fds, struct fddata *fdd) {
     return select_fd(nfds, fds, fdd);
 }
 
-int select_fd_sig(int *nfds, fd_set *fds, int fd) {
+int select_fd_sig(int *nfds, fd_set *fds, int fd)
+{
     if (!child_running)
         return 0;
 
@@ -282,7 +292,8 @@ int select_fd_sig(int *nfds, fd_set *fds, int fd) {
     return 1;
 }
 
-void check_fdd(struct fddata *fdd) {
+void check_fdd(struct fddata *fdd)
+{
     if (!fdd)
         return;
 
@@ -294,7 +305,8 @@ void check_fdd(struct fddata *fdd) {
     assert(fdd->data_end >= fdd->buf_begin);
 }
 
-void fddata_move_to_front(struct fddata *fdd) {
+void fddata_move_to_front(struct fddata *fdd)
+{
     check_fdd(fdd);
 
     if (fdd->data_begin == fdd->data_end) {
@@ -308,7 +320,8 @@ void fddata_move_to_front(struct fddata *fdd) {
     }
 }
 
-const char *find(const char *b, const char *e, char c) {
+const char *find(const char *b, const char *e, char c)
+{
     while (b != e) {
         if (*b == c)
             break;
@@ -319,8 +332,9 @@ const char *find(const char *b, const char *e, char c) {
     return b;
 }
 
-void copy_to_buffer(fd_set *fds, struct fddata *fdd, struct fddata *fdd_extra) {
-    size_t buf_free;
+void copy_to_buffer(fd_set *fds, struct fddata *fdd, struct fddata *fdd_extra)
+{
+    size_t  buf_free;
     ssize_t s;
 
     if (fdd->fd == -1)
@@ -355,9 +369,10 @@ void copy_to_buffer(fd_set *fds, struct fddata *fdd, struct fddata *fdd_extra) {
     }
 }
 
-int line_is_too_long(struct fddata *from, struct fddata *to) {
+int line_is_too_long(struct fddata *from, struct fddata *to)
+{
     const char *lb;
-    int rx_size;
+    int         rx_size;
 
     lb = find(from->data_begin, from->data_end, '\n');
 
@@ -367,7 +382,8 @@ int line_is_too_long(struct fddata *from, struct fddata *to) {
     return rx_size >= LINE_SIZE_MAX;
 }
 
-int line_timeout(struct fddata *from) {
+int line_timeout(struct fddata *from)
+{
     struct timespec now;
     struct timespec diff;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -377,15 +393,17 @@ int line_timeout(struct fddata *from) {
     return diff.tv_sec >= 1;
 }
 
-void copy_buf_to_buf(struct fddata *from, struct fddata *to,
-                     const char *prefix_msg) {
+void copy_buf_to_buf(struct fddata *from,
+                     struct fddata *to,
+                     const char    *prefix_msg)
+{
     const char *lb;
-    int i, copy_size, to_free_size, from_valid_size, tx_full;
-    int prefix_size, postfix_size, line_size, tx_size;
-    char prefix_buf[PREFIX_SIZE];
-    char postfix_buf[POSTFIX_SIZE];
-    char prefix_msg_buf[7];
-    char ts_buf[32];
+    int         i, copy_size, to_free_size, from_valid_size, tx_full;
+    int         prefix_size, postfix_size, line_size, tx_size;
+    char        prefix_buf[PREFIX_SIZE];
+    char        postfix_buf[POSTFIX_SIZE];
+    char        prefix_msg_buf[7];
+    char        ts_buf[32];
 
     check_fdd(from);
     check_fdd(to);
@@ -430,7 +448,6 @@ void copy_buf_to_buf(struct fddata *from, struct fddata *to,
             prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-T-%05d-%s-%s ",
                                    pid, ts(ts_buf, 32), prefix_msg_buf);
             copy_to_tx = 1;
-
         }
 
         if (!copy_to_tx) {
@@ -465,7 +482,8 @@ void copy_buf_to_buf(struct fddata *from, struct fddata *to,
 #undef PREFIX_BUF_SIZE
 }
 
-void copy_to_fd(fd_set *fds, struct fddata *fdd) {
+void copy_to_fd(fd_set *fds, struct fddata *fdd)
+{
     ssize_t s;
 
     if (fdd->fd == -1)
@@ -488,7 +506,8 @@ void copy_to_fd(fd_set *fds, struct fddata *fdd) {
     fddata_move_to_front(fdd);
 }
 
-void copy_to_term(fd_set *fds, struct fddata *fdd) {
+void copy_to_term(fd_set *fds, struct fddata *fdd)
+{
     ssize_t s;
 
     if (fdd->fd == -1) {
@@ -519,7 +538,8 @@ void copy_to_term(fd_set *fds, struct fddata *fdd) {
     fddata_move_to_front(fdd);
 }
 
-void handle_sigchld() {
+void handle_sigchld()
+{
     while (1) {
         pid_t p = waitpid(pid, &wstatus, WNOHANG);
         if (p == -1 || p == 0) {
@@ -530,8 +550,9 @@ void handle_sigchld() {
     }
 }
 
-void handle_signals(int fd) {
-    int s;
+void handle_signals(int fd)
+{
+    int                     s;
     struct signalfd_siginfo fdsi;
 
     while (1) {
@@ -549,7 +570,8 @@ void handle_signals(int fd) {
     }
 }
 
-int usage(int res) {
+int usage(int res)
+{
     printf("Usage: er [-l lock-file] [-sh] -- <program and options>\n");
     printf("\n");
     printf("Where:\n");
@@ -561,14 +583,15 @@ int usage(int res) {
     return res;
 }
 
-int main(int argc, char *const argv[], char *const envp[]) {
-    fd_set rd_fds, wr_fds;
+int main(int argc, char *const argv[], char *const envp[])
+{
+    fd_set        rd_fds, wr_fds;
     struct fddata rd_in, rd_in_echo, rd_out, rd_err;
     struct fddata wr_in, wr_out;
-    int i, cnt, res = 0, nfds = 0, sigfd, child_arg_split = -1, opt;
-    const char *msg;
-    sigset_t mask;
-    int msg_no;
+    int           i, cnt, res = 0, nfds = 0, sigfd, child_arg_split = -1, opt;
+    const char   *msg;
+    sigset_t      mask;
+    int           msg_no;
 
     int child_argc;
     int parent_argc;
@@ -594,26 +617,22 @@ int main(int argc, char *const argv[], char *const envp[]) {
 
     while ((opt = getopt(parent_argc, argv, "bl:sh")) != -1) {
         switch (opt) {
-            case 'b':
-                run_in_background = 1;
-                stdin_pipe = 0;
-                break;
+        case 'b':
+            run_in_background = 1;
+            stdin_pipe = 0;
+            break;
 
-            case 'l':
-                strncpy(lockfile_path, optarg, LOCKFILE_PATH_SIZE);
-                lockfile_path[LOCKFILE_PATH_SIZE - 1] = 0;
-                lockfile = 1;
-                break;
+        case 'l':
+            strncpy(lockfile_path, optarg, LOCKFILE_PATH_SIZE);
+            lockfile_path[LOCKFILE_PATH_SIZE - 1] = 0;
+            lockfile = 1;
+            break;
 
-            case 's':
-                stdin_pipe = 0;
-                break;
+        case 's': stdin_pipe = 0; break;
 
-            case 'h':
-                return usage(0);
+        case 'h': return usage(0);
 
-            default: /* '?' */
-                return usage(-1);
+        default: /* '?' */ return usage(-1);
         }
     }
 
@@ -621,19 +640,19 @@ int main(int argc, char *const argv[], char *const envp[]) {
         if (daemon(1, 1) < 0)
             return report_perror("Daemon failed");
 
-    //sigemptyset(&mask);
-    //sigaddset(&mask, SIGCHLD);
+    // sigemptyset(&mask);
+    // sigaddset(&mask, SIGCHLD);
 
     sigfillset(&mask);
     sigprocmask(SIG_BLOCK, &mask, NULL);
     sigfd = signalfd(-1, &mask, SFD_NONBLOCK);
 
     if (pipe(pipe_stdin) < 0)
-       return report_perror("Pipe stdin failed");
+        return report_perror("Pipe stdin failed");
     if (pipe(pipe_stdout) < 0)
-       return report_perror("Pipe stdout failed");
+        return report_perror("Pipe stdout failed");
     if (pipe(pipe_stderr) < 0)
-       return report_perror("Pipe stderr failed");
+        return report_perror("Pipe stderr failed");
 
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     pid = fork();
@@ -648,7 +667,7 @@ int main(int argc, char *const argv[], char *const envp[]) {
 
     {
         struct str s;
-        char ts_buf[32];
+        char       ts_buf[32];
         str_init(&s, 1024);
 
         str_pr_append(&s, "ER-M-%05d-%s-RUN    %s", pid, ts(ts_buf, 32),
@@ -709,7 +728,7 @@ int main(int argc, char *const argv[], char *const envp[]) {
 
         if (poll_timeout) {
             struct timeval t = {};
-            t.tv_usec = 100000;  // 100ms
+            t.tv_usec = 100000; // 100ms
             res = select(nfds + 1, &rd_fds, &wr_fds, 0, &t);
             poll_timeout = 0;
 
@@ -735,25 +754,24 @@ int main(int argc, char *const argv[], char *const envp[]) {
             }
         }
 
-        copy_to_buffer(&rd_fds, &rd_in,  &rd_in_echo);
+        copy_to_buffer(&rd_fds, &rd_in, &rd_in_echo);
         copy_to_buffer(&rd_fds, &rd_out, 0);
         copy_to_buffer(&rd_fds, &rd_err, 0);
 
-        copy_buf_to_buf(&rd_in,      &wr_in,  0);
+        copy_buf_to_buf(&rd_in, &wr_in, 0);
         copy_buf_to_buf(&rd_in_echo, &wr_out, "STDIN ");
-        copy_buf_to_buf(&rd_out,     &wr_out, "STDOUT");
-        copy_buf_to_buf(&rd_err,     &wr_out, "STDERR");
+        copy_buf_to_buf(&rd_out, &wr_out, "STDOUT");
+        copy_buf_to_buf(&rd_err, &wr_out, "STDERR");
 
         copy_to_fd(&wr_fds, &wr_in);
         copy_to_term(&wr_fds, &wr_out);
 
         // Need to re-fill the potential emptied buffers such that the write
         // file descriptors will go into the select call.
-        copy_buf_to_buf(&rd_in,      &wr_in,  0);
+        copy_buf_to_buf(&rd_in, &wr_in, 0);
         copy_buf_to_buf(&rd_in_echo, &wr_out, "STDIN ");
-        copy_buf_to_buf(&rd_out,     &wr_out, "STDOUT");
-        copy_buf_to_buf(&rd_err,     &wr_out, "STDERR");
-
+        copy_buf_to_buf(&rd_out, &wr_out, "STDOUT");
+        copy_buf_to_buf(&rd_err, &wr_out, "STDERR");
 
         if (rd_in.fd == -1 && wr_in.data_begin == wr_in.data_end) {
             if (wr_in.fd != -1) {
@@ -777,7 +795,6 @@ int main(int argc, char *const argv[], char *const envp[]) {
     } else {
         msg = "TERM?";
         msg_no = -1;
-
     }
 
     pr(msg, "%d", msg_no);

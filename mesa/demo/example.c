@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include "microchip/ethernet/switch/api.h"
 #include "trace.h"
@@ -16,57 +15,46 @@
 #define FALSE 0
 #endif
 
-int  EXAMPLE_ARGV_FAILED = 0;
-char EXAMPLE_SYNTAX[1024] = {};
-char EXAMPLE_RUN_SYNTAX[1024];
-int  EXAMPLE_SYNTAX_VALID = 0;
-int  EXAMPLE_RUN_SYNTAX_VALID = 0;
-char EXAMPLE_HELP[1024] = {};
-char EXAMPLE_RUN_HELP[1024] = {};
-int  EXAMPLE_HELP_VALID = 0;
-int  EXAMPLE_RUN_HELP_VALID = 0;
-int  EXAMPLE_FATAL_ERROR = 0;
-int  EXAMPLE_FATAL_ERROR_LINE = 0;
+int         EXAMPLE_ARGV_FAILED = 0;
+char        EXAMPLE_SYNTAX[1024] = {};
+char        EXAMPLE_RUN_SYNTAX[1024];
+int         EXAMPLE_SYNTAX_VALID = 0;
+int         EXAMPLE_RUN_SYNTAX_VALID = 0;
+char        EXAMPLE_HELP[1024] = {};
+char        EXAMPLE_RUN_HELP[1024] = {};
+int         EXAMPLE_HELP_VALID = 0;
+int         EXAMPLE_RUN_HELP_VALID = 0;
+int         EXAMPLE_FATAL_ERROR = 0;
+int         EXAMPLE_FATAL_ERROR_LINE = 0;
 const char *EXAMPLE_FATAL_ERROR_FILE = 0;
 
 /* Store the meba inst globally */
 meba_inst_t meba_example_inst;
 
-
-#define PR_APPEND(buf, fmt, ...) \
-    do { \
-        if (buf ## _VALID < sizeof(buf)) { \
-            buf ## _VALID += snprintf(buf + buf ## _VALID, sizeof(buf) - buf ## _VALID, fmt, ##__VA_ARGS__); \
-            buf[sizeof(buf) - 1] = 0; \
-        } \
+#define PR_APPEND(buf, fmt, ...)                                               \
+    do {                                                                       \
+        if (buf##_VALID < sizeof(buf)) {                                       \
+            buf##_VALID +=                                                     \
+                snprintf(buf + buf##_VALID, sizeof(buf) - buf##_VALID, fmt,    \
+                         ##__VA_ARGS__);                                       \
+            buf[sizeof(buf) - 1] = 0;                                          \
+        }                                                                      \
     } while (0)
 
+static mscc_appl_trace_module_t trace_module = {.name = "example"};
 
-static mscc_appl_trace_module_t trace_module = {
-    .name = "example"
-};
-
-enum {
-    TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
-};
+enum { TRACE_GROUP_DEFAULT, TRACE_GROUP_CNT };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
     // TRACE_GROUP_DEFAULT
-    {
-        .name = "default",
-        .level = MESA_TRACE_LEVEL_ERROR
-    },
+    {.name = "default", .level = MESA_TRACE_LEVEL_ERROR},
 };
 
 static mesa_example_register_t *example_first = NULL;
 
-meba_inst_t mesa_example_meba_inst()
-{
-    return meba_example_inst;
-}
+meba_inst_t mesa_example_meba_inst() { return meba_example_inst; }
 
-void mesa_example_register(mesa_example_register_t  *example)
+void mesa_example_register(mesa_example_register_t *example)
 {
     example->next = example_first;
     example_first = example;
@@ -83,12 +71,18 @@ int mesa_example_argv_find_key(char *key, int argc, const char *argv[])
     return -1;
 }
 
-int mesa_example_arg_int(int run, int man, int def, char *key, char *help,
-                         int argc, const char *argv[]) {
-    long int res;
+int mesa_example_arg_int(int         run,
+                         int         man,
+                         int         def,
+                         char       *key,
+                         char       *help,
+                         int         argc,
+                         const char *argv[])
+{
+    long int    res;
     const char *b;
-    char *e;
-    int i = mesa_example_argv_find_key(key, argc, argv);
+    char       *e;
+    int         i = mesa_example_argv_find_key(key, argc, argv);
 
     if (run == 0) {
         if (man) {
@@ -132,7 +126,6 @@ int mesa_example_arg_int(int run, int man, int def, char *key, char *help,
     return res;
 }
 
-
 static char command_str[] = {"example [help|list|init|run|uninit] [<args>]"};
 static char help_str[] = {"Example code execution.\n\
 example help:                      Print out this help.\n\
@@ -147,7 +140,8 @@ static mesa_example_register_t *example_active = NULL;
 
 static void cli_cmd_error(const char *msg)
 {
-    cli_printf("%s at %s:%d\n", msg, EXAMPLE_FATAL_ERROR_FILE, EXAMPLE_FATAL_ERROR_LINE);
+    cli_printf("%s at %s:%d\n", msg, EXAMPLE_FATAL_ERROR_FILE,
+               EXAMPLE_FATAL_ERROR_LINE);
     cli_printf("Please reboot to recover from this.\n");
 }
 
@@ -165,27 +159,24 @@ static int cli_cmd_example(int argc, const char **argv)
     }
 
     switch (argc) {
-        case 0:
-        case 1:
-            cli_printf("Usage: %s\n", command_str);
-            return -1;
+    case 0:
+    case 1: cli_printf("Usage: %s\n", command_str); return -1;
 
-        case 2:
-            param_str = argv[1];
-            argv_consume = 1;
+    case 2:
+        param_str = argv[1];
+        argv_consume = 1;
 
-            break;
+        break;
 
-        default:
-            // example <cmd> args...
-            argv_consume = 1;
-            param_str = argv[1];
+    default:
+        // example <cmd> args...
+        argv_consume = 1;
+        param_str = argv[1];
 
-            if (strcmp(param_str, "help") == 0 ||
-                strcmp(param_str, "init") == 0) {
-                name_str = argv[2];
-                argv_consume = 2;
-            }
+        if (strcmp(param_str, "help") == 0 || strcmp(param_str, "init") == 0) {
+            name_str = argv[2];
+            argv_consume = 2;
+        }
     }
 
     // argv/argc will include the name of the command or the name of the
@@ -243,13 +234,15 @@ static int cli_cmd_example(int argc, const char **argv)
         T_D("help");
         if (example_ptr != NULL) {
             // Example name is found - print the example name relevant help
-            // Calling the init function with no arguments will make the framework generate the syntax and syntax help test
+            // Calling the init function with no arguments will make the
+            // framework generate the syntax and syntax help test
             (void)example_ptr->init(0, NULL);
             cli_printf("%s\n", example_ptr->help());
             cli_printf("Init USAGE:\n%s\n", EXAMPLE_SYNTAX);
             cli_printf("Help:\n%s\n", EXAMPLE_HELP);
             if (example_ptr->run != NULL) {
-                // Calling the run function with no arguments will make the framework generate the syntax and syntax help test
+                // Calling the run function with no arguments will make the
+                // framework generate the syntax and syntax help test
                 (void)example_ptr->run(0, NULL);
                 cli_printf("Run USAGE:\n%s\n", EXAMPLE_RUN_SYNTAX);
                 cli_printf("Help:\n%s\n", EXAMPLE_RUN_HELP);
@@ -258,7 +251,6 @@ static int cli_cmd_example(int argc, const char **argv)
             // Print the Example command relevant help
             cli_printf("%s\n", help_str);
         }
-
 
     } else if (strcmp(param_str, "list") == 0) {
         T_D("list");
@@ -274,7 +266,6 @@ static int cli_cmd_example(int argc, const char **argv)
             example_ptr = example_ptr->next;
         }
 
-
     } else if (strcmp(param_str, "init") == 0) {
         T_D("init");
         if (example_ptr == NULL) {
@@ -283,7 +274,8 @@ static int cli_cmd_example(int argc, const char **argv)
         }
 
         if (example_active != NULL) {
-            cli_printf("Cannot load new example while an existing example is running\n");
+            cli_printf(
+                "Cannot load new example while an existing example is running\n");
             return -1;
         }
 
@@ -299,7 +291,6 @@ static int cli_cmd_example(int argc, const char **argv)
         }
 
         return res;
-
 
     } else if (strcmp(param_str, "run") == 0) {
         T_D("run");
@@ -321,7 +312,6 @@ static int cli_cmd_example(int argc, const char **argv)
 
         return res;
 
-
     } else if (strcmp(param_str, "uninit") == 0) {
         T_D("uninit");
         if (argc != 1) {
@@ -341,20 +331,13 @@ static int cli_cmd_example(int argc, const char **argv)
     } else {
         T_D("...");
         cli_printf("Usage: %s\n", command_str);
-
     }
 
     return 0;
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {
-        "Example",
-        help_str,
-        0,
-        0,
-        cli_cmd_example
-    }
+    {"Example", help_str, 0, 0, cli_cmd_example}
 };
 
 void mscc_appl_example_init(mscc_appl_init_t *init)
@@ -366,14 +349,13 @@ void mscc_appl_example_init(mscc_appl_init_t *init)
 
     case MSCC_INIT_CMD_INIT:
         /* Register commands */
-        for (int i = 0; i < sizeof(cli_cmd_table)/sizeof(cli_cmd_t); i++) {
+        for (int i = 0; i < sizeof(cli_cmd_table) / sizeof(cli_cmd_t); i++) {
             mscc_appl_cli_cmd_reg(&cli_cmd_table[i]);
         }
         meba_example_inst = init->board_inst;
         break;
 
-   case MSCC_INIT_CMD_INIT_WARM:
-        break;
+    case MSCC_INIT_CMD_INIT_WARM: break;
 
     case MSCC_INIT_CMD_POLL:
         if (example_active && example_active->poll) {
@@ -387,7 +369,6 @@ void mscc_appl_example_init(mscc_appl_init_t *init)
         }
         break;
 
-    default:
-        break;
+    default: break;
     }
 }

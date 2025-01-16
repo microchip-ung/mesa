@@ -4,7 +4,6 @@
 #ifndef _VTSS_JAGUAR2__API_PLL5G_H_UTE
 #define _VTSS_JAGUAR2__API_PLL5G_H_UTE
 
-
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 
 /* ================================================================= *
@@ -21,15 +20,17 @@
  *                       Patrick Urban <patrick.urban@microsemi.com> or
  *                       Alexander Koch <alexander.koch@microsemi.com> or
  *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements:
- *                     Bugzilla: Tools->Victoria
+ *                     Please use Bugzilla for reporting issues or requesting
+ * enhancements: Bugzilla: Tools->Victoria
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
-#include <vtss/api/options.h>  // To get the ARCH define
+#include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_JAGUAR_2_B)
 
-vtss_rc vtss_jaguar2_pll5g_setup(vtss_state_t *vtss_state, const vtss_pll5g_setup_args_t config, const u8 inst);
+vtss_rc vtss_jaguar2_pll5g_setup(vtss_state_t                 *vtss_state,
+                                 const vtss_pll5g_setup_args_t config,
+                                 const u8                      inst);
 
 #endif
 #endif

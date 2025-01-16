@@ -1,11 +1,10 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #ifndef _VTSS_TUPE_STATE_H_
 #define _VTSS_TUPE_STATE_H_
 
-#if defined (VTSS_FEATURE_MPLS)
+#if defined(VTSS_FEATURE_MPLS)
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 
@@ -23,11 +22,11 @@ typedef struct {
     u16 tupe_bits_free;
 
     /* Free TUPE values (for linear protection) */
-    u32 tupe_vals_next;
+    u32  tupe_vals_next;
     u32 *tupe_vals_free;
 
     /* Free AFI TUPE values */
-    u32 afi_tupe_vals_next;
+    u32  afi_tupe_vals_next;
     u32 *afi_tupe_vals_free;
 } vtss_tupe_state_t;
 

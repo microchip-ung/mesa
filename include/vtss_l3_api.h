@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 /**
  * \file
  * \brief L3 routing API
@@ -59,24 +58,23 @@
  * representing the configured IP range of the interface, and with the
  * destination configured to zero.
  *
- * NOTE: An IP UC LPM entry can only be routed in HW if the destination of the route
- * is installed in the neighbour table. If this is not the case the frame will
- * be forwarded to the CPU, which should perform the ARP/NDP resolution route
- * the packet in SW and install the neighbour in HW for future use.
+ * NOTE: An IP UC LPM entry can only be routed in HW if the destination of the
+ * route is installed in the neighbour table. If this is not the case the frame
+ * will be forwarded to the CPU, which should perform the ARP/NDP resolution
+ * route the packet in SW and install the neighbour in HW for future use.
  *
- * IP UC Neighbour table: This table is used to map IP address to (MAC addresses,
- * VLAN). When a packet is being routed in the LPM table, the output is a
- * "next-hop" IP address, this "next-hop" IP address must be translated to a
- * MAC-address and a VLAN before it can be L2 forwarded. If a LPM entry does not
- * have a corresponding neighbour entry, then the packet will be forwarded to
- * the CPU.
- * The neighbour table should be synchronized with the ARP/NDP table of the
- * operating systems IP stack.
+ * IP UC Neighbour table: This table is used to map IP address to (MAC
+ * addresses, VLAN). When a packet is being routed in the LPM table, the output
+ * is a "next-hop" IP address, this "next-hop" IP address must be translated to
+ * a MAC-address and a VLAN before it can be L2 forwarded. If a LPM entry does
+ * not have a corresponding neighbour entry, then the packet will be forwarded
+ * to the CPU. The neighbour table should be synchronized with the ARP/NDP table
+ * of the operating systems IP stack.
  *
- * IP MC Rleg bitmask table: This table consists of destination router legs entries
- * for a given MC group in the LPM table, i.e. each group can have a unique number of
- * destination rlegs.  If 2 (or more) groups have identical destinations they will share
- * the same rleg bitmask table entry.
+ * IP MC Rleg bitmask table: This table consists of destination router legs
+ * entries for a given MC group in the LPM table, i.e. each group can have a
+ * unique number of destination rlegs.  If 2 (or more) groups have identical
+ * destinations they will share the same rleg bitmask table entry.
  *
  * Mode of operation
  * -----------------
@@ -101,10 +99,11 @@
  * To enable MC routing a MC group must be installed into the LPM table without
  * a rleg destination, i.e. initially frames to this group will get dropped.
  * The SIP can be either specific address or any.
- * Hereafter the receivers will join this group and enable forwarding to their RLEG/VLAN and
- * when the receiver leaves the group then the rleg is removed. The receiver can enforce
- * only to listen to a group from specific source.  The sender activity status can be
- * monitored by the router application and the group removed in case of an idle sender
+ * Hereafter the receivers will join this group and enable forwarding to their
+ * RLEG/VLAN and when the receiver leaves the group then the rleg is removed.
+ * The receiver can enforce only to listen to a group from specific source.  The
+ * sender activity status can be monitored by the router application and the
+ * group removed in case of an idle sender
  *
  */
 
@@ -114,19 +113,19 @@
 // Serval-T has 6 super VCAP blocks, each with 64 rows of 16 entries. This means
 // that a single block will give us 64*16 entries - which is the minimum
 // meaningful amount. 6*1024 is max.
-#define VTSS_RLEG_CNT    31   /**< Length of RLEG table */
-#define VTSS_LPM_CNT     1024 /**< Length of LPM table */
-#define VTSS_ARP_CNT     256  /**< Length of ARP table */
-#define VTSS_LPM_MC_CNT  512  /**< Length of LPM table for multicast entries */
-#define VTSS_MC_TBL_CNT  256  /**< Length of MC RLEG bit-mask table */
+#define VTSS_RLEG_CNT   31   /**< Length of RLEG table */
+#define VTSS_LPM_CNT    1024 /**< Length of LPM table */
+#define VTSS_ARP_CNT    256  /**< Length of ARP table */
+#define VTSS_LPM_MC_CNT 512  /**< Length of LPM table for multicast entries */
+#define VTSS_MC_TBL_CNT 256  /**< Length of MC RLEG bit-mask table */
 #else
-// Jaguar-2 has 8 super VCAP blocks, each with 256 rows of 16 entries. This means
-// that a single block will give us 256*16 = 4096 entries.
-#define VTSS_RLEG_CNT    127  /**< Length of RLEG table */
-#define VTSS_LPM_CNT     4096 /**< Length of LPM table for unicast entries */
-#define VTSS_ARP_CNT     2048 /**< Length of ARP table */
-#define VTSS_LPM_MC_CNT  2048 /**< Length of LPM table for multicast entries */
-#define VTSS_MC_TBL_CNT  1024 /**< Length of MC RLEG mask table */
+// Jaguar-2 has 8 super VCAP blocks, each with 256 rows of 16 entries. This
+// means that a single block will give us 256*16 = 4096 entries.
+#define VTSS_RLEG_CNT   127  /**< Length of RLEG table */
+#define VTSS_LPM_CNT    4096 /**< Length of LPM table for unicast entries */
+#define VTSS_ARP_CNT    2048 /**< Length of ARP table */
+#define VTSS_LPM_MC_CNT 2048 /**< Length of LPM table for multicast entries */
+#define VTSS_MC_TBL_CNT 1024 /**< Length of MC RLEG mask table */
 
 // A IPv4 unicast address occupies 1 entry in the LPM VCAP while
 // IPv6 unicast address occupies 4 entries.
@@ -143,29 +142,28 @@
 #endif /* VTSS_ARCH_SERVAL_T */
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 
-// SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits each).
-// This means that a single block will give us 256*12 = 3072 entries.
+// SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits
+// each). This means that a single block will give us 256*12 = 3072 entries.
 #if VTSS_OPT_LIGHT
-#define VTSS_RLEG_CNT    32   /**< Length of RLEG table */
-#define VTSS_LPM_CNT     128  /**< Length of LPM table */
-#define VTSS_ARP_CNT     0    /**< Length of ARP table */
-#define VTSS_LPM_MC_CNT  0    /**< Length of LPM table for multicast entries */
-#define VTSS_MC_TBL_CNT  0    /**< Length of MC RLEG bit-mask table */
+#define VTSS_RLEG_CNT   32  /**< Length of RLEG table */
+#define VTSS_LPM_CNT    128 /**< Length of LPM table */
+#define VTSS_ARP_CNT    0   /**< Length of ARP table */
+#define VTSS_LPM_MC_CNT 0   /**< Length of LPM table for multicast entries */
+#define VTSS_MC_TBL_CNT 0   /**< Length of MC RLEG bit-mask table */
 #else
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_RLEG_CNT    128  /**< Length of RLEG table */
-#define VTSS_ARP_CNT     2048 /**< Length of ARP table */
-#define VTSS_MC_TBL_CNT  2048 /**< Length of MC RLEG bit-mask table */
+#define VTSS_RLEG_CNT   128  /**< Length of RLEG table */
+#define VTSS_ARP_CNT    2048 /**< Length of ARP table */
+#define VTSS_MC_TBL_CNT 2048 /**< Length of MC RLEG bit-mask table */
 #else
-#define VTSS_RLEG_CNT    126  /**< Length of RLEG table */
-#define VTSS_ARP_CNT     1024 /**< Length of ARP table */
-#define VTSS_MC_TBL_CNT  1024 /**< Length of MC RLEG bit-mask table */
+#define VTSS_RLEG_CNT   126  /**< Length of RLEG table */
+#define VTSS_ARP_CNT    1024 /**< Length of ARP table */
+#define VTSS_MC_TBL_CNT 1024 /**< Length of MC RLEG bit-mask table */
 #endif
-#define VTSS_LPM_CNT     3072 /**< Length of LPM table */
-#define VTSS_LPM_MC_CNT  1536 /**< Length of LPM table for multicast entries */
+#define VTSS_LPM_CNT    3072 /**< Length of LPM table */
+#define VTSS_LPM_MC_CNT 1536 /**< Length of LPM table for multicast entries */
 #endif
 // A IPv4 unicast address occupies 1 entry in the LPM VCAP while
 // IPv6 unicast address occupies 2 entries.
@@ -184,18 +182,15 @@
 
 #endif /* VTSS_ARCH_SPARX5 */
 
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** \brief Virtual router identifier */
-typedef u8  vtss_l3_vrid_t;
+typedef u8 vtss_l3_vrid_t;
 
 /** \brief MAC addressing mode for routing legs */
-typedef enum
-{
+typedef enum {
     /** The addressing mode has still not been configured */
     VTSS_ROUTING_RLEG_MAC_MODE_INVALID = 0,
 
@@ -204,24 +199,22 @@ typedef enum
 } vtss_l3_rleg_common_mode_t;
 
 /** \brief Common configurations for all routing legs */
-typedef struct
-{
+typedef struct {
     /** Common rleg-mode for all routing legs. */
     vtss_l3_rleg_common_mode_t rleg_mode;
 
     /** Base mac address used to derive addresses for all routing legs. */
-    vtss_mac_t                 base_address;
+    vtss_mac_t base_address;
 
     /** Globally enable/disable unicast routing. */
-    BOOL                       routing_enable;
+    BOOL routing_enable;
 
     /** Globally enable/disable multicast routing. */
-    BOOL                       mc_routing_enable;
+    BOOL mc_routing_enable;
 } vtss_l3_common_conf_t;
 
 /** \brief Router leg control structure */
-typedef struct
-{
+typedef struct {
     /** Enable router leg ID */
     BOOL rleg_enable;
 
@@ -247,7 +240,7 @@ typedef struct
     BOOL ipv6_icmp_redirect_enable;
 
     /** Vlan for which the router leg is instantiated */
-    vtss_vid_t          vlan;
+    vtss_vid_t vlan;
 
     /** Enable/disable VRRP for a given router leg.
      *
@@ -260,29 +253,29 @@ typedef struct
      * For versions earlier than rev-B VRRP is only supported for IPv4
      * (00-00-5E-00-01-{VRID}).
      */
-    BOOL                vrid0_enable;
+    BOOL vrid0_enable;
 
     /** The VRID value assigned to this router leg. */
-    vtss_l3_vrid_t      vrid0;
+    vtss_l3_vrid_t vrid0;
 
     /** Enable/disable vrid1 for this router leg. */
-    BOOL                vrid1_enable;
+    BOOL vrid1_enable;
 
     /** The VRID value assigned to this router leg. */
-    vtss_l3_vrid_t      vrid1;
+    vtss_l3_vrid_t vrid1;
 
     /** Enable/disable non-default multicast TTL limit for this router leg.
      *  Default: Frames with TTL >= 2 are routet. */
-    BOOL                mc_ttl_limit_enable;
+    BOOL mc_ttl_limit_enable;
 
-    /** The TTL in the frame must be equal or higher than this value (must be >= 2). */
-    u32                 mc_ttl_limit;
+    /** The TTL in the frame must be equal or higher than this value (must be >=
+     * 2). */
+    u32 mc_ttl_limit;
 
 } vtss_l3_rleg_conf_t;
 
 /** \brief Neighbour type */
-typedef enum
-{
+typedef enum {
     /** Invalid entry. */
     VTSS_L3_NEIGHBOUR_TYPE_INVALID = 0,
 
@@ -294,16 +287,15 @@ typedef enum
 } vtss_l3_neighbour_type_t;
 
 /** \brief Neighbour entry */
-typedef struct
-{
+typedef struct {
     /** MAC address of destination */
-    vtss_mac_t         dmac;
+    vtss_mac_t dmac;
 
     /** VLAN of destination */
-    vtss_vid_t         vlan;
+    vtss_vid_t vlan;
 
     /** IP address of destination */
-    vtss_ip_addr_t     dip;
+    vtss_ip_addr_t dip;
 } vtss_l3_neighbour_t;
 
 /**
@@ -323,7 +315,7 @@ vtss_rc vtss_l3_flush(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_common_get(const vtss_inst_t      inst,
+vtss_rc vtss_l3_common_get(const vtss_inst_t            inst,
                            vtss_l3_common_conf_t *const conf);
 
 /**
@@ -334,7 +326,7 @@ vtss_rc vtss_l3_common_get(const vtss_inst_t      inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_common_set(const vtss_inst_t            inst,
+vtss_rc vtss_l3_common_set(const vtss_inst_t                  inst,
                            const vtss_l3_common_conf_t *const conf);
 
 /**
@@ -346,9 +338,9 @@ vtss_rc vtss_l3_common_set(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t     inst,
-                                  vtss_vid_t            vid,
-                                  vtss_l3_rleg_conf_t  *conf);
+vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t    inst,
+                                  vtss_vid_t           vid,
+                                  vtss_l3_rleg_conf_t *conf);
 
 /**
  * \brief Add a router leg on the given VLAN
@@ -358,7 +350,7 @@ vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t     inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_add(const vtss_inst_t          inst,
+vtss_rc vtss_l3_rleg_add(const vtss_inst_t                inst,
                          const vtss_l3_rleg_conf_t *const conf);
 
 /**
@@ -371,7 +363,7 @@ vtss_rc vtss_l3_rleg_add(const vtss_inst_t          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_update(const vtss_inst_t          inst,
+vtss_rc vtss_l3_rleg_update(const vtss_inst_t                inst,
                             const vtss_l3_rleg_conf_t *const conf);
 
 /**
@@ -382,8 +374,7 @@ vtss_rc vtss_l3_rleg_update(const vtss_inst_t          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_del(const vtss_inst_t         inst,
-                         const vtss_vid_t          vlan);
+vtss_rc vtss_l3_rleg_del(const vtss_inst_t inst, const vtss_vid_t vlan);
 
 /**
  * \brief Add an entry to the routing table
@@ -393,8 +384,8 @@ vtss_rc vtss_l3_rleg_del(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_add(const vtss_inst_t             inst,
-                          const vtss_routing_entry_t    * const entry);
+vtss_rc vtss_l3_route_add(const vtss_inst_t                 inst,
+                          const vtss_routing_entry_t *const entry);
 
 /**
  * \brief Add a list of routes
@@ -406,10 +397,10 @@ vtss_rc vtss_l3_route_add(const vtss_inst_t             inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_bulk_add(const vtss_inst_t             inst,
-                               const u32                     cnt,
-                               const vtss_routing_entry_t    *entry,
-                               u32                           *const rt_added);
+vtss_rc vtss_l3_route_bulk_add(const vtss_inst_t           inst,
+                               const u32                   cnt,
+                               const vtss_routing_entry_t *entry,
+                               u32 *const                  rt_added);
 
 /**
  * \brief Delete an entry from the routing table
@@ -419,8 +410,8 @@ vtss_rc vtss_l3_route_bulk_add(const vtss_inst_t             inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_del(const vtss_inst_t             inst,
-                          const vtss_routing_entry_t    *const entry);
+vtss_rc vtss_l3_route_del(const vtss_inst_t                 inst,
+                          const vtss_routing_entry_t *const entry);
 
 /**
  * \brief Deletes a list of routes
@@ -432,10 +423,10 @@ vtss_rc vtss_l3_route_del(const vtss_inst_t             inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_bulk_del(const vtss_inst_t             inst,
-                               const u32                     cnt,
-                               const vtss_routing_entry_t    *entry,
-                               u32                           *const rt_deleted);
+vtss_rc vtss_l3_route_bulk_del(const vtss_inst_t           inst,
+                               const u32                   cnt,
+                               const vtss_routing_entry_t *entry,
+                               u32 *const                  rt_deleted);
 
 /**
  * \brief Add a new entry to the neighbour cache.
@@ -445,8 +436,8 @@ vtss_rc vtss_l3_route_bulk_del(const vtss_inst_t             inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_neighbour_add(const vtss_inst_t         inst,
-                              const vtss_l3_neighbour_t * const entry);
+vtss_rc vtss_l3_neighbour_add(const vtss_inst_t                inst,
+                              const vtss_l3_neighbour_t *const entry);
 
 /**
  * \brief Delete an entry from the neighbour  cache.
@@ -456,8 +447,8 @@ vtss_rc vtss_l3_neighbour_add(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_neighbour_del(const vtss_inst_t         inst,
-                              const vtss_l3_neighbour_t * const entry);
+vtss_rc vtss_l3_neighbour_del(const vtss_inst_t                inst,
+                              const vtss_l3_neighbour_t *const entry);
 
 /**
  * \brief Add an multicast entry to the routing table
@@ -467,8 +458,8 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_add(const vtss_inst_t              inst,
-                             const vtss_routing_mc_entry_t  *const entry);
+vtss_rc vtss_l3_mc_route_add(const vtss_inst_t                    inst,
+                             const vtss_routing_mc_entry_t *const entry);
 
 /**
  * \brief Delete an entry from the multicast routing table
@@ -478,12 +469,12 @@ vtss_rc vtss_l3_mc_route_add(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_del(const vtss_inst_t              inst,
-                             const vtss_routing_mc_entry_t  *const entry);
+vtss_rc vtss_l3_mc_route_del(const vtss_inst_t                    inst,
+                             const vtss_routing_mc_entry_t *const entry);
 
 /**
- * \brief Get activity status on a mc route, i.e. if it has been used by mc transmitter.
- *  Clear on read.
+ * \brief Get activity status on a mc route, i.e. if it has been used by mc
+ *transmitter. Clear on read.
  *
  * \param inst [IN]      Target instance reference.
  * \param entry [IN]     MC entry to check for activity
@@ -491,8 +482,8 @@ vtss_rc vtss_l3_mc_route_del(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t              inst,
-                                    const vtss_routing_mc_entry_t  *const entry,
+vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
+                                    const vtss_routing_mc_entry_t *const entry,
                                     BOOL *const active);
 
 /**
@@ -504,9 +495,9 @@ vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t              inst,
-                                  const vtss_routing_mc_entry_t  *const entry,
-                                  const vtss_vid_t               dest_rleg);
+vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
+                                  const vtss_routing_mc_entry_t *const entry,
+                                  const vtss_vid_t dest_rleg);
 
 /**
  * \brief Remove an router leg from an routing entry
@@ -517,9 +508,9 @@ vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t              inst,
-                                  const vtss_routing_mc_entry_t  *const entry,
-                                  const vtss_vid_t               dest_rleg);
+vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t                    inst,
+                                  const vtss_routing_mc_entry_t *const entry,
+                                  const vtss_vid_t dest_rleg);
 
 /**
  * \brief Reset all routing leg statistics counters
@@ -538,8 +529,8 @@ vtss_rc vtss_l3_counters_reset(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
-                                    vtss_l3_counters_t * const counters);
+vtss_rc vtss_l3_counters_system_get(const vtss_inst_t         inst,
+                                    vtss_l3_counters_t *const counters);
 
 /**
  * \brief Get routing legs counters
@@ -550,9 +541,9 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t  inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t       inst,
-                                  const vtss_vid_t        vlan,
-                                  vtss_l3_counters_t      * const counters);
+vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t         inst,
+                                  const vtss_vid_t          vlan,
+                                  vtss_l3_counters_t *const counters);
 
 /**
  * \brief Clear routing legs counters
@@ -562,9 +553,8 @@ vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t       inst,
-                                    const vtss_vid_t        vlan);
-
+vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t inst,
+                                    const vtss_vid_t  vlan);
 
 #ifdef __cplusplus
 }

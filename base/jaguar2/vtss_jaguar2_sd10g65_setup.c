@@ -4,7 +4,6 @@
 #ifndef _VTSS_JAGUAR2__API_SD10G65_UTE
 #define _VTSS_JAGUAR2__API_SD10G65_UTE
 
-
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 
 /* ================================================================= *
@@ -21,881 +20,1171 @@
  *                       Patrick Urban <patrick.urban@microsemi.com> or
  *                       Alexander Koch <alexander.koch@microsemi.com> or
  *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements:
- *                     Bugzilla: Tools->Victoria
+ *                     Please use Bugzilla for reporting issues or requesting
+ * enhancements: Bugzilla: Tools->Victoria
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
-#include <vtss/api/options.h>  // To get the ARCH define
+#include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_JAGUAR_2_B)
 #include "vtss_jaguar2_inc.h"
 
-
-static vtss_rc jaguar2_sd10g_tx_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_setup_tx_struct_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_sd10g_tx_register_cfg(vtss_state_t *vtss_state,
+                                             const vtss_sd10g65_setup_tx_struct_t
+                                                 *const     res_struct,
+                                             vtss_port_no_t port_no)
+{
     u32 tgt_ana;
     u32 value;
 
     vtss_rc rc = VTSS_RC_OK;
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
-if( res_struct->pwrcycle[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+    if (res_struct->pwrcycle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->tx_synth_cfg0__synth_ena[0]),
+                VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                    res_struct->tx_rcpll_cfg2__pll_ena[0]),
+                VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(res_struct->ob_cfg0__en_ob[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(
+                    res_struct->ob_cfg0__en_ob[0]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
 
-    VTSS_MSLEEP(1);
+        VTSS_MSLEEP(1);
+    }
 
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(
+            res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(
+                res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
         VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+            res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(
+                res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
         VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(res_struct->ob_cfg0__en_ob[1]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(
+                res_struct->ob_cfg0__en_ob[1]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                res_struct->tx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->tx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL(res_struct->tx_synth_cfg0__synth_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(res_struct->tx_synth_cfg0__synth_off_comp_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL(
+            res_struct->tx_synth_cfg0__synth_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(
+                res_struct->tx_synth_cfg0__synth_off_comp_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL(res_struct->tx_synth_cfg0__synth_speed_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL(res_struct->tx_synth_cfg0__synth_fbdiv_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL(
+            res_struct->tx_synth_cfg0__synth_speed_sel[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL(
+                res_struct->tx_synth_cfg0__synth_fbdiv_sel[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0(res_struct->tx_synth_cfg3__synth_freqm_0[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0(
+                res_struct->tx_synth_cfg3__synth_freqm_0[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0(res_struct->tx_synth_cfg4__synth_freqn_0[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0(
+                res_struct->tx_synth_cfg4__synth_freqn_0[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(res_struct->tx_synth_cfg1__synth_freq_mult_byp[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(res_struct->tx_synth_cfg1__synth_freq_mult_hi[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT(res_struct->tx_synth_cfg1__synth_freq_mult[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1(res_struct->tx_synth_cfg1__synth_freqm_1[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1(res_struct->tx_synth_cfg1__synth_freqn_1[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(
+            res_struct->tx_synth_cfg1__synth_freq_mult_byp[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(
+                res_struct->tx_synth_cfg1__synth_freq_mult_hi[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT(
+                res_struct->tx_synth_cfg1__synth_freq_mult[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1(
+                res_struct->tx_synth_cfg1__synth_freqm_1[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1(
+                res_struct->tx_synth_cfg1__synth_freqn_1[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1 |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1 |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED(res_struct->tx_synth_cfg0__synth_ls_speed[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED(res_struct->tx_synth_cfg0__synth_cs_speed[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED(
+            res_struct->tx_synth_cfg0__synth_ls_speed[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED(
+                res_struct->tx_synth_cfg0__synth_cs_speed[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT(res_struct->tx_synth_cfg0__synth_ena_sync_unit[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA(res_struct->tx_synth_cfg0__synth_conv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA(res_struct->tx_synth_cfg0__synth_ds_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR(res_struct->tx_synth_cfg0__synth_ds_dir[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED(res_struct->tx_synth_cfg0__synth_ds_speed[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR(res_struct->tx_synth_cfg0__synth_ls_dir[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA(res_struct->tx_synth_cfg0__synth_ls_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+            res_struct->tx_synth_cfg0__synth_hrate_ena[1]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT(
+                res_struct->tx_synth_cfg0__synth_ena_sync_unit[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA(
+                res_struct->tx_synth_cfg0__synth_conv_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA(
+                res_struct->tx_synth_cfg0__synth_ds_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR(
+                res_struct->tx_synth_cfg0__synth_ds_dir[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED(
+                res_struct->tx_synth_cfg0__synth_ds_speed[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR(
+                res_struct->tx_synth_cfg0__synth_ls_dir[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA(
+                res_struct->tx_synth_cfg0__synth_ls_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL(res_struct->ssc_cfg1__sync_ctrl_fsel[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL(
+                res_struct->ssc_cfg1__sync_ctrl_fsel[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP(res_struct->ob_cfg0__en_inp_loop[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(res_struct->ob_cfg0__en_pad_loop[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV(res_struct->ob_cfg0__ser_inv[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN(res_struct->ob_cfg0__incr_levn[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN(res_struct->ob_cfg0__levn[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP(
+                res_struct->ob_cfg0__en_inp_loop[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(
+                    res_struct->ob_cfg0__en_pad_loop[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV(
+                    res_struct->ob_cfg0__ser_inv[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN(
+                    res_struct->ob_cfg0__incr_levn[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN(
+                    res_struct->ob_cfg0__levn[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT(res_struct->ob_cfg1__lev_shft[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL(res_struct->ob_cfg1__predrv_r_ctrl[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL(res_struct->ob_cfg1__predrv_c_ctrl[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT(
+                res_struct->ob_cfg1__lev_shft[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL(
+                    res_struct->ob_cfg1__predrv_r_ctrl[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL(
+                    res_struct->ob_cfg1__predrv_c_ctrl[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER(res_struct->ob_cfg2__d_filter[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER(
+                res_struct->ob_cfg2__d_filter[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR(res_struct->tx_rcpll_cfg2__pll_lpf_cur[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES(res_struct->tx_rcpll_cfg2__pll_lpf_res[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR(
+            res_struct->tx_rcpll_cfg2__pll_lpf_cur[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES(
+                res_struct->tx_rcpll_cfg2__pll_lpf_res[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES);
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT(res_struct->tx_rcpll_cfg0__pllf_start_cnt[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(res_struct->tx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(res_struct->tx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA(res_struct->tx_rcpll_cfg0__pllf_loop_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(res_struct->tx_rcpll_cfg0__pllf_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT(
+            res_struct->tx_rcpll_cfg0__pllf_start_cnt[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_loop_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END(res_struct->tx_rcpll_cfg1__pllf_ref_cnt_end[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END(
+            res_struct->tx_rcpll_cfg1__pllf_ref_cnt_end[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        VTSS_MSLEEP(10);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[1]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[1]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[2]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[2]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[3]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[3]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[4]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[4]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[5]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[5]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[2]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[2]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[6]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[6]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[7]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[7]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[8]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[8]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[9]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[9]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[0]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    VTSS_MSLEEP(50);
+        VTSS_MSLEEP(50);
 
-}  else {
-    VTSS_MSLEEP(10);
-
-} 
+    } else {
+        VTSS_MSLEEP(10);
+    }
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(res_struct->tx_rcpll_cfg0__pllf_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[1]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
     VTSS_MSLEEP(2);
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0_PLLF_LOCK_STAT(value) != 1) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0_PLLF_LOCK_STAT(
+            value) != 1) {
         VTSS_E("SD10G65::SD10G65_TX_RCPLL_STAT0.PLLF_LOCK_STAT is not 1!\n");
         rc = VTSS_RC_ERROR;
     }
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1_PLLF_FSM_STAT(value) != 13) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1_PLLF_FSM_STAT(
+            value) != 13) {
         VTSS_E("SD10G65::SD10G65_TX_RCPLL_STAT1.PLLF_FSM_STAT is not 13!\n");
         rc = VTSS_RC_ERROR;
     }
 
-
-  return rc;
+    return rc;
 }
 
-
-vtss_rc vtss_jaguar2_sd10g_setup_tx(vtss_state_t *vtss_state, const vtss_sd10g65_setup_tx_args_t config, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_sd10g_setup_tx(vtss_state_t *vtss_state,
+                                    const vtss_sd10g65_setup_tx_args_t config,
+                                    vtss_port_no_t                     port_no)
+{
     vtss_sd10g65_setup_tx_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                        ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_calc_sd10g65_setup_tx(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_sd10g_tx_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_sd10g_tx_register_cfg(vtss_state, &calc_results, port_no);
     }
     return ret_val;
 }
-static vtss_rc jaguar2_sd10g_rx_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_setup_rx_struct_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_sd10g_rx_register_cfg(vtss_state_t *vtss_state,
+                                             const vtss_sd10g65_setup_rx_struct_t
+                                                 *const     res_struct,
+                                             vtss_port_no_t port_no)
+{
     u32 tgt_ana;
     u32 value;
 
     vtss_rc rc = VTSS_RC_OK;
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
-if( res_struct->pwrcycle[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+    if (res_struct->pwrcycle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[0]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                    res_struct->rx_rcpll_cfg2__pll_ena[0]),
+                VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(res_struct->ib_cfg8__ib_bias_mode[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(
+                    res_struct->ib_cfg8__ib_bias_mode[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->ib_cfg0__ib_dfe_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(res_struct->ib_cfg0__ib_ia_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(res_struct->ib_cfg0__ib_ld_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(res_struct->ib_cfg0__ib_eqz_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(res_struct->ib_cfg0__ib_sam_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                    res_struct->ib_cfg0__ib_dfe_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(
+                        res_struct->ib_cfg0__ib_ia_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(
+                        res_struct->ib_cfg0__ib_ld_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(
+                        res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(
+                        res_struct->ib_cfg0__ib_eqz_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(
+                        res_struct->ib_cfg0__ib_sam_ena[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
 
-    VTSS_MSLEEP(1);
+        VTSS_MSLEEP(1);
+    }
 
-} 
+    if (res_struct->sbus_special_handling[0] == 1) {
+    }
 
-if( res_struct->sbus_special_handling[0] == 1 ) {
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA(res_struct->sbus_rx_cfg__sbus_loopdrv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL(res_struct->sbus_rx_cfg__sbus_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA(
+            res_struct->sbus_rx_cfg__sbus_loopdrv_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL(
+                res_struct->sbus_rx_cfg__sbus_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(
+                res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
         VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL |
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
 
-if( res_struct->sbus_special_handling[0] == 1 ) {
-} 
+    if (res_struct->sbus_special_handling[0] == 1) {
+    }
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                res_struct->rx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->rx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA(res_struct->rx_synth_cfg2__synth_aux_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA(
+                res_struct->rx_synth_cfg2__synth_aux_ena[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(res_struct->ib_cfg0__ib_clkdiv_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL(res_struct->ib_cfg0__ib_vbulk_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(res_struct->ib_cfg0__ib_sam_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(
+                res_struct->ib_cfg0__ib_clkdiv_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL(
+                    res_struct->ib_cfg0__ib_vbulk_sel[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(
+                    res_struct->ib_cfg0__ib_sam_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(res_struct->ib_cfg8__ib_bias_mode[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR(res_struct->ib_cfg8__ib_cml_curr[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ(res_struct->ib_cfg8__ib_bias_adj[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(
+                res_struct->ib_cfg8__ib_bias_mode[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR(
+                    res_struct->ib_cfg8__ib_cml_curr[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ(
+                    res_struct->ib_cfg8__ib_bias_adj[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+    }
 
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL(res_struct->rx_synth_cfg0__synth_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(res_struct->rx_synth_cfg0__synth_off_comp_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL(
+            res_struct->rx_synth_cfg0__synth_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(
+                res_struct->rx_synth_cfg0__synth_off_comp_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL(res_struct->rx_synth_cfg0__synth_speed_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL(res_struct->rx_synth_cfg0__synth_fbdiv_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL(
+            res_struct->rx_synth_cfg0__synth_speed_sel[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL(
+                res_struct->rx_synth_cfg0__synth_fbdiv_sel[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0(res_struct->rx_synth_cfg3__synth_freqm_0[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0(
+                res_struct->rx_synth_cfg3__synth_freqm_0[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0(res_struct->rx_synth_cfg4__synth_freqn_0[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0(
+                res_struct->rx_synth_cfg4__synth_freqn_0[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(res_struct->rx_synth_cfg1__synth_freq_mult_byp[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(res_struct->rx_synth_cfg1__synth_freq_mult_hi[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT(res_struct->rx_synth_cfg1__synth_freq_mult[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1(res_struct->rx_synth_cfg1__synth_freqm_1[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1(res_struct->rx_synth_cfg1__synth_freqn_1[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(
+            res_struct->rx_synth_cfg1__synth_freq_mult_byp[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(
+                res_struct->rx_synth_cfg1__synth_freq_mult_hi[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT(
+                res_struct->rx_synth_cfg1__synth_freq_mult[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1(
+                res_struct->rx_synth_cfg1__synth_freqm_1[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1(
+                res_struct->rx_synth_cfg1__synth_freqn_1[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(res_struct->rx_synth_cfg0__synth_fb_step[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(res_struct->rx_synth_cfg0__synth_i2_step[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(
+            res_struct->rx_synth_cfg0__synth_fb_step[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(
+                res_struct->rx_synth_cfg0__synth_i2_step[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
 
-if(res_struct->fb_step_param_used[0] == 1) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(res_struct->rx_synth_cfg0__synth_fb_step[1]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP);
+    if (res_struct->fb_step_param_used[0] == 1) {
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(
+                res_struct->rx_synth_cfg0__synth_fb_step[1]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP);
+    }
 
-} 
+    if (res_struct->i2_step_param_used[0] == 1) {
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(
+                res_struct->rx_synth_cfg0__synth_i2_step[1]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
+    }
 
-if(res_struct->i2_step_param_used[0] == 1) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(res_struct->rx_synth_cfg0__synth_i2_step[1]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
-
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA(res_struct->rx_synth_cfg0__synth_i2_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA(res_struct->rx_synth_cfg0__synth_conv_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+            res_struct->rx_synth_cfg0__synth_hrate_ena[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA(
+                res_struct->rx_synth_cfg0__synth_i2_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA(
+                res_struct->rx_synth_cfg0__synth_conv_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL(res_struct->rx_synth_sync_ctrl__synth_sc_sync[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL(
+            res_struct->rx_synth_sync_ctrl__synth_sc_sync[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(res_struct->rx_synth_cfg2__synth_phase_data[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA(res_struct->rx_synth_cfg2__synth_cpmd_dig_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(
+            res_struct->rx_synth_cfg2__synth_phase_data[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA(
+                res_struct->rx_synth_cfg2__synth_cpmd_dig_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP(res_struct->rx_synth_cfg0__synth_p_step[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP(res_struct->rx_synth_cfg0__synth_i1_step[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP(
+            res_struct->rx_synth_cfg0__synth_p_step[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP(
+                res_struct->rx_synth_cfg0__synth_i1_step[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(
+            res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(
+                res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(res_struct->rx_synth_cdrlf__synth_integ1_fsel[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(res_struct->rx_synth_cdrlf__synth_integ2_fsel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(
+            res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(
+                res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(
+                res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ1_fsel[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ2_fsel[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ(res_struct->ib_cfg0__ib_rib_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(res_struct->ib_cfg0__ib_eqz_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->ib_cfg0__ib_dfe_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(res_struct->ib_cfg0__ib_ld_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(res_struct->ib_cfg0__ib_ia_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA(res_struct->ib_cfg0__ib_ia_sdet_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ(
+                res_struct->ib_cfg0__ib_rib_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(
+                    res_struct->ib_cfg0__ib_eqz_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                    res_struct->ib_cfg0__ib_dfe_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(
+                    res_struct->ib_cfg0__ib_ld_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(
+                    res_struct->ib_cfg0__ib_ia_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA(
+                    res_struct->ib_cfg0__ib_ia_sdet_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET(res_struct->ib_cfg3__ib_eq_ld1_offset[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL(res_struct->ib_cfg3__ib_ldsd_divsel[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(res_struct->ib_cfg3__ib_ia_sdet_level[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(res_struct->ib_cfg3__ib_sdet_sel[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET(
+                res_struct->ib_cfg3__ib_eq_ld1_offset[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL(
+                    res_struct->ib_cfg3__ib_ldsd_divsel[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(
+                    res_struct->ib_cfg3__ib_ia_sdet_level[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(
+                    res_struct->ib_cfg3__ib_sdet_sel[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(res_struct->ib_cfg5__ib_offs_value[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA(res_struct->ib_cfg5__ib_calmux_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(
+                res_struct->ib_cfg5__ib_offs_value[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA(
+                    res_struct->ib_cfg5__ib_calmux_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG6(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(res_struct->ib_cfg6__ib_sam_offs_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ(res_struct->ib_cfg6__ib_auto_agc_adj[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(
+                res_struct->ib_cfg6__ib_sam_offs_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ(
+                    res_struct->ib_cfg6__ib_auto_agc_adj[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG7(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S(res_struct->ib_cfg7__ib_dfe_gain_adj_s[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ(res_struct->ib_cfg7__ib_dfe_gain_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H(res_struct->ib_cfg7__ib_dfe_offset_h[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S(
+                res_struct->ib_cfg7__ib_dfe_gain_adj_s[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ(
+                    res_struct->ib_cfg7__ib_dfe_gain_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H(
+                    res_struct->ib_cfg7__ib_dfe_offset_h[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H);
 
-if( res_struct->skip_cal[0] == 0 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(res_struct->ib_cfg8__ib_lat_neutral[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
+    if (res_struct->skip_cal[0] == 0) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(
+                    res_struct->ib_cfg8__ib_lat_neutral[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(res_struct->ib_cfg8__ib_lat_neutral[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
-
-} 
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(
+                    res_struct->ib_cfg8__ib_lat_neutral[1]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
+    }
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB(res_struct->ib_cfg4__ib_eqz_c_adj_ib[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0(res_struct->ib_cfg4__ib_eqz_c_adj_es0[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1(res_struct->ib_cfg4__ib_eqz_c_adj_es1[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2(res_struct->ib_cfg4__ib_eqz_c_adj_es2[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE(res_struct->ib_cfg4__ib_eqz_c_mode[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE(res_struct->ib_cfg4__ib_eqz_l_mode[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(res_struct->ib_cfg4__ib_vscope_h_thres[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(res_struct->ib_cfg4__ib_vscope_l_thres[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES(res_struct->ib_cfg4__ib_main_thres[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB(
+                res_struct->ib_cfg4__ib_eqz_c_adj_ib[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es0[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es1[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es2[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE(
+                    res_struct->ib_cfg4__ib_eqz_c_mode[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE(
+                    res_struct->ib_cfg4__ib_eqz_l_mode[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(
+                    res_struct->ib_cfg4__ib_vscope_h_thres[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(
+                    res_struct->ib_cfg4__ib_vscope_l_thres[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES(
+                    res_struct->ib_cfg4__ib_main_thres[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(res_struct->ib_cfg3__ib_set_sdet[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(
+                res_struct->ib_cfg3__ib_set_sdet[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(res_struct->ib_cfg0__ib_sig_sel[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(
+                res_struct->ib_cfg0__ib_sig_sel[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV(res_struct->ib_cfg10__ib_loop_drv[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(res_struct->ib_cfg10__ib_loop_rec[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV(
+                res_struct->ib_cfg10__ib_loop_drv[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(
+                    res_struct->ib_cfg10__ib_loop_rec[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG11(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP(res_struct->ib_cfg11__ib_ena_400_inp[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE(res_struct->ib_cfg11__ib_tc_dfe[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ(res_struct->ib_cfg11__ib_tc_eq[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP(
+                res_struct->ib_cfg11__ib_ena_400_inp[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE(
+                    res_struct->ib_cfg11__ib_tc_dfe[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ(
+                    res_struct->ib_cfg11__ib_tc_eq[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A(res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_a[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B(res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_b[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP(res_struct->moebdiv_cfg0__moebdiv_cpmd_swap[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS(res_struct->moebdiv_cfg0__moebdiv_dis[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A(
+            res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_a[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B(
+                res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_b[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP(
+                res_struct->moebdiv_cfg0__moebdiv_cpmd_swap[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS(
+                res_struct->moebdiv_cfg0__moebdiv_dis[0]),
         VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS);
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B |
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP |
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(res_struct->des_cfg0__des_inv_m[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(res_struct->des_cfg0__des_inv_h[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(res_struct->des_cfg0__des_inv_l[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(
+                res_struct->des_cfg0__des_inv_m[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(
+                    res_struct->des_cfg0__des_inv_h[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(
+                    res_struct->des_cfg0__des_inv_l[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[1]),
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR(res_struct->rx_rcpll_cfg2__pll_lpf_cur[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES(res_struct->rx_rcpll_cfg2__pll_lpf_res[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR(
+            res_struct->rx_rcpll_cfg2__pll_lpf_cur[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES(
+                res_struct->rx_rcpll_cfg2__pll_lpf_res[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES);
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT(res_struct->rx_rcpll_cfg0__pllf_start_cnt[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(res_struct->rx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(res_struct->rx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA(res_struct->rx_rcpll_cfg0__pllf_loop_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(res_struct->rx_rcpll_cfg0__pllf_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT(
+            res_struct->rx_rcpll_cfg0__pllf_start_cnt[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_loop_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END(res_struct->rx_rcpll_cfg1__pllf_ref_cnt_end[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END(
+            res_struct->rx_rcpll_cfg1__pllf_ref_cnt_end[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        VTSS_MSLEEP(10);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[2]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[2]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[2]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[2]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[3]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[3]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[4]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[4]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[5]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[5]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[2]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[2]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[3]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[3]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[4]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[4]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[5]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[5]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[3]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[3]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[6]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[6]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[7]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[7]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[8]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[8]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[9]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[9]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[6]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[6]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[7]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[7]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[8]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[8]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[9]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[9]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    VTSS_MSLEEP(50);
+        VTSS_MSLEEP(50);
 
-}  else {
-    VTSS_MSLEEP(10);
-
-} 
+    } else {
+        VTSS_MSLEEP(10);
+    }
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(res_struct->rx_rcpll_cfg0__pllf_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[1]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
     VTSS_MSLEEP(2);
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0_PLLF_LOCK_STAT(value) != 1) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0_PLLF_LOCK_STAT(
+            value) != 1) {
         VTSS_E("SD10G65::SD10G65_RX_RCPLL_STAT0.PLLF_LOCK_STAT is not 1!\n");
         rc = VTSS_RC_ERROR;
     }
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT(value) != 13) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT(
+            value) != 13) {
         VTSS_E("SD10G65::SD10G65_RX_RCPLL_STAT1.PLLF_FSM_STAT is not 13!\n");
         rc = VTSS_RC_ERROR;
     }
 
-  return rc;
+    return rc;
 }
 
-vtss_rc vtss_jaguar2_sd10g_setup_rx(vtss_state_t *vtss_state, const vtss_sd10g65_setup_rx_args_t config, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_sd10g_setup_rx(vtss_state_t *vtss_state,
+                                    const vtss_sd10g65_setup_rx_args_t config,
+                                    vtss_port_no_t                     port_no)
+{
     vtss_sd10g65_setup_rx_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                        ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_calc_sd10g65_setup_rx(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_sd10g_rx_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_sd10g_rx_register_cfg(vtss_state, &calc_results, port_no);
     }
     return ret_val;
 }
-static vtss_rc jaguar2_sd10g_power_down_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_pwr_down_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_sd10g_power_down_register_cfg(vtss_state_t *vtss_state,
+                                                     const vtss_sd10g65_pwr_down_t
+                                                         *const     res_struct,
+                                                     vtss_port_no_t port_no)
+{
     u32 tgt_ana;
 
     vtss_rc rc = VTSS_RC_OK;
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_rx_cfg__sbus_bias_en[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(res_struct->sbus_tx_cfg__sbus_bias_en[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_tx_cfg__sbus_bias_en[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->tx_synth_cfg0__synth_ena[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->tx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                res_struct->tx_rcpll_cfg2__pll_ena[0]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                res_struct->tx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(res_struct->ob_cfg0__en_ob[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(
+                res_struct->ob_cfg0__en_ob[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->rx_synth_cfg0__synth_ena[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->rx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                res_struct->rx_rcpll_cfg2__pll_ena[0]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                res_struct->rx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(res_struct->ib_cfg8__ib_bias_mode[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(
+                res_struct->ib_cfg8__ib_bias_mode[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->ib_cfg0__ib_dfe_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(res_struct->ib_cfg0__ib_ia_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(res_struct->ib_cfg0__ib_ld_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(res_struct->ib_cfg0__ib_eqz_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(res_struct->ib_cfg0__ib_sam_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                res_struct->ib_cfg0__ib_dfe_ena[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(
+                    res_struct->ib_cfg0__ib_ia_ena[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(
+                    res_struct->ib_cfg0__ib_ld_ena[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(
+                    res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(
+                    res_struct->ib_cfg0__ib_eqz_ena[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(
+                    res_struct->ib_cfg0__ib_sam_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_rx_cfg__sbus_bias_en[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN);
 
-
-  return rc;
+    return rc;
 }
 
-
-vtss_rc vtss_jaguar2_sd10g_power_down(vtss_state_t *vtss_state, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_sd10g_power_down(vtss_state_t  *vtss_state,
+                                      vtss_port_no_t port_no)
+{
     vtss_sd10g65_pwr_down_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                 ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_sd10g65_pwr_down(&calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_sd10g_power_down_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_sd10g_power_down_register_cfg(vtss_state, &calc_results,
+                                                  port_no);
     }
     return ret_val;
 }
-static vtss_rc jaguar2_apc10g_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_setup_apc_struct_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_apc10g_register_cfg(vtss_state_t *vtss_state,
+                                           const vtss_sd10g65_setup_apc_struct_t
+                                               *const     res_struct,
+                                           vtss_port_no_t port_no)
+{
     u32 tgt_ana;
     u32 tgt_dig;
     u32 value;
@@ -904,504 +1193,682 @@ static vtss_rc jaguar2_apc10g_register_cfg(vtss_state_t *vtss_state, const vtss_
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
     tgt_dig = VTSS_TO_10G_APC_TGT(port_no);
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_FSM_RECOVER_MODE(res_struct->apc_common_cfg0__apc_fsm_recover_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_HML_ERRCORR_ENA(res_struct->apc_common_cfg0__hml_errcorr_ena[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL(res_struct->apc_common_cfg0__skip_cal[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_IF_WIDTH(res_struct->apc_common_cfg0__if_width[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(res_struct->apc_common_cfg0__reset_apc[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA(res_struct->apc_common_cfg0__apc_direct_ena[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_FSM_RECOVER_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_HML_ERRCORR_ENA |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_IF_WIDTH |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA);
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_FSM_RECOVER_MODE(
+                res_struct->apc_common_cfg0__apc_fsm_recover_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_HML_ERRCORR_ENA(
+                    res_struct->apc_common_cfg0__hml_errcorr_ena[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL(
+                    res_struct->apc_common_cfg0__skip_cal[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_IF_WIDTH(
+                    res_struct->apc_common_cfg0__if_width[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(
+                    res_struct->apc_common_cfg0__reset_apc[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA(
+                    res_struct->apc_common_cfg0__apc_direct_ena[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_FSM_RECOVER_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_HML_ERRCORR_ENA |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_IF_WIDTH |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA);
 
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_CAL_CLK_DIV(res_struct->apc_ld_cal_cfg__cal_clk_div[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_CAL_CLK_DIV);
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_CAL_CLK_DIV(
+                res_struct->apc_ld_cal_cfg__cal_clk_div[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_CAL_CLK_DIV);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT(res_struct->apc_is_cal_cfg0__skip_observe_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT(res_struct->apc_is_cal_cfg0__skip_offset_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT(res_struct->apc_is_cal_cfg0__skip_threshold_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT(res_struct->apc_is_cal_cfg0__skip_dfe_buffer_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL(res_struct->apc_is_cal_cfg0__skip_observe_cal[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL(res_struct->apc_is_cal_cfg0__skip_offset_cal[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(res_struct->apc_is_cal_cfg0__skip_threshold_cal[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL(res_struct->apc_is_cal_cfg0__skip_dfe_buffer_cal[0]),
+    JR2_WRM(
+        VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
+        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT(
+            res_struct->apc_is_cal_cfg0__skip_observe_init[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT(
+                res_struct->apc_is_cal_cfg0__skip_offset_init[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT(
+                res_struct->apc_is_cal_cfg0__skip_threshold_init[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT(
+                res_struct->apc_is_cal_cfg0__skip_dfe_buffer_init[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL(
+                res_struct->apc_is_cal_cfg0__skip_observe_cal[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL(
+                res_struct->apc_is_cal_cfg0__skip_offset_cal[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(
+                res_struct->apc_is_cal_cfg0__skip_threshold_cal[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL(
+                res_struct->apc_is_cal_cfg0__skip_dfe_buffer_cal[0]),
         VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL);
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL |
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_PAR_DATA_NUM_ONES_THRES(res_struct->apc_is_cal_cfg1__par_data_num_ones_thres[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_NUM_ITERATIONS(res_struct->apc_is_cal_cfg1__cal_num_iterations[0]),
+    JR2_WRM(
+        VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
+        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_PAR_DATA_NUM_ONES_THRES(
+            res_struct->apc_is_cal_cfg1__par_data_num_ones_thres[0]) |
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_NUM_ITERATIONS(
+                res_struct->apc_is_cal_cfg1__cal_num_iterations[0]),
         VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_PAR_DATA_NUM_ONES_THRES |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_NUM_ITERATIONS);
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_NUM_ITERATIONS);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_AUTO_RESTART(res_struct->apc_eqz_common_cfg__eqz_gain_auto_restart[0]),
+    JR2_WRM(
+        VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG(tgt_dig),
+        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_AUTO_RESTART(
+            res_struct->apc_eqz_common_cfg__eqz_gain_auto_restart[0]),
         VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_AUTO_RESTART);
 
-if( res_struct->ib_cal_only[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI(res_struct->apc_eqz_agc_par_cfg__eqz_agc_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI);
+    if (res_struct->ib_cal_only[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI(
+                    res_struct->apc_eqz_agc_par_cfg__eqz_agc_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI(res_struct->apc_dfe1_par_cfg__dfe1_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI(
+                    res_struct->apc_dfe1_par_cfg__dfe1_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI(res_struct->apc_dfe2_par_cfg__dfe2_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI(
+                    res_struct->apc_dfe2_par_cfg__dfe2_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI(res_struct->apc_dfe3_par_cfg__dfe3_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI(
+                    res_struct->apc_dfe3_par_cfg__dfe3_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI(res_struct->apc_dfe4_par_cfg__dfe4_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI(
+                    res_struct->apc_dfe4_par_cfg__dfe4_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI);
 
-}  else {
-if( res_struct->throttle_mode[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA(res_struct->sd10g65_ib_cfg0__ib_vscope_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA);
+    } else {
+        if (res_struct->throttle_mode[0] == 1) {
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA(
+                        res_struct->sd10g65_ib_cfg0__ib_vscope_ena[0]),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VSCOPE_ENA);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(
+                    res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME(res_struct->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME(
+                    res_struct->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG_SLEEP_TIME(res_struct->apc_top_ctrl_cfg__sleep_time[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG_SLEEP_TIME);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG_SLEEP_TIME(
+                        res_struct->apc_top_ctrl_cfg__sleep_time[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_TOP_CTRL_CFG_SLEEP_TIME);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_THROTTLE_MODE(res_struct->apc_common_cfg0__throttle_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_THROTTLE_MODE);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_THROTTLE_MODE(
+                        res_struct->apc_common_cfg0__throttle_mode[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_THROTTLE_MODE);
 
-}  else if( res_struct->single_step[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
+        } else if (res_struct->single_step[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(
+                    res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
 
-}  else {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME(res_struct->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME);
+        } else {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME(
+                    res_struct->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_FSM1_TIMER_CFG_FSM1_OP_TIME);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE(
+                    res_struct->apc_parctrl_sync_cfg__fsm1_op_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_PARCTRL_SYNC_CFG_FSM1_OP_MODE);
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_LD_LEV_INI(
+                    res_struct->apc_eqz_ld_ctrl__ld_lev_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_LD_LEV_INI);
 
-} 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_LD_LEV_INI(res_struct->apc_eqz_ld_ctrl__ld_lev_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_LD_LEV_INI);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_DEADTIME_WRK(
+                res_struct->apc_eqz_ld_ctrl_cfg0__ld_t_deadtime_wrk[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_TIMEOUT_WRK(
+                    res_struct->apc_eqz_ld_ctrl_cfg0__ld_t_timeout_wrk[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_DEADTIME_WRK |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_TIMEOUT_WRK);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_DEADTIME_WRK(res_struct->apc_eqz_ld_ctrl_cfg0__ld_t_deadtime_wrk[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_TIMEOUT_WRK(res_struct->apc_eqz_ld_ctrl_cfg0__ld_t_timeout_wrk[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_DEADTIME_WRK |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG0_LD_T_TIMEOUT_WRK);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_DEADTIME_CAL(
+                res_struct->apc_eqz_ld_ctrl_cfg1__ld_t_deadtime_cal[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_TIMEOUT_CAL(
+                    res_struct->apc_eqz_ld_ctrl_cfg1__ld_t_timeout_cal[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_DEADTIME_CAL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_TIMEOUT_CAL);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_DEADTIME_CAL(res_struct->apc_eqz_ld_ctrl_cfg1__ld_t_deadtime_cal[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_TIMEOUT_CAL(res_struct->apc_eqz_ld_ctrl_cfg1__ld_t_timeout_cal[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_DEADTIME_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_LD_CTRL_CFG1_LD_T_TIMEOUT_CAL);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MASK(
+                res_struct->apc_eqz_pat_match_cfg0__eqz_c_pat_mask[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MATCH(
+                    res_struct->apc_eqz_pat_match_cfg0__eqz_c_pat_match[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MASK(
+                    res_struct->apc_eqz_pat_match_cfg0__eqz_l_pat_mask[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MATCH(
+                    res_struct->apc_eqz_pat_match_cfg0__eqz_l_pat_match[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MASK |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MATCH |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MASK |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MATCH);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MASK(res_struct->apc_eqz_pat_match_cfg0__eqz_c_pat_mask[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MATCH(res_struct->apc_eqz_pat_match_cfg0__eqz_c_pat_match[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MASK(res_struct->apc_eqz_pat_match_cfg0__eqz_l_pat_mask[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MATCH(res_struct->apc_eqz_pat_match_cfg0__eqz_l_pat_match[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MASK |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_C_PAT_MATCH |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MASK |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG0_EQZ_L_PAT_MATCH);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MASK(
+                res_struct->apc_eqz_pat_match_cfg1__eqz_offs_pat_mask[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MATCH(
+                    res_struct->apc_eqz_pat_match_cfg1__eqz_offs_pat_match[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MASK(
+                    res_struct->apc_eqz_pat_match_cfg1__eqz_agc_pat_mask[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MATCH(
+                    res_struct->apc_eqz_pat_match_cfg1__eqz_agc_pat_match[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MASK |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MATCH |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MASK |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MATCH);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MASK(res_struct->apc_eqz_pat_match_cfg1__eqz_offs_pat_mask[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MATCH(res_struct->apc_eqz_pat_match_cfg1__eqz_offs_pat_match[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MASK(res_struct->apc_eqz_pat_match_cfg1__eqz_agc_pat_mask[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MATCH(res_struct->apc_eqz_pat_match_cfg1__eqz_agc_pat_match[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MASK |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_OFFS_PAT_MATCH |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MASK |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_PAT_MATCH_CFG1_EQZ_AGC_PAT_MATCH);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_CHG_MODE(
+                res_struct->apc_eqz_offs_par_cfg__eqz_offs_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_RANGE_SEL(
+                    res_struct->apc_eqz_offs_par_cfg__eqz_offs_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MAX(
+                    res_struct->apc_eqz_offs_par_cfg__eqz_offs_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MIN(
+                    res_struct->apc_eqz_offs_par_cfg__eqz_offs_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_INI(
+                    res_struct->apc_eqz_offs_par_cfg__eqz_offs_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_CHG_MODE(res_struct->apc_eqz_offs_par_cfg__eqz_offs_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_RANGE_SEL(res_struct->apc_eqz_offs_par_cfg__eqz_offs_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MAX(res_struct->apc_eqz_offs_par_cfg__eqz_offs_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MIN(res_struct->apc_eqz_offs_par_cfg__eqz_offs_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_INI(res_struct->apc_eqz_offs_par_cfg__eqz_offs_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_INI);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_SYNC_MODE(
+                res_struct->apc_eqz_offs_ctrl__eqz_offs_sync_mode[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_SYNC_MODE(res_struct->apc_eqz_offs_ctrl__eqz_offs_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_SYNC_MODE);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_CHG_MODE(
+                res_struct->apc_eqz_agc_par_cfg__eqz_agc_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_RANGE_SEL(
+                    res_struct->apc_eqz_agc_par_cfg__eqz_agc_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MAX(
+                    res_struct->apc_eqz_agc_par_cfg__eqz_agc_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MIN(
+                    res_struct->apc_eqz_agc_par_cfg__eqz_agc_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI(
+                    res_struct->apc_eqz_agc_par_cfg__eqz_agc_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_CHG_MODE(res_struct->apc_eqz_agc_par_cfg__eqz_agc_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_RANGE_SEL(res_struct->apc_eqz_agc_par_cfg__eqz_agc_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MAX(res_struct->apc_eqz_agc_par_cfg__eqz_agc_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MIN(res_struct->apc_eqz_agc_par_cfg__eqz_agc_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI(res_struct->apc_eqz_agc_par_cfg__eqz_agc_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_PAR_CFG_EQZ_AGC_INI);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_SYNC_MODE(
+                res_struct->apc_eqz_agc_ctrl__eqz_agc_sync_mode[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_SYNC_MODE(res_struct->apc_eqz_agc_ctrl__eqz_agc_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_SYNC_MODE);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_DIR_SEL(
+                res_struct->apc_eqz_offs_par_cfg__eqz_offs_dir_sel[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_DIR_SEL);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_DIR_SEL(res_struct->apc_eqz_offs_par_cfg__eqz_offs_dir_sel[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_PAR_CFG_EQZ_OFFS_DIR_SEL);
+        if (res_struct->force_eqz_l[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(
+                    res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
 
-if( res_struct->force_eqz_l[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(
+                    res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
+        } else if (res_struct->high_data_rate[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(
+                    res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_RANGE_SEL(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_range_sel[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_max[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_min[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_RANGE_SEL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
 
-}  else if( res_struct->high_data_rate[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_RANGE_SEL(res_struct->apc_eqz_l_par_cfg__eqz_l_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX(res_struct->apc_eqz_l_par_cfg__eqz_l_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN(res_struct->apc_eqz_l_par_cfg__eqz_l_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(
+                    res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
+        } else {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(
+                    res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(
+                        res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
 
-}  else {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(res_struct->apc_eqz_l_par_cfg__eqz_l_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI(res_struct->apc_eqz_l_par_cfg__eqz_l_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_INI);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(
+                    res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
+        }
+        if (res_struct->force_eqz_c[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(
+                    res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(res_struct->apc_eqz_l_ctrl__eqz_l_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(
+                    res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
 
-} 
-if( res_struct->force_eqz_c[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
+        } else if (res_struct->high_data_rate[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(
+                    res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_RANGE_SEL(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_range_sel[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_max[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_min[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_RANGE_SEL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(
+                    res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
 
-}  else if( res_struct->high_data_rate[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_RANGE_SEL(res_struct->apc_eqz_c_par_cfg__eqz_c_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX(res_struct->apc_eqz_c_par_cfg__eqz_c_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN(res_struct->apc_eqz_c_par_cfg__eqz_c_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
+        } else {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(
+                    res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(
+                        res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(
+                    res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
+        }
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_CHG_MODE(
+                res_struct->apc_dfe1_par_cfg__dfe1_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_RANGE_SEL(
+                    res_struct->apc_dfe1_par_cfg__dfe1_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MAX(
+                    res_struct->apc_dfe1_par_cfg__dfe1_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MIN(
+                    res_struct->apc_dfe1_par_cfg__dfe1_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI(
+                    res_struct->apc_dfe1_par_cfg__dfe1_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI);
 
-}  else {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(res_struct->apc_eqz_c_par_cfg__eqz_c_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI(res_struct->apc_eqz_c_par_cfg__eqz_c_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_SYNC_MODE(
+                    res_struct->apc_dfe1_ctrl__dfe1_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(res_struct->apc_eqz_c_ctrl__eqz_c_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_CHG_MODE(
+                res_struct->apc_dfe2_par_cfg__dfe2_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_RANGE_SEL(
+                    res_struct->apc_dfe2_par_cfg__dfe2_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MAX(
+                    res_struct->apc_dfe2_par_cfg__dfe2_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MIN(
+                    res_struct->apc_dfe2_par_cfg__dfe2_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI(
+                    res_struct->apc_dfe2_par_cfg__dfe2_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI);
 
-} 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_CHG_MODE(res_struct->apc_dfe1_par_cfg__dfe1_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_RANGE_SEL(res_struct->apc_dfe1_par_cfg__dfe1_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MAX(res_struct->apc_dfe1_par_cfg__dfe1_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MIN(res_struct->apc_dfe1_par_cfg__dfe1_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI(res_struct->apc_dfe1_par_cfg__dfe1_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_PAR_CFG_DFE1_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_SYNC_MODE(
+                    res_struct->apc_dfe2_ctrl__dfe2_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_SYNC_MODE(res_struct->apc_dfe1_ctrl__dfe1_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_SYNC_MODE);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_CHG_MODE(
+                res_struct->apc_dfe3_par_cfg__dfe3_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_RANGE_SEL(
+                    res_struct->apc_dfe3_par_cfg__dfe3_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MAX(
+                    res_struct->apc_dfe3_par_cfg__dfe3_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MIN(
+                    res_struct->apc_dfe3_par_cfg__dfe3_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI(
+                    res_struct->apc_dfe3_par_cfg__dfe3_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_CHG_MODE(res_struct->apc_dfe2_par_cfg__dfe2_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_RANGE_SEL(res_struct->apc_dfe2_par_cfg__dfe2_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MAX(res_struct->apc_dfe2_par_cfg__dfe2_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MIN(res_struct->apc_dfe2_par_cfg__dfe2_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI(res_struct->apc_dfe2_par_cfg__dfe2_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_PAR_CFG_DFE2_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_SYNC_MODE(
+                    res_struct->apc_dfe3_ctrl__dfe3_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_SYNC_MODE(res_struct->apc_dfe2_ctrl__dfe2_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_SYNC_MODE);
+        JR2_WRM(
+            VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG(tgt_dig),
+            VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_CHG_MODE(
+                res_struct->apc_dfe4_par_cfg__dfe4_chg_mode[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_RANGE_SEL(
+                    res_struct->apc_dfe4_par_cfg__dfe4_range_sel[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MAX(
+                    res_struct->apc_dfe4_par_cfg__dfe4_max[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MIN(
+                    res_struct->apc_dfe4_par_cfg__dfe4_min[0]) |
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI(
+                    res_struct->apc_dfe4_par_cfg__dfe4_ini[0]),
+            VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_CHG_MODE |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_RANGE_SEL |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MAX |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MIN |
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_CHG_MODE(res_struct->apc_dfe3_par_cfg__dfe3_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_RANGE_SEL(res_struct->apc_dfe3_par_cfg__dfe3_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MAX(res_struct->apc_dfe3_par_cfg__dfe3_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MIN(res_struct->apc_dfe3_par_cfg__dfe3_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI(res_struct->apc_dfe3_par_cfg__dfe3_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_PAR_CFG_DFE3_INI);
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_SYNC_MODE(
+                    res_struct->apc_dfe4_ctrl__dfe4_sync_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_SYNC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_SYNC_MODE(res_struct->apc_dfe3_ctrl__dfe3_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_SYNC_MODE);
+        if (res_struct->apc_eqz_common_cfg__eqz_gain_chg_mode[0] != 0) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG_EQZ_GAIN_INI(
+                    res_struct->apc_eqz_gain_ctrl_cfg__eqz_gain_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG_EQZ_GAIN_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_CHG_MODE(res_struct->apc_dfe4_par_cfg__dfe4_chg_mode[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_RANGE_SEL(res_struct->apc_dfe4_par_cfg__dfe4_range_sel[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MAX(res_struct->apc_dfe4_par_cfg__dfe4_max[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MIN(res_struct->apc_dfe4_par_cfg__dfe4_min[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI(res_struct->apc_dfe4_par_cfg__dfe4_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_CHG_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_RANGE_SEL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MAX |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_MIN |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_PAR_CFG_DFE4_INI);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG_EQZ_GAIN_ADJ_INI(
+                    res_struct->apc_eqz_gain_adj_ctrl_cfg__eqz_gain_adj_ini[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG_EQZ_GAIN_ADJ_INI);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_SYNC_MODE(res_struct->apc_dfe4_ctrl__dfe4_sync_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_SYNC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_CHG_MODE(
+                    res_struct->apc_eqz_common_cfg__eqz_gain_chg_mode[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_CHG_MODE);
+        }
+    }
+    if (res_struct->skip_cal[0] != 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG6(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(31),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ);
 
-if( res_struct->apc_eqz_common_cfg__eqz_gain_chg_mode[0] != 0 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG_EQZ_GAIN_INI(res_struct->apc_eqz_gain_ctrl_cfg__eqz_gain_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_CTRL_CFG_EQZ_GAIN_INI);
+        if (res_struct->is_2pt_cal[0] == 0) {
+            JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_INV_THR_CAL_VAL(
+                        res_struct->sd10g65_ib_cfg8__ib_inv_thr_cal_val[0]),
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_INV_THR_CAL_VAL);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG_EQZ_GAIN_ADJ_INI(res_struct->apc_eqz_gain_adj_ctrl_cfg__eqz_gain_adj_ini[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_GAIN_ADJ_CTRL_CFG_EQZ_GAIN_ADJ_INI);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_CPMD_THRES_INIT(
+                    res_struct->apc_is_cal_cfg0__cpmd_thres_init[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_VSC_THRES_INIT(
+                        res_struct->apc_is_cal_cfg0__vsc_thres_init[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(
+                        res_struct->apc_is_cal_cfg0__skip_threshold_cal[1]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_CPMD_THRES_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_VSC_THRES_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_CHG_MODE(res_struct->apc_eqz_common_cfg__eqz_gain_chg_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_COMMON_CFG_EQZ_GAIN_CHG_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_VSC_OFFSET_TGT(
+                    res_struct->apc_is_cal_cfg1__cal_vsc_offset_tgt[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_VSC_OFFSET_TGT);
+        }
 
-} 
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                    res_struct->sd10g65_ib_cfg0__ib_dfe_ena[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA);
 
-} 
-if( res_struct->skip_cal[0] != 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG6(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(31),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(
+                    res_struct->sd10g65_des_cfg0__des_inv_x[0]) |
+                    VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(
+                        res_struct->sd10g65_des_cfg0__des_inv_x[0]) |
+                    VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(
+                        res_struct->sd10g65_des_cfg0__des_inv_x[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
+                    VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
+                    VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L);
 
-if( res_struct->is_2pt_cal[0] == 0 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_INV_THR_CAL_VAL(res_struct->sd10g65_ib_cfg8__ib_inv_thr_cal_val[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_INV_THR_CAL_VAL);
+        if (res_struct->incl_ld_cal[0] == 1) {
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(
+                        res_struct->apc_common_cfg0__apc_mode[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_CPMD_THRES_INIT(res_struct->apc_is_cal_cfg0__cpmd_thres_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_VSC_THRES_INIT(res_struct->apc_is_cal_cfg0__vsc_thres_init[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(res_struct->apc_is_cal_cfg0__skip_threshold_cal[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_CPMD_THRES_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_VSC_THRES_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL);
+            VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_VSC_OFFSET_TGT(res_struct->apc_is_cal_cfg1__cal_vsc_offset_tgt[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_CAL_VSC_OFFSET_TGT);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(
+                        res_struct->apc_common_cfg0__reset_apc[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
 
-} 
+        } else {
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(
+                        res_struct->apc_common_cfg0__apc_mode[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->sd10g65_ib_cfg0__ib_dfe_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA);
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(
+                        res_struct->apc_common_cfg0__reset_apc[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(res_struct->sd10g65_des_cfg0__des_inv_x[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(res_struct->sd10g65_des_cfg0__des_inv_x[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(res_struct->sd10g65_des_cfg0__des_inv_x[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L);
+            VTSS_MSLEEP(1);
 
-if( res_struct->incl_ld_cal[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(res_struct->apc_common_cfg0__apc_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL(1),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL);
+        }
+        VTSS_MSLEEP(res_struct->calibration_time_ms[1]);
 
-    VTSS_MSLEEP(2);
+        if (res_struct->incl_ld_cal[0] == 1) {
+            // Check for correctness status bits
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG(tgt_dig),
+                   &value);
+            if (VTSS_X_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_DETLEV_CAL_DONE(
+                    value) != 1) {
+                VTSS_E("SD10G65_DIG::APC_LD_CAL_CFG.DETLEV_CAL_DONE is not 1!\n");
+                rc = VTSS_RC_ERROR;
+            }
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(res_struct->apc_common_cfg0__reset_apc[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
+        } else {
+            // Check for correctness status bits
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
+                   &value);
+            if (VTSS_X_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_OFFSCAL_DONE(
+                    value) != 1) {
+                VTSS_E("SD10G65_DIG::APC_IS_CAL_CFG1.OFFSCAL_DONE is not 1!\n");
+                rc = VTSS_RC_ERROR;
+            }
 
-}  else {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(res_struct->apc_common_cfg0__apc_mode[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL(0),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL);
+        }
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(
+                    res_struct->sd10g65_des_cfg0__des_inv_x[1]) |
+                    VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(
+                        res_struct->sd10g65_des_cfg0__des_inv_x[1]) |
+                    VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(
+                        res_struct->sd10g65_des_cfg0__des_inv_x[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
+                    VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
+                    VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L);
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(res_struct->apc_common_cfg0__reset_apc[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(1),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA);
 
-    VTSS_MSLEEP(1);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL(1),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL);
-
-} 
-    VTSS_MSLEEP(res_struct->calibration_time_ms[1]);
-
-if( res_struct->incl_ld_cal[0] == 1 ) {
-    // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG(tgt_dig), &value);
-    if (VTSS_X_SD10G65_DIG_SD10G65_APC_APC_LD_CAL_CFG_DETLEV_CAL_DONE(value) != 1) { 
-        VTSS_E("SD10G65_DIG::APC_LD_CAL_CFG.DETLEV_CAL_DONE is not 1!\n");
-        rc = VTSS_RC_ERROR;
+        if (res_struct->ib_cal_only[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(0) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA(
+                        0),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA);
+        }
     }
 
-}  else {
-    // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig), &value);
-    if (VTSS_X_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_OFFSCAL_DONE(value) != 1) { 
-        VTSS_E("SD10G65_DIG::APC_IS_CAL_CFG1.OFFSCAL_DONE is not 1!\n");
-        rc = VTSS_RC_ERROR;
+    if (res_struct->ib_cal_only[0] == 0) {
+        if (res_struct->incl_ld_cal[0] == 1) {
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT(
+                    res_struct->apc_is_cal_cfg0__skip_observe_init[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT(
+                        res_struct->apc_is_cal_cfg0__skip_offset_init[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT(
+                        res_struct->apc_is_cal_cfg0__skip_threshold_init[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT(
+                        res_struct->apc_is_cal_cfg0__skip_dfe_buffer_init[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL(
+                        res_struct->apc_is_cal_cfg0__skip_observe_cal[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL(
+                        res_struct->apc_is_cal_cfg0__skip_offset_cal[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(
+                        res_struct->apc_is_cal_cfg0__skip_threshold_cal[2]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL(
+                        res_struct->apc_is_cal_cfg0__skip_dfe_buffer_cal[1]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL);
+
+        } else {
+        }
+        JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL(
+                    res_struct->apc_common_cfg0__skip_cal[1]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(
+                        res_struct->apc_common_cfg0__apc_mode[2]),
+                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL |
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
+
+        if (res_struct->skip_cal[0] == 1) {
+            VTSS_MSLEEP(2);
+
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(0),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
+        }
     }
 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL(0),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG1_START_OFFSCAL);
-
-} 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(res_struct->sd10g65_des_cfg0__des_inv_x[1]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(res_struct->sd10g65_des_cfg0__des_inv_x[1]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(res_struct->sd10g65_des_cfg0__des_inv_x[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L);
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(1),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA);
-
-if( res_struct->ib_cal_only[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(0) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA(0),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_DIRECT_ENA);
-
-} 
-
-} 
-
-if( res_struct->ib_cal_only[0] == 0 ) {
-if( res_struct->incl_ld_cal[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT(res_struct->apc_is_cal_cfg0__skip_observe_init[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT(res_struct->apc_is_cal_cfg0__skip_offset_init[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT(res_struct->apc_is_cal_cfg0__skip_threshold_init[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT(res_struct->apc_is_cal_cfg0__skip_dfe_buffer_init[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL(res_struct->apc_is_cal_cfg0__skip_observe_cal[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL(res_struct->apc_is_cal_cfg0__skip_offset_cal[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL(res_struct->apc_is_cal_cfg0__skip_threshold_cal[2]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL(res_struct->apc_is_cal_cfg0__skip_dfe_buffer_cal[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_INIT |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OBSERVE_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_OFFSET_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_THRESHOLD_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_IS_CAL_CFG0_SKIP_DFE_BUFFER_CAL);
-
-}  else {
-} 
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL(res_struct->apc_common_cfg0__skip_cal[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE(res_struct->apc_common_cfg0__apc_mode[2]),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_SKIP_CAL |
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_APC_MODE);
-
-if( res_struct->skip_cal[0] == 1 ) {
-    VTSS_MSLEEP(2);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC(0),
-        VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_RESET_APC);
-
-} 
-
-} 
-
-  return rc;
+    return rc;
 }
 
-vtss_rc vtss_jaguar2_apc10g_setup(vtss_state_t *vtss_state, const vtss_sd10g65_setup_apc_args_t config, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_apc10g_setup(vtss_state_t *vtss_state,
+                                  const vtss_sd10g65_setup_apc_args_t config,
+                                  vtss_port_no_t                      port_no)
+{
     vtss_sd10g65_setup_apc_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                         ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
 
     ret_val = vtss_calc_sd10g65_setup_apc(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_apc10g_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_apc10g_register_cfg(vtss_state, &calc_results, port_no);
     }
     return ret_val;
 }
-static vtss_rc jaguar2_sd10g_df2f_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_setup_df2f_struct_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_sd10g_df2f_register_cfg(
+    vtss_state_t                                 *vtss_state,
+    const vtss_sd10g65_setup_df2f_struct_t *const res_struct,
+    vtss_port_no_t                                port_no)
+{
     u32 tgt_ana;
     u32 tgt_dig;
     u32 value;
@@ -1409,1191 +1876,1604 @@ static vtss_rc jaguar2_sd10g_df2f_register_cfg(vtss_state_t *vtss_state, const v
     vtss_rc rc = VTSS_RC_OK;
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
     tgt_dig = VTSS_TO_10G_APC_TGT(port_no);
-if( res_struct->pwrcycle[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+    if (res_struct->pwrcycle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->tx_synth_cfg0__synth_ena[0]),
+                VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                    res_struct->tx_rcpll_cfg2__pll_ena[0]),
+                VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(
+                    res_struct->ob_cfg0__en_ob[0]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
+
+        VTSS_MSLEEP(1);
+    }
+
+    if (res_struct->sbus_special_handling[0] == 1) {
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(
+                    res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
+
+    } else {
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(
+                    res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
+
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(
+                    res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
+    }
+    if (res_struct->sbus_special_handling[0] == 1) {
+    }
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(res_struct->ob_cfg0__en_ob[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
-
-    VTSS_MSLEEP(1);
-
-} 
-
-if( res_struct->sbus_special_handling[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
-
-}  else {
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN(res_struct->sbus_tx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_tx_cfg__sbus_bias_speed_sel[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_SBUS_TX_CFG_SBUS_BIAS_SPEED_SEL);
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
-
-} 
-if( res_struct->sbus_special_handling[0] == 1 ) {
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(res_struct->ob_cfg0__en_ob[1]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB(
+                res_struct->ob_cfg0__en_ob[1]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_OB);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(res_struct->tx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA(
+                res_struct->tx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(res_struct->tx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->tx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL(res_struct->tx_synth_cfg0__synth_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(res_struct->tx_synth_cfg0__synth_off_comp_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL(
+            res_struct->tx_synth_cfg0__synth_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(
+                res_struct->tx_synth_cfg0__synth_off_comp_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL(res_struct->tx_synth_cfg0__synth_speed_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL(res_struct->tx_synth_cfg0__synth_fbdiv_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL(
+            res_struct->tx_synth_cfg0__synth_speed_sel[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL(
+                res_struct->tx_synth_cfg0__synth_fbdiv_sel[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_SPEED_SEL |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0(res_struct->tx_synth_cfg3__synth_freqm_0[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0(
+                res_struct->tx_synth_cfg3__synth_freqm_0[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG3_SYNTH_FREQM_0);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0(res_struct->tx_synth_cfg4__synth_freqn_0[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0(
+                res_struct->tx_synth_cfg4__synth_freqn_0[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG4_SYNTH_FREQN_0);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(res_struct->tx_synth_cfg1__synth_freq_mult_byp[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(res_struct->tx_synth_cfg1__synth_freq_mult_hi[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT(res_struct->tx_synth_cfg1__synth_freq_mult[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1(res_struct->tx_synth_cfg1__synth_freqm_1[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1(res_struct->tx_synth_cfg1__synth_freqn_1[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(
+            res_struct->tx_synth_cfg1__synth_freq_mult_byp[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(
+                res_struct->tx_synth_cfg1__synth_freq_mult_hi[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT(
+                res_struct->tx_synth_cfg1__synth_freq_mult[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1(
+                res_struct->tx_synth_cfg1__synth_freqm_1[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1(
+                res_struct->tx_synth_cfg1__synth_freqn_1[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1 |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQ_MULT |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQM_1 |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG1_SYNTH_FREQN_1);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED(res_struct->tx_synth_cfg0__synth_ls_speed[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED(res_struct->tx_synth_cfg0__synth_cs_speed[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED(
+            res_struct->tx_synth_cfg0__synth_ls_speed[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED(
+                res_struct->tx_synth_cfg0__synth_cs_speed[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_SPEED |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CS_SPEED);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT(res_struct->tx_synth_cfg0__synth_ena_sync_unit[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA(res_struct->tx_synth_cfg0__synth_conv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA(res_struct->tx_synth_cfg0__synth_ds_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR(res_struct->tx_synth_cfg0__synth_ds_dir[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED(res_struct->tx_synth_cfg0__synth_ds_speed[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR(res_struct->tx_synth_cfg0__synth_ls_dir[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA(res_struct->tx_synth_cfg0__synth_ls_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+            res_struct->tx_synth_cfg0__synth_hrate_ena[1]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT(
+                res_struct->tx_synth_cfg0__synth_ena_sync_unit[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA(
+                res_struct->tx_synth_cfg0__synth_conv_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA(
+                res_struct->tx_synth_cfg0__synth_ds_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR(
+                res_struct->tx_synth_cfg0__synth_ds_dir[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED(
+                res_struct->tx_synth_cfg0__synth_ds_speed[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR(
+                res_struct->tx_synth_cfg0__synth_ls_dir[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA(
+                res_struct->tx_synth_cfg0__synth_ls_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR |
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_ENA_SYNC_UNIT |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_CONV_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_DIR |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_DS_SPEED |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_DIR |
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_LS_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL(res_struct->ssc_cfg1__sync_ctrl_fsel[0]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL);
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL(
+                res_struct->ssc_cfg1__sync_ctrl_fsel[0]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_SSC_CFG1_SYNC_CTRL_FSEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP(res_struct->ob_cfg0__en_inp_loop[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(res_struct->ob_cfg0__en_pad_loop[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV(res_struct->ob_cfg0__ser_inv[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN(res_struct->ob_cfg0__incr_levn[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_DIRECT(res_struct->ob_cfg0__en_direct[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN(res_struct->ob_cfg0__levn[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_DIRECT |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP(
+                res_struct->ob_cfg0__en_inp_loop[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(
+                    res_struct->ob_cfg0__en_pad_loop[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV(
+                    res_struct->ob_cfg0__ser_inv[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN(
+                    res_struct->ob_cfg0__incr_levn[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_DIRECT(
+                    res_struct->ob_cfg0__en_direct[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN(
+                    res_struct->ob_cfg0__levn[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_INP_LOOP |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SER_INV |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_INCR_LEVN |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_DIRECT |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_LEVN);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT(res_struct->ob_cfg1__lev_shft[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL(res_struct->ob_cfg1__predrv_r_ctrl[0]) |
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL(res_struct->ob_cfg1__predrv_c_ctrl[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL |
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT(
+                res_struct->ob_cfg1__lev_shft[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL(
+                    res_struct->ob_cfg1__predrv_r_ctrl[0]) |
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL(
+                    res_struct->ob_cfg1__predrv_c_ctrl[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_LEV_SHFT |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_R_CTRL |
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG1_PREDRV_C_CTRL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER(res_struct->ob_cfg2__d_filter[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER);
+            VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER(
+                res_struct->ob_cfg2__d_filter[0]),
+            VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG2_D_FILTER);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR(res_struct->tx_rcpll_cfg2__pll_lpf_cur[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES(res_struct->tx_rcpll_cfg2__pll_lpf_res[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR(
+            res_struct->tx_rcpll_cfg2__pll_lpf_cur[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES(
+                res_struct->tx_rcpll_cfg2__pll_lpf_res[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_CUR |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES);
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG2_PLL_LPF_RES);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT(res_struct->tx_rcpll_cfg0__pllf_start_cnt[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(res_struct->tx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(res_struct->tx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA(res_struct->tx_rcpll_cfg0__pllf_loop_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(res_struct->tx_rcpll_cfg0__pllf_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT(
+            res_struct->tx_rcpll_cfg0__pllf_start_cnt[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_loop_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_START_CNT |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA |
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_LOOP_ENA |
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END(res_struct->tx_rcpll_cfg1__pllf_ref_cnt_end[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END(
+            res_struct->tx_rcpll_cfg1__pllf_ref_cnt_end[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG1_PLLF_REF_CNT_END);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[0]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        VTSS_MSLEEP(10);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[1]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[1]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[2]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[2]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[3]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[3]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[4]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[4]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[5]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[5]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[2]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[2]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[6]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[6]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[7]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[7]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[8]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[8]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->tx_synth_cfg0__synth_hrate_ena[9]),
-        VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->tx_synth_cfg0__synth_hrate_ena[9]),
+            VTSS_M_SD10G65_SD10G65_TX_SYNTH_SD10G65_TX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(res_struct->ob_cfg0__sel_ifw[0]),
-        VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
+        JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW(
+                    res_struct->ob_cfg0__sel_ifw[0]),
+                VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_SEL_IFW);
 
-    VTSS_MSLEEP(50);
+        VTSS_MSLEEP(50);
 
-}  else {
-    VTSS_MSLEEP(10);
-
-} 
+    } else {
+        VTSS_MSLEEP(10);
+    }
     JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(res_struct->tx_rcpll_cfg0__pllf_ena[1]),
-        VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->tx_rcpll_cfg0__pllf_ena[1]),
+            VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->tx_rcpll_cfg0__pllf_oor_recal_ena[1]),
         VTSS_M_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
     VTSS_MSLEEP(2);
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0_PLLF_LOCK_STAT(value) != 1) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0_PLLF_LOCK_STAT(
+            value) != 1) {
         VTSS_E("SD10G65::SD10G65_TX_RCPLL_STAT0.PLLF_LOCK_STAT is not 1!\n");
         rc = VTSS_RC_ERROR;
     }
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1_PLLF_FSM_STAT(value) != 13) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1_PLLF_FSM_STAT(
+            value) != 13) {
         VTSS_E("SD10G65::SD10G65_TX_RCPLL_STAT1.PLLF_FSM_STAT is not 13!\n");
         rc = VTSS_RC_ERROR;
     }
 
-if( res_struct->use_par_clk[0] == 0 ) {
-if( res_struct->use_clk_gen[0] == 1 ) {
-}  else {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_DFT_TX_ENA(res_struct->dft_tx_cfg__dft_tx_ena[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_DFT_TX_ENA);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG(res_struct->dft_tx_pat_cfg__max_addr_gen_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG(res_struct->dft_tx_pat_cfg__max_addr_gen_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG);
-
-if( 0 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 1 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[1]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 2 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[2]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[2]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 3 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[3]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[3]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 4 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[4]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[4]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 5 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[5]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[5]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 6 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[6]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[6]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 7 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[7]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[7]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 8 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[8]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[8]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 9 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[9]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[9]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 10 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[10]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[10]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 11 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[11]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[11]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 12 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[12]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[12]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 13 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[13]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[13]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 14 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[14]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[14]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-if( 15 < res_struct->num_words[0]) {
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(res_struct->dft_tx_pat_cfg__store_addr_cfg[15]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(res_struct->dft_tx_pat_cfg__pattern_cfg[15]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
-
-} 
-
-    JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG(tgt_dig),
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WID_SEL_CFG(res_struct->dft_tx_cfg__tx_wid_sel_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_PRBS_SEL_CFG(res_struct->dft_tx_cfg__tx_prbs_sel_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_SCRAM_INV_CFG(res_struct->dft_tx_cfg__scram_inv_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_OPATH_CFG(res_struct->dft_tx_cfg__opath_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_IPATH_CFG(res_struct->dft_tx_cfg__ipath_cfg[0]) |
-        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WORD_MODE_CFG(res_struct->dft_tx_cfg__tx_word_mode_cfg[0]),
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WID_SEL_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_PRBS_SEL_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_SCRAM_INV_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_OPATH_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_IPATH_CFG |
-        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WORD_MODE_CFG);
-
-} 
-} 
-
-
-  return rc;
+    if (res_struct->use_par_clk[0] == 0) {
+        if (res_struct->use_clk_gen[0] == 1) {
+        } else {
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_DFT_TX_ENA(
+                        res_struct->dft_tx_cfg__dft_tx_ena[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_DFT_TX_ENA);
+
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG(
+                    res_struct->dft_tx_pat_cfg__max_addr_gen_cfg[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG);
+
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG(
+                    res_struct->dft_tx_pat_cfg__max_addr_gen_cfg[1]),
+                VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_MAX_ADDR_GEN_CFG);
+
+            if (0 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[0]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (1 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[1]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (2 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[2]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[2]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (3 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[3]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[3]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (4 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[4]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[4]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (5 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[5]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[5]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (6 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[6]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[6]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (7 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[7]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[7]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (8 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[8]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[8]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (9 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[9]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[9]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (10 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[10]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[10]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (11 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[11]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[11]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (12 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[12]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[12]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (13 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[13]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[13]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (14 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[14]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[14]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            if (15 < res_struct->num_words[0]) {
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG(
+                        res_struct->dft_tx_pat_cfg__store_addr_cfg[15]) |
+                        VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG(
+                            res_struct->dft_tx_pat_cfg__pattern_cfg[15]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_STORE_ADDR_CFG |
+                        VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PATTERN_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[0]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+
+                JR2_WRM(
+                    VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG(
+                        res_struct->dft_tx_pat_cfg__pat_vld_cfg[1]),
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_PAT_CFG_PAT_VLD_CFG);
+            }
+
+            JR2_WRM(
+                VTSS_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG(tgt_dig),
+                VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WID_SEL_CFG(
+                    res_struct->dft_tx_cfg__tx_wid_sel_cfg[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_PRBS_SEL_CFG(
+                        res_struct->dft_tx_cfg__tx_prbs_sel_cfg[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_SCRAM_INV_CFG(
+                        res_struct->dft_tx_cfg__scram_inv_cfg[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_OPATH_CFG(
+                        res_struct->dft_tx_cfg__opath_cfg[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_IPATH_CFG(
+                        res_struct->dft_tx_cfg__ipath_cfg[0]) |
+                    VTSS_F_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WORD_MODE_CFG(
+                        res_struct->dft_tx_cfg__tx_word_mode_cfg[0]),
+                VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WID_SEL_CFG |
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_PRBS_SEL_CFG |
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_SCRAM_INV_CFG |
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_OPATH_CFG |
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_IPATH_CFG |
+                    VTSS_M_SD10G65_DIG_SD10G65_DFT_DFT_TX_CFG_TX_WORD_MODE_CFG);
+        }
+    }
+
+    return rc;
 }
 
-
-vtss_rc vtss_jaguar2_sd10g_setup_df2f(vtss_state_t *vtss_state, const vtss_sd10g65_setup_df2f_args_t config, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_sd10g_setup_df2f(vtss_state_t *vtss_state,
+                                      const vtss_sd10g65_setup_df2f_args_t
+                                                     config,
+                                      vtss_port_no_t port_no)
+{
     vtss_sd10g65_setup_df2f_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                          ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_calc_sd10g65_setup_df2f(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_sd10g_df2f_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_sd10g_df2f_register_cfg(vtss_state, &calc_results, port_no);
     }
     return ret_val;
 }
-static vtss_rc jaguar2_sd10g_f2df_register_cfg(vtss_state_t *vtss_state, const vtss_sd10g65_setup_f2df_struct_t *const res_struct, vtss_port_no_t port_no) {
+static vtss_rc jaguar2_sd10g_f2df_register_cfg(
+    vtss_state_t                                 *vtss_state,
+    const vtss_sd10g65_setup_f2df_struct_t *const res_struct,
+    vtss_port_no_t                                port_no)
+{
     u32 tgt_ana;
     u32 value;
 
     vtss_rc rc = VTSS_RC_OK;
     tgt_ana = VTSS_TO_10G_SRD_TGT(port_no);
-if( res_struct->pwrcycle[0] == 1 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+    if (res_struct->pwrcycle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[0]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                    res_struct->rx_rcpll_cfg2__pll_ena[0]),
+                VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(res_struct->ib_cfg8__ib_bias_mode[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(
+                    res_struct->ib_cfg8__ib_bias_mode[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->ib_cfg0__ib_dfe_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(res_struct->ib_cfg0__ib_ia_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(res_struct->ib_cfg0__ib_ld_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(res_struct->ib_cfg0__ib_eqz_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(res_struct->ib_cfg0__ib_sam_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                    res_struct->ib_cfg0__ib_dfe_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(
+                        res_struct->ib_cfg0__ib_ia_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(
+                        res_struct->ib_cfg0__ib_ld_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(
+                        res_struct->ib_cfg0__ib_clkdiv_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(
+                        res_struct->ib_cfg0__ib_eqz_ena[0]) |
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(
+                        res_struct->ib_cfg0__ib_sam_ena[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
+                    VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
 
-    VTSS_MSLEEP(1);
+        VTSS_MSLEEP(1);
+    }
 
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA(res_struct->sbus_rx_cfg__sbus_loopdrv_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL(res_struct->sbus_rx_cfg__sbus_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA(
+            res_struct->sbus_rx_cfg__sbus_loopdrv_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL(
+                res_struct->sbus_rx_cfg__sbus_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN(
+                res_struct->sbus_rx_cfg__sbus_bias_en[0]) |
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL(
+                res_struct->sbus_rx_cfg__sbus_bias_speed_sel[0]),
         VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_LOOPDRV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_SPARE_POOL |
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_EN |
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_SBUS_RX_CFG_SBUS_BIAS_SPEED_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(res_struct->rx_rcpll_cfg2__pll_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA(
+                res_struct->rx_rcpll_cfg2__pll_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                res_struct->rx_synth_cfg0__synth_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA(res_struct->rx_synth_cfg2__synth_aux_ena[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA(
+                res_struct->rx_synth_cfg2__synth_aux_ena[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_AUX_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(res_struct->ib_cfg0__ib_clkdiv_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL(res_struct->ib_cfg0__ib_vbulk_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(res_struct->ib_cfg0__ib_sam_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA(
+                res_struct->ib_cfg0__ib_clkdiv_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL(
+                    res_struct->ib_cfg0__ib_vbulk_sel[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA(
+                    res_struct->ib_cfg0__ib_sam_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_CLKDIV_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_VBULK_SEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SAM_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(res_struct->ib_cfg8__ib_bias_mode[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR(res_struct->ib_cfg8__ib_cml_curr[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ(res_struct->ib_cfg8__ib_bias_adj[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE(
+                res_struct->ib_cfg8__ib_bias_mode[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR(
+                    res_struct->ib_cfg8__ib_cml_curr[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ(
+                    res_struct->ib_cfg8__ib_bias_adj[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_CML_CURR |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_BIAS_ADJ);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[0]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[0]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(res_struct->des_cfg0__des_dis[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS(
+                    res_struct->des_cfg0__des_dis[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_DIS);
+    }
 
-} 
-
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL(res_struct->rx_synth_cfg0__synth_spare_pool[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(res_struct->rx_synth_cfg0__synth_off_comp_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL(
+            res_struct->rx_synth_cfg0__synth_spare_pool[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA(
+                res_struct->rx_synth_cfg0__synth_off_comp_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPARE_POOL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_OFF_COMP_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL(res_struct->rx_synth_cfg0__synth_speed_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL(res_struct->rx_synth_cfg0__synth_fbdiv_sel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL(
+            res_struct->rx_synth_cfg0__synth_speed_sel[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL(
+                res_struct->rx_synth_cfg0__synth_fbdiv_sel[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_SPEED_SEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FBDIV_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0(res_struct->rx_synth_cfg3__synth_freqm_0[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0(
+                res_struct->rx_synth_cfg3__synth_freqm_0[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG3_SYNTH_FREQM_0);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0(res_struct->rx_synth_cfg4__synth_freqn_0[0]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0);
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0(
+                res_struct->rx_synth_cfg4__synth_freqn_0[0]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG4_SYNTH_FREQN_0);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(res_struct->rx_synth_cfg1__synth_freq_mult_byp[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(res_struct->rx_synth_cfg1__synth_freq_mult_hi[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT(res_struct->rx_synth_cfg1__synth_freq_mult[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1(res_struct->rx_synth_cfg1__synth_freqm_1[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1(res_struct->rx_synth_cfg1__synth_freqn_1[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP(
+            res_struct->rx_synth_cfg1__synth_freq_mult_byp[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI(
+                res_struct->rx_synth_cfg1__synth_freq_mult_hi[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT(
+                res_struct->rx_synth_cfg1__synth_freq_mult[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1(
+                res_struct->rx_synth_cfg1__synth_freqm_1[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1(
+                res_struct->rx_synth_cfg1__synth_freqn_1[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_BYP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT_HI |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQ_MULT |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQM_1 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG1_SYNTH_FREQN_1);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(res_struct->rx_synth_cfg0__synth_fb_step[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(res_struct->rx_synth_cfg0__synth_i2_step[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP(
+            res_struct->rx_synth_cfg0__synth_fb_step[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP(
+                res_struct->rx_synth_cfg0__synth_i2_step[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_FB_STEP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_STEP);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA(res_struct->rx_synth_cfg0__synth_i2_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA(res_struct->rx_synth_cfg0__synth_conv_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+            res_struct->rx_synth_cfg0__synth_hrate_ena[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA(
+                res_struct->rx_synth_cfg0__synth_i2_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA(
+                res_struct->rx_synth_cfg0__synth_conv_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I2_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_CONV_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL(res_struct->rx_synth_sync_ctrl__synth_sc_sync[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL(
+            res_struct->rx_synth_sync_ctrl__synth_sc_sync[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_SYNC_CTRL_SYNTH_SC_SYNC_TIMER_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(res_struct->rx_synth_cfg2__synth_phase_data[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA(res_struct->rx_synth_cfg2__synth_cpmd_dig_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA(
+            res_struct->rx_synth_cfg2__synth_phase_data[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA(
+                res_struct->rx_synth_cfg2__synth_cpmd_dig_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_PHASE_DATA |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_CPMD_DIG_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP(res_struct->rx_synth_cfg0__synth_p_step[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP(res_struct->rx_synth_cfg0__synth_i1_step[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP(
+            res_struct->rx_synth_cfg0__synth_p_step[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP(
+                res_struct->rx_synth_cfg0__synth_i1_step[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_P_STEP |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_I1_STEP);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(
+            res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(
+                res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(res_struct->rx_synth_cdrlf__synth_integ1_max1[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(res_struct->rx_synth_cdrlf__synth_integ1_max0[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(res_struct->rx_synth_cdrlf__synth_integ1_fsel[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(res_struct->rx_synth_cdrlf__synth_integ2_fsel[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(
+            res_struct->rx_synth_cdrlf__synth_integ1_max1[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(
+                res_struct->rx_synth_cdrlf__synth_integ1_max0[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(
+                res_struct->rx_synth_cdrlf__synth_integ1_lim[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ1_fsel[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ2_fsel[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ(res_struct->ib_cfg0__ib_rib_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(res_struct->ib_cfg0__ib_eqz_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(res_struct->ib_cfg0__ib_dfe_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(res_struct->ib_cfg0__ib_ld_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(res_struct->ib_cfg0__ib_ia_ena[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA(res_struct->ib_cfg0__ib_ia_sdet_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ(
+                res_struct->ib_cfg0__ib_rib_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA(
+                    res_struct->ib_cfg0__ib_eqz_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA(
+                    res_struct->ib_cfg0__ib_dfe_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA(
+                    res_struct->ib_cfg0__ib_ld_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA(
+                    res_struct->ib_cfg0__ib_ia_ena[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA(
+                    res_struct->ib_cfg0__ib_ia_sdet_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_RIB_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_EQZ_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_DFE_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_LD_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_ENA |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_IA_SDET_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET(res_struct->ib_cfg3__ib_eq_ld1_offset[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL(res_struct->ib_cfg3__ib_ldsd_divsel[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(res_struct->ib_cfg3__ib_ia_sdet_level[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(res_struct->ib_cfg3__ib_sdet_sel[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET(
+                res_struct->ib_cfg3__ib_eq_ld1_offset[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL(
+                    res_struct->ib_cfg3__ib_ldsd_divsel[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(
+                    res_struct->ib_cfg3__ib_ia_sdet_level[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(
+                    res_struct->ib_cfg3__ib_sdet_sel[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_EQ_LD1_OFFSET |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_LDSD_DIVSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(res_struct->ib_cfg5__ib_offs_value[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA(res_struct->ib_cfg5__ib_calmux_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(
+                res_struct->ib_cfg5__ib_offs_value[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA(
+                    res_struct->ib_cfg5__ib_calmux_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_CALMUX_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG6(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(res_struct->ib_cfg6__ib_sam_offs_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ(res_struct->ib_cfg6__ib_auto_agc_adj[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ(
+                res_struct->ib_cfg6__ib_sam_offs_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ(
+                    res_struct->ib_cfg6__ib_auto_agc_adj[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_SAM_OFFS_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG6_IB_AUTO_AGC_ADJ);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG7(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S(res_struct->ib_cfg7__ib_dfe_gain_adj_s[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ(res_struct->ib_cfg7__ib_dfe_gain_adj[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H(res_struct->ib_cfg7__ib_dfe_offset_h[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S(
+                res_struct->ib_cfg7__ib_dfe_gain_adj_s[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ(
+                    res_struct->ib_cfg7__ib_dfe_gain_adj[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H(
+                    res_struct->ib_cfg7__ib_dfe_offset_h[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ_S |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_GAIN_ADJ |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG7_IB_DFE_OFFSET_H);
 
-if( res_struct->skip_cal[0] == 0 ) {
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(res_struct->ib_cfg8__ib_lat_neutral[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
+    if (res_struct->skip_cal[0] == 0) {
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(
+                    res_struct->ib_cfg8__ib_lat_neutral[0]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(res_struct->ib_cfg8__ib_lat_neutral[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
-
-} 
+        JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG8(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL(
+                    res_struct->ib_cfg8__ib_lat_neutral[1]),
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG8_IB_LAT_NEUTRAL);
+    }
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG4(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB(res_struct->ib_cfg4__ib_eqz_c_adj_ib[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0(res_struct->ib_cfg4__ib_eqz_c_adj_es0[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1(res_struct->ib_cfg4__ib_eqz_c_adj_es1[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2(res_struct->ib_cfg4__ib_eqz_c_adj_es2[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE(res_struct->ib_cfg4__ib_eqz_c_mode[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE(res_struct->ib_cfg4__ib_eqz_l_mode[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(res_struct->ib_cfg4__ib_vscope_h_thres[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(res_struct->ib_cfg4__ib_vscope_l_thres[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES(res_struct->ib_cfg4__ib_main_thres[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB(
+                res_struct->ib_cfg4__ib_eqz_c_adj_ib[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es0[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es1[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2(
+                    res_struct->ib_cfg4__ib_eqz_c_adj_es2[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE(
+                    res_struct->ib_cfg4__ib_eqz_c_mode[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE(
+                    res_struct->ib_cfg4__ib_eqz_l_mode[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES(
+                    res_struct->ib_cfg4__ib_vscope_h_thres[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES(
+                    res_struct->ib_cfg4__ib_vscope_l_thres[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES(
+                    res_struct->ib_cfg4__ib_main_thres[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_IB |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES0 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES1 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_ADJ_ES2 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_C_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_EQZ_L_MODE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_H_THRES |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_VSCOPE_L_THRES |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG4_IB_MAIN_THRES);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(res_struct->ib_cfg3__ib_set_sdet[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(
+                res_struct->ib_cfg3__ib_set_sdet[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(res_struct->ib_cfg0__ib_sig_sel[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(
+                res_struct->ib_cfg0__ib_sig_sel[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV(res_struct->ib_cfg10__ib_loop_drv[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(res_struct->ib_cfg10__ib_loop_rec[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV(
+                res_struct->ib_cfg10__ib_loop_drv[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(
+                    res_struct->ib_cfg10__ib_loop_rec[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_DRV |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG11(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP(res_struct->ib_cfg11__ib_ena_400_inp[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE(res_struct->ib_cfg11__ib_tc_dfe[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ(res_struct->ib_cfg11__ib_tc_eq[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP(
+                res_struct->ib_cfg11__ib_ena_400_inp[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE(
+                    res_struct->ib_cfg11__ib_tc_dfe[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ(
+                    res_struct->ib_cfg11__ib_tc_eq[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_ENA_400_INP |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_DFE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG11_IB_TC_EQ);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A(res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_a[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B(res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_b[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP(res_struct->moebdiv_cfg0__moebdiv_cpmd_swap[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS(res_struct->moebdiv_cfg0__moebdiv_dis[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A(
+            res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_a[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B(
+                res_struct->moebdiv_cfg0__moebdiv_bw_cdr_sel_b[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP(
+                res_struct->moebdiv_cfg0__moebdiv_cpmd_swap[0]) |
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS(
+                res_struct->moebdiv_cfg0__moebdiv_dis[0]),
         VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_A |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS);
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_BW_CDR_SEL_B |
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_CPMD_SWAP |
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_MOEBDIV_CFG0_MOEBDIV_DIS);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(res_struct->des_cfg0__des_inv_m[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(res_struct->des_cfg0__des_inv_h[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(res_struct->des_cfg0__des_inv_l[0]) |
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L |
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+            VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M(
+                res_struct->des_cfg0__des_inv_m[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H(
+                    res_struct->des_cfg0__des_inv_h[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L(
+                    res_struct->des_cfg0__des_inv_l[0]) |
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[1]),
+            VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_M |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_H |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_INV_L |
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR(res_struct->rx_rcpll_cfg2__pll_lpf_cur[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES(res_struct->rx_rcpll_cfg2__pll_lpf_res[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR(
+            res_struct->rx_rcpll_cfg2__pll_lpf_cur[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES(
+                res_struct->rx_rcpll_cfg2__pll_lpf_res[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_CUR |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES);
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG2_PLL_LPF_RES);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT(res_struct->rx_rcpll_cfg0__pllf_start_cnt[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(res_struct->rx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(res_struct->rx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA(res_struct->rx_rcpll_cfg0__pllf_loop_ena[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(res_struct->rx_rcpll_cfg0__pllf_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT(
+            res_struct->rx_rcpll_cfg0__pllf_start_cnt[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_syn_clk_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_loop_ctrl_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_loop_ena[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_START_CNT |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA |
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_SYN_CLK_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_CTRL_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_LOOP_ENA |
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END(res_struct->rx_rcpll_cfg1__pllf_ref_cnt_end[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END(
+            res_struct->rx_rcpll_cfg1__pllf_ref_cnt_end[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG1_PLLF_REF_CNT_END);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[0]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
-if(res_struct->chip_needs_hrate_toggle[0] == 1) {
-    VTSS_MSLEEP(10);
+    if (res_struct->chip_needs_hrate_toggle[0] == 1) {
+        VTSS_MSLEEP(10);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[2]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[2]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[2]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[2]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[3]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[3]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[4]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[4]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[5]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[5]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[2]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[2]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[3]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[3]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[4]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[4]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[5]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[5]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[3]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[3]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[6]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[6]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[7]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[7]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[8]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[8]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(res_struct->rx_synth_cfg0__synth_hrate_ena[9]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
+        JR2_WRM(
+            VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA(
+                res_struct->rx_synth_cfg0__synth_hrate_ena[9]),
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_HRATE_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[6]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[6]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[7]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[7]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[8]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[8]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(res_struct->rx_synth_cfg0__synth_ena[9]),
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
+        JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA(
+                    res_struct->rx_synth_cfg0__synth_ena[9]),
+                VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG0_SYNTH_ENA);
 
-    VTSS_MSLEEP(2);
+        VTSS_MSLEEP(2);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(res_struct->des_cfg0__des_if_mode_sel[1]),
-        VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
+        JR2_WRM(VTSS_SD10G65_SD10G65_DES_SD10G65_DES_CFG0(tgt_ana),
+                VTSS_F_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL(
+                    res_struct->des_cfg0__des_if_mode_sel[1]),
+                VTSS_M_SD10G65_SD10G65_DES_SD10G65_DES_CFG0_DES_IF_MODE_SEL);
 
-    VTSS_MSLEEP(50);
+        VTSS_MSLEEP(50);
 
-}  else {
-    VTSS_MSLEEP(10);
-
-} 
+    } else {
+        VTSS_MSLEEP(10);
+    }
     JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(res_struct->rx_rcpll_cfg0__pllf_ena[1]),
-        VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
+            VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA(
+                res_struct->rx_rcpll_cfg0__pllf_ena[1]),
+            VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA(
+            res_struct->rx_rcpll_cfg0__pllf_oor_recal_ena[1]),
         VTSS_M_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_CFG0_PLLF_OOR_RECAL_ENA);
 
     VTSS_MSLEEP(2);
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0_PLLF_LOCK_STAT(value) != 1) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0_PLLF_LOCK_STAT(
+            value) != 1) {
         VTSS_E("SD10G65::SD10G65_RX_RCPLL_STAT0.PLLF_LOCK_STAT is not 1!\n");
         rc = VTSS_RC_ERROR;
     }
 
     // Check for correctness status bits
-    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1(tgt_ana), &value);
-    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT(value) != 13) { 
+    JR2_RD(VTSS_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1(tgt_ana),
+           &value);
+    if (VTSS_X_SD10G65_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1_PLLF_FSM_STAT(
+            value) != 13) {
         VTSS_E("SD10G65::SD10G65_RX_RCPLL_STAT1.PLLF_FSM_STAT is not 13!\n");
         rc = VTSS_RC_ERROR;
     }
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG2_IB_EQZ_GAIN(res_struct->ib_cfg2__ib_eqz_gain[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG2_IB_EQZ_GAIN);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG2_IB_EQZ_GAIN(
+                res_struct->ib_cfg2__ib_eqz_gain[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG2_IB_EQZ_GAIN);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG1(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_L(res_struct->ib_cfg1__ib_amp_l[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L0(res_struct->ib_cfg1__ib_eqz_l0[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L1(res_struct->ib_cfg1__ib_eqz_l1[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L2(res_struct->ib_cfg1__ib_eqz_l2[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AGC_L(res_struct->ib_cfg1__ib_agc_l[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_C(res_struct->ib_cfg1__ib_amp_c[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C0(res_struct->ib_cfg1__ib_eqz_c0[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C1(res_struct->ib_cfg1__ib_eqz_c1[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C2(res_struct->ib_cfg1__ib_eqz_c2[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_L |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L0 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L1 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L2 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AGC_L |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_C |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C0 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C1 |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C2);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_L(
+                res_struct->ib_cfg1__ib_amp_l[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L0(
+                    res_struct->ib_cfg1__ib_eqz_l0[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L1(
+                    res_struct->ib_cfg1__ib_eqz_l1[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L2(
+                    res_struct->ib_cfg1__ib_eqz_l2[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AGC_L(
+                    res_struct->ib_cfg1__ib_agc_l[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_C(
+                    res_struct->ib_cfg1__ib_amp_c[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C0(
+                    res_struct->ib_cfg1__ib_eqz_c0[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C1(
+                    res_struct->ib_cfg1__ib_eqz_c1[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C2(
+                    res_struct->ib_cfg1__ib_eqz_c2[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_L |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L0 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L1 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_L2 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AGC_L |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_AMP_C |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C0 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C1 |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG1_IB_EQZ_C2);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG9(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG9_IB_DFE_COEF1(res_struct->ib_cfg9__ib_dfe_coef1[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG9_IB_DFE_COEF1);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG9_IB_DFE_COEF1(
+                res_struct->ib_cfg9__ib_dfe_coef1[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG9_IB_DFE_COEF1);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(res_struct->ib_cfg3__ib_sdet_sel[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL(
+                res_struct->ib_cfg3__ib_sdet_sel[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_SEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_CLK_DIV(res_struct->ib_cfg3__ib_sdet_clk_div[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(res_struct->ib_cfg3__ib_ia_sdet_level[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_CLK_DIV |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_CLK_DIV(
+                res_struct->ib_cfg3__ib_sdet_clk_div[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL(
+                    res_struct->ib_cfg3__ib_ia_sdet_level[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SDET_CLK_DIV |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_IA_SDET_LEVEL);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(res_struct->ib_cfg5__ib_offs_value[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(res_struct->ib_cfg5__ib_offs_blksel[0]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE(
+                res_struct->ib_cfg5__ib_offs_value[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(
+                    res_struct->ib_cfg5__ib_offs_blksel[0]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                    res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_VALUE |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(res_struct->ib_cfg5__ib_offs_blksel[1]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(
+                res_struct->ib_cfg5__ib_offs_blksel[1]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                    res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(res_struct->ib_cfg5__ib_offs_blksel[2]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(
+                res_struct->ib_cfg5__ib_offs_blksel[2]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                    res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(res_struct->ib_cfg5__ib_offs_blksel[3]) |
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL(
+                res_struct->ib_cfg5__ib_offs_blksel[3]) |
+                VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                    res_struct->ib_cfg5__ib_ia_offs_cal_ena[0]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_OFFS_BLKSEL |
+                VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
     JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG5(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
-        VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
+            VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA(
+                res_struct->ib_cfg5__ib_ia_offs_cal_ena[1]),
+            VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG5_IB_IA_OFFS_CAL_ENA);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I2E(res_struct->rx_synth_cfg2__synth_dv_ctrl_i2e[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I2E(
+            res_struct->rx_synth_cfg2__synth_dv_ctrl_i2e[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M(
+                res_struct->rx_synth_cfg2__synth_dv_ctrl_i1m[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E(
+                res_struct->rx_synth_cfg2__synth_dv_ctrl_i1e[1]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I2E |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1M |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CFG2_SYNTH_DV_CTRL_I1E);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(res_struct->rx_synth_cdrlf__synth_integ1_lim[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(res_struct->rx_synth_cdrlf__synth_integ1_max0[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(res_struct->rx_synth_cdrlf__synth_integ1_max1[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(res_struct->rx_synth_cdrlf__synth_integ1_fsel[1]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(res_struct->rx_synth_cdrlf__synth_integ2_fsel[1]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM(
+            res_struct->rx_synth_cdrlf__synth_integ1_lim[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0(
+                res_struct->rx_synth_cdrlf__synth_integ1_max0[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1(
+                res_struct->rx_synth_cdrlf__synth_integ1_max1[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ1_fsel[1]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL(
+                res_struct->rx_synth_cdrlf__synth_integ2_fsel[1]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_LIM |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1 |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX0 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_MAX1 |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG1_FSEL |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_SD10G65_RX_SYNTH_CDRLF_SYNTH_INTEG2_FSEL);
 
-    JR2_WRM(VTSS_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT(tgt_ana),
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_BIT_SEL(res_struct->f2df_cfg_stat__f2df_side_det_bit_sel[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ONES_WEIGHT(res_struct->f2df_cfg_stat__f2df_side_det_ones_weight[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ZEROS_WEIGHT(res_struct->f2df_cfg_stat__f2df_side_det_zeros_weight[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_TOG_DET_CNT(res_struct->f2df_cfg_stat__f2df_tog_det_cnt[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_DATA_VALID_PROPPER_SIDE(res_struct->f2df_cfg_stat__f2df_data_valid_propper_side[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_STICKY_CLR(res_struct->f2df_cfg_stat__f2df_sticky_clr[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SAMPLE_MODE(res_struct->f2df_cfg_stat__f2df_sample_mode_div[0]) |
-        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_ENABLE(res_struct->f2df_cfg_stat__f2df_enable[0]),
+    JR2_WRM(
+        VTSS_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT(tgt_ana),
+        VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_BIT_SEL(
+            res_struct->f2df_cfg_stat__f2df_side_det_bit_sel[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ONES_WEIGHT(
+                res_struct->f2df_cfg_stat__f2df_side_det_ones_weight[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ZEROS_WEIGHT(
+                res_struct->f2df_cfg_stat__f2df_side_det_zeros_weight[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_TOG_DET_CNT(
+                res_struct->f2df_cfg_stat__f2df_tog_det_cnt[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_DATA_VALID_PROPPER_SIDE(
+                res_struct->f2df_cfg_stat__f2df_data_valid_propper_side[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_STICKY_CLR(
+                res_struct->f2df_cfg_stat__f2df_sticky_clr[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SAMPLE_MODE(
+                res_struct->f2df_cfg_stat__f2df_sample_mode_div[0]) |
+            VTSS_F_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_ENABLE(
+                res_struct->f2df_cfg_stat__f2df_enable[0]),
         VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_BIT_SEL |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ONES_WEIGHT |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ZEROS_WEIGHT |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_TOG_DET_CNT |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_DATA_VALID_PROPPER_SIDE |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_STICKY_CLR |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SAMPLE_MODE |
-        VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_ENABLE);
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ONES_WEIGHT |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SIDE_DET_ZEROS_WEIGHT |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_TOG_DET_CNT |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_DATA_VALID_PROPPER_SIDE |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_STICKY_CLR |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_SAMPLE_MODE |
+            VTSS_M_SD10G65_SD10G65_RX_SYNTH_F2DF_CFG_STAT_F2DF_ENABLE);
 
-  return rc;
+    return rc;
 }
 
-vtss_rc vtss_jaguar2_sd10g_setup_f2df(vtss_state_t *vtss_state, const vtss_sd10g65_setup_f2df_args_t config, vtss_port_no_t port_no) {
+vtss_rc vtss_jaguar2_sd10g_setup_f2df(vtss_state_t *vtss_state,
+                                      const vtss_sd10g65_setup_f2df_args_t
+                                                     config,
+                                      vtss_port_no_t port_no)
+{
     vtss_sd10g65_setup_f2df_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                          ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_calc_sd10g65_setup_f2df(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
-        ret_val |= jaguar2_sd10g_f2df_register_cfg(vtss_state, &calc_results, port_no);
+    if (ret_val == VTSS_RC_OK) {
+        ret_val |=
+            jaguar2_sd10g_f2df_register_cfg(vtss_state, &calc_results, port_no);
     }
     return ret_val;
 }

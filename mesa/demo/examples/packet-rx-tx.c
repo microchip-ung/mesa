@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -36,7 +35,7 @@ static int packet_init(int argc, const char *argv[])
     conf.reg.igmp_cpu_only = 1;
     conf.map.igmp_queue = 7;
     RC(mesa_packet_rx_conf_set(NULL, &conf));
-    
+
     return 0;
 }
 
@@ -67,13 +66,14 @@ static int packet_uninit(void)
 
 static int packet_poll(int fast)
 {
-    uint8_t               frame[1600], *f = &frame[4]; // Make room for inserting tag
+    uint8_t frame[1600], *f = &frame[4]; // Make room for inserting tag
     mesa_packet_rx_info_t rx_info;
     mesa_packet_tx_info_t tx_info;
 
     // Extract frame
     if (fast == 0 ||
-        mesa_packet_rx_frame(NULL, f, sizeof(frame) - 4, &rx_info) != MESA_RC_OK ||
+        mesa_packet_rx_frame(NULL, f, sizeof(frame) - 4, &rx_info) !=
+            MESA_RC_OK ||
         (rx_info.xtr_qu_mask & (1 << 7)) == 0) {
         return 0;
     }
@@ -90,7 +90,7 @@ static int packet_poll(int fast)
         // Received on another port, forward on VLAN 1 by inserting C-tag
         tx_info.switch_frm = 1;
         f = &frame[0];
-        memmove(f, f + 4, 12); 
+        memmove(f, f + 4, 12);
         f[12] = 0x81;
         f[13] = 0x00;
         f[14] = 0x00;
@@ -99,7 +99,7 @@ static int packet_poll(int fast)
         state.tx_vlan_cnt++;
     }
     RC(mesa_packet_tx_frame(NULL, &tx_info, f, rx_info.length));
-    
+
     return 0;
 }
 
@@ -108,4 +108,9 @@ static const char *packet_help(void)
     return "Packet extraction/injection example";
 }
 
-EXAMPLE_EXT(packet, packet_init, packet_run, packet_uninit, packet_poll, packet_help);
+EXAMPLE_EXT(packet,
+            packet_init,
+            packet_run,
+            packet_uninit,
+            packet_poll,
+            packet_help);

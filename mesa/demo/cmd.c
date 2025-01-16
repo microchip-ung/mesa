@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -15,7 +14,6 @@
 #ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
-
 
 static int trace_enabled = 0;
 
@@ -93,7 +91,7 @@ int read_block(int fd, char *b, size_t s)
 
 void copy_to(int fd_from, int fd_to, int cnt)
 {
-    int res;
+    int  res;
     char buf[1024];
 
     while (cnt > 0) {
@@ -112,7 +110,8 @@ void copy_to(int fd_from, int fd_to, int cnt)
     }
 }
 
-int usage(int res) {
+int usage(int res)
+{
     printf("Usage: mesa-cmd [options] <cmd>\n");
     printf("\n");
     printf("Where:\n");
@@ -123,27 +122,21 @@ int usage(int res) {
     return res;
 }
 
-int main(int argc, char * const argv[])
+int main(int argc, char *const argv[])
 {
-    struct ipc_msg msg;
+    struct ipc_msg     msg;
     struct sockaddr_un remote;
-    int err_code = -1, fd, i, res, read_from_stdin = 0, opt;
+    int                err_code = -1, fd, i, res, read_from_stdin = 0, opt;
 
     while ((opt = getopt(argc, argv, "hit")) != -1) {
         switch (opt) {
-            case 'h':
-                return usage(0);
+        case 'h': return usage(0);
 
-            case 'i':
-                read_from_stdin = 1;
-                break;
+        case 'i': read_from_stdin = 1; break;
 
-            case 't':
-                trace_enabled = 1;
-                break;
+        case 't': trace_enabled = 1; break;
 
-            default:
-                return usage(-1);
+        default: return usage(-1);
         }
     }
 
@@ -172,7 +165,6 @@ int main(int argc, char * const argv[])
     }
     T("connected");
 
-
     // Write number of arguments
     i = argc - optind;
     if (read_from_stdin)
@@ -185,8 +177,8 @@ int main(int argc, char * const argv[])
 
     // Copy stdin message
     if (read_from_stdin) {
-        int buf_size = 1024;
-        int buf_valid = 0;
+        int   buf_size = 1024;
+        int   buf_valid = 0;
         char *b = malloc(1024);
 
         T("Appending argument from stdin");
@@ -246,26 +238,22 @@ int main(int argc, char * const argv[])
         }
 
         switch (msg.type) {
-            case IPC_STDOUT:
-                copy_to(fd, 1, msg.len);
-                break;
+        case IPC_STDOUT: copy_to(fd, 1, msg.len); break;
 
-            case IPC_STDERR:
-                copy_to(fd, 2, msg.len);
-                break;
+        case IPC_STDERR: copy_to(fd, 2, msg.len); break;
 
-            case IPC_RETURN:
-                if (msg.len != sizeof(err_code)) {
-                    dprintf(2, "%d: Unexpected msg type/len: %d/%d\n", __LINE__,
-                            msg.type, msg.len);
-                }
+        case IPC_RETURN:
+            if (msg.len != sizeof(err_code)) {
+                dprintf(2, "%d: Unexpected msg type/len: %d/%d\n", __LINE__,
+                        msg.type, msg.len);
+            }
 
-                read_block(fd, (char *)&err_code, sizeof(err_code));
-                break;
+            read_block(fd, (char *)&err_code, sizeof(err_code));
+            break;
 
-            default:
-                dprintf(2, "%d: Unexpected msg type: %d\n", __LINE__, msg.type);
-                return -1;
+        default:
+            dprintf(2, "%d: Unexpected msg type: %d\n", __LINE__, msg.type);
+            return -1;
         }
     }
 

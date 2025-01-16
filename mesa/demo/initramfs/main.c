@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -34,23 +33,24 @@
 #define LOG_DEBUG 7
 #define LOG_NOISE 8
 
-
-int warn(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-int info(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-int debug(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-int noise(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int warn(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+int info(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+int debug(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+int noise(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 unsigned int g_log_level = LOG_INFO;
 
-int pivot_root(const char *n, const char *o) {
+int pivot_root(const char *n, const char *o)
+{
     return syscall(__NR_pivot_root, n, o);
 }
 
-void print_time() {
-    time_t rawtime;
-    struct tm timeinfo_r;
+void print_time()
+{
+    time_t     rawtime;
+    struct tm  timeinfo_r;
     struct tm *timeinfo;
-    char buffer[80];
+    char       buffer[80];
 
     time(&rawtime);
     timeinfo = localtime_r(&rawtime, &timeinfo_r);
@@ -58,8 +58,9 @@ void print_time() {
     printf("%s ", buffer);
 }
 
-int info(const char *format, ...) {
-    int res = 0;
+int info(const char *format, ...)
+{
+    int     res = 0;
     va_list args;
 
     if (LOG_INFO <= g_log_level) {
@@ -71,8 +72,9 @@ int info(const char *format, ...) {
     return res;
 }
 
-int debug(const char *format, ...) {
-    int res = 0;
+int debug(const char *format, ...)
+{
+    int     res = 0;
     va_list args;
 
     if (LOG_DEBUG <= g_log_level) {
@@ -84,8 +86,9 @@ int debug(const char *format, ...) {
     return res;
 }
 
-int noise(const char *format, ...) {
-    int res = 0;
+int noise(const char *format, ...)
+{
+    int     res = 0;
     va_list args;
 
     if (LOG_NOISE <= g_log_level) {
@@ -97,8 +100,9 @@ int noise(const char *format, ...) {
     return res;
 }
 
-int warn(const char *format, ...) {
-    int res = 0;
+int warn(const char *format, ...)
+{
+    int     res = 0;
     va_list args;
 
     if (LOG_WARN <= g_log_level) {
@@ -110,7 +114,8 @@ int warn(const char *format, ...) {
     return res;
 }
 
-int warn_(int line, const char *format, ...) {
+int warn_(int line, const char *format, ...)
+{
     int res;
     print_time();
     va_list args;
@@ -121,7 +126,8 @@ int warn_(int line, const char *format, ...) {
     return res;
 }
 
-void fatal(unsigned line, const char *format, ...) {
+void fatal(unsigned line, const char *format, ...)
+{
     printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     printf("!!!! FATAL-ERROR at line: %d\n!!!! MSG: ", line);
@@ -135,7 +141,8 @@ void fatal(unsigned line, const char *format, ...) {
     reboot(LINUX_REBOOT_CMD_RESTART);
 }
 
-void fatal_(unsigned line, const char *format, ...) {
+void fatal_(unsigned line, const char *format, ...)
+{
     printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     printf("!!!! FATAL-ERROR at line: %d, errno: %d error: %s\n!!!! MSG: ",
@@ -150,37 +157,43 @@ void fatal_(unsigned line, const char *format, ...) {
     reboot(LINUX_REBOOT_CMD_RESTART);
 }
 
-#define FATAL(CMD, MSG)                      \
-    {                                        \
-        int res = CMD;                       \
-        if (res != 0) fatal_(__LINE__, MSG); \
+#define FATAL(CMD, MSG)                                                        \
+    {                                                                          \
+        int res = CMD;                                                         \
+        if (res != 0)                                                          \
+            fatal_(__LINE__, MSG);                                             \
     }
 
-#define WARN(CMD, MSG)                      \
-    {                                       \
-        int res = CMD;                      \
-        if (res != 0) warn_(__LINE__, MSG); \
+#define WARN(CMD, MSG)                                                         \
+    {                                                                          \
+        int res = CMD;                                                         \
+        if (res != 0)                                                          \
+            warn_(__LINE__, MSG);                                              \
     }
 
 // find the last occurence of needle in haystack
-char *strrstr0(const char *haystack, const char *needle) {
+char *strrstr0(const char *haystack, const char *needle)
+{
     char *tmp = NULL;
     char *p = NULL;
 
-    if (!needle[0]) return (char *)haystack + strlen(haystack);
+    if (!needle[0])
+        return (char *)haystack + strlen(haystack);
 
     for (;;) {
         p = strstr((char *)haystack, needle);
-        if (!p) return tmp;
+        if (!p)
+            return tmp;
         tmp = p;
         haystack = p + 1;
     }
 }
 
-char *cmd_arg(const char *key, int size, char *val) {
-    int fd, res;
+char *cmd_arg(const char *key, int size, char *val)
+{
+    int         fd, res;
     const char *p;
-    char buf[8 * 1024] = {};
+    char        buf[8 * 1024] = {};
 
     fd = open("/proc/cmdline", O_RDONLY);
     if (fd == -1) {
@@ -208,7 +221,7 @@ char *cmd_arg(const char *key, int size, char *val) {
         if (size > 1) {
             *val++ = *p++;
             *val = 0;
-            size --;
+            size--;
         } else {
             /* Overrun */
             return 0;
@@ -218,7 +231,8 @@ char *cmd_arg(const char *key, int size, char *val) {
     return val;
 }
 
-static void basic_linux_system_init() {
+static void basic_linux_system_init()
+{
     int fd = -1;
     int res, line;
 
@@ -230,11 +244,11 @@ static void basic_linux_system_init() {
     putenv((char *)"SHELL=/bin/sh");
     putenv((char *)"USER=root");
 
-#define DO(X)            \
-    res = X;             \
-    if (res == -1) {     \
-        line = __LINE__; \
-        goto ERROR;      \
+#define DO(X)                                                                  \
+    res = X;                                                                   \
+    if (res == -1) {                                                           \
+        line = __LINE__;                                                       \
+        goto ERROR;                                                            \
     }
 
     // Mount proc and sysfs as we need this to find the NAND flash.
@@ -256,7 +270,8 @@ static void basic_linux_system_init() {
     return;
 
 ERROR:
-    if (fd != -1) close(fd);
+    if (fd != -1)
+        close(fd);
     printf("BASIC SYSTEM INIT FAILED!!!\n");
     printf("File: %s, Line: %d, code: %d\n", __FILE__, line, res);
     printf("errno: %d error: %s\n\n", errno, strerror(errno));
@@ -267,11 +282,12 @@ ERROR:
     abort();
 }
 
-void change_root(const char *dev) {
+void change_root(const char *dev)
+{
     struct dirent *de;
-    int res, cnt = 0;
-    struct stat st;
-    DIR *d;
+    int            res, cnt = 0;
+    struct stat    st;
+    DIR           *d;
 
     while (1) {
         res = stat(dev, &st);
@@ -307,8 +323,7 @@ void change_root(const char *dev) {
     FATAL(mount("proc", "/proc", "proc", 0, 0), "Mount failed");
     FATAL(mount("sysfs", "/sys", "sysfs", 0, 0), "Mount failed");
 
-    FATAL(mount("ramfs", "/tmp", "ramfs", 0,
-                "size=8388608,mode=1777"),
+    FATAL(mount("ramfs", "/tmp", "ramfs", 0, "size=8388608,mode=1777"),
           "Mount failed");
 
     (void)mkdir("/dev/pts", 0755);
@@ -320,7 +335,8 @@ void change_root(const char *dev) {
     WARN(umount2("/mnt", MNT_DETACH), "Unmount of /mnt failed");
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     char buf_block[64];
     char buf_init[64];
 

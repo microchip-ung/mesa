@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include <ctype.h>
 
@@ -12,18 +11,18 @@
 #include "cli.h"
 #include "symreg.h"
 
-#define _BF_SIZE(n)      ((n+7)/8)
-#define _BF_GET(a, n)    ((a[(n)/8] & (1<<((n)%8))) ? 1 : 0)
-#define _BF_SET(a, n, v)              \
-do {                                  \
-    if (v) {                          \
-        a[(n)/8] |= (1U<<((n)%8));    \
-    } else {                          \
-        a[(n)/8] &= ~(1U<<((n)%8));   \
-    }                                 \
-} while (0)
+#define _BF_SIZE(n)   ((n + 7) / 8)
+#define _BF_GET(a, n) ((a[(n) / 8] & (1 << ((n) % 8))) ? 1 : 0)
+#define _BF_SET(a, n, v)                                                       \
+    do {                                                                       \
+        if (v) {                                                               \
+            a[(n) / 8] |= (1U << ((n) % 8));                                   \
+        } else {                                                               \
+            a[(n) / 8] &= ~(1U << ((n) % 8));                                  \
+        }                                                                      \
+    } while (0)
 
-#define _BF_CLR(a, n)    (memset(a, 0, _BF_SIZE(n)))
+#define _BF_CLR(a, n) (memset(a, 0, _BF_SIZE(n)))
 
 #ifndef TRUE
 #define TRUE 1
@@ -33,21 +32,13 @@ do {                                  \
 #define FALSE 0
 #endif
 
-static mscc_appl_trace_module_t trace_module = {
-    .name = "symreg"
-};
+static mscc_appl_trace_module_t trace_module = {.name = "symreg"};
 
-enum {
-    TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
-};
+enum { TRACE_GROUP_DEFAULT, TRACE_GROUP_CNT };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
     // TRACE_GROUP_DEFAULT
-    {
-        .name = "default",
-        .level = MESA_TRACE_LEVEL_ERROR
-    },
+    {.name = "default", .level = MESA_TRACE_LEVEL_ERROR},
 };
 
 /******************************************************************************/
@@ -56,7 +47,8 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 //
 /******************************************************************************/
 
-#define SYMREG_REPL_LEN_MAX 32 /* Allocate 32 chars for the user to specify a replication list */
+#define SYMREG_REPL_LEN_MAX                                                    \
+    32 /* Allocate 32 chars for the user to specify a replication list */
 #define SYMREG_REPL_CNT_MAX 8192
 #define SYMREG_NAME_LEN_MAX 100
 
@@ -93,18 +85,18 @@ typedef enum {
 typedef struct {
     mesa_bool_t wildcards;
     mesa_bool_t all_repls;
-    uint8_t repls[_BF_SIZE(SYMREG_REPL_CNT_MAX)];
-    char pattern[SYMREG_NAME_LEN_MAX + SYMREG_REPL_LEN_MAX + 1];
+    uint8_t     repls[_BF_SIZE(SYMREG_REPL_CNT_MAX)];
+    char        pattern[SYMREG_NAME_LEN_MAX + SYMREG_REPL_LEN_MAX + 1];
 
     // State variables that remember where we got to.
-    int  cur_idx;
-    int  cur_repl;
-    uint32_t  match_cnt;
-    uint8_t   matched_repls[_BF_SIZE(SYMREG_REPL_CNT_MAX)];
+    int         cur_idx;
+    int         cur_repl;
+    uint32_t    match_cnt;
+    uint8_t     matched_repls[_BF_SIZE(SYMREG_REPL_CNT_MAX)];
     mesa_bool_t matched_at_least_one_name;
-    char match_name[SYMREG_NAME_LEN_MAX + SYMREG_REPL_LEN_MAX + 1];
-    uint32_t  match_width;
-    uint32_t  match_addr;
+    char        match_name[SYMREG_NAME_LEN_MAX + SYMREG_REPL_LEN_MAX + 1];
+    uint32_t    match_width;
+    uint32_t    match_addr;
 
     union {
         const mesa_symreg_target_t *t;
@@ -129,12 +121,16 @@ static mesa_symreg_data_t SYMREG_DATA;
 /******************************************************************************/
 
 /* Convert text to list or bit field */
-mesa_rc txt2list_bf(char *buf, mesa_bool_t *list, uint32_t min, uint32_t max,
-                    mesa_bool_t def, mesa_bool_t bf)
+mesa_rc txt2list_bf(char        *buf,
+                    mesa_bool_t *list,
+                    uint32_t     min,
+                    uint32_t     max,
+                    mesa_bool_t  def,
+                    mesa_bool_t  bf)
 {
-    uint32_t   i, start = 0, n;
-    char  *p, *end;
-    mesa_bool_t  error, range = 0, comma = 0;
+    uint32_t    i, start = 0, n;
+    char       *p, *end;
+    mesa_bool_t error, range = 0, comma = 0;
 
     /* Clear list by default */
     if (bf) {
@@ -168,7 +164,7 @@ mesa_rc txt2list_bf(char *buf, mesa_bool_t *list, uint32_t min, uint32_t max,
                 error = 1;
                 break;
             }
-            for (i = start ; i <= n; i++) {
+            for (i = start; i <= n; i++) {
                 if (bf) {
                     _BF_SET(list, i, 1);
                 } else {
@@ -222,12 +218,16 @@ mesa_rc txt2list_bf(char *buf, mesa_bool_t *list, uint32_t min, uint32_t max,
  * never should have been implemented, or implemented differently.
  * It should have been using iport2uport(i) and iport2uport(i - 1)
  */
-static char *list2txt(mesa_bool_t *list, int min, int max,
-                      char *buf, mesa_bool_t bf, mesa_bool_t one_based)
+static char *list2txt(mesa_bool_t *list,
+                      int          min,
+                      int          max,
+                      char        *buf,
+                      mesa_bool_t  bf,
+                      mesa_bool_t  one_based)
 {
-    int  i, count = 0;
+    int         i, count = 0;
     mesa_bool_t member, first = TRUE;
-    char *p;
+    char       *p;
 
     p = buf;
     *p = '\0';
@@ -235,7 +235,12 @@ static char *list2txt(mesa_bool_t *list, int min, int max,
     for (i = min; i <= max; i++) {
         member = bf ? _BF_GET(list, i) : list[i];
         if ((member && (count == 0 || i == max)) || (!member && count > 1)) {
-            p += sprintf(p, "%s%d", first ? "" : count > (member ? 1 : 2) ? "-" : ",", one_based ? (member ? i + 1 : i) : (member ? i : i - 1));
+            p += sprintf(p, "%s%d",
+                         first                      ? ""
+                         : count > (member ? 1 : 2) ? "-"
+                                                    : ",",
+                         one_based ? (member ? i + 1 : i)
+                                   : (member ? i : i - 1));
             first = FALSE;
         }
 
@@ -261,17 +266,13 @@ static char *list2txt(mesa_bool_t *list, int min, int max,
 static const char *SYMREG_component_to_name(int component)
 {
     switch (component) {
-    case SYMREG_COMPONENTS_TGT:
-        return "Tgt";
+    case SYMREG_COMPONENTS_TGT: return "Tgt";
 
-    case SYMREG_COMPONENTS_GRP:
-        return "Grp";
+    case SYMREG_COMPONENTS_GRP: return "Grp";
 
-    case SYMREG_COMPONENTS_REG:
-        return "Reg";
+    case SYMREG_COMPONENTS_REG: return "Reg";
 
-    default:
-        return "Unknown";
+    default: return "Unknown";
     }
 }
 
@@ -280,11 +281,15 @@ static const char *SYMREG_component_to_name(int component)
 /******************************************************************************/
 static void SYMREG_print_match_pattern(int component, symreg_state_t *s)
 {
-    char buf[SYMREG_REPL_LEN_MAX + 1]; // Output of mgmt_bf2txt() cannot exceed input to mgmt_txt2bf() in size.
+    char buf[SYMREG_REPL_LEN_MAX + 1]; // Output of mgmt_bf2txt() cannot exceed
+                                       // input to mgmt_txt2bf() in size.
 
     T_D("%s:", SYMREG_component_to_name(component));
     T_D("Wildcards: %s", s->wildcards ? "Yes" : "No");
-    T_D("Replications: %s", s->all_repls ? "All" : list2txt(s->repls, 0, SYMREG_REPL_CNT_MAX - 1, buf, 1, 0));
+    T_D("Replications: %s",
+        s->all_repls
+            ? "All"
+            : list2txt(s->repls, 0, SYMREG_REPL_CNT_MAX - 1, buf, 1, 0));
     T_D("Pattern: %s\n", s->pattern);
 }
 
@@ -373,7 +378,8 @@ static inline mesa_bool_t SYMREG_match_repl(symreg_state_t *s, uint32_t repl)
 /****************************************************************************/
 // SYMREG_reg_next()
 /****************************************************************************/
-static mesa_bool_t SYMREG_reg_next(symreg_state_t *r, mesa_symreg_reg_t const *regs)
+static mesa_bool_t SYMREG_reg_next(symreg_state_t          *r,
+                                   mesa_symreg_reg_t const *regs)
 {
     if (r->cur_idx < 0 || r->cur_repl >= (int)regs[r->cur_idx].repl_cnt - 1) {
         // Either we're not started, or we've matched the last
@@ -396,12 +402,14 @@ static mesa_bool_t SYMREG_reg_next(symreg_state_t *r, mesa_symreg_reg_t const *r
                 if (SYMREG_match_repl(r, repl)) {
                     r->cur_repl = repl;
                     r->match_cnt++;
-                    r->match_addr = 4 * (repl * r->u.r->repl_width + r->u.r->addr);
+                    r->match_addr =
+                        4 * (repl * r->u.r->repl_width + r->u.r->addr);
 
                     if (r->u.r->repl_cnt == 1) {
                         strcpy(r->match_name, r->u.r->name);
                     } else {
-                        sprintf(r->match_name, "%s[%u]", r->u.r->name, r->cur_repl);
+                        sprintf(r->match_name, "%s[%u]", r->u.r->name,
+                                r->cur_repl);
                     }
 
                     r->match_width = strlen(r->match_name);
@@ -421,9 +429,11 @@ static mesa_bool_t SYMREG_reg_next(symreg_state_t *r, mesa_symreg_reg_t const *r
 /****************************************************************************/
 // SYMREG_grp_next()
 /****************************************************************************/
-static mesa_bool_t SYMREG_grp_next(symreg_state_t *g, mesa_symreg_reggrp_t const *reggrps)
+static mesa_bool_t SYMREG_grp_next(symreg_state_t             *g,
+                                   mesa_symreg_reggrp_t const *reggrps)
 {
-    if (g->cur_idx < 0 || g->cur_repl >= (int)reggrps[g->cur_idx].repl_cnt - 1) {
+    if (g->cur_idx < 0 ||
+        g->cur_repl >= (int)reggrps[g->cur_idx].repl_cnt - 1) {
         // Either we're not started, or we've matched the last
         // replication in the previous iteration. Find next
         // matching group by name.
@@ -444,12 +454,14 @@ static mesa_bool_t SYMREG_grp_next(symreg_state_t *g, mesa_symreg_reggrp_t const
                 if (SYMREG_match_repl(g, repl)) {
                     g->cur_repl = repl;
                     g->match_cnt++;
-                    g->match_addr = 4 * (g->u.g->base_addr + repl * g->u.g->repl_width);
+                    g->match_addr =
+                        4 * (g->u.g->base_addr + repl * g->u.g->repl_width);
 
                     if (g->u.g->repl_cnt == 1) {
                         strcpy(g->match_name, g->u.g->name);
                     } else {
-                        sprintf(g->match_name, "%s[%u]", g->u.g->name, g->cur_repl);
+                        sprintf(g->match_name, "%s[%u]", g->u.g->name,
+                                g->cur_repl);
                     }
 
                     g->match_width = strlen(g->match_name);
@@ -516,11 +528,11 @@ static mesa_bool_t SYMREG_tgt_next(symreg_state_t *t)
 /****************************************************************************/
 static void SYMREG_state_clear(symreg_state_t *s, mesa_bool_t all)
 {
-    s->cur_idx  = -1;
+    s->cur_idx = -1;
     s->cur_repl = -1;
 
     if (all) {
-        s->match_cnt                 = 0;
+        s->match_cnt = 0;
         s->matched_at_least_one_name = FALSE;
         memset(s->matched_repls, 0, sizeof(s->matched_repls));
     }
@@ -529,7 +541,8 @@ static void SYMREG_state_clear(symreg_state_t *s, mesa_bool_t all)
 /****************************************************************************/
 // SYMREG_all_repls_present()
 /****************************************************************************/
-static mesa_bool_t SYMREG_all_repls_present(uint8_t *requested_repls, uint8_t *matched_repls)
+static mesa_bool_t SYMREG_all_repls_present(uint8_t *requested_repls,
+                                            uint8_t *matched_repls)
 {
     uint32_t repl;
 
@@ -547,12 +560,14 @@ static mesa_bool_t SYMREG_all_repls_present(uint8_t *requested_repls, uint8_t *m
 /****************************************************************************/
 // SYMREG_check_pattern()
 /****************************************************************************/
-static mesa_rc SYMREG_check_pattern(symreg_inst_t *inst, uint32_t *max_width, uint32_t *reg_cnt)
+static mesa_rc SYMREG_check_pattern(symreg_inst_t *inst,
+                                    uint32_t      *max_width,
+                                    uint32_t      *reg_cnt)
 {
     symreg_state_t *t = &inst->state[SYMREG_COMPONENTS_TGT];
     symreg_state_t *g = &inst->state[SYMREG_COMPONENTS_GRP];
     symreg_state_t *r = &inst->state[SYMREG_COMPONENTS_REG];
-    int            i;
+    int             i;
 
     for (i = 0; i < SYMREG_COMPONENTS_LAST; i++) {
         SYMREG_state_clear(&inst->state[i], TRUE);
@@ -567,7 +582,8 @@ static mesa_rc SYMREG_check_pattern(symreg_inst_t *inst, uint32_t *max_width, ui
             SYMREG_state_clear(r, FALSE);
 
             while (SYMREG_reg_next(r, g->u.g->regs)) {
-                uint32_t width = t->match_width + g->match_width + r->match_width + 2 /* Colons */;
+                uint32_t width = t->match_width + g->match_width +
+                                 r->match_width + 2 /* Colons */;
 
                 if (width > *max_width) {
                     *max_width = width;
@@ -602,15 +618,18 @@ static mesa_rc SYMREG_check_pattern(symreg_inst_t *inst, uint32_t *max_width, ui
         return SYMREG_RC_NO_SUCH_REG;
     }
 
-    if (!t->all_repls && !SYMREG_all_repls_present(t->repls, t->matched_repls)) {
+    if (!t->all_repls &&
+        !SYMREG_all_repls_present(t->repls, t->matched_repls)) {
         return SYMREG_RC_NO_SUCH_REPL_TGT;
     }
 
-    if (!g->all_repls && !SYMREG_all_repls_present(g->repls, g->matched_repls)) {
+    if (!g->all_repls &&
+        !SYMREG_all_repls_present(g->repls, g->matched_repls)) {
         return SYMREG_RC_NO_SUCH_REPL_GRP;
     }
 
-    if (!r->all_repls && !SYMREG_all_repls_present(r->repls, r->matched_repls)) {
+    if (!r->all_repls &&
+        !SYMREG_all_repls_present(r->repls, r->matched_repls)) {
         return SYMREG_RC_NO_SUCH_REPL_REG;
     }
 
@@ -623,14 +642,11 @@ static mesa_rc SYMREG_check_pattern(symreg_inst_t *inst, uint32_t *max_width, ui
 static const char *symreg_error_txt(mesa_rc rc)
 {
     switch (rc) {
-    case SYMREG_RC_PARAM:
-        return "Invalid parameter";
+    case SYMREG_RC_PARAM: return "Invalid parameter";
 
-    case SYMREG_RC_OUT_OF_MEMORY:
-        return "Out of memory";
+    case SYMREG_RC_OUT_OF_MEMORY: return "Out of memory";
 
-    case SYMREG_RC_PAT_TOO_MANY_COLONS:
-        return "Syntax error: Too many colons";
+    case SYMREG_RC_PAT_TOO_MANY_COLONS: return "Syntax error: Too many colons";
 
     case SYMREG_RC_PAT_COMPONENT_TOO_LONG:
         return "Syntax error: Sub-component too long";
@@ -653,8 +669,7 @@ static const char *symreg_error_txt(mesa_rc rc)
     case SYMREG_RC_PAT_INVALID_REPLICATION_LIST:
         return "Syntax error: Invalid replication list within brackets of a sub-component";
 
-    case SYMREG_RC_NO_SUCH_REPL_TGT:
-        return "No such target replication found";
+    case SYMREG_RC_NO_SUCH_REPL_TGT: return "No such target replication found";
 
     case SYMREG_RC_NO_SUCH_REPL_GRP:
         return "No such register group replication found";
@@ -662,35 +677,34 @@ static const char *symreg_error_txt(mesa_rc rc)
     case SYMREG_RC_NO_SUCH_REPL_REG:
         return "No such register replication found";
 
-    case SYMREG_RC_NO_SUCH_TGT:
-        return "No such target. Try using wildcards";
+    case SYMREG_RC_NO_SUCH_TGT: return "No such target. Try using wildcards";
 
     case SYMREG_RC_NO_SUCH_GRP:
         return "No such register group. Try using wildcards";
 
-    case SYMREG_RC_NO_SUCH_REG:
-        return "No such register. Try using wildcards";
+    case SYMREG_RC_NO_SUCH_REG: return "No such register. Try using wildcards";
 
     case SYMREG_RC_NO_MORE_REGS:
         return "No more registers (this is not an error, so please correct use of this return code)";
 
-    default:
-        return "Unknown SymReg module error";
+    default: return "Unknown SymReg module error";
     }
 }
 
 /******************************************************************************/
 // symreg_query_init()
 /******************************************************************************/
-static mesa_rc symreg_query_init(void **handle, char *pattern,
-                                 uint32_t *max_width, uint32_t *reg_cnt)
+static mesa_rc symreg_query_init(void    **handle,
+                                 char     *pattern,
+                                 uint32_t *max_width,
+                                 uint32_t *reg_cnt)
 {
     symreg_inst_t *inst;
-    int           i;
+    int            i;
     char          *str1 = pattern, *str2;
-    size_t        cnt;
-    mesa_bool_t          at_least_one_component_found = FALSE;
-    mesa_rc       rc = MESA_RC_OK;
+    size_t         cnt;
+    mesa_bool_t    at_least_one_component_found = FALSE;
+    mesa_rc        rc = MESA_RC_OK;
 
     if (handle == NULL || pattern == NULL) {
         return SYMREG_RC_PARAM;
@@ -757,8 +771,8 @@ static mesa_rc symreg_query_init(void **handle, char *pattern,
     // Loop once more and find replications and whether it contains wildcards
     for (i = 0; i < SYMREG_COMPONENTS_LAST; i++) {
         char *bracket_start = NULL;
-        char *bracket_end   = NULL;
-        int  j;
+        char *bracket_end = NULL;
+        int   j;
 
         str1 = inst->state[i].pattern;
         cnt = strlen(str1);
@@ -794,15 +808,18 @@ static mesa_rc symreg_query_init(void **handle, char *pattern,
         if (bracket_start && !bracket_end) {
             rc = SYMREG_RC_PAT_MISSING_RIGHT_BRACKET;
             goto do_exit;
-        } else if (bracket_start == NULL || bracket_end == NULL || bracket_end == bracket_start + 1) {
-            // If no brackets are found, or an empty list is given (e.g. dev1g[<nothing_here>]:xxx:xxx), show all replications.
+        } else if (bracket_start == NULL || bracket_end == NULL ||
+                   bracket_end == bracket_start + 1) {
+            // If no brackets are found, or an empty list is given (e.g.
+            // dev1g[<nothing_here>]:xxx:xxx), show all replications.
             inst->state[i].all_repls = TRUE;
         } else {
             inst->state[i].all_repls = FALSE;
 
             // Parse the list, but first terminate it in both ends.
             *bracket_start = *bracket_end = '\0';
-            if (txt2list_bf(bracket_start + 1, inst->state[i].repls, 0, SYMREG_REPL_CNT_MAX - 1, 0, 1) != MESA_RC_OK) {
+            if (txt2list_bf(bracket_start + 1, inst->state[i].repls, 0,
+                            SYMREG_REPL_CNT_MAX - 1, 0, 1) != MESA_RC_OK) {
                 rc = SYMREG_RC_PAT_INVALID_REPLICATION_LIST;
                 goto do_exit;
             }
@@ -848,14 +865,17 @@ static mesa_rc symreg_query_uninit(void *handle)
 /****************************************************************************/
 // symreg_query_next()
 /****************************************************************************/
-static mesa_rc symreg_query_next(void *handle, char *const name, uint32_t *addr,
-                                 uint32_t *offset, mesa_bool_t next)
+static mesa_rc symreg_query_next(void       *handle,
+                                 char *const name,
+                                 uint32_t   *addr,
+                                 uint32_t   *offset,
+                                 mesa_bool_t next)
 {
-    symreg_inst_t  *inst  = (symreg_inst_t *)handle;
-    symreg_state_t *t     = &inst->state[SYMREG_COMPONENTS_TGT];
-    symreg_state_t *g     = &inst->state[SYMREG_COMPONENTS_GRP];
-    symreg_state_t *r     = &inst->state[SYMREG_COMPONENTS_REG];
-    int            i;
+    symreg_inst_t  *inst = (symreg_inst_t *)handle;
+    symreg_state_t *t = &inst->state[SYMREG_COMPONENTS_TGT];
+    symreg_state_t *g = &inst->state[SYMREG_COMPONENTS_GRP];
+    symreg_state_t *r = &inst->state[SYMREG_COMPONENTS_REG];
+    int             i;
 
     if (handle == NULL || name == NULL || addr == NULL || offset == NULL) {
         return SYMREG_RC_PARAM;
@@ -880,7 +900,8 @@ static mesa_rc symreg_query_next(void *handle, char *const name, uint32_t *addr,
             next = FALSE;
 
             while (SYMREG_reg_next(r, g->u.g->regs)) {
-                sprintf(name, "%s:%s:%s", t->match_name, g->match_name, r->match_name);
+                sprintf(name, "%s:%s:%s", t->match_name, g->match_name,
+                        r->match_name);
                 *addr = t->match_addr + g->match_addr + r->match_addr;
                 *offset = *addr - SYMREG_DATA.io_origin1_offset;
                 T_D("name = %s, addr = %u ", name, *addr);
@@ -902,46 +923,51 @@ static mesa_rc symreg_query_next(void *handle, char *const name, uint32_t *addr,
 void symreg_cli_regs_print(symreg_func_t func, char *pattern, uint32_t value)
 {
     mesa_rc     rc = MESA_RC_OK;
-    void        *handle;
+    void       *handle;
     uint32_t    max_width, reg_cnt, addr, the_offset;
     mesa_bool_t next = FALSE;
-    char        *name = NULL;
+    char       *name = NULL;
 
-    if ((rc = symreg_query_init(&handle, pattern, &max_width, &reg_cnt)) != MESA_RC_OK) {
+    if ((rc = symreg_query_init(&handle, pattern, &max_width, &reg_cnt)) !=
+        MESA_RC_OK) {
         cli_printf("%% %s\n", symreg_error_txt(rc));
         return;
     }
 
     if ((name = (char *)malloc(max_width + 1)) == NULL) {
-        cli_printf("%% Out of memory while attempting to allocate %u bytes\n", max_width + 1);
+        cli_printf("%% Out of memory while attempting to allocate %u bytes\n",
+                   max_width + 1);
         goto do_exit;
     }
 
-    while ((rc = symreg_query_next(handle, name, &addr, &the_offset, next)) == MESA_RC_OK) {
+    while ((rc = symreg_query_next(handle, name, &addr, &the_offset, next)) ==
+           MESA_RC_OK) {
         // Compute the address to provide to mesa_reg_read/write().
         // These functions need the 32-bit address offset relative to the
         // beginning of the switch core base address (VTSS_IO_ORIGIN1_OFFSET).
         // This is what is presented in #the_offset.
         // The functions are luckily able to access CPU-domain registers and
         // are also dual-chip aware.
-        // Both #the_offset and #addr are byte addresses (always jumps in steps of 4),
-        // but the mesa_reg_read/write() functions expect 32-bit addresses, hence the
-        // division by 4 (right-shift by 2).
-        uint32_t offset = the_offset >> 2, v = 0;
-        int j;
+        // Both #the_offset and #addr are byte addresses (always jumps in steps
+        // of 4), but the mesa_reg_read/write() functions expect 32-bit
+        // addresses, hence the division by 4 (right-shift by 2).
+        uint32_t       offset = the_offset >> 2, v = 0;
+        int            j;
         mesa_chip_no_t chip_no = 0;
 
         if (func == READ) {
             rc = mesa_reg_read(NULL, chip_no, offset, &v);
         } else if (func == WRITE) {
             rc = mesa_reg_write(NULL, chip_no, offset, value);
-            v  = value;
+            v = value;
         } else {
             rc = MESA_RC_OK;
         }
 
         if (rc != MESA_RC_OK) {
-            cli_printf("%% Failed to access register %s at address 0x%08x (which is offset = 0x%08x)\n", name, addr, offset);
+            cli_printf(
+                "%% Failed to access register %s at address 0x%08x (which is offset = 0x%08x)\n",
+                name, addr, offset);
             goto do_exit;
         }
 
@@ -951,7 +977,9 @@ void symreg_cli_regs_print(symreg_func_t func, char *pattern, uint32_t value)
             if (func == QUERY) {
                 cli_printf("%-*s %-10s\n", max_width, "Register", "Address");
             } else {
-                cli_printf("%-*s %-10s %-10s 31     24 23     16 15      8 7       0\n", max_width, "Register", "Value", "Decimal");
+                cli_printf(
+                    "%-*s %-10s %-10s 31     24 23     16 15      8 7       0\n",
+                    max_width, "Register", "Value", "Decimal");
             }
         }
 
@@ -960,7 +988,10 @@ void symreg_cli_regs_print(symreg_func_t func, char *pattern, uint32_t value)
         } else {
             cli_printf("%-*s 0x%08x %10u ", max_width, name, v, v);
             for (j = 31; j >= 0; j--) {
-                cli_printf("%d%s", v & (1 << j) ? 1 : 0, j == 0 ? "\n" : (j % 4) ? "" : ".");
+                cli_printf("%d%s", v & (1 << j) ? 1 : 0,
+                           j == 0    ? "\n"
+                           : (j % 4) ? ""
+                                     : ".");
             }
         }
     }
@@ -994,12 +1025,14 @@ static void symreg_init(void)
     }
 
     if (SYMREG_DATA.repl_cnt_max > SYMREG_REPL_CNT_MAX) {
-        T_E("SYMREG_REPL_CNT_MAX repl buffer is too small (%u > %u) - will cause memory overwrite!", SYMREG_DATA.repl_cnt_max, SYMREG_REPL_CNT_MAX);
+        T_E("SYMREG_REPL_CNT_MAX repl buffer is too small (%u > %u) - will cause memory overwrite!",
+            SYMREG_DATA.repl_cnt_max, SYMREG_REPL_CNT_MAX);
         T_E("This is a bug!");
     }
 
     if (SYMREG_DATA.name_len_max > SYMREG_NAME_LEN_MAX) {
-        T_E("SYMREG_REPL_CNT_MAX name buffer is too small (%u > %u) - will cause memory overwrite!", SYMREG_DATA.name_len_max, SYMREG_NAME_LEN_MAX);
+        T_E("SYMREG_REPL_CNT_MAX name buffer is too small (%u > %u) - will cause memory overwrite!",
+            SYMREG_DATA.name_len_max, SYMREG_NAME_LEN_MAX);
         T_E("This is a bug!");
     }
 }
@@ -1011,11 +1044,8 @@ void mscc_appl_symreg_init(mscc_appl_init_t *init)
         mscc_appl_trace_register(&trace_module, trace_groups, TRACE_GROUP_CNT);
         break;
 
-    case MSCC_INIT_CMD_INIT:
-        symreg_init();
-        break;
+    case MSCC_INIT_CMD_INIT: symreg_init(); break;
 
-    default:
-        break;
+    default: break;
     }
 }

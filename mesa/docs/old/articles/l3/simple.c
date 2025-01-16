@@ -3,7 +3,8 @@
 
 #include <microchip/ethernet/switch/api/l3.h>
 
-mscc_rc l3_check_capabilities(const mesa_inst_t inst) {
+mscc_rc l3_check_capabilities(const mesa_inst_t inst)
+{
     // snippet_begin caps
     if (mesa_capability(inst, MESA_CAP_L3) != 1) {
         return MESA_RC_ERROR;
@@ -13,18 +14,20 @@ mscc_rc l3_check_capabilities(const mesa_inst_t inst) {
     return MESA_RC_OK;
 }
 
-mscc_rc l3_vlan_config(const mesa_inst_t inst) {
+mscc_rc l3_vlan_config(const mesa_inst_t inst)
+{
     // TODO
 }
 
-mscc_rc l3_basic_config(const mesa_inst_t inst) {
+mscc_rc l3_basic_config(const mesa_inst_t inst)
+{
     // snippet_begin l3_global
     // Enable routing and use the 00:00:00:10:00:00 mac-address on all router
     // legs.
     mesa_l3_common_conf_t cconf = {
         .routing_enable = 1,
-        .rleg_mode      = MESA_ROUTING_RLEG_MAC_MODE_SINGLE,
-        .base_address   = {0x0, 0x0, 0x0, 0x10, 0x0, 0x0},
+        .rleg_mode = MESA_ROUTING_RLEG_MAC_MODE_SINGLE,
+        .base_address = {0x0, 0x0, 0x0, 0x10, 0x0, 0x0},
     };
     RC(mesa_l3_common_set(inst, &cconf));
 
@@ -38,7 +41,6 @@ mscc_rc l3_basic_config(const mesa_inst_t inst) {
     RC(mesa_l3_rleg_add(inst, &rleg));
     rleg.vlan = 20;
     RC(mesa_l3_rleg_add(inst, &rleg));
-
 
     // snippet_endbegin if_route
     // Add the two interface routes (destination is zero, meaning copy to
@@ -67,7 +69,7 @@ mscc_rc l3_basic_config(const mesa_inst_t inst) {
 
     ne.dmac = {0x0, 0x0, 0x0, 0x10, 0x10, 0x05};
     ne.vlan = 10;
-    ne.dip  = to_ip("10.0.0.5");
+    ne.dip = to_ip("10.0.0.5");
     RC(mesa_l3_neighbour_add(inst, &ne));
 
     // snippet_endbegin host_rt2
@@ -80,7 +82,7 @@ mscc_rc l3_basic_config(const mesa_inst_t inst) {
 
     ne.dmac = {0x0, 0x0, 0x0, 0x10, 0x20, 0x05};
     ne.vlan = 20;
-    ne.dip  = to_ip("20.0.0.5");
+    ne.dip = to_ip("20.0.0.5");
     RC(mesa_l3_neighbour_add(inst, &ne));
 
     // snippet_endbegin next_hop_rt
@@ -102,14 +104,12 @@ mscc_rc l3_basic_config(const mesa_inst_t inst) {
 
     ne.dmac = {0x0, 0x0, 0x0, 0x10, 0x10, 0x10};
     ne.vlan = 10;
-    ne.dip  = to_ip("10.0.0.10");
+    ne.dip = to_ip("10.0.0.10");
     RC(mesa_l3_neighbour_add(inst, &ne));
     // snippet_end
 }
 
-mscc_rc l3_clean_up(const mesa_inst_t inst) {
-    mesa_l3_flush(inst);
-}
+mscc_rc l3_clean_up(const mesa_inst_t inst) { mesa_l3_flush(inst); }
 
 static seq[] = {
     STEP(l3_check_capabilities),
@@ -119,4 +119,3 @@ static seq[] = {
 };
 
 REGISTER_EXAMPLE("L3-simple-example", seq);
-

@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 /**
  * \file vtss_afi_api.h
  * \brief AFI API
@@ -31,11 +30,13 @@ extern "C" {
 #endif
 
 /**
- * \brief AFI identifier. Identifies the resources allocated for a periodically injected frame.
+ * \brief AFI identifier. Identifies the resources allocated for a periodically
+ * injected frame.
  */
 typedef u32 vtss_afi_id_t;
 
-#define VTSS_AFI_ID_NONE (0xFFFFFFFF) /**< Use this to encode Tx headers for non-AFI frame */
+#define VTSS_AFI_ID_NONE                                                       \
+    (0xFFFFFFFF) /**< Use this to encode Tx headers for non-AFI frame */
 
 #if defined(VTSS_AFI_V1)
 #define VTSS_AFI_SLOT_CNT 1024 /**< Maximum number of AFI flows */
@@ -129,7 +130,9 @@ typedef struct {
 
 } vtss_afi_frm_dscr_t;
 
-#define VTSS_AFI_FPS_MAX (3800000)    /**< Maximum number of frames per second we support (corresponds to wirespeed 2.5Gbps 64 byte frames) */
+#define VTSS_AFI_FPS_MAX                                                       \
+    (3800000) /**< Maximum number of frames per second we support (corresponds \
+                 to wirespeed 2.5Gbps 64 byte frames) */
 
 /**
  * \brief Allocate resources for an AFI frame.
@@ -142,12 +145,16 @@ typedef struct {
  * for one single frame.
  *
  * \param inst [IN]    Target instance reference.
- * \param dscr [INOUT] Pointer to structure describing how the frame should be injected.
- * \param id   [OUT]   Pointer receiving a unique ID that identifies the allocated resources for this frame.
+ * \param dscr [INOUT] Pointer to structure describing how the frame should be
+ * injected.
+ * \param id   [OUT]   Pointer receiving a unique ID that identifies the
+ * allocated resources for this frame.
  *
  * \return VTSS_RC_OK on success. VTSS_RC_ERROR on error.
  */
-vtss_rc vtss_afi_alloc(const vtss_inst_t inst, vtss_afi_frm_dscr_t *const dscr, vtss_afi_id_t *const id);
+vtss_rc vtss_afi_alloc(const vtss_inst_t          inst,
+                       vtss_afi_frm_dscr_t *const dscr,
+                       vtss_afi_id_t *const       id);
 
 /**
  * \brief Free resources associated with an AFI frame.
@@ -191,70 +198,85 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 
 // Chip specific properties
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
-#define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
-#define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
-#define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
+#define VTSS_AFI_SLOW_INJ_CNT                                                  \
+    4096 /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_FAST_INJ_BPS_MIN                                              \
+    1000ULL /**< Min rate in bits per second: 1kbps (including IFG and         \
+               preamble) */
+#define VTSS_AFI_FAST_INJ_BPS_MAX                                              \
+    10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and \
+                      preamble) */
 #endif
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_AFI_SLOW_INJ_CNT     4096           /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_SLOW_INJ_CNT                                                  \
+    4096 /**< Maximum number of simultaneous slow injections */
 #else
-#define VTSS_AFI_SLOW_INJ_CNT     512            /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_SLOW_INJ_CNT                                                  \
+    512 /**< Maximum number of simultaneous slow injections */
 #endif
-#define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
-#define VTSS_AFI_FAST_INJ_BPS_MAX 25000000000ULL /**< Max rate in bits per second: 25Gbps (including IFG and preamble) */
+#define VTSS_AFI_FAST_INJ_BPS_MIN                                              \
+    1000ULL /**< Min rate in bits per second: 1kbps (including IFG and         \
+               preamble) */
+#define VTSS_AFI_FAST_INJ_BPS_MAX                                              \
+    25000000000ULL /**< Max rate in bits per second: 25Gbps (including IFG and \
+                      preamble) */
 #endif
 
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
-#define VTSS_AFI_SLOW_INJ_CNT     2048           /**< Maximum number of simultaneous slow injections */
-#define VTSS_AFI_FAST_INJ_BPS_MIN 1000ULL        /**< Min rate in bits per second: 1kbps (including IFG and preamble) */
-#define VTSS_AFI_FAST_INJ_BPS_MAX 10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and preamble) */
+#define VTSS_AFI_SLOW_INJ_CNT                                                  \
+    2048 /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_FAST_INJ_BPS_MIN                                              \
+    1000ULL /**< Min rate in bits per second: 1kbps (including IFG and         \
+               preamble) */
+#define VTSS_AFI_FAST_INJ_BPS_MAX                                              \
+    10000000000ULL /**< Max rate in bits per second: 10Gbps (including IFG and \
+                      preamble) */
 #endif
 
-#define VTSS_AFI_SLOW_INJ_FPH_MAX (60 * 60 * 300) /**< Maximum number of frames per hour supported by slow injections */
+#define VTSS_AFI_SLOW_INJ_FPH_MAX                                              \
+    (60 * 60 * 300) /**< Maximum number of frames per hour supported by slow   \
+                       injections */
 
 /** \page Automatic Frame Injector (AFI)
  *
  * Two types of AFI injections are supported:
  * a) Fast injections
- *    Injection of a sequence of frames consisting of one or more frames with rates of up to several Gbps.
- *    IFG proportional to frame size are inserted between frames.
- *    This is known as Delay-Triggered Injections (DTI).
- * b) Slow injections
- *    Typically used for injecting single frames with an interval of ~3.3ms or slower.
- *    This is known as Timer-Triggered Injections (TTI).
+ *    Injection of a sequence of frames consisting of one or more frames with
+ * rates of up to several Gbps. IFG proportional to frame size are inserted
+ * between frames. This is known as Delay-Triggered Injections (DTI). b) Slow
+ * injections Typically used for injecting single frames with an interval of
+ * ~3.3ms or slower. This is known as Timer-Triggered Injections (TTI).
  *
  * Fast injections are used as follows:
- * 1) Allocate resources identified by a 'fastid' using vtss_afi_fast_inj_alloc().
- * 2) Transmit frame with IFH.AFI_INJ = 1.
- * 3) Call vtss_afi_fast_inj_frm_hijack() to configure the frame for injection.
- *    Repeat steps 2-3 to configure a sequence of frames for injection.
- * 4) Call vtss_afi_fast_inj_start() to select bandwidth and start injection.
- * 5) Call vtss_afi_fast_inj_stop() to stop injection.
- *    vtss_afi_fast_inj_seq_cnt_get() can be called to check the remaining number
- *    of injections.
- *    Repeat 4-5 as desired.
- *    Note that fast injections, which are started with seq_cnt set to a
+ * 1) Allocate resources identified by a 'fastid' using
+ * vtss_afi_fast_inj_alloc(). 2) Transmit frame with IFH.AFI_INJ = 1. 3) Call
+ * vtss_afi_fast_inj_frm_hijack() to configure the frame for injection. Repeat
+ * steps 2-3 to configure a sequence of frames for injection. 4) Call
+ * vtss_afi_fast_inj_start() to select bandwidth and start injection. 5) Call
+ * vtss_afi_fast_inj_stop() to stop injection. vtss_afi_fast_inj_seq_cnt_get()
+ * can be called to check the remaining number of injections. Repeat 4-5 as
+ * desired. Note that fast injections, which are started with seq_cnt set to a
  *    non-zero value must also be stopped with vtss_afi_fast_inj_stop() before
  *    it can be started again.
  * 6) Call vtss_afi_fast_inj_free() to free allocated resources.
  *
  * Slow injections are used as follows:
- * 1) Allocate resources identified by a 'slowid' using vtss_afi_slow_inj_alloc().
- * 2) Transmit frame with IFH.AFI_INJ=1.
- * 3) Call vtss_afi_slow_inj_frm_hijack() to configure the frame for injection.
- * 4) Call vtss_afi_slow_inj_start() to start injection.
- * 5) Call vtss_afi_slow_inj_stop() to stop injection.
- *    Repeat 4-5 as desired.
- * 6) Call vtss_afi_slow_inj_free() to free allocated resources.
+ * 1) Allocate resources identified by a 'slowid' using
+ * vtss_afi_slow_inj_alloc(). 2) Transmit frame with IFH.AFI_INJ=1. 3) Call
+ * vtss_afi_slow_inj_frm_hijack() to configure the frame for injection. 4) Call
+ * vtss_afi_slow_inj_start() to start injection. 5) Call
+ * vtss_afi_slow_inj_stop() to stop injection. Repeat 4-5 as desired. 6) Call
+ * vtss_afi_slow_inj_free() to free allocated resources.
  *
- * During link down, all injections (slow as well as fast) are automatically stopped
- * and upon link up, injections are restarted.
+ * During link down, all injections (slow as well as fast) are automatically
+ * stopped and upon link up, injections are restarted.
  *
  * Maximum one frame (with AFI_INJ=1) can be setup at a time. I.e. another frame
- * must not be injected with AFI_INJ=1 until the previous such frame has been hijacked
- * using vtss_afi_slow_inj_frm_hijack() or vtss_afi_fast_inj_frm_hijack().
+ * must not be injected with AFI_INJ=1 until the previous such frame has been
+ * hijacked using vtss_afi_slow_inj_frm_hijack() or
+ * vtss_afi_fast_inj_frm_hijack().
  */
 
 // TOETBD - Jaguar2a:
@@ -280,10 +302,14 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
  */
 #define VTSS_AFI_FAST_INJ_FRM_CNT_MAX 8
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
-#define VTSS_AFI_FAST_INJ_CNT 32 /**< Maximum number of simultaneous fast injections */
-#elif defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
-#define VTSS_AFI_FAST_INJ_CNT 16 /**< Maximum number of simultaneous fast injections */
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) ||          \
+    defined(VTSS_ARCH_SPARX5)
+#define VTSS_AFI_FAST_INJ_CNT                                                  \
+    32 /**< Maximum number of simultaneous fast injections */
+#elif defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) ||             \
+    defined(VTSS_ARCH_LAN969X)
+#define VTSS_AFI_FAST_INJ_CNT                                                  \
+    16 /**< Maximum number of simultaneous fast injections */
 #else
 #error "Unsupported architecture"
 #endif
@@ -346,7 +372,7 @@ typedef struct {
  **/
 vtss_rc vtss_afi_fast_inj_alloc(const vtss_inst_t                          inst,
                                 const vtss_afi_fast_inj_alloc_cfg_t *const cfg,
-                                      vtss_afi_fastid_t             *const fastid);
+                                vtss_afi_fastid_t *const fastid);
 
 /**
  * \brief Free AFI fast injection resource
@@ -358,8 +384,8 @@ vtss_rc vtss_afi_fast_inj_alloc(const vtss_inst_t                          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_fast_inj_free(const vtss_inst_t       inst,
-                                     vtss_afi_fastid_t fastid);
+vtss_rc vtss_afi_fast_inj_free(const vtss_inst_t inst,
+                               vtss_afi_fastid_t fastid);
 
 /**
  * Structure needed when hijacking frame.
@@ -387,9 +413,10 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_fast_inj_frm_hijack(const vtss_inst_t                        inst,
-                                           vtss_afi_fastid_t                  fastid,
-                                     const vtss_afi_fast_inj_frm_cfg_t *const cfg);
+vtss_rc vtss_afi_fast_inj_frm_hijack(const vtss_inst_t inst,
+                                     vtss_afi_fastid_t fastid,
+                                     const vtss_afi_fast_inj_frm_cfg_t
+                                         *const cfg);
 
 /**
  * Structure defining properties of a fast injection.
@@ -399,7 +426,8 @@ typedef struct {
      * [IN]
      * Requested injection rate. Bits per second (type = Layer1/Line rate)
      * Maximum value is VTSS_AFI_FAST_INJ_BPS_MAX.
-     * bps = 0 => Injection at line speed (for ports with speed <= VTSS_AFI_FAST_INJ_BPS_MAX).
+     * bps = 0 => Injection at line speed (for ports with speed <=
+     * VTSS_AFI_FAST_INJ_BPS_MAX).
      */
     u64 bps;
 
@@ -431,9 +459,9 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_fast_inj_start(const vtss_inst_t                          inst,
-                                      vtss_afi_fastid_t                    fastid,
-                                      vtss_afi_fast_inj_start_cfg_t *const cfg);
+vtss_rc vtss_afi_fast_inj_start(const vtss_inst_t                    inst,
+                                vtss_afi_fastid_t                    fastid,
+                                vtss_afi_fast_inj_start_cfg_t *const cfg);
 
 /**
  * \brief Stop fast injection.
@@ -443,8 +471,8 @@ vtss_rc vtss_afi_fast_inj_start(const vtss_inst_t                          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_fast_inj_stop(const vtss_inst_t       inst,
-                                     vtss_afi_fastid_t fastid);
+vtss_rc vtss_afi_fast_inj_stop(const vtss_inst_t inst,
+                               vtss_afi_fastid_t fastid);
 
 /**
  * \brief Get seq_cnt for fast injection.
@@ -459,9 +487,9 @@ vtss_rc vtss_afi_fast_inj_stop(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_fast_inj_seq_cnt_get(const vtss_inst_t              inst,
-                                            vtss_afi_fastid_t        fastid,
-                                            u32               *const seq_cnt);
+vtss_rc vtss_afi_fast_inj_seq_cnt_get(const vtss_inst_t inst,
+                                      vtss_afi_fastid_t fastid,
+                                      u32 *const        seq_cnt);
 
 // ========================================
 // Slow injections
@@ -512,7 +540,7 @@ typedef struct {
  **/
 vtss_rc vtss_afi_slow_inj_alloc(const vtss_inst_t                          inst,
                                 const vtss_afi_slow_inj_alloc_cfg_t *const cfg,
-                                      vtss_afi_slowid_t             *const slowid);
+                                vtss_afi_slowid_t *const slowid);
 
 /**
  * \brief Free AFI slow injection resource
@@ -524,8 +552,8 @@ vtss_rc vtss_afi_slow_inj_alloc(const vtss_inst_t                          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_slow_inj_free(const vtss_inst_t       inst,
-                                     vtss_afi_slowid_t slowid);
+vtss_rc vtss_afi_slow_inj_free(const vtss_inst_t inst,
+                               vtss_afi_slowid_t slowid);
 
 /**
  * \brief Setup frame for slow injection.
@@ -535,8 +563,8 @@ vtss_rc vtss_afi_slow_inj_free(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_slow_inj_frm_hijack(const vtss_inst_t       inst,
-                                           vtss_afi_slowid_t slowid);
+vtss_rc vtss_afi_slow_inj_frm_hijack(const vtss_inst_t inst,
+                                     vtss_afi_slowid_t slowid);
 
 /**
  * Structure defining properties of a slow injection.
@@ -551,9 +579,10 @@ typedef struct {
     /**
      * [IN]
      * 0: No injection time jitter.
-     * 1: Injection delta time is randomized in interval [0.75*60*60/fph; 60/fph] secs
-     * 2: Injection delta time is randomized in interval [0.50*60*60/fph; 60/fph] secs
-     * 3: Injection delta time is randomized in interval [1 tick; 60*60/fph secs]
+     * 1: Injection delta time is randomized in interval [0.75*60*60/fph;
+     * 60/fph] secs 2: Injection delta time is randomized in interval
+     * [0.50*60*60/fph; 60/fph] secs 3: Injection delta time is randomized in
+     * interval [1 tick; 60*60/fph secs]
      *
      * E.g. to be used for PTP Delay Request, ref IEEE1588-2008, 9.5.11.2.
      */
@@ -578,8 +607,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_slow_inj_start(const vtss_inst_t                          inst,
-                                      vtss_afi_slowid_t                    slowid,
+vtss_rc vtss_afi_slow_inj_start(const vtss_inst_t inst,
+                                vtss_afi_slowid_t slowid,
                                 const vtss_afi_slow_inj_start_cfg_t *const cfg);
 
 /**
@@ -590,8 +619,8 @@ vtss_rc vtss_afi_slow_inj_start(const vtss_inst_t                          inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_slow_inj_stop(const vtss_inst_t       inst,
-                                     vtss_afi_slowid_t slowid);
+vtss_rc vtss_afi_slow_inj_stop(const vtss_inst_t inst,
+                               vtss_afi_slowid_t slowid);
 
 // ========================================
 // Other functions
@@ -609,8 +638,7 @@ vtss_rc vtss_afi_slow_inj_stop(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_port_start(const vtss_inst_t    inst,
-                                  vtss_port_no_t port_no);
+vtss_rc vtss_afi_port_start(const vtss_inst_t inst, vtss_port_no_t port_no);
 
 /**
  * \brief Stop all injections for specific port
@@ -620,8 +648,7 @@ vtss_rc vtss_afi_port_start(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_afi_port_stop(const vtss_inst_t    inst,
-                                 vtss_port_no_t port_no);
+vtss_rc vtss_afi_port_stop(const vtss_inst_t inst, vtss_port_no_t port_no);
 
 #endif // VTSS_AFI_V2
 

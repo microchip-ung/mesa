@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -26,7 +25,7 @@ static int fp_init(int argc, const char *argv[])
     mesa_port_list_t        port_list;
     mesa_qce_t              qce;
     mesa_qos_fp_port_conf_t conf;
-    
+
     EXAMPLE_BARRIER(argc);
 
     if (mesa_capability(NULL, MESA_CAP_QOS_FRAME_PREEMPTION) == 0) {
@@ -50,15 +49,15 @@ static int fp_init(int argc, const char *argv[])
     // Include ingress port and Tx port in PVLAN 0
     RC(mesa_pvlan_port_members_get(NULL, 0, &state.port_list[1]));
     mesa_port_list_clear(&port_list);
-    mesa_port_list_set(&port_list, iport, 1);    
-    mesa_port_list_set(&port_list, tport, 1);    
+    mesa_port_list_set(&port_list, iport, 1);
+    mesa_port_list_set(&port_list, tport, 1);
     RC(mesa_pvlan_port_members_set(NULL, 0, &port_list));
 
     // Include Rx port and egress port PVLAN 1
     RC(mesa_pvlan_port_members_get(NULL, 1, &state.port_list[2]));
     mesa_port_list_clear(&port_list);
-    mesa_port_list_set(&port_list, rport, 1);    
-    mesa_port_list_set(&port_list, eport, 1);    
+    mesa_port_list_set(&port_list, rport, 1);
+    mesa_port_list_set(&port_list, eport, 1);
     RC(mesa_pvlan_port_members_set(NULL, 1, &port_list));
 
     // Map broadcasts to priority 7
@@ -77,14 +76,14 @@ static int fp_init(int argc, const char *argv[])
     conf.enable_tx = 1;
     conf.verify_disable_tx = 0;
     RC(mesa_qos_fp_port_conf_set(NULL, tport, &conf));
-    
+
     return 0;
 }
 
 static void fp_stat(const char *col1, const char *col2, uint64_t c1, uint64_t c2)
 {
     char buf[80];
-    
+
     sprintf(buf, "Rx %s:", col1);
     cli_printf("%-19s%19llu  ", buf, c1);
     if (col2 != NULL) {
@@ -103,14 +102,19 @@ static void fp_port_stat(mesa_port_no_t port_no)
     }
     cli_printf("Port %u counters:\n", port_no);
     fp_stat("Packets", "", c.rmon.rx_etherStatsPkts, c.rmon.tx_etherStatsPkts);
-    fp_stat("Octets", "", c.rmon.rx_etherStatsOctets, c.rmon.tx_etherStatsOctets);
+    fp_stat("Octets", "", c.rmon.rx_etherStatsOctets,
+            c.rmon.tx_etherStatsOctets);
     fp_stat("Unicast", "", c.if_group.ifInUcastPkts, c.if_group.ifOutUcastPkts);
-    fp_stat("Multicast", "", c.rmon.rx_etherStatsMulticastPkts, c.rmon.tx_etherStatsMulticastPkts);
-    fp_stat("Broadcast", "", c.rmon.rx_etherStatsBroadcastPkts, c.rmon.tx_etherStatsBroadcastPkts);
+    fp_stat("Multicast", "", c.rmon.rx_etherStatsMulticastPkts,
+            c.rmon.tx_etherStatsMulticastPkts);
+    fp_stat("Broadcast", "", c.rmon.rx_etherStatsBroadcastPkts,
+            c.rmon.tx_etherStatsBroadcastPkts);
     fp_stat("AssError", NULL, c.dot3br.aMACMergeFrameAssErrorCount, 0);
     fp_stat("SmdError", NULL, c.dot3br.aMACMergeFrameSmdErrorCount, 0);
-    fp_stat("AssOk", "HoldCount", c.dot3br.aMACMergeFrameAssOkCount, c.dot3br.aMACMergeHoldCount);
-    fp_stat("FragCount", "", c.dot3br.aMACMergeFragCountRx, c.dot3br.aMACMergeFragCountTx);
+    fp_stat("AssOk", "HoldCount", c.dot3br.aMACMergeFrameAssOkCount,
+            c.dot3br.aMACMergeHoldCount);
+    fp_stat("FragCount", "", c.dot3br.aMACMergeFragCountRx,
+            c.dot3br.aMACMergeFragCountTx);
     cli_printf("\n");
 }
 
@@ -122,7 +126,7 @@ static int fp_run(int argc, const char *argv[])
     fp_port_stat(state.tport);
     fp_port_stat(state.rport);
     fp_port_stat(state.eport);
-    
+
     return 0;
 }
 
@@ -137,9 +141,6 @@ static int fp_uninit(void)
     return 0;
 }
 
-static const char *fp_help(void)
-{
-    return "Frame Preemption example";
-}
+static const char *fp_help(void) { return "Frame Preemption example"; }
 
 EXAMPLE(fp, fp_init, fp_run, fp_uninit, fp_help);

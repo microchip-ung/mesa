@@ -12,7 +12,7 @@ static int rte_opcua_init(int argc, const char *argv[])
 
     mesa_port_no_t      iport = ARGV_INT("iport", "Ingress port");
     mesa_rc             rc = MESA_RC_ERROR;
-    mesa_port_map_t     *port_map;
+    mesa_port_map_t    *port_map;
     uint32_t            port_cnt = mesa_port_cnt(NULL);
     mesa_port_no_t      port_no;
     mesa_rcl_vid_conf_t conf;
@@ -63,9 +63,6 @@ static int rte_opcua_uninit(void)
     return 0;
 }
 
-static const char *rte_opcua_help(void)
-{
-    return "RTE OPC-UA example\n";
-}
+static const char *rte_opcua_help(void) { return "RTE OPC-UA example\n"; }
 
 EXAMPLE(opc_ua, rte_opcua_init, NULL, rte_opcua_uninit, rte_opcua_help);

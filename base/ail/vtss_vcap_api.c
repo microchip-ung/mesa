@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_VCAP
 #include "vtss_api.h"
 #include "vtss_state.h"
@@ -12,22 +11,21 @@
 /* - Resource utilities -------------------------------------------- */
 
 /* Initialize resource change information */
-void vtss_cmn_res_init(vtss_res_t *res)
-{
-    VTSS_MEMSET(res, 0, sizeof(*res));
-}
+void vtss_cmn_res_init(vtss_res_t *res) { VTSS_MEMSET(res, 0, sizeof(*res)); }
 
 /* Check VCAP resource usage */
 vtss_rc vtss_cmn_vcap_res_check(vtss_vcap_obj_t *obj, vtss_res_chg_t *chg)
 {
-    u32                  add_row, del_row, add, del, old, new, key_count, count, max_row = obj->max_count;
+    u32 add_row, del_row, add, del, old, new, key_count, count,
+        max_row = obj->max_count;
     vtss_vcap_key_size_t key_size;
 
     add_row = chg->add;
     del_row = chg->del;
 
     /* Calculate added/deleted rows for each key size */
-    for (key_size = VTSS_VCAP_KEY_SIZE_FULL; key_size <= VTSS_VCAP_KEY_SIZE_LAST; key_size++) {
+    for (key_size = VTSS_VCAP_KEY_SIZE_FULL;
+         key_size <= VTSS_VCAP_KEY_SIZE_LAST; key_size++) {
         count = vtss_vcap_key_rule_count(key_size);
         add = chg->add_key[key_size];
         del = chg->del_key[key_size];
@@ -50,7 +48,9 @@ vtss_rc vtss_cmn_vcap_res_check(vtss_vcap_obj_t *obj, vtss_res_chg_t *chg)
 
         if (vcap_super != NULL) {
             /* Rows in super pool may be used */
-            max_row += ((vcap_super->block.max_count - vcap_super->block.count) * vcap_super->row_count);
+            max_row +=
+                ((vcap_super->block.max_count - vcap_super->block.count) *
+                 vcap_super->row_count);
         }
     }
 #endif /* VTSS_FEATURE_VCAP_SUPER */
@@ -64,17 +64,22 @@ vtss_rc vtss_cmn_vcap_res_check(vtss_vcap_obj_t *obj, vtss_res_chg_t *chg)
 }
 
 #if defined(VTSS_EVC_STAT_CNT)
-static vtss_rc vtss_ps_res_check(const char *name, vtss_xrow_header_t *hdr, vtss_ps_chg_t *chg)
+static vtss_rc vtss_ps_res_check(const char         *name,
+                                 vtss_xrow_header_t *hdr,
+                                 vtss_ps_chg_t      *chg)
 {
     u32 size, count = 0;
 
     /* Calculate number of items needed */
     for (size = 0; size < 9; size++) {
-        count += ((hdr->count_size[size] + 7 + chg->add_size[size] - chg->del_size[size]) / 8);
+        count += ((hdr->count_size[size] + 7 + chg->add_size[size] -
+                   chg->del_size[size]) /
+                  8);
     }
     count *= 8;
     if (count > hdr->max_count) {
-        VTSS_I("%s table exceeded, count: %u, max: %u", name, count, hdr->max_count);
+        VTSS_I("%s table exceeded, count: %u, max: %u", name, count,
+               hdr->max_count);
         return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
@@ -87,19 +92,27 @@ vtss_rc vtss_cmn_res_check(vtss_state_t *vtss_state, vtss_res_t *res)
 #if defined(VTSS_SDX_CNT)
     vtss_sdx_info_t *sdx_info = &vtss_state->l2.sdx_info;
 
-    if ((sdx_info->isdx.count + res->isdx.add - res->isdx.del) > sdx_info->max_count) {
-        VTSS_I("ISDX exceeded  isdx.count %u  isdx.add %u  isdx.del %u  max_count %u", sdx_info->isdx.count, res->isdx.add, res->isdx.del, sdx_info->max_count);
+    if ((sdx_info->isdx.count + res->isdx.add - res->isdx.del) >
+        sdx_info->max_count) {
+        VTSS_I(
+            "ISDX exceeded  isdx.count %u  isdx.add %u  isdx.del %u  max_count %u",
+            sdx_info->isdx.count, res->isdx.add, res->isdx.del,
+            sdx_info->max_count);
         return VTSS_RC_ERROR;
     }
 
-    if ((sdx_info->esdx.count + res->esdx.add - res->esdx.del) > sdx_info->max_count) {
-        VTSS_I("ESDX exceeded  esdx.count %u  esdx.add %u  esdx.del %u  max_count %u", sdx_info->esdx.count, res->esdx.add, res->esdx.del, sdx_info->max_count);
+    if ((sdx_info->esdx.count + res->esdx.add - res->esdx.del) >
+        sdx_info->max_count) {
+        VTSS_I(
+            "ESDX exceeded  esdx.count %u  esdx.add %u  esdx.del %u  max_count %u",
+            sdx_info->esdx.count, res->esdx.add, res->esdx.del,
+            sdx_info->max_count);
         return VTSS_RC_ERROR;
     }
 #endif /* VTSS_SDX_CNT */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
-    vtss_vsi_info_t    *vsi_info = &vtss_state->l2.vsi_info;
+    vtss_vsi_info_t *vsi_info = &vtss_state->l2.vsi_info;
 
     if ((vsi_info->count + res->vsi.add - res->vsi.del) > vsi_info->max_count) {
         VTSS_I("VSI exceeded");
@@ -108,9 +121,12 @@ vtss_rc vtss_cmn_res_check(vtss_state_t *vtss_state, vtss_res_t *res)
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_EVC_STAT_CNT)
-    VTSS_RC(vtss_ps_res_check("policer", &vtss_state->l2.pol_table.hdr, &res->pol));
-    VTSS_RC(vtss_ps_res_check("ingress statistics", &vtss_state->l2.istat_table.hdr, &res->istat));
-    VTSS_RC(vtss_ps_res_check("egress statistics", &vtss_state->l2.estat_table.hdr, &res->estat));
+    VTSS_RC(vtss_ps_res_check("policer", &vtss_state->l2.pol_table.hdr,
+                              &res->pol));
+    VTSS_RC(vtss_ps_res_check("ingress statistics",
+                              &vtss_state->l2.istat_table.hdr, &res->istat));
+    VTSS_RC(vtss_ps_res_check("egress statistics",
+                              &vtss_state->l2.estat_table.hdr, &res->estat));
 #endif
 
 #if defined(VTSS_FEATURE_IS0)
@@ -168,12 +184,12 @@ BOOL vtss_vcap_udp_tcp_rule(const vtss_vcap_u8_t *proto)
 
 /* Allocate range checker */
 vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *table,
-                              u32 *range,
-                              vtss_vcap_range_chk_type_t type,
-                              u32 min,
-                              u32 max)
+                              u32                         *range,
+                              vtss_vcap_range_chk_type_t   type,
+                              u32                          min,
+                              u32                          max)
 {
-    u32                   i, new = VTSS_VCAP_RANGE_CHK_NONE;
+    u32                    i, new = VTSS_VCAP_RANGE_CHK_NONE;
     vtss_vcap_range_chk_t *entry;
 
     for (i = 0; i < table->max; i++) {
@@ -184,7 +200,8 @@ vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *table,
             break;
         }
 
-        if (entry->count == 0 && (new == VTSS_VCAP_RANGE_CHK_NONE || i == *range)) {
+        if (entry->count == 0 &&
+            (new == VTSS_VCAP_RANGE_CHK_NONE || i == *range)) {
             /* Free entry found, possibly reuse old range checker */
             new = i;
         }
@@ -236,9 +253,9 @@ vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *table, u32 range)
 
 /* Allocate UDP/TCP range checker */
 vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *table,
-                                      u32 *range,
-                                      vtss_vcap_udp_tcp_t *port,
-                                      BOOL sport)
+                                      u32                         *range,
+                                      vtss_vcap_udp_tcp_t         *port,
+                                      BOOL                         sport)
 {
     vtss_rc                    rc;
     vtss_vcap_range_chk_type_t type;
@@ -274,11 +291,12 @@ BOOL vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr)
 {
     if (vr->type != VTSS_VCAP_VR_TYPE_VALUE_MASK) {
         vtss_vcap_vr_value_t mask;
-        vtss_vcap_vr_value_t low  = vr->vr.r.low;
+        vtss_vcap_vr_value_t low = vr->vr.r.low;
         vtss_vcap_vr_value_t high = vr->vr.r.high;
         int                  bit;
 
-        /* Start with most significant bit and find the first bit where 'low' and 'high' differs. */
+        /* Start with most significant bit and find the first bit where 'low'
+         * and 'high' differs. */
         for (bit = (sizeof(vtss_vcap_vr_value_t) * 8) - 1; bit >= 0; bit--) {
             mask = 1 << bit;
             if ((low & mask) != (high & mask)) {
@@ -293,7 +311,8 @@ BOOL vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr)
             vr->type = VTSS_VCAP_VR_TYPE_VALUE_MASK;
             vr->vr.v.value = low;
             vr->vr.v.mask = ~mask;
-            VTSS_I("range %u-%u converted to value 0x%X, mask 0x%X", low, high, vr->vr.v.value, vr->vr.v.mask);
+            VTSS_I("range %u-%u converted to value 0x%X, mask 0x%X", low, high,
+                   vr->vr.v.value, vr->vr.v.mask);
             return TRUE;
         }
     }
@@ -306,23 +325,25 @@ BOOL vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr)
    the vr is modified here in order to save a range checker.
 */
 vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
-                           u32 *range,
-                           vtss_vcap_range_chk_type_t type,
-                           vtss_vcap_vr_t *vr)
+                           u32                         *range,
+                           vtss_vcap_range_chk_type_t   type,
+                           vtss_vcap_vr_t              *vr)
 {
-    u8 bits = (type == VTSS_VCAP_RANGE_TYPE_DSCP ? 6 :
-               type == VTSS_VCAP_RANGE_TYPE_VID ? 12 : 16);
+    u8  bits = (type == VTSS_VCAP_RANGE_TYPE_DSCP  ? 6
+                : type == VTSS_VCAP_RANGE_TYPE_VID ? 12
+                                                   : 16);
     u32 max_value = (1 << bits) - 1;
 
     /* Parameter check */
     if (vr->type == VTSS_VCAP_VR_TYPE_VALUE_MASK) {
         if (vr->vr.v.value > max_value) {
-            VTSS_E("illegal value: 0x%X (max value is 0x%X)", vr->vr.v.value, max_value);
+            VTSS_E("illegal value: 0x%X (max value is 0x%X)", vr->vr.v.value,
+                   max_value);
             return VTSS_RC_ERROR;
         }
-    }
-    else {
-        if ((vr->vr.r.low > max_value) || (vr->vr.r.high > max_value) || (vr->vr.r.low > vr->vr.r.high)){
+    } else {
+        if ((vr->vr.r.low > max_value) || (vr->vr.r.high > max_value) ||
+            (vr->vr.r.low > vr->vr.r.high)) {
             VTSS_E("illegal range: 0x%X-0x%X", vr->vr.r.low, vr->vr.r.high);
             return VTSS_RC_ERROR;
         }
@@ -336,10 +357,12 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
         *range = VTSS_VCAP_RANGE_CHK_NONE;
         return VTSS_RC_OK;
     }
-    return vtss_vcap_range_alloc(table, range, type, vr->vr.r.low, vr->vr.r.high);
+    return vtss_vcap_range_alloc(table, range, type, vr->vr.r.low,
+                                 vr->vr.r.high);
 }
 
-vtss_rc vtss_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_range_chk_table_t *range_new)
+vtss_rc vtss_vcap_range_commit(vtss_state_t                *vtss_state,
+                               vtss_vcap_range_chk_table_t *range_new)
 {
     if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new))) {
         /* The temporary working copy has changed - Save it and commit */
@@ -357,31 +380,34 @@ u32 vtss_vcap_key_rule_count(vtss_vcap_key_size_t key_size)
     if (key_size > VTSS_VCAP_KEY_SIZE_LAST) {
         VTSS_E("illegal key_size");
     }
-    return (key_size == VTSS_VCAP_KEY_SIZE_SIXTEENTH ? 16 :
-            key_size == VTSS_VCAP_KEY_SIZE_TWELFTH ? 12 :
-            key_size == VTSS_VCAP_KEY_SIZE_EIGHTH ? 8 :
-            key_size == VTSS_VCAP_KEY_SIZE_SIXTH ? 6 :
-            key_size == VTSS_VCAP_KEY_SIZE_QUARTER ? 4 :
-            key_size == VTSS_VCAP_KEY_SIZE_HALF ? 2 : 1);
+    return (key_size == VTSS_VCAP_KEY_SIZE_SIXTEENTH ? 16
+            : key_size == VTSS_VCAP_KEY_SIZE_TWELFTH ? 12
+            : key_size == VTSS_VCAP_KEY_SIZE_EIGHTH  ? 8
+            : key_size == VTSS_VCAP_KEY_SIZE_SIXTH   ? 6
+            : key_size == VTSS_VCAP_KEY_SIZE_QUARTER ? 4
+            : key_size == VTSS_VCAP_KEY_SIZE_HALF    ? 2
+                                                     : 1);
 }
 
 const char *vtss_vcap_key_size2txt(vtss_vcap_key_size_t key_size)
 {
-    return (key_size == VTSS_VCAP_KEY_SIZE_FULL ? "Full" :
-            key_size == VTSS_VCAP_KEY_SIZE_HALF ? "Half" :
-            key_size == VTSS_VCAP_KEY_SIZE_QUARTER ? "Quarter" :
-            key_size == VTSS_VCAP_KEY_SIZE_SIXTH ? "Sixth" :
-            key_size == VTSS_VCAP_KEY_SIZE_EIGHTH ? "Eighth" :
-            key_size == VTSS_VCAP_KEY_SIZE_TWELFTH ? "Twelfth" :
-            key_size == VTSS_VCAP_KEY_SIZE_SIXTEENTH ? "Sixteenth" : "?");
+    return (key_size == VTSS_VCAP_KEY_SIZE_FULL        ? "Full"
+            : key_size == VTSS_VCAP_KEY_SIZE_HALF      ? "Half"
+            : key_size == VTSS_VCAP_KEY_SIZE_QUARTER   ? "Quarter"
+            : key_size == VTSS_VCAP_KEY_SIZE_SIXTH     ? "Sixth"
+            : key_size == VTSS_VCAP_KEY_SIZE_EIGHTH    ? "Eighth"
+            : key_size == VTSS_VCAP_KEY_SIZE_TWELFTH   ? "Twelfth"
+            : key_size == VTSS_VCAP_KEY_SIZE_SIXTEENTH ? "Sixteenth"
+                                                       : "?");
 }
 
 const char *vtss_vcap_key_type2txt(vtss_vcap_key_type_t key_type)
 {
-    return (key_type == VTSS_VCAP_KEY_TYPE_NORMAL ? "NORMAL" :
-            key_type == VTSS_VCAP_KEY_TYPE_DOUBLE_TAG ? "DOUBLE_TAG" :
-            key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR ? "IP_ADDR" :
-            key_type == VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR ? "MAC_IP_ADDR" : "?");
+    return (key_type == VTSS_VCAP_KEY_TYPE_NORMAL        ? "NORMAL"
+            : key_type == VTSS_VCAP_KEY_TYPE_DOUBLE_TAG  ? "DOUBLE_TAG"
+            : key_type == VTSS_VCAP_KEY_TYPE_IP_ADDR     ? "IP_ADDR"
+            : key_type == VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR ? "MAC_IP_ADDR"
+                                                         : "?");
 }
 
 vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type)
@@ -395,13 +421,16 @@ vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type)
     key_size = VTSS_VCAP_KEY_SIZE_EIGHTH;
 #endif
 
-    return (key_type == VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR ? VTSS_VCAP_KEY_SIZE_FULL :
-            key_type == VTSS_VCAP_KEY_TYPE_DOUBLE_TAG ? key_size :
-            VTSS_VCAP_KEY_SIZE_HALF);
+    return (key_type == VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR ? VTSS_VCAP_KEY_SIZE_FULL
+            : key_type == VTSS_VCAP_KEY_TYPE_DOUBLE_TAG
+                ? key_size
+                : VTSS_VCAP_KEY_SIZE_HALF);
 }
 
 /* Get (row, col) position of rule */
-static void vtss_vcap_pos_get(vtss_vcap_obj_t *obj, vtss_vcap_idx_t *idx, u32 ndx)
+static void vtss_vcap_pos_get(vtss_vcap_obj_t *obj,
+                              vtss_vcap_idx_t *idx,
+                              u32              ndx)
 {
     u32                  cnt;
     vtss_vcap_key_size_t key_size;
@@ -412,7 +441,8 @@ static void vtss_vcap_pos_get(vtss_vcap_obj_t *obj, vtss_vcap_idx_t *idx, u32 nd
     idx->col = (ndx % cnt);
 
     /* Include rows for previous blocks */
-    for (key_size = (idx->key_size + 1); key_size < VTSS_VCAP_KEY_SIZE_MAX; key_size++) {
+    for (key_size = (idx->key_size + 1); key_size < VTSS_VCAP_KEY_SIZE_MAX;
+         key_size++) {
         cnt = vtss_vcap_key_rule_count(key_size);
         idx->row += ((obj->key_count[key_size] + cnt - 1) / cnt);
     }
@@ -420,8 +450,8 @@ static void vtss_vcap_pos_get(vtss_vcap_obj_t *obj, vtss_vcap_idx_t *idx, u32 nd
 
 char *vtss_vcap_id_txt(vtss_state_t *vtss_state, vtss_vcap_id_t id)
 {
-    u32  high = ((id >> 32) & 0xffffffff);
-    u32  low = (id & 0xffffffff);
+    u32   high = ((id >> 32) & 0xffffffff);
+    u32   low = (id & 0xffffffff);
     char *txt;
 
     vtss_state->txt_buf_index++;
@@ -431,12 +461,15 @@ char *vtss_vcap_id_txt(vtss_state_t *vtss_state, vtss_vcap_id_t id)
 }
 
 /* Lookup VCAP entry */
-vtss_rc vtss_vcap_lookup(vtss_state_t *vtss_state,
-                         vtss_vcap_obj_t *obj, int user, vtss_vcap_id_t id,
-                         vtss_vcap_data_t *data, vtss_vcap_idx_t *idx)
+vtss_rc vtss_vcap_lookup(vtss_state_t     *vtss_state,
+                         vtss_vcap_obj_t  *obj,
+                         int               user,
+                         vtss_vcap_id_t    id,
+                         vtss_vcap_data_t *data,
+                         vtss_vcap_idx_t  *idx)
 {
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
-    vtss_vcap_entry_t    *cur;
+    vtss_vcap_entry_t   *cur;
     vtss_vcap_key_size_t key_size;
 
     VTSS_D("VCAP %s, id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
@@ -460,18 +493,20 @@ vtss_rc vtss_vcap_lookup(vtss_state_t *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_VCAP_SUPER)
-static vtss_rc vtss_vcap_super_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj)
+static vtss_rc vtss_vcap_super_add(vtss_state_t    *vtss_state,
+                                   vtss_vcap_obj_t *obj)
 {
     vtss_vcap_super_obj_t *vcap_super = obj->vcap_super;
-    vtss_vcap_type_t      type;
-    u32                   i, count = 0, found = 0;
+    vtss_vcap_type_t       type;
+    u32                    i, count = 0, found = 0;
 
     if (obj->count < obj->max_count) {
         /* No need to allocate super block */
         return VTSS_RC_OK;
     }
 
-    if (vcap_super == NULL || vcap_super->block.count >= vcap_super->block.max_count) {
+    if (vcap_super == NULL ||
+        vcap_super->block.count >= vcap_super->block.max_count) {
         VTSS_I("no more VCAP super blocks for %s", obj->name);
         return VTSS_RC_ERROR;
     }
@@ -497,7 +532,7 @@ static vtss_rc vtss_vcap_super_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *ob
     }
 
     /* Move blocks down to make room for new block */
-    for ( ; count > 0; count--, i--) {
+    for (; count > 0; count--, i--) {
         type = vcap_super->block_type[i - 1];
         VTSS_RC(vcap_super->block_map(vtss_state, i, type));
         vcap_super->block_type[i] = type;
@@ -514,11 +549,12 @@ static vtss_rc vtss_vcap_super_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *ob
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_vcap_super_del(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj)
+static vtss_rc vtss_vcap_super_del(vtss_state_t    *vtss_state,
+                                   vtss_vcap_obj_t *obj)
 {
     vtss_vcap_super_obj_t *vcap_super = obj->vcap_super;
-    vtss_vcap_type_t      type;
-    u32                   i, found = 0;
+    vtss_vcap_type_t       type;
+    u32                    i, found = 0;
 
     if (vcap_super == NULL || (obj->count % vcap_super->row_count) != 0) {
         VTSS_I("nothing to free for %s", obj->name);
@@ -552,7 +588,8 @@ static vtss_rc vtss_vcap_super_del(vtss_state_t *vtss_state, vtss_vcap_obj_t *ob
         VTSS_RC(vcap_super->block_map(vtss_state, i, type));
         vcap_super->block_type[i] = type;
         if (obj->max_count < vcap_super->row_count) {
-            VTSS_E("max_count: %u, row_count: %u", obj->max_count, vcap_super->row_count);
+            VTSS_E("max_count: %u, row_count: %u", obj->max_count,
+                   vcap_super->row_count);
             return VTSS_RC_ERROR;
         }
         obj->max_count -= vcap_super->row_count;
@@ -563,15 +600,17 @@ static vtss_rc vtss_vcap_super_del(vtss_state_t *vtss_state, vtss_vcap_obj_t *ob
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
 /* Delete rule found in list */
-static vtss_rc vtss_vcap_del_rule(vtss_state_t *vtss_state,
-                                  vtss_vcap_obj_t *obj, vtss_vcap_entry_t *cur,
-                                  vtss_vcap_entry_t *prev, u32 ndx)
+static vtss_rc vtss_vcap_del_rule(vtss_state_t      *vtss_state,
+                                  vtss_vcap_obj_t   *obj,
+                                  vtss_vcap_entry_t *cur,
+                                  vtss_vcap_entry_t *prev,
+                                  u32                ndx)
 {
     vtss_vcap_key_size_t key_size;
     vtss_vcap_idx_t      idx;
     u32                  cnt;
-    vtss_vcap_entry_t    **free_list = &obj->free;
-    u32                  *rule_count = &obj->rule_count;
+    vtss_vcap_entry_t  **free_list = &obj->free;
+    u32                 *rule_count = &obj->rule_count;
 
     VTSS_D("VCAP %s, ndx: %u", obj->name, ndx);
 
@@ -632,8 +671,8 @@ static vtss_rc vtss_vcap_del_rule(vtss_state_t *vtss_state,
 
 u32 vtss_vcap_count_get(vtss_vcap_obj_t *obj, int user)
 {
-    u32                 count = 0;
-    vtss_vcap_entry_t   *cur;
+    u32                count = 0;
+    vtss_vcap_entry_t *cur;
 
     for (cur = obj->used; cur != NULL; cur = cur->next) {
         if (cur->user == user) {
@@ -644,10 +683,12 @@ u32 vtss_vcap_count_get(vtss_vcap_obj_t *obj, int user)
 }
 
 /* Delete VCAP rule */
-vtss_rc vtss_vcap_del(vtss_state_t *vtss_state,
-                      vtss_vcap_obj_t *obj, int user, vtss_vcap_id_t id)
+vtss_rc vtss_vcap_del(vtss_state_t    *vtss_state,
+                      vtss_vcap_obj_t *obj,
+                      int              user,
+                      vtss_vcap_id_t   id)
 {
-    vtss_vcap_entry_t    *cur, *prev = NULL;
+    vtss_vcap_entry_t   *cur, *prev = NULL;
     vtss_vcap_key_size_t key_size;
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
 
@@ -658,7 +699,8 @@ vtss_rc vtss_vcap_del(vtss_state_t *vtss_state,
         key_size = cur->data.key_size;
         if (cur->user == user && cur->id == id) {
             /* Found rule, delete it */
-            return vtss_vcap_del_rule(vtss_state, obj, cur, prev, ndx[key_size]);
+            return vtss_vcap_del_rule(vtss_state, obj, cur, prev,
+                                      ndx[key_size]);
         }
         ndx[key_size]++;
     }
@@ -667,28 +709,36 @@ vtss_rc vtss_vcap_del(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, vtss_vcap_id_t id,
-                      vtss_vcap_id_t ins_id, vtss_vcap_data_t *data, BOOL dont_add)
+vtss_rc vtss_vcap_add(vtss_state_t     *vtss_state,
+                      vtss_vcap_obj_t  *obj,
+                      int               user,
+                      vtss_vcap_id_t    id,
+                      vtss_vcap_id_t    ins_id,
+                      vtss_vcap_data_t *data,
+                      BOOL              dont_add)
 {
-    u32                  cnt = 0, ndx_ins = 0, ndx_old = 0, ndx_old_key[VTSS_VCAP_KEY_SIZE_MAX];
-    vtss_vcap_entry_t    *cur, *prev = NULL;
-    vtss_vcap_entry_t    *old = NULL, *old_prev = NULL, *ins = NULL, *ins_prev = NULL;
+    u32 cnt = 0, ndx_ins = 0, ndx_old = 0, ndx_old_key[VTSS_VCAP_KEY_SIZE_MAX];
+    vtss_vcap_entry_t *cur, *prev = NULL;
+    vtss_vcap_entry_t *old = NULL, *old_prev = NULL, *ins = NULL,
+                      *ins_prev = NULL;
     vtss_vcap_idx_t      idx;
     vtss_vcap_key_size_t key_size, key_size_new;
     vtss_res_chg_t       chg;
     vtss_vcap_id_t       cur_id;
-    vtss_vcap_entry_t    **free_list = &obj->free;
-    u32                  *rule_count = &obj->rule_count;
+    vtss_vcap_entry_t  **free_list = &obj->free;
+    u32                 *rule_count = &obj->rule_count;
 
     key_size_new = (data ? data->key_size : VTSS_VCAP_KEY_SIZE_FULL);
     VTSS_MEMSET(ndx_old_key, 0, sizeof(ndx_old_key));
 
-    VTSS_D("VCAP %s, key_size: %s, id: %s, ins_id: %s",
-           obj->name, vtss_vcap_key_size2txt(key_size_new),
-           vtss_vcap_id_txt(vtss_state, id), vtss_vcap_id_txt(vtss_state, ins_id));
+    VTSS_D("VCAP %s, key_size: %s, id: %s, ins_id: %s", obj->name,
+           vtss_vcap_key_size2txt(key_size_new),
+           vtss_vcap_id_txt(vtss_state, id),
+           vtss_vcap_id_txt(vtss_state, ins_id));
 
     if (id == VTSS_VCAP_ID_LAST || id == VTSS_VCAP_ID_GT) {
-        VTSS_E("VCAP %s, illegal id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
+        VTSS_E("VCAP %s, illegal id: %s", obj->name,
+               vtss_vcap_id_txt(vtss_state, id));
         return VTSS_RC_ERROR;
     }
 
@@ -707,9 +757,8 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
                 old_prev = prev;
             }
 
-            if (ins == NULL &&
-                (cur_id == ins_id ||
-                 (ins_id == VTSS_VCAP_ID_GT && cur_id > id))) {
+            if (ins == NULL && (cur_id == ins_id ||
+                                (ins_id == VTSS_VCAP_ID_GT && cur_id > id))) {
                 /* Found place to insert */
                 VTSS_D("found ins_id");
                 ins = cur;
@@ -736,8 +785,9 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
     /* Check if insert ID is valid */
     if (ins == NULL) {
         if (ins_id != VTSS_VCAP_ID_LAST && ins_id != VTSS_VCAP_ID_GT) {
-            VTSS_E("VCAP %s: Could not find Insert ID: %s, ID: %s",
-                   obj->name, vtss_vcap_id_txt(vtss_state, ins_id), vtss_vcap_id_txt(vtss_state, id));
+            VTSS_E("VCAP %s: Could not find Insert ID: %s, ID: %s", obj->name,
+                   vtss_vcap_id_txt(vtss_state, ins_id),
+                   vtss_vcap_id_txt(vtss_state, id));
             return VTSS_RC_ERROR;
         }
         ins_prev = prev;
@@ -748,13 +798,15 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
         VTSS_MEMSET(&chg, 0, sizeof(chg));
 
         /* Calculate added resources */
-        if ((obj->key_count[key_size_new] % vtss_vcap_key_rule_count(key_size_new)) == 0)
+        if ((obj->key_count[key_size_new] %
+             vtss_vcap_key_rule_count(key_size_new)) == 0)
             chg.add++;
 
         /* Calculate deleted resources */
         if (old != NULL) {
             key_size = old->data.key_size;
-            if ((obj->key_count[key_size] % vtss_vcap_key_rule_count(key_size)) == 1)
+            if ((obj->key_count[key_size] %
+                 vtss_vcap_key_rule_count(key_size)) == 1)
                 chg.del++;
         }
         VTSS_RC(vtss_cmn_vcap_res_check(obj, &chg));
@@ -784,11 +836,14 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
             VTSS_D("new rule, ndx_ins: %u", ndx_ins);
         } else {
             VTSS_D("changed key_size/position");
-            VTSS_RC(vtss_vcap_del_rule(vtss_state, obj, old, old_prev, ndx_old));
+            VTSS_RC(vtss_vcap_del_rule(vtss_state, obj, old, old_prev,
+                                       ndx_old));
             if (key_size == key_size_new) {
-                VTSS_D("new position, ndx_ins: %u, ndx_old: %u", ndx_ins, ndx_old);
+                VTSS_D("new position, ndx_ins: %u, ndx_old: %u", ndx_ins,
+                       ndx_old);
                 if (ndx_ins > ndx_old) {
-                    /* The deleted old entry was before the new index, adjust for that */
+                    /* The deleted old entry was before the new index, adjust
+                     * for that */
                     ndx_ins--;
                 }
             } else {
@@ -827,8 +882,10 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
         /* Get position of the entry after the last entry in block */
         key_size = key_size_new;
         idx.key_size = key_size;
-        vtss_vcap_pos_get(obj, &idx, key_size == VTSS_VCAP_KEY_SIZE_FULL ? ndx_ins :
-                          obj->key_count[key_size]);
+        vtss_vcap_pos_get(obj, &idx,
+                          key_size == VTSS_VCAP_KEY_SIZE_FULL
+                              ? ndx_ins
+                              : obj->key_count[key_size]);
         if (idx.col == 0) {
 #if defined(VTSS_FEATURE_VCAP_SUPER)
             VTSS_RC(vtss_vcap_super_add(vtss_state, obj));
@@ -836,17 +893,20 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
             if (!vtss_state->warm_start_cur && idx.row < obj->count) {
                 /* Move rows down */
                 idx.key_size = VTSS_VCAP_KEY_SIZE_FULL;
-                VTSS_RC(obj->entry_move(vtss_state, &idx, obj->count - idx.row, 0));
+                VTSS_RC(obj->entry_move(vtss_state, &idx, obj->count - idx.row,
+                                        0));
             }
             obj->count++;
         }
 
         /* Move rules down */
-        if (!vtss_state->warm_start_cur && key_size != VTSS_VCAP_KEY_SIZE_FULL &&
+        if (!vtss_state->warm_start_cur &&
+            key_size != VTSS_VCAP_KEY_SIZE_FULL &&
             obj->key_count[key_size] > ndx_ins) {
             idx.key_size = key_size;
             vtss_vcap_pos_get(obj, &idx, ndx_ins);
-            VTSS_RC(obj->entry_move(vtss_state, &idx, obj->key_count[key_size] - ndx_ins, 0));
+            VTSS_RC(obj->entry_move(vtss_state, &idx,
+                                    obj->key_count[key_size] - ndx_ins, 0));
         }
         obj->key_count[key_size]++;
     } else {
@@ -857,7 +917,8 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
 
     cur->data = *data;
 
-    /* Save a copy if storage is provided. Used for warm start and key size changes */
+    /* Save a copy if storage is provided. Used for warm start and key size
+     * changes */
     data = &cur->data;
 #if !VTSS_OPT_LIGHT
     if (obj->type == VTSS_VCAP_TYPE_IS0) {
@@ -902,8 +963,11 @@ vtss_rc vtss_vcap_add(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj, int user, 
 }
 
 /* Get next ID for one user based on another user (special function for PTP) */
-vtss_rc vtss_vcap_get_next_id(vtss_vcap_obj_t *obj, int user1, int user2,
-                              vtss_vcap_id_t id, vtss_vcap_id_t *ins_id)
+vtss_rc vtss_vcap_get_next_id(vtss_vcap_obj_t *obj,
+                              int              user1,
+                              int              user2,
+                              vtss_vcap_id_t   id,
+                              vtss_vcap_id_t  *ins_id)
 {
     vtss_vcap_entry_t *cur, *next;
 
@@ -923,7 +987,8 @@ vtss_rc vtss_vcap_get_next_id(vtss_vcap_obj_t *obj, int user1, int user2,
     }
 
     /* Look for entry in user2 list */
-    for (next = cur->next; next != NULL && next->user == user1; next = next->next) {
+    for (next = cur->next; next != NULL && next->user == user1;
+         next = next->next) {
         for (cur = obj->used; cur != NULL; cur = cur->next) {
             if (cur->user == user2 && cur->id == next->id) {
                 *ins_id = cur->id;
@@ -973,9 +1038,9 @@ void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry)
 #if defined(VTSS_ARCH_LAN966X)
 vtss_rc vtss_vcap_is1_update(vtss_state_t *vtss_state, vtss_is1_action_t *act)
 {
-    vtss_vcap_obj_t      *obj = &vtss_state->vcap.is1.obj;
-    vtss_vcap_entry_t    *cur;
-    vtss_vcap_data_t     *data;
+    vtss_vcap_obj_t     *obj = &vtss_state->vcap.is1.obj;
+    vtss_vcap_entry_t   *cur;
+    vtss_vcap_data_t    *data;
     vtss_vcap_key_size_t key_size;
     vtss_vcap_idx_t      idx;
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
@@ -996,13 +1061,14 @@ vtss_rc vtss_vcap_is1_update(vtss_state_t *vtss_state, vtss_is1_action_t *act)
 #endif
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-vtss_rc vtss_vcap_clm_update(vtss_state_t *vtss_state, const vtss_qos_egress_map_id_t id)
+vtss_rc vtss_vcap_clm_update(vtss_state_t                  *vtss_state,
+                             const vtss_qos_egress_map_id_t id)
 {
     u32                  i, ndx[VTSS_VCAP_KEY_SIZE_MAX];
-    vtss_vcap_obj_t      *obj;
+    vtss_vcap_obj_t     *obj;
     vtss_vcap_type_t     type;
-    vtss_vcap_entry_t    *cur;
-    vtss_is1_data_t      *data;
+    vtss_vcap_entry_t   *cur;
+    vtss_is1_data_t     *data;
     vtss_vcap_key_size_t key_size;
     vtss_vcap_idx_t      idx;
 
@@ -1043,16 +1109,20 @@ vtss_rc vtss_vcap_clm_update(vtss_state_t *vtss_state, const vtss_qos_egress_map
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_CLM) && defined(VTSS_ARCH_JAGUAR_2)
-vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t *vtss_state,
-                                          vtss_vcap_obj_t *obj, int user, vtss_vcap_id_t id, BOOL enable)
+vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t    *vtss_state,
+                                          vtss_vcap_obj_t *obj,
+                                          int              user,
+                                          vtss_vcap_id_t   id,
+                                          BOOL             enable)
 {
-    vtss_vcap_entry_t    *cur;
+    vtss_vcap_entry_t   *cur;
     vtss_vcap_key_size_t key_size;
     vtss_vcap_type_t     type;
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
     vtss_vcap_idx_t      idx;
 
-    VTSS_D("VCAP %s, id: %s  enable %u", obj->name, vtss_vcap_id_txt(vtss_state, id), enable);
+    VTSS_D("VCAP %s, id: %s  enable %u", obj->name,
+           vtss_vcap_id_txt(vtss_state, id), enable);
 
     if (obj == &vtss_state->vcap.clm_a.obj) {
         type = VTSS_VCAP_TYPE_CLM_A;
@@ -1062,7 +1132,8 @@ vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t *vtss_state,
         type = VTSS_VCAP_TYPE_CLM_C;
     } else {
         type = VTSS_VCAP_TYPE_CLM_B;
-        VTSS_E("VCAP %s, id: %s  VCAP type not detected", obj->name, vtss_vcap_id_txt(vtss_state, id));
+        VTSS_E("VCAP %s, id: %s  VCAP type not detected", obj->name,
+               vtss_vcap_id_txt(vtss_state, id));
     }
     VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used; cur != NULL; cur = cur->next) {
@@ -1071,7 +1142,8 @@ vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t *vtss_state,
             /* Found rule */
             idx.key_size = key_size;
             vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
-            VTSS_FUNC_RC(vcap.clm_entry_update_masq_hit_ena, type, &idx, &cur->data, enable);
+            VTSS_FUNC_RC(vcap.clm_entry_update_masq_hit_ena, type, &idx,
+                         &cur->data, enable);
         }
         ndx[key_size]++;
     }
@@ -1109,12 +1181,17 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
 
     if (es0->flags & (VTSS_ES0_FLAG_OT_VLAN | VTSS_ES0_FLAG_IT_VLAN)) {
         /* Update VLAN action */
-        vtss_vlan_port_conf_t *conf = &vtss_state->l2.vlan_port_conf[es0->port_no];
+        vtss_vlan_port_conf_t *conf =
+            &vtss_state->l2.vlan_port_conf[es0->port_no];
         vtss_vid_t            uvid = conf->untagged_vid;
         vtss_vlan_port_type_t type = conf->port_type;
-        vtss_es0_tag_t        tag = (uvid == VTSS_VID_ALL || uvid == es0->vid ? VTSS_ES0_TAG_NONE : VTSS_ES0_TAG_ES0);
-        vtss_es0_tpid_t       tpid = (type == VTSS_VLAN_PORT_TYPE_S ? VTSS_ES0_TPID_S :
-                                      type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? VTSS_ES0_TPID_PORT : VTSS_ES0_TPID_C);
+        vtss_es0_tag_t        tag =
+            (uvid == VTSS_VID_ALL || uvid == es0->vid ? VTSS_ES0_TAG_NONE
+                                                      : VTSS_ES0_TAG_ES0);
+        vtss_es0_tpid_t tpid =
+            (type == VTSS_VLAN_PORT_TYPE_S          ? VTSS_ES0_TPID_S
+             : type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? VTSS_ES0_TPID_PORT
+                                                    : VTSS_ES0_TPID_C);
 
 #if defined(VTSS_ARCH_LUTON26)
         if (es0->flags & VTSS_ES0_FLAG_OT_UVID) {
@@ -1140,7 +1217,8 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
     }
 
 #if defined(VTSS_ARCH_JAGUAR_2)
-    /* Default values for PCP/DEI selection, may be overwritten by port or QoS mapping */
+    /* Default values for PCP/DEI selection, may be overwritten by port or QoS
+     * mapping */
     action->outer_tag.pcp.sel = es0->ot.pcp;
     action->outer_tag.dei.sel = es0->ot.dei;
     action->inner_tag.pcp.sel = es0->it.pcp;
@@ -1149,14 +1227,15 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
 
     if (es0->flags & (VTSS_ES0_FLAG_OT_QOS | VTSS_ES0_FLAG_IT_QOS)) {
         /* Update QoS action */
-        vtss_qos_port_conf_t   *conf = &vtss_state->qos.port_conf[es0->port_no];
+        vtss_qos_port_conf_t  *conf = &vtss_state->qos.port_conf[es0->port_no];
         vtss_tag_remark_mode_t mode = conf->tag_remark_mode;
-
 
 #if defined(VTSS_ARCH_LUTON26)
         if (es0->flags & VTSS_ES0_FLAG_OT_QOS) {
-            action->qos = (mode == VTSS_TAG_REMARK_MODE_CLASSIFIED ? VTSS_ES0_QOS_CLASS :
-                           mode == VTSS_TAG_REMARK_MODE_MAPPED ? VTSS_ES0_QOS_MAPPED : VTSS_ES0_QOS_ES0);
+            action->qos =
+                (mode == VTSS_TAG_REMARK_MODE_CLASSIFIED ? VTSS_ES0_QOS_CLASS
+                 : mode == VTSS_TAG_REMARK_MODE_MAPPED   ? VTSS_ES0_QOS_MAPPED
+                                                         : VTSS_ES0_QOS_ES0);
         }
         if (es0->flags & VTSS_ES0_FLAG_OT_PCP) {
             action->pcp = conf->tag_default_pcp;
@@ -1202,22 +1281,26 @@ void vtss_cmn_es0_action_get(vtss_state_t *vtss_state, vtss_es0_data_t *es0)
 }
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-vtss_rc vtss_vcap_es0_emap_update(vtss_state_t *vtss_state, vtss_qos_egress_map_id_t map_id)
+vtss_rc vtss_vcap_es0_emap_update(vtss_state_t            *vtss_state,
+                                  vtss_qos_egress_map_id_t map_id)
 {
     vtss_vcap_entry_t *cur;
     vtss_es0_data_t   *data;
-    vtss_vcap_idx_t   idx;
-    vtss_es0_entry_t  entry;
+    vtss_vcap_idx_t    idx;
+    vtss_es0_entry_t   entry;
 
     /* Avoid updating ES0 in warm start mode */
     if (vtss_state->warm_start_cur)
         return VTSS_RC_OK;
 
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = vtss_state->vcap.es0.obj.used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = vtss_state->vcap.es0.obj.used; cur != NULL;
+         cur = cur->next, idx.row++) {
         data = &cur->data.u.es0;
-        if (((data->flags & VTSS_ES0_FLAG_MAP_ID_OT) && data->map_id_ot == map_id) ||
-            ((data->flags & VTSS_ES0_FLAG_MAP_ID_IT) && data->map_id_it == map_id) ||
+        if (((data->flags & VTSS_ES0_FLAG_MAP_ID_OT) &&
+             data->map_id_ot == map_id) ||
+            ((data->flags & VTSS_ES0_FLAG_MAP_ID_IT) &&
+             data->map_id_it == map_id) ||
             ((data->flags & (VTSS_ES0_FLAG_OT_QOS | VTSS_ES0_FLAG_IT_QOS)) &&
              vtss_state->qos.port_conf[data->port_no].egress_map == map_id)) {
             data->entry = &entry;
@@ -1229,23 +1312,27 @@ vtss_rc vtss_vcap_es0_emap_update(vtss_state_t *vtss_state, vtss_qos_egress_map_
 }
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
-vtss_rc vtss_vcap_es0_update(vtss_state_t *vtss_state,
-                             const vtss_port_no_t port_no, u16 flags)
+vtss_rc vtss_vcap_es0_update(vtss_state_t        *vtss_state,
+                             const vtss_port_no_t port_no,
+                             u16                  flags)
 {
     vtss_vcap_entry_t *cur;
     vtss_es0_data_t   *data;
-    vtss_vcap_idx_t   idx;
-    vtss_es0_entry_t  entry;
+    vtss_vcap_idx_t    idx;
+    vtss_es0_entry_t   entry;
 
     /* Avoid updating ES0 in warm start mode */
     if (vtss_state->warm_start_cur)
         return VTSS_RC_OK;
 
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = vtss_state->vcap.es0.obj.used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = vtss_state->vcap.es0.obj.used; cur != NULL;
+         cur = cur->next, idx.row++) {
         data = &cur->data.u.es0;
-        if ((data->port_no == port_no && (data->flags & flags & VTSS_ES0_FLAG_MASK_PORT)) ||
-            (data->nni == port_no && (data->flags & flags & VTSS_ES0_FLAG_MASK_NNI))) {
+        if ((data->port_no == port_no &&
+             (data->flags & flags & VTSS_ES0_FLAG_MASK_PORT)) ||
+            (data->nni == port_no &&
+             (data->flags & flags & VTSS_ES0_FLAG_MASK_NNI))) {
             data->entry = &entry;
             vtss_cmn_es0_action_get(vtss_state, data);
             VTSS_FUNC_RC(vcap.es0_entry_update, &idx, data);
@@ -1263,12 +1350,12 @@ vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
 {
     vtss_vcap_state_t    *vcap = &vtss_state->vcap;
     vtss_vcap_obj_t      *obj = &vcap->is2.obj;
-    vtss_port_no_t       port_no;
+    vtss_port_no_t        port_no;
     vtss_acl_port_conf_t *conf;
     vtss_vcap_entry_t    *cur;
     vtss_is2_data_t      *is2;
-    vtss_vcap_idx_t      idx;
-    u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
+    vtss_vcap_idx_t       idx;
+    u32                   ndx[VTSS_VCAP_KEY_SIZE_MAX];
 
     /* Update port actions */
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
@@ -1296,8 +1383,9 @@ vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
 }
 
 /* Add ACE check */
-vtss_rc vtss_cmn_ace_add(vtss_state_t *vtss_state,
-                         const vtss_ace_id_t ace_id, const vtss_ace_t *const ace)
+vtss_rc vtss_cmn_ace_add(vtss_state_t           *vtss_state,
+                         const vtss_ace_id_t     ace_id,
+                         const vtss_ace_t *const ace)
 {
     /* Check ACE ID */
     if (ace->id == VTSS_ACE_ID_LAST || ace->id == ace_id) {
@@ -1317,10 +1405,11 @@ vtss_rc vtss_cmn_ace_add(vtss_state_t *vtss_state,
 /* Delete ACE */
 vtss_rc vtss_cmn_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 {
-    vtss_vcap_obj_t  *obj = &vtss_state->vcap.is2.obj;
+    vtss_vcap_obj_t *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_data_t data;
 
-    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id, &data, NULL) != VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id,
+                         &data, NULL) != VTSS_RC_OK) {
         VTSS_E("ace_id: %u not found", ace_id);
         return VTSS_RC_ERROR;
     }
@@ -1334,15 +1423,16 @@ vtss_rc vtss_cmn_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 }
 
 /* Get/clear ACE counter */
-static vtss_rc vtss_cmn_ace_get(vtss_state_t *vtss_state,
-                                const vtss_ace_id_t ace_id,
+static vtss_rc vtss_cmn_ace_get(vtss_state_t             *vtss_state,
+                                const vtss_ace_id_t       ace_id,
                                 vtss_ace_counter_t *const counter,
-                                BOOL clear)
+                                BOOL                      clear)
 {
-    vtss_vcap_idx_t idx;
+    vtss_vcap_idx_t  idx;
     vtss_vcap_obj_t *obj = &vtss_state->vcap.is2.obj;
 
-    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id, NULL, &idx) != VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, vtss_state->vcap.acl_user, ace_id,
+                         NULL, &idx) != VTSS_RC_OK) {
         VTSS_E("ace_id: %u not found", ace_id);
         return VTSS_RC_ERROR;
     }
@@ -1352,14 +1442,16 @@ static vtss_rc vtss_cmn_ace_get(vtss_state_t *vtss_state,
 }
 
 /* Get ACE counter */
-vtss_rc vtss_cmn_ace_counter_get(vtss_state_t *vtss_state,
-                                 const vtss_ace_id_t ace_id, vtss_ace_counter_t *const counter)
+vtss_rc vtss_cmn_ace_counter_get(vtss_state_t             *vtss_state,
+                                 const vtss_ace_id_t       ace_id,
+                                 vtss_ace_counter_t *const counter)
 {
     return vtss_cmn_ace_get(vtss_state, ace_id, counter, 0);
 }
 
 /* Clear ACE counter */
-vtss_rc vtss_cmn_ace_counter_clear(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+vtss_rc vtss_cmn_ace_counter_clear(vtss_state_t       *vtss_state,
+                                   const vtss_ace_id_t ace_id)
 {
     vtss_ace_counter_t counter;
 
@@ -1377,7 +1469,7 @@ char *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf)
 
 /* - Access Control Lists ------------------------------------------ */
 
-static vtss_rc vtss_acl_policer_no_check(const vtss_acl_policer_no_t  policer_no)
+static vtss_rc vtss_acl_policer_no_check(const vtss_acl_policer_no_t policer_no)
 {
     if (policer_no >= VTSS_ACL_POLICERS) {
         VTSS_E("illegal policer_no: %u", policer_no);
@@ -1386,12 +1478,12 @@ static vtss_rc vtss_acl_policer_no_check(const vtss_acl_policer_no_t  policer_no
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_acl_policer_conf_get(const vtss_inst_t            inst,
-                                  const vtss_acl_policer_no_t  policer_no,
-                                  vtss_acl_policer_conf_t      *const conf)
+vtss_rc vtss_acl_policer_conf_get(const vtss_inst_t              inst,
+                                  const vtss_acl_policer_no_t    policer_no,
+                                  vtss_acl_policer_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("policer_no: %u", policer_no);
     VTSS_ENTER();
@@ -1402,12 +1494,12 @@ vtss_rc vtss_acl_policer_conf_get(const vtss_inst_t            inst,
     return rc;
 }
 
-vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t              inst,
-                                  const vtss_acl_policer_no_t    policer_no,
-                                  const vtss_acl_policer_conf_t  *const conf)
+vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t           inst,
+                                  const vtss_acl_policer_no_t policer_no,
+                                  const vtss_acl_policer_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("policer_no: %u", policer_no);
     VTSS_ENTER();
@@ -1420,18 +1512,20 @@ vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t              inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t          inst,
-                              const vtss_acl_sip_idx_t   idx,
-                              const vtss_acl_sip_conf_t  *const conf)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
+    defined(VTSS_ARCH_LAN969X)
+vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t                inst,
+                              const vtss_acl_sip_idx_t         idx,
+                              const vtss_acl_sip_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("idx: %u", idx);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (idx < VTSS_ACL_SIP_CNT && (conf->sip.type == VTSS_IP_TYPE_IPV4 || (idx % 4) == 0)) {
+        if (idx < VTSS_ACL_SIP_CNT &&
+            (conf->sip.type == VTSS_IP_TYPE_IPV4 || (idx % 4) == 0)) {
             vtss_state->vcap.acl_sip_table[idx] = *conf;
             rc = VTSS_FUNC_COLD(vcap.acl_sip_set, idx);
         } else {
@@ -1444,32 +1538,35 @@ vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t          inst,
 }
 #endif
 
-vtss_rc vtss_acl_port_conf_get(const vtss_inst_t     inst,
-                               const vtss_port_no_t  port_no,
-                               vtss_acl_port_conf_t  *const conf)
+vtss_rc vtss_acl_port_conf_get(const vtss_inst_t           inst,
+                               const vtss_port_no_t        port_no,
+                               vtss_acl_port_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
+        VTSS_RC_OK)
         *conf = vtss_state->vcap.acl_port_conf[port_no];
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_acl_port_conf_set(const vtss_inst_t           inst,
-                               const vtss_port_no_t        port_no,
-                               const vtss_acl_port_conf_t  *const conf)
+vtss_rc vtss_acl_port_conf_set(const vtss_inst_t                 inst,
+                               const vtss_port_no_t              port_no,
+                               const vtss_acl_port_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->vcap.acl_old_port_conf = vtss_state->vcap.acl_port_conf[port_no];
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
+        VTSS_RC_OK) {
+        vtss_state->vcap.acl_old_port_conf =
+            vtss_state->vcap.acl_port_conf[port_no];
         vtss_state->vcap.acl_port_conf[port_no] = *conf;
         rc = VTSS_FUNC_COLD(vcap.acl_port_set, port_no);
     }
@@ -1477,38 +1574,40 @@ vtss_rc vtss_acl_port_conf_set(const vtss_inst_t           inst,
     return rc;
 }
 
-vtss_rc vtss_acl_port_counter_get(const vtss_inst_t        inst,
-                                  const vtss_port_no_t     port_no,
-                                  vtss_acl_port_counter_t  *const counter)
+vtss_rc vtss_acl_port_counter_get(const vtss_inst_t              inst,
+                                  const vtss_port_no_t           port_no,
+                                  vtss_acl_port_counter_t *const counter)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
+        VTSS_RC_OK)
         rc = VTSS_FUNC(vcap.acl_port_counter_get, port_no, counter);
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t     inst,
-                                    const vtss_port_no_t  port_no)
+vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t    inst,
+                                    const vtss_port_no_t port_no)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
+        VTSS_RC_OK)
         rc = VTSS_FUNC(vcap.acl_port_counter_clear, port_no);
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_ace_init(const vtss_inst_t      inst,
-                      const vtss_ace_type_t  type,
-                      vtss_ace_t             *const ace)
+vtss_rc vtss_ace_init(const vtss_inst_t     inst,
+                      const vtss_ace_type_t type,
+                      vtss_ace_t *const     ace)
 {
     VTSS_D("type: %d", type);
 
@@ -1521,8 +1620,7 @@ vtss_rc vtss_ace_init(const vtss_inst_t      inst,
     case VTSS_ACE_TYPE_ETYPE:
     case VTSS_ACE_TYPE_LLC:
     case VTSS_ACE_TYPE_SNAP:
-    case VTSS_ACE_TYPE_ARP:
-        break;
+    case VTSS_ACE_TYPE_ARP:   break;
     case VTSS_ACE_TYPE_IPV4:
         ace->frame.ipv4.sport.high = 0xffff;
         ace->frame.ipv4.sport.in_range = 1;
@@ -1535,23 +1633,21 @@ vtss_rc vtss_ace_init(const vtss_inst_t      inst,
         ace->frame.ipv6.dport.high = 0xffff;
         ace->frame.ipv6.dport.in_range = 1;
         break;
-    default:
-        VTSS_E("unknown type: %d", type);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("unknown type: %d", type); return VTSS_RC_ERROR;
     }
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_ace_add(const vtss_inst_t    inst,
-                     const vtss_ace_id_t  ace_id,
-                     const vtss_ace_t     *const ace)
+vtss_rc vtss_ace_add(const vtss_inst_t       inst,
+                     const vtss_ace_id_t     ace_id,
+                     const vtss_ace_t *const ace)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
-    VTSS_D("ace_id: %u before %u %s",
-           ace->id, ace_id, ace_id == VTSS_ACE_ID_LAST ? "(last)" : "");
+    VTSS_D("ace_id: %u before %u %s", ace->id, ace_id,
+           ace_id == VTSS_ACE_ID_LAST ? "(last)" : "");
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
@@ -1560,11 +1656,10 @@ vtss_rc vtss_ace_add(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_ace_del(const vtss_inst_t    inst,
-                     const vtss_ace_id_t  ace_id)
+vtss_rc vtss_ace_del(const vtss_inst_t inst, const vtss_ace_id_t ace_id)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("ace_id: %u", ace_id);
 
@@ -1575,12 +1670,12 @@ vtss_rc vtss_ace_del(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_ace_counter_get(const vtss_inst_t    inst,
-                             const vtss_ace_id_t  ace_id,
-                             vtss_ace_counter_t   *const counter)
+vtss_rc vtss_ace_counter_get(const vtss_inst_t         inst,
+                             const vtss_ace_id_t       ace_id,
+                             vtss_ace_counter_t *const counter)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("ace_id: %u", ace_id);
 
@@ -1591,11 +1686,11 @@ vtss_rc vtss_ace_counter_get(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_ace_counter_clear(const vtss_inst_t    inst,
-                               const vtss_ace_id_t  ace_id)
+vtss_rc vtss_ace_counter_clear(const vtss_inst_t   inst,
+                               const vtss_ace_id_t ace_id)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("ace_id: %u", ace_id);
 
@@ -1607,12 +1702,12 @@ vtss_rc vtss_ace_counter_clear(const vtss_inst_t    inst,
 }
 
 #if defined(VTSS_ARCH_LUTON26)
-vtss_rc vtss_ace_status_get(const vtss_inst_t    inst,
-                            const vtss_ace_id_t  ace_id,
-                            vtss_ace_status_t    *const status)
+vtss_rc vtss_ace_status_get(const vtss_inst_t        inst,
+                            const vtss_ace_id_t      ace_id,
+                            vtss_ace_status_t *const status)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("ace_id: %u", ace_id);
 
@@ -1654,7 +1749,7 @@ BOOL vtss_rleg_list_get(const vtss_rleg_list_t *l, vtss_l3_rleg_id_t rleg)
 #if defined(VTSS_FEATURE_HACL)
 vtss_rc vtss_hace_init(const vtss_inst_t     inst,
                        const vtss_ace_type_t type,
-                       vtss_hace_t           *const hace)
+                       vtss_hace_t *const    hace)
 {
     vtss_hace_key_t *key = &hace->key;
 
@@ -1668,8 +1763,7 @@ vtss_rc vtss_hace_init(const vtss_inst_t     inst,
     case VTSS_ACE_TYPE_ETYPE:
     case VTSS_ACE_TYPE_LLC:
     case VTSS_ACE_TYPE_SNAP:
-    case VTSS_ACE_TYPE_ARP:
-        break;
+    case VTSS_ACE_TYPE_ARP:   break;
     case VTSS_ACE_TYPE_IPV4:
         key->ipv4.sport.high = 0xffff;
         key->ipv4.sport.in_range = 1;
@@ -1682,33 +1776,32 @@ vtss_rc vtss_hace_init(const vtss_inst_t     inst,
         key->ipv6.dport.high = 0xffff;
         key->ipv6.dport.in_range = 1;
         break;
-    default:
-        VTSS_E("unknown type: %d", type);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("unknown type: %d", type); return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
 }
 
 const char *vtss_hacl_type_txt(const vtss_hacl_type_t type)
 {
-    return (type == VTSS_HACL_TYPE_IPACL ? "I-PACL" :
-            type == VTSS_HACL_TYPE_IVACL ? "I-VACL" :
-            type == VTSS_HACL_TYPE_IRACL ? "I-RACL" :
-            type == VTSS_HACL_TYPE_ERACL ? "E-RACL" :
-            type == VTSS_HACL_TYPE_EVACL ? "E-VACL" :
-            type == VTSS_HACL_TYPE_EPACL ? "E-PACL" : "?");
+    return (type == VTSS_HACL_TYPE_IPACL   ? "I-PACL"
+            : type == VTSS_HACL_TYPE_IVACL ? "I-VACL"
+            : type == VTSS_HACL_TYPE_IRACL ? "I-RACL"
+            : type == VTSS_HACL_TYPE_ERACL ? "E-RACL"
+            : type == VTSS_HACL_TYPE_EVACL ? "E-VACL"
+            : type == VTSS_HACL_TYPE_EPACL ? "E-PACL"
+                                           : "?");
 }
 
-vtss_rc vtss_hace_add(const vtss_inst_t      inst,
-                      const vtss_hacl_type_t type,
-                      const vtss_ace_id_t    ace_id_next,
-                      const vtss_hace_t      *const hace)
+vtss_rc vtss_hace_add(const vtss_inst_t        inst,
+                      const vtss_hacl_type_t   type,
+                      const vtss_ace_id_t      ace_id_next,
+                      const vtss_hace_t *const hace)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
-    VTSS_D("type: %s, id: %u before %u %s",
-           vtss_hacl_type_txt(type), hace->id, ace_id_next, ace_id_next == VTSS_ACE_ID_LAST ? "(last)" : "");
+    VTSS_D("type: %s, id: %u before %u %s", vtss_hacl_type_txt(type), hace->id,
+           ace_id_next, ace_id_next == VTSS_ACE_ID_LAST ? "(last)" : "");
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
         rc = VTSS_FUNC(vcap.hace_add, type, ace_id_next, hace);
@@ -1721,7 +1814,7 @@ vtss_rc vtss_hace_del(const vtss_inst_t      inst,
                       const vtss_ace_id_t    ace_id)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
@@ -1731,13 +1824,13 @@ vtss_rc vtss_hace_del(const vtss_inst_t      inst,
     return rc;
 }
 
-vtss_rc vtss_hace_counter_get(const vtss_inst_t      inst,
-                              const vtss_hacl_type_t type,
-                              const vtss_ace_id_t    ace_id,
-                              vtss_ace_counter_t     *const counter)
+vtss_rc vtss_hace_counter_get(const vtss_inst_t         inst,
+                              const vtss_hacl_type_t    type,
+                              const vtss_ace_id_t       ace_id,
+                              vtss_ace_counter_t *const counter)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
@@ -1752,7 +1845,7 @@ vtss_rc vtss_hace_counter_clear(const vtss_inst_t      inst,
                                 const vtss_ace_id_t    ace_id)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
@@ -1765,11 +1858,12 @@ vtss_rc vtss_hace_counter_clear(const vtss_inst_t      inst,
 
 /* - Warm start synchronization ------------------------------------ */
 
-static vtss_rc vtss_vcap_sync_obj(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj)
+static vtss_rc vtss_vcap_sync_obj(vtss_state_t    *vtss_state,
+                                  vtss_vcap_obj_t *obj)
 {
 #if defined(VTSS_OPT_WARM_START)
-    vtss_vcap_entry_t    *cur;
-    vtss_vcap_data_t     *data;
+    vtss_vcap_entry_t   *cur;
+    vtss_vcap_data_t    *data;
     vtss_vcap_idx_t      idx;
     vtss_vcap_key_size_t key_size;
     u32                  ndx[VTSS_VCAP_KEY_SIZE_MAX];
@@ -1809,11 +1903,13 @@ static vtss_rc vtss_vcap_sync_obj(vtss_state_t *vtss_state, vtss_vcap_obj_t *obj
     }
 
     /* Delete trailing entries */
-    for (key_size = VTSS_VCAP_KEY_SIZE_FULL; key_size <= VTSS_VCAP_KEY_SIZE_LAST; key_size++) {
+    for (key_size = VTSS_VCAP_KEY_SIZE_FULL;
+         key_size <= VTSS_VCAP_KEY_SIZE_LAST; key_size++) {
         idx.key_size = key_size;
         while (1) {
             vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
-            if (idx.row >= obj->max_count || (key_size != VTSS_VCAP_KEY_SIZE_FULL && idx.col == 0))
+            if (idx.row >= obj->max_count ||
+                (key_size != VTSS_VCAP_KEY_SIZE_FULL && idx.col == 0))
                 break;
             VTSS_RC(obj->entry_del(vtss_state, &idx));
             ndx[key_size]++;
@@ -1831,11 +1927,12 @@ vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
     vtss_port_no_t        port_no;
     vtss_acl_policer_no_t policer_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
+         port_no++) {
         VTSS_FUNC_RC(vcap.acl_port_set, port_no);
     }
 
-    for (policer_no = 0; policer_no <  VTSS_ACL_POLICERS; policer_no++) {
+    for (policer_no = 0; policer_no < VTSS_ACL_POLICERS; policer_no++) {
         VTSS_FUNC_RC(vcap.acl_policer_set, policer_no);
     }
 #endif // VTSS_FEATURE_IS2
@@ -1864,7 +1961,7 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
     vtss_vcap_state_t *state = &vtss_state->vcap;
     vtss_vcap_entry_t *entry;
     vtss_vcap_obj_t   *obj;
-    u32               i;
+    u32                i;
 
     if (vtss_state->create_pre) {
         // Preprocessing
@@ -1894,7 +1991,8 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
     }
 
 #if defined(VTSS_FEATURE_IS2)
-    for (vtss_port_no_t port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
+    for (vtss_port_no_t port_no = VTSS_PORT_NO_START;
+         port_no < VTSS_PORT_NO_END; port_no++) {
         vtss_state->vcap.acl_port_conf[port_no].action.learn = 1;
     }
 #endif
@@ -1948,7 +2046,8 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
             entry = &is1->table[i];
             entry->next = obj->free;
             obj->free = entry;
-#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_OPT_WARM_START) || defined(VTSS_ARCH_OCELOT) ||               \
+    defined(VTSS_ARCH_LAN966X)
 #if !VTSS_OPT_LIGHT
             entry->copy = &is1->copy[i];
 #endif
@@ -2047,71 +2146,71 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 /* - Debug print --------------------------------------------------- */
 
 #if VTSS_OPT_DEBUG_PRINT
-static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t *table,
-                                      const char *name,
-                                      const vtss_debug_printf_t pr,
-                                      const vtss_debug_info_t   *const info)
+static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t   *table,
+                                      const char                    *name,
+                                      const vtss_debug_printf_t      pr,
+                                      const vtss_debug_info_t *const info)
 {
-    u32                   i;
+    u32                    i;
     vtss_vcap_range_chk_t *entry;
 
     vtss_debug_print_header(pr, name);
     pr("Index  Type  Count  Range\n");
     for (i = 0; i < table->max; i++) {
         entry = &table->entry[i];
-        pr("%-5u  %-4s  %-5u  %u-%u\n",
-           i,
-           entry->type == VTSS_VCAP_RANGE_TYPE_IDLE ? "IDLE" :
-           entry->type == VTSS_VCAP_RANGE_TYPE_SPORT ? "S" :
-           entry->type == VTSS_VCAP_RANGE_TYPE_DPORT ? "D" :
-           entry->type == VTSS_VCAP_RANGE_TYPE_SDPORT ? "SD" :
-           entry->type == VTSS_VCAP_RANGE_TYPE_VID ? "VID" :
-           entry->type == VTSS_VCAP_RANGE_TYPE_DSCP ? "DSCP" : "?",
-           entry->count,
-           entry->min,
-           entry->max);
+        pr("%-5u  %-4s  %-5u  %u-%u\n", i,
+           entry->type == VTSS_VCAP_RANGE_TYPE_IDLE     ? "IDLE"
+           : entry->type == VTSS_VCAP_RANGE_TYPE_SPORT  ? "S"
+           : entry->type == VTSS_VCAP_RANGE_TYPE_DPORT  ? "D"
+           : entry->type == VTSS_VCAP_RANGE_TYPE_SDPORT ? "SD"
+           : entry->type == VTSS_VCAP_RANGE_TYPE_VID    ? "VID"
+           : entry->type == VTSS_VCAP_RANGE_TYPE_DSCP   ? "DSCP"
+                                                        : "?",
+           entry->count, entry->min, entry->max);
     }
     pr("\n");
 }
 
-void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
+void vtss_vcap_debug_print_range_checkers(vtss_state_t             *vtss_state,
                                           const vtss_debug_printf_t pr,
-                                          const vtss_debug_info_t   *const info)
+                                          const vtss_debug_info_t *const info)
 {
-    vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", pr, info);
+    vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", pr,
+                              info);
 }
 #endif
 
 #if defined(VTSS_FEATURE_VCAP_SUPER)
 const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
 {
-    return (type == VTSS_VCAP_TYPE_NONE ? "NONE" :
-            type == VTSS_VCAP_TYPE_IS0 ? "IS0" :
-            type == VTSS_VCAP_TYPE_IS1 ? "IS1" :
-            type == VTSS_VCAP_TYPE_IS2 ? "IS2" :
-            type == VTSS_VCAP_TYPE_IS2_B ? "IS2_B" :
-            type == VTSS_VCAP_TYPE_ES0 ? "ES0" :
-            type == VTSS_VCAP_TYPE_ES2 ? "ES2" :
-            type == VTSS_VCAP_TYPE_CLM_A ? "CLM-A" :
-            type == VTSS_VCAP_TYPE_CLM_B ? "CLM-B" :
-            type == VTSS_VCAP_TYPE_CLM_C ? "CLM-C" :
-            type == VTSS_VCAP_TYPE_LPM ? "LPM" : "?");
+    return (type == VTSS_VCAP_TYPE_NONE    ? "NONE"
+            : type == VTSS_VCAP_TYPE_IS0   ? "IS0"
+            : type == VTSS_VCAP_TYPE_IS1   ? "IS1"
+            : type == VTSS_VCAP_TYPE_IS2   ? "IS2"
+            : type == VTSS_VCAP_TYPE_IS2_B ? "IS2_B"
+            : type == VTSS_VCAP_TYPE_ES0   ? "ES0"
+            : type == VTSS_VCAP_TYPE_ES2   ? "ES2"
+            : type == VTSS_VCAP_TYPE_CLM_A ? "CLM-A"
+            : type == VTSS_VCAP_TYPE_CLM_B ? "CLM-B"
+            : type == VTSS_VCAP_TYPE_CLM_C ? "CLM-C"
+            : type == VTSS_VCAP_TYPE_LPM   ? "LPM"
+                                           : "?");
 }
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
 #if VTSS_OPT_DEBUG_PRINT
-static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
-                                  const vtss_debug_info_t   *const info,
-                                  vtss_vcap_obj_t           *obj,
-                                  u32                       data_size,
-                                  u32                       obj_size)
+static void vtss_vcap_debug_print(const vtss_debug_printf_t      pr,
+                                  const vtss_debug_info_t *const info,
+                                  vtss_vcap_obj_t               *obj,
+                                  u32                            data_size,
+                                  u32                            obj_size)
 {
-    u32                   i, low, high;
-    vtss_vcap_entry_t     *cur;
-    BOOL                  header = 1, resources = FALSE;
-    vtss_vcap_user_t      user;
-    const char            *name;
-    vtss_vcap_key_size_t  key_size;
+    u32                  i, low, high;
+    vtss_vcap_entry_t   *cur;
+    BOOL                 header = 1, resources = FALSE;
+    vtss_vcap_user_t     user;
+    const char          *name;
+    vtss_vcap_key_size_t key_size;
 #if defined(VTSS_FEATURE_VCAP_SUPER)
     vtss_vcap_super_obj_t *vcap_super = obj->vcap_super;
 
@@ -2153,7 +2252,7 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
     pr("twelfth_count   : %u\n", obj->key_count[VTSS_VCAP_KEY_SIZE_TWELFTH]);
     pr("sixteenth_count : %u\n", obj->key_count[VTSS_VCAP_KEY_SIZE_SIXTEENTH]);
 
-    if (resources) {    /* Only VCAP SUPER and CLM_C resources must be printed */
+    if (resources) { /* Only VCAP SUPER and CLM_C resources must be printed */
         return;
     }
 
@@ -2166,72 +2265,88 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t pr,
         name = "?";
         user = cur->user;
         name = (user == VTSS_IS0_USER_EVC ? "EVC" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-                user == VTSS_IS1_USER_MCE_0 ? "MCE_0" :
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
+    defined(VTSS_ARCH_LAN969X)
+                user == VTSS_IS1_USER_MCE_0 ? "MCE_0"
+                :
 #else
-                user == VTSS_IS1_USER_TT_LOOP_0 ? "TT_LOOP0" :
+                user == VTSS_IS1_USER_TT_LOOP_0 ? "TT_LOOP0"
+                :
 #endif
-                user == VTSS_IS1_USER_VCL ? "VCL" :
-                user == VTSS_IS1_USER_VLAN ? "VLAN" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-                user == VTSS_IS1_USER_MCE_1 ? "MCE_1" :
-                user == VTSS_IS1_USER_MCE_2 ? "MCE_2" :
+                user == VTSS_IS1_USER_VCL    ? "VCL"
+                : user == VTSS_IS1_USER_VLAN ? "VLAN"
+                :
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
+    defined(VTSS_ARCH_LAN969X)
+                user == VTSS_IS1_USER_MCE_1   ? "MCE_1"
+                : user == VTSS_IS1_USER_MCE_2 ? "MCE_2"
+                :
 #else
-                user == VTSS_IS1_USER_MEP ? "MEP" :
-                user == VTSS_IS1_USER_TT_LOOP_1 ? "TT_LOOP1" :
+                user == VTSS_IS1_USER_MEP         ? "MEP"
+                : user == VTSS_IS1_USER_TT_LOOP_1 ? "TT_LOOP1"
+                :
 #endif
-                user == VTSS_IS1_USER_ECE ? "ECE" :
-                user == VTSS_IS1_USER_EVC ? "EVC" :
-                user == VTSS_IS1_USER_EVC_CPU ? "EVC_CPU" :
-                user == VTSS_IS1_USER_QOS ? "QoS" :
-                user == VTSS_IS1_USER_SSM ? "SSM" :
-                user == VTSS_IS1_USER_ACL ? "ACL" :
-                user == VTSS_IS1_USER_RCL ? "RCL" :
-                user == VTSS_IS2_USER_IGMP ? "IGMP" :
-                user == VTSS_IS2_USER_SSM ? "SSM" :
-                user == VTSS_IS2_USER_ASM ? "ASM" :
-                user == VTSS_IS2_USER_IGMP_ANY ? "IGMP_ANY" :
-                user == VTSS_IS2_USER_EEE ? "EEE" :
-                user == VTSS_IS2_USER_ACL_PTP ? "ACL_PTP" :
-                user == VTSS_IS2_USER_ACL ? "ACL" :
-                user == VTSS_IS2_USER_ACL_SIP ? "ACL_SIP" :
-                user == VTSS_IS2_USER_IPACL ? "I-PACL" :
-                user == VTSS_IS2_USER_IVACL ? "I-VACL" :
-                user == VTSS_IS2_USER_IRACL ? "I-RACL" :
-                user == VTSS_IS2_USER_ERACL ? "E-RACL" :
-                user == VTSS_ES0_USER_TCL ? "TCL" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-                user == VTSS_ES0_USER_MCE_0 ? "MCE_0" :
+                user == VTSS_IS1_USER_ECE        ? "ECE"
+                : user == VTSS_IS1_USER_EVC      ? "EVC"
+                : user == VTSS_IS1_USER_EVC_CPU  ? "EVC_CPU"
+                : user == VTSS_IS1_USER_QOS      ? "QoS"
+                : user == VTSS_IS1_USER_SSM      ? "SSM"
+                : user == VTSS_IS1_USER_ACL      ? "ACL"
+                : user == VTSS_IS1_USER_RCL      ? "RCL"
+                : user == VTSS_IS2_USER_IGMP     ? "IGMP"
+                : user == VTSS_IS2_USER_SSM      ? "SSM"
+                : user == VTSS_IS2_USER_ASM      ? "ASM"
+                : user == VTSS_IS2_USER_IGMP_ANY ? "IGMP_ANY"
+                : user == VTSS_IS2_USER_EEE      ? "EEE"
+                : user == VTSS_IS2_USER_ACL_PTP  ? "ACL_PTP"
+                : user == VTSS_IS2_USER_ACL      ? "ACL"
+                : user == VTSS_IS2_USER_ACL_SIP  ? "ACL_SIP"
+                : user == VTSS_IS2_USER_IPACL    ? "I-PACL"
+                : user == VTSS_IS2_USER_IVACL    ? "I-VACL"
+                : user == VTSS_IS2_USER_IRACL    ? "I-RACL"
+                : user == VTSS_IS2_USER_ERACL    ? "E-RACL"
+                : user == VTSS_ES0_USER_TCL      ? "TCL"
+                :
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
+    defined(VTSS_ARCH_LAN969X)
+                user == VTSS_ES0_USER_MCE_0 ? "MCE_0"
+                :
 #else
-                user == VTSS_ES0_USER_TT_LOOP ? "TT_LOOP" :
+                user == VTSS_ES0_USER_TT_LOOP ? "TT_LOOP"
+                :
 #endif
-                user == VTSS_ES0_USER_VLAN ? "VLAN" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-                user == VTSS_ES0_USER_MCE_1 ? "MCE_1" :
-                user == VTSS_ES0_USER_MCE_2 ? "MCE_2" :
+                user == VTSS_ES0_USER_VLAN ? "VLAN"
+                :
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
+    defined(VTSS_ARCH_LAN969X)
+                user == VTSS_ES0_USER_MCE_1   ? "MCE_1"
+                : user == VTSS_ES0_USER_MCE_2 ? "MCE_2"
+                :
 #else
-                user == VTSS_ES0_USER_MEP ? "MEP" :
+                user == VTSS_ES0_USER_MEP ? "MEP"
+                :
 #endif
-                user == VTSS_ES0_USER_EVC ? "EVC" :
-                user == VTSS_ES0_USER_EFE ? "EFE" :
-                user == VTSS_ES0_USER_TX_TAG ? "TX_TAG" :
-                user == VTSS_ES0_USER_MPLS ? "MPLS" :
-                user == VTSS_ES2_USER_EVACL ? "E-VACL" :
-                user == VTSS_ES2_USER_EPACL ? "E-PACL" :
-                user == VTSS_LPM_USER_ACL ? "ACL" :
-                user == VTSS_LPM_USER_L3 ? "L3_UC" :
-                user == VTSS_LPM_USER_L3_MC ? "L3_MC" : "?");
+                user == VTSS_ES0_USER_EVC      ? "EVC"
+                : user == VTSS_ES0_USER_EFE    ? "EFE"
+                : user == VTSS_ES0_USER_TX_TAG ? "TX_TAG"
+                : user == VTSS_ES0_USER_MPLS   ? "MPLS"
+                : user == VTSS_ES2_USER_EVACL  ? "E-VACL"
+                : user == VTSS_ES2_USER_EPACL  ? "E-PACL"
+                : user == VTSS_LPM_USER_ACL    ? "ACL"
+                : user == VTSS_LPM_USER_L3     ? "L3_UC"
+                : user == VTSS_LPM_USER_L3_MC  ? "L3_MC"
+                                               : "?");
         key_size = cur->data.key_size;
-        pr("%-7u%-10s%-6d%-10s0x%08x:0x%08x (%u:%u)\n",
-           i, vtss_vcap_key_size2txt(key_size), user, name, high, low, high, low);
+        pr("%-7u%-10s%-6d%-10s0x%08x:0x%08x (%u:%u)\n", i,
+           vtss_vcap_key_size2txt(key_size), user, name, high, low, high, low);
     }
     pr("\n");
 }
 
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
-void vtss_vcap_debug_print_is1(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_is1(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS1)
     vtss_vcap_debug_print(pr, info, &vtss_state->vcap.is1.obj,
@@ -2244,32 +2359,35 @@ void vtss_vcap_debug_print_is1(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_IS1/CLM */
 
 #if defined(VTSS_FEATURE_CLM)
-void vtss_vcap_debug_print_clm_a(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_clm_a(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_a.obj, sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
+    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_a.obj,
+                          sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 
-void vtss_vcap_debug_print_clm_b(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_clm_b(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_b.obj, sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
+    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_b.obj,
+                          sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 
-void vtss_vcap_debug_print_clm_c(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_clm_c(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_c.obj, sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
+    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_c.obj,
+                          sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 #endif /* VTSS_FEATURE_CLM */
 
 #if defined(VTSS_FEATURE_IS2)
-void vtss_vcap_debug_print_is2(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_is2(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
     vtss_vcap_debug_print(pr, info, &vtss_state->vcap.is2.obj,
                           sizeof(vtss_is2_data_t), sizeof(vtss_is2_info_t));
@@ -2277,9 +2395,9 @@ void vtss_vcap_debug_print_is2(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_IS2 */
 
 #if defined(VTSS_FEATURE_ES0)
-void vtss_vcap_debug_print_es0(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_es0(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
     vtss_vcap_debug_print(pr, info, &vtss_state->vcap.es0.obj,
                           sizeof(vtss_es0_data_t), sizeof(vtss_es0_info_t));
@@ -2289,21 +2407,22 @@ void vtss_vcap_debug_print_es0(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_IS2)
 static const char *vtss_acl_key_txt(vtss_acl_key_t key)
 {
-    return (key == VTSS_ACL_KEY_DEFAULT ? "DEF" :
-            key == VTSS_ACL_KEY_EXT ? "EXT" :
-            key == VTSS_ACL_KEY_ETYPE ? "ETYPE" : "?");
+    return (key == VTSS_ACL_KEY_DEFAULT ? "DEF"
+            : key == VTSS_ACL_KEY_EXT   ? "EXT"
+            : key == VTSS_ACL_KEY_ETYPE ? "ETYPE"
+                                        : "?");
 }
 #endif
 
-void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS2)
     vtss_port_no_t        port_no;
     BOOL                  header = 1;
-    vtss_acl_port_conf_t  *conf;
-    vtss_acl_action_t     *act;
+    vtss_acl_port_conf_t *conf;
+    vtss_acl_action_t    *act;
     vtss_acl_policer_no_t policer_no;
     char                  buf[64];
 #endif
@@ -2312,7 +2431,8 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         return;
 
 #if defined(VTSS_FEATURE_IS2)
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
+         port_no++) {
         if (!info->port_list[port_no])
             continue;
         conf = &vtss_state->vcap.acl_port_conf[port_no];
@@ -2320,12 +2440,13 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         if (header) {
             header = 0;
             pr("Port  Policy  CPU  Once  Queue  Policer  Learn  IPV4/IPV6/ARP      ");
-            vtss_debug_print_port_header(vtss_state, pr, "Mirror  PTP  Port  ", 0, 0);
+            vtss_debug_print_port_header(vtss_state, pr, "Mirror  PTP  Port  ",
+                                         0, 0);
             pr("\n");
         }
-        pr("%-6u%-8s%-5u%-6u%-7u",
-           port_no, vtss_acl_policy_no_txt(conf->policy_no, buf),
-           act->cpu, act->cpu_once, act->cpu_queue);
+        pr("%-6u%-8s%-5u%-6u%-7u", port_no,
+           vtss_acl_policy_no_txt(conf->policy_no, buf), act->cpu,
+           act->cpu_once, act->cpu_queue);
         if (act->police)
             VTSS_SPRINTF(buf, "%u (ACL)", act->policer_no);
 #if defined(VTSS_ARCH_LUTON26) && defined(VTSS_FEATURE_QOS_POLICER_DLB)
@@ -2335,19 +2456,19 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
         else
             VTSS_STRCPY(buf, "Disabled");
         pr("%-9s%-7u", buf, act->learn);
-        VTSS_SPRINTF(buf, "%s/%s/%s",
-                vtss_acl_key_txt(conf->key.ipv4),
-                vtss_acl_key_txt(conf->key.ipv6),
-                vtss_acl_key_txt(conf->key.arp));
+        VTSS_SPRINTF(buf, "%s/%s/%s", vtss_acl_key_txt(conf->key.ipv4),
+                     vtss_acl_key_txt(conf->key.ipv6),
+                     vtss_acl_key_txt(conf->key.arp));
         pr("%-19s", buf);
-        pr("%-8u%-5s%-6s",
-           act->mirror,
-           act->ptp_action == VTSS_ACL_PTP_ACTION_NONE ? "None" :
-           act->ptp_action == VTSS_ACL_PTP_ACTION_ONE_STEP ? "One" :
-           act->ptp_action == VTSS_ACL_PTP_ACTION_TWO_STEP ? "Two" : "?",
-           act->port_action == VTSS_ACL_PORT_ACTION_NONE ? "None" :
-           act->port_action == VTSS_ACL_PORT_ACTION_FILTER ? "Filt" :
-           act->port_action == VTSS_ACL_PORT_ACTION_REDIR ? "Redir" : "?");
+        pr("%-8u%-5s%-6s", act->mirror,
+           act->ptp_action == VTSS_ACL_PTP_ACTION_NONE       ? "None"
+           : act->ptp_action == VTSS_ACL_PTP_ACTION_ONE_STEP ? "One"
+           : act->ptp_action == VTSS_ACL_PTP_ACTION_TWO_STEP ? "Two"
+                                                             : "?",
+           act->port_action == VTSS_ACL_PORT_ACTION_NONE     ? "None"
+           : act->port_action == VTSS_ACL_PORT_ACTION_FILTER ? "Filt"
+           : act->port_action == VTSS_ACL_PORT_ACTION_REDIR  ? "Redir"
+                                                             : "?");
         vtss_debug_print_port_members(vtss_state, pr, act->port_list, 0);
         pr("\n");
     }
@@ -2359,9 +2480,11 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
     pr("Count  L26 Policer");
 #endif /* VTSS_ARCH_LUTON26 */
     pr("\n");
-    for (policer_no = VTSS_ACL_POLICER_NO_START; policer_no < VTSS_ACL_POLICER_NO_END; policer_no++) {
-        vtss_acl_policer_conf_t *pol_conf = &vtss_state->vcap.acl_policer_conf[policer_no];
-        vtss_packet_rate_t      rate;
+    for (policer_no = VTSS_ACL_POLICER_NO_START;
+         policer_no < VTSS_ACL_POLICER_NO_END; policer_no++) {
+        vtss_acl_policer_conf_t *pol_conf =
+            &vtss_state->vcap.acl_policer_conf[policer_no];
+        vtss_packet_rate_t rate;
 
         if (pol_conf->bit_rate_enable) {
             rate = pol_conf->bit_rate;
@@ -2370,9 +2493,9 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
             } else if (rate < 100000) {
                 VTSS_SPRINTF(buf, "%u kbps", rate);
             } else if (rate < 100000000) {
-                VTSS_SPRINTF(buf, "%u Mbps", rate/1000);
+                VTSS_SPRINTF(buf, "%u Mbps", rate / 1000);
             } else {
-                VTSS_SPRINTF(buf, "%u Gbps", rate/1000000);
+                VTSS_SPRINTF(buf, "%u Gbps", rate / 1000000);
             }
         } else {
             rate = pol_conf->rate;
@@ -2381,15 +2504,16 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
             } else if (rate < 100000) {
                 VTSS_SPRINTF(buf, "%u pps", rate);
             } else if (rate < 100000000) {
-                VTSS_SPRINTF(buf, "%u kpps", rate/1000);
+                VTSS_SPRINTF(buf, "%u kpps", rate / 1000);
             } else {
-                VTSS_SPRINTF(buf, "%u Mpps", rate/1000000);
+                VTSS_SPRINTF(buf, "%u Mpps", rate / 1000000);
             }
         }
         pr("%-9u%-12s", policer_no, buf);
 #if defined(VTSS_ARCH_LUTON26)
         {
-            vtss_policer_alloc_t *pol_alloc = &vtss_state->vcap.acl_policer_alloc[policer_no];
+            vtss_policer_alloc_t *pol_alloc =
+                &vtss_state->vcap.acl_policer_alloc[policer_no];
             pr("%-7u%u", pol_alloc->count, pol_alloc->policer);
         }
 #endif /* VTSS_ARCH_LUTON26 */
@@ -2398,8 +2522,10 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
     pr("\n");
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-    vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers", pr, info);
-    vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers", pr, info);
+    vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers",
+                              pr, info);
+    vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers",
+                              pr, info);
 #endif
 #endif // VTSS_FEATURE_IS2
 
@@ -2409,7 +2535,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
 
 #if defined(VTSS_ARCH_JAGUAR_2)
     {
-        u32            i, j;
+        u32             i, j;
         vtss_ip_addr_t *sip;
 
         vtss_debug_print_header(pr, "SIP Table");
@@ -2420,7 +2546,8 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
                 pr("0x%08x", sip->addr.ipv4);
             } else {
                 for (j = 0; j < 16; j++) {
-                    pr("%02x%s", sip->addr.ipv6.addr[j], (j & 1) && j != 15 ? ":" : "");
+                    pr("%02x%s", sip->addr.ipv6.addr[j],
+                       (j & 1) && j != 15 ? ":" : "");
                 }
             }
             pr("\n");
@@ -2438,7 +2565,8 @@ void vtss_vcap_debug_print_acl(vtss_state_t *vtss_state,
 #endif /* VTSS_FEATURE_IS2 */
 
 #if defined(VTSS_FEATURE_LPM)
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.lpm.obj, sizeof(vtss_lpm_data_t), sizeof(vtss_lpm_info_t));
+    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.lpm.obj,
+                          sizeof(vtss_lpm_data_t), sizeof(vtss_lpm_info_t));
 #endif /* VTSS_FEATURE_LPM */
 
 #if defined(VTSS_FEATURE_IS2_B)

@@ -1,16 +1,22 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_AFI
 #include "vtss_jaguar2_cil.h"
 #include <stdint.h>
 
-#if defined(VTSS_ARCH_JAGUAR_2) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
+#if defined(VTSS_ARCH_JAGUAR_2) && defined(VTSS_FEATURE_AFI_SWC) &&            \
+    defined(VTSS_AFI_V2)
 
-#define JR2_AFI_CHIP_PORT(port_no) ((port_no) == VTSS_PORT_NO_NONE ? VTSS_CHIP_PORT_VD1 : VTSS_CHIP_PORT(port_no))
-#define JR2_AFI_E_RETURN(rc, ...) do {VTSS_E(__VA_ARGS__); return rc;} while(0)
+#define JR2_AFI_CHIP_PORT(port_no)                                             \
+    ((port_no) == VTSS_PORT_NO_NONE ? VTSS_CHIP_PORT_VD1                       \
+                                    : VTSS_CHIP_PORT(port_no))
+#define JR2_AFI_E_RETURN(rc, ...)                                              \
+    do {                                                                       \
+        VTSS_E(__VA_ARGS__);                                                   \
+        return rc;                                                             \
+    } while (0)
 
 /******************************************************************************/
 //
@@ -102,7 +108,8 @@ static vtss_rc jr2_afi_clock_period_get(vtss_state_t *vtss_state)
         break;
 
     default:
-        VTSS_E("Unknown core clock divider (%u). Assuming 4 ns clock period", val);
+        VTSS_E("Unknown core clock divider (%u). Assuming 4 ns clock period",
+               val);
         res = 4000;
         break;
     }
@@ -125,7 +132,8 @@ static vtss_rc jr2_afi_clock_period_get(vtss_state_t *vtss_state)
         break;
 
     default:
-        VTSS_E("Unknown core clock divider (%u). Assuming 6.4 ns clock period", val);
+        VTSS_E("Unknown core clock divider (%u). Assuming 6.4 ns clock period",
+               val);
         res = 6400;
         break;
     }
@@ -145,7 +153,9 @@ static vtss_rc jr2_afi_clock_period_get(vtss_state_t *vtss_state)
 /**
  * jr2_afi_debug()
  */
-static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
+static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
+                             const vtss_debug_printf_t      pr,
+                             const vtss_debug_info_t *const info)
 {
     u64 t_us[8], base_us;
     u32 val, val0, val1, t[8], idx, frm_ptr, next_and_type, part0;
@@ -190,7 +200,8 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
 #if defined(VTSS_ARCH_JAGUAR_2_B)
         enabled = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(val) != 0;
 #else
-        enabled = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA(val) && VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(val) != 0;
+        enabled = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA(val) &&
+                  VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(val) != 0;
 #endif /* (!)defined(VTSS_ARCH_JAGUAR_2_B) */
 
         if (!enabled) {
@@ -198,7 +209,7 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
         }
 
         tick_idx = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TICK_IDX(val);
-        tmr_len  = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(val);
+        tmr_len = VTSS_X_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(val);
 
         // Get pointer to first frame table entry
         JR2_RD(VTSS_AFI_TTI_TBL_TTI_FRM(idx), &frm_ptr);
@@ -208,16 +219,13 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
         JR2_RD(VTSS_AFI_FRM_TBL_FRM_NEXT_AND_TYPE(frm_ptr), &next_and_type);
         JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_ptr), &part0);
 
-        pr("%4u %7u %6u %11" PRIu64 " %3u 0x%04x %-5s 0x%05x 0x%08x\n",
-           idx,
-           tick_idx,
-           tmr_len,
-           t_us[tick_idx] * tmr_len,
-           VTSS_X_AFI_TTI_TBL_TTI_TIMER_JITTER(val),
-           frm_ptr,
-           VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(next_and_type) == 0 ? "Frame" : "Delay",
-           VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(next_and_type),
-           part0);
+        pr("%4u %7u %6u %11" PRIu64 " %3u 0x%04x %-5s 0x%05x 0x%08x\n", idx,
+           tick_idx, tmr_len, t_us[tick_idx] * tmr_len,
+           VTSS_X_AFI_TTI_TBL_TTI_TIMER_JITTER(val), frm_ptr,
+           VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(next_and_type) == 0
+               ? "Frame"
+               : "Delay",
+           VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(next_and_type), part0);
     }
 
     // DTI Table
@@ -240,41 +248,47 @@ static vtss_rc jr2_afi_debug(vtss_state_t *vtss_state, const vtss_debug_printf_t
         VTSS_SPRINTF(buf0, "%u", idx);
 
         while (1) {
-            u32 frm_next, frm_type, inj_cnt, frm_info, delay_cc;
-            u64 delay_ns;
+            u32  frm_next, frm_type, inj_cnt, frm_info, delay_cc;
+            u64  delay_ns;
             char buf1[20], buf2[20], buf3[20];
 
             // Get what's in the first frame table entry
             JR2_RD(VTSS_AFI_FRM_TBL_FRM_NEXT_AND_TYPE(frm_ptr), &next_and_type);
             JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_ptr), &part0);
 
-            frm_next = VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(next_and_type);
-            frm_type = VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(next_and_type);
-            inj_cnt  = VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_INJ_CNT_POS,  VTSS_AFI_FRM_TBL_PART0_INJ_CNT_WID);
-            frm_info = VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS, VTSS_AFI_FRM_TBL_PART0_FRM_INFO_WID);
-            delay_cc = VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_DELAY_POS,    VTSS_AFI_FRM_TBL_PART0_DELAY_WID);
+            frm_next =
+                VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(next_and_type);
+            frm_type =
+                VTSS_X_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(next_and_type);
+            inj_cnt =
+                VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_INJ_CNT_POS,
+                                      VTSS_AFI_FRM_TBL_PART0_INJ_CNT_WID);
+            frm_info =
+                VTSS_EXTRACT_BITFIELD(part0,
+                                      VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS,
+                                      VTSS_AFI_FRM_TBL_PART0_FRM_INFO_WID);
+            delay_cc =
+                VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_DELAY_POS,
+                                      VTSS_AFI_FRM_TBL_PART0_DELAY_WID);
 
             if (frm_type == 0) {
                 // Frame
-                VTSS_SPRINTF(buf1, "%6u",    inj_cnt);  // Injection count
+                VTSS_SPRINTF(buf1, "%6u", inj_cnt);     // Injection count
                 VTSS_SPRINTF(buf2, "0x%05x", frm_info); // Frame info
-                VTSS_SPRINTF(buf3, "%10s",   "");       // Delay is N/A
+                VTSS_SPRINTF(buf3, "%10s", "");         // Delay is N/A
             } else {
                 // Delay
-                delay_ns = VTSS_DIV64(((u64)delay_cc * vtss_state->afi.clk_period_ps), 1000LLU);
-                VTSS_SPRINTF(buf1, "%6s",        "");       // Injection count is N/A
-                VTSS_SPRINTF(buf2, "%7s",        "");       // Frame info is N/A
-                VTSS_SPRINTF(buf3, "%10" PRIu64, delay_ns); // Delay in nanoseconds
+                delay_ns =
+                    VTSS_DIV64(((u64)delay_cc * vtss_state->afi.clk_period_ps),
+                               1000LLU);
+                VTSS_SPRINTF(buf1, "%6s", ""); // Injection count is N/A
+                VTSS_SPRINTF(buf2, "%7s", ""); // Frame info is N/A
+                VTSS_SPRINTF(buf3, "%10" PRIu64,
+                             delay_ns); // Delay in nanoseconds
             }
 
-            pr("%3s 0x%04x %-5s 0x%05x %s %s %s 0x%08x\n",
-               buf0,
-               frm_ptr,
-               frm_type == 0 ? "Frame" : "Delay",
-               frm_next,
-               buf1,
-               buf2,
-               buf3,
+            pr("%3s 0x%04x %-5s 0x%05x %s %s %s 0x%08x\n", buf0, frm_ptr,
+               frm_type == 0 ? "Frame" : "Delay", frm_next, buf1, buf2, buf3,
                part0);
 
             frm_ptr = frm_next;
@@ -309,7 +323,10 @@ typedef struct {
 /*
  * jr2_afi_port_prio_2_qu_ref()
  */
-static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state, vtss_port_no_t port_no, vtss_prio_t prio, jr2_afi_qu_ref_t *qu_ref)
+static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state,
+                                          vtss_port_no_t      port_no,
+                                          vtss_prio_t         prio,
+                                          jr2_afi_qu_ref_t   *qu_ref)
 {
     qu_ref->chip_port = JR2_AFI_CHIP_PORT(port_no); // Destination port
 
@@ -336,7 +353,8 @@ static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state, vtss_p
         qu_ref->se_inp = VTSS_CHIP_PORT_CPU_0;
     }
 
-    VTSS_I("port_no = %d, prio = %u => se_idx = %u, se_inp = %u", port_no, prio, qu_ref->se_idx, qu_ref->se_inp);
+    VTSS_I("port_no = %d, prio = %u => se_idx = %u, se_inp = %u", port_no, prio,
+           qu_ref->se_idx, qu_ref->se_inp);
 #else
     // Other JR2 variants
 
@@ -345,13 +363,13 @@ static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state, vtss_p
 #define VTSS_AFI_QU_VD1           27199
 #define VTSS_AFI_QU_SP0           27200
 #define VTSS_AFI_QU_SP1           27264
-#define VTSS_AFI_HSCH_LARGE_RATIO     8
+#define VTSS_AFI_HSCH_LARGE_RATIO 8
 #elif defined(VTSS_ARCH_SERVAL_T)
 // Serval-T
-#define VTSS_AFI_QU_VD1            3327
-#define VTSS_AFI_QU_SP0            3328
-#define VTSS_AFI_QU_SP1            3343
-#define VTSS_AFI_HSCH_LARGE_RATIO     2
+#define VTSS_AFI_QU_VD1           3327
+#define VTSS_AFI_QU_SP0           3328
+#define VTSS_AFI_QU_SP1           3343
+#define VTSS_AFI_HSCH_LARGE_RATIO 2
 
 #else
 #error "Update this for new chip variants"
@@ -370,14 +388,17 @@ static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state, vtss_p
             // arrive here, because had it been so, the equation would have been
             // quite different. We pick the CPU port as source.
             // Default mapping
-            qu_ref->qu_num = 8 * VTSS_AFI_HSCH_LARGE_RATIO * (qu_ref->chip_port * 8 + prio) + VTSS_CHIP_PORT_CPU_0;
+            qu_ref->qu_num =
+                8 * VTSS_AFI_HSCH_LARGE_RATIO * (qu_ref->chip_port * 8 + prio) +
+                VTSS_CHIP_PORT_CPU_0;
         }
     }
 
-    VTSS_I("port_no = %d, prio = %u => qu_num = %u", port_no, prio, qu_ref->qu_num);
+    VTSS_I("port_no = %d, prio = %u => qu_num = %u", port_no, prio,
+           qu_ref->qu_num);
 #endif
 
-   return VTSS_RC_OK;
+    return VTSS_RC_OK;
 }
 
 /*
@@ -389,15 +410,20 @@ static vtss_rc jr2_afi_port_prio_2_qu_ref(vtss_state_t *const vtss_state, vtss_p
  * the last entry of the port_tbl[] array (which is one longer than
  * the number of front ports on this platform) is returned.
  */
-static vtss_afi_port_t *jr2_afi_port_tbl_entry(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+static vtss_afi_port_t *jr2_afi_port_tbl_entry(vtss_state_t  *vtss_state,
+                                               vtss_port_no_t port_no)
 {
-    return &vtss_state->afi.port_tbl[port_no == VTSS_PORT_NO_NONE ? VTSS_ARRSZ(vtss_state->afi.port_tbl) - 1 : port_no];
+    return &vtss_state->afi
+                .port_tbl[port_no == VTSS_PORT_NO_NONE
+                              ? VTSS_ARRSZ(vtss_state->afi.port_tbl) - 1
+                              : port_no];
 }
 
 /*
  * jr2_afi_chip_port_flush()
  */
-static vtss_rc jr2_afi_chip_port_flush(vtss_state_t *vtss_state, vtss_phys_port_no_t chip_port)
+static vtss_rc jr2_afi_chip_port_flush(vtss_state_t       *vtss_state,
+                                       vtss_phys_port_no_t chip_port)
 {
     vtss_mtimer_t timer;
     u32           cnt = 0;
@@ -423,7 +449,8 @@ static vtss_rc jr2_afi_chip_port_flush(vtss_state_t *vtss_state, vtss_phys_port_
         cnt++;
         JR2_RD(VTSS_AFI_PORT_TBL_PORT_FRM_OUT(chip_port), &afi_val);
 
-        if ((afi_val = VTSS_X_AFI_PORT_TBL_PORT_FRM_OUT_FRM_OUT_CNT(afi_val)) == 0) {
+        if ((afi_val = VTSS_X_AFI_PORT_TBL_PORT_FRM_OUT_FRM_OUT_CNT(afi_val)) ==
+            0) {
             // No more unack'ed frames, so flushing is complete
             break;
         }
@@ -435,7 +462,9 @@ static vtss_rc jr2_afi_chip_port_flush(vtss_state_t *vtss_state, vtss_phys_port_
             // overwhelmed by frames coming from other ports - perhaps with
             // higher priority - that the QSYS doesn't ACK frames sent by the
             // AFI.
-            VTSS_E("AFI's FRM_OUT_CNT is non-zero (%u) on chip port %u even after %u msecs of trying", afi_val, chip_port, timeout);
+            VTSS_E(
+                "AFI's FRM_OUT_CNT is non-zero (%u) on chip port %u even after %u msecs of trying",
+                afi_val, chip_port, timeout);
             rc = VTSS_RC_ERROR;
             goto do_exit;
         }
@@ -443,14 +472,17 @@ static vtss_rc jr2_afi_chip_port_flush(vtss_state_t *vtss_state, vtss_phys_port_
 
 do_exit:
     VTSS_MTIMER_CANCEL(&timer); // Needed?
-    VTSS_I("Flush: Polled FRM_OUT_CNT %u times for chip port %u", cnt, chip_port);
+    VTSS_I("Flush: Polled FRM_OUT_CNT %u times for chip port %u", cnt,
+           chip_port);
     return rc;
 }
 
 /*
  * jr2_afi_chip_port_start()
  */
-static vtss_rc jr2_afi_chip_port_start(vtss_state_t *const vtss_state, vtss_phys_port_no_t chip_port, vtss_afi_port_t *afi_port)
+static vtss_rc jr2_afi_chip_port_start(vtss_state_t *const vtss_state,
+                                       vtss_phys_port_no_t chip_port,
+                                       vtss_afi_port_t    *afi_port)
 {
     // Set FRM_OUT_MAX back to normal
     JR2_WRM(VTSS_AFI_PORT_TBL_PORT_CFG(chip_port),
@@ -469,7 +501,8 @@ static vtss_rc jr2_afi_chip_port_start(vtss_state_t *const vtss_state, vtss_phys
             VTSS_F_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ(0),
             VTSS_M_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ);
 
-    VTSS_I("Reallowed injection to chip-port %u, and set frame out max back to %u", chip_port, afi_port->frm_out_max);
+    VTSS_I("Reallowed injection to chip-port %u, and set frame out max back to %u",
+           chip_port, afi_port->frm_out_max);
 
     return VTSS_RC_OK;
 }
@@ -477,7 +510,8 @@ static vtss_rc jr2_afi_chip_port_start(vtss_state_t *const vtss_state, vtss_phys
 /*
  * jr2_afi_chip_port_stop()
  */
-static vtss_rc jr2_afi_chip_port_stop(vtss_state_t *const vtss_state, vtss_phys_port_no_t chip_port)
+static vtss_rc jr2_afi_chip_port_stop(vtss_state_t *const vtss_state,
+                                      vtss_phys_port_no_t chip_port)
 {
     u32 frm_out_max;
 
@@ -486,8 +520,10 @@ static vtss_rc jr2_afi_chip_port_stop(vtss_state_t *const vtss_state, vtss_phys_
     // Use FRM_OUT_MAX = 0 to stop port
     frm_out_max = 0;
     JR2_WRM(VTSS_AFI_PORT_TBL_PORT_CFG(chip_port),
-            VTSS_F_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ(1) | VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX(frm_out_max),
-            VTSS_M_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ    | VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX);
+            VTSS_F_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ(1) |
+                VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX(frm_out_max),
+            VTSS_M_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ |
+                VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX);
 #else
     // Set FC_SKIP_TTI_INJ = 1
     // Use FRM_RM_ONLY = 1 to stop port
@@ -498,11 +534,16 @@ static vtss_rc jr2_afi_chip_port_stop(vtss_state_t *const vtss_state, vtss_phys_
     // jr2_afi_port_start() is invoked, that is, when link comes back up.
     frm_out_max = 1000;
     JR2_WRM(VTSS_AFI_PORT_TBL_PORT_CFG(chip_port),
-            VTSS_F_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ(1) | VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX(frm_out_max) | VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_RM_ONLY(1),
-            VTSS_M_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ    | VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX              | VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_RM_ONLY);
+            VTSS_F_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ(1) |
+                VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX(frm_out_max) |
+                VTSS_F_AFI_PORT_TBL_PORT_CFG_FRM_RM_ONLY(1),
+            VTSS_M_AFI_PORT_TBL_PORT_CFG_FC_SKIP_TTI_INJ |
+                VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_OUT_MAX |
+                VTSS_M_AFI_PORT_TBL_PORT_CFG_FRM_RM_ONLY);
 #endif /* (!)defined(VTSS_ARCH_JAGUAR_2_B) */
 
-    VTSS_I("Stopped injection to chip-port %u, and increased frame out max to %u", chip_port, frm_out_max);
+    VTSS_I("Stopped injection to chip-port %u, and increased frame out max to %u",
+           chip_port, frm_out_max);
 
     return VTSS_RC_OK;
 }
@@ -510,21 +551,24 @@ static vtss_rc jr2_afi_chip_port_stop(vtss_state_t *const vtss_state, vtss_phys_
 /*
  * jr2_afi_port_start()
  */
-static vtss_rc jr2_afi_port_start(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_start(vtss_state_t *const vtss_state,
+                                  vtss_port_no_t      port_no)
 {
-    return jr2_afi_chip_port_start(vtss_state, JR2_AFI_CHIP_PORT(port_no), jr2_afi_port_tbl_entry(vtss_state, port_no));
+    return jr2_afi_chip_port_start(vtss_state, JR2_AFI_CHIP_PORT(port_no),
+                                   jr2_afi_port_tbl_entry(vtss_state, port_no));
 }
 
 /*
  * jr2_afi_port_stop()
  */
-static vtss_rc jr2_afi_port_stop(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_stop(vtss_state_t *const vtss_state,
+                                 vtss_port_no_t      port_no)
 {
     vtss_phys_port_no_t chip_port = JR2_AFI_CHIP_PORT(port_no);
 
     VTSS_I("port_no = %d, chip_port = %u", port_no, chip_port);
 
-    VTSS_RC(jr2_afi_chip_port_stop( vtss_state, chip_port));
+    VTSS_RC(jr2_afi_chip_port_stop(vtss_state, chip_port));
 
     return jr2_afi_chip_port_flush(vtss_state, chip_port);
 }
@@ -532,18 +576,21 @@ static vtss_rc jr2_afi_port_stop(vtss_state_t *const vtss_state, vtss_port_no_t 
 /*
  * jr2_afi_port_link_up()
  */
-static vtss_rc jr2_afi_port_link_up(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_link_up(vtss_state_t *const vtss_state,
+                                    vtss_port_no_t      port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
-    VTSS_I("Enter. port = %u, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Enter. port = %u, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     if (port->started) {
         VTSS_RC(jr2_afi_port_start(vtss_state, port_no));
     }
 
     port->link = 1;
-    VTSS_I("Exit.  port = %u, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Exit.  port = %u, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     return VTSS_RC_OK;
 }
@@ -551,16 +598,19 @@ static vtss_rc jr2_afi_port_link_up(vtss_state_t *const vtss_state, vtss_port_no
 /*
  * jr2_afi_port_link_down()
  */
-static vtss_rc jr2_afi_port_link_down(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_link_down(vtss_state_t *const vtss_state,
+                                      vtss_port_no_t      port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
-    VTSS_I("Enter. port = %u, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Enter. port = %u, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     VTSS_RC(jr2_afi_port_stop(vtss_state, port_no));
     port->link = 0;
 
-    VTSS_I("Exit.  port = %u, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Exit.  port = %u, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     return VTSS_RC_OK;
 }
@@ -580,16 +630,26 @@ static vtss_rc jr2_afi_hijack_error_print(vtss_state_t *const vtss_state)
     u32  cnt, val, idx;
     char buf1[300], buf2[300];
 
-    cnt = VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", VTSS_CHIP_PORT_VD1);
+    cnt =
+        VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n",
+                      VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
-        JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
-        cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 +
+                                           idx),
+               &val);
+        cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,
+                             "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2), "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", VTSS_CHIP_PORT_VD1);
+    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2),
+                        "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n",
+                        VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
-        JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT_CUR(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 + idx), &val);
-        cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,  "Qu = %u: Cnt = %u\n", idx, val);
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT_CUR(3 * 1024 +
+                                               VTSS_CHIP_PORT_VD1 * 8 + idx),
+               &val);
+        cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,
+                             "Qu = %u: Cnt = %u\n", idx, val);
     }
 
     VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1, buf2);
@@ -604,8 +664,8 @@ static vtss_rc jr2_afi_hijack_error_print(vtss_state_t *const vtss_state)
 static vtss_rc jr2_afi_frm_hijack(vtss_state_t *const vtss_state, i32 frm_idx)
 {
     vtss_afi_frm_t *frm = &vtss_state->afi.frm_tbl[frm_idx];
-    vtss_mtimer_t  timer;
-    u32            new_frm_vld, frm_info, cnt = 0;
+    vtss_mtimer_t   timer;
+    u32             new_frm_vld, frm_info, cnt = 0;
 
     // Wait for frame to be hijacked. This can take up to an unspecified amount
     // of time, because it depends on the time between the application transmits
@@ -637,16 +697,13 @@ static vtss_rc jr2_afi_frm_hijack(vtss_state_t *const vtss_state, i32 frm_idx)
     JR2_RD(VTSS_AFI_MISC_NEW_FRM_INFO, &frm_info);
     frm_info = VTSS_X_AFI_MISC_NEW_FRM_INFO_FRM_INFO(frm_info);
     frm->frm_delay.frm.frm_info.fp =
-        VTSS_EXTRACT_BITFIELD(frm_info,
-                              VTSS_AFI_FRM_INFO_FP_POS,
+        VTSS_EXTRACT_BITFIELD(frm_info, VTSS_AFI_FRM_INFO_FP_POS,
                               VTSS_AFI_FRM_INFO_FP_WID);
     frm->frm_delay.frm.frm_info.fshort =
-        VTSS_EXTRACT_BITFIELD(frm_info,
-                              VTSS_AFI_FRM_INFO_SHORT_POS,
+        VTSS_EXTRACT_BITFIELD(frm_info, VTSS_AFI_FRM_INFO_SHORT_POS,
                               VTSS_AFI_FRM_INFO_SHORT_WID);
     frm->frm_delay.frm.frm_info.eprio =
-        VTSS_EXTRACT_BITFIELD(frm_info,
-                              VTSS_AFI_FRM_INFO_EPRIO_POS,
+        VTSS_EXTRACT_BITFIELD(frm_info, VTSS_AFI_FRM_INFO_EPRIO_POS,
                               VTSS_AFI_FRM_INFO_EPRIO_WID);
 
     // Setup FRM_TBL entry
@@ -655,9 +712,15 @@ static vtss_rc jr2_afi_frm_hijack(vtss_state_t *const vtss_state, i32 frm_idx)
             VTSS_M_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE);
 
     JR2_WR(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx),
-           (frm->frm_delay.frm.frm_info.fp     << (VTSS_AFI_FRM_INFO_FP_POS    + VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)) |
-           (frm->frm_delay.frm.frm_info.fshort << (VTSS_AFI_FRM_INFO_SHORT_POS + VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)) |
-           (frm->frm_delay.frm.frm_info.eprio  << (VTSS_AFI_FRM_INFO_EPRIO_POS + VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)));
+           (frm->frm_delay.frm.frm_info.fp
+            << (VTSS_AFI_FRM_INFO_FP_POS +
+                VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)) |
+               (frm->frm_delay.frm.frm_info.fshort
+                << (VTSS_AFI_FRM_INFO_SHORT_POS +
+                    VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)) |
+               (frm->frm_delay.frm.frm_info.eprio
+                << (VTSS_AFI_FRM_INFO_EPRIO_POS +
+                    VTSS_AFI_FRM_TBL_PART0_FRM_INFO_POS)));
 
     JR2_WR(VTSS_AFI_MISC_NEW_FRM_CTRL, VTSS_F_AFI_MISC_NEW_FRM_CTRL_VLD(0));
 
@@ -672,13 +735,18 @@ static vtss_rc jr2_afi_frm_hijack(vtss_state_t *const vtss_state, i32 frm_idx)
  * wid    : Width of field
  * fld_val: Field value
  */
-static void jr2_afi_set_bit_field(u32 *const val32, u8 offset, u8 wid, u32  fld_val)
+static void jr2_afi_set_bit_field(u32 *const val32,
+                                  u8         offset,
+                                  u8         wid,
+                                  u32        fld_val)
 {
     if ((fld_val >> wid) != 0) {
-        VTSS_E("Invalid arguments: fld_val = 0x%x, wid = %u, offset = %u", fld_val, wid, offset);
+        VTSS_E("Invalid arguments: fld_val = 0x%x, wid = %u, offset = %u",
+               fld_val, wid, offset);
     }
 
-    *val32 = (*val32 & ~(u32)(((1 << wid) - 1) << offset)) | (fld_val << offset);
+    *val32 =
+        (*val32 & ~(u32)(((1 << wid) - 1) << offset)) | (fld_val << offset);
 }
 
 /*
@@ -690,18 +758,17 @@ static void jr2_afi_set_bit_field(u32 *const val32, u8 offset, u8 wid, u32  fld_
 static vtss_rc jr2_afi_frm_setup(vtss_state_t *const vtss_state, i32 frm_idx)
 {
     vtss_afi_frm_t *frm = &vtss_state->afi.frm_tbl[frm_idx];
-    u32            frm_tbl_part0;
+    u32             frm_tbl_part0;
 
     JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), &frm_tbl_part0);
-    jr2_afi_set_bit_field(&frm_tbl_part0,
-                          VTSS_AFI_FRM_TBL_PART0_INJ_CNT_POS,
+    jr2_afi_set_bit_field(&frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_INJ_CNT_POS,
                           VTSS_AFI_FRM_TBL_PART0_INJ_CNT_WID,
                           frm->frm_delay.frm.inj_cnt);
     JR2_WR(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), frm_tbl_part0);
 
     JR2_WR(VTSS_AFI_FRM_TBL_FRM_NEXT_AND_TYPE(frm_idx),
            VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(frm->next_ptr) |
-           VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(0));
+               VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(0));
 
     return VTSS_RC_OK;
 }
@@ -718,15 +785,14 @@ static vtss_rc jr2_afi_delay_setup(vtss_state_t *const vtss_state, i32 frm_idx)
     u32             frm_tbl_part0;
 
     JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), &frm_tbl_part0);
-    jr2_afi_set_bit_field(&frm_tbl_part0,
-                          VTSS_AFI_FRM_TBL_PART0_DELAY_POS,
+    jr2_afi_set_bit_field(&frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_DELAY_POS,
                           VTSS_AFI_FRM_TBL_PART0_DELAY_WID,
                           frm->frm_delay.delay.delay);
     JR2_WR(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), frm_tbl_part0);
 
     JR2_WR(VTSS_AFI_FRM_TBL_FRM_NEXT_AND_TYPE(frm_idx),
            VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_NEXT_PTR(frm->next_ptr) |
-           VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(1));
+               VTSS_F_AFI_FRM_TBL_FRM_NEXT_AND_TYPE_ENTRY_TYPE(1));
 
     return VTSS_RC_OK;
 }
@@ -744,11 +810,13 @@ static vtss_rc jr2_afi_set_frm_rm(vtss_state_t *const vtss_state, i32 frm_idx)
 
     JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), &frm_tbl_part0);
 
-    if (VTSS_EXTRACT_BITFIELD(frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_FRM_RM_POS, 1)) {
+    if (VTSS_EXTRACT_BITFIELD(frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_FRM_RM_POS,
+                              1)) {
         JR2_AFI_E_RETURN(VTSS_RC_ERROR, "frm_rm already set");
     }
 
-    if (VTSS_EXTRACT_BITFIELD(frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_FRM_GONE_POS, 1)) {
+    if (VTSS_EXTRACT_BITFIELD(frm_tbl_part0,
+                              VTSS_AFI_FRM_TBL_PART0_FRM_GONE_POS, 1)) {
         JR2_AFI_E_RETURN(VTSS_RC_ERROR, "frm_gone already set");
     }
 
@@ -761,12 +829,15 @@ static vtss_rc jr2_afi_set_frm_rm(vtss_state_t *const vtss_state, i32 frm_idx)
 /*
  * jr2_afi_frm_gone_get()
  */
-static vtss_rc jr2_afi_frm_gone_get(vtss_state_t *const vtss_state, u8 *const frm_gone, i32 frm_idx)
+static vtss_rc jr2_afi_frm_gone_get(vtss_state_t *const vtss_state,
+                                    u8 *const           frm_gone,
+                                    i32                 frm_idx)
 {
     u32 frm_tbl_part0;
 
     JR2_RD(VTSS_AFI_FRM_TBL_FRM_ENTRY_PART0(frm_idx), &frm_tbl_part0);
-    *frm_gone = VTSS_EXTRACT_BITFIELD(frm_tbl_part0, VTSS_AFI_FRM_TBL_PART0_FRM_GONE_POS, 1);
+    *frm_gone = VTSS_EXTRACT_BITFIELD(frm_tbl_part0,
+                                      VTSS_AFI_FRM_TBL_PART0_FRM_GONE_POS, 1);
 
     return VTSS_RC_OK;
 }
@@ -774,7 +845,9 @@ static vtss_rc jr2_afi_frm_gone_get(vtss_state_t *const vtss_state, u8 *const fr
 /*
  * jr2_afi_dti_pause_resume()
  */
-static vtss_rc jr2_afi_dti_pause_resume(vtss_state_t *const vtss_state, u32 dti_idx, BOOL pause)
+static vtss_rc jr2_afi_dti_pause_resume(vtss_state_t *const vtss_state,
+                                        u32                 dti_idx,
+                                        BOOL                pause)
 {
     vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
@@ -795,7 +868,9 @@ static vtss_rc jr2_afi_dti_pause_resume(vtss_state_t *const vtss_state, u32 dti_
 /*
  * jr2_afi_tti_pause_resume()
  */
-static vtss_rc jr2_afi_tti_pause_resume(vtss_state_t *const vtss_state, u32 tti_idx, BOOL pause)
+static vtss_rc jr2_afi_tti_pause_resume(vtss_state_t *const vtss_state,
+                                        u32                 tti_idx,
+                                        BOOL                pause)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
@@ -824,20 +899,23 @@ static vtss_rc jr2_afi_tti_pause_resume(vtss_state_t *const vtss_state, u32 tti_
 /*
  * jr2_afi_up_flows_pause_resume()
  */
-static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state, vtss_port_no_t port_no, BOOL pause)
+static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state,
+                                             vtss_port_no_t      port_no,
+                                             BOOL                pause)
 {
     u32  dti_idx, tti_idx;
     BOOL at_least_one_paused_or_resumed = FALSE;
 
-    VTSS_I("Enter. %sing up-flows on port_no = %u", pause ? "Paus" : "Resum", port_no);
+    VTSS_I("Enter. %sing up-flows on port_no = %u", pause ? "Paus" : "Resum",
+           port_no);
 
     // Pause or resume all DTIs egressing VD1 (ingressing #port_no)
-    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); dti_idx++) {
+    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl);
+         dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
-        if (dti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
-            dti->paused             != pause                        &&
-            dti->port_no            == VTSS_PORT_NO_NONE            &&
+        if (dti->state == VTSS_AFI_ENTRY_STATE_STARTED &&
+            dti->paused != pause && dti->port_no == VTSS_PORT_NO_NONE &&
             dti->masquerade_port_no == port_no) {
             VTSS_RC(jr2_afi_dti_pause_resume(vtss_state, dti_idx, pause));
             at_least_one_paused_or_resumed = TRUE;
@@ -845,12 +923,12 @@ static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state, vts
     }
 
     // Pause or resume all TTIs egressing VD1 (ingressing #port_no).
-    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); tti_idx++) {
+    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl);
+         tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
-        if (tti->state              == VTSS_AFI_ENTRY_STATE_STARTED &&
-            tti->paused             != pause                        &&
-            tti->port_no            == VTSS_PORT_NO_NONE            &&
+        if (tti->state == VTSS_AFI_ENTRY_STATE_STARTED &&
+            tti->paused != pause && tti->port_no == VTSS_PORT_NO_NONE &&
             tti->masquerade_port_no == port_no) {
             VTSS_RC(jr2_afi_tti_pause_resume(vtss_state, tti_idx, pause));
             at_least_one_paused_or_resumed = TRUE;
@@ -865,7 +943,8 @@ static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state, vts
         // 10 kbytes = 80 kbits, which then takes 8 us per frame to get out of
         // VD1 (provided the analyzer doesn't back-pressures VD1, which we have
         // to assume it doesn't).
-        u32 frm_out_max = jr2_afi_port_tbl_entry(vtss_state, VTSS_PORT_NO_NONE)->frm_out_max;
+        u32 frm_out_max =
+            jr2_afi_port_tbl_entry(vtss_state, VTSS_PORT_NO_NONE)->frm_out_max;
         u32 sleep_ms = (8 * frm_out_max) / 1000;
 
         // Sleep at least one millisecond
@@ -875,7 +954,8 @@ static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state, vts
         VTSS_MSLEEP(sleep_ms);
     }
 
-    VTSS_I("Exit (%sing up-flows on port_no = %u)", pause ? "paus" : "resum", port_no);
+    VTSS_I("Exit (%sing up-flows on port_no = %u)", pause ? "paus" : "resum",
+           port_no);
 
     return VTSS_RC_OK;
 }
@@ -883,14 +963,19 @@ static vtss_rc jr2_afi_up_flows_pause_resume(vtss_state_t *const vtss_state, vts
 /*
  * jr2_afi_port_fwd_set()
  */
-static vtss_rc jr2_afi_port_fwd_set(vtss_state_t *const vtss_state, vtss_port_no_t port_no, BOOL new_fwd, BOOL *old_fwd)
+static vtss_rc jr2_afi_port_fwd_set(vtss_state_t *const vtss_state,
+                                    vtss_port_no_t      port_no,
+                                    BOOL                new_fwd,
+                                    BOOL               *old_fwd)
 {
     vtss_phys_port_no_t chip_port = JR2_AFI_CHIP_PORT(port_no);
     u32                 val;
 
     JR2_RD(VTSS_QFWD_SYSTEM_SWITCH_PORT_MODE(chip_port), &val);
 
-    VTSS_I("Enter(port_no = %d => chip_port = %u, new_fwd = %d, val before = 0x%08x", port_no, chip_port, new_fwd, val);
+    VTSS_I(
+        "Enter(port_no = %d => chip_port = %u, new_fwd = %d, val before = 0x%08x",
+        port_no, chip_port, new_fwd, val);
 
     if (old_fwd) {
         *old_fwd = VTSS_X_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA(val);
@@ -903,7 +988,8 @@ static vtss_rc jr2_afi_port_fwd_set(vtss_state_t *const vtss_state, vtss_port_no
     }
 
     JR2_WR(VTSS_QFWD_SYSTEM_SWITCH_PORT_MODE(chip_port), val);
-    VTSS_I("Exit(port_no = %d => chip_port = %u, new_fwd = %d, val after = 0x%08x", port_no, chip_port, new_fwd, val);
+    VTSS_I("Exit(port_no = %d => chip_port = %u, new_fwd = %d, val after = 0x%08x",
+           port_no, chip_port, new_fwd, val);
 
     return VTSS_RC_OK;
 }
@@ -911,13 +997,18 @@ static vtss_rc jr2_afi_port_fwd_set(vtss_state_t *const vtss_state, vtss_port_no
 /*
  * jr2_afi_frm_gone_wait()
  */
-static vtss_rc jr2_afi_frm_gone_wait(vtss_state_t *vtss_state, u32 idx, vtss_port_no_t port_no, i32 frm_idx, BOOL is_dti)
+static vtss_rc jr2_afi_frm_gone_wait(vtss_state_t  *vtss_state,
+                                     u32            idx,
+                                     vtss_port_no_t port_no,
+                                     i32            frm_idx,
+                                     BOOL           is_dti)
 {
-    u32             poll_cnt, poll_cnt_max, method;
-    BOOL            frm_gone = FALSE, old_fwd = TRUE;
+    u32              poll_cnt, poll_cnt_max, method;
+    BOOL             frm_gone = FALSE, old_fwd = TRUE;
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
-    VTSS_I("Enter. %s_idx = %u on port %d", is_dti ? "dti" : "tti", idx, port_no);
+    VTSS_I("Enter. %s_idx = %u on port %d", is_dti ? "dti" : "tti", idx,
+           port_no);
 
     if (is_dti) {
         poll_cnt_max = 1000;
@@ -1012,11 +1103,16 @@ static vtss_rc jr2_afi_frm_gone_wait(vtss_state_t *vtss_state, u32 idx, vtss_por
     }
 
     if (frm_gone) {
-        VTSS_I("%s_idx = %u on port %d: Polled %u times out of %u using method %u. FRM_GONE = %d", is_dti ? "dti" : "tti", idx, port_no, poll_cnt, poll_cnt_max, method, frm_gone);
+        VTSS_I(
+            "%s_idx = %u on port %d: Polled %u times out of %u using method %u. FRM_GONE = %d",
+            is_dti ? "dti" : "tti", idx, port_no, poll_cnt, poll_cnt_max,
+            method, frm_gone);
     } else {
-        VTSS_E("%s_idx = %u on port %d: Polled %u times out of %u using method %u. FRM_GONE = %d", is_dti ? "dti" : "tti", idx, port_no, poll_cnt, poll_cnt_max, method, frm_gone);
+        VTSS_E(
+            "%s_idx = %u on port %d: Polled %u times out of %u using method %u. FRM_GONE = %d",
+            is_dti ? "dti" : "tti", idx, port_no, poll_cnt, poll_cnt_max,
+            method, frm_gone);
         return VTSS_RC_ERROR;
-
     }
 
     return VTSS_RC_OK;
@@ -1031,22 +1127,24 @@ static vtss_rc jr2_afi_frm_gone_wait(vtss_state_t *vtss_state, u32 idx, vtss_por
 /*
  * jr2_afi_dti_qu_ref_update()
  */
-static vtss_rc jr2_afi_dti_qu_ref_update(vtss_state_t *const vtss_state, u32 dti_idx)
+static vtss_rc jr2_afi_dti_qu_ref_update(vtss_state_t *const vtss_state,
+                                         u32                 dti_idx)
 {
-    vtss_afi_dti_t   *dti = &vtss_state->afi.dti_tbl[dti_idx];
+    vtss_afi_dti_t  *dti = &vtss_state->afi.dti_tbl[dti_idx];
     jr2_afi_qu_ref_t qu_ref;
 
-    VTSS_RC(jr2_afi_port_prio_2_qu_ref(vtss_state, dti->port_no, dti->prio, &qu_ref));
+    VTSS_RC(jr2_afi_port_prio_2_qu_ref(vtss_state, dti->port_no, dti->prio,
+                                       &qu_ref));
 
 #if defined(VTSS_ARCH_JAGUAR_2_B)
     JR2_WR(VTSS_AFI_DTI_TBL_DTI_PORT_QU(dti_idx),
            VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_SE_INP(qu_ref.se_inp) |
-           VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_SE_IDX(qu_ref.se_idx) |
-           VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
+               VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_SE_IDX(qu_ref.se_idx) |
+               VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
 #else
     JR2_WR(VTSS_AFI_DTI_TBL_DTI_PORT_QU(dti_idx),
            VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_QU_NUM(qu_ref.qu_num) |
-           VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
+               VTSS_F_AFI_DTI_TBL_DTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
 #endif /* (!)defined(VTSS_ARCH_JAGUAR_2_B) */
 
     return VTSS_RC_OK;
@@ -1082,7 +1180,8 @@ static vtss_rc jr2_afi_tti_cal_init(vtss_state_t *const vtss_state)
     }
 
     if (tti_init == 1) {
-        JR2_AFI_E_RETURN(VTSS_RC_ERROR, "Timeout waiting for TTI_CTRL.TTI_INIT == 0");
+        JR2_AFI_E_RETURN(VTSS_RC_ERROR,
+                         "Timeout waiting for TTI_CTRL.TTI_INIT == 0");
     }
 
     return VTSS_RC_OK;
@@ -1096,10 +1195,16 @@ static vtss_rc jr2_afi_tti_tick_init(vtss_state_t *const vtss_state)
     u32 tick_base_len, val0, val1, idx;
     u64 t_ps[8], tick_base_ps;
 
-    // Find a suitable base tick, given that we want the first tick length to be VTSS_AFI_TTI_TICK_LEN0_US
-    tick_base_len = VTSS_DIV64(VTSS_AFI_TTI_TICK_LEN0_US * 1000000LLU, vtss_state->afi.clk_period_ps);
-    if (tick_base_len == 0 || tick_base_len > VTSS_M_AFI_TTI_TICKS_TTI_TICK_BASE_BASE_LEN) {
-        JR2_AFI_E_RETURN(VTSS_RC_ERROR, "Unable to find a suitable tick base given the first tick index request (%u us)", VTSS_AFI_TTI_TICK_LEN0_US);
+    // Find a suitable base tick, given that we want the first tick length to be
+    // VTSS_AFI_TTI_TICK_LEN0_US
+    tick_base_len = VTSS_DIV64(VTSS_AFI_TTI_TICK_LEN0_US * 1000000LLU,
+                               vtss_state->afi.clk_period_ps);
+    if (tick_base_len == 0 ||
+        tick_base_len > VTSS_M_AFI_TTI_TICKS_TTI_TICK_BASE_BASE_LEN) {
+        JR2_AFI_E_RETURN(
+            VTSS_RC_ERROR,
+            "Unable to find a suitable tick base given the first tick index request (%u us)",
+            VTSS_AFI_TTI_TICK_LEN0_US);
     }
 
     JR2_WRM(VTSS_AFI_TTI_TICKS_TTI_TICK_BASE,
@@ -1111,16 +1216,24 @@ static vtss_rc jr2_afi_tti_tick_init(vtss_state_t *const vtss_state)
 
     // Configure tick lengths
     JR2_WR(VTSS_AFI_TTI_TICKS_TTI_TICK_LEN_0_3,
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN0(VTSS_DIV64(VTSS_AFI_TTI_TICK_LEN0_US * 1000000LLU, tick_base_ps)) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN1(VTSS_AFI_TTI_TICK_LEN1_US / VTSS_AFI_TTI_TICK_LEN0_US) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN2(VTSS_AFI_TTI_TICK_LEN2_US / VTSS_AFI_TTI_TICK_LEN1_US) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN3(VTSS_AFI_TTI_TICK_LEN3_US / VTSS_AFI_TTI_TICK_LEN2_US));
+           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN0(VTSS_DIV64(
+               VTSS_AFI_TTI_TICK_LEN0_US * 1000000LLU, tick_base_ps)) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN1(
+                   VTSS_AFI_TTI_TICK_LEN1_US / VTSS_AFI_TTI_TICK_LEN0_US) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN2(
+                   VTSS_AFI_TTI_TICK_LEN2_US / VTSS_AFI_TTI_TICK_LEN1_US) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_0_3_LEN3(
+                   VTSS_AFI_TTI_TICK_LEN3_US / VTSS_AFI_TTI_TICK_LEN2_US));
 
     JR2_WR(VTSS_AFI_TTI_TICKS_TTI_TICK_LEN_4_7,
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN4(VTSS_AFI_TTI_TICK_LEN4_US / VTSS_AFI_TTI_TICK_LEN3_US) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN5(VTSS_AFI_TTI_TICK_LEN5_US / VTSS_AFI_TTI_TICK_LEN4_US) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN6(VTSS_AFI_TTI_TICK_LEN6_US / VTSS_AFI_TTI_TICK_LEN5_US) |
-           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN7(VTSS_AFI_TTI_TICK_LEN7_US / VTSS_AFI_TTI_TICK_LEN6_US));
+           VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN4(VTSS_AFI_TTI_TICK_LEN4_US /
+                                                      VTSS_AFI_TTI_TICK_LEN3_US) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN5(
+                   VTSS_AFI_TTI_TICK_LEN5_US / VTSS_AFI_TTI_TICK_LEN4_US) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN6(
+                   VTSS_AFI_TTI_TICK_LEN6_US / VTSS_AFI_TTI_TICK_LEN5_US) |
+               VTSS_F_AFI_TTI_TICKS_TTI_TICK_LEN_4_7_LEN7(
+                   VTSS_AFI_TTI_TICK_LEN7_US / VTSS_AFI_TTI_TICK_LEN6_US));
 
     // Now that we have made the rounding errors that will come from using
     // these constants, update the array that the rest of the code uses.
@@ -1152,7 +1265,9 @@ static vtss_rc jr2_afi_tti_tick_init(vtss_state_t *const vtss_state)
     // To make sure that this very first frame isn't transmitted
     // by accident, we therefore disable all TTI timers during boot.
     for (idx = 0; idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); idx++) {
-        JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TIMER(idx), VTSS_F_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA(0), VTSS_M_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA);
+        JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TIMER(idx),
+                VTSS_F_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA(0),
+                VTSS_M_AFI_TTI_TBL_TTI_TIMER_TIMER_ENA);
     }
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) */
 
@@ -1162,23 +1277,25 @@ static vtss_rc jr2_afi_tti_tick_init(vtss_state_t *const vtss_state)
 /**
  * jr2_afi_tti_qu_ref_update()
  */
-static vtss_rc jr2_afi_tti_qu_ref_update(vtss_state_t *const vtss_state, u32 tti_idx)
+static vtss_rc jr2_afi_tti_qu_ref_update(vtss_state_t *const vtss_state,
+                                         u32                 tti_idx)
 {
-    vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
+    vtss_afi_tti_t  *tti = &vtss_state->afi.tti_tbl[tti_idx];
     jr2_afi_qu_ref_t qu_ref;
 
-    VTSS_RC(jr2_afi_port_prio_2_qu_ref(vtss_state, tti->port_no, tti->prio, &qu_ref));
+    VTSS_RC(jr2_afi_port_prio_2_qu_ref(vtss_state, tti->port_no, tti->prio,
+                                       &qu_ref));
 
     // (Re)write configuration
 #if defined(VTSS_ARCH_JAGUAR_2_B)
     JR2_WR(VTSS_AFI_TTI_TBL_TTI_PORT_QU(tti_idx),
            VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_SE_INP(qu_ref.se_inp) |
-           VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_SE_IDX(qu_ref.se_idx) |
-           VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
+               VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_SE_IDX(qu_ref.se_idx) |
+               VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
 #else
     JR2_WR(VTSS_AFI_TTI_TBL_TTI_PORT_QU(tti_idx),
            VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_QU_NUM(qu_ref.qu_num) |
-           VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
+               VTSS_F_AFI_TTI_TBL_TTI_PORT_QU_PORT_NUM(qu_ref.chip_port));
 #endif /* (!)defined(VTSS_ARCH_JAGUAR_2_B) */
 
     return VTSS_RC_OK;
@@ -1196,15 +1313,20 @@ static vtss_rc jr2_afi_tti_qu_ref_update(vtss_state_t *const vtss_state, u32 tti
  * do_frm_delay_config: (Re)configure frame-delay sequence before (re)starting
  * do_dti_config:       (Re)configure DTI before (re)starting
  */
-static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BOOL do_frm_delay_config, BOOL do_dti_config, BOOL start_flow)
+static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state,
+                                 u32                 dti_idx,
+                                 BOOL                do_frm_delay_config,
+                                 BOOL                do_dti_config,
+                                 BOOL                start_flow)
 {
-    vtss_afi_dti_t *dti     = &vtss_state->afi.dti_tbl[dti_idx];
+    vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
     vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
-    u32            frm_inj_cnt, frm_idx;
-    BOOL           link;
-    vtss_port_no_t port_no;
+    u32             frm_inj_cnt, frm_idx;
+    BOOL            link;
+    vtss_port_no_t  port_no;
 
-    VTSS_I("Enter: Starting dti_idx = %u (do_config = %d)", dti_idx, do_dti_config);
+    VTSS_I("Enter: Starting dti_idx = %u (do_config = %d)", dti_idx,
+           do_dti_config);
 
     if (dti->state != VTSS_AFI_ENTRY_STATE_STOPPED) {
         JR2_AFI_E_RETURN(VTSS_RC_ERROR, "DTI already started");
@@ -1227,12 +1349,12 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BO
     if (do_dti_config) {
         u32 dti_mode_val, dti_mode_mask;
 
-        dti_mode_val =
-            VTSS_F_AFI_DTI_TBL_DTI_MODE_MODE(dti->mode) |
-            VTSS_F_AFI_DTI_TBL_DTI_MODE_TRAILING_DELAY_SEQ_CNT(dti->trailing_delay_seq_cnt) |
-            VTSS_F_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT(0)
+        dti_mode_val = VTSS_F_AFI_DTI_TBL_DTI_MODE_MODE(dti->mode) |
+                       VTSS_F_AFI_DTI_TBL_DTI_MODE_TRAILING_DELAY_SEQ_CNT(
+                           dti->trailing_delay_seq_cnt) |
+                       VTSS_F_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT(0)
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
-            | VTSS_F_AFI_DTI_TBL_DTI_MODE_DTI_NEXT(dti->dti_next)
+                       | VTSS_F_AFI_DTI_TBL_DTI_MODE_DTI_NEXT(dti->dti_next)
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) */
             ;
 
@@ -1242,10 +1364,11 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BO
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
                         | VTSS_M_AFI_DTI_TBL_DTI_MODE_DTI_NEXT
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) */
-                        ;
+            ;
 
         // (Re)write DTI configuration
-        JR2_WRM(VTSS_AFI_DTI_TBL_DTI_MODE(dti_idx), dti_mode_val, dti_mode_mask);
+        JR2_WRM(VTSS_AFI_DTI_TBL_DTI_MODE(dti_idx), dti_mode_val,
+                dti_mode_mask);
 
         VTSS_RC(jr2_afi_dti_qu_ref_update(vtss_state, dti_idx));
     }
@@ -1270,7 +1393,8 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BO
     JR2_WR(VTSS_AFI_DTI_TBL_DTI_DURATION(dti_idx), 0);
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) && !defined(VTSS_ARCH_SERVAL_T) */
 
-    JR2_WR(VTSS_AFI_DTI_MISC_DTI_CTRL(dti_idx), VTSS_F_AFI_DTI_MISC_DTI_CTRL_BW(dti->bw));
+    JR2_WR(VTSS_AFI_DTI_MISC_DTI_CTRL(dti_idx),
+           VTSS_F_AFI_DTI_MISC_DTI_CTRL_BW(dti->bw));
 
     if (!start_flow) {
         VTSS_I("Exit without starting flow. dti_idx = %u", dti_idx);
@@ -1282,8 +1406,11 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state, u32 dti_idx, BO
     // Only start up-flows if there's link on the port. Calls to
     // jr2_afi_link_state_change() ensure that these up-flows are started and
     // stopped by link state changes.
-    port_no = dti->port_no != VTSS_PORT_NO_NONE ? dti->port_no : dti->masquerade_port_no;
-    link    = dti->port_no != VTSS_PORT_NO_NONE ? TRUE         : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
+    port_no = dti->port_no != VTSS_PORT_NO_NONE ? dti->port_no
+                                                : dti->masquerade_port_no;
+    link = dti->port_no != VTSS_PORT_NO_NONE
+               ? TRUE
+               : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
 
     VTSS_I("port_no = %d: link = %d", port_no, link);
     VTSS_RC(jr2_afi_dti_pause_resume(vtss_state, dti_idx, !link));
@@ -1322,11 +1449,13 @@ static vtss_rc jr2_afi_dti_stop(vtss_state_t *const vtss_state, u32 dti_idx)
 /*
  * jr2_afi_dti_frm_hijack()
  */
-static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_idx, u32 frm_size)
+static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state,
+                                      u32                 dti_idx,
+                                      u32                 frm_size)
 {
-    vtss_afi_dti_t *dti     = &vtss_state->afi.dti_tbl[dti_idx];
+    vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
     vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
-    u32            frm_idx  = dti->first_frm_idx, i;
+    u32             frm_idx = dti->first_frm_idx, i;
     vtss_afi_frm_t *frm;
 
     VTSS_I("Enter(%u)", dti_idx);
@@ -1343,7 +1472,10 @@ static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_id
 
     if (frm_idx == 0) {
         // Don't use frm_idx == 0 for DTI (cannot link to it with NEXT_PTR)
-        JR2_AFI_E_RETURN(VTSS_RC_ERROR, "Frame idx for dti->first_frm_idx = %u is 0, when iterating %u times", dti->first_frm_idx, dti->frm_cnt);
+        JR2_AFI_E_RETURN(
+            VTSS_RC_ERROR,
+            "Frame idx for dti->first_frm_idx = %u is 0, when iterating %u times",
+            dti->first_frm_idx, dti->frm_cnt);
     }
 
     VTSS_RC(afi_frm_idx_chk(vtss_state, frm_idx));
@@ -1368,20 +1500,24 @@ static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_id
 /*
  * jr2_afi_dti_frm_rm_inj()
  */
-static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_idx)
+static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state,
+                                      u32                 dti_idx)
 {
-    vtss_afi_dti_t  *dti = &vtss_state->afi.dti_tbl[dti_idx];
-    vtss_afi_frm_t  *frm_tbl = vtss_state->afi.frm_tbl;
+    vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
+    vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
     i32             frm_idx, last_frm_idx = 0;
 
     VTSS_I("Removing dti_idx = %u", dti_idx);
 
     if (dti->state != VTSS_AFI_ENTRY_STATE_STOPPED) {
-        JR2_AFI_E_RETURN(VTSS_RC_ERROR, "ID = %u: Injection must be stopped before rm injection", dti_idx);
+        JR2_AFI_E_RETURN(VTSS_RC_ERROR,
+                         "ID = %u: Injection must be stopped before rm injection",
+                         dti_idx);
     }
 
     // Set the FRM_RM bit for each frame to be removed in the Frame Table.
-    for (frm_idx = dti->first_frm_idx; frm_idx > 0; frm_idx = frm_tbl[frm_idx].next_ptr) {
+    for (frm_idx = dti->first_frm_idx; frm_idx > 0;
+         frm_idx = frm_tbl[frm_idx].next_ptr) {
         if (frm_tbl[frm_idx].entry_type != 0) {
             // Not a frame entry
             continue;
@@ -1403,18 +1539,18 @@ static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_id
     if (dti->mode != 0) {
         JR2_WRM(VTSS_AFI_DTI_TBL_DTI_MODE(dti_idx),
                 VTSS_F_AFI_DTI_TBL_DTI_MODE_MODE(0) |
-                VTSS_F_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT(0),
+                    VTSS_F_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT(0),
                 VTSS_M_AFI_DTI_TBL_DTI_MODE_MODE |
-                VTSS_M_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT);
+                    VTSS_M_AFI_DTI_TBL_DTI_MODE_FRM_INJ_CNT);
     }
 
     // Set DTI_CNT.CNT=1
     JR2_WRM(VTSS_AFI_DTI_TBL_DTI_CNT(dti_idx),
-            VTSS_F_AFI_DTI_TBL_DTI_CNT_CNT(1),
-            VTSS_M_AFI_DTI_TBL_DTI_CNT_CNT);
+            VTSS_F_AFI_DTI_TBL_DTI_CNT_CNT(1), VTSS_M_AFI_DTI_TBL_DTI_CNT_CNT);
 
     // Set all delays in sequence to 0 to speed up the removal procedure
-    for (frm_idx = dti->first_frm_idx; frm_idx > 0; frm_idx = frm_tbl[frm_idx].next_ptr) {
+    for (frm_idx = dti->first_frm_idx; frm_idx > 0;
+         frm_idx = frm_tbl[frm_idx].next_ptr) {
         if (frm_tbl[frm_idx].entry_type != 1) {
             // Not a delay entry
             continue;
@@ -1430,10 +1566,11 @@ static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_id
     // Start removal injection!
     JR2_WR(VTSS_AFI_DTI_MISC_DTI_CTRL(dti_idx),
            VTSS_F_AFI_DTI_MISC_DTI_CTRL_ENA(1) |
-           VTSS_F_AFI_DTI_MISC_DTI_CTRL_BW(0));
+               VTSS_F_AFI_DTI_MISC_DTI_CTRL_BW(0));
 
     // Wait until the frame is gone.
-    VTSS_RC(jr2_afi_frm_gone_wait(vtss_state, dti_idx, dti->port_no, last_frm_idx, TRUE));
+    VTSS_RC(jr2_afi_frm_gone_wait(vtss_state, dti_idx, dti->port_no,
+                                  last_frm_idx, TRUE));
 
     return VTSS_RC_OK;
 }
@@ -1441,7 +1578,9 @@ static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_id
 /*
  * jr2_afi_dti_cnt_get()
  */
-static vtss_rc jr2_afi_dti_cnt_get(vtss_state_t *const vtss_state, u32 dti_idx, u32 *const cnt)
+static vtss_rc jr2_afi_dti_cnt_get(vtss_state_t *const vtss_state,
+                                   u32                 dti_idx,
+                                   u32 *const          cnt)
 {
     VTSS_I("Enter(%u)", dti_idx);
     JR2_RD(VTSS_AFI_DTI_TBL_DTI_CNT(dti_idx), cnt);
@@ -1461,8 +1600,7 @@ static vtss_rc jr2_afi_dti_cnt_get(vtss_state_t *const vtss_state, u32 dti_idx, 
 static vtss_rc jr2_afi_ttis_enable(vtss_state_t *const vtss_state)
 {
     VTSS_I("Enter");
-    JR2_WRM(VTSS_AFI_TTI_MISC_TTI_CTRL,
-            VTSS_F_AFI_TTI_MISC_TTI_CTRL_TTI_ENA(1),
+    JR2_WRM(VTSS_AFI_TTI_MISC_TTI_CTRL, VTSS_F_AFI_TTI_MISC_TTI_CTRL_TTI_ENA(1),
             VTSS_M_AFI_TTI_MISC_TTI_CTRL_TTI_ENA);
     VTSS_I("Exit");
 
@@ -1474,12 +1612,14 @@ static vtss_rc jr2_afi_ttis_enable(vtss_state_t *const vtss_state)
  *
  * do_config: (Re)configure TTI before (re)starting
  */
-static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BOOL do_config)
+static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state,
+                                 u32                 tti_idx,
+                                 BOOL                do_config)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
-    u32            rand_tick_cnt;
-    BOOL           link;
-    vtss_port_no_t port_no;
+    u32             rand_tick_cnt;
+    BOOL            link;
+    vtss_port_no_t  port_no;
 
     VTSS_I("Enter. Starting tti_idx = %u (do_config = %d)", tti_idx, do_config);
 
@@ -1492,9 +1632,9 @@ static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BO
 
         JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TIMER(tti_idx),
                 VTSS_F_AFI_TTI_TBL_TTI_TIMER_TICK_IDX(tti->tick_idx) |
-                VTSS_F_AFI_TTI_TBL_TTI_TIMER_JITTER(tti->jitter),
+                    VTSS_F_AFI_TTI_TBL_TTI_TIMER_JITTER(tti->jitter),
                 VTSS_M_AFI_TTI_TBL_TTI_TIMER_TICK_IDX |
-                VTSS_M_AFI_TTI_TBL_TTI_TIMER_JITTER);
+                    VTSS_M_AFI_TTI_TBL_TTI_TIMER_JITTER);
 
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
         JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TIMER(tti_idx),
@@ -1507,7 +1647,8 @@ static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BO
     }
 
     // Set TICK_CNT to a random value in range [1-TIMER_LEN]
-    rand_tick_cnt = tti->start_cfg.first_frame_urgent ? 1 : 1 + (rand() % tti->timer_len);
+    rand_tick_cnt =
+        tti->start_cfg.first_frame_urgent ? 1 : 1 + (rand() % tti->timer_len);
 
     JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TICKS(tti_idx),
             VTSS_F_AFI_TTI_TBL_TTI_TICKS_TICK_CNT(rand_tick_cnt),
@@ -1518,8 +1659,11 @@ static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BO
     // Only start up-flows if there's link on the port. Calls to
     // jr2_afi_link_state_change() ensure that these up-flows are started and
     // stopped by link state changes.
-    port_no = tti->port_no != VTSS_PORT_NO_NONE ? tti->port_no : tti->masquerade_port_no;
-    link    = tti->port_no != VTSS_PORT_NO_NONE ? TRUE         : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
+    port_no = tti->port_no != VTSS_PORT_NO_NONE ? tti->port_no
+                                                : tti->masquerade_port_no;
+    link = tti->port_no != VTSS_PORT_NO_NONE
+               ? TRUE
+               : jr2_afi_port_tbl_entry(vtss_state, port_no)->link;
 
     VTSS_I("port_no = %d: link = %d", port_no, link);
     VTSS_RC(jr2_afi_tti_pause_resume(vtss_state, tti_idx, !link));
@@ -1558,11 +1702,13 @@ static vtss_rc jr2_afi_tti_stop(vtss_state_t *const vtss_state, u32 tti_idx)
 /*
  * jr2_afi_tti_frm_hijack()
  */
-static vtss_rc jr2_afi_tti_frm_hijack(vtss_state_t *const vtss_state, u32 tti_idx)
+static vtss_rc jr2_afi_tti_frm_hijack(vtss_state_t *const vtss_state,
+                                      u32                 tti_idx)
 {
     vtss_rc rc;
     VTSS_I("Enter(%u)", tti_idx);
-    rc = jr2_afi_frm_hijack(vtss_state, vtss_state->afi.tti_tbl[tti_idx].frm_idx);
+    rc = jr2_afi_frm_hijack(vtss_state,
+                            vtss_state->afi.tti_tbl[tti_idx].frm_idx);
     VTSS_I("Exit(%u)", tti_idx);
     return rc;
 }
@@ -1570,14 +1716,17 @@ static vtss_rc jr2_afi_tti_frm_hijack(vtss_state_t *const vtss_state, u32 tti_id
 /*
  * jr2_afi_tti_frm_rm_inj()
  */
-static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_idx)
+static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state,
+                                      u32                 tti_idx)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
     VTSS_I("Enter(%u)", tti_idx);
 
     if (tti->state != VTSS_AFI_ENTRY_STATE_STOPPED) {
-        JR2_AFI_E_RETURN(VTSS_RC_ERROR, "ID = %u: Injection must be stopped before rm injection", tti_idx);
+        JR2_AFI_E_RETURN(VTSS_RC_ERROR,
+                         "ID = %u: Injection must be stopped before rm injection",
+                         tti_idx);
     }
 
     VTSS_RC(jr2_afi_set_frm_rm(vtss_state, tti->frm_idx));
@@ -1585,7 +1734,8 @@ static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_id
     // Start removal injection!
     // Set TIMER_LEN to max value (=> inject ASAP)
     JR2_WRM(VTSS_AFI_TTI_TBL_TTI_TIMER(tti_idx),
-            VTSS_F_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN((1 << VTSS_AFI_TTI_TBL_TIMER_LEN_WID) - 1),
+            VTSS_F_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN(
+                (1 << VTSS_AFI_TTI_TBL_TIMER_LEN_WID) - 1),
             VTSS_M_AFI_TTI_TBL_TTI_TIMER_TIMER_LEN);
 
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
@@ -1596,7 +1746,8 @@ static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_id
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) */
 
     // Wait until the frame is gone.
-    VTSS_RC(jr2_afi_frm_gone_wait(vtss_state, tti_idx, tti->port_no, tti->frm_idx, FALSE));
+    VTSS_RC(jr2_afi_frm_gone_wait(vtss_state, tti_idx, tti->port_no,
+                                  tti->frm_idx, FALSE));
 
     VTSS_I("Exit(%u)", tti_idx);
 
@@ -1612,12 +1763,15 @@ static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_id
 /*
  * jr2_afi_link_state_change()
  */
-static vtss_rc jr2_afi_link_state_change(vtss_state_t *const vtss_state, vtss_port_no_t port_no, BOOL *link_up)
+static vtss_rc jr2_afi_link_state_change(vtss_state_t *const vtss_state,
+                                         vtss_port_no_t      port_no,
+                                         BOOL               *link_up)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
-    BOOL return_val = port->link;
+    BOOL             return_val = port->link;
 
-    VTSS_I("Enter. port_no = %d, current link = %d, new link = %d", port_no, return_val, *link_up);
+    VTSS_I("Enter. port_no = %d, current link = %d, new link = %d", port_no,
+           return_val, *link_up);
 
     if (*link_up) {
         // Re-allow frame injection to this port
@@ -1643,26 +1797,31 @@ static vtss_rc jr2_afi_link_state_change(vtss_state_t *const vtss_state, vtss_po
 /*
  * jr2_afi_qu_ref_update()
  */
-static vtss_rc jr2_afi_qu_ref_update(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_qu_ref_update(vtss_state_t *const vtss_state,
+                                     vtss_port_no_t      port_no)
 {
     u32 dti_idx, tti_idx;
 
     // Injection must already have been stopped on #port_no.
 
     // Update the queue number for all DTIs egressing #port_no (down-flows)
-    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); dti_idx++) {
+    for (dti_idx = 0; dti_idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl);
+         dti_idx++) {
         vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
-        if (dti->state != VTSS_AFI_ENTRY_STATE_FREE && dti->port_no == port_no) {
+        if (dti->state != VTSS_AFI_ENTRY_STATE_FREE &&
+            dti->port_no == port_no) {
             VTSS_RC(jr2_afi_dti_qu_ref_update(vtss_state, dti_idx));
         }
     }
 
     // Update the queue number for all TTIs egressing #port_no (down-flows)
-    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl); tti_idx++) {
+    for (tti_idx = 0; tti_idx < VTSS_ARRSZ(vtss_state->afi.tti_tbl);
+         tti_idx++) {
         vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
-        if (tti->state != VTSS_AFI_ENTRY_STATE_FREE && tti->port_no == port_no) {
+        if (tti->state != VTSS_AFI_ENTRY_STATE_FREE &&
+            tti->port_no == port_no) {
             VTSS_RC(jr2_afi_tti_qu_ref_update(vtss_state, tti_idx));
         }
     }
@@ -1679,8 +1838,7 @@ static vtss_rc jr2_afi_enable(vtss_state_t *const vtss_state)
 
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
     // Enable AFI first (power saving feature added on ServalT)
-    JR2_WRM(VTSS_AFI_MISC_MISC_CTRL,
-            VTSS_F_AFI_MISC_MISC_CTRL_AFI_ENA(1),
+    JR2_WRM(VTSS_AFI_MISC_MISC_CTRL, VTSS_F_AFI_MISC_MISC_CTRL_AFI_ENA(1),
             VTSS_M_AFI_MISC_MISC_CTRL_AFI_ENA);
 #endif /* !defined(VTSS_ARCH_JAGUAR_2_B) */
 
@@ -1697,11 +1855,13 @@ static vtss_rc jr2_afi_enable(vtss_state_t *const vtss_state)
  * Administrative port start
  * Upon init, the ports are in started state.
  */
-static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state,
+                                        vtss_port_no_t      port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
-    VTSS_I("Enter. port = %d, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Enter. port = %d, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     if (port->started) {
         JR2_AFI_E_RETURN(VTSS_RC_ERROR, "Port %u already started", port_no);
@@ -1713,7 +1873,8 @@ static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_por
 
     port->started = 1;
 
-    VTSS_I("Exit. port = %d, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Exit. port = %d, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     return VTSS_RC_OK;
 }
@@ -1724,11 +1885,13 @@ static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_por
  * Administrative port stop
  * Upon init, the ports are in started state.
  */
-static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state,
+                                       vtss_port_no_t      port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
-    VTSS_I("Enter. port = %d, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Enter. port = %d, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     if (!port->started) {
         JR2_AFI_E_RETURN(VTSS_RC_ERROR, "Port %u not started", port_no);
@@ -1741,7 +1904,8 @@ static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state, vtss_port
     VTSS_RC(jr2_afi_port_stop(vtss_state, port_no));
     port->started = 0;
 
-    VTSS_I("Exit. port = %d, link = %d, started = %d", port_no, port->link, port->started);
+    VTSS_I("Exit. port = %d, link = %d, started = %d", port_no, port->link,
+           port->started);
 
     return VTSS_RC_OK;
 }
@@ -1749,52 +1913,57 @@ static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state, vtss_port
 /*
  * vtss_jr2_afi_debug_print()
  */
-vtss_rc vtss_jr2_afi_debug_print(vtss_state_t *vtss_state, const vtss_debug_printf_t pr, const vtss_debug_info_t *const info)
+vtss_rc vtss_jr2_afi_debug_print(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, jr2_afi_debug, vtss_state, pr, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, jr2_afi_debug,
+                                  vtss_state, pr, info);
 }
 
 /*
  * vtss_jr2_afi_init()
  */
-vtss_rc vtss_jr2_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t cmd)
+vtss_rc vtss_jr2_afi_init(vtss_state_t *const   vtss_state,
+                          const vtss_init_cmd_t cmd)
 {
-    vtss_afi_state_t    *state = &vtss_state->afi;
+    vtss_afi_state_t   *state = &vtss_state->afi;
     vtss_port_no_t      port_no;
     vtss_phys_port_no_t chip_port;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         // Assign CIL function pointers
-        state->afi_enable        = jr2_afi_enable;
-        state->ttis_enable       = jr2_afi_ttis_enable;
+        state->afi_enable = jr2_afi_enable;
+        state->ttis_enable = jr2_afi_ttis_enable;
 
-        state->tti_start         = jr2_afi_tti_start;
-        state->tti_stop          = jr2_afi_tti_stop;
-        state->tti_frm_hijack    = jr2_afi_tti_frm_hijack;
-        state->tti_frm_rm_inj    = jr2_afi_tti_frm_rm_inj;
+        state->tti_start = jr2_afi_tti_start;
+        state->tti_stop = jr2_afi_tti_stop;
+        state->tti_frm_hijack = jr2_afi_tti_frm_hijack;
+        state->tti_frm_rm_inj = jr2_afi_tti_frm_rm_inj;
 
-        state->dti_start         = jr2_afi_dti_start;
-        state->dti_stop          = jr2_afi_dti_stop;
-        state->dti_frm_hijack    = jr2_afi_dti_frm_hijack;
-        state->dti_frm_rm_inj    = jr2_afi_dti_frm_rm_inj;
-        state->dti_cnt_get       = jr2_afi_dti_cnt_get;
+        state->dti_start = jr2_afi_dti_start;
+        state->dti_stop = jr2_afi_dti_stop;
+        state->dti_frm_hijack = jr2_afi_dti_frm_hijack;
+        state->dti_frm_rm_inj = jr2_afi_dti_frm_rm_inj;
+        state->dti_cnt_get = jr2_afi_dti_cnt_get;
 
-        state->port_admin_start  = jr2_afi_port_admin_start;
-        state->port_admin_stop   = jr2_afi_port_admin_stop;
+        state->port_admin_start = jr2_afi_port_admin_start;
+        state->port_admin_stop = jr2_afi_port_admin_stop;
         state->link_state_change = jr2_afi_link_state_change;
-        state->qu_ref_update     = jr2_afi_qu_ref_update;
+        state->qu_ref_update = jr2_afi_qu_ref_update;
 
         // Initialize ports to started = 1. This corresponds to
         // calling jr2_afi_port_admin_start() during boot.
-        for (port_no = 0; port_no < VTSS_ARRSZ(vtss_state->afi.port_tbl); port_no++) {
+        for (port_no = 0; port_no < VTSS_ARRSZ(vtss_state->afi.port_tbl);
+             port_no++) {
             vtss_state->afi.port_tbl[port_no].started = 1;
         }
         break;
 
     case VTSS_INIT_CMD_INIT:
-        // The switch core clock period differs from JR2 chip-variant to chip-variant,
-        // and we rely heavily on it in this module, so get it.
+        // The switch core clock period differs from JR2 chip-variant to
+        // chip-variant, and we rely heavily on it in this module, so get it.
         VTSS_RC(jr2_afi_clock_period_get(vtss_state));
 
         // Initialize the tick table
@@ -1810,19 +1979,18 @@ vtss_rc vtss_jr2_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t 
 
     case VTSS_INIT_CMD_PORT_MAP:
         // Now that the port map is set, we can use "port_no".
-        // VD1 always has "link up". It is indexed with port_no == VTSS_PORT_NO_NONE
+        // VD1 always has "link up". It is indexed with port_no ==
+        // VTSS_PORT_NO_NONE
         VTSS_RC(jr2_afi_port_link_up(vtss_state, VTSS_PORT_NO_NONE));
         break;
 
-    case VTSS_INIT_CMD_POLL:
-        break;
+    case VTSS_INIT_CMD_POLL: break;
 
-    default:
-        break;
+    default: break;
     }
 
     return VTSS_RC_OK;
 }
 
-#endif /* defined(VTSS_AFI_V2) && defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_ARCH_JAGUAR_2) */
-
+#endif /* defined(VTSS_AFI_V2) && defined(VTSS_FEATURE_AFI_SWC) &&             \
+          defined(VTSS_ARCH_JAGUAR_2) */

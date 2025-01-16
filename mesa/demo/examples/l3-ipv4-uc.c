@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -32,7 +31,7 @@ static int ipv4_uc_init(int argc, const char *argv[])
     mesa_routing_entry_t  route;
     mesa_l3_neighbour_t   nbr;
     int                   i;
-    
+
     EXAMPLE_BARRIER(argc);
 
     if (mesa_capability(NULL, MESA_CAP_L3) == 0) {
@@ -98,7 +97,7 @@ static int ipv4_uc_init(int argc, const char *argv[])
     route.vlan = state.vid_a;
     RC(mesa_l3_route_add(NULL, &route));
     state.route[state.rt_cnt++] = route;
-    
+
     // Add direct route to network 2.2.2.0/24 via VID_B
     route.type = MESA_ROUTING_ENTRY_TYPE_IPV4_UC;
     route.route.ipv4_uc.network.address = 0x02020200;
@@ -144,7 +143,7 @@ static int ipv4_uc_init(int argc, const char *argv[])
     }
     RC(mesa_l3_neighbour_add(NULL, &nbr));
     state.nbr[state.nbr_cnt++] = nbr;
-    
+
     // Add neighbour entry for host 2.2.2.2
     nbr.dip.type = MESA_IP_TYPE_IPV4;
     nbr.dip.addr.ipv4 = 0x02020202;
@@ -154,7 +153,7 @@ static int ipv4_uc_init(int argc, const char *argv[])
     }
     RC(mesa_l3_neighbour_add(NULL, &nbr));
     state.nbr[state.nbr_cnt++] = nbr;
-    
+
     // Add neighbour entry for nexthop router 2.2.2.1
     nbr.dip.type = MESA_IP_TYPE_IPV4;
     nbr.dip.addr.ipv4 = 0x02020201;
@@ -164,14 +163,14 @@ static int ipv4_uc_init(int argc, const char *argv[])
     }
     RC(mesa_l3_neighbour_add(NULL, &nbr));
     state.nbr[state.nbr_cnt++] = nbr;
-    
+
     return 0;
 }
 
 static void ipv4_uc_stat(const char *name, uint64_t cnt)
 {
     char buf[80];
-    
+
     sprintf(buf, "%s:", name);
     cli_printf("%-19s%19llu\n", buf, cnt);
 }
@@ -181,9 +180,9 @@ static int ipv4_uc_run(int argc, const char *argv[])
     mesa_l3_counters_t c;
     mesa_vid_t         vid;
     int                i;
-    
+
     EXAMPLE_BARRIER(argc);
-    
+
     for (i = 0; i < 2; i++) {
         vid = (i ? state.vid_b : state.vid_a);
         RC(mesa_l3_counters_rleg_get(NULL, vid, &c));
@@ -202,7 +201,7 @@ static int ipv4_uc_uninit(void)
 {
     mesa_port_list_t port_list;
     int              i;
-    
+
     // Restore VLAN configuration
     RC(mesa_vlan_port_conf_set(NULL, state.iport, &state.vlan_conf));
     RC(mesa_vlan_port_conf_set(NULL, state.eport, &state.vlan_conf));
@@ -221,18 +220,15 @@ static int ipv4_uc_uninit(void)
     for (i = 0; i < state.rt_cnt; i++) {
         RC(mesa_l3_route_del(NULL, &state.route[i]));
     }
-    
+
     // Delete neighbours
     for (i = 0; i < state.nbr_cnt; i++) {
         RC(mesa_l3_neighbour_del(NULL, &state.nbr[i]));
     }
-    
+
     return 0;
 }
 
-static const char *ipv4_uc_help(void)
-{
-    return "IPv4 unicast routing example";
-}
+static const char *ipv4_uc_help(void) { return "IPv4 unicast routing example"; }
 
 EXAMPLE(ipv4_uc, ipv4_uc_init, ipv4_uc_run, ipv4_uc_uninit, ipv4_uc_help);

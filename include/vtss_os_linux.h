@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 /**
  * \file
  * \brief Linux OS API
@@ -19,18 +18,18 @@
 #include <inttypes.h>
 
 /** \brief C99 Integer types */
-typedef signed char        i8;   /**<  8-bit signed */
-typedef int16_t            i16;  /**< 16-bit signed */
-typedef int32_t            i32;  /**< 32-bit signed */
-typedef int64_t            i64;  /**< 64-bit signed */
+typedef signed char i8;  /**<  8-bit signed */
+typedef int16_t     i16; /**< 16-bit signed */
+typedef int32_t     i32; /**< 32-bit signed */
+typedef int64_t     i64; /**< 64-bit signed */
 
-typedef uint8_t            u8;   /**<  8-bit unsigned */
-typedef uint16_t           u16;  /**< 16-bit unsigned */
-typedef uint32_t           u32;  /**< 32-bit unsigned */
-typedef uint64_t           u64;  /**< 64-bit unsigned */
+typedef uint8_t  u8;  /**<  8-bit unsigned */
+typedef uint16_t u16; /**< 16-bit unsigned */
+typedef uint32_t u32; /**< 32-bit unsigned */
+typedef uint64_t u64; /**< 64-bit unsigned */
 
-typedef u8                 BOOL; /**< Boolean implemented as 8-bit unsigned */
-typedef BOOL               bool;
+typedef u8 BOOL; /**< Boolean implemented as 8-bit unsigned */
+typedef BOOL bool;
 
 /**
  * \brief VTSS_OS_BIG_ENDIAN:
@@ -41,61 +40,70 @@ typedef BOOL               bool;
 #define VTSS_OS_BIG_ENDIAN /**< We're running big endian */
 #endif
 
-#define VTSS_OS_NTOHL(x) __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
+#define VTSS_OS_NTOHL(x)                                                       \
+    __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <string.h>             /* For memset and friend (not in stdlib) */
+#include <string.h> /* For memset and friend (not in stdlib) */
 
 #include <errno.h>
 #include <time.h>
 #include <sys/time.h>
 
-#if defined(BOARD_SERVAL_VSIM)||defined(BOARD_JAGUAR2_VSIM)
+#if defined(BOARD_SERVAL_VSIM) || defined(BOARD_JAGUAR2_VSIM)
 void vsim_nsleep(u32 n);
 /** VSIM control time passing **/
 #define VTSS_NSLEEP(nsec) vsim_nsleep(nsec)
 /** Sleep for \param msec milliseconds */
-#define VTSS_MSLEEP(msec) vsim_nsleep(msec*1000000)
+#define VTSS_MSLEEP(msec) vsim_nsleep(msec * 1000000)
 #else
 /** Sleep for \param nsec nanoseconds */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_NSLEEP(nsec) {                                     \
-    struct timespec ts;                                         \
-    ts.tv_sec = 0;                                              \
-    ts.tv_nsec = nsec;                                          \
-    while(nanosleep(&ts, &ts) == -1 && errno == EINTR) {        \
-    }                                                           \
-}
+#define VTSS_NSLEEP(nsec)                                                      \
+    {                                                                          \
+        struct timespec ts;                                                    \
+        ts.tv_sec = 0;                                                         \
+        ts.tv_nsec = nsec;                                                     \
+        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                  \
+        }                                                                      \
+    }
 
 /** Sleep for \param msec milliseconds */
-#define VTSS_MSLEEP(msec) {                                     \
-    struct timespec ts;                                         \
-    ts.tv_sec = msec / 1000;                                    \
-    ts.tv_nsec = (msec % 1000) * 1000000;                       \
-    while(nanosleep(&ts, &ts) == -1 && errno == EINTR) {        \
-    }                                                           \
-}
-#endif  // _VTSS_MAIN_TYPES_H_
+#define VTSS_MSLEEP(msec)                                                      \
+    {                                                                          \
+        struct timespec ts;                                                    \
+        ts.tv_sec = msec / 1000;                                               \
+        ts.tv_nsec = (msec % 1000) * 1000000;                                  \
+        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                  \
+        }                                                                      \
+    }
+#endif // _VTSS_MAIN_TYPES_H_
 #endif /* BOARD_SERVAL_VSIM */
 
 #ifndef _VTSS_MAIN_TYPES_H_
 /** \brief Timer structure */
 typedef struct {
-    struct timeval timeout;   /**< Timeout */
-    struct timeval now;       /**< Time right now */
+    struct timeval timeout; /**< Timeout */
+    struct timeval now;     /**< Time right now */
 } vtss_mtimer_t;
 
-#define VTSS_MTIMER_START(timer,msec) { \
-    (void) gettimeofday(&((timer)->timeout),NULL);   \
-    (timer)->timeout.tv_usec+=msec*1000; \
-    if ((timer)->timeout.tv_usec>=1000000) { (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000; (timer)->timeout.tv_usec%=1000000; } \
-} /**< Start timer */
+#define VTSS_MTIMER_START(timer, msec)                                         \
+    {                                                                          \
+        (void)gettimeofday(&((timer)->timeout), NULL);                         \
+        (timer)->timeout.tv_usec += msec * 1000;                               \
+        if ((timer)->timeout.tv_usec >= 1000000) {                             \
+            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;     \
+            (timer)->timeout.tv_usec %= 1000000;                               \
+        }                                                                      \
+    } /**< Start timer */
 
-#define VTSS_MTIMER_TIMEOUT(timer) (gettimeofday(&((timer)->now),NULL)==0 && timercmp(&((timer)->now),&((timer)->timeout),>)) /**< Timer timeout */
-#endif  // _VTSS_MAIN_TYPES_H_
+#define VTSS_MTIMER_TIMEOUT(timer)                                             \
+    (gettimeofday(&((timer)->now), NULL) == 0 &&                               \
+     timercmp(&((timer)->now), &((timer)->timeout), >)) /**< Timer timeout */
+#endif                                                  // _VTSS_MAIN_TYPES_H_
 
 #define VTSS_MTIMER_CANCEL(timer) /**< No action in this implementation. */
 
@@ -104,14 +112,15 @@ typedef struct {
     time_t sec; /**< Time of day in seconds */
 } vtss_timeofday_t;
 
-#define VTSS_TIME_OF_DAY(tod) { \
-    struct timeval tve; \
-    (void)gettimeofday(&tve,NULL);  \
-    tod.sec = tve.tv_sec; \
-} /**< Time of day macro */
+#define VTSS_TIME_OF_DAY(tod)                                                  \
+    {                                                                          \
+        struct timeval tve;                                                    \
+        (void)gettimeofday(&tve, NULL);                                        \
+        tod.sec = tve.tv_sec;                                                  \
+    } /**< Time of day macro */
 
 // vtss_jaguar_1.c requires these defines. When compiling for the
-// Genie board we're not in kernel mode and the application is 
+// Genie board we're not in kernel mode and the application is
 // single-threaded, so we can live with not doing anything in these functions.
 /**
  * VTSS_OS_SCHEDULER_FLAGS
@@ -126,9 +135,15 @@ typedef struct {
  *   an option to call either the VTSS_OS_SCHEDULER_(UN)LOCK() functions
  *   or the VTSS_OS_INTERRUPT_DISABLE()/RESTORE() functions.
  */
-#define VTSS_OS_SCHEDULER_FLAGS         int
-#define VTSS_OS_SCHEDULER_LOCK(flags)   do {flags = flags;} while (0); /**< Lock scheduler */
-#define VTSS_OS_SCHEDULER_UNLOCK(flags) do {flags = flags;} while (0); /**< Unlock scheduler */
+#define VTSS_OS_SCHEDULER_FLAGS int
+#define VTSS_OS_SCHEDULER_LOCK(flags)                                          \
+    do {                                                                       \
+        flags = flags;                                                         \
+    } while (0); /**< Lock scheduler */
+#define VTSS_OS_SCHEDULER_UNLOCK(flags)                                        \
+    do {                                                                       \
+        flags = flags;                                                         \
+    } while (0); /**< Unlock scheduler */
 
 /**
  * VTSS_DIV64 - perform 64/32 bit division yelding 32 bit (at least) output
@@ -141,31 +156,33 @@ typedef struct {
 /**
  * VTSS_LABS - perform abs() on long
  */
-#define VTSS_LABS(arg)                labs(arg)
+#define VTSS_LABS(arg) labs(arg)
 
 /**
  * VTSS_LLABS - perform abs() on long long
  */
-#define VTSS_LLABS(arg)               llabs(arg)
+#define VTSS_LLABS(arg) llabs(arg)
 
 #else
 
 /* __KERNEL__ */
 
 #include <linux/stddef.h>
-#include <linux/types.h>        /* ulong and friends */
+#include <linux/types.h> /* ulong and friends */
 #include <linux/ctype.h>
 #include <linux/string.h>
-#include <linux/slab.h>         /* for kmalloc/kfree */
-#include <linux/vmalloc.h>      /* for vmalloc/vfree */
+#include <linux/slab.h>    /* for kmalloc/kfree */
+#include <linux/vmalloc.h> /* for vmalloc/vfree */
 #include <linux/mm.h>
 #include <linux/delay.h>
 #include <linux/time.h>
 #include <linux/math64.h>
 
-#define VTSS_OS_NTOHL(x) __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
+#define VTSS_OS_NTOHL(x)                                                       \
+    __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
 
-#define VTSS_HAVE_U_TYPES       /* Namespace coexistance - use the ones from the kernel */
+#define VTSS_HAVE_U_TYPES    /* Namespace coexistance - use the ones from the  \
+                                kernel */
 
 typedef struct {
     struct timeval timeout;
@@ -175,21 +192,22 @@ typedef struct {
 #define VTSS_NSLEEP(nsec) ndelay(nsec) /**< Sleep for "msec" milliseconds */
 #define VTSS_MSLEEP(msec) mdelay(msec) /**< Sleep for "nsec" nanoseconds  */
 
-#define VTSS_MTIMER_START(timer,msec) {                                 \
-        (void) do_gettimeofday(&((timer)->timeout));                     \
-        (timer)->timeout.tv_usec+=msec*1000;                            \
-        if ((timer)->timeout.tv_usec>=1000000) {                        \
-            (timer)->timeout.tv_sec+=(timer)->timeout.tv_usec/1000000;  \
-            (timer)->timeout.tv_usec%=1000000;                          \
-        }                                                               \
+#define VTSS_MTIMER_START(timer, msec)                                         \
+    {                                                                          \
+        (void)do_gettimeofday(&((timer)->timeout));                            \
+        (timer)->timeout.tv_usec += msec * 1000;                               \
+        if ((timer)->timeout.tv_usec >= 1000000) {                             \
+            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;     \
+            (timer)->timeout.tv_usec %= 1000000;                               \
+        }                                                                      \
     }
 
 static __always_inline int vtss_mtimer_timeout(vtss_mtimer_t *t)
 {
     do_gettimeofday(&t->now);
-    if(timeval_compare(&t->now, &t->timeout) > 0)
+    if (timeval_compare(&t->now, &t->timeout) > 0)
         return true;
-    udelay(1);                  /* Be nice */
+    udelay(1); /* Be nice */
     return false;
 }
 
@@ -201,20 +219,19 @@ static __always_inline int vtss_mtimer_timeout(vtss_mtimer_t *t)
 
 static inline u32 vtss_mod64(u64 div, u32 base)
 {
-    return do_div(div, base);   /* Remainder *returned* by do_div */
+    return do_div(div, base); /* Remainder *returned* by do_div */
 }
 
 #define VTSS_MOD64 vtss_mod64
 
-#define VTSS_LABS(arg)                __builtin_labs(arg)
+#define VTSS_LABS(arg) __builtin_labs(arg)
 
-static __always_inline long long
-vtss_llabs(long long j)
+static __always_inline long long vtss_llabs(long long j)
 {
     return (j < 0 ? -j : j);
 }
 
-#define VTSS_LLABS(arg)               vtss_llabs(arg)
+#define VTSS_LLABS(arg) vtss_llabs(arg)
 
 /******************************************************************************/
 // PLATFORM SECTION
@@ -241,9 +258,9 @@ vtss_llabs(long long j)
  *   an option to call either the VTSS_OS_SCHEDULER_(UN)LOCK() functions
  *   or the VTSS_OS_INTERRUPT_DISABLE()/RESTORE() functions.
  */
-#define VTSS_OS_SCHEDULER_FLAGS         unsigned long
-#define VTSS_OS_SCHEDULER_LOCK(flags)   local_irq_save(flags)
-#define VTSS_OS_SCHEDULER_UNLOCK(flags) local_irq_restore(flags)
+#define VTSS_OS_SCHEDULER_FLAGS          unsigned long
+#define VTSS_OS_SCHEDULER_LOCK(flags)    local_irq_save(flags)
+#define VTSS_OS_SCHEDULER_UNLOCK(flags)  local_irq_restore(flags)
 
 /*
  * VTSS_OS_INTERRUPT_FLAGS
@@ -273,19 +290,21 @@ vtss_llabs(long long j)
  * Requirements/examples:
  *   VTSS_OS_CTZ(0x00000001) =  0
  *   VTSS_OS_CTZ(0x80000000) = 31
- *   VTSS_OS_CTZ(0x00000000) >= 32 (if result is taken as unsigned; Most implementations return -1, and (u32)(-1) >= 32).
+ *   VTSS_OS_CTZ(0x00000000) >= 32 (if result is taken as unsigned; Most
+ * implementations return -1, and (u32)(-1) >= 32).
  *
  * \param val32 The value to decode
  *
  * \return Number of trailing zeroes - or - the bit index of the
  * lowest bit set in the input given.
- * 
+ *
  * \note __builtin_ctz() is included in GCC 3.2.2 and later according
  * to http://en.wikipedia.org/wiki/Find_first_set.
  *
  * Note: __builtin_ctzl() is undefined for zero input values.
  */
-#define VTSS_OS_CTZ(val32) ((val32) == 0 ? 32 : __builtin_ctzl((unsigned long)val32))
+#define VTSS_OS_CTZ(val32)                                                     \
+    ((val32) == 0 ? 32 : __builtin_ctzl((unsigned long)val32))
 
 /**
  * Count trailing zeros of a 64-bit unsigned.
@@ -294,20 +313,23 @@ vtss_llabs(long long j)
  *   VTSS_OS_CTZ64(0x00000000_80000000) = 31
  *   VTSS_OS_CTZ64(0x00000001_00000000) = 32
  *   VTSS_OS_CTZ64(0x80000000_00000000) = 63
- *   VTSS_OS_CTZ64(0x00000000_00000000) >= 64 (if result is taken as unsigned; Most implementations return -1, and (u32)(-1) >= 64).
+ *   VTSS_OS_CTZ64(0x00000000_00000000) >= 64 (if result is taken as unsigned;
+ * Most implementations return -1, and (u32)(-1) >= 64).
  */
-#define VTSS_OS_CTZ64(val64) ({                            \
-    u32 _r = VTSS_OS_CTZ((u32)(val64));                    \
-    (val64) == 0 ? 64 :                                    \
-    _r < 32 ? _r : 32 + VTSS_OS_CTZ((u32)((val64) >> 32)); \
-})
+#define VTSS_OS_CTZ64(val64)                                                   \
+    ({                                                                         \
+        u32 _r = VTSS_OS_CTZ((u32)(val64));                                    \
+        (val64) == 0 ? 64                                                      \
+        : _r < 32    ? _r                                                      \
+                     : 32 + VTSS_OS_CTZ((u32)((val64) >> 32));                    \
+    })
 
 #if defined(VTSS_NO_CTZL) || (defined(__GNUC__) && __GNUC__ < 3)
 static inline int __builtin_ctzl(unsigned long val32)
 {
 #if defined(CONFIG_CPU_MIPSR2) || defined(CONFIG_CPU_MIPS64)
     unsigned int obits;
-    __asm__("clz %0, %1" : "=r" (obits) : "r" (val32));
+    __asm__("clz %0, %1" : "=r"(obits) : "r"(val32));
     return 31 - obits;
 #else
     unsigned int i, mask = 1;
@@ -336,7 +358,6 @@ static inline int __builtin_ctzl(unsigned long val32)
  */
 #ifdef __KERNEL__
 #define VTSS_OS_MALLOC(size, flags) vmalloc(size)
-
 
 #else
 #define VTSS_OS_MALLOC(size, flags) malloc(size)
@@ -369,10 +390,10 @@ static inline int __builtin_ctzl(unsigned long val32)
 #define VTSS_MEMCMP(s, c, n) memcmp(s, c, n)
 #define VTSS_MEMCPY(s, c, n) memcpy(s, c, n)
 
-#define VTSS_STRLEN(s) strlen(s)
+#define VTSS_STRLEN(s)      strlen(s)
 #define VTSS_STRCPY(sd, ss) strcpy(sd, ss)
-#define VTSS_SPRINTF(...) sprintf(__VA_ARGS__)
-#define VTSS_SNPRINTF(...) snprintf(__VA_ARGS__)
+#define VTSS_SPRINTF(...)   sprintf(__VA_ARGS__)
+#define VTSS_SNPRINTF(...)  snprintf(__VA_ARGS__)
 
 #define VTSS_TOUPPER(arg) (toupper(arg))
 #define VTSS_TOLOWER(arg) (toupper(arg))
@@ -381,4 +402,3 @@ static inline int __builtin_ctzl(unsigned long val32)
 #define VTSS_PROF_EXIT(id, sub)
 
 #endif /* _VTSS_OS_LINUX_H_ */
-

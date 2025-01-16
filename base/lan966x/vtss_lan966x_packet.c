@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_PACKET
 #include "vtss_lan966x_cil.h"
 
@@ -18,8 +17,8 @@
 static vtss_rc lan966x_npi_mask_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t *conf = &vtss_state->packet.rx_conf;
-    vtss_port_no_t        port_no = vtss_state->packet.npi_conf.port_no;
-    u32                   val = 0, qmask, i;
+    vtss_port_no_t         port_no = vtss_state->packet.npi_conf.port_no;
+    u32                    val = 0, qmask, i;
 
     val = QSYS_EXT_CPU_CFG_EXT_CPU_KILL_ENA(1) |
           QSYS_EXT_CPU_CFG_INT_CPU_KILL_ENA(1);
@@ -30,17 +29,18 @@ static vtss_rc lan966x_npi_mask_set(vtss_state_t *vtss_state)
             }
         }
         val |= (QSYS_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(port_no)) |
-               QSYS_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask));
+                QSYS_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask));
     }
     REG_WR(QSYS_EXT_CPU_CFG, val);
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+static vtss_rc lan966x_npi_conf_set(vtss_state_t *vtss_state,
+                                    const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
-    u32             val = (SYS_PORT_MODE_INCL_INJ_HDR(3) | SYS_PORT_MODE_INCL_XTR_HDR(3));
-    u32             msk = (SYS_PORT_MODE_INCL_INJ_HDR_M | SYS_PORT_MODE_INCL_XTR_HDR_M);
+    u32 val = (SYS_PORT_MODE_INCL_INJ_HDR(3) | SYS_PORT_MODE_INCL_XTR_HDR(3));
+    u32 msk = (SYS_PORT_MODE_INCL_INJ_HDR_M | SYS_PORT_MODE_INCL_XTR_HDR_M);
 
     // Disable current NPI port
     if (conf->enable) {
@@ -56,7 +56,9 @@ static vtss_rc lan966x_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_con
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
+static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
+                                                u32           phy_cnt,
+                                                u64          *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -64,16 +66,17 @@ static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 ph
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t  *vtss_state,
-                                           u32            frame_ns,
-                                           u64            *ts_cnt)
+static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
+                                           u32           frame_ns,
+                                           u64          *ts_cnt)
 {
 #if defined(VTSS_FEATURE_TIMESTAMP)
     vtss_timestamp_t ts;
     u64              tc;
     u32              tod_ns, diff;
 
-    /* The frame_ns parameter is a one mia (one second) wrapping nano second counter, extracted from the received packet (inserted by the PHY) */
+    /* The frame_ns parameter is a one mia (one second) wrapping nano second
+     * counter, extracted from the received packet (inserted by the PHY) */
 
     while (frame_ns >= VTSS_ONE_MIA) {
         /* skip sec part */
@@ -148,7 +151,7 @@ static u32 lan966x_cpu_fwd_mask_get(vtss_packet_reg_type_t type, BOOL redir, u32
     }
 
     if (type == VTSS_PACKET_REG_CPU_ONLY) {
-         /* Set REDIR bit */
+        /* Set REDIR bit */
         mask = VTSS_BIT(i);
     } else if (type == VTSS_PACKET_REG_DISCARD) {
         /* Set DROP bit */
@@ -202,12 +205,13 @@ static void lan966x_ifh_set(u8 *ifh, u32 pos, u32 len, u32 val)
     }
 }
 
-#define IFH_GET(ifh, fld)      lan966x_ifh_get(ifh, IFH_POS_##fld, IFH_WID_##fld)
-#define IFH_SET(iff, fld, val) lan966x_ifh_set(ifh, IFH_POS_##fld, IFH_WID_##fld, val)
+#define IFH_GET(ifh, fld) lan966x_ifh_get(ifh, IFH_POS_##fld, IFH_WID_##fld)
+#define IFH_SET(iff, fld, val)                                                 \
+    lan966x_ifh_set(ifh, IFH_POS_##fld, IFH_WID_##fld, val)
 
-static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
+static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t *const          state,
                                      const vtss_packet_rx_meta_t *const meta,
-                                     const u8                           ifh[VTSS_PACKET_HDR_SIZE_BYTES],
+                                     const u8 ifh[VTSS_PACKET_HDR_SIZE_BYTES],
                                      vtss_packet_rx_info_t *const info)
 {
     u32 port, tci;
@@ -228,7 +232,8 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     info->tag.pcp = VTSS_EXTRACT_BITFIELD(tci, 13, 3);
     info->tag.dei = VTSS_EXTRACT_BITFIELD(tci, 12, 1);
     info->tag.vid = VTSS_EXTRACT_BITFIELD(tci, 0, 12);
-    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET, meta->etype, info));
+    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET,
+                                         meta->etype, info));
 
     // CPU queue, priority, ACL hit
     info->xtr_qu_mask = IFH_GET(ifh, CPUQ);
@@ -243,10 +248,10 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
     // sFlow ID
     port = IFH_GET(ifh, SFLOW_ID);
     if (port == (VTSS_CHIP_PORTS + 1)) {
-        info->sflow_type    = VTSS_SFLOW_TYPE_RX;
+        info->sflow_type = VTSS_SFLOW_TYPE_RX;
         info->sflow_port_no = info->port_no;
     } else if (port < VTSS_CHIP_PORTS) {
-        info->sflow_type    = VTSS_SFLOW_TYPE_TX;
+        info->sflow_type = VTSS_SFLOW_TYPE_TX;
         info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, port);
     }
 
@@ -259,15 +264,15 @@ static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t          *const state,
 static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
 {
     switch (info->oam_type) {
-    case VTSS_PACKET_OAM_TYPE_NONE:       break;  // Do nothing
-    case VTSS_PACKET_OAM_TYPE_CCM:        return 1;
-    case VTSS_PACKET_OAM_TYPE_MRP_TST:    return 2;
-    case VTSS_PACKET_OAM_TYPE_MRP_ITST:   return 3;
-    case VTSS_PACKET_OAM_TYPE_DLR_BCN:    return 4;
-    case VTSS_PACKET_OAM_TYPE_DLR_ADV:    return 5;
-    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1:  return 0;  // Not supported
-    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2:  return 0;  // Not supported
-    default:                              return 9;  // Y1731_NON_CCM
+    case VTSS_PACKET_OAM_TYPE_NONE:      break; // Do nothing
+    case VTSS_PACKET_OAM_TYPE_CCM:       return 1;
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:   return 2;
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST:  return 3;
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:   return 4;
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:   return 5;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1: return 0; // Not supported
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2: return 0; // Not supported
+    default:                             return 9;                             // Y1731_NON_CCM
     }
 
     if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
@@ -286,30 +291,33 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
 static u32 seq_num_oam_calc(vtss_packet_oam_type_t oam_type, u32 chip_port)
 {
     switch (oam_type) {
-    case VTSS_PACKET_OAM_TYPE_CCM:      return chip_port;   /* VOP sequence numbers */
+    case VTSS_PACKET_OAM_TYPE_CCM: return chip_port; /* VOP sequence numbers */
     case VTSS_PACKET_OAM_TYPE_DLR_BCN:
-    case VTSS_PACKET_OAM_TYPE_DLR_ADV:  return VTSS_VOE_CNT + chip_port;   /* DLR sequence numbers */
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:
+        return VTSS_VOE_CNT + chip_port; /* DLR sequence numbers */
     case VTSS_PACKET_OAM_TYPE_MRP_TST:
-    case VTSS_PACKET_OAM_TYPE_MRP_ITST: return (VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + chip_port;   /* MRP sequence numbers */
-    default:
-        VTSS_E("Invalid oam_type (%u)", oam_type);
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST:
+        return (VTSS_VOE_CNT * 2) + (VTSS_VOE_CNT * 2) +
+               chip_port; /* MRP sequence numbers */
+    default: VTSS_E("Invalid oam_type (%u)", oam_type);
     }
     return 0;
 }
 #endif
 
-static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
+static vtss_rc lan966x_tx_hdr_encode(vtss_state_t *const                state,
                                      const vtss_packet_tx_info_t *const info,
-                                     u8                    *const ifh,
-                                     u32                   *const ifh_len)
+                                     u8 *const                          ifh,
+                                     u32 *const                         ifh_len)
 {
     vtss_port_no_t port_no;
-    u32            mi_port, port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, etype_ofs;
+    u32 mi_port, port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos,
+                                 etype_ofs;
     bool miroring = FALSE;
 #if defined(VTSS_FEATURE_VOP)
-    u32            seq_num_chip_port = 0;
+    u32 seq_num_chip_port = 0;
 #endif
-        const vtss_vlan_tag_t *tag = &info->tag;
+    const vtss_vlan_tag_t *tag = &info->tag;
 
     if (ifh == NULL) {
         *ifh_len = LAN966X_IFH_SIZE;
@@ -318,8 +326,10 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         return VTSS_RC_ERROR;
     }
 
-    if ((info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) && (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE)) {
-        VTSS_E("Invalid PDU type indication oam_type %u  ptp_action %u", info->oam_type, info->ptp_action);
+    if ((info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) &&
+        (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE)) {
+        VTSS_E("Invalid PDU type indication oam_type %u  ptp_action %u",
+               info->oam_type, info->ptp_action);
         return VTSS_RC_ERROR;
     }
 
@@ -360,35 +370,31 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
 #endif
                 mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, port_no));
 
-                if ((mi_port < state->port_count) && state->l2.mirror_egress[port_no]) {
+                if ((mi_port < state->port_count) &&
+                    state->l2.mirror_egress[port_no]) {
                     // Egress mirroring on a destination port is enabled
                     miroring = TRUE;
                 }
             }
         }
-        if (miroring && state->l2.port_state[mi_port]) { // Mirroring is requested and the link is up
-            mask |= VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state, mi_port)); // Include monitor port
+        if (miroring &&
+            state->l2.port_state[mi_port]) { // Mirroring is requested and the
+                                             // link is up
+            mask |=
+                VTSS_BIT(VTSS_CHIP_PORT_FROM_STATE(state,
+                                                   mi_port)); // Include monitor
+                                                              // port
         }
 
         IFH_SET(ifh, DSTS, mask);
 
         // PTP rewrite operations
         switch (info->ptp_action) {
-        case VTSS_PACKET_PTP_ACTION_ONE_STEP:
-            rew_cmd = 1;
-            break;
-        case VTSS_PACKET_PTP_ACTION_TWO_STEP:
-            rew_cmd = 4;
-            break;
-        case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP:
-            rew_cmd = 3;
-            break;
-        case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ:
-            rew_cmd = 7;
-            break;
-        case VTSS_PACKET_PTP_ACTION_AFI_NONE:
-            rew_cmd = 12;
-            break;
+        case VTSS_PACKET_PTP_ACTION_ONE_STEP:             rew_cmd = 1; break;
+        case VTSS_PACKET_PTP_ACTION_TWO_STEP:             rew_cmd = 4; break;
+        case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP:     rew_cmd = 3; break;
+        case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ: rew_cmd = 7; break;
+        case VTSS_PACKET_PTP_ACTION_AFI_NONE:             rew_cmd = 12; break;
         default:
             if (tag->tpid != 0 || tag->vid == VTSS_VID_NULL) {
                 // Disable rewriter
@@ -415,9 +421,14 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
 #if defined(VTSS_FEATURE_VOP)
         if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             IFH_SET(ifh, REW_OAM, 1);
-            IFH_SET(ifh, SEQ_NUM, seq_num_oam_calc(info->oam_type, seq_num_chip_port)); /* Point to the sequence number update configuration */
+            IFH_SET(ifh, SEQ_NUM,
+                    seq_num_oam_calc(info->oam_type,
+                                     seq_num_chip_port)); /* Point to the
+                                                             sequence number
+                                                             update configuration
+                                                           */
 
-            if (info->oam_type == VTSS_PACKET_OAM_TYPE_CCM     ||
+            if (info->oam_type == VTSS_PACKET_OAM_TYPE_CCM ||
                 info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_TST ||
                 info->oam_type == VTSS_PACKET_OAM_TYPE_MRP_ITST) {
                 // Don't set "do not rewrite", because then some fields of the
@@ -425,12 +436,18 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
                 pop_cnt = 0;
             }
         } else {
-            if ((info->ptp_action == VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ) ||
+            if ((info->ptp_action ==
+                 VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ) ||
                 (info->ptp_action == VTSS_PACKET_PTP_ACTION_AFI_NONE)) {
-                /* The VOP and DLR requires a 32 bit counter. MRP and PT requires 16 bit sequence number */
+                /* The VOP and DLR requires a 32 bit counter. MRP and PT
+                 * requires 16 bit sequence number */
                 /* The PTP sequence numbers are last after VOP, DLR and MRP */
-                /* In case of PTP frame the SEQ_NUM field is indexing every 16 bit field in the PTP_SEQ_NO configuration - see VML */
-                IFH_SET(ifh, SEQ_NUM, ((VTSS_VOE_CNT*2) + (VTSS_VOE_CNT*2) + VTSS_VOE_CNT) + info->sequence_idx);
+                /* In case of PTP frame the SEQ_NUM field is indexing every 16
+                 * bit field in the PTP_SEQ_NO configuration - see VML */
+                IFH_SET(ifh, SEQ_NUM,
+                        ((VTSS_VOE_CNT * 2) + (VTSS_VOE_CNT * 2) +
+                         VTSS_VOE_CNT) +
+                            info->sequence_idx);
             }
         }
 #endif
@@ -453,7 +470,9 @@ static vtss_rc lan966x_tx_hdr_encode(vtss_state_t          *const state,
         tci = ((tci << 16) | (tag->pcp << 13) | (tag->dei << 12) | tag->vid);
         IFH_SET(ifh, TCI, tci);
     }
-    IFH_SET(ifh, TIMESTAMP, ((info->ptp_timestamp>>14) & 0xFFFFFFFFFF)); // TS = 32 bits PTP time stamp. Two bits sub nano
+    IFH_SET(ifh, TIMESTAMP,
+            ((info->ptp_timestamp >> 14) &
+             0xFFFFFFFFFF)); // TS = 32 bits PTP time stamp. Two bits sub nano
 
     IFH_SET(ifh, POP_CNT, pop_cnt);
     return VTSS_RC_OK;
@@ -472,14 +491,11 @@ static vtss_rc lan966x_packet_mode_update(vtss_state_t *vtss_state)
         /* Change mode to manual extraction and injection */
         vtss_state->packet.manual_mode = 1;
         REG_WR(QS_XTR_GRP_CFG(0),
-               QS_XTR_GRP_CFG_MODE(1) |
-               QS_XTR_GRP_CFG_BYTE_SWAP(byte_swap));
+               QS_XTR_GRP_CFG_MODE(1) | QS_XTR_GRP_CFG_BYTE_SWAP(byte_swap));
         REG_WR(QS_INJ_GRP_CFG(0),
-               QS_INJ_GRP_CFG_MODE(1) |
-               QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
+               QS_INJ_GRP_CFG_MODE(1) | QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
         REG_WR(SYS_PORT_MODE(VTSS_CHIP_PORT_CPU_0),
-               SYS_PORT_MODE_INCL_XTR_HDR(1) |
-               SYS_PORT_MODE_INCL_INJ_HDR(1));
+               SYS_PORT_MODE_INCL_XTR_HDR(1) | SYS_PORT_MODE_INCL_INJ_HDR(1));
     }
     return VTSS_RC_OK;
 }
@@ -506,14 +522,15 @@ static vtss_rc lan966x_packet_mode_update(vtss_state_t *vtss_state)
 #define XTR_VALID_BYTES(x) (4 - (((x) >> 24) & 3))
 #endif
 
-static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss_packet_rx_grp_t xtr_grp)
+static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t *vtss_state,
+                                            const vtss_packet_rx_grp_t xtr_grp)
 {
     BOOL done = FALSE;
 
     while (!done) {
         u32 val;
         REG_RD(QS_XTR_RD(xtr_grp), &val);
-        switch(val) {
+        switch (val) {
         case XTR_ABORT:
         case XTR_PRUNED:
         case XTR_EOF_3:
@@ -521,14 +538,13 @@ static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss
         case XTR_EOF_1:
         case XTR_EOF_0:
             REG_RD(QS_XTR_RD(xtr_grp), &val); /* Last data */
-            done = TRUE;        /* Last 1-4 bytes */
+            done = TRUE;                      /* Last 1-4 bytes */
             break;
         case XTR_ESCAPE:
             REG_RD(QS_XTR_RD(xtr_grp), &val); /* Escaped data */
             break;
         case XTR_NOT_READY:
-        default:
-          break;
+        default:            break;
         }
     }
     return VTSS_RC_OK;
@@ -537,20 +553,24 @@ static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss
 /**
  * Return values:
  *  0 = Data OK.
- *  1 = EOF reached. Data OK. bytes_valid indicates the number of valid bytes in last word ([1; 4]).
- *  2 = Error. No data from queue system.
+ *  1 = EOF reached. Data OK. bytes_valid indicates the number of valid bytes in
+ * last word ([1; 4]). 2 = Error. No data from queue system.
  */
-static int lan966x_rx_frame_word(vtss_state_t *vtss_state,
-                                 vtss_packet_rx_grp_t grp, BOOL first_word, u32 *rval, u32 *bytes_valid)
+static int lan966x_rx_frame_word(vtss_state_t        *vtss_state,
+                                 vtss_packet_rx_grp_t grp,
+                                 BOOL                 first_word,
+                                 u32                 *rval,
+                                 u32                 *bytes_valid)
 {
     u32 val;
 
     REG_RD(QS_XTR_RD(grp), &val);
     if (val == XTR_NOT_READY) {
-        /** XTR_NOT_READY means two different things depending on whether this is the first
-         * word read of a frame or after at least one word has been read.
-         * When the first word, the group is empty, and we return an error.
-         * Otherwise we have to wait for the FIFO to have received some more data. */
+        /** XTR_NOT_READY means two different things depending on whether this
+         * is the first word read of a frame or after at least one word has been
+         * read. When the first word, the group is empty, and we return an
+         * error. Otherwise we have to wait for the FIFO to have received some
+         * more data. */
         if (first_word) {
             return 2; /* Error */
         }
@@ -559,7 +579,7 @@ static int lan966x_rx_frame_word(vtss_state_t *vtss_state,
         } while (val == XTR_NOT_READY);
     }
 
-    switch(val) {
+    switch (val) {
     case XTR_ABORT:
         /* No accompanying data. */
         VTSS_E("Aborted frame");
@@ -588,23 +608,24 @@ static int lan966x_rx_frame_word(vtss_state_t *vtss_state,
     }
 }
 
-static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t           *vtss_state,
-                                             vtss_packet_rx_grp_t   grp,
-                                             u32                    *const ifh,
-                                             u8                     *const frame,
-                                             const u32              buf_length,
-                                             u32                    *frm_length) /* Including FCS */
+static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t        *vtss_state,
+                                             vtss_packet_rx_grp_t grp,
+                                             u32 *const           ifh,
+                                             u8 *const            frame,
+                                             const u32            buf_length,
+                                             u32 *frm_length) /* Including FCS */
 {
     u32  i, val, bytes_got, bytes_valid, buf_len = buf_length;
     BOOL done = 0;
-    u8   *buf;
+    u8  *buf;
     int  result;
 
     *frm_length = bytes_got = 0;
 
     /* Read IFH */
     for (i = 0; i < LAN966X_IFH_WORDS; i++) {
-        if (lan966x_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) != 0) {
+        if (lan966x_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) !=
+            0) {
             /* We accept neither EOF nor ERROR when reading the IFH */
             return VTSS_RC_ERROR;
         }
@@ -615,7 +636,8 @@ static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t           *vtss_state,
 
     /* Read the rest of the frame */
     while (!done && buf_len >= 4) {
-        result = lan966x_rx_frame_word(vtss_state, grp, FALSE, &val, &bytes_valid);
+        result =
+            lan966x_rx_frame_word(vtss_state, grp, FALSE, &val, &bytes_valid);
         if (result == 2) {
             // Error.
             return VTSS_RC_ERROR;
@@ -625,11 +647,11 @@ static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t           *vtss_state,
 #ifdef VTSS_OS_BIG_ENDIAN
         *buf++ = (u8)(val >> 24);
         *buf++ = (u8)(val >> 16);
-        *buf++ = (u8)(val >>  8);
-        *buf++ = (u8)(val >>  0);
+        *buf++ = (u8)(val >> 8);
+        *buf++ = (u8)(val >> 0);
 #else
-        *buf++ = (u8)(val >>  0);
-        *buf++ = (u8)(val >>  8);
+        *buf++ = (u8)(val >> 0);
+        *buf++ = (u8)(val >> 8);
         *buf++ = (u8)(val >> 16);
         *buf++ = (u8)(val >> 24);
 #endif
@@ -654,9 +676,9 @@ static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_rx_frame(struct vtss_state_s  *vtss_state,
-                                u8                   *const data,
-                                const u32             buflen,
+static vtss_rc lan966x_rx_frame(struct vtss_state_s   *vtss_state,
+                                u8 *const              data,
+                                const u32              buflen,
                                 vtss_packet_rx_info_t *rx_info)
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
@@ -667,14 +689,15 @@ static vtss_rc lan966x_rx_frame(struct vtss_state_s  *vtss_state,
     /* Check if data is ready for grp */
     REG_RD(QS_XTR_DATA_PRESENT, &val);
     if (val) {
-        u32 ifh[LAN966X_IFH_WORDS];
-        u32 length;
-        vtss_packet_rx_grp_t grp = VTSS_OS_CTZ(val);
-        u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES];
+        u32                   ifh[LAN966X_IFH_WORDS];
+        u32                   length;
+        vtss_packet_rx_grp_t  grp = VTSS_OS_CTZ(val);
+        u8                    xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES];
         vtss_packet_rx_meta_t meta;
 
         /* Get frame, separate IFH and frame data */
-        VTSS_RC(lan966x_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
+        VTSS_RC(lan966x_rx_frame_get_internal(vtss_state, grp, ifh, data,
+                                              buflen, &length));
 
         /* IFH is done separately because of alignment needs */
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
@@ -704,11 +727,11 @@ static vtss_rc lan966x_inj_wr(vtss_state_t *vtss_state, u32 data)
 
 static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
                                     const vtss_packet_tx_ifh_t *const ifh,
-                                    const u8 *const frame,
-                                    const u32 length)
+                                    const u8 *const                   frame,
+                                    const u32                         length)
 {
-    u32 val, w, count, last;
-    const u8 *buf = frame;
+    u32                  val, w, count, last;
+    const u8            *buf = frame;
     vtss_packet_tx_grp_t grp = 0;
 
     VTSS_RC(lan966x_packet_mode_update(vtss_state));
@@ -737,7 +760,7 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
     }
 
     /* Write words, round up */
-    count = ((length+3) / 4);
+    count = ((length + 3) / 4);
     last = length % 4;
     for (w = 0; w < count; w++, buf += 4) {
 #ifdef VTSS_OS_BIG_ENDIAN
@@ -755,10 +778,9 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t *vtss_state,
     }
 
     /* Indicate EOF and valid bytes in last word */
-    REG_WR(QS_INJ_CTRL(grp),
-           QS_INJ_CTRL_GAP_SIZE(1) |
-           QS_INJ_CTRL_VLD_BYTES(length < 60 ? 0 : last) |
-           QS_INJ_CTRL_EOF_M);
+    REG_WR(QS_INJ_CTRL(grp), QS_INJ_CTRL_GAP_SIZE(1) |
+                                 QS_INJ_CTRL_VLD_BYTES(length < 60 ? 0 : last) |
+                                 QS_INJ_CTRL_EOF_M);
 
     /* Add dummy CRC */
     VTSS_RC(lan966x_inj_wr(vtss_state, 0));
@@ -771,11 +793,12 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
     vtss_packet_rx_queue_map_t *map = &conf->map;
-    u32                        queue, i, port, bpdu, garp, wm;
-    vtss_port_no_t             port_no;
+    u32                         queue, i, port, bpdu, garp, wm;
+    vtss_port_no_t              port_no;
     vtss_packet_rx_port_conf_t *pc;
 
-    // Each CPU queue gets reserved extraction buffer space. No sharing at port or buffer level
+    // Each CPU queue gets reserved extraction buffer space. No sharing at port
+    // or buffer level
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
         // Ressource 2 (memory per destination) starts at index 512
         i = (512 + VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue);
@@ -785,23 +808,35 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
         REG_WR(QSYS_RES_CFG(i), wm);
     }
     // Nothing reserved at port level
-    REG_WR(QSYS_RES_CFG(512 + 224  + VTSS_CHIP_PORT_CPU), 0);
+    REG_WR(QSYS_RES_CFG(512 + 224 + VTSS_CHIP_PORT_CPU), 0);
 
     // Rx IPMC, BPDU and GARP registrations
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         pc = &vtss_state->packet.rx_port_conf[port_no];
         REG_WR(ANA_CPU_FWD_CFG(port),
-               ((pc->ipmc_ctrl_reg == VTSS_PACKET_REG_NORMAL && reg->ipmc_ctrl_cpu_copy) ||
-                pc->ipmc_ctrl_reg == VTSS_PACKET_REG_CPU_COPY ? ANA_CPU_FWD_CFG_IPMC_CTRL_COPY_ENA_M : 0) |
-               ((pc->igmp_reg == VTSS_PACKET_REG_NORMAL && reg->igmp_cpu_only) ||
-                pc->igmp_reg == VTSS_PACKET_REG_CPU_ONLY ? ANA_CPU_FWD_CFG_IGMP_REDIR_ENA_M : 0) |
-               ((pc->mld_reg == VTSS_PACKET_REG_NORMAL && reg->mld_cpu_only) ||
-                pc->mld_reg == VTSS_PACKET_REG_CPU_ONLY ? ANA_CPU_FWD_CFG_MLD_REDIR_ENA_M : 0));
+               ((pc->ipmc_ctrl_reg == VTSS_PACKET_REG_NORMAL &&
+                 reg->ipmc_ctrl_cpu_copy) ||
+                        pc->ipmc_ctrl_reg == VTSS_PACKET_REG_CPU_COPY
+                    ? ANA_CPU_FWD_CFG_IPMC_CTRL_COPY_ENA_M
+                    : 0) |
+                   ((pc->igmp_reg == VTSS_PACKET_REG_NORMAL &&
+                     reg->igmp_cpu_only) ||
+                            pc->igmp_reg == VTSS_PACKET_REG_CPU_ONLY
+                        ? ANA_CPU_FWD_CFG_IGMP_REDIR_ENA_M
+                        : 0) |
+                   ((pc->mld_reg == VTSS_PACKET_REG_NORMAL &&
+                     reg->mld_cpu_only) ||
+                            pc->mld_reg == VTSS_PACKET_REG_CPU_ONLY
+                        ? ANA_CPU_FWD_CFG_MLD_REDIR_ENA_M
+                        : 0));
         for (i = 0, bpdu = 0, garp = 0; i < 16; i++) {
             // Always discard Pause frames 01:80:C2:00:00:01
-            bpdu |= lan966x_cpu_fwd_mask_get(i == 1 ? VTSS_PACKET_REG_DISCARD : pc->bpdu_reg[i], reg->bpdu_cpu_only, i);
-            garp |= lan966x_cpu_fwd_mask_get(pc->garp_reg[i], reg->garp_cpu_only[i], i);
+            bpdu |= lan966x_cpu_fwd_mask_get(i == 1 ? VTSS_PACKET_REG_DISCARD
+                                                    : pc->bpdu_reg[i],
+                                             reg->bpdu_cpu_only, i);
+            garp |= lan966x_cpu_fwd_mask_get(pc->garp_reg[i],
+                                             reg->garp_cpu_only[i], i);
         }
         REG_WR(ANA_CPU_FWD_BPDU_CFG(port), bpdu);
         REG_WR(ANA_CPU_FWD_GARP_CFG(port), garp);
@@ -809,20 +844,22 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
 
     // CPU queues
     REG_WR(ANA_CPUQ_CFG,
-           ANA_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue == VTSS_PACKET_RX_QUEUE_NONE ? 0 : map->sflow_queue) |
-           ANA_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue) |
-           ANA_CPUQ_CFG_CPUQ_LRN(map->learn_queue) |
-           ANA_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue) |
-           ANA_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue) |
-           ANA_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(map->mac_vid_queue) |
-           ANA_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue) |
-           ANA_CPUQ_CFG_CPUQ_IPMC_CTRL(map->ipmc_ctrl_queue) |
-           ANA_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue) |
-           ANA_CPUQ_CFG_CPUQ_MLD(map->igmp_queue));
+           ANA_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue == VTSS_PACKET_RX_QUEUE_NONE
+                                       ? 0
+                                       : map->sflow_queue) |
+               ANA_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue) |
+               ANA_CPUQ_CFG_CPUQ_LRN(map->learn_queue) |
+               ANA_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue) |
+               ANA_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue) |
+               ANA_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(map->mac_vid_queue) |
+               ANA_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue) |
+               ANA_CPUQ_CFG_CPUQ_IPMC_CTRL(map->ipmc_ctrl_queue) |
+               ANA_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue) |
+               ANA_CPUQ_CFG_CPUQ_MLD(map->igmp_queue));
     for (i = 0; i < 16; i++) {
         REG_WR(ANA_CPUQ_8021_CFG(i),
                ANA_CPUQ_8021_CFG_CPUQ_BPDU_VAL(map->bpdu_queue) |
-               ANA_CPUQ_8021_CFG_CPUQ_GARP_VAL(map->garp_queue));
+                   ANA_CPUQ_8021_CFG_CPUQ_GARP_VAL(map->garp_queue));
     }
 
     // NPI
@@ -833,9 +870,9 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-static vtss_rc lan966x_debug_pkt(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
     u32  port, i;
     char buf[32];
@@ -844,9 +881,15 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t *vtss_state,
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "Port %u", port);
         vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPU_FWD_CFG(port)), port, "FWD_CFG");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPU_FWD_BPDU_CFG(port)), port, "BPDU_CFG");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPU_FWD_GARP_CFG(port)), port, "GARP_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(ANA_CPU_FWD_CFG(port)), port,
+                                    "FWD_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(ANA_CPU_FWD_BPDU_CFG(port)), port,
+                                    "BPDU_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(ANA_CPU_FWD_GARP_CFG(port)), port,
+                                    "GARP_CFG");
         pr("\n");
     }
 
@@ -854,25 +897,31 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t *vtss_state,
     vtss_lan966x_debug_reg_header(pr, "CPU Queues");
     vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_CPUQ_CFG), "CPUQ_CFG");
     for (i = 0; i < 16; i++) {
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_CPUQ_8021_CFG(i)), i, "CPUQ_8021_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(ANA_CPUQ_8021_CFG(i)), i,
+                                    "CPUQ_8021_CFG");
     }
     pr("\n");
 
     // NPI port
     if (vtss_state->packet.npi_conf.enable) {
         vtss_lan966x_debug_reg_header(pr, "NPI");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_EXT_CPU_CFG), "QSYS:EXT_CPU_CFG");
+        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_EXT_CPU_CFG),
+                               "QSYS:EXT_CPU_CFG");
         port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(SYS_PORT_MODE(port)), port, "SYS:PORT_MODE");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(SYS_PORT_MODE(port)), port,
+                                    "SYS:PORT_MODE");
     }
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
+vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t             *vtss_state,
                                         const vtss_debug_printf_t pr,
-                                        const vtss_debug_info_t   *const info)
+                                        const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, lan966x_debug_pkt, vtss_state, pr, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, lan966x_debug_pkt,
+                                  vtss_state, pr, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
@@ -883,10 +932,9 @@ static vtss_rc lan966x_packet_init(vtss_state_t *vtss_state)
     u32 pcp, dei, port = VTSS_CHIP_PORT_CPU;
 
     // Setup the CPU port as VLAN aware to support switching frames based on tags
-    REG_WR(ANA_VLAN_CFG(port),
-           ANA_VLAN_CFG_VLAN_AWARE_ENA_M  |
-           ANA_VLAN_CFG_VLAN_POP_CNT(1) |
-           ANA_VLAN_CFG_VLAN_VID(1));
+    REG_WR(ANA_VLAN_CFG(port), ANA_VLAN_CFG_VLAN_AWARE_ENA_M |
+                                   ANA_VLAN_CFG_VLAN_POP_CNT(1) |
+                                   ANA_VLAN_CFG_VLAN_VID(1));
 
     REG_WR(REW_PORT_CFG(port), REW_PORT_CFG_NO_REWRITE(1));
 
@@ -906,7 +954,8 @@ static vtss_rc lan966x_packet_init(vtss_state_t *vtss_state)
     // Set-up the one-to-one mapping between PCP and QoS class
     for (pcp = 0; pcp < 8; pcp++) {
         for (dei = 0; dei < 2; dei++) {
-            REG_WR(ANA_PCP_DEI_CFG(port, (8 * dei + pcp)), ANA_PCP_DEI_CFG_QOS_PCP_DEI_VAL(pcp));
+            REG_WR(ANA_PCP_DEI_CFG(port, (8 * dei + pcp)),
+                   ANA_PCP_DEI_CFG_QOS_PCP_DEI_VAL(pcp));
         }
     }
 
@@ -932,16 +981,13 @@ vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
         break;
 
-    case VTSS_INIT_CMD_INIT:
-        VTSS_RC(lan966x_packet_init(vtss_state));
-        break;
+    case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_packet_init(vtss_state)); break;
 
     case VTSS_INIT_CMD_PORT_MAP:
         VTSS_RC(lan966x_rx_conf_set(vtss_state));
         break;
 
-    default:
-        break;
+    default: break;
     }
     return VTSS_RC_OK;
 }

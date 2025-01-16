@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -19,10 +18,11 @@ static struct {
 
 static int vlan_init(int argc, const char *argv[])
 {
-    mesa_port_no_t        uport = ARGV_INT("uport", "Unaware port, VID 10");
-    mesa_port_no_t        aport = ARGV_INT("aport", "Access port, VID 20");
-    mesa_port_no_t        tport = ARGV_INT("tport", "Trunk port, VID 10 and 20");
-    mesa_port_no_t        hport = ARGV_INT("hport", "Hybrid port, VID 10 (untagged) and VID 20");
+    mesa_port_no_t uport = ARGV_INT("uport", "Unaware port, VID 10");
+    mesa_port_no_t aport = ARGV_INT("aport", "Access port, VID 20");
+    mesa_port_no_t tport = ARGV_INT("tport", "Trunk port, VID 10 and 20");
+    mesa_port_no_t hport =
+        ARGV_INT("hport", "Hybrid port, VID 10 (untagged) and VID 20");
     mesa_vlan_port_conf_t conf;
     mesa_port_list_t      port_list;
 
@@ -103,9 +103,6 @@ static int vlan_uninit(void)
     return 0;
 }
 
-static const char *vlan_help(void)
-{
-    return "Basic VLAN example";
-}
+static const char *vlan_help(void) { return "Basic VLAN example"; }
 
 EXAMPLE(vlan, vlan_init, NULL, vlan_uninit, vlan_help);

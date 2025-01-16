@@ -4,7 +4,6 @@
 #ifndef _VTSS_OCELOT__API_PLL5G_UTE
 #define _VTSS_OCELOT__API_PLL5G_UTE
 
-
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 
 /* ================================================================= *
@@ -21,98 +20,113 @@
  *                       Patrick Urban <patrick.urban@microsemi.com> or
  *                       Alexander Koch <alexander.koch@microsemi.com> or
  *                       Mark Venneboerger <mark.venneboerger@microsemi.com>
- *                     Please use Bugzilla for reporting issues or requesting enhancements:
- *                     Bugzilla: Tools->Victoria
+ *                     Please use Bugzilla for reporting issues or requesting
+ * enhancements: Bugzilla: Tools->Victoria
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
-#include <vtss/api/options.h>  // To get the ARCH define
+#include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_OCELOT)
 #include "vtss_ocelot_cil.h"
 
-
-static vtss_rc  ocelot_pll5g_register_cfg(vtss_state_t *vtss_state, vtss_pll5g_setup_struct_t *const res_struct) {
+static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
+                                         vtss_pll5g_setup_struct_t
+                                             *const res_struct)
+{
 
     vtss_rc rc = VTSS_RC_OK;
-    u32 value;
-    if( res_struct->unlock[0] == 1 ) {
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-        (res_struct->pll5g_cfg2__ena_gain_test[0] ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST : 0),
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST);
+    u32     value;
+    if (res_struct->unlock[0] == 1) {
+        SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
+                 (res_struct->pll5g_cfg2__ena_gain_test[0]
+                      ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST
+                      : 0),
+                 VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST);
 
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(res_struct->pll5g_cfg2__gain_test[0]),
-        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST);
+        SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
+                 VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(
+                     res_struct->pll5g_cfg2__gain_test[0]),
+                 VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST);
 
-    }  else {
-    if( res_struct->lock[0] == 1 ) {
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-        (res_struct->pll5g_cfg2__ena_gain_test[0] ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST : 0),
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST);
+    } else {
+        if (res_struct->lock[0] == 1) {
+            SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
+                     (res_struct->pll5g_cfg2__ena_gain_test[0]
+                          ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST
+                          : 0),
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST);
 
-    }  else {
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG4,
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(res_struct->pll5g_cfg4__ib_ctrl[0]),
-        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL);
+        } else {
+            SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG4,
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(
+                         res_struct->pll5g_cfg4__ib_ctrl[0]),
+                     VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL);
 
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
-        (res_struct->pll5g_cfg0__ena_vco_contrh[0] ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH : 0),
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH);
+            SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
+                     (res_struct->pll5g_cfg0__ena_vco_contrh[0]
+                          ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH
+                          : 0),
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH);
 
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(res_struct->pll5g_cfg0__loop_bw_res[0]),
-        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES);
+            SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(
+                         res_struct->pll5g_cfg0__loop_bw_res[0]),
+                     VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES);
 
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(res_struct->pll5g_cfg0__selbgv820[0]),
-        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820);
+            SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(
+                         res_struct->pll5g_cfg0__selbgv820[0]),
+                     VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820);
 
-    u32 i_var;
-    for (i_var=0; i_var<=9; i_var++) {
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-        (res_struct->pll5g_cfg2__disable_fsm[0] ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM : 0),
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM);
+            u32 i_var;
+            for (i_var = 0; i_var <= 9; i_var++) {
+                SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
+                         (res_struct->pll5g_cfg2__disable_fsm[0]
+                              ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM
+                              : 0),
+                         VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM);
 
-    SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-        (res_struct->pll5g_cfg2__disable_fsm[1] ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM : 0),
-        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM);
+                SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
+                         (res_struct->pll5g_cfg2__disable_fsm[1]
+                              ? VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM
+                              : 0),
+                         VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_DISABLE_FSM);
 
-    VTSS_MSLEEP(10);
+                VTSS_MSLEEP(10);
 
-    SRVL_RD(VTSS_HSIO_PLL5G_STATUS_PLL5G_STATUS1, &value);
-    value = VTSS_X_HSIO_PLL5G_STATUS_PLL5G_STATUS1_GAIN_STAT(value);
+                SRVL_RD(VTSS_HSIO_PLL5G_STATUS_PLL5G_STATUS1, &value);
+                value = VTSS_X_HSIO_PLL5G_STATUS_PLL5G_STATUS1_GAIN_STAT(value);
 
-
-    if( value >= 2 ) {
-    break;
-    } 
-
+                if (value >= 2) {
+                    break;
+                }
+            }
+            if (value < 2) {
+                VTSS_E(
+                    "Failed to initialize LCPLL as the gain was not within limits");
+            }
+        }
     }
-    if( value < 2 ) {
-    VTSS_E("Failed to initialize LCPLL as the gain was not within limits");
-    } 
-} 
-} 
-    if( res_struct->unlock[0] == 0 ) {
-    VTSS_MSLEEP(5);
+    if (res_struct->unlock[0] == 0) {
+        VTSS_MSLEEP(5);
+    }
 
-    } 
-
-
-  return rc;
+    return rc;
 }
 
-vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t *vtss_state, const vtss_pll5g_setup_args_t config) {
+vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t                 *vtss_state,
+                                const vtss_pll5g_setup_args_t config)
+{
     vtss_pll5g_setup_struct_t calc_results;
-    vtss_rc ret_val;
-    VTSS_D("This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
+    vtss_rc                   ret_val;
+    VTSS_D(
+        "This function is generated with UTE based on TAG:  UTE_release_vts_ute_tcllib_20180312_trunk_bjo");
     ret_val = vtss_calc_pll5g_setup(config, &calc_results);
-    if(ret_val == VTSS_RC_OK) {
+    if (ret_val == VTSS_RC_OK) {
         ret_val |= ocelot_pll5g_register_cfg(vtss_state, &calc_results);
     }
     return ret_val;
 }
-
 
 #endif
 #endif

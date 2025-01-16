@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -21,14 +20,14 @@ static struct {
 
 static int frer_init(int argc, const char *argv[])
 {
-    mesa_port_no_t          uport = ARGV_INT("uport", "Untagged port");
-    mesa_port_no_t          rport = ARGV_INT("rport", "R-tagged port");
-    mesa_port_no_t          cport = ARGV_INT("cport", "C-tagged port (inner R-tag)");
-    mesa_port_list_t        port_list; 
-    mesa_iflow_id_t         *iflow_id;
-    mesa_iflow_conf_t       iflow_conf; 
+    mesa_port_no_t    uport = ARGV_INT("uport", "Untagged port");
+    mesa_port_no_t    rport = ARGV_INT("rport", "R-tagged port");
+    mesa_port_no_t    cport = ARGV_INT("cport", "C-tagged port (inner R-tag)");
+    mesa_port_list_t  port_list;
+    mesa_iflow_id_t  *iflow_id;
+    mesa_iflow_conf_t iflow_conf;
     mesa_frer_stream_conf_t stream_conf;
-    mesa_frer_mstream_id_t  *mid;
+    mesa_frer_mstream_id_t *mid;
     mesa_vlan_vid_conf_t    vid_conf;
     mesa_vcl_port_conf_t    vcl_conf;
     mesa_vce_t              vce;
@@ -89,7 +88,7 @@ static int frer_init(int argc, const char *argv[])
     stream_conf.recovery = 1;
     stream_conf.alg = MESA_FRER_RECOVERY_ALG_MATCH;
     stream_conf.reset_time = 1000;
-    RC(mesa_frer_cstream_conf_set(NULL, state.cid, &stream_conf));    
+    RC(mesa_frer_cstream_conf_set(NULL, state.cid, &stream_conf));
 
     // Allocate and setup member stream from R-tagged port to untagged port
     mesa_port_list_clear(&port_list);
@@ -148,7 +147,7 @@ static int frer_init(int argc, const char *argv[])
     iflow_conf.frer.mstream_id = *mid;
     iflow_conf.cut_through_disable = 1;
     RC(mesa_iflow_conf_set(NULL, *iflow_id, &iflow_conf));
-    
+
     // Enable DMAC classification for C-tagged port
     RC(mesa_vcl_port_conf_get(NULL, cport, &vcl_conf));
     vcl_conf.dmac_dip = 1;
@@ -209,7 +208,7 @@ static int frer_init(int argc, const char *argv[])
 static void frer_stat(const char *name, uint64_t cnt)
 {
     char buf[80];
-    
+
     sprintf(buf, "%s:", name);
     cli_printf("%-19s%19llu\n", buf, cnt);
 }
@@ -235,9 +234,9 @@ static int frer_run(int argc, const char *argv[])
 
 static int frer_uninit(void)
 {
-    mesa_port_list_t port_list; 
+    mesa_port_list_t port_list;
     int              i;
-    
+
     mesa_port_list_clear(&port_list);
     RC(mesa_vlan_port_members_set(NULL, state.vid, &port_list));
     for (i = 0; i < state.iflow_cnt; i++) {
@@ -255,9 +254,6 @@ static int frer_uninit(void)
     return 0;
 }
 
-static const char *frer_help(void)
-{
-    return "FRER example\n";
-}
+static const char *frer_help(void) { return "FRER example\n"; }
 
 EXAMPLE(frer, frer_init, frer_run, frer_uninit, frer_help);

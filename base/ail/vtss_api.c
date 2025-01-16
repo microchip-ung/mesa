@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_common.h"
@@ -30,68 +29,47 @@
 vtss_inst_t vtss_default_inst = NULL;
 
 /* Trace group table */
-vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] =
-{
-    [VTSS_TRACE_GROUP_DEFAULT] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_PORT] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_PHY] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_PACKET] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_QOS] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_L2] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_L3] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_SECURITY] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_EVC] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_FDMA_NORMAL] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_FDMA_IRQ] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_REG_CHECK] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_MPLS] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_HW_PROT] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_HQOS] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_VCAP] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_OAM] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_MRP] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_TS] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
-    [VTSS_TRACE_GROUP_CLOCK] = {
-        .level = { VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}
-    },
+vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] = {
+    [VTSS_TRACE_GROUP_DEFAULT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                            VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PORT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                         VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PHY] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                        VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PACKET] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                           VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_QOS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                        VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_L2] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                       VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_L3] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                       VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_SECURITY] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                             VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_EVC] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                        VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_FDMA_NORMAL] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                                VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_FDMA_IRQ] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                             VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_REG_CHECK] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                              VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_MPLS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                         VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_HW_PROT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                            VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_HQOS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                         VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_VCAP] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                         VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_OAM] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                        VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_MRP] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                        VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_TS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                       VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_CLOCK] = {.level = {VTSS_TRACE_LEVEL_ERROR,
+                                          VTSS_TRACE_LEVEL_ERROR}},
 };
 
 /* ================================================================= *
@@ -144,7 +122,7 @@ vtss_state_t *vtss_inst_check_no_persist(const vtss_inst_t inst)
 }
 
 vtss_rc vtss_inst_port_no_check(const vtss_inst_t    inst,
-                                vtss_state_t         **vtss_state,
+                                vtss_state_t       **vtss_state,
                                 const vtss_port_no_t port_no)
 {
     vtss_rc rc;
@@ -157,7 +135,7 @@ vtss_rc vtss_inst_port_no_check(const vtss_inst_t    inst,
 }
 
 vtss_rc vtss_inst_port_no_none_check(const vtss_inst_t    inst,
-                                     vtss_state_t         **vtss_state,
+                                     vtss_state_t       **vtss_state,
                                      const vtss_port_no_t port_no)
 {
     vtss_rc rc;
@@ -170,7 +148,7 @@ vtss_rc vtss_inst_port_no_none_check(const vtss_inst_t    inst,
 }
 
 vtss_rc vtss_inst_chip_no_check(const vtss_inst_t    inst,
-                                vtss_state_t         **vtss_state,
+                                vtss_state_t       **vtss_state,
                                 const vtss_chip_no_t chip_no)
 {
     vtss_rc rc;
@@ -186,8 +164,8 @@ vtss_rc vtss_inst_chip_no_check(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_inst_get(const vtss_target_type_t target,
-                      vtss_inst_create_t       *const create)
+vtss_rc vtss_inst_get(const vtss_target_type_t  target,
+                      vtss_inst_create_t *const create)
 {
     VTSS_D("enter");
     create->target = target;
@@ -224,7 +202,7 @@ static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
 #endif /* VTSS_FEATURE_PACKET */
 
 #if defined(VTSS_FEATURE_AFI_SWC) && defined(VTSS_AFI_V2)
-     VTSS_RC(vtss_afi_inst_create(vtss_state));
+    VTSS_RC(vtss_afi_inst_create(vtss_state));
 #endif /* VTSS_FEATURE_AFI_SWC && VTSS_AFI_V2 */
 
 #if defined(VTSS_FEATURE_QOS)
@@ -259,13 +237,14 @@ static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
 }
 
 vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
-                         vtss_inst_t              *const inst)
+                         vtss_inst_t *const              inst)
 {
     vtss_state_t *vtss_state;
-    vtss_arch_t  arch;
+    vtss_arch_t   arch;
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
 
-    if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL)
+    if ((vtss_state =
+             VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL)
         return VTSS_RC_ERROR;
 
     VTSS_MEMSET(vtss_state, 0, sizeof(*vtss_state));
@@ -379,11 +358,10 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     return VTSS_RC_OK;
 }
 
-
 vtss_rc vtss_inst_destroy(const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -397,11 +375,10 @@ vtss_rc vtss_inst_destroy(const vtss_inst_t inst)
 }
 
 /* Get initialization configuration */
-vtss_rc vtss_init_conf_get(const vtss_inst_t        inst,
-                           vtss_init_conf_t * const conf)
+vtss_rc vtss_init_conf_get(const vtss_inst_t inst, vtss_init_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
@@ -412,11 +389,11 @@ vtss_rc vtss_init_conf_get(const vtss_inst_t        inst,
 }
 
 /* Set initialization configuration */
-vtss_rc vtss_init_conf_set(const vtss_inst_t              inst,
-                           const vtss_init_conf_t * const conf)
+vtss_rc vtss_init_conf_set(const vtss_inst_t             inst,
+                           const vtss_init_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 0);
     VTSS_D("enter");
@@ -436,7 +413,7 @@ vtss_rc vtss_init_conf_set(const vtss_inst_t              inst,
 vtss_rc vtss_register_access_mode_get(const vtss_inst_t inst, BOOL *spi_bus)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     if (!spi_bus) {
         return VTSS_RC_ERROR;
@@ -455,7 +432,7 @@ vtss_rc vtss_register_access_mode_get(const vtss_inst_t inst, BOOL *spi_bus)
 vtss_rc vtss_register_access_mode_set(const vtss_inst_t inst, BOOL spi_bus)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
 
@@ -476,9 +453,10 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 {
 #if defined(VTSS_ARCH_LUTON26)
     u32 si = 0, value;
-    u32 base_addr = 0x70000>>2;
+    u32 base_addr = 0x70000 >> 2;
 
-    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian, conf->bit_order, conf->padding);
+    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian,
+           conf->bit_order, conf->padding);
 
     if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
         si |= 0x10;
@@ -548,7 +526,7 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 
 /* Get trace configuration */
 vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
-                            vtss_trace_conf_t * const conf)
+                            vtss_trace_conf_t *const conf)
 {
     if (group >= VTSS_TRACE_GROUP_COUNT) {
         VTSS_E("illegal group: %d", group);
@@ -560,8 +538,8 @@ vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
 }
 
 /* Set trace configuration */
-vtss_rc vtss_trace_conf_set(const vtss_trace_group_t group,
-                            const vtss_trace_conf_t * const conf)
+vtss_rc vtss_trace_conf_set(const vtss_trace_group_t       group,
+                            const vtss_trace_conf_t *const conf)
 {
     if (group >= VTSS_TRACE_GROUP_COUNT) {
         VTSS_E("illegal group: %d", group);
@@ -630,32 +608,32 @@ const char *vtss_port_spd_txt(vtss_port_speed_t speed)
 const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
 {
     switch (serdes) {
-    case VTSS_SERDES_MODE_DISABLE:   return "Disabled";
-    case VTSS_SERDES_MODE_NONE:      return "None";
-    case VTSS_SERDES_MODE_XAUI_12G:  return "XAUI_12G";
-    case VTSS_SERDES_MODE_XAUI:      return "XAUI";
-    case VTSS_SERDES_MODE_RXAUI:     return "RXAUI";
-    case VTSS_SERDES_MODE_RXAUI_12G: return "RXAUI_12G";
-    case VTSS_SERDES_MODE_2G5:       return "2G5";
-    case VTSS_SERDES_MODE_QSGMII:    return "QSGMII";
-    case VTSS_SERDES_MODE_SGMII:     return "SGMII";
-    case VTSS_SERDES_MODE_100FX:     return "100FX";
-    case VTSS_SERDES_MODE_1000BaseX: return "1000BaseX";
-    case VTSS_SERDES_MODE_SFI:       return "SFI";
-    case VTSS_SERDES_MODE_SFI_SR:    return "SFI_SR";
-    case VTSS_SERDES_MODE_SFI_DAC:   return "SFI_DAC";
-    case VTSS_SERDES_MODE_SFI_ZR:    return "SFI_ZR";
-    case VTSS_SERDES_MODE_SFI_BP:    return "SFI_BP";
-    case VTSS_SERDES_MODE_SFI_B2B:   return "SFI_B2B";
-    case VTSS_SERDES_MODE_SFI_KR:    return "SFI_KR";
-    case VTSS_SERDES_MODE_SFI_PR_NONE:return "SFI_PR_NONE";
-    case VTSS_SERDES_MODE_IDLE:      return "IDLE";
-    case VTSS_SERDES_MODE_TEST_MODE: return "TEST";
-    case VTSS_SERDES_MODE_USXGMII:   return "USXGMII";
-    case VTSS_SERDES_MODE_USGMII:    return "USGMII";
-    case VTSS_SERDES_MODE_QXGMII:    return "USX_QXGMII";
-    case VTSS_SERDES_MODE_DXGMII_10G:return "DXGMII_10G";
-    case VTSS_SERDES_MODE_DXGMII_5G: return "DXGMII_5G";
+    case VTSS_SERDES_MODE_DISABLE:     return "Disabled";
+    case VTSS_SERDES_MODE_NONE:        return "None";
+    case VTSS_SERDES_MODE_XAUI_12G:    return "XAUI_12G";
+    case VTSS_SERDES_MODE_XAUI:        return "XAUI";
+    case VTSS_SERDES_MODE_RXAUI:       return "RXAUI";
+    case VTSS_SERDES_MODE_RXAUI_12G:   return "RXAUI_12G";
+    case VTSS_SERDES_MODE_2G5:         return "2G5";
+    case VTSS_SERDES_MODE_QSGMII:      return "QSGMII";
+    case VTSS_SERDES_MODE_SGMII:       return "SGMII";
+    case VTSS_SERDES_MODE_100FX:       return "100FX";
+    case VTSS_SERDES_MODE_1000BaseX:   return "1000BaseX";
+    case VTSS_SERDES_MODE_SFI:         return "SFI";
+    case VTSS_SERDES_MODE_SFI_SR:      return "SFI_SR";
+    case VTSS_SERDES_MODE_SFI_DAC:     return "SFI_DAC";
+    case VTSS_SERDES_MODE_SFI_ZR:      return "SFI_ZR";
+    case VTSS_SERDES_MODE_SFI_BP:      return "SFI_BP";
+    case VTSS_SERDES_MODE_SFI_B2B:     return "SFI_B2B";
+    case VTSS_SERDES_MODE_SFI_KR:      return "SFI_KR";
+    case VTSS_SERDES_MODE_SFI_PR_NONE: return "SFI_PR_NONE";
+    case VTSS_SERDES_MODE_IDLE:        return "IDLE";
+    case VTSS_SERDES_MODE_TEST_MODE:   return "TEST";
+    case VTSS_SERDES_MODE_USXGMII:     return "USXGMII";
+    case VTSS_SERDES_MODE_USGMII:      return "USGMII";
+    case VTSS_SERDES_MODE_QXGMII:      return "USX_QXGMII";
+    case VTSS_SERDES_MODE_DXGMII_10G:  return "DXGMII_10G";
+    case VTSS_SERDES_MODE_DXGMII_5G:   return "DXGMII_5G";
     }
     return "?   ";
 }
@@ -663,17 +641,17 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
 const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
 {
     switch (mt) {
-    case VTSS_SD10G_MEDIA_SR:        return "SR";
-    case VTSS_SD10G_MEDIA_ZR:        return "ZR";
-    case VTSS_SD10G_MEDIA_DAC:       return "DAC";
-    case VTSS_SD10G_MEDIA_DAC_1M:    return "DAC1m";
-    case VTSS_SD10G_MEDIA_DAC_2M:    return "DAC2m";
-    case VTSS_SD10G_MEDIA_DAC_3M:    return "DAC3m";
-    case VTSS_SD10G_MEDIA_DAC_5M:    return "DAC5m";
-    case VTSS_SD10G_MEDIA_BP:        return "BP";
-    case VTSS_SD10G_MEDIA_B2B:       return "B2B";
-    case VTSS_SD10G_MEDIA_10G_KR:    return "KR";
-    case VTSS_SD10G_MEDIA_PR_NONE:   return "None";
+    case VTSS_SD10G_MEDIA_SR:      return "SR";
+    case VTSS_SD10G_MEDIA_ZR:      return "ZR";
+    case VTSS_SD10G_MEDIA_DAC:     return "DAC";
+    case VTSS_SD10G_MEDIA_DAC_1M:  return "DAC1m";
+    case VTSS_SD10G_MEDIA_DAC_2M:  return "DAC2m";
+    case VTSS_SD10G_MEDIA_DAC_3M:  return "DAC3m";
+    case VTSS_SD10G_MEDIA_DAC_5M:  return "DAC5m";
+    case VTSS_SD10G_MEDIA_BP:      return "BP";
+    case VTSS_SD10G_MEDIA_B2B:     return "B2B";
+    case VTSS_SD10G_MEDIA_10G_KR:  return "KR";
+    case VTSS_SD10G_MEDIA_PR_NONE: return "None";
     }
     return "?   ";
 }
@@ -688,17 +666,14 @@ const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
  */
 static tod_get_ns_cnt_cb_t hw_get_ns_callout = 0;
 
-void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb)
-{
-    hw_get_ns_callout = cb;
-}
+void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb) { hw_get_ns_callout = cb; }
 
 /**
  * \brief Get the current hw nanosec time
- *  Because this function can be called from interrupt and/or with interrupt disabled,
- *  the normal VTSS_ENTER macro is not used, neither is the VTSS_FUNC used, because it copies
- *  an instance pointer to a global variable.
- *  Therefore the CIL layer function is called via the default_inst pointer.
+ *  Because this function can be called from interrupt and/or with interrupt
+ * disabled, the normal VTSS_ENTER macro is not used, neither is the VTSS_FUNC
+ * used, because it copies an instance pointer to a global variable. Therefore
+ * the CIL layer function is called via the default_inst pointer.
  *
  * \returns actual ns counter
  */
@@ -707,7 +682,7 @@ u32 vtss_tod_get_ns_cnt(void)
     if (hw_get_ns_callout) {
         return hw_get_ns_callout();
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    } else if (vtss_default_inst->ts.ns_cnt_get){
+    } else if (vtss_default_inst->ts.ns_cnt_get) {
         return vtss_default_inst->ts.ns_cnt_get(vtss_default_inst);
 #endif
     } else {
@@ -719,33 +694,35 @@ u32 vtss_tod_get_ns_cnt(void)
 
 #if defined(VTSS_FEATURE_SYNCE)
 #define clk_port_inx ((clk_port == VTSS_SYNCE_CLK_A) ? 0 : 1)
-/* Set the configuration of a selected output clock port - against external clock controller. */
-vtss_rc vtss_synce_clock_out_set(const vtss_inst_t              inst,
-                                 const vtss_synce_clk_port_t    clk_port,
-                                 const vtss_synce_clock_out_t   *const conf)
+/* Set the configuration of a selected output clock port - against external
+ * clock controller. */
+vtss_rc vtss_synce_clock_out_set(const vtss_inst_t                   inst,
+                                 const vtss_synce_clk_port_t         clk_port,
+                                 const vtss_synce_clock_out_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
             vtss_state->synce.out_conf[clk_port] = *conf;
             rc = vtss_cil_synce_clock_out_set(vtss_state, clk_port);
-        }
-        else    rc = VTSS_RC_ERROR;
+        } else
+            rc = VTSS_RC_ERROR;
     }
     VTSS_EXIT();
     return rc;
 }
 
-/* Get the configuration of a selected output clock port - against external clock controller. */
-vtss_rc vtss_synce_clock_out_get(const vtss_inst_t            inst,
-                                 const vtss_synce_clk_port_t  clk_port,
-                                 vtss_synce_clock_out_t       *const conf)
+/* Get the configuration of a selected output clock port - against external
+ * clock controller. */
+vtss_rc vtss_synce_clock_out_get(const vtss_inst_t             inst,
+                                 const vtss_synce_clk_port_t   clk_port,
+                                 vtss_synce_clock_out_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -760,12 +737,12 @@ vtss_rc vtss_synce_clock_out_get(const vtss_inst_t            inst,
 }
 
 /* Set the configuration of input port for a selected output clock port */
-vtss_rc vtss_synce_clock_in_set(const vtss_inst_t              inst,
-                                const vtss_synce_clk_port_t    clk_port,
-                                const vtss_synce_clock_in_t    *const conf)
+vtss_rc vtss_synce_clock_in_set(const vtss_inst_t                  inst,
+                                const vtss_synce_clk_port_t        clk_port,
+                                const vtss_synce_clock_in_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -783,10 +760,10 @@ vtss_rc vtss_synce_clock_in_set(const vtss_inst_t              inst,
 /* Get the configuration of input port for a selected output clock port */
 vtss_rc vtss_synce_clock_in_get(const vtss_inst_t            inst,
                                 const vtss_synce_clk_port_t  clk_port,
-                                vtss_synce_clock_in_t        *const conf)
+                                vtss_synce_clock_in_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -801,20 +778,21 @@ vtss_rc vtss_synce_clock_in_get(const vtss_inst_t            inst,
 }
 
 /* Set the configuration of a station clock output */
-vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t              inst,
-                                 const vtss_synce_clk_port_t    clk_port,
-                                 const vtss_synce_station_clock_out_t   *const conf)
+vtss_rc vtss_synce_synce_station_clk_out_set(
+    const vtss_inst_t                           inst,
+    const vtss_synce_clk_port_t                 clk_port,
+    const vtss_synce_station_clock_out_t *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clk_port < VTSS_SYNCE_CLK_MAX) {
             vtss_state->synce.station_clk_out_conf[clk_port] = *conf;
             rc = vtss_cil_synce_station_clk_out_set(vtss_state, clk_port);
-        }
-        else    rc = VTSS_RC_ERROR;
+        } else
+            rc = VTSS_RC_ERROR;
     }
     VTSS_EXIT();
     return rc;
@@ -822,12 +800,14 @@ vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t              inst
 
 #if defined(VTSS_ARCH_SERVAL_T)
 /* Get the configuration of a station clock output */
-vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t            inst,
-                                 const vtss_synce_clk_port_t  clk_port,
-                                 vtss_synce_station_clock_out_t       *const conf)
+vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t inst,
+                                             const vtss_synce_clk_port_t
+                                                 clk_port,
+                                             vtss_synce_station_clock_out_t
+                                                 *const conf)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -867,7 +847,8 @@ static vtss_rc vtss_restart_sync(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_restart_cur_set(vtss_state_t *vtss_state, const vtss_restart_t restart)
+static vtss_rc vtss_restart_cur_set(vtss_state_t        *vtss_state,
+                                    const vtss_restart_t restart)
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -879,7 +860,7 @@ static vtss_rc vtss_restart_cur_set(vtss_state_t *vtss_state, const vtss_restart
 vtss_rc vtss_restart_conf_end(const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -904,11 +885,11 @@ vtss_rc vtss_restart_conf_end(const vtss_inst_t inst)
     return rc;
 }
 
-vtss_rc vtss_restart_status_get(const vtss_inst_t inst,
+vtss_rc vtss_restart_status_get(const vtss_inst_t            inst,
                                 vtss_restart_status_t *const status)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -921,11 +902,11 @@ vtss_rc vtss_restart_status_get(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_restart_conf_get(const vtss_inst_t inst,
+vtss_rc vtss_restart_conf_get(const vtss_inst_t     inst,
                               vtss_restart_t *const restart)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -936,11 +917,11 @@ vtss_rc vtss_restart_conf_get(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_restart_conf_set(const vtss_inst_t inst,
+vtss_rc vtss_restart_conf_set(const vtss_inst_t    inst,
                               const vtss_restart_t restart)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
@@ -968,12 +949,12 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_debug_info_print(const vtss_inst_t         inst,
-                              const vtss_debug_printf_t pr,
-                              const vtss_debug_info_t   *const info)
+vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
+                              const vtss_debug_printf_t      pr,
+                              const vtss_debug_info_t *const info)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
@@ -984,26 +965,26 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t         inst,
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
-vtss_rc vtss_debug_lock(const vtss_inst_t       inst,
+vtss_rc vtss_debug_lock(const vtss_inst_t              inst,
                         const vtss_debug_lock_t *const lock)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     /*lint --e{454, 456} */
     VTSS_ENTER();
     /* Lock API and set context to chip number */
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, lock->chip_no)) != VTSS_RC_OK) {
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, lock->chip_no)) !=
+        VTSS_RC_OK) {
         VTSS_EXIT();
     }
     return rc;
 }
 
-vtss_rc vtss_debug_unlock(const vtss_inst_t inst,
-                          vtss_debug_lock_t *const lock)
+vtss_rc vtss_debug_unlock(const vtss_inst_t inst, vtss_debug_lock_t *const lock)
 {
     vtss_state_t *vtss_state;
-    vtss_rc      rc;
+    vtss_rc       rc;
 
     /*lint --e{455} */
     if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {

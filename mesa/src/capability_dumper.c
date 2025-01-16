@@ -1,15 +1,15 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "microchip/ethernet/switch/api/misc.h"
 #include "microchip/ethernet/switch/api/capability.h"
 
-int main(int argc, char *argv[]) {
-    int i, cap;
+int main(int argc, char *argv[])
+{
+    int   i, cap;
     void *handle;
     uint32_t (*capability)(mesa_inst_t, int);
 
@@ -41,5 +41,4 @@ int main(int argc, char *argv[]) {
     dlclose(handle);
 
     return 0;
-
 }

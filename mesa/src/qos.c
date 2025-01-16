@@ -1,34 +1,39 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <vtss_api.h>
 #include <mesa.h>
 
 #if defined(VTSS_FEATURE_QOS)
 static void mesa_conv_storm_policer_vtss_to_mesa(vtss_packet_rate_t rate,
-                 mesa_bool_t frame_rate,
-                 const vtss_storm_policer_mode_t *mode,
-                 mesa_qos_storm_policer_conf_t *out)
+                                                 mesa_bool_t        frame_rate,
+                                                 const vtss_storm_policer_mode_t
+                                                     *mode,
+                                                 mesa_qos_storm_policer_conf_t
+                                                     *out)
 {
     out->rate = rate;
     out->frame_rate = frame_rate;
 
-    mesa_conv_vtss_storm_policer_mode_t_to_mesa_storm_policer_mode_t(mode, &out->mode);
+    mesa_conv_vtss_storm_policer_mode_t_to_mesa_storm_policer_mode_t(mode,
+                                                                     &out->mode);
 }
 
-static void mesa_conv_storm_policer_mesa_to_vtss(const mesa_qos_storm_policer_conf_t *in,
-                 vtss_packet_rate_t *rate,
-                 mesa_bool_t *frame_rate,
-                 vtss_storm_policer_mode_t *mode)
+static void mesa_conv_storm_policer_mesa_to_vtss(
+    const mesa_qos_storm_policer_conf_t *in,
+    vtss_packet_rate_t                  *rate,
+    mesa_bool_t                         *frame_rate,
+    vtss_storm_policer_mode_t           *mode)
 {
     *rate = in->rate;
     *frame_rate = in->frame_rate;
-    mesa_conv_mesa_storm_policer_mode_t_to_vtss_storm_policer_mode_t(&in->mode, mode);
+    mesa_conv_mesa_storm_policer_mode_t_to_vtss_storm_policer_mode_t(&in->mode,
+                                                                     mode);
 }
 
 // TODO, should this be a conv or a conv2
-mesa_rc mesa_conv_vtss_qos_conf_t_to_mesa_qos_conf_t(const vtss_qos_conf_t *in, mesa_qos_conf_t *out)
+mesa_rc mesa_conv_vtss_qos_conf_t_to_mesa_qos_conf_t(const vtss_qos_conf_t *in,
+                                                     mesa_qos_conf_t       *out)
 {
     vtss_dscp_t dscp;
 
@@ -39,14 +44,24 @@ mesa_rc mesa_conv_vtss_qos_conf_t_to_mesa_qos_conf_t(const vtss_qos_conf_t *in, 
         out->dscp[dscp].remark = in->dscp_remark[dscp];
         out->dscp[dscp].dscp = in->dscp_translate_map[dscp];
     }
-    mesa_conv_storm_policer_vtss_to_mesa(in->policer_uc, in->policer_uc_frame_rate, &in->policer_uc_mode, &out->policer_uc);
-    mesa_conv_storm_policer_vtss_to_mesa(in->policer_mc, in->policer_mc_frame_rate, &in->policer_mc_mode, &out->policer_mc);
-    mesa_conv_storm_policer_vtss_to_mesa(in->policer_bc, in->policer_bc_frame_rate, &in->policer_bc_mode, &out->policer_bc);
+    mesa_conv_storm_policer_vtss_to_mesa(in->policer_uc,
+                                         in->policer_uc_frame_rate,
+                                         &in->policer_uc_mode,
+                                         &out->policer_uc);
+    mesa_conv_storm_policer_vtss_to_mesa(in->policer_mc,
+                                         in->policer_mc_frame_rate,
+                                         &in->policer_mc_mode,
+                                         &out->policer_mc);
+    mesa_conv_storm_policer_vtss_to_mesa(in->policer_bc,
+                                         in->policer_bc_frame_rate,
+                                         &in->policer_bc_mode,
+                                         &out->policer_bc);
     return VTSS_RC_OK;
 }
 
 // TODO, should this be a conv or a conv2
-mesa_rc mesa_conv_mesa_qos_conf_t_to_vtss_qos_conf_t(const mesa_qos_conf_t *in, vtss_qos_conf_t *out)
+mesa_rc mesa_conv_mesa_qos_conf_t_to_vtss_qos_conf_t(const mesa_qos_conf_t *in,
+                                                     vtss_qos_conf_t       *out)
 {
     vtss_dscp_t dscp;
 
@@ -57,13 +72,21 @@ mesa_rc mesa_conv_mesa_qos_conf_t_to_vtss_qos_conf_t(const mesa_qos_conf_t *in, 
         out->dscp_remark[dscp] = in->dscp[dscp].remark;
         out->dscp_translate_map[dscp] = in->dscp[dscp].dscp;
     }
-    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_uc, &out->policer_uc, &out->policer_uc_frame_rate, &out->policer_uc_mode);
-    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_mc, &out->policer_mc, &out->policer_mc_frame_rate, &out->policer_mc_mode);
-    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_bc, &out->policer_bc, &out->policer_bc_frame_rate, &out->policer_bc_mode);
+    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_uc, &out->policer_uc,
+                                         &out->policer_uc_frame_rate,
+                                         &out->policer_uc_mode);
+    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_mc, &out->policer_mc,
+                                         &out->policer_mc_frame_rate,
+                                         &out->policer_mc_mode);
+    mesa_conv_storm_policer_mesa_to_vtss(&in->policer_bc, &out->policer_bc,
+                                         &out->policer_bc_frame_rate,
+                                         &out->policer_bc_mode);
     return VTSS_RC_OK;
 }
 
-mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_port_conf_t *in, mesa_qos_port_conf_t *out)
+mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(
+    const vtss_qos_port_conf_t *in,
+    mesa_qos_port_conf_t       *out)
 {
     vtss_pcp_t   pcp;
     vtss_dei_t   dei;
@@ -82,20 +105,25 @@ mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_p
             out->tag.pcp_dei_map[pcp][dei].dpl = in->dp_level_map[pcp][dei];
         }
     }
-    mesa_conv_vtss_tag_remark_mode_t_to_mesa_tag_remark_mode_t(&in->tag_remark_mode, &out->tag.remark_mode);
+    mesa_conv_vtss_tag_remark_mode_t_to_mesa_tag_remark_mode_t(
+        &in->tag_remark_mode, &out->tag.remark_mode);
     out->tag.egress_pcp = in->tag_default_pcp;
     out->tag.egress_dei = in->tag_default_dei;
 
     // DSCP
     out->dscp.class_enable = in->dscp_class_enable;
-    mesa_conv_vtss_dscp_mode_t_to_mesa_dscp_mode_t(&in->dscp_mode, &out->dscp.mode);
-    mesa_conv_vtss_dscp_emode_t_to_mesa_dscp_emode_t(&in->dscp_emode, &out->dscp.emode);
+    mesa_conv_vtss_dscp_mode_t_to_mesa_dscp_mode_t(&in->dscp_mode,
+                                                   &out->dscp.mode);
+    mesa_conv_vtss_dscp_emode_t_to_mesa_dscp_emode_t(&in->dscp_emode,
+                                                     &out->dscp.emode);
     out->dscp.translate = in->dscp_translate;
 
     // Queue
     for (queue = 0; queue < VTSS_QUEUES; queue++) {
-        mesa_conv_vtss_policer_t_to_mesa_policer_t(&in->policer_queue[queue], &out->queue[queue].policer);
-        mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->shaper_queue[queue], &out->queue[queue].shaper);
+        mesa_conv_vtss_policer_t_to_mesa_policer_t(&in->policer_queue[queue],
+                                                   &out->queue[queue].policer);
+        mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->shaper_queue[queue],
+                                                 &out->queue[queue].shaper);
         out->queue[queue].pct = in->queue_pct[queue];
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
         out->queue[queue].excess_enable = in->excess_enable[queue];
@@ -110,7 +138,8 @@ mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_p
     out->ot_dwrr_cnt = in->ot_dwrr_cnt;
     for (queue = 0; queue < VTSS_QUEUES; queue++) {
         out->ot_queue[queue].pct = in->ot_queue_pct[queue];
-        mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->ot_shaper_queue[queue], &out->ot_queue[queue].shaper);
+        mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->ot_shaper_queue[queue],
+                                                 &out->ot_queue[queue].shaper);
     }
     out->ot_it_dwrr_enable = in->ot_it_dwrr_enable;
     out->ot_pct = in->ot_pct;
@@ -121,7 +150,9 @@ mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_p
     return VTSS_RC_OK;
 }
 
-mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_port_conf_t *in, vtss_qos_port_conf_t *out)
+mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(
+    const mesa_qos_port_conf_t *in,
+    vtss_qos_port_conf_t       *out)
 {
     vtss_pcp_t   pcp;
     vtss_dei_t   dei;
@@ -140,20 +171,25 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
             out->dp_level_map[pcp][dei] = in->tag.pcp_dei_map[pcp][dei].dpl;
         }
     }
-    mesa_conv_mesa_tag_remark_mode_t_to_vtss_tag_remark_mode_t(&in->tag.remark_mode, &out->tag_remark_mode);
+    mesa_conv_mesa_tag_remark_mode_t_to_vtss_tag_remark_mode_t(
+        &in->tag.remark_mode, &out->tag_remark_mode);
     out->tag_default_pcp = in->tag.egress_pcp;
     out->tag_default_dei = in->tag.egress_dei;
 
     // DSCP
     out->dscp_class_enable = in->dscp.class_enable;
-    mesa_conv_mesa_dscp_mode_t_to_vtss_dscp_mode_t(&in->dscp.mode, &out->dscp_mode);
-    mesa_conv_mesa_dscp_emode_t_to_vtss_dscp_emode_t(&in->dscp.emode, &out->dscp_emode);
+    mesa_conv_mesa_dscp_mode_t_to_vtss_dscp_mode_t(&in->dscp.mode,
+                                                   &out->dscp_mode);
+    mesa_conv_mesa_dscp_emode_t_to_vtss_dscp_emode_t(&in->dscp.emode,
+                                                     &out->dscp_emode);
     out->dscp_translate = in->dscp.translate;
 
     // Queue
     for (queue = 0; queue < VTSS_QUEUES; queue++) {
-        mesa_conv_mesa_policer_t_to_vtss_policer_t(&in->queue[queue].policer, &out->policer_queue[queue]);
-        mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->queue[queue].shaper, &out->shaper_queue[queue]);
+        mesa_conv_mesa_policer_t_to_vtss_policer_t(&in->queue[queue].policer,
+                                                   &out->policer_queue[queue]);
+        mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->queue[queue].shaper,
+                                                 &out->shaper_queue[queue]);
         out->queue_pct[queue] = in->queue[queue].pct;
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
         out->excess_enable[queue] = in->queue[queue].excess_enable;
@@ -168,7 +204,8 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
     out->ot_dwrr_cnt = in->ot_dwrr_cnt;
     for (queue = 0; queue < VTSS_QUEUES; queue++) {
         out->ot_queue_pct[queue] = in->ot_queue[queue].pct;
-        mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->ot_queue[queue].shaper, &out->ot_shaper_queue[queue]);
+        mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->ot_queue[queue].shaper,
+                                                 &out->ot_shaper_queue[queue]);
     }
     out->ot_it_dwrr_enable = in->ot_it_dwrr_enable;
     out->ot_pct = in->ot_pct;
@@ -181,67 +218,93 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
 #endif // VTSS_FEATURE_QOS
 
 #if defined(VTSS_FEATURE_QCL)
-mesa_rc mesa_conv2_vtss_qce_key_t_to_mesa_qce_key_t(const vtss_qce_key_t *in, mesa_qce_key_t *out)
+mesa_rc mesa_conv2_vtss_qce_key_t_to_mesa_qce_key_t(const vtss_qce_key_t *in,
+                                                    mesa_qce_key_t       *out)
 {
     switch (in->type) {
-    case VTSS_QCE_TYPE_ANY:
-        break;
+    case VTSS_QCE_TYPE_ANY: break;
     case VTSS_QCE_TYPE_ETYPE:
-        mesa_conv_vtss_qce_frame_etype_t_to_mesa_qce_frame_etype_t(&in->frame.etype, &out->frame.etype);
+        mesa_conv_vtss_qce_frame_etype_t_to_mesa_qce_frame_etype_t(&in->frame
+                                                                        .etype,
+                                                                   &out->frame
+                                                                        .etype);
         break;
     case VTSS_QCE_TYPE_LLC:
-        mesa_conv_vtss_qce_frame_llc_t_to_mesa_qce_frame_llc_t(&in->frame.llc, &out->frame.llc);
+        mesa_conv_vtss_qce_frame_llc_t_to_mesa_qce_frame_llc_t(&in->frame.llc,
+                                                               &out->frame.llc);
         break;
     case VTSS_QCE_TYPE_SNAP:
-        mesa_conv_vtss_qce_frame_snap_t_to_mesa_qce_frame_snap_t(&in->frame.snap, &out->frame.snap);
+        mesa_conv_vtss_qce_frame_snap_t_to_mesa_qce_frame_snap_t(&in->frame.snap,
+                                                                 &out->frame
+                                                                      .snap);
         break;
     case VTSS_QCE_TYPE_IPV4:
-        mesa_conv_vtss_qce_frame_ipv4_t_to_mesa_qce_frame_ipv4_t(&in->frame.ipv4, &out->frame.ipv4);
+        mesa_conv_vtss_qce_frame_ipv4_t_to_mesa_qce_frame_ipv4_t(&in->frame.ipv4,
+                                                                 &out->frame
+                                                                      .ipv4);
         break;
     case VTSS_QCE_TYPE_IPV6:
-        mesa_conv_vtss_qce_frame_ipv6_t_to_mesa_qce_frame_ipv6_t(&in->frame.ipv6, &out->frame.ipv6);
+        mesa_conv_vtss_qce_frame_ipv6_t_to_mesa_qce_frame_ipv6_t(&in->frame.ipv6,
+                                                                 &out->frame
+                                                                      .ipv6);
         break;
     }
     return VTSS_RC_OK;
 }
 
-mesa_rc mesa_conv2_mesa_qce_key_t_to_vtss_qce_key_t(const mesa_qce_key_t *in, vtss_qce_key_t *out)
+mesa_rc mesa_conv2_mesa_qce_key_t_to_vtss_qce_key_t(const mesa_qce_key_t *in,
+                                                    vtss_qce_key_t       *out)
 {
     switch (in->type) {
-    case MESA_QCE_TYPE_ANY:
-        break;
+    case MESA_QCE_TYPE_ANY: break;
     case MESA_QCE_TYPE_ETYPE:
-        mesa_conv_mesa_qce_frame_etype_t_to_vtss_qce_frame_etype_t(&in->frame.etype, &out->frame.etype);
+        mesa_conv_mesa_qce_frame_etype_t_to_vtss_qce_frame_etype_t(&in->frame
+                                                                        .etype,
+                                                                   &out->frame
+                                                                        .etype);
         break;
     case MESA_QCE_TYPE_LLC:
-        mesa_conv_mesa_qce_frame_llc_t_to_vtss_qce_frame_llc_t(&in->frame.llc, &out->frame.llc);
+        mesa_conv_mesa_qce_frame_llc_t_to_vtss_qce_frame_llc_t(&in->frame.llc,
+                                                               &out->frame.llc);
         break;
     case MESA_QCE_TYPE_SNAP:
-        mesa_conv_mesa_qce_frame_snap_t_to_vtss_qce_frame_snap_t(&in->frame.snap, &out->frame.snap);
+        mesa_conv_mesa_qce_frame_snap_t_to_vtss_qce_frame_snap_t(&in->frame.snap,
+                                                                 &out->frame
+                                                                      .snap);
         break;
     case MESA_QCE_TYPE_IPV4:
-        mesa_conv_mesa_qce_frame_ipv4_t_to_vtss_qce_frame_ipv4_t(&in->frame.ipv4, &out->frame.ipv4);
+        mesa_conv_mesa_qce_frame_ipv4_t_to_vtss_qce_frame_ipv4_t(&in->frame.ipv4,
+                                                                 &out->frame
+                                                                      .ipv4);
         break;
     case MESA_QCE_TYPE_IPV6:
-        mesa_conv_mesa_qce_frame_ipv6_t_to_vtss_qce_frame_ipv6_t(&in->frame.ipv6, &out->frame.ipv6);
+        mesa_conv_mesa_qce_frame_ipv6_t_to_vtss_qce_frame_ipv6_t(&in->frame.ipv6,
+                                                                 &out->frame
+                                                                      .ipv6);
         break;
     }
     return VTSS_RC_OK;
 }
 #endif // VTSS_FEATURE_QCL
 
-#define VTSS_RC(expr) { vtss_rc __rc__ = (expr); if (__rc__ < VTSS_RC_OK) return __rc__; }
+#define VTSS_RC(expr)                                                          \
+    {                                                                          \
+        vtss_rc __rc__ = (expr);                                               \
+        if (__rc__ < VTSS_RC_OK)                                               \
+            return __rc__;                                                     \
+    }
 
 // Array with index [x,y]
-#define MESA_IDX_2_BASE(x, y_cnt)           (x * y_cnt)
-#define MESA_IDX_2(x, y, y_cnt)             (MESA_IDX_2_BASE(x, y_cnt) + y)
+#define MESA_IDX_2_BASE(x, y_cnt) (x * y_cnt)
+#define MESA_IDX_2(x, y, y_cnt)   (MESA_IDX_2_BASE(x, y_cnt) + y)
 
 // Array with index [x,y,z]
 #define MESA_IDX_3_BASE(x, y, y_cnt, z_cnt) (MESA_IDX_2(x, y, y_cnt) * z_cnt)
-#define MESA_IDX_3(x, y, z, y_cnt, z_cnt)   (MESA_IDX_3_BASE(x, y, y_cnt, z_cnt) + z)
+#define MESA_IDX_3(x, y, z, y_cnt, z_cnt)                                      \
+    (MESA_IDX_3_BASE(x, y, y_cnt, z_cnt) + z)
 
-mesa_rc mesa_qos_dscp_dpl_conf_get(const mesa_inst_t        inst,
-                                   const uint32_t           dpl_cnt,
+mesa_rc mesa_qos_dscp_dpl_conf_get(const mesa_inst_t               inst,
+                                   const uint32_t                  dpl_cnt,
                                    mesa_qos_dscp_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -266,8 +329,8 @@ mesa_rc mesa_qos_dscp_dpl_conf_get(const mesa_inst_t        inst,
 #endif
 }
 
-mesa_rc mesa_qos_dscp_dpl_conf_set(const mesa_inst_t              inst,
-                                   const uint32_t                 dpl_cnt,
+mesa_rc mesa_qos_dscp_dpl_conf_set(const mesa_inst_t inst,
+                                   const uint32_t    dpl_cnt,
                                    const mesa_qos_dscp_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -292,8 +355,8 @@ mesa_rc mesa_qos_dscp_dpl_conf_set(const mesa_inst_t              inst,
 #endif
 }
 
-mesa_rc mesa_qos_dpl_conf_get(const mesa_inst_t   inst,
-                              const uint32_t      dpl_cnt,
+mesa_rc mesa_qos_dpl_conf_get(const mesa_inst_t          inst,
+                              const uint32_t             dpl_cnt,
                               mesa_qos_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -318,8 +381,8 @@ mesa_rc mesa_qos_dpl_conf_get(const mesa_inst_t   inst,
 #endif
 }
 
-mesa_rc mesa_qos_dpl_conf_set(const mesa_inst_t         inst,
-                              const uint32_t            dpl_cnt,
+mesa_rc mesa_qos_dpl_conf_set(const mesa_inst_t                inst,
+                              const uint32_t                   dpl_cnt,
                               const mesa_qos_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -344,20 +407,21 @@ mesa_rc mesa_qos_dpl_conf_set(const mesa_inst_t         inst,
 #endif
 }
 
-mesa_rc mesa_qos_dpl_group_conf_get(const mesa_inst_t         inst,
-                                    const uint32_t            dpl_cnt,
-                                    const uint32_t            group_cnt,
+mesa_rc mesa_qos_dpl_group_conf_get(const mesa_inst_t                inst,
+                                    const uint32_t                   dpl_cnt,
+                                    const uint32_t                   group_cnt,
                                     mesa_qos_dpl_group_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS_WRED_V2) || defined(VTSS_FEATURE_QOS_WRED_V3)
-    vtss_qos_conf_t  vtss_conf;
-    vtss_queue_t     queue;
-    vtss_dpl_t       dpl;
-    u32              idx, grp;
+    vtss_qos_conf_t   vtss_conf;
+    vtss_queue_t      queue;
+    vtss_dpl_t        dpl;
+    u32               idx, grp;
     vtss_red_v2_t    *vtss_wred;
     mesa_wred_conf_t *wred;
 
-    if (dpl_cnt != VTSS_DPLS || group_cnt != mesa_capability(inst, MESA_CAP_QOS_WRED_GROUP_CNT)) {
+    if (dpl_cnt != VTSS_DPLS ||
+        group_cnt != mesa_capability(inst, MESA_CAP_QOS_WRED_GROUP_CNT)) {
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_conf_get((const vtss_inst_t)inst, &vtss_conf));
@@ -366,7 +430,9 @@ mesa_rc mesa_qos_dpl_group_conf_get(const mesa_inst_t         inst,
             // DPL zero is not used
             for (grp = 0; grp < group_cnt; grp++) {
 #if defined(VTSS_FEATURE_QOS_WRED_V2)
-                vtss_wred = &vtss_conf.red_v2[queue][dpl]; // dpl 0 (green frames) is not used
+                vtss_wred =
+                    &vtss_conf.red_v2[queue]
+                                     [dpl]; // dpl 0 (green frames) is not used
 #else
                 vtss_wred = &vtss_conf.red_v3[queue][dpl - 1][grp];
 #endif
@@ -383,20 +449,21 @@ mesa_rc mesa_qos_dpl_group_conf_get(const mesa_inst_t         inst,
     return VTSS_RC_OK;
 }
 
-mesa_rc mesa_qos_dpl_group_conf_set(const mesa_inst_t               inst,
-                                    const uint32_t                  dpl_cnt,
-                                    const uint32_t                  group_cnt,
+mesa_rc mesa_qos_dpl_group_conf_set(const mesa_inst_t inst,
+                                    const uint32_t    dpl_cnt,
+                                    const uint32_t    group_cnt,
                                     const mesa_qos_dpl_group_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS_WRED_V2) || defined(VTSS_FEATURE_QOS_WRED_V3)
-    vtss_qos_conf_t        vtss_conf;
-    vtss_queue_t           queue;
-    vtss_dpl_t             dpl;
-    u32                    idx, grp;
+    vtss_qos_conf_t         vtss_conf;
+    vtss_queue_t            queue;
+    vtss_dpl_t              dpl;
+    u32                     idx, grp;
     vtss_red_v2_t          *vtss_wred;
     const mesa_wred_conf_t *wred;
 
-    if (dpl_cnt != VTSS_DPLS || group_cnt != mesa_capability(inst, MESA_CAP_QOS_WRED_GROUP_CNT)) {
+    if (dpl_cnt != VTSS_DPLS ||
+        group_cnt != mesa_capability(inst, MESA_CAP_QOS_WRED_GROUP_CNT)) {
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_conf_get((const vtss_inst_t)inst, &vtss_conf));
@@ -405,7 +472,9 @@ mesa_rc mesa_qos_dpl_group_conf_set(const mesa_inst_t               inst,
             // DPL zero is not used
             for (grp = 0; grp < group_cnt; grp++) {
 #if defined(VTSS_FEATURE_QOS_WRED_V2)
-                vtss_wred = &vtss_conf.red_v2[queue][dpl]; // dpl 0 (green frames) is not used
+                vtss_wred =
+                    &vtss_conf.red_v2[queue]
+                                     [dpl]; // dpl 0 (green frames) is not used
 #else
                 vtss_wred = &vtss_conf.red_v3[queue][dpl - 1][grp];
 #endif
@@ -424,24 +493,26 @@ mesa_rc mesa_qos_dpl_group_conf_set(const mesa_inst_t               inst,
 #endif
 }
 
-mesa_rc mesa_qos_port_policer_conf_get(const mesa_inst_t            inst,
-                                       const mesa_port_no_t         port_no,
-                                       const uint32_t               cnt,
+mesa_rc mesa_qos_port_policer_conf_get(const mesa_inst_t    inst,
+                                       const mesa_port_no_t port_no,
+                                       const uint32_t       cnt,
                                        mesa_qos_port_policer_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
-    vtss_qos_port_conf_t         vtss_conf;
+    vtss_qos_port_conf_t          vtss_conf;
     mesa_qos_port_policer_conf_t *pol;
     vtss_policer_ext_t           *pol_ext;
-    u32                          idx;
+    u32                           idx;
 
     if (cnt != VTSS_PORT_POLICERS) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no,
+                                   &vtss_conf));
     for (idx = 0; idx < VTSS_PORT_POLICERS; idx++) {
         pol = &conf[idx];
-        mesa_conv_vtss_policer_t_to_mesa_policer_t(&vtss_conf.policer_port[idx], &pol->policer);
+        mesa_conv_vtss_policer_t_to_mesa_policer_t(&vtss_conf.policer_port[idx],
+                                                   &pol->policer);
         pol_ext = &vtss_conf.policer_ext_port[idx];
         pol->frame_rate = pol_ext->frame_rate;
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL)
@@ -466,24 +537,27 @@ mesa_rc mesa_qos_port_policer_conf_get(const mesa_inst_t            inst,
 #endif
 }
 
-mesa_rc mesa_qos_port_policer_conf_set(const mesa_inst_t                  inst,
-                                       const mesa_port_no_t               port_no,
-                                       const uint32_t                     cnt,
-                                       const mesa_qos_port_policer_conf_t *const conf)
+mesa_rc mesa_qos_port_policer_conf_set(const mesa_inst_t    inst,
+                                       const mesa_port_no_t port_no,
+                                       const uint32_t       cnt,
+                                       const mesa_qos_port_policer_conf_t
+                                           *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
-    vtss_qos_port_conf_t               vtss_conf;
+    vtss_qos_port_conf_t                vtss_conf;
     const mesa_qos_port_policer_conf_t *pol;
     vtss_policer_ext_t                 *pol_ext;
-    u32                                idx;
+    u32                                 idx;
 
     if (cnt != VTSS_PORT_POLICERS) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no,
+                                   &vtss_conf));
     for (idx = 0; idx < VTSS_PORT_POLICERS; idx++) {
         pol = &conf[idx];
-        mesa_conv_mesa_policer_t_to_vtss_policer_t(&pol->policer, &vtss_conf.policer_port[idx]);
+        mesa_conv_mesa_policer_t_to_vtss_policer_t(&pol->policer,
+                                                   &vtss_conf.policer_port[idx]);
         pol_ext = &vtss_conf.policer_ext_port[idx];
         pol_ext->frame_rate = pol->frame_rate;
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL)
@@ -508,9 +582,9 @@ mesa_rc mesa_qos_port_policer_conf_set(const mesa_inst_t                  inst,
 #endif
 }
 
-mesa_rc mesa_qos_port_dpl_conf_get(const mesa_inst_t        inst,
-                                   const mesa_port_no_t     port_no,
-                                   const uint32_t           dpl_cnt,
+mesa_rc mesa_qos_port_dpl_conf_get(const mesa_inst_t               inst,
+                                   const mesa_port_no_t            port_no,
+                                   const uint32_t                  dpl_cnt,
                                    mesa_qos_port_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -522,7 +596,8 @@ mesa_rc mesa_qos_port_dpl_conf_get(const mesa_inst_t        inst,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no,
+                                   &vtss_conf));
     for (prio = 0; prio < VTSS_PRIOS; prio++) {
         for (dpl = 0; dpl < 2; dpl++) {
             conf[dpl].pcp[prio] = vtss_conf.tag_pcp_map[prio][dpl];
@@ -535,9 +610,9 @@ mesa_rc mesa_qos_port_dpl_conf_get(const mesa_inst_t        inst,
 #endif
 }
 
-mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t              inst,
-                                   const mesa_port_no_t           port_no,
-                                   const uint32_t                 dpl_cnt,
+mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t    inst,
+                                   const mesa_port_no_t port_no,
+                                   const uint32_t       dpl_cnt,
                                    const mesa_qos_port_dpl_conf_t *const conf)
 {
 #if defined(VTSS_FEATURE_QOS)
@@ -549,7 +624,8 @@ mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t              inst,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no,
+                                   &vtss_conf));
     for (prio = 0; prio < VTSS_PRIOS; prio++) {
         for (dpl = 0; dpl < 2; dpl++) {
             vtss_conf.tag_pcp_map[prio][dpl] = conf[dpl].pcp[prio];
@@ -562,11 +638,11 @@ mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t              inst,
 #endif
 }
 
-mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t     inst,
-                                       const mesa_port_no_t  port_no,
-                                       const uint32_t        cnt,
-                                       mesa_qos_tas_gce_t    *const gcl,
-                                       uint32_t              *const gce_cnt)
+mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t         inst,
+                                       const mesa_port_no_t      port_no,
+                                       const uint32_t            cnt,
+                                       mesa_qos_tas_gce_t *const gcl,
+                                       uint32_t *const           gce_cnt)
 {
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_qos_tas_port_conf_t vtss_conf;
@@ -578,9 +654,13 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t     inst,
     if (cnt != VTSS_QOS_TAS_GCL_LEN_MAX) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; (idx < VTSS_QOS_TAS_GCL_LEN_MAX) && (idx < vtss_conf.gcl_length); idx++) {
-        mesa_conv_vtss_qos_tas_gce_t_to_mesa_qos_tas_gce_t(&vtss_conf.gcl[idx], &gcl[idx]);
+    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no,
+                                       &vtss_conf));
+    for (idx = 0;
+         (idx < VTSS_QOS_TAS_GCL_LEN_MAX) && (idx < vtss_conf.gcl_length);
+         idx++) {
+        mesa_conv_vtss_qos_tas_gce_t_to_mesa_qos_tas_gce_t(&vtss_conf.gcl[idx],
+                                                           &gcl[idx]);
     }
     *gce_cnt = vtss_conf.gcl_length;
     return VTSS_RC_OK;
@@ -589,10 +669,10 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t     inst,
 #endif /* defined(VTSS_FEATURE_QOS_TAS) */
 }
 
-mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
-                                       const mesa_port_no_t       port_no,
-                                       const uint32_t             gce_cnt,
-                                       const mesa_qos_tas_gce_t   *const gcl)
+mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t               inst,
+                                       const mesa_port_no_t            port_no,
+                                       const uint32_t                  gce_cnt,
+                                       const mesa_qos_tas_gce_t *const gcl)
 {
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_qos_tas_port_conf_t vtss_conf;
@@ -604,34 +684,37 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t          inst,
     if (gce_cnt > VTSS_QOS_TAS_GCL_LEN_MAX) {
         return VTSS_RC_ERROR;
     }
-    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
+    VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no,
+                                       &vtss_conf));
     for (idx = 0; idx < gce_cnt; idx++) {
-        mesa_conv_mesa_qos_tas_gce_t_to_vtss_qos_tas_gce_t(&gcl[idx], &vtss_conf.gcl[idx]);
+        mesa_conv_mesa_qos_tas_gce_t_to_vtss_qos_tas_gce_t(&gcl[idx],
+                                                           &vtss_conf.gcl[idx]);
     }
     vtss_conf.gcl_length = gce_cnt;
     vtss_conf.config_change = FALSE;
-    return vtss_qos_tas_port_conf_set((const vtss_inst_t)inst, port_no, &vtss_conf);
+    return vtss_qos_tas_port_conf_set((const vtss_inst_t)inst, port_no,
+                                      &vtss_conf);
 #else
     return VTSS_RC_ERROR;
 #endif /* defined(VTSS_FEATURE_QOS_TAS) */
 }
 
-mesa_rc mesa_qce_add(const mesa_inst_t   inst,
-                     const mesa_qce_id_t qce_id,
-                     const mesa_qce_t    *const qce)
+mesa_rc mesa_qce_add(const mesa_inst_t       inst,
+                     const mesa_qce_id_t     qce_id,
+                     const mesa_qce_t *const qce)
 {
 #if defined(VTSS_FEATURE_QCL)
     vtss_qce_t vtss_qce;
 
     mesa_conv_mesa_qce_t_to_vtss_qce_t(qce, &vtss_qce);
-    return vtss_qce_add((vtss_inst_t)inst, VTSS_QCL_ID_START, qce_id, &vtss_qce);
+    return vtss_qce_add((vtss_inst_t)inst, VTSS_QCL_ID_START, qce_id,
+                        &vtss_qce);
 #else
     return VTSS_RC_ERROR;
 #endif
 }
 
-mesa_rc mesa_qce_del(const mesa_inst_t   inst,
-                     const mesa_qce_id_t qce_id)
+mesa_rc mesa_qce_del(const mesa_inst_t inst, const mesa_qce_id_t qce_id)
 {
 #if defined(VTSS_FEATURE_QCL)
     return vtss_qce_del((vtss_inst_t)inst, VTSS_QCL_ID_START, qce_id);
@@ -639,4 +722,3 @@ mesa_rc mesa_qce_del(const mesa_inst_t   inst,
     return VTSS_RC_ERROR;
 #endif
 }
-

@@ -11,15 +11,15 @@
 #define _VTSS_OS_H_
 
 #if defined(VTSS_OPSYS_ECOS)
- #include <vtss_os_ecos.h>
+#include <vtss_os_ecos.h>
 #elif defined(VTSS_OPSYS_LINUX)
- #include <vtss_os_linux.h>
+#include <vtss_os_linux.h>
 #elif defined(VTSS_OPSYS_VELOCITYSP)
- #include <vtss_os_velocitysp.h>
+#include <vtss_os_velocitysp.h>
 #elif defined(VTSS_OS_CUSTOM)
- #include <vtss_os_custom.h>
+#include <vtss_os_custom.h>
 #else
- #error "Operating system not supported".
+#error "Operating system not supported".
 #endif
 
 /*

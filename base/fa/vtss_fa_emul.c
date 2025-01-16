@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_EMUL
 #include "vtss_fa_cil.h"
 
@@ -20,40 +19,40 @@ typedef struct {
 
 static vtss_reg_exc_t vtss_reg_exc_table[] = {
     /* Chip ID must return a valid number */
-    { VTSS_DEVCPU_GCB_CHIP_ID, VTSS_F_DEVCPU_GCB_CHIP_ID_PART_ID(0x7568) },
+    {VTSS_DEVCPU_GCB_CHIP_ID,                     VTSS_F_DEVCPU_GCB_CHIP_ID_PART_ID(0x7568)},
 
     /* MAC address table must return IDLE and read invalid entries */
-    { VTSS_LRN_COMMON_ACCESS_CTRL, 0 },
-    { VTSS_LRN_MAC_ACCESS_CFG_2, 0},
+    {VTSS_LRN_COMMON_ACCESS_CTRL,                 0                                        },
+    {VTSS_LRN_MAC_ACCESS_CFG_2,                   0                                        },
 
     /* VCAPs must return IDLE */
-    { VTSS_VCAP_SUPER_VCAP_UPDATE_CTRL, 0},
-    { VTSS_VCAP_ES0_VCAP_UPDATE_CTRL, 0},
-    { VTSS_VCAP_ES2_VCAP_UPDATE_CTRL, 0},
-    { VTSS_VCAP_IP6PFX_VCAP_UPDATE_CTRL, 0},
+    {VTSS_VCAP_SUPER_VCAP_UPDATE_CTRL,            0                                        },
+    {VTSS_VCAP_ES0_VCAP_UPDATE_CTRL,              0                                        },
+    {VTSS_VCAP_ES2_VCAP_UPDATE_CTRL,              0                                        },
+    {VTSS_VCAP_IP6PFX_VCAP_UPDATE_CTRL,           0                                        },
 
     /* Switchcore and RAM reset */
-    { VTSS_DEVCPU_GCB_SOFT_RST, 4},
-    { VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET, 2},
-    { VTSS_ASM_STAT_CFG, 2},
-    { VTSS_QSYS_RAM_INIT, 1},
-    { VTSS_REW_RAM_INIT, 1},
-    { VTSS_VOP_RAM_INIT, 1},
-    { VTSS_ANA_AC_RAM_CTRL_RAM_INIT, 1},
-    { VTSS_ASM_RAM_INIT, 1},
-    { VTSS_EACL_RAM_INIT, 1},
-    { VTSS_VCAP_SUPER_RAM_INIT, 1},
-    { VTSS_VOP_RAM_INIT, 1},
-    { VTSS_DSM_RAM_INIT, 1},
+    {VTSS_DEVCPU_GCB_SOFT_RST,                    4                                        },
+    {VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET, 2                                        },
+    {VTSS_ASM_STAT_CFG,                           2                                        },
+    {VTSS_QSYS_RAM_INIT,                          1                                        },
+    {VTSS_REW_RAM_INIT,                           1                                        },
+    {VTSS_VOP_RAM_INIT,                           1                                        },
+    {VTSS_ANA_AC_RAM_CTRL_RAM_INIT,               1                                        },
+    {VTSS_ASM_RAM_INIT,                           1                                        },
+    {VTSS_EACL_RAM_INIT,                          1                                        },
+    {VTSS_VCAP_SUPER_RAM_INIT,                    1                                        },
+    {VTSS_VOP_RAM_INIT,                           1                                        },
+    {VTSS_DSM_RAM_INIT,                           1                                        },
 
     /* System clock speed needs to be set in HSCH */
-    { VTSS_HSCH_SYS_CLK_PER, 16},
+    {VTSS_HSCH_SYS_CLK_PER,                       16                                       },
 
     /* Policer init bits need to "self-clear" */
-    { VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG, 0},
+    {VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,     0                                        },
 
     /* End of list */
-    {0, 0}
+    {0,                                           0                                        }
 };
 
 static BOOL vtss_reg_exc_static(u32 addr, u32 *value, BOOL write)
@@ -75,18 +74,17 @@ static BOOL vtss_reg_exc_static(u32 addr, u32 *value, BOOL write)
 
 /* - Exception function table -------------------------------------- */
 
-typedef BOOL (* vtss_reg_exc_func_t)(u32 addr, u32 *value, BOOL write);
+typedef BOOL (*vtss_reg_exc_func_t)(u32 addr, u32 *value, BOOL write);
 
-static vtss_reg_exc_func_t vtss_reg_exc_func_table[] = {
-    vtss_reg_exc_static,
-    NULL
-};
+static vtss_reg_exc_func_t vtss_reg_exc_func_table[] = {vtss_reg_exc_static,
+                                                        NULL};
 
 static vtss_rc vtss_fa_emul_rd_wr(u32 addr, u32 *value, BOOL write)
 {
     vtss_reg_exc_func_t *func;
-    BOOL                exc = FALSE;
-    u32                 baddr, base = VTSS_IOREG(VTSS_IO_SWC, 0); /* First switch core address */
+    BOOL                 exc = FALSE;
+    u32                  baddr,
+        base = VTSS_IOREG(VTSS_IO_SWC, 0); /* First switch core address */
 
     if (addr < base) {
         /* CPU register space */
@@ -114,7 +112,8 @@ static vtss_rc vtss_fa_emul_rd_wr(u32 addr, u32 *value, BOOL write)
             break;
         }
     }
-    VTSS_N("%s%s addr: 0x%08x, value: 0x%08x", write ? "WR" : "RD", exc ? "X" : " ", addr, *value);
+    VTSS_N("%s%s addr: 0x%08x, value: 0x%08x", write ? "WR" : "RD",
+           exc ? "X" : " ", addr, *value);
     return VTSS_RC_OK;
 }
 

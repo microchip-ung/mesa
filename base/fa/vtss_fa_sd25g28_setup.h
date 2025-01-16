@@ -18,10 +18,12 @@
 #ifndef _VTSS_ANT__API_SD25G28_H_UTE
 #define _VTSS_ANT__API_SD25G28_H_UTE
 
-#include <vtss/api/options.h>  // To get the ARCH define
+#include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #include "vtss_fa_inc.h"
-vtss_rc vtss_ant_sd25g28_setup_lane(vtss_state_t *vtss_state, const vtss_sd25g28_setup_args_t config, vtss_port_no_t port_no);
+vtss_rc vtss_ant_sd25g28_setup_lane(vtss_state_t                   *vtss_state,
+                                    const vtss_sd25g28_setup_args_t config,
+                                    vtss_port_no_t                  port_no);
 
 #endif
 #endif

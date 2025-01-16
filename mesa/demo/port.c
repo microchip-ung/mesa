@@ -1,8 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
-
 #include <stdio.h>
 #include <ctype.h>
 #include "microchip/ethernet/switch/api.h"
@@ -21,24 +19,16 @@
 #define FALSE 0
 #endif
 
-static mscc_appl_trace_module_t trace_module = {
-    .name = "port"
-};
+static mscc_appl_trace_module_t trace_module = {.name = "port"};
 
-enum {
-    TRACE_GROUP_DEFAULT,
-    TRACE_GROUP_CNT
-};
+enum { TRACE_GROUP_DEFAULT, TRACE_GROUP_CNT };
 
 static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
     // TRACE_GROUP_DEFAULT
-    {
-        .name = "default",
-        .level = MESA_TRACE_LEVEL_ERROR
-    },
+    {.name = "default", .level = MESA_TRACE_LEVEL_ERROR},
 };
 meba_inst_t meba_global_inst;
-#define LOOP_PORT_INVALID  0xFFFFFFFF
+#define LOOP_PORT_INVALID 0xFFFFFFFF
 static uint32_t loop_port = LOOP_PORT_INVALID;
 
 static meba_sfp_driver_t *sfp_drivers = NULL;
@@ -47,9 +37,9 @@ static meba_sfp_driver_t *sfp_drivers = NULL;
  * ================================================================= */
 
 static port_entry_t *port_table;
-static mesa_bool_t  port_polling = 1;
-static uint32_t     port_poll_cnt;
-static mesa_bool_t  port_bulk_setup = TRUE;
+static mesa_bool_t   port_polling = 1;
+static uint32_t      port_poll_cnt;
+static mesa_bool_t   port_bulk_setup = TRUE;
 
 const char *mesa_port_if2txt(mesa_port_interface_t if_type)
 {
@@ -140,27 +130,27 @@ const char *mesa_sfp_if2txt(meba_sfp_transreceiver_t sfp)
     return "?   ";
 }
 
-mesa_trace_level_t meba_to_mesa_level(meba_trace_level_t  level)
+mesa_trace_level_t meba_to_mesa_level(meba_trace_level_t level)
 {
-    switch(level) {
+    switch (level) {
     case MEBA_TRACE_LVL_RACKET:
-    case MEBA_TRACE_LVL_NOISE: return MESA_TRACE_LEVEL_NOISE;
-    case MEBA_TRACE_LVL_DEBUG: return MESA_TRACE_LEVEL_DEBUG;
+    case MEBA_TRACE_LVL_NOISE:   return MESA_TRACE_LEVEL_NOISE;
+    case MEBA_TRACE_LVL_DEBUG:   return MESA_TRACE_LEVEL_DEBUG;
     case MEBA_TRACE_LVL_INFO:
     case MEBA_TRACE_LVL_WARNING: return MESA_TRACE_LEVEL_INFO;
-    case MEBA_TRACE_LVL_ERROR: return MESA_TRACE_LEVEL_ERROR;
-    case MEBA_TRACE_LVL_NONE: return MESA_TRACE_LEVEL_NONE;
+    case MEBA_TRACE_LVL_ERROR:   return MESA_TRACE_LEVEL_ERROR;
+    case MEBA_TRACE_LVL_NONE:    return MESA_TRACE_LEVEL_NONE;
     }
     return MESA_TRACE_LEVEL_NONE;
 }
 
-static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
+static mesa_rc port_speed_adjust(mesa_port_no_t        port_no,
                                  mesa_port_interface_t if_type,
-                                 mesa_port_speed_t speed_in,
-                                 mesa_port_speed_t *speed_out)
+                                 mesa_port_speed_t     speed_in,
+                                 mesa_port_speed_t    *speed_out)
 {
-    port_entry_t    *entry = &port_table[port_no];
-    meba_port_cap_t  cap = entry->meba.cap;
+    port_entry_t   *entry = &port_table[port_no];
+    meba_port_cap_t cap = entry->meba.cap;
 
     /* Adjust the speed to the interface type */
     switch (if_type) {
@@ -210,24 +200,24 @@ static mesa_rc port_speed_adjust(mesa_port_no_t port_no,
             return MESA_RC_OK;
         }
         break;
-    case MESA_PORT_INTERFACE_USXGMII:
-        *speed_out = speed_in;
-        return MESA_RC_OK;
-    default:
-        break;
+    case MESA_PORT_INTERFACE_USXGMII: *speed_out = speed_in; return MESA_RC_OK;
+    default:                          break;
     }
 
     return MESA_RC_ERROR;
 }
 
-static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_port_conf_t *conf) {
+static mesa_rc port_setup_sfp(mesa_port_no_t    port_no,
+                              port_entry_t     *entry,
+                              mesa_port_conf_t *conf)
+{
 
-    mscc_appl_port_conf_t         *p_conf = &entry->conf;
+    mscc_appl_port_conf_t        *p_conf = &entry->conf;
     mesa_port_interface_t         mac_if = entry->meba.mac_if;
-    meba_sfp_device_t             *device = entry->sfp_device;
+    meba_sfp_device_t            *device = entry->sfp_device;
     meba_port_cap_t               cap = entry->meba.cap;
     mesa_port_clause_37_control_t control;
-    mesa_port_clause_37_adv_t     *adv;
+    mesa_port_clause_37_adv_t    *adv;
     meba_port_admin_state_t       meba_admin;
 
     if (device != NULL) {
@@ -236,7 +226,8 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
         if (mac_if == MESA_PORT_INTERFACE_USXGMII) {
             // Do nothing
         } else if ((mac_if != MESA_PORT_INTERFACE_SGMII_CISCO) &&
-            (p_conf->speed == MESA_SPEED_1G || p_conf->speed == MESA_SPEED_2500M)) {
+                   (p_conf->speed == MESA_SPEED_1G ||
+                    p_conf->speed == MESA_SPEED_2500M)) {
             mac_if = MESA_PORT_INTERFACE_SERDES;
         } else if (p_conf->speed == MESA_SPEED_100M) {
             mac_if = MESA_PORT_INTERFACE_100FX;
@@ -246,9 +237,9 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
     }
     conf->if_type = mac_if;
 
-    if (p_conf->admin.enable && (cap & MEBA_PORT_CAP_AUTONEG)
-        && (conf->if_type == MESA_PORT_INTERFACE_SERDES)
-        && (p_conf->speed == MESA_SPEED_1G || p_conf->autoneg)) {
+    if (p_conf->admin.enable && (cap & MEBA_PORT_CAP_AUTONEG) &&
+        (conf->if_type == MESA_PORT_INTERFACE_SERDES) &&
+        (p_conf->speed == MESA_SPEED_1G || p_conf->autoneg)) {
         /* IEEE 802.3 clause 37 auto-negotiation */
         T_N("Port:%d, Clause 37 setup", port_no);
         /* PCS auto negotiation */
@@ -259,15 +250,18 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
         adv->hdx = FALSE;
         adv->symmetric_pause = p_conf->flow_control;
         adv->asymmetric_pause = p_conf->flow_control;
-        adv->remote_fault = (p_conf->admin.enable ? MESA_PORT_CLAUSE_37_RF_LINK_OK :
-                             MESA_PORT_CLAUSE_37_RF_OFFLINE);
+        adv->remote_fault =
+            (p_conf->admin.enable ? MESA_PORT_CLAUSE_37_RF_LINK_OK
+                                  : MESA_PORT_CLAUSE_37_RF_OFFLINE);
         adv->acknowledge = FALSE;
         adv->next_page = FALSE;
 
-        T_D("Port: %d set port via clause_37, ena:%d %s%s%s", port_no, control.enable,
-            adv->fdx ?"FDX " : "HDX ", p_conf->flow_control ? ", Flow control": "",
-            adv->remote_fault ? ", remote_fault":"" );
-        if (mesa_port_clause_37_control_set(NULL, port_no, &control) != MESA_RC_OK) {
+        T_D("Port: %d set port via clause_37, ena:%d %s%s%s", port_no,
+            control.enable, adv->fdx ? "FDX " : "HDX ",
+            p_conf->flow_control ? ", Flow control" : "",
+            adv->remote_fault ? ", remote_fault" : "");
+        if (mesa_port_clause_37_control_set(NULL, port_no, &control) !=
+            MESA_RC_OK) {
             T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             return MESA_RC_ERROR;
         }
@@ -275,34 +269,39 @@ static mesa_rc port_setup_sfp(mesa_port_no_t port_no, port_entry_t *entry, mesa_
                (p_conf->speed == MESA_SPEED_2500M)) {
         // Disable clause 37 aneg for 2G5 ports
         mesa_port_clause_37_control_t ctrl;
-        if (mesa_port_clause_37_control_get(NULL, port_no, &ctrl) != MESA_RC_OK) {
+        if (mesa_port_clause_37_control_get(NULL, port_no, &ctrl) !=
+            MESA_RC_OK) {
             T_E("mesa_port_clause_37_control_get(%u) failed", port_no);
         }
         if (ctrl.enable) {
             ctrl.enable = FALSE;
-            if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) != MESA_RC_OK) {
+            if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) !=
+                MESA_RC_OK) {
                 T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             }
         }
     }
 
-    if (port_speed_adjust(port_no, mac_if, p_conf->speed , &conf->speed) == MESA_RC_ERROR) {
+    if (port_speed_adjust(port_no, mac_if, p_conf->speed, &conf->speed) ==
+        MESA_RC_ERROR) {
         cli_printf("Port:%d, SFP type:%d, cannot support the requested speed:%d\n",
-            port_no, entry->sfp_type, p_conf->speed);
+                   port_no, entry->sfp_type, p_conf->speed);
         return MESA_RC_ERROR;
     }
     meba_admin.enable = p_conf->admin.enable;
-    MEBA_WRAP(meba_port_admin_state_set, meba_global_inst, port_no, &meba_admin);
+    MEBA_WRAP(meba_port_admin_state_set, meba_global_inst, port_no,
+              &meba_admin);
 
     if (mac_if == MESA_PORT_INTERFACE_SGMII_CISCO) {
-        mesa_port_conf_t  api;
+        mesa_port_conf_t       api;
         meba_sfp_driver_conf_t sfp_conf = {};
         sfp_conf.admin.enable = 1;
 
         (void)mesa_port_conf_get(NULL, port_no, &api);
         if (api.power_down && p_conf->admin.enable) {
             // Re-configure the CuPHY as it has be down
-            (void)entry->sfp_device->drv->meba_sfp_driver_conf_set(entry->sfp_device, &sfp_conf);
+            (void)entry->sfp_device->drv
+                ->meba_sfp_driver_conf_set(entry->sfp_device, &sfp_conf);
         }
     }
 
@@ -317,14 +316,16 @@ static void sfp_drivers_prepend(meba_sfp_drivers_t drivers)
     }
 }
 
-static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t init)
+static void port_setup(mesa_port_no_t port_no,
+                       mesa_bool_t    aneg,
+                       mesa_bool_t    init)
 {
-    port_entry_t            *entry = &port_table[port_no];
-    mscc_appl_port_conf_t   *pc = &entry->conf;
-    mesa_port_status_t      *ps = &entry->status;
-    mesa_port_conf_t        conf;
-    mepa_conf_t             phy;
-    meba_port_cap_t         cap = entry->meba.cap;
+    port_entry_t          *entry = &port_table[port_no];
+    mscc_appl_port_conf_t *pc = &entry->conf;
+    mesa_port_status_t    *ps = &entry->status;
+    mesa_port_conf_t       conf;
+    mepa_conf_t            phy;
+    meba_port_cap_t        cap = entry->meba.cap;
 
     if (mesa_port_conf_get(NULL, port_no, &conf) != MESA_RC_OK) {
         T_E("mesa_port_conf_get(%u) failed", port_no);
@@ -348,18 +349,22 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     }
     if (entry->sfp_device != NULL) {
         if (entry->sfp_device->drv->meba_sfp_driver_mt_get != NULL) {
-            (void)entry->sfp_device->drv->meba_sfp_driver_mt_get(entry->sfp_device, &conf.serdes.media_type);
+            (void)entry->sfp_device->drv
+                ->meba_sfp_driver_mt_get(entry->sfp_device,
+                                         &conf.serdes.media_type);
         }
     } else {
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
-            conf.serdes.media_type = MESA_SD10G_MEDIA_SR;  // For 10G serdes to Cu
+            conf.serdes.media_type =
+                MESA_SD10G_MEDIA_SR; // For 10G serdes to Cu
         } else {
             conf.serdes.media_type = MESA_SD10G_MEDIA_DAC; // Best guess
         }
     }
     if (aneg) {
         /* Setup port based on auto negotiation status */
-        conf.speed = (conf.if_type == MESA_PORT_INTERFACE_SFI ? pc->speed : ps->speed);
+        conf.speed =
+            (conf.if_type == MESA_PORT_INTERFACE_SFI ? pc->speed : ps->speed);
         conf.fdx = ps->fdx;
         conf.flow_control.obey = ps->aneg.obey_pause;
         conf.flow_control.generate = ps->aneg.generate_pause;
@@ -377,7 +382,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                     phy.flow_control = pc->flow_control;
                     phy.adv_dis = pc->adv_dis;
                 } else if (pc->speed == MESA_SPEED_10G) {
-                    // This is to handle AQR Cu phy in aneg mode and switch in unchangeble 10G SFI mode
+                    // This is to handle AQR Cu phy in aneg mode and switch in
+                    // unchangeble 10G SFI mode
                     phy.speed = MESA_SPEED_AUTO;
                 } else {
                     // Forced speed
@@ -385,7 +391,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                     phy.fdx = pc->fdx;
                 }
             }
-            if (meba_phy_conf_set(meba_global_inst, port_no, &phy) != MESA_RC_OK) {
+            if (meba_phy_conf_set(meba_global_inst, port_no, &phy) !=
+                MESA_RC_OK) {
                 T_E("meba_phy_conf_set(%u) failed", port_no);
                 return;
             }
@@ -405,8 +412,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         conf.loop = 1;
     }
 
-    T_I("Port: %d if_type = %s, speed:%s %s %s %s, loop %u",
-        port_no, mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed),
+    T_I("Port: %d if_type = %s, speed:%s %s %s %s, loop %u", port_no,
+        mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed),
         conf.fdx ? "FDX" : "HDX", conf.flow_control.obey ? "OBEY" : "",
         conf.flow_control.generate ? "GENERATE" : "", conf.loop);
 
@@ -417,12 +424,14 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
 
 static mesa_rc port_status_poll(mesa_port_no_t port_no)
 {
-    mesa_rc              rc;
-    port_entry_t         *entry = &port_table[port_no];
-    mesa_port_status_t   *ps = &entry->status;;
+    mesa_rc             rc;
+    port_entry_t       *entry = &port_table[port_no];
+    mesa_port_status_t *ps = &entry->status;
+    ;
 
     T_N("Enter, port %d", port_no);
-    if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) != MESA_RC_OK) {
+    if ((rc = meba_port_status_get(meba_global_inst, port_no, ps)) !=
+        MESA_RC_OK) {
         T_E("meba_port_status_get(%u) failed", port_no);
     }
     T_N("Exit, port %d", port_no);
@@ -435,9 +444,9 @@ static mesa_rc port_status_poll(mesa_port_no_t port_no)
 
 typedef struct {
     mesa_port_speed_t speed;
-    mesa_bool_t fdx;
-    uint32_t    max_length;
-    uint32_t    adv_dis;
+    mesa_bool_t       fdx;
+    uint32_t          max_length;
+    uint32_t          adv_dis;
 
     mesa_bool_t auto_keyword;
     mesa_bool_t bytes;
@@ -467,22 +476,14 @@ typedef struct {
 static const char *port_mode_txt(mesa_port_speed_t speed, mesa_bool_t fdx)
 {
     switch (speed) {
-    case MESA_SPEED_10M:
-        return (fdx ? "10fdx" : "10hdx");
-    case MESA_SPEED_100M:
-        return (fdx ? "100fdx" : "100hdx");
-    case MESA_SPEED_1G:
-        return (fdx ? "1Gfdx" : "1Ghdx");
-    case MESA_SPEED_2500M:
-        return (fdx ? "2.5Gfdx" : "2.5Ghdx");
-    case MESA_SPEED_5G:
-        return (fdx ? "5Gfdx" : "5Ghdx");
-    case MESA_SPEED_10G:
-        return (fdx ? "10Gfdx" : "10Ghdx");
-    case MESA_SPEED_25G:
-        return (fdx ? "25Gfdx" : "25Ghdx");
-    default:
-        return "?";
+    case MESA_SPEED_10M:   return (fdx ? "10fdx" : "10hdx");
+    case MESA_SPEED_100M:  return (fdx ? "100fdx" : "100hdx");
+    case MESA_SPEED_1G:    return (fdx ? "1Gfdx" : "1Ghdx");
+    case MESA_SPEED_2500M: return (fdx ? "2.5Gfdx" : "2.5Ghdx");
+    case MESA_SPEED_5G:    return (fdx ? "5Gfdx" : "5Ghdx");
+    case MESA_SPEED_10G:   return (fdx ? "10Gfdx" : "10Ghdx");
+    case MESA_SPEED_25G:   return (fdx ? "25Gfdx" : "25Ghdx");
+    default:               return "?";
     }
 }
 
@@ -494,17 +495,23 @@ typedef enum {
     CLI_CMD_PORT_MAXLEN
 } port_cli_cmd_t;
 
-#define PR_ADV(x, s) {if (!(pc->adv_dis & MEPA_ADV_DIS_##x)) { cli_printf("%s  ", s); cnt = 1; } }
+#define PR_ADV(x, s)                                                           \
+    {                                                                          \
+        if (!(pc->adv_dis & MEPA_ADV_DIS_##x)) {                               \
+            cli_printf("%s  ", s);                                             \
+            cnt = 1;                                                           \
+        }                                                                      \
+    }
 
 /* Port configuration */
 static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
 {
-    mesa_port_no_t        uport, iport;
+    mesa_port_no_t         uport, iport;
     port_entry_t          *entry;
     mscc_appl_port_conf_t *pc;
     mesa_port_status_t    *ps;
-    mesa_bool_t           first = 1, cnt;
-    mesa_bool_t           rx, tx, init;
+    mesa_bool_t            first = 1, cnt;
+    mesa_bool_t            rx, tx, init;
     port_cli_req_t        *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
@@ -519,9 +526,7 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
         if (req->set) {
             init = 0;
             switch (cmd) {
-            case CLI_CMD_PORT_STATE:
-                pc->admin.enable = req->enable;
-                break;
+            case CLI_CMD_PORT_STATE: pc->admin.enable = req->enable; break;
             case CLI_CMD_PORT_MODE:
                 if (entry->meba.cap & MEBA_PORT_CAP_NO_FORCE) {
                     continue;
@@ -539,15 +544,12 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                     pc->adv_dis &= ~mreq->adv_dis;
                 }
                 break;
-            case CLI_CMD_PORT_FC:
-                pc->flow_control = req->enable;
-                break;
+            case CLI_CMD_PORT_FC: pc->flow_control = req->enable; break;
             case CLI_CMD_PORT_MAXLEN:
                 pc->max_length = mreq->max_length;
                 init = 1;
                 break;
-            default:
-                return;
+            default: return;
             }
             port_setup(iport, FALSE, init);
         } else if (cmd == CLI_CMD_PORT_ADV) {
@@ -568,7 +570,8 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
             cli_printf("%s\n", cnt ? "" : "-");
         } else {
             if (first) {
-                cli_table_header("Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link      ");
+                cli_table_header(
+                    "Port  State     Mode    Flow Control  Rx Pause  Tx Pause  MaxFrame  Link      ");
                 first = 0;
             }
             rx = pc->flow_control;
@@ -581,13 +584,11 @@ static void cli_cmd_port_conf(cli_req_t *req, port_cli_cmd_t cmd)
                     tx = ps->aneg.generate_pause;
                 }
             }
-            cli_printf("%-6u%-10s%-8s%-14s%s  %s  %-10u%-10s\n",
-                       uport,
+            cli_printf("%-6u%-10s%-8s%-14s%s  %s  %-10u%-10s\n", uport,
                        cli_bool_txt(pc->admin.enable),
                        pc->autoneg ? "Auto" : port_mode_txt(pc->speed, pc->fdx),
-                       cli_bool_txt(pc->flow_control),
-                       cli_bool_txt(rx), cli_bool_txt(tx),
-                       pc->max_length,
+                       cli_bool_txt(pc->flow_control), cli_bool_txt(rx),
+                       cli_bool_txt(tx), pc->max_length,
                        ps->link ? port_mode_txt(ps->speed, ps->fdx) : "Down");
         }
     }
@@ -634,7 +635,7 @@ static void setup_rx_reg(mesa_bool_t enable)
     }
 
     // Setup CPU rx registration for BPDU
-#define RXQ(_e,_q,_max) (_e ? (_q < _max ? _q : _max - 1) : -1)
+#define RXQ(_e, _q, _max) (_e ? (_q < _max ? _q : _max - 1) : -1)
     conf.map.bpdu_queue = RXQ(enable, 0, qcnt);
     conf.map.garp_queue = RXQ(enable, 1, qcnt);
     conf.map.learn_queue = RXQ(enable, 2, qcnt);
@@ -651,7 +652,7 @@ static void setup_rx_reg(mesa_bool_t enable)
 static void cli_cmd_port_npi(cli_req_t *req)
 {
     mesa_npi_conf_t conf;
-    mesa_port_no_t port_no = 1;
+    mesa_port_no_t  port_no = 1;
     if (mesa_npi_conf_get(NULL, &conf) == MESA_RC_OK) {
         if (req->parm_parsed) {
             conf.enable = req->enable;
@@ -661,7 +662,8 @@ static void cli_cmd_port_npi(cli_req_t *req)
             }
             setup_rx_reg(req->enable);
         }
-        cli_printf("NPI: port %u, %s\n", iport2uport(conf.port_no), conf.enable ? "enabled" : "disabled");
+        cli_printf("NPI: port %u, %s\n", iport2uport(conf.port_no),
+                   conf.enable ? "enabled" : "disabled");
     } else {
         T_E("mesa_npi_conf_get(%u) failed", port_no);
     }
@@ -681,7 +683,7 @@ static void cli_cmd_port_loopback(cli_req_t *req)
     mesa_port_no_t        uport, iport;
     mesa_port_test_conf_t conf;
     mesa_bool_t           first = 1;
-    port_cli_req_t        *mreq = req->module_req;
+    port_cli_req_t       *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
@@ -691,10 +693,11 @@ static void cli_cmd_port_loopback(cli_req_t *req)
         }
 
         if (req->set) {
-            conf.loopback = (mreq->near_end ? MESA_PORT_LB_NEAR_END :
-                             mreq->far_end ? MESA_PORT_LB_FAR_END :
-                             mreq->facility ? MESA_PORT_LB_FACILITY :
-                             mreq->equipment ? MESA_PORT_LB_EQUIPMENT : MESA_PORT_LB_DISABLED);
+            conf.loopback = (mreq->near_end    ? MESA_PORT_LB_NEAR_END
+                             : mreq->far_end   ? MESA_PORT_LB_FAR_END
+                             : mreq->facility  ? MESA_PORT_LB_FACILITY
+                             : mreq->equipment ? MESA_PORT_LB_EQUIPMENT
+                                               : MESA_PORT_LB_DISABLED);
             if (mesa_port_test_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                 printf("Loopback set failed for port %u\n", uport);
             }
@@ -703,22 +706,22 @@ static void cli_cmd_port_loopback(cli_req_t *req)
                 cli_table_header("Port  Loopback");
                 first = 0;
             }
-            cli_printf("%-6u%s\n",
-                       uport,
-                       conf.loopback == MESA_PORT_LB_NEAR_END ? "Near-End" :
-                       conf.loopback == MESA_PORT_LB_FAR_END ? "Far-End" :
-                       conf.loopback == MESA_PORT_LB_FACILITY ? "Facility" :
-                       conf.loopback == MESA_PORT_LB_EQUIPMENT ? "Equipment" : "Disabled");
+            cli_printf("%-6u%s\n", uport,
+                       conf.loopback == MESA_PORT_LB_NEAR_END    ? "Near-End"
+                       : conf.loopback == MESA_PORT_LB_FAR_END   ? "Far-End"
+                       : conf.loopback == MESA_PORT_LB_FACILITY  ? "Facility"
+                       : conf.loopback == MESA_PORT_LB_EQUIPMENT ? "Equipment"
+                                                                 : "Disabled");
         }
     }
 }
 
 static void cli_cmd_port_cable(cli_req_t *req)
 {
-    mesa_port_no_t        uport, iport;
-    mesa_bool_t           first = 1;
-    port_cli_req_t        *mreq = req->module_req;
-    mesa_port_conf_t      conf;
+    mesa_port_no_t   uport, iport;
+    mesa_bool_t      first = 1;
+    port_cli_req_t  *mreq = req->module_req;
+    mesa_port_conf_t conf;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
@@ -727,11 +730,12 @@ static void cli_cmd_port_cable(cli_req_t *req)
             continue;
         }
         if (req->set) {
-            conf.serdes.media_type = (mreq->optical ? MESA_SD10G_MEDIA_SR :
-                                      mreq->dac1m ? MESA_SD10G_MEDIA_DAC_1M :
-                                      mreq->dac2m ? MESA_SD10G_MEDIA_DAC_2M :
-                                      mreq->dac3m ? MESA_SD10G_MEDIA_DAC_3M :
-                                      mreq->dac5m ? MESA_SD10G_MEDIA_DAC_5M : MESA_SD10G_MEDIA_SR);
+            conf.serdes.media_type = (mreq->optical ? MESA_SD10G_MEDIA_SR
+                                      : mreq->dac1m ? MESA_SD10G_MEDIA_DAC_1M
+                                      : mreq->dac2m ? MESA_SD10G_MEDIA_DAC_2M
+                                      : mreq->dac3m ? MESA_SD10G_MEDIA_DAC_3M
+                                      : mreq->dac5m ? MESA_SD10G_MEDIA_DAC_5M
+                                                    : MESA_SD10G_MEDIA_SR);
             if (mesa_port_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                 printf("Loopback set failed for port %u\n", uport);
             }
@@ -740,15 +744,21 @@ static void cli_cmd_port_cable(cli_req_t *req)
                 cli_table_header("SFP cable type");
                 first = 0;
             }
-            cli_printf("%-6u%s\n",
-                       uport,
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_SR ? "Optical" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_1M ? "DAC-1M" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_2M ? "DAC-2M" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_3M ? "DAC-3M" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_5M ? "DAC-5M" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_DAC ? "DAC (unspecified length)" :
-                       conf.serdes.media_type == MESA_SD10G_MEDIA_PR_NONE ? "None" : "?");
+            cli_printf("%-6u%s\n", uport,
+                       conf.serdes.media_type == MESA_SD10G_MEDIA_SR ? "Optical"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_1M
+                           ? "DAC-1M"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_2M
+                           ? "DAC-2M"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_3M
+                           ? "DAC-3M"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_DAC_5M
+                           ? "DAC-5M"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_DAC
+                           ? "DAC (unspecified length)"
+                       : conf.serdes.media_type == MESA_SD10G_MEDIA_PR_NONE
+                           ? "None"
+                           : "?");
         }
     }
 }
@@ -768,7 +778,12 @@ static meba_sfp_driver_t *sfp_driver_search(meba_sfp_device_info_t *device_info)
     return NULL;
 }
 
-#define PR_CAP(x) {if (cap_all & MEBA_PORT_CAP_##x) cli_printf("%-*s  ", strlen(#x), cap & MEBA_PORT_CAP_##x ? #x : "-");}
+#define PR_CAP(x)                                                              \
+    {                                                                          \
+        if (cap_all & MEBA_PORT_CAP_##x)                                       \
+            cli_printf("%-*s  ", strlen(#x),                                   \
+                       cap &MEBA_PORT_CAP_##x ? #x : "-");                     \
+    }
 
 static void cli_cmd_port_cap(cli_req_t *req)
 {
@@ -776,7 +791,7 @@ static void cli_cmd_port_cap(cli_req_t *req)
     meba_port_cap_t cap, cap_all = 0;
     int             i;
     mesa_bool_t     header = 1;
-    port_cli_req_t  *mreq = req->module_req;
+    port_cli_req_t *mreq = req->module_req;
 
     for (i = 0; i < 2; i++) {
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
@@ -833,11 +848,16 @@ static void cli_cmd_port_cap(cli_req_t *req)
         }
     }
 }
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
-char *misc_mem_print(const uint8_t *in_buf, size_t in_sz, char *out_buf, size_t out_sz)
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+char *misc_mem_print(const uint8_t *in_buf,
+                     size_t         in_sz,
+                     char          *out_buf,
+                     size_t         out_sz)
 {
-    int  i = 0, j, out_cnt = 0;
-#define P(_fmt_, ...) out_cnt += snprintf(out_buf + out_cnt, MAX(out_sz - out_cnt, 0), _fmt_, ##__VA_ARGS__)
+    int i = 0, j, out_cnt = 0;
+#define P(_fmt_, ...)                                                          \
+    out_cnt += snprintf(out_buf + out_cnt, MAX(out_sz - out_cnt, 0), _fmt_,    \
+                        ##__VA_ARGS__)
     while (i < in_sz) {
         P("%04x:", i);
         j = 0;
@@ -863,15 +883,15 @@ char *misc_mem_print(const uint8_t *in_buf, size_t in_sz, char *out_buf, size_t 
 
 static void cli_cmd_sfp_dump(cli_req_t *req)
 {
-    uint32_t               port_cnt = mesa_port_cnt(NULL);
-    mesa_port_no_t         uport, iport;
-    mesa_port_status_t     ps;
-    mesa_port_conf_t       conf;
+    uint32_t                port_cnt = mesa_port_cnt(NULL);
+    mesa_port_no_t          uport, iport;
+    mesa_port_status_t      ps;
+    mesa_port_conf_t        conf;
     port_entry_t           *entry;
     meba_sfp_device_info_t *info;
-    int                    found = 0, pre;
-    uint8_t                rom[255] = {};
-    char                   out_buf[4096] = {};
+    int                     found = 0, pre;
+    uint8_t                 rom[255] = {};
+    char                    out_buf[4096] = {};
     port_cli_req_t         *mreq = req->module_req;
 
     for (iport = 0; iport < port_cnt; iport++) {
@@ -886,7 +906,8 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
         }
 
         if (!found) {
-            cli_printf("Port(cli)  SFP-type        Known Vendor          Product Name    Rev     SN              Los   API-IF      Speed Link\n");
+            cli_printf(
+                "Port(cli)  SFP-type        Known Vendor          Product Name    Rev     SN              Los   API-IF      Speed Link\n");
             found = 1;
         }
 
@@ -895,27 +916,35 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
             pre = sfp_driver_search(info) == NULL ? 0 : 1;
         }
 
-        cli_printf("%-10d %-15s %-5s %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",
-                   uport,
-                   mesa_sfp_if2txt(entry->sfp_type),
-                   info ? pre ? "yes" : "no" : "-",
-                   info ? info->vendor_name : "-",
-                   info ? info->vendor_pn : "-",
-                   info ? info->vendor_rev : "-",
-                   info ? info->vendor_sn : "-",
-                   entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
-                   entry->sfp_type == MEBA_SFP_TRANSRECEIVER_25G_DAC ? "-" :
-                   entry->sfp_status.los ? "yes" : "no",
-                   mesa_port_if2txt(conf.if_type),
-                   mesa_port_spd2txt(conf.speed),
-                   ps.link ? "yes" : "no");
+        cli_printf(
+            "%-10d %-15s %-5s %-15s %-15s %-7s %-15s %-5s %-11s %-5s %-5s\n",
+            uport, mesa_sfp_if2txt(entry->sfp_type),
+            info ? pre ? "yes" : "no" : "-", info ? info->vendor_name : "-",
+            info ? info->vendor_pn : "-", info ? info->vendor_rev : "-",
+            info ? info->vendor_sn : "-",
+            entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10G_DAC ||
+                    entry->sfp_type == MEBA_SFP_TRANSRECEIVER_25G_DAC
+                ? "-"
+            : entry->sfp_status.los ? "yes"
+                                    : "no",
+            mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed),
+            ps.link ? "yes" : "no");
 
         if (mreq->full) {
-            if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE, 0x50, 0, rom, sizeof(rom), FALSE) == MESA_RC_OK) {
-                cli_printf("Rom content at A0h:\n%s\n", misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
+            if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport,
+                                                        FALSE, 0x50, 0, rom,
+                                                        sizeof(rom),
+                                                        FALSE) == MESA_RC_OK) {
+                cli_printf("Rom content at A0h:\n%s\n",
+                           misc_mem_print(rom, sizeof(rom), out_buf,
+                                          sizeof(out_buf)));
                 if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) {
-                    if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE, 0x56, 0, rom, 128, FALSE) == MESA_RC_OK) {
-                        cli_printf("Phy content:\n%s\n", misc_mem_print(rom, 128, out_buf, 128));
+                    if (meba_global_inst->api
+                            .meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE,
+                                               0x56, 0, rom, 128,
+                                               FALSE) == MESA_RC_OK) {
+                        cli_printf("Phy content:\n%s\n",
+                                   misc_mem_print(rom, 128, out_buf, 128));
                     } else {
                         cli_printf("Could i2c read SFP PHY\n");
                     }
@@ -924,7 +953,6 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
                 cli_printf("Could i2c read SFP ROM\n");
             }
         }
-
     }
     if (!found) {
         cli_printf("No SFPs found\n");
@@ -933,10 +961,11 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
 
 static void cli_cmd_phy_scan(cli_req_t *req)
 {
-    uint16_t value, adr;
-    mesa_bool_t found = FALSE, found_mmd = FALSE;
-    port_cli_req_t *mreq = req->module_req;
-    mesa_miim_controller_t miim_ctrl, miim_start = MESA_MIIM_CONTROLLER_0, miim_end = MESA_MIIM_CONTROLLERS;
+    uint16_t               value, adr;
+    mesa_bool_t            found = FALSE, found_mmd = FALSE;
+    port_cli_req_t        *mreq = req->module_req;
+    mesa_miim_controller_t miim_ctrl, miim_start = MESA_MIIM_CONTROLLER_0,
+                                      miim_end = MESA_MIIM_CONTROLLERS;
     int ctrl_cnt = mesa_capability(NULL, MESA_CAP_PORT_MIIM_CTRL_CNT);
 
     if (mreq->ctrl0) {
@@ -959,14 +988,20 @@ static void cli_cmd_phy_scan(cli_req_t *req)
         }
 
         for (adr = 0; adr < 32; adr++) {
-            if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &value) == MESA_RC_OK) {
-                cli_printf("Clause 28: Ctrl:%d MIIM addr:%-2d - Found Phy 0x%x (reg 3)\n",miim_ctrl, adr, value);
+            if (mesa_miim_read(NULL, 0, miim_ctrl, adr, 3, &value) ==
+                MESA_RC_OK) {
+                cli_printf(
+                    "Clause 28: Ctrl:%d MIIM addr:%-2d - Found Phy 0x%x (reg 3)\n",
+                    miim_ctrl, adr, value);
                 found = TRUE;
             }
         }
         for (adr = 0; adr < 32; adr++) {
-            if (mesa_mmd_read(NULL, 0, miim_ctrl, adr, 1, 3, &value) == MESA_RC_OK) {
-                cli_printf("Clause 45: Ctrl:%d MMD addr:1,%-2d - Found Phy 0x%x (reg 3)\n",miim_ctrl, adr, value);
+            if (mesa_mmd_read(NULL, 0, miim_ctrl, adr, 1, 3, &value) ==
+                MESA_RC_OK) {
+                cli_printf(
+                    "Clause 45: Ctrl:%d MMD addr:1,%-2d - Found Phy 0x%x (reg 3)\n",
+                    miim_ctrl, adr, value);
                 found_mmd = TRUE;
             }
         }
@@ -982,27 +1017,34 @@ static void cli_cmd_phy_scan(cli_req_t *req)
 static void cli_cmd_phy_id(cli_req_t *req)
 {
     mesa_port_interface_t mac_if;
-    mepa_phy_info_t phy_id;
-    mesa_rc rc;
-    char spd[80];
+    mepa_phy_info_t       phy_id;
+    mesa_rc               rc;
+    char                  spd[80];
 
     cli_printf("Port       part-id   Rev    Max speed      Host IF\n");
     cli_printf("---------------------------------------------------\n");
 
     for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
-        if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
+        if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) ==
+            MESA_RC_OK) {
             meba_phy_if_get(meba_global_inst, port_no, 1, &mac_if);
-            sprintf(spd, "%s", phy_id.cap & MEPA_CAP_SPEED_MASK_2G5 ? "2G5" : phy_id.cap & MEPA_CAP_SPEED_MASK_10G ? "10G" : "1G");
-            cli_printf("%-10d %-10d %-10d %-10s %s\n", port_no, phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
+            sprintf(spd, "%s",
+                    phy_id.cap & MEPA_CAP_SPEED_MASK_2G5   ? "2G5"
+                    : phy_id.cap & MEPA_CAP_SPEED_MASK_10G ? "10G"
+                                                           : "1G");
+            cli_printf("%-10d %-10d %-10d %-10s %s\n", port_no,
+                       phy_id.part_number, phy_id.revision, spd,
+                       mesa_port_if2txt(mac_if));
         }
     }
 }
 
-
-
 /* Print counters in two columns with header */
-static void cli_cmd_stat_port(mesa_port_no_t port, mesa_bool_t *first, const char *name,
-                              uint64_t c1, uint64_t c2)
+static void cli_cmd_stat_port(mesa_port_no_t port,
+                              mesa_bool_t   *first,
+                              const char    *name,
+                              uint64_t       c1,
+                              uint64_t       c2)
 {
     char buf[80], *p;
 
@@ -1016,7 +1058,10 @@ static void cli_cmd_stat_port(mesa_port_no_t port, mesa_bool_t *first, const cha
 }
 
 /* Print two counters in columns */
-static void cli_cmd_stats(const char *col1, const char *col2, uint64_t c1, uint64_t c2)
+static void cli_cmd_stats(const char *col1,
+                          const char *col2,
+                          uint64_t    c1,
+                          uint64_t    c2)
 {
     char buf[80];
 
@@ -1032,22 +1077,26 @@ static void cli_cmd_stats(const char *col1, const char *col2, uint64_t c1, uint6
 /* Port statistics */
 static void cli_cmd_port_stats(cli_req_t *req)
 {
-    mesa_port_no_t                     uport, iport, i;
-    mesa_port_counters_t               counters;
+    mesa_port_no_t                      uport, iport, i;
+    mesa_port_counters_t                counters;
     mesa_port_rmon_counters_t          *rmon = &counters.rmon;
     mesa_port_if_group_counters_t      *if_group = &counters.if_group;
     mesa_port_ethernet_like_counters_t *elike = &counters.ethernet_like;
     mesa_port_prio_counters_t          *prio;
-    mesa_bool_t                        first = 1;
-    char                               buf[32];
-    uint32_t                           rmon_frame_max = (mesa_capability(NULL, MESA_CAP_MISC_CHIP_FAMILY) == MESA_CHIP_FAMILY_CARACAL ? 1526 : 1518);
-    port_cli_req_t                     *mreq = req->module_req;
+    mesa_bool_t                         first = 1;
+    char                                buf[32];
+    uint32_t                            rmon_frame_max =
+        (mesa_capability(NULL, MESA_CAP_MISC_CHIP_FAMILY) ==
+                 MESA_CHIP_FAMILY_CARACAL
+             ? 1526
+             : 1518);
+    port_cli_req_t *mreq = req->module_req;
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
         // Do only change setting for ports in the port list
         if (req->port_list[uport] == 0) {
-          continue;
+            continue;
         }
         /* Handle 'clear' command */
         if (mreq->clear) {
@@ -1061,43 +1110,48 @@ static void cli_cmd_port_stats(cli_req_t *req)
 
         /* Handle 'packet' command */
         if (mreq->packets) {
-            cli_cmd_stat_port(uport, &first, "Packets",
-                              rmon->rx_etherStatsPkts, rmon->tx_etherStatsPkts);
+            cli_cmd_stat_port(uport, &first, "Packets", rmon->rx_etherStatsPkts,
+                              rmon->tx_etherStatsPkts);
             continue;
         }
 
         /* Handle 'bytes' command */
         if (mreq->bytes) {
             cli_cmd_stat_port(uport, &first, "Octets",
-                              rmon->rx_etherStatsOctets, rmon->tx_etherStatsOctets);
+                              rmon->rx_etherStatsOctets,
+                              rmon->tx_etherStatsOctets);
             continue;
         }
 
         /* Handle 'errors' command */
         if (mreq->errors) {
-            cli_cmd_stat_port(uport, &first, "Errors",
-                              if_group->ifInErrors, if_group->ifOutErrors);
+            cli_cmd_stat_port(uport, &first, "Errors", if_group->ifInErrors,
+                              if_group->ifOutErrors);
             continue;
         }
 
         /* Handle 'discards' command */
         if (mreq->discards) {
-            cli_cmd_stat_port(uport, &first, "Discards",
-                              if_group->ifInDiscards, if_group->ifOutDiscards);
+            cli_cmd_stat_port(uport, &first, "Discards", if_group->ifInDiscards,
+                              if_group->ifOutDiscards);
             continue;
         }
 
         /* Handle default command */
         cli_printf("%sPort %u Statistics:\n\n", first ? "" : "\n", uport);
         first = 0;
-        cli_cmd_stats("Packets", "", rmon->rx_etherStatsPkts, rmon->tx_etherStatsPkts);
-        cli_cmd_stats("Octets", "", rmon->rx_etherStatsOctets, rmon->tx_etherStatsOctets);
-        cli_cmd_stats("Unicast", "", if_group->ifInUcastPkts, if_group->ifOutUcastPkts);
+        cli_cmd_stats("Packets", "", rmon->rx_etherStatsPkts,
+                      rmon->tx_etherStatsPkts);
+        cli_cmd_stats("Octets", "", rmon->rx_etherStatsOctets,
+                      rmon->tx_etherStatsOctets);
+        cli_cmd_stats("Unicast", "", if_group->ifInUcastPkts,
+                      if_group->ifOutUcastPkts);
         cli_cmd_stats("Multicast", "", rmon->rx_etherStatsMulticastPkts,
                       rmon->tx_etherStatsMulticastPkts);
         cli_cmd_stats("Broadcast", "", rmon->rx_etherStatsBroadcastPkts,
                       rmon->tx_etherStatsBroadcastPkts);
-        cli_cmd_stats("Pause", "", elike->dot3InPauseFrames, elike->dot3OutPauseFrames);
+        cli_cmd_stats("Pause", "", elike->dot3InPauseFrames,
+                      elike->dot3OutPauseFrames);
         cli_printf("\n");
         cli_cmd_stats("64", "", rmon->rx_etherStatsPkts64Octets,
                       rmon->tx_etherStatsPkts64Octets);
@@ -1127,38 +1181,45 @@ static void cli_cmd_port_stats(cli_req_t *req)
 
         cli_cmd_stats("Drops", "", rmon->rx_etherStatsDropEvents,
                       rmon->tx_etherStatsDropEvents);
-        if (mesa_capability(NULL, MESA_CAP_PORT_CNT_ETHER_LIKE)){
-            cli_cmd_stats("CRC/Alignment", "Late Collisions", rmon->rx_etherStatsCRCAlignErrors,
+        if (mesa_capability(NULL, MESA_CAP_PORT_CNT_ETHER_LIKE)) {
+            cli_cmd_stats("CRC/Alignment", "Late Collisions",
+                          rmon->rx_etherStatsCRCAlignErrors,
                           elike->dot3StatsLateCollisions);
-            cli_cmd_stats("Symbol", "Excessive Coll.", elike->dot3StatsSymbolErrors,
+            cli_cmd_stats("Symbol", "Excessive Coll.",
+                          elike->dot3StatsSymbolErrors,
                           elike->dot3StatsExcessiveCollisions);
-            cli_cmd_stats("Undersize", "Carrier Sense", rmon->rx_etherStatsUndersizePkts,
+            cli_cmd_stats("Undersize", "Carrier Sense",
+                          rmon->rx_etherStatsUndersizePkts,
                           elike->dot3StatsCarrierSenseErrors);
         } else {
-            cli_cmd_stats("CRC/Alignment", "Late/Exc. Coll.", rmon->rx_etherStatsCRCAlignErrors,
+            cli_cmd_stats("CRC/Alignment", "Late/Exc. Coll.",
+                          rmon->rx_etherStatsCRCAlignErrors,
                           if_group->ifOutErrors);
-            cli_cmd_stats("Undersize", NULL, rmon->rx_etherStatsUndersizePkts, 0);
-
+            cli_cmd_stats("Undersize", NULL, rmon->rx_etherStatsUndersizePkts,
+                          0);
         }
         cli_cmd_stats("Oversize", NULL, rmon->rx_etherStatsOversizePkts, 0);
         cli_cmd_stats("Fragments", NULL, rmon->rx_etherStatsFragments, 0);
         cli_cmd_stats("Jabbers", NULL, rmon->rx_etherStatsJabbers, 0);
-        cli_cmd_stats("Filtered", NULL, counters.bridge.dot1dTpPortInDiscards, 0);
+        cli_cmd_stats("Filtered", NULL, counters.bridge.dot1dTpPortInDiscards,
+                      0);
     } /* Port loop */
 }
 
 static void dynamic_phy_setup(mesa_port_no_t port_no)
 {
-    mepa_reset_param_t    phy_reset = {};
-    mepa_conf_t           phy_conf = {};
-    mesa_rc               rc;
+    mepa_reset_param_t phy_reset = {};
+    mepa_conf_t        phy_conf = {};
+    mesa_rc            rc;
 
     // Pre reset PHY
     phy_reset.reset_point = MEPA_RESET_POINT_PRE;
     phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
     rc = (meba_phy_reset(meba_global_inst, port_no, &phy_reset));
-    if (rc == MESA_RC_NOT_IMPLEMENTED || rc == MESA_RC_ERR_PHY_BASE_NO_NOT_FOUND || rc == MESA_RC_OK) {
-        // We don't care if its not implemented (third party) or if its not the base port (only one of them is)
+    if (rc == MESA_RC_NOT_IMPLEMENTED ||
+        rc == MESA_RC_ERR_PHY_BASE_NO_NOT_FOUND || rc == MESA_RC_OK) {
+        // We don't care if its not implemented (third party) or if its not the
+        // base port (only one of them is)
     } else {
         T_E("meba_pre_phy_reset(%u) failed: %d", port_no, rc);
     }
@@ -1181,21 +1242,21 @@ static void dynamic_phy_setup(mesa_port_no_t port_no)
     }
 }
 
-
 static void cli_cmd_deb_port_dynamic(cli_req_t *req)
 {
-    mesa_port_no_t        uport, iport;
-    port_entry_t          *entry;
-    mesa_bool_t           first = TRUE, phy_probed = FALSE;
-    port_cli_req_t        *mreq = req->module_req;
-    mesa_port_conf_t      conf;
-    mepa_phy_info_t       phy_id;
-    uint32_t              dyna_group_set = 0;
-    char                  capa[100] = {}, *p;
-    char                  bw_buf[20];
-    uint32_t              port_cnt = MEBA_WRAP(meba_capability, meba_global_inst, MEBA_CAP_BOARD_PORT_COUNT);
-    uint32_t              port_max_cnt = mesa_port_cnt(NULL);
-    mesa_port_map_t       map[port_max_cnt];
+    mesa_port_no_t   uport, iport;
+    port_entry_t    *entry;
+    mesa_bool_t      first = TRUE, phy_probed = FALSE;
+    port_cli_req_t  *mreq = req->module_req;
+    mesa_port_conf_t conf;
+    mepa_phy_info_t  phy_id;
+    uint32_t         dyna_group_set = 0;
+    char             capa[100] = {}, *p;
+    char             bw_buf[20];
+    uint32_t         port_cnt =
+        MEBA_WRAP(meba_capability, meba_global_inst, MEBA_CAP_BOARD_PORT_COUNT);
+    uint32_t        port_max_cnt = mesa_port_cnt(NULL);
+    mesa_port_map_t map[port_max_cnt];
 
     if (mesa_port_map_get(NULL, port_cnt, map) != MESA_RC_OK) {
         cli_printf("Error:Could not get port map");
@@ -1220,8 +1281,10 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
 
         if (req->set) {
             if (!mreq->force) {
-                if (((mreq->speed == MESA_SPEED_2500M) && !(entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX)) ||
-                    ((mreq->speed == MESA_SPEED_10G) && !(entry->meba.cap & MEBA_PORT_CAP_10G_FDX))) {
+                if (((mreq->speed == MESA_SPEED_2500M) &&
+                     !(entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX)) ||
+                    ((mreq->speed == MESA_SPEED_10G) &&
+                     !(entry->meba.cap & MEBA_PORT_CAP_10G_FDX))) {
                     cli_printf("Speed not supported\n");
                     return;
                 }
@@ -1231,49 +1294,60 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
                 conf.if_type = MESA_PORT_INTERFACE_QSGMII;
             } else if (mreq->speed == MESA_SPEED_2500M) {
                 conf.if_type = MESA_PORT_INTERFACE_QXGMII;
-            } else if (mreq->speed == MESA_SPEED_10G || mreq->speed == MESA_SPEED_5G) {
+            } else if (mreq->speed == MESA_SPEED_10G ||
+                       mreq->speed == MESA_SPEED_5G) {
                 conf.if_type = MESA_PORT_INTERFACE_SFI;
             }
 
             if (mesa_port_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
-                cli_printf("Error: mesa_port_conf_set(%u) failed %d\n",iport);
+                cli_printf("Error: mesa_port_conf_set(%u) failed %d\n", iport);
             }
 
             dyna_group_set = entry->meba.map.chip_port / 4;
         } else {
             if (first) {
-                cli_table_header("Port  chip-port  Group  Interface  Poll?  Phy?     Capability     Max-bw");
+                cli_table_header(
+                    "Port  chip-port  Group  Interface  Poll?  Phy?     Capability     Max-bw");
                 first = 0;
             }
 
-            if ((meba_phy_info_get(meba_global_inst, iport, &phy_id)) == MESA_RC_OK) {
+            if ((meba_phy_info_get(meba_global_inst, iport, &phy_id)) ==
+                MESA_RC_OK) {
                 phy_probed = TRUE;
             } else {
                 phy_probed = FALSE;
             }
             p = &capa[0];
-            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_1G_FDX   ? "1G"   : "");
-            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX ? " 2G5" : "");
-            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_5G_FDX   ? " 5G"  : "");
-            p += sprintf(p, "%s", entry->meba.cap & MEBA_PORT_CAP_10G_FDX  ? " 10G" : "");
+            p += sprintf(p, "%s",
+                         entry->meba.cap & MEBA_PORT_CAP_1G_FDX ? "1G" : "");
+            p +=
+                sprintf(p, "%s",
+                        entry->meba.cap & MEBA_PORT_CAP_2_5G_FDX ? " 2G5" : "");
+            p += sprintf(p, "%s",
+                         entry->meba.cap & MEBA_PORT_CAP_5G_FDX ? " 5G" : "");
+            p += sprintf(p, "%s",
+                         entry->meba.cap & MEBA_PORT_CAP_10G_FDX ? " 10G" : "");
 
             sprintf(&bw_buf[0], "%-8s",
-                    map[iport].max_bw == MESA_BW_1G   ? "BW-1G"   :
-                    map[iport].max_bw == MESA_BW_2G5  ? "BW-2G5"  :
-                    map[iport].max_bw == MESA_BW_5G   ? "BW-5G"   :
-                    map[iport].max_bw == MESA_BW_10G  ? "BW-10G"  :
-                    map[iport].max_bw == MESA_BW_25G  ? "BW-25G"  :
-                    map[iport].max_bw == MESA_BW_NONE ? "BW-None" : "N/A");
+                    map[iport].max_bw == MESA_BW_1G     ? "BW-1G"
+                    : map[iport].max_bw == MESA_BW_2G5  ? "BW-2G5"
+                    : map[iport].max_bw == MESA_BW_5G   ? "BW-5G"
+                    : map[iport].max_bw == MESA_BW_10G  ? "BW-10G"
+                    : map[iport].max_bw == MESA_BW_25G  ? "BW-25G"
+                    : map[iport].max_bw == MESA_BW_NONE ? "BW-None"
+                                                        : "N/A");
 
-            cli_printf("%-6u%-11d%-7d%-11s%-7s%-9s%-15s%-10s\n",
-                       uport,  entry->meba.map.chip_port, entry->meba.map.chip_port / 4,
-                       mesa_port_if2txt(conf.if_type), entry->valid ? "Yes" : "No", phy_probed ? "Yes" : "No-Phy", capa, bw_buf);
-
+            cli_printf("%-6u%-11d%-7d%-11s%-7s%-9s%-15s%-10s\n", uport,
+                       entry->meba.map.chip_port, entry->meba.map.chip_port / 4,
+                       mesa_port_if2txt(conf.if_type),
+                       entry->valid ? "Yes" : "No",
+                       phy_probed ? "Yes" : "No-Phy", capa, bw_buf);
         }
     }
 
     // Now handle the phys (if they exist)
-    // Based on what occured above, the phys need to be removed or added to/from the meba driver
+    // Based on what occured above, the phys need to be removed or added to/from
+    // the meba driver
     if (req->set) {
 
         for (iport = 0; iport < port_cnt; iport++) {
@@ -1301,19 +1375,22 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
             if (conf.if_type == MESA_PORT_INTERFACE_QSGMII ||
                 conf.if_type == MESA_PORT_INTERFACE_QXGMII) {
                 if (meba_global_inst->phy_devices[iport] == NULL) {
-                    MEBA_WRAP(meba_reset, meba_global_inst, MEBA_PHY_INITIALIZE);
+                    MEBA_WRAP(meba_reset, meba_global_inst,
+                              MEBA_PHY_INITIALIZE);
                     cli_printf("Re-initilize (probe) phys instances - done\n");
                 }
                 // Reset and setup phy
                 dynamic_phy_setup(iport);
 
             } else {
-             // Phys are removed
+                // Phys are removed
                 if (meba_global_inst->phy_devices[iport] != NULL) {
-                    if (meba_phy_delete(meba_global_inst, iport) != MESA_RC_OK) {
-                        cli_printf("Error: Could not delete phy instance %d\n",iport);
+                    if (meba_phy_delete(meba_global_inst, iport) !=
+                        MESA_RC_OK) {
+                        cli_printf("Error: Could not delete phy instance %d\n",
+                                   iport);
                     }
-                    cli_printf("Phy %d instance deleted\n",iport);
+                    cli_printf("Phy %d instance deleted\n", iport);
                 }
             }
             if (conf.if_type == MESA_PORT_INTERFACE_NO_CONNECTION) {
@@ -1326,87 +1403,43 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
+    {"Port State [<port_list>] [enable|disable]",
+     "Set or show the port administrative state", cli_cmd_port_state},
+    {"Port Mode [<port_list>] [10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto]",
+     "Set or show the port speed and duplex mode", cli_cmd_port_mode},
+    {"Port Advertisement [<port_list>] [hdx|fdx|10|100|1000|2500|5g|10g] [enable|disable]",
+     "Set or show the advertised speed and duplex mode", cli_cmd_port_adv},
+    {"Port Flow Control [<port_list>] [enable|disable]",
+     "Set or show the port flow control mode", cli_cmd_port_flow_control},
+    {"Port MaxFrame [<port_list>] [<max_frame>]",
+     "Set or show the port maximum frame size", cli_cmd_port_max_frame},
+    {"Port Statistics [<port_list>] [clear|packets|bytes|errors|discards]",
+     "Show port statistics", cli_cmd_port_stats},
     {
-        "Port State [<port_list>] [enable|disable]",
-        "Set or show the port administrative state",
-        cli_cmd_port_state
-    },
-    {
-        "Port Mode [<port_list>] [10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto]",
-        "Set or show the port speed and duplex mode",
-        cli_cmd_port_mode
-    },
-    {
-        "Port Advertisement [<port_list>] [hdx|fdx|10|100|1000|2500|5g|10g] [enable|disable]",
-        "Set or show the advertised speed and duplex mode",
-        cli_cmd_port_adv
-    },
-    {
-        "Port Flow Control [<port_list>] [enable|disable]",
-        "Set or show the port flow control mode",
-        cli_cmd_port_flow_control
-    },
-    {
-        "Port MaxFrame [<port_list>] [<max_frame>]",
-        "Set or show the port maximum frame size",
-        cli_cmd_port_max_frame
-    },
-    {
-        "Port Statistics [<port_list>] [clear|packets|bytes|errors|discards]",
-        "Show port statistics",
-        cli_cmd_port_stats
-    },
-    {
-        "Port NPI [<port_no>] [enable|disable]",
-        "Enable/disable NPI port",
-        cli_cmd_port_npi,
-    },
-    {
-        "Port Loopback [<port_list>] [near-end|far-end|facility|equipment] [enable|disable]",
-        "Set or show the port forwarding mode",
-        cli_cmd_port_loopback
-    },
-    {
-        "Debug Port cable [<port_list>] [optical|dac-1m|dac-2m|dac-3m|dac-5m]",
-        "Set or show the port forwarding mode",
-        cli_cmd_port_cable
-    },
-    {
-        "Debug Port Capabilities [<port_list>] [compact]",
-        "Show port capabilities",
-        cli_cmd_port_cap
-    },
-    {
-        "Debug Port Polling [enable|disable]",
-        "Set or show the port polling mode",
-        cli_cmd_port_polling
-    },
-    {
-        "Debug Port dynamic [<port_list>] [1000fdx|2500|5g|10g] [force]",
-        "Dynamic port mode setting",
-        cli_cmd_deb_port_dynamic
-    },
-    {
-        "Debug SFP [<port_list>] [full]",
-        "Shows all detected SFPs",
-        cli_cmd_sfp_dump
-    },
-    {
-        "Debug phy scan [ctrl0|ctrl1|ctrl2|ctrl3]",
-        "Shows all detected phys (over all controllers)",
-        cli_cmd_phy_scan
-    },
-    {
-        "Debug phy id",
-        "Shows all probed phys",
-        cli_cmd_phy_id
-    },
+     "Port NPI [<port_no>] [enable|disable]", "Enable/disable NPI port",
+     cli_cmd_port_npi, },
+    {"Port Loopback [<port_list>] [near-end|far-end|facility|equipment] [enable|disable]",
+     "Set or show the port forwarding mode", cli_cmd_port_loopback},
+    {"Debug Port cable [<port_list>] [optical|dac-1m|dac-2m|dac-3m|dac-5m]",
+     "Set or show the port forwarding mode", cli_cmd_port_cable},
+    {"Debug Port Capabilities [<port_list>] [compact]",
+     "Show port capabilities", cli_cmd_port_cap},
+    {"Debug Port Polling [enable|disable]", "Set or show the port polling mode",
+     cli_cmd_port_polling},
+    {"Debug Port dynamic [<port_list>] [1000fdx|2500|5g|10g] [force]",
+     "Dynamic port mode setting", cli_cmd_deb_port_dynamic},
+    {"Debug SFP [<port_list>] [full]", "Shows all detected SFPs",
+     cli_cmd_sfp_dump},
+    {"Debug phy scan [ctrl0|ctrl1|ctrl2|ctrl3]",
+     "Shows all detected phys (over all controllers)", cli_cmd_phy_scan},
+    {"Debug phy id", "Shows all probed phys", cli_cmd_phy_id},
 };
 
 static int cli_parm_max_frame(cli_req_t *req)
 {
     port_cli_req_t *mreq = req->module_req;
-    return cli_parm_u32(req, &mreq->max_length, MESA_MAX_FRAME_LENGTH_STANDARD, mesa_capability(NULL, MESA_CAP_PORT_FRAME_LENGTH_MAX));
+    return cli_parm_u32(req, &mreq->max_length, MESA_MAX_FRAME_LENGTH_STANDARD,
+                        mesa_capability(NULL, MESA_CAP_PORT_FRAME_LENGTH_MAX));
 }
 
 static int cli_parm_keyword(cli_req_t *req)
@@ -1506,112 +1539,66 @@ static int cli_parm_keyword(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {
-        "10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto",
-        "10hdx      : 10 Mbps, half duplex\n"
-        "10fdx      : 10 Mbps, full duplex\n"
-        "100hdx     : 100 Mbps, half duplex\n"
-        "100fdx     : 100 Mbps, full duplex\n"
-        "1000fdx    : 1 Gbps, full duplex\n"
-        "2500       : 2.5 Gbps, full duplex\n"
-        "5g         : 5 Gbps, full duplex\n"
-        "10g        : 10 Gbps, full duplex\n"
-        "25g        : 25 Gbps, full duplex\n"
-        "auto       : Auto negotiation of speed and duplex\n"
-        "(default: Show configured and current mode)",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
-    {
-        "hdx|fdx|10|100|1000|2500|5g|10g",
-        "hdx        : Half duplex (10/100 Mbps)\n"
-        "fdx        : Full duplex (10/100 Mbps)\n"
-        "10         : 10 Mbps\n"
-        "100        : 100 Mbps\n"
-        "1000       : 1 Gbps\n"
-        "2500       : 2.5 Gbps\n"
-        "5g         : 5 Gbps\n"
-        "10g        : 10 Gbps\n"
-        "(default: Show advertisements)",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
-    {
-        "clear|packets|bytes|errors|discards",
-        "clear      : Clear port statistics\n"
-        "packets    : Show packet statistics\n"
-        "bytes      : Show byte statistics\n"
-        "errors     : Show error statistics\n"
-        "discards   : Show discard statistics\n"
-        "(default: Show all port statistics)",
-        CLI_PARM_FLAG_NO_TXT,
-        cli_parm_keyword
-    },
-    {
-        "<max_frame>",
-        "Port maximum frame size, default: Show maximum frame size",
-        CLI_PARM_FLAG_NONE | CLI_PARM_FLAG_SET,
-        cli_parm_max_frame
-    },
-    {
-        "near-end|far-end|facility|equipment",
-        "near-end   : Loopback from Tx to Rx in PHY\n"
-        "far-end    : Loopback from Rx to Tx in PHY\n"
-        "equipment  : Loopback from Tx to Rx in SerDes\n"
-        "facility   : Loopback from Rx to Tx in SerDes\n"
-        "(default: Show loopback mode)",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
-    {
-        "optical|dac-1m|dac-2m|dac-3m|dac-5m",
-        "optical    : Optical/fiber cable\n"
-        "dac-1m     : 1m DAC\n"
-        "dac-2m     : 2m DAC\n"
-        "dac-3m     : 3m DAC\n"
-        "dac-5m     : 5m DAC\n",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
-    {
-        "compact",
-        "Show compact view",
-        CLI_PARM_FLAG_NONE,
-        cli_parm_keyword
-    },
-    {
-        "full",
-        "Show all",
-        CLI_PARM_FLAG_NONE,
-        cli_parm_keyword,
-        cli_cmd_sfp_dump
-    },
-    {
-        "1000fdx|2500|5g|10g",
-        "1000       : 1 Gbps\n"
-        "2500       : 2.5 Gbps\n"
-        "10g        : 5g Gbps\n"
-        "10g        : 10 Gbps\n"
-        "(default: Show dynamic settings)",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
-    {
-        "force",
-        "Force config even though capabilities are not there",
-        CLI_PARM_FLAG_NONE,
-        cli_parm_keyword
-    },
-    {
-        "ctrl0|ctrl1|ctrl2|ctrl3",
-        "ctrl0      : miim controller 0\n"
-        "ctrl1      : miim controller 1\n"
-        "ctrl2      : miim controller 2\n"
-        "ctrl3      : miim controller 3\n"
-        "(default: all controllers)",
-        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
-        cli_parm_keyword
-    },
+    {"10hdx|10fdx|100hdx|100fdx|1000fdx|2500|5g|10g|25g|auto",
+     "10hdx      : 10 Mbps, half duplex\n"
+     "10fdx      : 10 Mbps, full duplex\n"
+     "100hdx     : 100 Mbps, half duplex\n"
+     "100fdx     : 100 Mbps, full duplex\n"
+     "1000fdx    : 1 Gbps, full duplex\n"
+     "2500       : 2.5 Gbps, full duplex\n"
+     "5g         : 5 Gbps, full duplex\n"
+     "10g        : 10 Gbps, full duplex\n"
+     "25g        : 25 Gbps, full duplex\n"
+     "auto       : Auto negotiation of speed and duplex\n"
+     "(default: Show configured and current mode)", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"hdx|fdx|10|100|1000|2500|5g|10g",
+     "hdx        : Half duplex (10/100 Mbps)\n"
+     "fdx        : Full duplex (10/100 Mbps)\n"
+     "10         : 10 Mbps\n"
+     "100        : 100 Mbps\n"
+     "1000       : 1 Gbps\n"
+     "2500       : 2.5 Gbps\n"
+     "5g         : 5 Gbps\n"
+     "10g        : 10 Gbps\n"
+     "(default: Show advertisements)", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"clear|packets|bytes|errors|discards",
+     "clear      : Clear port statistics\n"
+     "packets    : Show packet statistics\n"
+     "bytes      : Show byte statistics\n"
+     "errors     : Show error statistics\n"
+     "discards   : Show discard statistics\n"
+     "(default: Show all port statistics)", CLI_PARM_FLAG_NO_TXT, cli_parm_keyword},
+    {"<max_frame>", "Port maximum frame size, default: Show maximum frame size",
+     CLI_PARM_FLAG_NONE | CLI_PARM_FLAG_SET, cli_parm_max_frame},
+    {"near-end|far-end|facility|equipment",
+     "near-end   : Loopback from Tx to Rx in PHY\n"
+     "far-end    : Loopback from Rx to Tx in PHY\n"
+     "equipment  : Loopback from Tx to Rx in SerDes\n"
+     "facility   : Loopback from Rx to Tx in SerDes\n"
+     "(default: Show loopback mode)", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"optical|dac-1m|dac-2m|dac-3m|dac-5m",
+     "optical    : Optical/fiber cable\n"
+     "dac-1m     : 1m DAC\n"
+     "dac-2m     : 2m DAC\n"
+     "dac-3m     : 3m DAC\n"
+     "dac-5m     : 5m DAC\n", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"compact", "Show compact view", CLI_PARM_FLAG_NONE, cli_parm_keyword},
+    {"full", "Show all", CLI_PARM_FLAG_NONE, cli_parm_keyword,
+     cli_cmd_sfp_dump},
+    {"1000fdx|2500|5g|10g",
+     "1000       : 1 Gbps\n"
+     "2500       : 2.5 Gbps\n"
+     "10g        : 5g Gbps\n"
+     "10g        : 10 Gbps\n"
+     "(default: Show dynamic settings)", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"force", "Force config even though capabilities are not there",
+     CLI_PARM_FLAG_NONE, cli_parm_keyword},
+    {"ctrl0|ctrl1|ctrl2|ctrl3",
+     "ctrl0      : miim controller 0\n"
+     "ctrl1      : miim controller 1\n"
+     "ctrl2      : miim controller 2\n"
+     "ctrl3      : miim controller 3\n"
+     "(default: all controllers)", CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
 };
 
 static void port_cli_init(void)
@@ -1619,12 +1606,12 @@ static void port_cli_init(void)
     int i;
 
     /* Register commands */
-    for (i = 0; i < sizeof(cli_cmd_table)/sizeof(cli_cmd_t); i++) {
+    for (i = 0; i < sizeof(cli_cmd_table) / sizeof(cli_cmd_t); i++) {
         mscc_appl_cli_cmd_reg(&cli_cmd_table[i]);
     }
 
     /* Register parameters */
-    for (i = 0; i < sizeof(cli_parm_table)/sizeof(cli_parm_t); i++) {
+    for (i = 0; i < sizeof(cli_parm_table) / sizeof(cli_parm_t); i++) {
         mscc_appl_cli_parm_reg(&cli_parm_table[i]);
     }
 }
@@ -1635,11 +1622,11 @@ static void port_cli_init(void)
 
 static void port_init(meba_inst_t inst)
 {
-    uint32_t              port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
-    mesa_port_no_t        port_no;
+    uint32_t               port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
+    mesa_port_no_t         port_no;
     port_entry_t          *entry;
     mscc_appl_port_conf_t *pc;
-    mesa_rc               rc;
+    mesa_rc                rc;
 
     // Free old port table
     if (port_table != NULL) {
@@ -1654,7 +1641,8 @@ static void port_init(meba_inst_t inst)
     meba_global_inst = inst;
 
     /* Set front status LED */
-    MEBA_WRAP(meba_status_led_set, inst, MEBA_LED_TYPE_FRONT, MEBA_LED_COLOR_GREEN);
+    MEBA_WRAP(meba_status_led_set, inst, MEBA_LED_TYPE_FRONT,
+              MEBA_LED_COLOR_GREEN);
 
     // Port reset
     MEBA_WRAP(meba_reset, inst, MEBA_PHY_INITIALIZE);
@@ -1663,7 +1651,8 @@ static void port_init(meba_inst_t inst)
 
     if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
         // Save port config to internal state
-        if (mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_ENABLED) != MESA_RC_OK) {
+        if (mesa_port_conf_bulk_set(NULL, MESA_PORT_BULK_ENABLED) !=
+            MESA_RC_OK) {
             T_E("mesa_port_conf_bulk_set failed");
         }
     }
@@ -1672,10 +1661,11 @@ static void port_init(meba_inst_t inst)
 
         entry = &port_table[port_no];
         pc = &entry->conf;
-        if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &entry->meba) != MESA_RC_OK) {
+        if (MEBA_WRAP(meba_port_entry_get, inst, port_no, &entry->meba) !=
+            MESA_RC_OK) {
             continue;
         }
-        meba_port_cap_t  cap = entry->meba.cap;
+        meba_port_cap_t cap = entry->meba.cap;
         entry->valid = 1;
         pc->admin.enable = 1;
         pc->fdx = 1;
@@ -1701,7 +1691,8 @@ static void port_init(meba_inst_t inst)
             } else {
                 entry->media_type = MSCC_PORT_TYPE_SFP;
             }
-            pc->speed = (cap & MEBA_PORT_CAP_25G_FDX) ? MESA_SPEED_25G : MESA_SPEED_10G;
+            pc->speed =
+                (cap & MEBA_PORT_CAP_25G_FDX) ? MESA_SPEED_25G : MESA_SPEED_10G;
             pc->autoneg = ((cap & MEBA_PORT_CAP_NO_FORCE) ? 1 : 0);
             break;
         case MESA_PORT_INTERFACE_GMII:
@@ -1713,7 +1704,8 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_RGMII_TXID:
         case MESA_PORT_INTERFACE_QSGMII:
             entry->media_type = MSCC_PORT_TYPE_CU;
-            pc->speed = (cap & MEBA_PORT_CAP_2_5G_FDX) ? MESA_SPEED_2500M : MESA_SPEED_1G;
+            pc->speed = (cap & MEBA_PORT_CAP_2_5G_FDX) ? MESA_SPEED_2500M
+                                                       : MESA_SPEED_1G;
             pc->autoneg = 1;
             pc->flow_control = 1;
             break;
@@ -1735,9 +1727,7 @@ static void port_init(meba_inst_t inst)
             pc->speed = MESA_SPEED_10G;
             pc->autoneg = 1;
             break;
-        default:
-            T_E("unknown if_type on port %u", port_no);
-            break;
+        default: T_E("unknown if_type on port %u", port_no); break;
         }
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
             mepa_reset_param_t phy_reset = {};
@@ -1754,7 +1744,8 @@ static void port_init(meba_inst_t inst)
         } else {
             /* Disable Clause 37 per default */
             mesa_port_clause_37_control_t ctrl = {0};
-            if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) != MESA_RC_OK) {
+            if (mesa_port_clause_37_control_set(NULL, port_no, &ctrl) !=
+                MESA_RC_OK) {
                 T_E("mesa_port_clause_37_control_set(%u) failed", port_no);
             }
         }
@@ -1783,7 +1774,8 @@ static void port_init(meba_inst_t inst)
 
             /* Disable CPU copy/redirect on loop port */
             mesa_packet_rx_port_conf_t packet_port_conf;
-            if (mesa_packet_rx_port_conf_get(NULL, port_no, &packet_port_conf) == MESA_RC_OK) {
+            if (mesa_packet_rx_port_conf_get(NULL, port_no,
+                                             &packet_port_conf) == MESA_RC_OK) {
                 int j;
 
                 packet_port_conf.ipmc_ctrl_reg = MESA_PACKET_REG_FORWARD;
@@ -1793,18 +1785,21 @@ static void port_init(meba_inst_t inst)
                     packet_port_conf.bpdu_reg[j] = MESA_PACKET_REG_FORWARD;
                     packet_port_conf.garp_reg[j] = MESA_PACKET_REG_FORWARD;
                 }
-                (void)mesa_packet_rx_port_conf_set(NULL, port_no, &packet_port_conf);
+                (void)mesa_packet_rx_port_conf_set(NULL, port_no,
+                                                   &packet_port_conf);
             }
 
             // The loop_port is not member of any VLAN. No forwarding to this port
-            mesa_port_list_t  port_list;
-            for (uint16_t i=1; i<=0xFFF; ++i) {
-                if (MESA_RC_OK != mesa_vlan_port_members_get(NULL, i, &port_list)) {
+            mesa_port_list_t port_list;
+            for (uint16_t i = 1; i <= 0xFFF; ++i) {
+                if (MESA_RC_OK !=
+                    mesa_vlan_port_members_get(NULL, i, &port_list)) {
                     cli_printf("mesa_vlan_port_members_get(%u) failed\n", i);
                     break;
                 }
                 mesa_port_list_set(&port_list, loop_port, 0);
-                if (MESA_RC_OK != mesa_vlan_port_members_set(NULL, i, &port_list)) {
+                if (MESA_RC_OK !=
+                    mesa_vlan_port_members_set(NULL, i, &port_list)) {
                     cli_printf("mesa_vlan_port_members_set(%u) failed\n", i);
                     break;
                 }
@@ -1845,8 +1840,11 @@ static void port_init(meba_inst_t inst)
     MEBA_WRAP(meba_reset, inst, MEBA_PORT_LED_INITIALIZE);
 }
 
-static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *driver,
-                                        mesa_port_no_t port_no, meba_sfp_device_info_t *sfp_info) {
+static meba_sfp_device_t *create_device(meba_inst_t             inst,
+                                        meba_sfp_driver_t      *driver,
+                                        mesa_port_no_t          port_no,
+                                        meba_sfp_device_info_t *sfp_info)
+{
     meba_sfp_driver_address_t address_mode;
     address_mode.mode = mscc_sfp_driver_address_mode;
     address_mode.val.mscc_address.inst = NULL;
@@ -1854,14 +1852,18 @@ static meba_sfp_device_t *create_device(meba_inst_t inst, meba_sfp_driver_t *dri
     address_mode.val.mscc_address.meba_inst = inst;
 
     meba_sfp_device_info_t device_info = *sfp_info;
-    meba_sfp_device_t *device = driver->meba_sfp_driver_probe(driver, &address_mode, &device_info);
+    meba_sfp_device_t     *device =
+        driver->meba_sfp_driver_probe(driver, &address_mode, &device_info);
     return device;
 }
 
-static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_bool_t sfp_is_inserted) {
+static void check_sfp_drv_status(meba_inst_t    inst,
+                                 mesa_port_no_t port_no,
+                                 mesa_bool_t    sfp_is_inserted)
+{
     meba_sfp_device_info_t info;
-    port_entry_t *entry = &port_table[port_no];
-    meba_sfp_driver_t *sfp_driver = &entry->sfp_driver, *drv;
+    port_entry_t          *entry = &port_table[port_no];
+    meba_sfp_driver_t     *sfp_driver = &entry->sfp_driver, *drv;
 
     if (!sfp_is_inserted) {
         // Remove the SFP
@@ -1869,7 +1871,8 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
             T_E("Port:%u Cannot remove, device not installed", port_no);
             return;
         }
-        if (entry->sfp_device->drv->meba_sfp_driver_delete(entry->sfp_device) != MESA_RC_OK) {
+        if (entry->sfp_device->drv->meba_sfp_driver_delete(entry->sfp_device) !=
+            MESA_RC_OK) {
             T_E("Port:%u Could not delete SFP device", port_no);
         }
         memset(sfp_driver, 0, sizeof(meba_sfp_driver_t));
@@ -1900,7 +1903,8 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
 
     T_I("SFP vendor:'%s' pn:'%s'", info.vendor_name, info.vendor_pn);
 
-    meba_sfp_device_t *sfp_device = create_device(inst, sfp_driver, port_no, &info);
+    meba_sfp_device_t *sfp_device =
+        create_device(inst, sfp_driver, port_no, &info);
     if (sfp_device == NULL) {
         entry->sfp_device = NULL;
         T_E("Port:%u Could not create SFP device", port_no);
@@ -1908,16 +1912,19 @@ static void check_sfp_drv_status(meba_inst_t inst, mesa_port_no_t port_no, mesa_
     }
     entry->sfp_device = sfp_device;
 
-    if (sfp_device->drv->meba_sfp_driver_tr_get(sfp_device, &entry->sfp_type) != MESA_RC_OK) {
+    if (sfp_device->drv->meba_sfp_driver_tr_get(sfp_device, &entry->sfp_type) !=
+        MESA_RC_OK) {
         T_E("Port:%u Could not get SFP tranceiver type", port_no);
     }
 
     meba_sfp_driver_conf_t sfp_conf = {};
     sfp_conf.admin.enable = 1;
-    (void)entry->sfp_device->drv->meba_sfp_driver_conf_set(entry->sfp_device, &sfp_conf);
+    (void)entry->sfp_device->drv->meba_sfp_driver_conf_set(entry->sfp_device,
+                                                           &sfp_conf);
 }
 
-static mesa_bool_t port_is_aneg_mode(port_entry_t *entry) {
+static mesa_bool_t port_is_aneg_mode(port_entry_t *entry)
+{
     if (entry->conf.autoneg ||
         ((entry->media_type == MSCC_PORT_TYPE_SFP) &&
          (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T))) {
@@ -1926,13 +1933,13 @@ static mesa_bool_t port_is_aneg_mode(port_entry_t *entry) {
     return FALSE;
 }
 
-void port_kr_status(mesa_port_no_t  port_no, mesa_bool_t *link)
+void port_kr_status(mesa_port_no_t port_no, mesa_bool_t *link)
 {
     /* If KR is enabled then aneg must be complete to signal a linkup */
     mesa_port_kr_status_t kr_status;
     mesa_port_kr_conf_t   kr_conf;
 
-    if (mesa_port_kr_conf_get(NULL, port_no,  &kr_conf) != MESA_RC_OK) {
+    if (mesa_port_kr_conf_get(NULL, port_no, &kr_conf) != MESA_RC_OK) {
         T_E("P:%d could not get KR conf", port_no);
     }
     if (kr_conf.aneg.enable) {
@@ -1945,16 +1952,15 @@ void port_kr_status(mesa_port_no_t  port_no, mesa_bool_t *link)
     }
 }
 
-
 void port_poll(meba_inst_t inst)
 {
-    uint32_t              port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
-    mesa_port_no_t        port_no;
+    uint32_t               port_cnt = mesa_capability(NULL, MESA_CAP_PORT_CNT);
+    mesa_port_no_t         port_no;
     port_entry_t          *entry;
     mesa_port_status_t    *ps;
-    mesa_bool_t           link_old;
+    mesa_bool_t            link_old;
     mscc_appl_port_conf_t *pc;
-    mesa_port_counters_t  counters;
+    mesa_port_counters_t   counters;
 
     // Poll port status
     T_N("enter");
@@ -1979,13 +1985,17 @@ void port_poll(meba_inst_t inst)
         link_old = ps->link;
         memset(&counters, 0, sizeof(counters));
 
-        if (entry->media_type == MSCC_PORT_TYPE_SFP && (entry->meba.cap & MEBA_PORT_CAP_SFP_DETECT)) {
+        if (entry->media_type == MSCC_PORT_TYPE_SFP &&
+            (entry->meba.cap & MEBA_PORT_CAP_SFP_DETECT)) {
             meba_sfp_status_t old_sfp_status = entry->sfp_status;
             /* Fetch SFP port status (presence, Tx fault and LoS) using MEBA */
-            if (MEBA_WRAP(meba_sfp_status_get, inst, port_no, &entry->sfp_status) != MESA_RC_OK) {
+            if (MEBA_WRAP(meba_sfp_status_get, inst, port_no,
+                          &entry->sfp_status) != MESA_RC_OK) {
                 T_D("Failed to read SFP port %u status through MEBA.", port_no);
             } else if (old_sfp_status.present != entry->sfp_status.present) {
-                T_I("SFP was %s port %d", entry->sfp_status.present ? "inserted in" : "removed from", port_no);
+                T_I("SFP was %s port %d",
+                    entry->sfp_status.present ? "inserted in" : "removed from",
+                    port_no);
                 check_sfp_drv_status(inst, port_no, entry->sfp_status.present);
                 if (entry->sfp_status.present) {
                     port_setup(port_no, FALSE, FALSE);
@@ -2019,7 +2029,8 @@ void port_poll(meba_inst_t inst)
 
         /* Detect link up and setup port */
         if (ps->link && !link_old) {
-            T_I("link up event on port_no: %u spd:%s fdx:%d", port_no, mesa_port_spd2txt(ps->speed), ps->fdx);
+            T_I("link up event on port_no: %u spd:%s fdx:%d", port_no,
+                mesa_port_spd2txt(ps->speed), ps->fdx);
             mesa_port_state_set(NULL, port_no, TRUE);
             if (port_is_aneg_mode(entry)) {
                 port_setup(port_no, TRUE, FALSE);
@@ -2032,7 +2043,8 @@ void port_poll(meba_inst_t inst)
         /* Get port counters from the API */
         mesa_port_counters_get(NULL, port_no, &counters);
         /* Update port LED  through MEBA */
-        MEBA_WRAP(meba_port_led_update, inst, port_no, ps, &counters, &pc->admin);
+        MEBA_WRAP(meba_port_led_update, inst, port_no, ps, &counters,
+                  &pc->admin);
     }
     port_poll_cnt++;
     if (port_poll_cnt == 5) {
@@ -2046,8 +2058,8 @@ void port_poll(meba_inst_t inst)
 void mscc_appl_port_init(mscc_appl_init_t *init)
 {
     mesa_rc rc;
-    size_t ret_len = 0;
-    char   port_buf[100] = {};
+    size_t  ret_len = 0;
+    char    port_buf[100] = {};
 
     switch (init->cmd) {
     case MSCC_INIT_CMD_REG:
@@ -2066,9 +2078,7 @@ void mscc_appl_port_init(mscc_appl_init_t *init)
         port_cli_init();
         break;
 
-    case MSCC_INIT_CMD_INIT_WARM:
-        port_init(init->board_inst);
-        break;
+    case MSCC_INIT_CMD_INIT_WARM: port_init(init->board_inst); break;
 
     case MSCC_INIT_CMD_POLL:
         if (port_polling) {
@@ -2076,13 +2086,12 @@ void mscc_appl_port_init(mscc_appl_init_t *init)
         }
         break;
 
-    default:
-        break;
+    default: break;
     }
 }
 
-mesa_rc mscc_appl_port_status_get(const mesa_port_no_t  port_no,
-                                  mesa_port_status_t    *const status)
+mesa_rc mscc_appl_port_status_get(const mesa_port_no_t      port_no,
+                                  mesa_port_status_t *const status)
 {
     T_D("enter");
     *status = port_table[port_no].status;

@@ -1,14 +1,13 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #ifndef _MICROCHIP_ETHERNET_BOARD_SYNCE_H_
 #define _MICROCHIP_ETHERNET_BOARD_SYNCE_H_
 
 #include <stdint.h>
 #include <microchip/ethernet/switch/api.h>
 #include <microchip/ethernet/board/api/types.h>
-#include <microchip/ethernet/board/api/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
+#include <microchip/ethernet/board/api/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
 
 // The purpose of the MEBA_SYNCE API is to allow board designers to describe how
 // the different clock sources are connected to the DPLL. The synce application
@@ -43,56 +42,62 @@
 #define MESA_SYNCE_TRI_STATE_FROM_SWITCH 0x40000000
 #define MESA_SYNCE_TRI_STATE_FROM_PHY    0x20000000
 
-#define MESA_SYNCE_ARG_1_3(a, b, c, ...) a, b, c
+#define MESA_SYNCE_ARG_1_3(a, b, c, ...)          a, b, c
 #define MESA_SYNCE_ARG_4_6(a, b, c, d, e, f, ...) d, e, f
 
-#define MESA_SYNCE_ATTR_(dev_type, dev_id, dev_idx, type, val) \
-        {dev_id, dev_idx, type, val}
+#define MESA_SYNCE_ATTR_(dev_type, dev_id, dev_idx, type, val)                 \
+    {dev_id, dev_idx, type, val}
 #define MESA_SYNCE_ATTR(...) MESA_SYNCE_ATTR_(__VA_ARGS__)
 
-#define MESA_SYNCE_DEV_PORT(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_PORT, dev_id, idx
+#define MESA_SYNCE_DEV_PORT(dev_id, idx) MEBA_SYNCE_DEV_TYPE_PORT, dev_id, idx
 
-#define MESA_SYNCE_DEV_CLOCK_IN(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_CLOCK_IN, dev_id, idx
+#define MESA_SYNCE_DEV_CLOCK_IN(dev_id, idx)                                   \
+    MEBA_SYNCE_DEV_TYPE_CLOCK_IN, dev_id, idx
 
-#define MESA_SYNCE_DEV_DIVIDER(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_DIVIDER, dev_id, idx
+#define MESA_SYNCE_DEV_DIVIDER(dev_id, idx)                                    \
+    MEBA_SYNCE_DEV_TYPE_DIVIDER, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_PHY(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_MUX_PHY, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_PHY(dev_id, idx)                                    \
+    MEBA_SYNCE_DEV_TYPE_MUX_PHY, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_SWITCH(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_MUX_SWITCH, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_SWITCH(dev_id, idx)                                 \
+    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_BOARD(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_MUX_BOARD, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_BOARD(dev_id, idx)                                  \
+    MEBA_SYNCE_DEV_TYPE_MUX_BOARD, dev_id, idx
 
-#define MESA_SYNCE_DEV_DPLL(dev_id, idx) \
-        MEBA_SYNCE_DEV_TYPE_DPLL, dev_id, idx
+#define MESA_SYNCE_DEV_DPLL(dev_id, idx) MEBA_SYNCE_DEV_TYPE_DPLL, dev_id, idx
 
-#define MESA_SYNCE_GRAPH_CONNECTION(...) \
-    {MEBA_SYNCE_GRAPH_ELEMENT_TYPE_CONNECTION, \
-     {MESA_SYNCE_ARG_1_3(__VA_ARGS__)} , \
-     {MESA_SYNCE_ARG_4_6(__VA_ARGS__)} }
+#define MESA_SYNCE_GRAPH_CONNECTION(...)                                       \
+    {                                                                          \
+        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_CONNECTION,                              \
+            {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},                                 \
+        {                                                                      \
+            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                    \
+        }                                                                      \
+    }
 
-#define MESA_SYNCE_GRAPH_INVALID_CONNECTION(...) \
-    {MEBA_SYNCE_GRAPH_ELEMENT_TYPE_INVALID_CONF, \
-     {MESA_SYNCE_ARG_1_3(__VA_ARGS__)} , \
-     {MESA_SYNCE_ARG_4_6(__VA_ARGS__)} }
+#define MESA_SYNCE_GRAPH_INVALID_CONNECTION(...)                               \
+    {                                                                          \
+        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_INVALID_CONF,                            \
+            {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},                                 \
+        {                                                                      \
+            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                    \
+        }                                                                      \
+    }
 
 typedef enum {
     MEBA_SYNCE_CLOCK_FREQ_INVALID = -1,
     MEBA_SYNCE_CLOCK_FREQ_UNKNOWN = 0,
     MEBA_SYNCE_CLOCK_FREQ_25MHZ,
     MEBA_SYNCE_CLOCK_FREQ_31_25MHZ,
-    MEBA_SYNCE_CLOCK_FREQ_32_226MHZ,   // 32.2265625 Mhz
+    MEBA_SYNCE_CLOCK_FREQ_32_226MHZ, // 32.2265625 Mhz
     MEBA_SYNCE_CLOCK_FREQ_39_062MHZ,
     MEBA_SYNCE_CLOCK_FREQ_40_283MHZ,
     MEBA_SYNCE_CLOCK_FREQ_60_606MHZ,
     MEBA_SYNCE_CLOCK_FREQ_62_5MHZ,
     MEBA_SYNCE_CLOCK_FREQ_78_125MHZ,
-    MEBA_SYNCE_CLOCK_FREQ_80_565MHZ,   // 80.5664062 Mhz
+    MEBA_SYNCE_CLOCK_FREQ_80_565MHZ, // 80.5664062 Mhz
     MEBA_SYNCE_CLOCK_FREQ_125MHZ,
     MEBA_SYNCE_CLOCK_FREQ_156_25MHZ,
     MEBA_SYNCE_CLOCK_FREQ_161_13MHZ,
@@ -100,8 +105,8 @@ typedef enum {
     MEBA_SYNCE_CLOCK_FREQ_322_265MHZ,
     MEBA_SYNCE_CLOCK_FREQ_644_53MHZ,
     MEBA_SYNCE_CLOCK_FREQ_10MHZ,
-    MEBA_SYNCE_CLOCK_FREQ_1544_KHZ,    // 1544 KHz
-    MEBA_SYNCE_CLOCK_FREQ_2048_KHZ     // 2048 KHz
+    MEBA_SYNCE_CLOCK_FREQ_1544_KHZ, // 1544 KHz
+    MEBA_SYNCE_CLOCK_FREQ_2048_KHZ  // 2048 KHz
 } meba_synce_clock_frequency_t;
 
 // Enumeration of the different devices used to connect the clock sources to
@@ -127,7 +132,7 @@ typedef enum {
     MEBA_SYNCE_DEV_TYPE_MUX_BOARD, // 5
 
     // A mux embedded in the switch.
-    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH,  // 6
+    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH, // 6
 
     // This value is for code to be able to determine the number of values
     // implemented in the enum type.
@@ -142,13 +147,13 @@ typedef struct {
 
     // Node ID. This ID is used as a unique identifier of the node, through
     // the entire graph.
-    uint32_t             dev_id;
+    uint32_t dev_id;
 
     // In/out identifier local to the node. A given MUX/DPLL have a number of
     // in/out terminals, which are identified by this index.
     // Must be zero for PORTS
     // TODO, add check
-    uint32_t             idx;
+    uint32_t idx;
 } meba_synce_terminal_t;
 
 typedef enum {
@@ -187,16 +192,16 @@ typedef enum {
 // Structure representing an attribute attached to a terminal in the SyncE graph
 typedef struct {
     // Device ID of the terminal to which the attribute applies.
-    uint32_t             dev_id;
+    uint32_t dev_id;
 
     // Index of the terminal to which the attribute applies.
-    uint32_t             idx;
+    uint32_t idx;
 
     // The type of the attribute
-    meba_attr_t          type;
+    meba_attr_t type;
 
     // The value of the attribute
-    uint32_t             value;
+    uint32_t value;
 } meba_synce_terminal_attr_t;
 
 // Graph element type.
@@ -216,50 +221,50 @@ typedef struct {
     meba_synce_graph_element_type_t type;
 
     // Source of edge/connection.
-    meba_synce_terminal_t           src;
+    meba_synce_terminal_t src;
 
     // Destination of edge/connection.
-    meba_synce_terminal_t           dst;
+    meba_synce_terminal_t dst;
 
 } meba_synce_graph_element_t;
 
 // A data structure for representing the "clock" graph on the board.
 typedef struct {
     // Number of elements in the graph.
-    uint32_t                          graph_length;
+    uint32_t graph_length;
 
     // Array of graph elements.
     const meba_synce_graph_element_t *graph;
 
     // Number of attributes
-    uint32_t                          attr_length;
+    uint32_t attr_length;
 
     // Array of attribues
     const meba_synce_terminal_attr_t *attr;
 } meba_synce_graph_t;
 
 typedef enum {
-    MEBA_SYNCE_CLOCK_HW_NONE,      // NO Synce clock present
-    MEBA_SYNCE_CLOCK_HW_SI_5326,   // Silabs 5326 (PCB104) clock present
-    MEBA_SYNCE_CLOCK_HW_SI_5328,   // Silabs 5328 (PCB104)  clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30343,  // Zarlink ZL 30343 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30363,  // Zarlink ZL 30363 clock present
-    MEBA_SYNCE_CLOCK_HW_OMEGA,     // OMEGA (ServalT) clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30771,  // Zarlink ZL 30771 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30772,  // Zarlink ZL 30772 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30773,  // Zarlink ZL 30773 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30731,  // Zarlink ZL 30731 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30732,  // Zarlink ZL 30732 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30733,  // Zarlink ZL 30733 clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30734,  // Zarlink ZL 30734clock present
-    MEBA_SYNCE_CLOCK_HW_ZL_30735,  // Zarlink ZL 30735 clock present
+    MEBA_SYNCE_CLOCK_HW_NONE,     // NO Synce clock present
+    MEBA_SYNCE_CLOCK_HW_SI_5326,  // Silabs 5326 (PCB104) clock present
+    MEBA_SYNCE_CLOCK_HW_SI_5328,  // Silabs 5328 (PCB104)  clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30343, // Zarlink ZL 30343 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30363, // Zarlink ZL 30363 clock present
+    MEBA_SYNCE_CLOCK_HW_OMEGA,    // OMEGA (ServalT) clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30771, // Zarlink ZL 30771 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30772, // Zarlink ZL 30772 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30773, // Zarlink ZL 30773 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30731, // Zarlink ZL 30731 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30732, // Zarlink ZL 30732 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30733, // Zarlink ZL 30733 clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30734, // Zarlink ZL 30734clock present
+    MEBA_SYNCE_CLOCK_HW_ZL_30735, // Zarlink ZL 30735 clock present
 } meba_synce_clock_hw_id_t;
 
 typedef uint32_t meba_synce_clock_fw_ver_t;
 
 // Get the synce clock graph for the given board instance.
 // conf [OUT] The MEBA synce clock graph.
-typedef mesa_rc (*meba_synce_graph_get_t)(struct meba_inst *inst,
+typedef mesa_rc (*meba_synce_graph_get_t)(struct meba_inst                *inst,
                                           const meba_synce_graph_t **const g);
 
 // Update the configuration of a board MUX. The MUX will be instructed to
@@ -296,15 +301,15 @@ typedef mesa_rc (*meba_synce_write_t)(struct meba_inst *inst,
 // buflen       [IN] Number of bytes to transfer
 // tx_data      [IN] Pointer to RX buffer
 typedef mesa_rc (*meba_synce_read_t)(struct meba_inst *inst,
-                                      uint8_t          addr,
-                                      uint32_t         buflen,
-                                      uint8_t         *rx_data);
+                                     uint8_t           addr,
+                                     uint32_t          buflen,
+                                     uint8_t          *rx_data);
 
 // Detect the type of DPLL present in the system (if any)
 // dpll_type    [IN] Pointer to variable used for returning DPLL type
-typedef mesa_rc (*meba_synce_spi_if_get_dpll_type_t)(
-        struct meba_inst *inst,
-        meba_synce_clock_hw_id_t *dpll_type);
+typedef mesa_rc (*meba_synce_spi_if_get_dpll_type_t)(struct meba_inst *inst,
+                                                     meba_synce_clock_hw_id_t
+                                                         *dpll_type);
 
 // Find the SPI device file corresponding to a particular SPI attached device
 // id           [IN] Pointer to character string holding the name of the SPI
@@ -317,29 +322,28 @@ typedef mesa_rc (*meba_synce_spi_if_find_spidev_t)(struct meba_inst *inst,
                                                    char             *spi_file,
                                                    size_t            max_size);
 
-
 typedef mesa_rc (*meba_synce_spi_if_dpll_fw_ver_get_t)(meba_inst_t inst,
-                                                       meba_synce_clock_fw_ver_t *dpll_ver);
+                                                       meba_synce_clock_fw_ver_t
+                                                           *dpll_ver);
 
-
-#define MEBA_LIST_OF_API_SYNCE_CALLS   \
-    X(meba_synce_graph_get)            \
-    X(meba_synce_mux_set)              \
-    X(meba_synce_spi_if_spi_transfer)  \
-    X(meba_synce_write)                \
-    X(meba_synce_read)                 \
-    X(meba_synce_spi_if_get_dpll_type) \
-    X(meba_synce_spi_if_find_spidev)   \
-    X(meba_synce_spi_if_dpll_fw_ver_get)  \
+#define MEBA_LIST_OF_API_SYNCE_CALLS                                           \
+    X(meba_synce_graph_get)                                                    \
+    X(meba_synce_mux_set)                                                      \
+    X(meba_synce_spi_if_spi_transfer)                                          \
+    X(meba_synce_write)                                                        \
+    X(meba_synce_read)                                                         \
+    X(meba_synce_spi_if_get_dpll_type)                                         \
+    X(meba_synce_spi_if_find_spidev)                                           \
+    X(meba_synce_spi_if_dpll_fw_ver_get)
 
 typedef struct {
-    meba_synce_graph_get_t             meba_synce_graph_get;
-    meba_synce_mux_set_t               meba_synce_mux_set;
-    meba_synce_spi_if_spi_transfer_t   meba_synce_spi_if_spi_transfer;
-    meba_synce_write_t                 meba_synce_write;
-    meba_synce_read_t                  meba_synce_read;
-    meba_synce_spi_if_get_dpll_type_t  meba_synce_spi_if_get_dpll_type;
-    meba_synce_spi_if_find_spidev_t    meba_synce_spi_if_find_spidev;
+    meba_synce_graph_get_t              meba_synce_graph_get;
+    meba_synce_mux_set_t                meba_synce_mux_set;
+    meba_synce_spi_if_spi_transfer_t    meba_synce_spi_if_spi_transfer;
+    meba_synce_write_t                  meba_synce_write;
+    meba_synce_read_t                   meba_synce_read;
+    meba_synce_spi_if_get_dpll_type_t   meba_synce_spi_if_get_dpll_type;
+    meba_synce_spi_if_find_spidev_t     meba_synce_spi_if_find_spidev;
     meba_synce_spi_if_dpll_fw_ver_get_t meba_synce_spi_if_dpll_fw_ver_get;
 } meba_api_synce_t;
 

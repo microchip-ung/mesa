@@ -11,7 +11,7 @@ static int rcl_pn_init(int argc, const char *argv[])
 {
     mesa_port_no_t      iport = ARGV_INT("iport", "Ingress port");
     mesa_rc             rc = MESA_RC_ERROR;
-    mesa_port_map_t     *port_map;
+    mesa_port_map_t    *port_map;
     uint32_t            port_cnt = mesa_port_cnt(NULL);
     mesa_port_no_t      port_no;
     mesa_rcl_vid_conf_t conf;
@@ -61,9 +61,6 @@ static int rcl_pn_uninit(void)
     return 0;
 }
 
-static const char *rcl_pn_help(void)
-{
-    return "RCL Profinet example\n";
-}
+static const char *rcl_pn_help(void) { return "RCL Profinet example\n"; }
 
 EXAMPLE(pn, rcl_pn_init, NULL, rcl_pn_uninit, rcl_pn_help);

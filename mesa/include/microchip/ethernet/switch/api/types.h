@@ -1,19 +1,19 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #ifndef _MICROCHIP_ETHERNET_SWITCH_API_TYPES_
 #define _MICROCHIP_ETHERNET_SWITCH_API_TYPES_
 
 #include <microchip/ethernet/common.h>
 
 #include <microchip/ethernet/switch/api/capability.h>
-#include <microchip/ethernet/hdr_start.h>  // ALL INCLUDE ABOVE THIS LINE
+#include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
 
 // Policer packet rate in PPS
 typedef uint32_t mesa_packet_rate_t;
 
-#define MESA_PACKET_RATE_DISABLED 0xffffffff // Special value for disabling packet policer
+#define MESA_PACKET_RATE_DISABLED                                              \
+    0xffffffff // Special value for disabling packet policer
 
 // Physical port number
 typedef uint32_t mesa_phys_port_no_t;
@@ -60,7 +60,7 @@ typedef mesa_bool_t mesa_dei_t;
 #define MESA_DEI_CNT        2
 #define MESA_DEI_ARRAY_SIZE MESA_DEI_CNT
 
-#define MESA_DSCP_CNT       64
+#define MESA_DSCP_CNT 64
 
 // Drop Precedence Level (DPL)
 typedef uint8_t mesa_dp_level_t;
@@ -84,11 +84,11 @@ typedef uint32_t mesa_bitrate_t;
 typedef uint32_t mesa_burst_level_t;
 
 // Storm policer mode configuration
-typedef enum
-{
-    MESA_STORM_POLICER_MODE_PORTS_AND_CPU, // Police both CPU and front port destinations
-    MESA_STORM_POLICER_MODE_PORTS_ONLY,    // Police front port destinations only
-    MESA_STORM_POLICER_MODE_CPU_ONLY       // Police CPU destination only
+typedef enum {
+    MESA_STORM_POLICER_MODE_PORTS_AND_CPU, // Police both CPU and front port
+                                           // destinations
+    MESA_STORM_POLICER_MODE_PORTS_ONLY, // Police front port destinations only
+    MESA_STORM_POLICER_MODE_CPU_ONLY    // Police CPU destination only
 } mesa_storm_policer_mode_t;
 
 // DSCP value (0-63)
@@ -98,10 +98,9 @@ typedef uint8_t mesa_dscp_t;
 typedef uint32_t mesa_qce_id_t;
 
 // Dual leaky buckets policer configuration
-typedef enum
-{
-    MESA_POLICER_TYPE_MEF,    // MEF bandwidth profile
-    MESA_POLICER_TYPE_SINGLE  // Single bucket policer (CIR/CBS)
+typedef enum {
+    MESA_POLICER_TYPE_MEF,   // MEF bandwidth profile
+    MESA_POLICER_TYPE_SINGLE // Single bucket policer (CIR/CBS)
 } mesa_policer_type_t;
 
 // EVC policer index
@@ -110,7 +109,8 @@ typedef uint16_t mesa_evc_policer_id_t;
 // WRED group number
 typedef uint32_t mesa_wred_group_t;
 
-#define MESA_QOS_MAP_ID_NONE  0xfff // ID for unallocated/unused ingress or egress map
+#define MESA_QOS_MAP_ID_NONE                                                   \
+    0xfff // ID for unallocated/unused ingress or egress map
 
 // Ingress map ID
 typedef uint16_t mesa_qos_ingress_map_id_t;
@@ -138,14 +138,13 @@ typedef struct {
 #define MESA_VID_DEFAULT  ((const mesa_vid_t)1)     // Default VLAN ID
 #define MESA_VID_RESERVED ((const mesa_vid_t)0xFFF) // Reserved VLAN ID
 #define MESA_VIDS         ((const mesa_vid_t)4096)  // Number of VLAN IDs
-#define MESA_VID_ALL      ((const mesa_vid_t)0x1000)// Untagged VID: All VLAN IDs
+#define MESA_VID_ALL      ((const mesa_vid_t)0x1000) // Untagged VID: All VLAN IDs
 
 // VLAN acceptable frame type
-typedef enum
-{
-    MESA_VLAN_FRAME_ALL,      // Accept all frames
-    MESA_VLAN_FRAME_TAGGED,   // Accept tagged frames only
-    MESA_VLAN_FRAME_UNTAGGED  // Accept untagged frames only
+typedef enum {
+    MESA_VLAN_FRAME_ALL,     // Accept all frames
+    MESA_VLAN_FRAME_TAGGED,  // Accept tagged frames only
+    MESA_VLAN_FRAME_UNTAGGED // Accept untagged frames only
 } mesa_vlan_frame_t;
 
 // VLAN tag with "arbitrary" TPID.
@@ -165,8 +164,7 @@ typedef struct {
 typedef uint8_t mesa_mac_addr_t[MESA_MAC_ADDR_SZ_BYTES];
 
 // MAC Address in specific VLAN
-typedef struct
-{
+typedef struct {
     mesa_vid_t vid; // VLAN ID
     mesa_mac_t mac; // MAC address
 } mesa_vid_mac_t;
@@ -225,19 +223,19 @@ typedef struct {
 // Packet registration per port
 typedef struct {
     // IP MC Control, NORMAL/FORWARD/CPU_COPY supported
-    mesa_packet_reg_type_t          ipmc_ctrl_reg CAP(PACKET_PORT_IPMC);
+    mesa_packet_reg_type_t ipmc_ctrl_reg CAP(PACKET_PORT_IPMC);
 
     // IGMP, NORMAL/FORWARD/CPU_ONLY supported
-    mesa_packet_reg_type_t          igmp_reg CAP(PACKET_PORT_IPMC);
+    mesa_packet_reg_type_t igmp_reg CAP(PACKET_PORT_IPMC);
 
     // MLD, NORMAL/FORWARD/CPU_ONLY supported
-    mesa_packet_reg_type_t          mld_reg CAP(PACKET_PORT_IPMC);
+    mesa_packet_reg_type_t mld_reg CAP(PACKET_PORT_IPMC);
 
     // BPDU range: 01-80-C2-00-00-0X
-    mesa_packet_reg_type_t          bpdu_reg[16];
+    mesa_packet_reg_type_t bpdu_reg[16];
 
     // GARP range: 01-80-C2-00-00-2X
-    mesa_packet_reg_type_t          garp_reg[16];
+    mesa_packet_reg_type_t garp_reg[16];
 
     // BPDU range: 01-80-C2-00-00-0X
     mesa_packet_rx_port_l2cp_conf_t bpdu[16] CAP(PACKET_PORT_L2CP_REG);
@@ -262,8 +260,7 @@ typedef mesa_ip_t mesa_ipv4_t;
 typedef uint32_t mesa_prefix_size_t;
 
 // IPv6 address/mask
-typedef struct
-{
+typedef struct {
     uint8_t addr[16]; // Address
 } mesa_ipv6_t;
 
@@ -280,7 +277,7 @@ typedef enum {
 
 // Either an IPv4 or IPv6 address
 typedef struct {
-    mesa_ip_type_t  type; // Union type
+    mesa_ip_type_t type; // Union type
     union {
         mesa_ipv4_t ipv4; // IPv4 address
         mesa_ipv6_t ipv6; // IPv6 address
@@ -288,29 +285,25 @@ typedef struct {
 } mesa_ip_addr_t;
 
 // IPv4 network
-typedef struct
-{
+typedef struct {
     mesa_ipv4_t        address;     // Network address
     mesa_prefix_size_t prefix_size; // Prefix size
 } mesa_ipv4_network_t;
 
 // IPv6 network
-typedef struct
-{
+typedef struct {
     mesa_ipv6_t        address;     // Network address
     mesa_prefix_size_t prefix_size; // Prefix size
 } mesa_ipv6_network_t;
 
 // IPv6 network
-typedef struct
-{
+typedef struct {
     mesa_ip_addr_t     address;     // Network address
     mesa_prefix_size_t prefix_size; // Prefix size
 } mesa_ip_network_t;
 
 // Routing entry type
-typedef enum
-{
+typedef enum {
     MESA_ROUTING_ENTRY_TYPE_INVALID = 0,
     MESA_ROUTING_ENTRY_TYPE_IPV6_UC = 1,
     MESA_ROUTING_ENTRY_TYPE_IPV4_MC = 2, // obsolete
@@ -318,28 +311,27 @@ typedef enum
 } mesa_routing_entry_type_t;
 
 // IPv4 unicast routing entry
-typedef struct
-{
+typedef struct {
     // Network to route
     mesa_ipv4_network_t network;
 
-    // IP address of next-hop router (zero if local route, all-ones if discard route)
-    mesa_ipv4_t         destination;
+    // IP address of next-hop router (zero if local route, all-ones if discard
+    // route)
+    mesa_ipv4_t destination;
 } mesa_ipv4_uc_t;
 
 // IPv6 routing entry
-typedef struct
-{
+typedef struct {
     // Network to route
     mesa_ipv6_network_t network;
 
-    // IP address of next-hop router (zero if local route, all-ones if discard route)
-    mesa_ipv6_t         destination;
+    // IP address of next-hop router (zero if local route, all-ones if discard
+    // route)
+    mesa_ipv6_t destination;
 } mesa_ipv6_uc_t;
 
 // IPv4 multicast routing entry
-typedef struct
-{
+typedef struct {
     // Multicast Group address
     mesa_ipv4_t group;
 
@@ -348,8 +340,7 @@ typedef struct
 } mesa_ipv4_mc_t;
 
 // IPv6 multicast routing entry
-typedef struct
-{
+typedef struct {
     // Multicast Group address
     mesa_ipv6_t group;
 
@@ -358,21 +349,20 @@ typedef struct
 } mesa_ipv6_mc_t;
 
 // Unicast Routing entry
-typedef struct
-{
-   // Type of unicast route
-   mesa_routing_entry_type_t type;
+typedef struct {
+    // Type of unicast route
+    mesa_routing_entry_type_t type;
 
-   union {
-       // IPv4 unicast route
-       mesa_ipv4_uc_t ipv4_uc;
+    union {
+        // IPv4 unicast route
+        mesa_ipv4_uc_t ipv4_uc;
 
-       // IPv6 unicast route
-       mesa_ipv6_uc_t ipv6_uc;
-   } route; // Route
+        // IPv6 unicast route
+        mesa_ipv6_uc_t ipv6_uc;
+    } route; // Route
 
-   // Link-local addresses needs to specify a egress vlan.
-   mesa_vid_t vlan;
+    // Link-local addresses needs to specify a egress vlan.
+    mesa_vid_t vlan;
 
 } mesa_routing_entry_t;
 
@@ -380,8 +370,7 @@ typedef struct
 #define MESA_RT_TYPE_IPV6_MC 1
 
 // Multicast Routing entry
-typedef struct
-{
+typedef struct {
     // Type of multicast route: MESA_RT_TYPE_IPV4_MC or MESA_RT_TYPE_IPV6_MC
     mesa_bool_t type;
 
@@ -397,23 +386,30 @@ typedef struct
     mesa_vid_t source_rleg;
 } mesa_routing_mc_entry_t;
 
-
 // Routing interface statics counter
 typedef struct {
-    uint64_t ipv4uc_received_octets;    // IPv4UC octets received and hardware forwarded
-    uint64_t ipv4uc_received_frames;    // IPv4UC frames received and hardware forwarded
-    uint64_t ipv6uc_received_octets;    // IPv6UC octets received and hardware forwarded
-    uint64_t ipv6uc_received_frames;    // IPv6UC frames received and hardware forwarded
+    uint64_t
+        ipv4uc_received_octets; // IPv4UC octets received and hardware forwarded
+    uint64_t
+        ipv4uc_received_frames; // IPv4UC frames received and hardware forwarded
+    uint64_t
+        ipv6uc_received_octets; // IPv6UC octets received and hardware forwarded
+    uint64_t
+        ipv6uc_received_frames; // IPv6UC frames received and hardware forwarded
 
     uint64_t ipv4uc_transmitted_octets; // IPv4UC octets transmitted
     uint64_t ipv4uc_transmitted_frames; // IPv4UC frames transmitted
     uint64_t ipv6uc_transmitted_octets; // IPv6UC octets transmitted
     uint64_t ipv6uc_transmitted_frames; // IPv6UC frames transmitted
 
-    uint64_t ipv4mc_received_octets;    // IPv4MC octets received and hardware forwarded
-    uint64_t ipv4mc_received_frames;    // IPv4MC frames received and hardware forwarded
-    uint64_t ipv6mc_received_octets;    // IPv6MC octets received and hardware forwarded
-    uint64_t ipv6mc_received_frames;    // IPv6MC frames received and hardware forwarded
+    uint64_t
+        ipv4mc_received_octets; // IPv4MC octets received and hardware forwarded
+    uint64_t
+        ipv4mc_received_frames; // IPv4MC frames received and hardware forwarded
+    uint64_t
+        ipv6mc_received_octets; // IPv6MC octets received and hardware forwarded
+    uint64_t
+        ipv6mc_received_frames; // IPv6MC frames received and hardware forwarded
 
     uint64_t ipv4mc_transmitted_octets; // IPv4MC octets transmitted
     uint64_t ipv4mc_transmitted_frames; // IPv4MC frames transmitted
@@ -425,118 +421,104 @@ typedef struct {
  * VCAP types
  ****************************************************************************/
 // VCAP 1 bit
-typedef enum
-{
+typedef enum {
     MESA_VCAP_BIT_ANY, // Value 0 or 1
     MESA_VCAP_BIT_0,   // Value 0
     MESA_VCAP_BIT_1    // Value 1
 } mesa_vcap_bit_t;
 
 // VCAP 8 bit value and mask
-typedef struct
-{
-    uint8_t value;   // Value
-    uint8_t mask;    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value; // Value
+    uint8_t mask;  // Mask, cleared bits are wildcards
 } mesa_vcap_u8_t;
 
 // VCAP 16 bit value and mask
-typedef struct
-{
-    uint8_t value[2];   // Value
-    uint8_t mask[2];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[2]; // Value
+    uint8_t mask[2];  // Mask, cleared bits are wildcards
 } mesa_vcap_u16_t;
 
 // VCAP 24 bit value and mask
-typedef struct
-{
-    uint8_t value[3];   // Value
-    uint8_t mask[3];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[3]; // Value
+    uint8_t mask[3];  // Mask, cleared bits are wildcards
 } mesa_vcap_u24_t;
 
 // VCAP 32 bit value and mask
-typedef struct
-{
-    uint8_t value[4];   // Value
-    uint8_t mask[4];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[4]; // Value
+    uint8_t mask[4];  // Mask, cleared bits are wildcards
 } mesa_vcap_u32_t;
 
 // VCAP 40 bit value and mask
-typedef struct
-{
-    uint8_t value[5];   // Value
-    uint8_t mask[5];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[5]; // Value
+    uint8_t mask[5];  // Mask, cleared bits are wildcards
 } mesa_vcap_u40_t;
 
 // VCAP 48 bit value and mask
-typedef struct
-{
-    uint8_t value[6];   // Value
-    uint8_t mask[6];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[6]; // Value
+    uint8_t mask[6];  // Mask, cleared bits are wildcards
 } mesa_vcap_u48_t;
 
 // VCAP 128 bit value and mask
-typedef struct
-{
-    uint8_t value[16];   // Value
-    uint8_t mask[16];    // Mask, cleared bits are wildcards
+typedef struct {
+    uint8_t value[16]; // Value
+    uint8_t mask[16];  // Mask, cleared bits are wildcards
 } mesa_vcap_u128_t;
 
 // VCAP VLAN ID value and mask
-typedef struct
-{
-    uint16_t value;   // Value
-    uint16_t mask;    // Mask, cleared bits are wildcards
+typedef struct {
+    uint16_t value; // Value
+    uint16_t mask;  // Mask, cleared bits are wildcards
 } mesa_vcap_vid_t;
 
 // VCAP IPv4 address value and mask
-typedef struct
-{
-    mesa_ip_t value;   // Value
-    mesa_ip_t mask;    // Mask, cleared bits are wildcards
+typedef struct {
+    mesa_ip_t value; // Value
+    mesa_ip_t mask;  // Mask, cleared bits are wildcards
 } mesa_vcap_ip_t;
 
 // VCAP UDP/TCP port range
-typedef struct
-{
-    mesa_bool_t    in_range;   // Port in range match
-    mesa_udp_tcp_t low;        // Port low value
-    mesa_udp_tcp_t high;       // Port high value
+typedef struct {
+    mesa_bool_t    in_range; // Port in range match
+    mesa_udp_tcp_t low;      // Port low value
+    mesa_udp_tcp_t high;     // Port high value
 } mesa_vcap_udp_tcp_t;
 
 // Value/Range type
-typedef enum
-{
+typedef enum {
     MESA_VCAP_VR_TYPE_VALUE_MASK,      // Used as value/mask
-    MESA_VCAP_VR_TYPE_RANGE_INCLUSIVE, // Used as inclusive range: low <= range <= high
-    MESA_VCAP_VR_TYPE_RANGE_EXCLUSIVE  // Used as exclusive range: range < low or range > high
+    MESA_VCAP_VR_TYPE_RANGE_INCLUSIVE, // Used as inclusive range: low <= range
+                                       // <= high
+    MESA_VCAP_VR_TYPE_RANGE_EXCLUSIVE // Used as exclusive range: range < low or
+                                      // range > high
 } mesa_vcap_vr_type_t;
 
 // VCAP universal value or range type
 typedef uint16_t mesa_vcap_vr_value_t;
 
 // VCAP value/mask
-typedef struct
-{
+typedef struct {
     mesa_vcap_vr_value_t value; // Value
     mesa_vcap_vr_value_t mask;  // Mask, cleared bits are wildcards
 } mesa_vcap_vr_v_t;
 
 // VCAP range
-typedef struct
-{
+typedef struct {
     mesa_vcap_vr_value_t low;  // Low value
     mesa_vcap_vr_value_t high; // High value
 } mesa_vcap_vr_r_t;
 
 // VCAP universal value or range
-typedef struct
-{
+typedef struct {
     mesa_vcap_vr_type_t type; // Type
-    union
-    {
+    union {
         mesa_vcap_vr_v_t v; // type == MESA_VCAP_VR_TYPE_VALUE_MASK
         mesa_vcap_vr_r_t r; // type == MESA_VCAP_VR_TYPE_RANGE_XXXXXX
-    } vr; // Value or range
+    } vr;                   // Value or range
 } mesa_vcap_vr_t;
 
 // VCAP key type
@@ -553,7 +535,7 @@ typedef enum {
 // ACL policer number
 typedef uint32_t mesa_acl_policer_no_t;
 
-#define MESA_ACL_POLICY_NO_NONE  0xffffffff // ACLs disabled on port
+#define MESA_ACL_POLICY_NO_NONE 0xffffffff // ACLs disabled on port
 
 // ACL policy number
 typedef uint32_t mesa_acl_policy_no_t;
@@ -590,16 +572,28 @@ typedef uint8_t mesa_mpls_tc_t;
 // For example, 8.25 ppb is expressed as 0x0000.0000.0008.4000
 typedef int64_t mesa_clk_adj_rate_t;
 
-#define MESA_ONE_MIA 1000000000 // One billion
-#define MESA_ONE_MILL   1000000 // One million
+#define MESA_ONE_MIA          1000000000           // One billion
+#define MESA_ONE_MILL         1000000              // One million
 #define MESA_MAX_TIMEINTERVAL 0x7fffffffffffffffLL // Maximum time interval
 
-#define MESA_INTERVAL_SEC(t) ((int32_t)MESA_DIV64((t)>>16, MESA_ONE_MIA)) // One Second time interval
-#define MESA_INTERVAL_MS(t)  ((int32_t)MESA_DIV64((t)>>16, MESA_ONE_MILL)) // One millisecond time interval
-#define MESA_INTERVAL_US(t)  ((int32_t)MESA_DIV64((t)>>16, 1000)) // One microsecond time interval
-#define MESA_INTERVAL_NS(t)  ((int32_t)MESA_MOD64((t)>>16, MESA_ONE_MIA)) // This returns the ns part of the interval, not the total number of ns
-#define MESA_INTERVAL_PS(t)  (((((int32_t)(t & 0xffff))*1000)+0x8000)/0x10000) // This returns the ps part of the interval, not the total number of ps
-#define MESA_SEC_NS_INTERVAL(s,n) (((mesa_timeinterval_t)(n)+(mesa_timeinterval_t)(s)*MESA_ONE_MIA)<<16)  // TBD
+#define MESA_INTERVAL_SEC(t)                                                   \
+    ((int32_t)MESA_DIV64((t) >> 16, MESA_ONE_MIA)) // One Second time interval
+#define MESA_INTERVAL_MS(t)                                                    \
+    ((int32_t)MESA_DIV64((t) >> 16,                                            \
+                         MESA_ONE_MILL)) // One millisecond time interval
+#define MESA_INTERVAL_US(t)                                                    \
+    ((int32_t)MESA_DIV64((t) >> 16, 1000)) // One microsecond time interval
+#define MESA_INTERVAL_NS(t)                                                    \
+    ((int32_t)MESA_MOD64((t) >> 16,                                            \
+                         MESA_ONE_MIA)) // This returns the ns part of the
+                                        // interval, not the total number of ns
+#define MESA_INTERVAL_PS(t)                                                    \
+    (((((int32_t)(t & 0xffff)) * 1000) + 0x8000) /                             \
+     0x10000) // This returns the ps part of the interval, not the total number
+              // of ps
+#define MESA_SEC_NS_INTERVAL(s, n)                                             \
+    (((mesa_timeinterval_t)(n) + (mesa_timeinterval_t)(s) * MESA_ONE_MIA)      \
+     << 16) // TBD
 
 // Time stamp in seconds and nanoseconds
 typedef struct {
@@ -610,28 +604,29 @@ typedef struct {
 } mesa_timestamp_t;
 
 // Scaled nanosec as defined in 802.1AS clause 6.3.3.1:
-// The ScaledNs type represents signed values of time and time interval in units of 2**-16 ns.
+// The ScaledNs type represents signed values of time and time interval in units
+// of 2**-16 ns.
 typedef struct {
     int32_t  scaled_ns_high; // Seconds
     uint64_t scaled_ns_low;  // nanoseconds
 } mesa_scaled_ns_t;
 
 // Unsigned Scaled nanosec as defined in 802.1AS clause 6.3.3.2:
-// The UScaledNs type represents unsigned values of time and time interval in units of 2**-16 ns.
+// The UScaledNs type represents unsigned values of time and time interval in
+// units of 2**-16 ns.
 typedef struct {
     uint32_t uscaled_ns_high; // Seconds
     uint64_t uscaled_ns_low;  // nanoseconds
 } mesa_uscaled_ns_t;
 
 // MII management controller
-typedef enum
-{
-    MESA_MIIM_CONTROLLER_0    = 0,  // MIIM controller 0
-    MESA_MIIM_CONTROLLER_1    = 1,  // MIIM controller 1
-    MESA_MIIM_CONTROLLER_2    = 2,  // MIIM controller 2
-    MESA_MIIM_CONTROLLER_3    = 3,  // MIIM controller 3
-    MESA_MIIM_CONTROLLERS,          // Number of MIIM controllers
-    MESA_MIIM_CONTROLLER_NONE = -1  // Unassigned MIIM controller
+typedef enum {
+    MESA_MIIM_CONTROLLER_0 = 0,    // MIIM controller 0
+    MESA_MIIM_CONTROLLER_1 = 1,    // MIIM controller 1
+    MESA_MIIM_CONTROLLER_2 = 2,    // MIIM controller 2
+    MESA_MIIM_CONTROLLER_3 = 3,    // MIIM controller 3
+    MESA_MIIM_CONTROLLERS,         // Number of MIIM controllers
+    MESA_MIIM_CONTROLLER_NONE = -1 // Unassigned MIIM controller
 } mesa_miim_controller_t;
 
 #define MESA_CLOCK_IDENTITY_LENGTH 8 // Length of unique PTP identifier

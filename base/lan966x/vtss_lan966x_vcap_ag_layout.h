@@ -15,2234 +15,2233 @@
  * VCAP ES0
  ******************************************************************************/
 /* Attributes */
-#define VTSS_LAN966X_VCAP_ES0_ROWS                                      256
-#define VTSS_LAN966X_VCAP_ES0_SW_COUNT                                    1
-#define VTSS_LAN966X_VCAP_ES0_SW_WIDTH                                   96
-#define VTSS_LAN966X_VCAP_ES0_STICKY_WIDTH                                1
-#define VTSS_LAN966X_VCAP_ES0_ACT_WIDTH                                  65
-#define VTSS_LAN966X_VCAP_ES0_DEFAULT_CNT                                 8
-#define VTSS_LAN966X_VCAP_ES0_REQUIRE_CNT_DIS                             0
-#define VTSS_LAN966X_VCAP_ES0_VERSION                                     1
+#define VTSS_LAN966X_VCAP_ES0_ROWS            256
+#define VTSS_LAN966X_VCAP_ES0_SW_COUNT        1
+#define VTSS_LAN966X_VCAP_ES0_SW_WIDTH        96
+#define VTSS_LAN966X_VCAP_ES0_STICKY_WIDTH    1
+#define VTSS_LAN966X_VCAP_ES0_ACT_WIDTH       65
+#define VTSS_LAN966X_VCAP_ES0_DEFAULT_CNT     8
+#define VTSS_LAN966X_VCAP_ES0_REQUIRE_CNT_DIS 0
+#define VTSS_LAN966X_VCAP_ES0_VERSION         1
 
 /* Target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_ES0_TG1_TG_WIDTH                                0
-#define VTSS_LAN966X_VCAP_ES0_TG1_TG_VAL                                 -1
-#define VTSS_LAN966X_VCAP_ES0_TG1_TYPE_WIDTH                              0
-#define VTSS_LAN966X_VCAP_ES0_TG1_MAX_WIDTH                              96
+#define VTSS_LAN966X_VCAP_ES0_TG1_TG_WIDTH   0
+#define VTSS_LAN966X_VCAP_ES0_TG1_TG_VAL     -1
+#define VTSS_LAN966X_VCAP_ES0_TG1_TYPE_WIDTH 0
+#define VTSS_LAN966X_VCAP_ES0_TG1_MAX_WIDTH  96
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_ES0_TG1_SW0_WIDTH                               0
-#define VTSS_LAN966X_VCAP_ES0_TG1_SW0_VAL                                -1
+#define VTSS_LAN966X_VCAP_ES0_TG1_SW0_WIDTH 0
+#define VTSS_LAN966X_VCAP_ES0_TG1_SW0_VAL   -1
 
 /* Keys */
 /* Key VTSS_LAN966X_VCAP_ES0_KEY_VID */
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_ID                            -1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_WIDTH                          0
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_WIDTH                              96
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_PER_ENTRY                        1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_CNT                              1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_ID      -1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_WIDTH   0
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_WIDTH        96
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_PER_ENTRY 1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O                      0
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_L                      4
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O                      4
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_L                      4
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O                      8
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_L                      1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O                          9
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_L                          8
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O                        17
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_L                         1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O                        18
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_L                         1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_O                          19
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L                          12
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O                          31
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_L                           1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_O                          32
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L                           3
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O                           35
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_L                            1
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O                       36
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_L                       10
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O                     46
-#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_L                      4
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O 0
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_L 4
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O 4
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_L 4
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O 8
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_L 1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O     9
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_L     8
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O    17
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_L    1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O    18
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_L    1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_O      19
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L      12
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O      31
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_L      1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_O      32
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L      3
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O       35
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_L       1
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O   36
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_L   10
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O 46
+#define VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_L 4
 
 struct vtss_lan966x_vcap_es0_key_vid {
-	struct vtss_lan966x_vcap_u8 egr_port;
-	struct vtss_lan966x_vcap_u8 igr_port;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	struct vtss_lan966x_vcap_u8 isdx;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit dp;
-	struct vtss_lan966x_vcap_u16 rtp_id;
-	struct vtss_lan966x_vcap_u8 pdu_type;
+    struct vtss_lan966x_vcap_u8  egr_port;
+    struct vtss_lan966x_vcap_u8  igr_port;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    struct vtss_lan966x_vcap_u8  isdx;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   dp;
+    struct vtss_lan966x_vcap_u16 rtp_id;
+    struct vtss_lan966x_vcap_u8  pdu_type;
 };
 
 /* Enumeration of all keys */
 enum vtss_lan966x_vcap_es0_key {
-	VTSS_LAN966X_VCAP_ES0_KEY_VID,
-	VTSS_LAN966X_VCAP_ES0_KEY_LAST
+    VTSS_LAN966X_VCAP_ES0_KEY_VID,
+    VTSS_LAN966X_VCAP_ES0_KEY_LAST
 };
 
 /* Union of all key structs */
 struct vtss_lan966x_vcap_es0_key_fields {
-	enum vtss_lan966x_vcap_es0_key key;
-	union {
-		struct vtss_lan966x_vcap_es0_key_vid vid;
-	} u;
+    enum vtss_lan966x_vcap_es0_key key;
+    union {
+        struct vtss_lan966x_vcap_es0_key_vid vid;
+    } u;
 };
 
 /* Action target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_WIDTH                            0
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_VAL                             -1
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TYPE_WIDTH                          0
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_MAX_WIDTH                          65
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_WIDTH   0
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_VAL     -1
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_TYPE_WIDTH 0
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_MAX_WIDTH  65
 
 /* Action target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_WIDTH                           0
-#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_VAL                            -1
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_WIDTH 0
+#define VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_VAL   -1
 
 /* Actions */
 /* Action VTSS_LAN966X_VCAP_ES0_ACTION_VID */
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_ID                         -1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_WIDTH                       0
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_WIDTH                           65
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_PER_ACTION                    1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_CNT                           1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_ID       -1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_WIDTH    0
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_WIDTH         65
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_PER_ACTION 1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_CNT        1
 
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O             0
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L             2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O             2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_L             1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O             3
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L             2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O              5
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_L              1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O              6
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L              2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O              8
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L              2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O            10
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L             2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O             12
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_L              1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O             13
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L              2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O             15
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L              2
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O                 17
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L                 12
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O                 29
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L                  3
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O                 32
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_L                  1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O                 33
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L                 12
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O                 45
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L                  3
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O                 48
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_L                  1
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O                      49
-#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_L                       8
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O 0
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L 2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O 2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_L 1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O 3
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L 2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O  5
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_L  1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O  6
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L  2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O  8
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L  2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O 10
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L 2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O  12
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_L  1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O  13
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L  2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O  15
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L  2
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O      17
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L      12
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O      29
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L      3
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O      32
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_L      1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O      33
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L      12
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O      45
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L      3
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O      48
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_L      1
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O           49
+#define VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_L           8
 
 struct vtss_lan966x_vcap_es0_action_vid {
-	u8 push_outer_tag;
-	bool push_inner_tag;
-	u8 tag_a_tpid_sel;
-	bool tag_a_vid_sel;
-	u8 tag_a_pcp_sel;
-	u8 tag_a_dei_sel;
-	u8 tag_b_tpid_sel;
-	bool tag_b_vid_sel;
-	u8 tag_b_pcp_sel;
-	u8 tag_b_dei_sel;
-	u16 vid_a_val;
-	u8 pcp_a_val;
-	bool dei_a_val;
-	u16 vid_b_val;
-	u8 pcp_b_val;
-	bool dei_b_val;
-	u8 esdx;
+    u8   push_outer_tag;
+    bool push_inner_tag;
+    u8   tag_a_tpid_sel;
+    bool tag_a_vid_sel;
+    u8   tag_a_pcp_sel;
+    u8   tag_a_dei_sel;
+    u8   tag_b_tpid_sel;
+    bool tag_b_vid_sel;
+    u8   tag_b_pcp_sel;
+    u8   tag_b_dei_sel;
+    u16  vid_a_val;
+    u8   pcp_a_val;
+    bool dei_a_val;
+    u16  vid_b_val;
+    u8   pcp_b_val;
+    bool dei_b_val;
+    u8   esdx;
 };
 
 /* Enumeration of all actions */
 enum vtss_lan966x_vcap_es0_action {
-	VTSS_LAN966X_VCAP_ES0_ACTION_VID,
-	VTSS_LAN966X_VCAP_ES0_ACTION_LAST
+    VTSS_LAN966X_VCAP_ES0_ACTION_VID,
+    VTSS_LAN966X_VCAP_ES0_ACTION_LAST
 };
 
 /* Union of all action structs */
 struct vtss_lan966x_vcap_es0_action_fields {
-	enum vtss_lan966x_vcap_es0_action action;
-	union {
-		struct vtss_lan966x_vcap_es0_action_vid vid;
-	} u;
+    enum vtss_lan966x_vcap_es0_action action;
+    union {
+        struct vtss_lan966x_vcap_es0_action_vid vid;
+    } u;
 };
 
 /*******************************************************************************
  * VCAP IS1
  ******************************************************************************/
 /* Attributes */
-#define VTSS_LAN966X_VCAP_IS1_ROWS                                      192
-#define VTSS_LAN966X_VCAP_IS1_SW_COUNT                                    4
-#define VTSS_LAN966X_VCAP_IS1_SW_WIDTH                                   96
-#define VTSS_LAN966X_VCAP_IS1_STICKY_WIDTH                               32
-#define VTSS_LAN966X_VCAP_IS1_ACT_WIDTH                                 123
-#define VTSS_LAN966X_VCAP_IS1_DEFAULT_CNT                                 0
-#define VTSS_LAN966X_VCAP_IS1_REQUIRE_CNT_DIS                             1
-#define VTSS_LAN966X_VCAP_IS1_VERSION                                     1
+#define VTSS_LAN966X_VCAP_IS1_ROWS            192
+#define VTSS_LAN966X_VCAP_IS1_SW_COUNT        4
+#define VTSS_LAN966X_VCAP_IS1_SW_WIDTH        96
+#define VTSS_LAN966X_VCAP_IS1_STICKY_WIDTH    32
+#define VTSS_LAN966X_VCAP_IS1_ACT_WIDTH       123
+#define VTSS_LAN966X_VCAP_IS1_DEFAULT_CNT     0
+#define VTSS_LAN966X_VCAP_IS1_REQUIRE_CNT_DIS 1
+#define VTSS_LAN966X_VCAP_IS1_VERSION         1
 
 /* Target group for 4 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS1_TG4_TG_WIDTH                                3
-#define VTSS_LAN966X_VCAP_IS1_TG4_TG_VAL                                  4
-#define VTSS_LAN966X_VCAP_IS1_TG4_TYPE_WIDTH                              2
-#define VTSS_LAN966X_VCAP_IS1_TG4_MAX_WIDTH                             380
+#define VTSS_LAN966X_VCAP_IS1_TG4_TG_WIDTH   3
+#define VTSS_LAN966X_VCAP_IS1_TG4_TG_VAL     4
+#define VTSS_LAN966X_VCAP_IS1_TG4_TYPE_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS1_TG4_MAX_WIDTH  380
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW0_WIDTH                               3
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW0_VAL                                 4
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW0_WIDTH 3
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW0_VAL   4
 
 /* Target group bits for sub-word 1 */
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW1_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW1_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW1_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW1_VAL   0
 
 /* Target group bits for sub-word 2 */
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW2_WIDTH                               2
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW2_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW2_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW2_VAL   0
 
 /* Target group bits for sub-word 3 */
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW3_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS1_TG4_SW3_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW3_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_TG4_SW3_VAL   0
 
 /* Target group for 2 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS1_TG2_TG_WIDTH                                2
-#define VTSS_LAN966X_VCAP_IS1_TG2_TG_VAL                                  2
-#define VTSS_LAN966X_VCAP_IS1_TG2_TYPE_WIDTH                              1
-#define VTSS_LAN966X_VCAP_IS1_TG2_MAX_WIDTH                             191
+#define VTSS_LAN966X_VCAP_IS1_TG2_TG_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_TG2_TG_VAL     2
+#define VTSS_LAN966X_VCAP_IS1_TG2_TYPE_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_TG2_MAX_WIDTH  191
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS1_TG2_SW0_WIDTH                               2
-#define VTSS_LAN966X_VCAP_IS1_TG2_SW0_VAL                                 2
+#define VTSS_LAN966X_VCAP_IS1_TG2_SW0_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS1_TG2_SW0_VAL   2
 
 /* Target group bits for sub-word 1 */
-#define VTSS_LAN966X_VCAP_IS1_TG2_SW1_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS1_TG2_SW1_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS1_TG2_SW1_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_TG2_SW1_VAL   0
 
 /* Target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS1_TG1_TG_WIDTH                                1
-#define VTSS_LAN966X_VCAP_IS1_TG1_TG_VAL                                  1
-#define VTSS_LAN966X_VCAP_IS1_TG1_TYPE_WIDTH                              2
-#define VTSS_LAN966X_VCAP_IS1_TG1_MAX_WIDTH                              96
+#define VTSS_LAN966X_VCAP_IS1_TG1_TG_WIDTH   1
+#define VTSS_LAN966X_VCAP_IS1_TG1_TG_VAL     1
+#define VTSS_LAN966X_VCAP_IS1_TG1_TYPE_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS1_TG1_MAX_WIDTH  96
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS1_TG1_SW0_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS1_TG1_SW0_VAL                                 1
+#define VTSS_LAN966X_VCAP_IS1_TG1_SW0_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_TG1_SW0_VAL   1
 
 /* Keys */
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID                       0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_WIDTH                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_WIDTH                       188
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_PER_ENTRY                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_CNT                        2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID      0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_WIDTH   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_WIDTH        188
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_O                  1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_L                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_O           3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_L           9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_O                  12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_O                  13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_O                  14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_O               15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_O            16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_O        17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_O                   18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_O                    19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_L                    12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_O                    31
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_O                    32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_L                     3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_O                35
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_L                48
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_O              83
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_O                  84
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_L                  16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_O               100
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_O                   101
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_O           102
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_O       103
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_O            104
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_O               105
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_L                 6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_O            111
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_L             32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_O               143
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_O                   144
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_O              145
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_L               16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_O                161
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_L                  8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_L            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_O          1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_L          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_O   3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_O           12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_O           13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_O           14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_O        15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_O     16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_O 17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_O            18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_L            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_O             19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_O             31
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_O             32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_O         35
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_L         48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_O       83
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_O           84
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_L           16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_O         100
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_O             101
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_O     102
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_O 103
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_O      104
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_L      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_O         105
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_L         6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_O      111
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_L      32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_O         143
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_O             144
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_O        145
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_L        16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_O          161
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_L          8
 
 struct vtss_lan966x_vcap_is1_key_s1_normal {
-	enum vtss_lan966x_vcap_bit type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	enum vtss_lan966x_vcap_bit etype_len;
-	struct vtss_lan966x_vcap_u16 etype;
-	enum vtss_lan966x_vcap_bit ip_snap;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	enum vtss_lan966x_vcap_bit tcp;
-	struct vtss_lan966x_vcap_u16 l4_sport;
-	struct vtss_lan966x_vcap_u8 l4_rng;
+    enum vtss_lan966x_vcap_bit   type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8  lookup;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   ip_mc;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit   tpid;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    enum vtss_lan966x_vcap_bit   etype_len;
+    struct vtss_lan966x_vcap_u16 etype;
+    enum vtss_lan966x_vcap_bit   ip_snap;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    struct vtss_lan966x_vcap_u8  l3_dscp;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    enum vtss_lan966x_vcap_bit   tcp_udp;
+    enum vtss_lan966x_vcap_bit   tcp;
+    struct vtss_lan966x_vcap_u16 l4_sport;
+    struct vtss_lan966x_vcap_u8  l4_rng;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4 */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_WIDTH                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_WIDTH                   188
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_PER_ENTRY              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_CNT                    2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_WIDTH   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_WIDTH        188
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O                0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_O              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_O       3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L       9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_O              12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_O              13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_O              14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_O           15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_L            1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_O        16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O    17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_L     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_O               18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_O                19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L                12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_O                31
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_O                32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L                 3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_O         35
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_L          1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_O          36
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L          12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_O          48
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_L           1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_O          49
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L           3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_O                52
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_O        53
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O    54
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_L     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_O         55
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_L          1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_O            56
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L             6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_O         62
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L         32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_O         94
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L         32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O              0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_L              1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_O            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_O     3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L     9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_O             12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_O             13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_O             14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_O          15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_L          1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_O       16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O   17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_O              18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_L              1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_O               19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L               12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_O               31
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_L               1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_O               32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L               3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_O        35
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_O         36
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L         12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_O         48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_O         49
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L         3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_O               52
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_L               1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_O       53
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O   54
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_L   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_O        55
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_O           56
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L           6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_O        62
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L        32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_O        94
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L        32
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_O       126
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L         8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L       8
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_O           134
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_L           1
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_O               135
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_L                 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_L               1
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_O            136
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L              8
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O  144
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L   32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L            8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O 144
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L 32
 
 struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip4 {
-	enum vtss_lan966x_vcap_bit type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit inner_tpid;
-	struct vtss_lan966x_vcap_u16 inner_vid;
-	enum vtss_lan966x_vcap_bit inner_dei;
-	struct vtss_lan966x_vcap_u8 inner_pcp;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	struct vtss_lan966x_vcap_u32 l3_ip4_dip;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
-	struct vtss_lan966x_vcap_u8 l3_ip_proto;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	enum vtss_lan966x_vcap_bit tcp;
-	struct vtss_lan966x_vcap_u8 l4_rng;
-	struct vtss_lan966x_vcap_u32 ip_payload_5tuple;
+    enum vtss_lan966x_vcap_bit   type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8  lookup;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   ip_mc;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit   tpid;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   inner_tpid;
+    struct vtss_lan966x_vcap_u16 inner_vid;
+    enum vtss_lan966x_vcap_bit   inner_dei;
+    struct vtss_lan966x_vcap_u8  inner_pcp;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    struct vtss_lan966x_vcap_u8  l3_dscp;
+    struct vtss_lan966x_vcap_u32 l3_ip4_dip;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    struct vtss_lan966x_vcap_u8  l3_ip_proto;
+    enum vtss_lan966x_vcap_bit   tcp_udp;
+    enum vtss_lan966x_vcap_bit   tcp;
+    struct vtss_lan966x_vcap_u8  l4_rng;
+    struct vtss_lan966x_vcap_u32 ip_payload_5tuple;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6 */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID                   0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_WIDTH                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_WIDTH                   375
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_PER_ENTRY              4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_CNT                    1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID      0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O                0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_O              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_O       4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L       9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_O              13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_O              14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_O              15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_O           16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_L            1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_O        17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O    18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_L     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_O               19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_O                20
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L                12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_O                32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_O                33
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L                 3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_O         36
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_L          1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_O          37
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L          12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_O          49
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_L           1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_O          50
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L           3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_O            53
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_L            48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O              0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L              2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_O            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_O     4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L     9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_O             13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_O             14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_O             15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_O          16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_L          1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_O       17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O   18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_O              19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_L              1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_O               20
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L               12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_O               32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_L               1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_O               33
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L               3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_O        36
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_O         37
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L         12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_O         49
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_O         50
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L         3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_O           53
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_L           48
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_O           101
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L             6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L           6
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_O        107
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_L        128
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_O       235
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L         8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L       8
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_O           243
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_L           1
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_O            244
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L              8
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O  252
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_L  112
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L            8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O 252
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_L 112
 
 struct vtss_lan966x_vcap_is1_key_s1_normal_ip6 {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit inner_tpid;
-	struct vtss_lan966x_vcap_u16 inner_vid;
-	enum vtss_lan966x_vcap_bit inner_dei;
-	struct vtss_lan966x_vcap_u8 inner_pcp;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
-	struct vtss_lan966x_vcap_u8 l3_ip_proto;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	struct vtss_lan966x_vcap_u8 l4_rng;
-	struct vtss_lan966x_vcap_u112 ip_payload_s1_ip6;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8   lookup;
+    struct vtss_lan966x_vcap_u16  igr_port_mask;
+    enum vtss_lan966x_vcap_bit    l2_mc;
+    enum vtss_lan966x_vcap_bit    l2_bc;
+    enum vtss_lan966x_vcap_bit    ip_mc;
+    enum vtss_lan966x_vcap_bit    r_tagged;
+    enum vtss_lan966x_vcap_bit    vlan_tagged;
+    enum vtss_lan966x_vcap_bit    vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit    tpid;
+    struct vtss_lan966x_vcap_u16  vid;
+    enum vtss_lan966x_vcap_bit    dei;
+    struct vtss_lan966x_vcap_u8   pcp;
+    enum vtss_lan966x_vcap_bit    inner_tpid;
+    struct vtss_lan966x_vcap_u16  inner_vid;
+    enum vtss_lan966x_vcap_bit    inner_dei;
+    struct vtss_lan966x_vcap_u8   inner_pcp;
+    struct vtss_lan966x_vcap_u48  l2_smac;
+    struct vtss_lan966x_vcap_u8   l3_dscp;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    struct vtss_lan966x_vcap_u8   l3_ip_proto;
+    enum vtss_lan966x_vcap_bit    tcp_udp;
+    struct vtss_lan966x_vcap_u8   l4_rng;
+    struct vtss_lan966x_vcap_u112 ip_payload_s1_ip6;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID                       1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_WIDTH                    2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_WIDTH                       375
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_PER_ENTRY                  4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_CNT                        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L                    2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_O                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_L                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_O           4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_L           9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_O                  13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_O                  14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_O                  15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_O               16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_O            17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_O        18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_O                   19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_O                    20
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_L                    12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_O                    32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_O                    33
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_L                     3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_O             36
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_O              37
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_L              12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_O              49
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_O              50
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_L               3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_O                53
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_L                48
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_O               101
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_L                48
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_O             149
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_O                 150
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_L                  16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_O               166
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_O                   167
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_O           168
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_O       169
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_O            170
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_O               171
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_L                 6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_O        177
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_L         16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_O            193
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_L             64
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_O        257
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_L         16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_O            273
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_L             64
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_O               337
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_O                   338
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_L                     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_O              339
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_L               16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_O                355
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_L                  8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_O          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_L          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_O   4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_O           13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_O           14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_O           15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_O        16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_O     17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_O 18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_O            19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_L            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_O             20
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_O             32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_O             33
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_O      36
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_L      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_O       37
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_L       12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_O       49
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_O       50
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_L       3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_O         53
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_L         48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_O         101
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_L         48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_O       149
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_O           150
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_L           16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_O         166
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_O             167
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_O     168
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_O 169
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_O      170
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_L      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_O         171
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_L         6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_O  177
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_L  16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_O      193
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_L      64
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_O  257
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_L  16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_O      273
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_L      64
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_O         337
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_O             338
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_O        339
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_L        16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_O          355
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_L          8
 
 struct vtss_lan966x_vcap_is1_key_s1_7tuple {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit inner_tpid;
-	struct vtss_lan966x_vcap_u16 inner_vid;
-	enum vtss_lan966x_vcap_bit inner_dei;
-	struct vtss_lan966x_vcap_u8 inner_pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	enum vtss_lan966x_vcap_bit etype_len;
-	struct vtss_lan966x_vcap_u16 etype;
-	enum vtss_lan966x_vcap_bit ip_snap;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	struct vtss_lan966x_vcap_u16 l3_ip6_dip_msb;
-	struct vtss_lan966x_vcap_u64 l3_ip6_dip;
-	struct vtss_lan966x_vcap_u16 l3_ip6_sip_msb;
-	struct vtss_lan966x_vcap_u64 l3_ip6_sip;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	enum vtss_lan966x_vcap_bit tcp;
-	struct vtss_lan966x_vcap_u16 l4_sport;
-	struct vtss_lan966x_vcap_u8 l4_rng;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8  lookup;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   ip_mc;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit   tpid;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   inner_tpid;
+    struct vtss_lan966x_vcap_u16 inner_vid;
+    enum vtss_lan966x_vcap_bit   inner_dei;
+    struct vtss_lan966x_vcap_u8  inner_pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    enum vtss_lan966x_vcap_bit   etype_len;
+    struct vtss_lan966x_vcap_u16 etype;
+    enum vtss_lan966x_vcap_bit   ip_snap;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    struct vtss_lan966x_vcap_u8  l3_dscp;
+    struct vtss_lan966x_vcap_u16 l3_ip6_dip_msb;
+    struct vtss_lan966x_vcap_u64 l3_ip6_dip;
+    struct vtss_lan966x_vcap_u16 l3_ip6_sip_msb;
+    struct vtss_lan966x_vcap_u64 l3_ip6_sip;
+    enum vtss_lan966x_vcap_bit   tcp_udp;
+    enum vtss_lan966x_vcap_bit   tcp;
+    struct vtss_lan966x_vcap_u16 l4_sport;
+    struct vtss_lan966x_vcap_u8  l4_rng;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6 */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID                   2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_WIDTH                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_WIDTH                   375
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_PER_ENTRY              4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_CNT                    1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID      2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O                0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_O              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L              2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_O       4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L       9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_O              13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_O              14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_O              15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_O           16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_L            1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_O        17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_L         1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O    18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_L     1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_O               19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_O                20
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L                12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_O                32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_O                33
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L                 3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_O         36
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_L          1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_O          37
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L          12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_O          49
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_L           1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_O          50
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L           3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_O            53
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L             6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_O         59
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O              0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L              2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_O            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_O     4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L     9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_O             13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_O             14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_O             15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_O          16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_L          1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_O       17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O   18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_O              19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_L              1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_O               20
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L               12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_O               32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_L               1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_O               33
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L               3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_O        36
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_O         37
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L         12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_O         49
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_O         50
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L         3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_O           53
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L           6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_O        59
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_L        128
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_O        187
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_L        128
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_O       315
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L         8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L       8
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_O           323
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_L           1
 #define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_O            324
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L              8
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O  332
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L   32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L            8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O 332
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L 32
 
 struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip6 {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit inner_tpid;
-	struct vtss_lan966x_vcap_u16 inner_vid;
-	enum vtss_lan966x_vcap_bit inner_dei;
-	struct vtss_lan966x_vcap_u8 inner_pcp;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	struct vtss_lan966x_vcap_u128 l3_ip6_dip;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
-	struct vtss_lan966x_vcap_u8 l3_ip_proto;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	struct vtss_lan966x_vcap_u8 l4_rng;
-	struct vtss_lan966x_vcap_u32 ip_payload_5tuple;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8   lookup;
+    struct vtss_lan966x_vcap_u16  igr_port_mask;
+    enum vtss_lan966x_vcap_bit    l2_mc;
+    enum vtss_lan966x_vcap_bit    l2_bc;
+    enum vtss_lan966x_vcap_bit    ip_mc;
+    enum vtss_lan966x_vcap_bit    r_tagged;
+    enum vtss_lan966x_vcap_bit    vlan_tagged;
+    enum vtss_lan966x_vcap_bit    vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit    tpid;
+    struct vtss_lan966x_vcap_u16  vid;
+    enum vtss_lan966x_vcap_bit    dei;
+    struct vtss_lan966x_vcap_u8   pcp;
+    enum vtss_lan966x_vcap_bit    inner_tpid;
+    struct vtss_lan966x_vcap_u16  inner_vid;
+    enum vtss_lan966x_vcap_bit    inner_dei;
+    struct vtss_lan966x_vcap_u8   inner_pcp;
+    struct vtss_lan966x_vcap_u8   l3_dscp;
+    struct vtss_lan966x_vcap_u128 l3_ip6_dip;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    struct vtss_lan966x_vcap_u8   l3_ip_proto;
+    enum vtss_lan966x_vcap_bit    tcp_udp;
+    struct vtss_lan966x_vcap_u8   l4_rng;
+    struct vtss_lan966x_vcap_u32  ip_payload_5tuple;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID                      0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_WIDTH                   2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_WIDTH                       93
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_PER_ENTRY                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_CNT                       4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID      0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_WIDTH        93
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_PER_ENTRY 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_CNT       4
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O                   0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L                   2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_O                 2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_L                 2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_O          4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_L          9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_O                 13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_L                  1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_O                 14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_L                  1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_O                 15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_L                  1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_O              16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_L               1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_O           17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_L            1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_O       18
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_L        1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_O                  19
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_O                   20
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_L                   12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_O                   32
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_O                   33
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_L                    3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_O            36
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_O             37
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_L             12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_O             49
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_O             50
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_L              3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_O             53
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_O                 54
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_L                 16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_O               70
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_O                   71
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_O           72
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_L            1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_O       73
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_L        1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_O            74
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_O               75
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_L                6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_O               81
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_L                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_O                   82
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_L                    1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_O          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_L          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_O   4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_O           13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_O           14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_O           15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_O        16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_O     17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_O 18
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_O            19
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_L            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_O             20
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_O             32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_O             33
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_O      36
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_L      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_O       37
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_L       12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_O       49
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_O       50
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_L       3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_O       53
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_L       1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_O           54
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_L           16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_O         70
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_O             71
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_O     72
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_O 73
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_O      74
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_L      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_O         75
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_L         6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_O         81
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_L         1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_O             82
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_L             1
 
 struct vtss_lan966x_vcap_is1_key_s1_dbl_vid {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit ip_mc;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit inner_tpid;
-	struct vtss_lan966x_vcap_u16 inner_vid;
-	enum vtss_lan966x_vcap_bit inner_dei;
-	struct vtss_lan966x_vcap_u8 inner_pcp;
-	enum vtss_lan966x_vcap_bit etype_len;
-	struct vtss_lan966x_vcap_u16 etype;
-	enum vtss_lan966x_vcap_bit ip_snap;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	struct vtss_lan966x_vcap_u8 l3_dscp;
-	enum vtss_lan966x_vcap_bit tcp_udp;
-	enum vtss_lan966x_vcap_bit tcp;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8  lookup;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   ip_mc;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit   tpid;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   inner_tpid;
+    struct vtss_lan966x_vcap_u16 inner_vid;
+    enum vtss_lan966x_vcap_bit   inner_dei;
+    struct vtss_lan966x_vcap_u8  inner_pcp;
+    enum vtss_lan966x_vcap_bit   etype_len;
+    struct vtss_lan966x_vcap_u16 etype;
+    enum vtss_lan966x_vcap_bit   ip_snap;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    struct vtss_lan966x_vcap_u8  l3_dscp;
+    enum vtss_lan966x_vcap_bit   tcp_udp;
+    enum vtss_lan966x_vcap_bit   tcp;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_RT */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID                           1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_WIDTH                        2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_WIDTH                            93
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_PER_ENTRY                      1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_CNT                            4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID      1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_WIDTH        93
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_PER_ENTRY 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_CNT       4
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O                        0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L                        2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O                       2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_L                       1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O                    3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_L                    3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O                    6
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_L                    1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O                 7
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_L                 1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O             8
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O                      9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_L                     48
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O                57
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L                 3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O                    60
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_L                     2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O                   62
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_L                   32
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O           2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_L           1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O        3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_L        3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O        6
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O     7
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O 8
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O          9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_L          48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O     57
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L     3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O         60
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_L         2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O        62
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_L        32
 
 struct vtss_lan966x_vcap_is1_key_s1_rt {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 igr_port;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	struct vtss_lan966x_vcap_u48 l2_mac;
-	struct vtss_lan966x_vcap_u8 rt_vlan_idx;
-	struct vtss_lan966x_vcap_u8 rt_type;
-	struct vtss_lan966x_vcap_u32 rt_frmid;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  igr_port;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    struct vtss_lan966x_vcap_u48 l2_mac;
+    struct vtss_lan966x_vcap_u8  rt_vlan_idx;
+    struct vtss_lan966x_vcap_u8  rt_type;
+    struct vtss_lan966x_vcap_u32 rt_frmid;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID */
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID                     2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_WIDTH                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_WIDTH                      93
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_PER_ENTRY                1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_CNT                      4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID      2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_WIDTH        93
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_PER_ENTRY 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_CNT       4
 
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O                  0
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L                  2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_O                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_L                2
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_O         4
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_L         9
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_O             13
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_L              1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_O          14
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_L           1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_O      15
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_L       1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_O                 16
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_L                  1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_O                  17
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_L                  12
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_O                  29
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_L                   1
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_O                  30
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_L                   3
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_O              33
-#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_L              48
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L            2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_O          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_L          2
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_O   4
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_O        13
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_O     14
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_O 15
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_L 1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_O            16
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_L            1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_O             17
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_O             29
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_O             30
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_O         33
+#define VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_L         48
 
 struct vtss_lan966x_vcap_is1_key_s1_dmac_vid {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 lookup;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit r_tagged;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	enum vtss_lan966x_vcap_bit vlan_dbl_tagged;
-	enum vtss_lan966x_vcap_bit tpid;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8  lookup;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   r_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    enum vtss_lan966x_vcap_bit   vlan_dbl_tagged;
+    enum vtss_lan966x_vcap_bit   tpid;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
 };
 
 /* Enumeration of all keys */
 enum vtss_lan966x_vcap_is1_key {
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_RT,
-	VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID,
-	VTSS_LAN966X_VCAP_IS1_KEY_LAST
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_RT,
+    VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID,
+    VTSS_LAN966X_VCAP_IS1_KEY_LAST
 };
 
 /* Union of all key structs */
 struct vtss_lan966x_vcap_is1_key_fields {
-	enum vtss_lan966x_vcap_is1_key key;
-	union {
-		struct vtss_lan966x_vcap_is1_key_s1_normal s1_normal;
-		struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip4 s1_5tuple_ip4;
-		struct vtss_lan966x_vcap_is1_key_s1_normal_ip6 s1_normal_ip6;
-		struct vtss_lan966x_vcap_is1_key_s1_7tuple s1_7tuple;
-		struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip6 s1_5tuple_ip6;
-		struct vtss_lan966x_vcap_is1_key_s1_dbl_vid s1_dbl_vid;
-		struct vtss_lan966x_vcap_is1_key_s1_rt s1_rt;
-		struct vtss_lan966x_vcap_is1_key_s1_dmac_vid s1_dmac_vid;
-	} u;
+    enum vtss_lan966x_vcap_is1_key key;
+    union {
+        struct vtss_lan966x_vcap_is1_key_s1_normal     s1_normal;
+        struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip4 s1_5tuple_ip4;
+        struct vtss_lan966x_vcap_is1_key_s1_normal_ip6 s1_normal_ip6;
+        struct vtss_lan966x_vcap_is1_key_s1_7tuple     s1_7tuple;
+        struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip6 s1_5tuple_ip6;
+        struct vtss_lan966x_vcap_is1_key_s1_dbl_vid    s1_dbl_vid;
+        struct vtss_lan966x_vcap_is1_key_s1_rt         s1_rt;
+        struct vtss_lan966x_vcap_is1_key_s1_dmac_vid   s1_dmac_vid;
+    } u;
 };
 
 /* Action target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_WIDTH                            0
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_VAL                             -1
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TYPE_WIDTH                          1
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_MAX_WIDTH                         123
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_WIDTH   0
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_VAL     -1
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_TYPE_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_MAX_WIDTH  123
 
 /* Action target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_WIDTH                           0
-#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_VAL                            -1
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_WIDTH 0
+#define VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_VAL   -1
 
 /* Actions */
 /* Action VTSS_LAN966X_VCAP_IS1_ACTION_S1 */
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID                           0
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_WIDTH                        1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_WIDTH                           122
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_PER_ACTION                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_CNT                            4
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID       0
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_WIDTH    1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_WIDTH         122
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_PER_ACTION 1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_CNT        4
 
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O                        0
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_L                        1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O                    1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_L                    1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O                    2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L                    6
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O                     8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_L                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O                     9
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L                     3
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O                     12
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_L                      1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O                     13
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_L                      1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O          14
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L           8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O                    22
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L                     8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O           30
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_L            1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O               31
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L                8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O            39
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_L             1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O                40
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L                12
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O                    52
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L                     2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O                    54
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L                    13
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O                    67
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_L                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O                    68
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L                     3
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O                    71
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_L                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O                    72
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_L                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O           73
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_L            1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O               74
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L                2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O        76
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L         4
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O                   80
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_L                    1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O                   81
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L                    8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O                   89
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_L                    1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O                   90
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L                    8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O                 98
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_L                  1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O                 99
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L                  9
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O                   108
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L                     3
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O                   111
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L                     2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O                   113
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L                     2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O                   115
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_L                     1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O                0
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_L                1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O            1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_L            1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O            2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L            6
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O             8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_L             1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O             9
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L             3
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O              12
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_L              1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O              13
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_L              1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O   14
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L   8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O             22
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L             8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O    30
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_L    1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O        31
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L        8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O     39
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_L     1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O         40
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L         12
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O             52
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L             2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O             54
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L             13
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O             67
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_L             1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O             68
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L             3
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O             71
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_L             1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O             72
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_L             1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O    73
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_L    1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O        74
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L        2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O 76
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L 4
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O            80
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_L            1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O            81
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L            8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O            89
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_L            1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O            90
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L            8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O          98
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_L          1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O          99
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L          9
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O             108
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L             3
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O             111
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L             2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O             113
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L             2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O             115
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_L             1
 
 struct vtss_lan966x_vcap_is1_action_s1 {
-	bool type_ena; /* Override default type_id */
-	bool type; /* type_id to set if type_ena = true */
-	bool dscp_ena;
-	u8 dscp_val;
-	bool qos_ena;
-	u8 qos_val;
-	bool dp_ena;
-	bool dp_val;
-	u8 pag_override_mask;
-	u8 pag_val;
-	bool isdx_replace_ena;
-	u8 isdx_add_val;
-	bool vid_replace_ena;
-	u16 vid_add_val;
-	u8 fid_sel;
-	u16 fid_val;
-	bool pcp_ena;
-	u8 pcp_val;
-	bool dei_ena;
-	bool dei_val;
-	bool vlan_pop_cnt_ena;
-	u8 vlan_pop_cnt;
-	u8 custom_ace_type_ena;
-	bool sfid_ena;
-	u8 sfid_val;
-	bool sgid_ena;
-	u8 sgid_val;
-	bool police_ena;
-	u16 police_idx;
-	u8 oam_sel;
-	u8 mrp_sel;
-	u8 dlr_sel;
-	bool rtp_ena;
+    bool type_ena; /* Override default type_id */
+    bool type;     /* type_id to set if type_ena = true */
+    bool dscp_ena;
+    u8   dscp_val;
+    bool qos_ena;
+    u8   qos_val;
+    bool dp_ena;
+    bool dp_val;
+    u8   pag_override_mask;
+    u8   pag_val;
+    bool isdx_replace_ena;
+    u8   isdx_add_val;
+    bool vid_replace_ena;
+    u16  vid_add_val;
+    u8   fid_sel;
+    u16  fid_val;
+    bool pcp_ena;
+    u8   pcp_val;
+    bool dei_ena;
+    bool dei_val;
+    bool vlan_pop_cnt_ena;
+    u8   vlan_pop_cnt;
+    u8   custom_ace_type_ena;
+    bool sfid_ena;
+    u8   sfid_val;
+    bool sgid_ena;
+    u8   sgid_val;
+    bool police_ena;
+    u16  police_idx;
+    u8   oam_sel;
+    u8   mrp_sel;
+    u8   dlr_sel;
+    bool rtp_ena;
 };
 
 /* Action VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT */
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID                        1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_WIDTH                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_WIDTH                         86
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_PER_ACTION                  1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_CNT                         4
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID       1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_WIDTH    1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_WIDTH         86
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_PER_ACTION 1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_CNT        4
 
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O                     0
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_L                     1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_O                 1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_L                 8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_O                 9
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_L                 1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_O                10
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_L                 8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_O                18
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_L                 1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_O                19
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_L                 8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_O              27
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_L               1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_O              28
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_L               9
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_O                  37
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_L                  10
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_O               47
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_L                1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_O             48
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_L              1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_O                49
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_L                 1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_O               50
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_L                3
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_O                 53
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_L                  1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_O                54
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_L                 8
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_O          62
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_L           1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_O                 63
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_L                  1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_O            64
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_L             1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_O              65
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_L               3
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_O            68
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_L             1
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_O                 69
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_L                  2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_O                  71
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_L                   2
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_O             73
-#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_L              6
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O           0
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_L           1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_O       1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_L       8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_O       9
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_L       1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_O       10
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_L       8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_O       18
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_L       1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_O       19
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_L       8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_O     27
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_L     1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_O     28
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_L     9
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_O         37
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_L         10
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_O      47
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_L      1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_O    48
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_L    1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_O       49
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_L       1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_O      50
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_L      3
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_O        53
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_L        1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_O       54
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_L       8
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_O 62
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_L 1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_O        63
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_L        1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_O   64
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_L   1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_O     65
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_L     3
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_O   68
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_L   1
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_O        69
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_L        2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_O         71
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_L         2
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_O    73
+#define VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_L    6
 
 struct vtss_lan966x_vcap_is1_action_s1_rt {
-	bool type_ena; /* Override default type_id */
-	bool type; /* type_id to set if type_ena = true */
-	u8 isdx_val;
-	bool sfid_ena;
-	u8 sfid_val;
-	bool sgid_ena;
-	u8 sgid_val;
-	bool police_ena;
-	u16 police_idx;
-	u16 rtp_id;
-	bool rtp_subid;
-	bool rte_inb_upd;
-	bool llct_ena;
-	u8 llct_port;
-	bool fwd_ena;
-	u8 fwd_mask;
-	bool src_filter_ena;
-	bool own_mac;
-	bool cpu_copy_ena;
-	u8 cpu_qu_num;
-	bool ana2_tsn_dis;
-	u8 fwd_sel;
-	u8 ct_sel;
-	u8 pn_stat_ofs;
+    bool type_ena; /* Override default type_id */
+    bool type;     /* type_id to set if type_ena = true */
+    u8   isdx_val;
+    bool sfid_ena;
+    u8   sfid_val;
+    bool sgid_ena;
+    u8   sgid_val;
+    bool police_ena;
+    u16  police_idx;
+    u16  rtp_id;
+    bool rtp_subid;
+    bool rte_inb_upd;
+    bool llct_ena;
+    u8   llct_port;
+    bool fwd_ena;
+    u8   fwd_mask;
+    bool src_filter_ena;
+    bool own_mac;
+    bool cpu_copy_ena;
+    u8   cpu_qu_num;
+    bool ana2_tsn_dis;
+    u8   fwd_sel;
+    u8   ct_sel;
+    u8   pn_stat_ofs;
 };
 
 /* Enumeration of all actions */
 enum vtss_lan966x_vcap_is1_action {
-	VTSS_LAN966X_VCAP_IS1_ACTION_S1,
-	VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT,
-	VTSS_LAN966X_VCAP_IS1_ACTION_LAST
+    VTSS_LAN966X_VCAP_IS1_ACTION_S1,
+    VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT,
+    VTSS_LAN966X_VCAP_IS1_ACTION_LAST
 };
 
 /* Union of all action structs */
 struct vtss_lan966x_vcap_is1_action_fields {
-	enum vtss_lan966x_vcap_is1_action action;
-	union {
-		struct vtss_lan966x_vcap_is1_action_s1 s1;
-		struct vtss_lan966x_vcap_is1_action_s1_rt s1_rt;
-	} u;
+    enum vtss_lan966x_vcap_is1_action action;
+    union {
+        struct vtss_lan966x_vcap_is1_action_s1    s1;
+        struct vtss_lan966x_vcap_is1_action_s1_rt s1_rt;
+    } u;
 };
 
 /*******************************************************************************
  * VCAP IS2
  ******************************************************************************/
 /* Attributes */
-#define VTSS_LAN966X_VCAP_IS2_ROWS                                       64
-#define VTSS_LAN966X_VCAP_IS2_SW_COUNT                                    4
-#define VTSS_LAN966X_VCAP_IS2_SW_WIDTH                                   96
-#define VTSS_LAN966X_VCAP_IS2_STICKY_WIDTH                               32
-#define VTSS_LAN966X_VCAP_IS2_ACT_WIDTH                                  31
-#define VTSS_LAN966X_VCAP_IS2_DEFAULT_CNT                                11
-#define VTSS_LAN966X_VCAP_IS2_REQUIRE_CNT_DIS                             1
-#define VTSS_LAN966X_VCAP_IS2_VERSION                                     1
+#define VTSS_LAN966X_VCAP_IS2_ROWS            64
+#define VTSS_LAN966X_VCAP_IS2_SW_COUNT        4
+#define VTSS_LAN966X_VCAP_IS2_SW_WIDTH        96
+#define VTSS_LAN966X_VCAP_IS2_STICKY_WIDTH    32
+#define VTSS_LAN966X_VCAP_IS2_ACT_WIDTH       31
+#define VTSS_LAN966X_VCAP_IS2_DEFAULT_CNT     11
+#define VTSS_LAN966X_VCAP_IS2_REQUIRE_CNT_DIS 1
+#define VTSS_LAN966X_VCAP_IS2_VERSION         1
 
 /* Target group for 4 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS2_TG4_TG_WIDTH                                3
-#define VTSS_LAN966X_VCAP_IS2_TG4_TG_VAL                                  4
-#define VTSS_LAN966X_VCAP_IS2_TG4_TYPE_WIDTH                              2
-#define VTSS_LAN966X_VCAP_IS2_TG4_MAX_WIDTH                             380
+#define VTSS_LAN966X_VCAP_IS2_TG4_TG_WIDTH   3
+#define VTSS_LAN966X_VCAP_IS2_TG4_TG_VAL     4
+#define VTSS_LAN966X_VCAP_IS2_TG4_TYPE_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS2_TG4_MAX_WIDTH  380
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW0_WIDTH                               3
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW0_VAL                                 4
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW0_WIDTH 3
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW0_VAL   4
 
 /* Target group bits for sub-word 1 */
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW1_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW1_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW1_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW1_VAL   0
 
 /* Target group bits for sub-word 2 */
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW2_WIDTH                               2
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW2_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW2_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW2_VAL   0
 
 /* Target group bits for sub-word 3 */
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW3_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS2_TG4_SW3_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW3_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_TG4_SW3_VAL   0
 
 /* Target group for 2 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS2_TG2_TG_WIDTH                                2
-#define VTSS_LAN966X_VCAP_IS2_TG2_TG_VAL                                  2
-#define VTSS_LAN966X_VCAP_IS2_TG2_TYPE_WIDTH                              4
-#define VTSS_LAN966X_VCAP_IS2_TG2_MAX_WIDTH                             191
+#define VTSS_LAN966X_VCAP_IS2_TG2_TG_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS2_TG2_TG_VAL     2
+#define VTSS_LAN966X_VCAP_IS2_TG2_TYPE_WIDTH 4
+#define VTSS_LAN966X_VCAP_IS2_TG2_MAX_WIDTH  191
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS2_TG2_SW0_WIDTH                               2
-#define VTSS_LAN966X_VCAP_IS2_TG2_SW0_VAL                                 2
+#define VTSS_LAN966X_VCAP_IS2_TG2_SW0_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS2_TG2_SW0_VAL   2
 
 /* Target group bits for sub-word 1 */
-#define VTSS_LAN966X_VCAP_IS2_TG2_SW1_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS2_TG2_SW1_VAL                                 0
+#define VTSS_LAN966X_VCAP_IS2_TG2_SW1_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_TG2_SW1_VAL   0
 
 /* Target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS2_TG1_TG_WIDTH                                1
-#define VTSS_LAN966X_VCAP_IS2_TG1_TG_VAL                                  1
-#define VTSS_LAN966X_VCAP_IS2_TG1_TYPE_WIDTH                              0
-#define VTSS_LAN966X_VCAP_IS2_TG1_MAX_WIDTH                              96
+#define VTSS_LAN966X_VCAP_IS2_TG1_TG_WIDTH   1
+#define VTSS_LAN966X_VCAP_IS2_TG1_TG_VAL     1
+#define VTSS_LAN966X_VCAP_IS2_TG1_TYPE_WIDTH 0
+#define VTSS_LAN966X_VCAP_IS2_TG1_MAX_WIDTH  96
 
 /* Target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS2_TG1_SW0_WIDTH                               1
-#define VTSS_LAN966X_VCAP_IS2_TG1_SW0_VAL                                 1
+#define VTSS_LAN966X_VCAP_IS2_TG1_SW0_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_TG1_SW0_VAL   1
 
 /* Keys */
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE */
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID                       0
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_WIDTH                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_WIDTH                       185
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_PER_ENTRY                  2
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_CNT                        2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID      0
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_O                   4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_O                     5
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_L                     8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_O          13
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_L           9
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_O               22
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_O             23
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_O                  24
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_O                  25
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_O            26
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_O                    27
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_L                    12
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_O                    39
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_O                    40
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_L                     3
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_O                43
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_L                48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_O                91
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_L                48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_O                 139
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_L                  16
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_O           155
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_L             4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_O           159
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_L            16
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_O           175
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_L             8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_O           183
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_L             3
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L          4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_O         4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_O           5
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_O 13
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_O      22
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_O    23
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_O         24
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_O         25
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_O   26
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_O           27
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_O           39
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_O           40
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_O       43
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_O       91
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_O         139
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_L         16
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_O   155
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_L   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_O   159
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_L   16
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_O   175
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_L   8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_O   183
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_L   3
 
 struct vtss_lan966x_vcap_is2_key_mac_etype {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u16 etype;
-	struct vtss_lan966x_vcap_u8 l2_frm_type;
-	struct vtss_lan966x_vcap_u16 l2_payload0;
-	struct vtss_lan966x_vcap_u8 l2_payload1;
-	struct vtss_lan966x_vcap_u8 l2_payload2;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    struct vtss_lan966x_vcap_u16 etype;
+    struct vtss_lan966x_vcap_u8  l2_frm_type;
+    struct vtss_lan966x_vcap_u16 l2_payload0;
+    struct vtss_lan966x_vcap_u8  l2_payload1;
+    struct vtss_lan966x_vcap_u8  l2_payload2;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC */
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_WIDTH                      4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_WIDTH                         185
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_PER_ENTRY                    2
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_CNT                          2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O                      0
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L                      4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O                       5
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_L                       8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O            13
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L             9
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O                 22
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_L                  1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O               23
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O                    24
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O                    25
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O              26
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_L               1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O                      27
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_L                      12
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O                      39
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_L                       1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O                      40
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_L                       3
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O                  43
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_L                  48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O                  91
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_L                  48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O                139
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L                  8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O                147
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L                 32
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L          4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O         4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O           5
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O 13
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O      22
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O    23
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O         24
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O         25
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O   26
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O           27
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O           39
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O           40
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O       43
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O       91
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O      139
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L      8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O      147
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L      32
 
 struct vtss_lan966x_vcap_is2_key_mac_llc {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u8 l2_llc_1;
-	struct vtss_lan966x_vcap_u32 l2_llc_0;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    struct vtss_lan966x_vcap_u8  l2_llc_1;
+    struct vtss_lan966x_vcap_u32 l2_llc_0;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP */
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID                        2
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_WIDTH                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_WIDTH                        185
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_PER_ENTRY                   2
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_CNT                         2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID      2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O                     0
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_O                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_O                      5
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_L                      8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_O           13
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_L            9
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_O                22
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_O              23
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_L               1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_O                   24
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_O                   25
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_O             26
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_O                     27
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_L                     12
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_O                     39
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_O                     40
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_L                      3
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_O                 43
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_L                 48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_O                 91
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_L                 48
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_O              139
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_O              147
-#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_L               32
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L          4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_O         4
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_O           5
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_O 13
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_O      22
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_O    23
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_O         24
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_O         25
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_O   26
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_O           27
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_O           39
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_O           40
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_O       43
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_O       91
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_L       48
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_O     139
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_L     8
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_O     147
+#define VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_L     32
 
 struct vtss_lan966x_vcap_is2_key_mac_snap {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u8 l2_snap_1;
-	struct vtss_lan966x_vcap_u32 l2_snap_0;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    struct vtss_lan966x_vcap_u8  l2_snap_1;
+    struct vtss_lan966x_vcap_u32 l2_snap_0;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_ARP */
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID                             3
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_WIDTH                          4
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_WIDTH                             185
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_PER_ENTRY                        2
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_CNT                              2
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID      3
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O                          0
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L                          4
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O                         4
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_O                           5
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L                           8
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O                13
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L                 9
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O                     22
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O                   23
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O                        24
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O                        25
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O                  26
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_O                          27
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L                          12
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O                          39
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_L                           1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_O                          40
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L                           3
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O                      43
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_L                      48
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O            91
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_L             1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O           92
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O                   93
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O                94
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O             95
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O           96
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O                   97
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_L                    2
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O                   99
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_L                   32
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O                  131
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_L                   32
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O                  163
-#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_L                    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O               0
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L               4
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O              4
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_L              1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_O                5
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L                8
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O      13
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L      9
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O           22
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O         23
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O              24
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_L              1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O              25
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_L              1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O        26
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_L        1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_O                27
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L                12
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O                39
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_L                1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_O                40
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L                3
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O            43
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_L            48
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O  91
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_L  1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O 92
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O         93
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O      94
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O   95
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O 96
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O         97
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_L         2
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O         99
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_L         32
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O         131
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_L         32
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O         163
+#define VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_L         1
 
 struct vtss_lan966x_vcap_is2_key_arp {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	enum vtss_lan966x_vcap_bit arp_addr_space_ok;
-	enum vtss_lan966x_vcap_bit arp_proto_space_ok;
-	enum vtss_lan966x_vcap_bit arp_len_ok;
-	enum vtss_lan966x_vcap_bit arp_tgt_match;
-	enum vtss_lan966x_vcap_bit arp_sender_match;
-	enum vtss_lan966x_vcap_bit arp_opcode_unknown;
-	struct vtss_lan966x_vcap_u8 arp_opcode;
-	struct vtss_lan966x_vcap_u32 l3_ip4_dip;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
-	enum vtss_lan966x_vcap_bit dip_eq_sip;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    enum vtss_lan966x_vcap_bit   arp_addr_space_ok;
+    enum vtss_lan966x_vcap_bit   arp_proto_space_ok;
+    enum vtss_lan966x_vcap_bit   arp_len_ok;
+    enum vtss_lan966x_vcap_bit   arp_tgt_match;
+    enum vtss_lan966x_vcap_bit   arp_sender_match;
+    enum vtss_lan966x_vcap_bit   arp_opcode_unknown;
+    struct vtss_lan966x_vcap_u8  arp_opcode;
+    struct vtss_lan966x_vcap_u32 l3_ip4_dip;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    enum vtss_lan966x_vcap_bit   dip_eq_sip;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP */
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_WIDTH                  4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_WIDTH                     185
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_PER_ENTRY                2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_CNT                      2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID      4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O                  0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L                  4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_O                 4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_O                   5
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_L                   8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_O        13
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_L         9
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_O             22
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_O           23
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_O                24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_O                25
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_O          26
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_L           1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_O                  27
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_L                  12
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_O                  39
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_O                  40
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_L                   3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_O                  43
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_O          44
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_L           1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_O      45
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_L       1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_O           46
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_O           47
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_O               48
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_O           56
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_L           32
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_O           88
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_L           32
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_O          120
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_O                 121
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_O            122
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_L             16
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_O            138
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_L             16
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_O              154
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_O      162
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_L        1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_O        163
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_L          1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_O              164
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_O              165
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_O              166
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_O              167
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_O              168
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_O              169
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_O         170
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_L           8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_O         178
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_L           4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L            4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_O           4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_O             5
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_L             8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_O   13
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_O        22
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_L        1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_O      23
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_O           24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_O           25
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_O     26
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_O             27
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_O             39
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_O             40
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_O             43
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_L             1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_O     44
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_O 45
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_O      46
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_O      47
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_O          48
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_L          8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_O      56
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_O      88
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_O      120
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_O             121
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_L             1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_O        122
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_L        16
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_O        138
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_L        16
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_O          154
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_L          8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_O  162
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_L  1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_O    163
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_O          164
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_O          165
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_O          166
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_O          167
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_O          168
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_O          169
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_O     170
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_L     8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_O     178
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_L     4
 
 struct vtss_lan966x_vcap_is2_key_ip4_tcp_udp {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	enum vtss_lan966x_vcap_bit l3_ttl_gt0;
-	struct vtss_lan966x_vcap_u8 l3_tos;
-	struct vtss_lan966x_vcap_u32 l3_ip4_dip;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
-	enum vtss_lan966x_vcap_bit dip_eq_sip;
-	enum vtss_lan966x_vcap_bit tcp;
-	struct vtss_lan966x_vcap_u16 l4_dport;
-	struct vtss_lan966x_vcap_u16 l4_sport;
-	struct vtss_lan966x_vcap_u8 l4_rng;
-	enum vtss_lan966x_vcap_bit sport_eq_dport;
-	enum vtss_lan966x_vcap_bit sequence_eq0;
-	enum vtss_lan966x_vcap_bit l4_fin;
-	enum vtss_lan966x_vcap_bit l4_syn;
-	enum vtss_lan966x_vcap_bit l4_rst;
-	enum vtss_lan966x_vcap_bit l4_psh;
-	enum vtss_lan966x_vcap_bit l4_ack;
-	enum vtss_lan966x_vcap_bit l4_urg;
-	struct vtss_lan966x_vcap_u8 l4_1588_dom;
-	struct vtss_lan966x_vcap_u8 l4_1588_ver;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    enum vtss_lan966x_vcap_bit   l3_ttl_gt0;
+    struct vtss_lan966x_vcap_u8  l3_tos;
+    struct vtss_lan966x_vcap_u32 l3_ip4_dip;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    enum vtss_lan966x_vcap_bit   dip_eq_sip;
+    enum vtss_lan966x_vcap_bit   tcp;
+    struct vtss_lan966x_vcap_u16 l4_dport;
+    struct vtss_lan966x_vcap_u16 l4_sport;
+    struct vtss_lan966x_vcap_u8  l4_rng;
+    enum vtss_lan966x_vcap_bit   sport_eq_dport;
+    enum vtss_lan966x_vcap_bit   sequence_eq0;
+    enum vtss_lan966x_vcap_bit   l4_fin;
+    enum vtss_lan966x_vcap_bit   l4_syn;
+    enum vtss_lan966x_vcap_bit   l4_rst;
+    enum vtss_lan966x_vcap_bit   l4_psh;
+    enum vtss_lan966x_vcap_bit   l4_ack;
+    enum vtss_lan966x_vcap_bit   l4_urg;
+    struct vtss_lan966x_vcap_u8  l4_1588_dom;
+    struct vtss_lan966x_vcap_u8  l4_1588_ver;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER */
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID                       5
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_WIDTH                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_WIDTH                       185
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_PER_ENTRY                  2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_CNT                        2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID      5
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_O                   4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_O                     5
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_L                     8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_O          13
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_L           9
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_O               22
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_O             23
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_O                  24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_O                  25
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_O            26
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_O                    27
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_L                    12
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_O                    39
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_O                    40
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_L                     3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_O                    43
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_O            44
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_L             1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_O        45
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_L         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_O             46
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_O             47
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_O                 48
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_L                  8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_O             56
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_L             32
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_O             88
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_L             32
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_O            120
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_O              121
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_O          129
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_L           24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_O          153
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_L           32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O            0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L            4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_O           4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_O             5
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_L             8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_O   13
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_L   9
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_O        22
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_L        1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_O      23
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_O           24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_O           25
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_O     26
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_O             27
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_L             12
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_O             39
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_L             1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_O             40
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_L             3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_O             43
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_L             1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_O     44
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_O 45
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_O      46
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_O      47
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_O          48
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_L          8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_O      56
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_O      88
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_O      120
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_O        121
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_L        8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_O    129
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_L    24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_O    153
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_L    32
 
 struct vtss_lan966x_vcap_is2_key_ip4_other {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit ip4;
-	enum vtss_lan966x_vcap_bit l3_fragment;
-	enum vtss_lan966x_vcap_bit l3_frag_ofs_gt0;
-	enum vtss_lan966x_vcap_bit l3_options;
-	enum vtss_lan966x_vcap_bit l3_ttl_gt0;
-	struct vtss_lan966x_vcap_u8 l3_tos;
-	struct vtss_lan966x_vcap_u32 l3_ip4_dip;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
-	enum vtss_lan966x_vcap_bit dip_eq_sip;
-	struct vtss_lan966x_vcap_u8 l3_proto;
-	struct vtss_lan966x_vcap_u32 l3_payload_1;
-	struct vtss_lan966x_vcap_u32 l3_payload_0;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   ip4;
+    enum vtss_lan966x_vcap_bit   l3_fragment;
+    enum vtss_lan966x_vcap_bit   l3_frag_ofs_gt0;
+    enum vtss_lan966x_vcap_bit   l3_options;
+    enum vtss_lan966x_vcap_bit   l3_ttl_gt0;
+    struct vtss_lan966x_vcap_u8  l3_tos;
+    struct vtss_lan966x_vcap_u32 l3_ip4_dip;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    enum vtss_lan966x_vcap_bit   dip_eq_sip;
+    struct vtss_lan966x_vcap_u8  l3_proto;
+    struct vtss_lan966x_vcap_u32 l3_payload_1;
+    struct vtss_lan966x_vcap_u32 l3_payload_0;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD */
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID                         6
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_WIDTH                      4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_WIDTH                         185
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_PER_ENTRY                    2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_CNT                          2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID      6
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O                      0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L                      4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O                       5
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_L                       8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O            13
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L             9
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O                 22
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_L                  1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O               23
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O                    24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O                    25
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O              26
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_L               1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O                      27
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_L                      12
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O                      39
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_L                       1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O                      40
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_L                       3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O               43
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O               44
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_L              128
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O                172
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L                  8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L          4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O         4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O           5
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O 13
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O      22
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O    23
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O         24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O         25
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O   26
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O           27
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O           39
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O           40
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O    43
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O    44
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_L    128
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O      172
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L      8
 
 struct vtss_lan966x_vcap_is2_key_ip6_std {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit l3_ttl_gt0;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
-	struct vtss_lan966x_vcap_u8 l3_proto;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit    first;
+    struct vtss_lan966x_vcap_u8   pag;
+    struct vtss_lan966x_vcap_u16  igr_port_mask;
+    enum vtss_lan966x_vcap_bit    isdx_gt0;
+    enum vtss_lan966x_vcap_bit    host_match;
+    enum vtss_lan966x_vcap_bit    l2_mc;
+    enum vtss_lan966x_vcap_bit    l2_bc;
+    enum vtss_lan966x_vcap_bit    vlan_tagged;
+    struct vtss_lan966x_vcap_u16  vid;
+    enum vtss_lan966x_vcap_bit    dei;
+    struct vtss_lan966x_vcap_u8   pcp;
+    enum vtss_lan966x_vcap_bit    l3_ttl_gt0;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    struct vtss_lan966x_vcap_u8   l3_proto;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_OAM */
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID                             7
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_WIDTH                          4
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_WIDTH                             185
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_PER_ENTRY                        2
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_CNT                              2
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID      7
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O                          0
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L                          4
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O                         4
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_O                           5
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L                           8
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O                13
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L                 9
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O                     22
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O                   23
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_L                    1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O                        24
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O                        25
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_L                         1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O                  26
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_O                          27
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L                          12
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O                          39
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_L                           1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_O                          40
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L                           3
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O                      43
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_L                      48
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O                      91
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_L                      48
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O               139
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L                 7
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O                     146
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_L                       5
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O                  151
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_L                    8
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O                   159
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_L                     8
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O                   167
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_L                    16
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O            183
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O                184
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_L                  1
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O                185
-#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_L                  1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O             0
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L             4
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O            4
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_L            1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_O              5
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L              8
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O    13
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L    9
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O         22
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O       23
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_L       1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O            24
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_L            1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O            25
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_L            1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O      26
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_O              27
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L              12
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O              39
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_L              1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_O              40
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L              3
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O          43
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_L          48
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O          91
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_L          48
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O    139
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L    7
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O          146
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_L          5
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O       151
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_L       8
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O        159
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_L        8
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O        167
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_L        16
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O 183
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O     184
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O     185
+#define VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_L     1
 
 struct vtss_lan966x_vcap_is2_key_oam {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	struct vtss_lan966x_vcap_u48 l2_dmac;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u8 oam_mel_flags;
-	struct vtss_lan966x_vcap_u8 oam_ver;
-	struct vtss_lan966x_vcap_u8 oam_opcode;
-	struct vtss_lan966x_vcap_u8 oam_flags;
-	struct vtss_lan966x_vcap_u16 oam_mepid;
-	enum vtss_lan966x_vcap_bit oam_ccm_cnts_eq0;
-	enum vtss_lan966x_vcap_bit oam_is_y1731;
-	enum vtss_lan966x_vcap_bit oam_detected;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    struct vtss_lan966x_vcap_u48 l2_dmac;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    struct vtss_lan966x_vcap_u8  oam_mel_flags;
+    struct vtss_lan966x_vcap_u8  oam_ver;
+    struct vtss_lan966x_vcap_u8  oam_opcode;
+    struct vtss_lan966x_vcap_u8  oam_flags;
+    struct vtss_lan966x_vcap_u16 oam_mepid;
+    enum vtss_lan966x_vcap_bit   oam_ccm_cnts_eq0;
+    enum vtss_lan966x_vcap_bit   oam_is_y1731;
+    enum vtss_lan966x_vcap_bit   oam_detected;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP */
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID                     0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_WIDTH                  2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_WIDTH                     375
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_PER_ENTRY                4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_CNT                      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID      0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O                  0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L                  2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_O                 2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_O                   3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_L                   8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_O        11
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_L         9
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_O             20
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_O           21
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_O                22
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_O                23
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_O          24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_L           1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_O                  25
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_L                  12
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_O                  37
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_O                  38
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_L                   3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_O           41
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_O               42
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_O           50
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_L          128
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_O          178
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_L          128
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_O          306
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_L            1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_O                 307
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_O            308
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_L             16
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_O            324
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_L             16
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_O              340
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_O      348
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_L        1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_O        349
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_L          1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_O              350
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_O              351
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_O              352
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_O              353
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_O              354
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_O              355
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_O         356
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_L           8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_O         364
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_L           4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O           0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L           2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_O          2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_O            3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_L            8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_O  11
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_L  9
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_O       20
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_L       1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_O     21
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_O          22
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_O          23
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_L          1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_O    24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_O            25
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_L            12
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_O            37
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_L            1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_O            38
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_L            3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_O     41
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_O         42
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_L         8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_O     50
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_L     128
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_O     178
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_L     128
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_O     306
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_L     1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_O            307
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_L            1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_O       308
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_L       16
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_O       324
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_L       16
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_O         340
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_L         8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_O 348
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_L 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_O   349
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_O         350
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_O         351
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_O         352
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_O         353
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_O         354
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_O         355
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_O    356
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_L    8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_O    364
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_L    4
 
 struct vtss_lan966x_vcap_is2_key_ip6_tcp_udp {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit l3_ttl_gt0;
-	struct vtss_lan966x_vcap_u8 l3_tos;
-	struct vtss_lan966x_vcap_u128 l3_ip6_dip;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
-	enum vtss_lan966x_vcap_bit dip_eq_sip;
-	enum vtss_lan966x_vcap_bit tcp;
-	struct vtss_lan966x_vcap_u16 l4_dport;
-	struct vtss_lan966x_vcap_u16 l4_sport;
-	struct vtss_lan966x_vcap_u8 l4_rng;
-	enum vtss_lan966x_vcap_bit sport_eq_dport;
-	enum vtss_lan966x_vcap_bit sequence_eq0;
-	enum vtss_lan966x_vcap_bit l4_fin;
-	enum vtss_lan966x_vcap_bit l4_syn;
-	enum vtss_lan966x_vcap_bit l4_rst;
-	enum vtss_lan966x_vcap_bit l4_psh;
-	enum vtss_lan966x_vcap_bit l4_ack;
-	enum vtss_lan966x_vcap_bit l4_urg;
-	struct vtss_lan966x_vcap_u8 l4_1588_dom;
-	struct vtss_lan966x_vcap_u8 l4_1588_ver;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit    first;
+    struct vtss_lan966x_vcap_u8   pag;
+    struct vtss_lan966x_vcap_u16  igr_port_mask;
+    enum vtss_lan966x_vcap_bit    isdx_gt0;
+    enum vtss_lan966x_vcap_bit    host_match;
+    enum vtss_lan966x_vcap_bit    l2_mc;
+    enum vtss_lan966x_vcap_bit    l2_bc;
+    enum vtss_lan966x_vcap_bit    vlan_tagged;
+    struct vtss_lan966x_vcap_u16  vid;
+    enum vtss_lan966x_vcap_bit    dei;
+    struct vtss_lan966x_vcap_u8   pcp;
+    enum vtss_lan966x_vcap_bit    l3_ttl_gt0;
+    struct vtss_lan966x_vcap_u8   l3_tos;
+    struct vtss_lan966x_vcap_u128 l3_ip6_dip;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    enum vtss_lan966x_vcap_bit    dip_eq_sip;
+    enum vtss_lan966x_vcap_bit    tcp;
+    struct vtss_lan966x_vcap_u16  l4_dport;
+    struct vtss_lan966x_vcap_u16  l4_sport;
+    struct vtss_lan966x_vcap_u8   l4_rng;
+    enum vtss_lan966x_vcap_bit    sport_eq_dport;
+    enum vtss_lan966x_vcap_bit    sequence_eq0;
+    enum vtss_lan966x_vcap_bit    l4_fin;
+    enum vtss_lan966x_vcap_bit    l4_syn;
+    enum vtss_lan966x_vcap_bit    l4_rst;
+    enum vtss_lan966x_vcap_bit    l4_psh;
+    enum vtss_lan966x_vcap_bit    l4_ack;
+    enum vtss_lan966x_vcap_bit    l4_urg;
+    struct vtss_lan966x_vcap_u8   l4_1588_dom;
+    struct vtss_lan966x_vcap_u8   l4_1588_ver;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER */
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID                       1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_WIDTH                    2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_WIDTH                       375
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_PER_ENTRY                  4
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_CNT                        1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L                    2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_O                   2
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_O                     3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_L                     8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_O          11
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_L           9
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_O               20
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_O             21
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_O                  22
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_O                  23
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_O            24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_L             1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_O                    25
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_L                    12
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_O                    37
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_L                     1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_O                    38
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_L                     3
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_O             41
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_O                 42
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_L                  8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_O             50
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_L            128
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_O            178
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_L            128
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_O            306
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_L              1
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_O              307
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_L                8
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_O          315
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_L           24
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_O          339
-#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_L           32
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L          2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_O         2
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_O           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_O 11
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_O      20
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_O    21
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_O         22
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_O         23
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_O   24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_O           25
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_O           37
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_O           38
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_O    41
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_O        42
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_L        8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_O    50
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_L    128
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_O    178
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_L    128
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_O    306
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_O      307
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_L      8
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_O  315
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_L  24
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_O  339
+#define VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_L  32
 
 struct vtss_lan966x_vcap_is2_key_ip6_other {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit l3_ttl_gt0;
-	struct vtss_lan966x_vcap_u8 l3_tos;
-	struct vtss_lan966x_vcap_u128 l3_ip6_dip;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
-	enum vtss_lan966x_vcap_bit dip_eq_sip;
-	struct vtss_lan966x_vcap_u8 l3_proto;
-	struct vtss_lan966x_vcap_u32 l3_payload_1;
-	struct vtss_lan966x_vcap_u32 l3_payload_0;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit    first;
+    struct vtss_lan966x_vcap_u8   pag;
+    struct vtss_lan966x_vcap_u16  igr_port_mask;
+    enum vtss_lan966x_vcap_bit    isdx_gt0;
+    enum vtss_lan966x_vcap_bit    host_match;
+    enum vtss_lan966x_vcap_bit    l2_mc;
+    enum vtss_lan966x_vcap_bit    l2_bc;
+    enum vtss_lan966x_vcap_bit    vlan_tagged;
+    struct vtss_lan966x_vcap_u16  vid;
+    enum vtss_lan966x_vcap_bit    dei;
+    struct vtss_lan966x_vcap_u8   pcp;
+    enum vtss_lan966x_vcap_bit    l3_ttl_gt0;
+    struct vtss_lan966x_vcap_u8   l3_tos;
+    struct vtss_lan966x_vcap_u128 l3_ip6_dip;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    enum vtss_lan966x_vcap_bit    dip_eq_sip;
+    struct vtss_lan966x_vcap_u8   l3_proto;
+    struct vtss_lan966x_vcap_u32  l3_payload_1;
+    struct vtss_lan966x_vcap_u32  l3_payload_0;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM */
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID                          2
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_WIDTH                       2
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_WIDTH                          375
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_PER_ENTRY                     4
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_CNT                           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID      2
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_WIDTH        375
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_PER_ENTRY 4
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_CNT       1
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O                       0
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L                       2
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O                      2
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O                        3
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_L                        8
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O             11
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L              9
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O                  20
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_L                   1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O                21
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_L                 1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O                     22
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O                     23
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_L                      1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O               24
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O                       25
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_L                       12
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O                       37
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_L                        1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O                       38
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_L                        3
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O               41
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_L                1
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O                  42
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O                  74
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O                 106
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O                 138
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O                 170
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O                 202
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O                 234
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O                 266
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O                 298
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L                  32
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O                 330
-#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L                  32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O          0
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L          2
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O         2
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_L           8
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O 11
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L 9
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O      20
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_L      1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O    21
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_L    1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O         22
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O         23
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_L         1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O   24
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O           25
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_L           12
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O           37
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_L           1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O           38
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_L           3
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O   41
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_L   1
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O      42
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O      74
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O      106
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O      138
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O      170
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O      202
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O      234
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O      266
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O      298
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L      32
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O      330
+#define VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L      32
 
 struct vtss_lan966x_vcap_is2_key_custom {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	enum vtss_lan966x_vcap_bit first;
-	struct vtss_lan966x_vcap_u8 pag;
-	struct vtss_lan966x_vcap_u16 igr_port_mask;
-	enum vtss_lan966x_vcap_bit isdx_gt0;
-	enum vtss_lan966x_vcap_bit host_match;
-	enum vtss_lan966x_vcap_bit l2_mc;
-	enum vtss_lan966x_vcap_bit l2_bc;
-	enum vtss_lan966x_vcap_bit vlan_tagged;
-	struct vtss_lan966x_vcap_u16 vid;
-	enum vtss_lan966x_vcap_bit dei;
-	struct vtss_lan966x_vcap_u8 pcp;
-	enum vtss_lan966x_vcap_bit custom_type;
-	struct vtss_lan966x_vcap_u32 custom_9;
-	struct vtss_lan966x_vcap_u32 custom_8;
-	struct vtss_lan966x_vcap_u32 custom_7;
-	struct vtss_lan966x_vcap_u32 custom_6;
-	struct vtss_lan966x_vcap_u32 custom_5;
-	struct vtss_lan966x_vcap_u32 custom_4;
-	struct vtss_lan966x_vcap_u32 custom_3;
-	struct vtss_lan966x_vcap_u32 custom_2;
-	struct vtss_lan966x_vcap_u32 custom_1;
-	struct vtss_lan966x_vcap_u32 custom_0;
+    struct vtss_lan966x_vcap_u8  type; /* Change to override default type_id */
+    enum vtss_lan966x_vcap_bit   first;
+    struct vtss_lan966x_vcap_u8  pag;
+    struct vtss_lan966x_vcap_u16 igr_port_mask;
+    enum vtss_lan966x_vcap_bit   isdx_gt0;
+    enum vtss_lan966x_vcap_bit   host_match;
+    enum vtss_lan966x_vcap_bit   l2_mc;
+    enum vtss_lan966x_vcap_bit   l2_bc;
+    enum vtss_lan966x_vcap_bit   vlan_tagged;
+    struct vtss_lan966x_vcap_u16 vid;
+    enum vtss_lan966x_vcap_bit   dei;
+    struct vtss_lan966x_vcap_u8  pcp;
+    enum vtss_lan966x_vcap_bit   custom_type;
+    struct vtss_lan966x_vcap_u32 custom_9;
+    struct vtss_lan966x_vcap_u32 custom_8;
+    struct vtss_lan966x_vcap_u32 custom_7;
+    struct vtss_lan966x_vcap_u32 custom_6;
+    struct vtss_lan966x_vcap_u32 custom_5;
+    struct vtss_lan966x_vcap_u32 custom_4;
+    struct vtss_lan966x_vcap_u32 custom_3;
+    struct vtss_lan966x_vcap_u32 custom_2;
+    struct vtss_lan966x_vcap_u32 custom_1;
+    struct vtss_lan966x_vcap_u32 custom_0;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4 */
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_ID                      -1
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_WIDTH                    0
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_WIDTH                        95
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_PER_ENTRY                  1
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_CNT                        4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_ID      -1
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_WIDTH   0
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_WIDTH        95
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_PER_ENTRY 1
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_CNT       4
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_O                0
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_L                4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_O                 4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_L                48
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_O             52
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_L             32
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_O   0
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_L   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_O    4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_L    48
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_O 52
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_L 32
 
 struct vtss_lan966x_vcap_is2_key_smac_sip4 {
-	struct vtss_lan966x_vcap_u8 igr_port;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u32 l3_ip4_sip;
+    struct vtss_lan966x_vcap_u8  igr_port;
+    struct vtss_lan966x_vcap_u48 l2_smac;
+    struct vtss_lan966x_vcap_u32 l3_ip4_sip;
 };
 
 /* Key VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6 */
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID                       8
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_WIDTH                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_WIDTH                       185
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_PER_ENTRY                  2
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_CNT                        2
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID      8
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_WIDTH   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_WIDTH        185
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_PER_ENTRY 2
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_CNT       2
 
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O                    0
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L                    4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_O                4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_L                4
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_O                 8
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_L                48
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_O             56
-#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_L            128
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O       0
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L       4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_O   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_L   4
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_O    8
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_L    48
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_O 56
+#define VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_L 128
 
 struct vtss_lan966x_vcap_is2_key_smac_sip6 {
-	struct vtss_lan966x_vcap_u8 type; /* Change to override default type_id */
-	struct vtss_lan966x_vcap_u8 igr_port;
-	struct vtss_lan966x_vcap_u48 l2_smac;
-	struct vtss_lan966x_vcap_u128 l3_ip6_sip;
+    struct vtss_lan966x_vcap_u8   type; /* Change to override default type_id */
+    struct vtss_lan966x_vcap_u8   igr_port;
+    struct vtss_lan966x_vcap_u48  l2_smac;
+    struct vtss_lan966x_vcap_u128 l3_ip6_sip;
 };
 
 /* Enumeration of all keys */
 enum vtss_lan966x_vcap_is2_key {
-	VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE,
-	VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC,
-	VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP,
-	VTSS_LAN966X_VCAP_IS2_KEY_ARP,
-	VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP,
-	VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER,
-	VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD,
-	VTSS_LAN966X_VCAP_IS2_KEY_OAM,
-	VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP,
-	VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER,
-	VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM,
-	VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4,
-	VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6,
-	VTSS_LAN966X_VCAP_IS2_KEY_LAST
+    VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE,
+    VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC,
+    VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP,
+    VTSS_LAN966X_VCAP_IS2_KEY_ARP,
+    VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP,
+    VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER,
+    VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD,
+    VTSS_LAN966X_VCAP_IS2_KEY_OAM,
+    VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP,
+    VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER,
+    VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM,
+    VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4,
+    VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6,
+    VTSS_LAN966X_VCAP_IS2_KEY_LAST
 };
 
 /* Union of all key structs */
 struct vtss_lan966x_vcap_is2_key_fields {
-	enum vtss_lan966x_vcap_is2_key key;
-	union {
-		struct vtss_lan966x_vcap_is2_key_mac_etype mac_etype;
-		struct vtss_lan966x_vcap_is2_key_mac_llc mac_llc;
-		struct vtss_lan966x_vcap_is2_key_mac_snap mac_snap;
-		struct vtss_lan966x_vcap_is2_key_arp arp;
-		struct vtss_lan966x_vcap_is2_key_ip4_tcp_udp ip4_tcp_udp;
-		struct vtss_lan966x_vcap_is2_key_ip4_other ip4_other;
-		struct vtss_lan966x_vcap_is2_key_ip6_std ip6_std;
-		struct vtss_lan966x_vcap_is2_key_oam oam;
-		struct vtss_lan966x_vcap_is2_key_ip6_tcp_udp ip6_tcp_udp;
-		struct vtss_lan966x_vcap_is2_key_ip6_other ip6_other;
-		struct vtss_lan966x_vcap_is2_key_custom custom;
-		struct vtss_lan966x_vcap_is2_key_smac_sip4 smac_sip4;
-		struct vtss_lan966x_vcap_is2_key_smac_sip6 smac_sip6;
-	} u;
+    enum vtss_lan966x_vcap_is2_key key;
+    union {
+        struct vtss_lan966x_vcap_is2_key_mac_etype   mac_etype;
+        struct vtss_lan966x_vcap_is2_key_mac_llc     mac_llc;
+        struct vtss_lan966x_vcap_is2_key_mac_snap    mac_snap;
+        struct vtss_lan966x_vcap_is2_key_arp         arp;
+        struct vtss_lan966x_vcap_is2_key_ip4_tcp_udp ip4_tcp_udp;
+        struct vtss_lan966x_vcap_is2_key_ip4_other   ip4_other;
+        struct vtss_lan966x_vcap_is2_key_ip6_std     ip6_std;
+        struct vtss_lan966x_vcap_is2_key_oam         oam;
+        struct vtss_lan966x_vcap_is2_key_ip6_tcp_udp ip6_tcp_udp;
+        struct vtss_lan966x_vcap_is2_key_ip6_other   ip6_other;
+        struct vtss_lan966x_vcap_is2_key_custom      custom;
+        struct vtss_lan966x_vcap_is2_key_smac_sip4   smac_sip4;
+        struct vtss_lan966x_vcap_is2_key_smac_sip6   smac_sip6;
+    } u;
 };
 
 /* Action target group for 2 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_WIDTH                            2
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_VAL                              2
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TYPE_WIDTH                          0
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_MAX_WIDTH                          61
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_WIDTH   2
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_VAL     2
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_TYPE_WIDTH 0
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_MAX_WIDTH  61
 
 /* Action target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_WIDTH                           2
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_VAL                             2
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_WIDTH 2
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_VAL   2
 
 /* Action target group bits for sub-word 1 */
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_WIDTH                           1
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_VAL                             0
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_VAL   0
 
 /* Action target group for 1 sub-word(s) per entry */
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_WIDTH                            1
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_VAL                              1
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TYPE_WIDTH                          0
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_MAX_WIDTH                          15
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_WIDTH   1
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_VAL     1
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_TYPE_WIDTH 0
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_MAX_WIDTH  15
 
 /* Action target group bits for sub-word 0 */
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_WIDTH                           1
-#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_VAL                             1
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_WIDTH 1
+#define VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_VAL   1
 
 /* Actions */
 /* Action VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE */
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_ID                   -1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_WIDTH                 0
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_WIDTH                     59
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_PER_ACTION              2
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_CNT                     2
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_ID       -1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_WIDTH    0
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_WIDTH         59
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_PER_ACTION 2
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_CNT        2
 
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_O          0
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_L          1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_O         1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_L         1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_O           2
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L           3
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_O            5
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L            2
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_O           7
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_L           1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_O              8
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_L              1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_O           9
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_L           1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_O          10
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L           9
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O    19
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_L     1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O           20
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L            8
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_O              28
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L              16
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_O            44
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_L             1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_O              45
-#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L               6
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_O      0
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_L      1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_O     1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_L     1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_O       2
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L       3
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_O        5
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L        2
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_O       7
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_L       1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_O          8
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_L          1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_O       9
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_L       1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_O       10
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L       9
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O 19
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_L 1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O        20
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L        8
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_O           28
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L           16
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_O         44
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_L         1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_O           45
+#define VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L           6
 
 struct vtss_lan966x_vcap_is2_action_base_type {
-	bool hit_me_once;
-	bool cpu_copy_ena;
-	u8 cpu_qu_num;
-	u8 mask_mode;
-	bool mirror_ena;
-	bool lrn_dis;
-	bool police_ena;
-	u16 police_idx;
-	bool police_vcap_only;
-	u8 port_mask;
-	u16 rew_op;
-	bool isdx_ena;
-	u8 acl_id;
+    bool hit_me_once;
+    bool cpu_copy_ena;
+    u8   cpu_qu_num;
+    u8   mask_mode;
+    bool mirror_ena;
+    bool lrn_dis;
+    bool police_ena;
+    u16  police_idx;
+    bool police_vcap_only;
+    u8   port_mask;
+    u16  rew_op;
+    bool isdx_ena;
+    u8   acl_id;
 };
 
 /* Action VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP */
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_ID                    -1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_WIDTH                  0
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_WIDTH                      14
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_PER_ACTION               1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_CNT                      4
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_ID       -1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_WIDTH    0
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_WIDTH         14
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_PER_ACTION 1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_CNT        4
 
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_O          0
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_L          1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_O            1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_L            3
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_O          4
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_L          1
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_O            5
-#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_L            1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_O 0
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_L 1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_O   1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_L   3
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_O 4
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_L 1
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_O   5
+#define VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_L   1
 
 struct vtss_lan966x_vcap_is2_action_smac_sip {
-	bool cpu_copy_ena;
-	u8 cpu_qu_num;
-	bool fwd_kill_ena;
-	bool host_match;
+    bool cpu_copy_ena;
+    u8   cpu_qu_num;
+    bool fwd_kill_ena;
+    bool host_match;
 };
 
 /* Enumeration of all actions */
 enum vtss_lan966x_vcap_is2_action {
-	VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE,
-	VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP,
-	VTSS_LAN966X_VCAP_IS2_ACTION_LAST
+    VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE,
+    VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP,
+    VTSS_LAN966X_VCAP_IS2_ACTION_LAST
 };
 
 /* Union of all action structs */
 struct vtss_lan966x_vcap_is2_action_fields {
-	enum vtss_lan966x_vcap_is2_action action;
-	union {
-		struct vtss_lan966x_vcap_is2_action_base_type base_type;
-		struct vtss_lan966x_vcap_is2_action_smac_sip smac_sip;
-	} u;
+    enum vtss_lan966x_vcap_is2_action action;
+    union {
+        struct vtss_lan966x_vcap_is2_action_base_type base_type;
+        struct vtss_lan966x_vcap_is2_action_smac_sip  smac_sip;
+    } u;
 };
-
 
 #endif /* _VTSS_LAN966X_VCAP_AG_LAYOUT_H_ */

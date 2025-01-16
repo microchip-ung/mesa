@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -29,18 +28,18 @@ static mesa_rc eflow_port_conf_set(mesa_port_no_t port_no, int access)
 #define EFLOW_VID_UNTAG 4096
 #define EFLOW_PCP_ANY   8
 
-#define VCE_ID_OFFSET   10000
+#define VCE_ID_OFFSET 10000
 
 typedef struct {
-    mesa_port_no_t          aport;      // Access port
-    mesa_port_no_t          tport;      // Trunk port
-    mesa_vid_t              avid;       // Access port matching VID or EFLOW_VID_UNTAG
-    mesa_pcp_t              apcp;       // Access port matching PCP or EFLOW_PCP_ANY
-    mesa_vid_t              tvid;       // Trunk port VID (classified VID)
-    mesa_pcp_t              tpcp;       // Trunk port PCP (classified PCP)
-    mesa_dlb_policer_conf_t dlb;        // Classified VLAN policer
-    mesa_dlb_policer_id_t   dlb_id;     // Allocated DLB ID
-    mesa_iflow_id_t         flow_id;    // Allocated ingress flow ID
+    mesa_port_no_t          aport; // Access port
+    mesa_port_no_t          tport; // Trunk port
+    mesa_vid_t              avid; // Access port matching VID or EFLOW_VID_UNTAG
+    mesa_pcp_t              apcp; // Access port matching PCP or EFLOW_PCP_ANY
+    mesa_vid_t              tvid; // Trunk port VID (classified VID)
+    mesa_pcp_t              tpcp; // Trunk port PCP (classified PCP)
+    mesa_dlb_policer_conf_t dlb;  // Classified VLAN policer
+    mesa_dlb_policer_id_t   dlb_id;  // Allocated DLB ID
+    mesa_iflow_id_t         flow_id; // Allocated ingress flow ID
 } eflow_t;
 
 static struct {
@@ -145,13 +144,18 @@ static int eflow_init(int argc, const char *argv[])
 static int eflow_run(int argc, const char *argv[])
 {
     mesa_port_no_t aport = ARGV_RUN_INT("aport", "Access port");
-    mesa_vid_t     avid = ARGV_RUN_OPT_INT("avid", "Access port VID, default untagged", EFLOW_VID_UNTAG);
-    mesa_vid_t     apcp = ARGV_RUN_OPT_INT("apcp", "Access port PCP, default any", EFLOW_PCP_ANY);
+    mesa_vid_t     avid =
+        ARGV_RUN_OPT_INT("avid", "Access port VID, default untagged",
+                         EFLOW_VID_UNTAG);
+    mesa_vid_t apcp =
+        ARGV_RUN_OPT_INT("apcp", "Access port PCP, default any", EFLOW_PCP_ANY);
     mesa_port_no_t tport = ARGV_RUN_INT("tport", "Trunk port");
-    mesa_vid_t     tvid = ARGV_RUN_INT("tvid", "Trunk port VID (classified VID)");
-    mesa_vid_t     tpcp = ARGV_RUN_INT("tpcp", "Trunk port PCP (classified PCP)");
-    mesa_bitrate_t rate = ARGV_RUN_OPT_INT("rate", "VLAN policer rate [kbps], default disabled", MESA_BITRATE_DISABLED);
-    eflow_t        f;
+    mesa_vid_t tvid = ARGV_RUN_INT("tvid", "Trunk port VID (classified VID)");
+    mesa_vid_t tpcp = ARGV_RUN_INT("tpcp", "Trunk port PCP (classified PCP)");
+    mesa_bitrate_t rate =
+        ARGV_RUN_OPT_INT("rate", "VLAN policer rate [kbps], default disabled",
+                         MESA_BITRATE_DISABLED);
+    eflow_t f;
 
     EXAMPLE_BARRIER(argc);
 
@@ -185,7 +189,7 @@ static int eflow_run(int argc, const char *argv[])
 static int eflow_uninit(void)
 {
     mesa_vid_t       vid;
-    eflow_t          *f;
+    eflow_t         *f;
     mesa_port_list_t port_list;
 
     for (vid = 1; vid < MESA_VIDS; vid++) {
@@ -208,9 +212,6 @@ static int eflow_uninit(void)
     return 0;
 }
 
-static const char *eflow_help(void)
-{
-    return "Enhanced VLAN example\n";
-}
+static const char *eflow_help(void) { return "Enhanced VLAN example\n"; }
 
 EXAMPLE(eflow, eflow_init, eflow_run, eflow_uninit, eflow_help);

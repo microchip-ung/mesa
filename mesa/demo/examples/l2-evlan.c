@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <unistd.h>
 #include <stdio.h>
 #include "cli.h"
@@ -45,7 +44,8 @@ static int evlan_init(int argc, const char *argv[])
         // Allocate ingress counters
         RC(mesa_ingress_cnt_alloc(NULL, 1, &evlan_state.icnt_id));
 
-        // Allocate and setup ingress flow mapping to ingress counters and DLB policer
+        // Allocate and setup ingress flow mapping to ingress counters and DLB
+        // policer
         RC(mesa_iflow_alloc(NULL, &evlan_state.iflow_id));
         RC(mesa_iflow_conf_get(NULL, evlan_state.iflow_id, &iflow_conf));
         iflow_conf.cnt_enable = 1;
@@ -96,14 +96,14 @@ static int evlan_init(int argc, const char *argv[])
     mesa_port_list_set(&port_list, iport, 1);
     mesa_port_list_set(&port_list, eport, 1);
     RC(mesa_vlan_port_members_set(NULL, 10, &port_list));
-    
+
     return 0;
 }
 
 static void evlan_stat(const char *name, uint64_t cnt)
 {
     char buf[80];
-    
+
     sprintf(buf, "%s:", name);
     cli_printf("%-19s%19llu\n", buf, cnt);
 }
@@ -134,7 +134,7 @@ static int evlan_run(int argc, const char *argv[])
 static int evlan_uninit(void)
 {
     mesa_port_list_t port_list;
-    
+
     if (mesa_capability(NULL, MESA_CAP_L2_XDLB)) {
         RC(mesa_dlb_policer_free(NULL, evlan_state.dlb_id));
         RC(mesa_ingress_cnt_free(NULL, evlan_state.icnt_id));
@@ -150,9 +150,6 @@ static int evlan_uninit(void)
     return 0;
 }
 
-static const char *evlan_help(void)
-{
-    return "Enhanced VLAN example\n";
-}
+static const char *evlan_help(void) { return "Enhanced VLAN example\n"; }
 
 EXAMPLE(evlan, evlan_init, evlan_run, evlan_uninit, evlan_help);

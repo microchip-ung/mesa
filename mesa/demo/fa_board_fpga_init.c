@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -13,22 +12,22 @@
 #include <linux/spi/spidev.h>
 #include <stdlib.h>
 
-static int spi_fd = -1;
-static int spi_freq = 400000;
-static int spi_padding = 1;
+static int         spi_fd = -1;
+static int         spi_freq = 400000;
+static int         spi_padding = 1;
 static const char *spi_dev = "/dev/spidev1.3";
 
 /* MEBA callouts */
 #define TO_SPI(_a_)     (_a_ & 0x00FFFFFF) /* 24 bit SPI address */
-#define SPI_NR_BYTES     7                 /* Number of bytes to transmit or receive */
-#define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
+#define SPI_NR_BYTES    7  /* Number of bytes to transmit or receive */
+#define SPI_PADDING_MAX 15 /* Maximum number of optional padding bytes */
 
 int spi_reg_read(const uint32_t addr, uint32_t *const value)
 {
-    uint8_t tx[SPI_NR_BYTES + SPI_PADDING_MAX] = { 0 };
-    uint8_t rx[sizeof(tx)] = { 0 };
+    uint8_t  tx[SPI_NR_BYTES + SPI_PADDING_MAX] = {0};
+    uint8_t  rx[sizeof(tx)] = {0};
     uint32_t siaddr = TO_SPI(addr);
-    int ret;
+    int      ret;
 
     memset(tx, 0xff, sizeof(tx));
     tx[0] = (uint8_t)(siaddr >> 16);
@@ -36,8 +35,8 @@ int spi_reg_read(const uint32_t addr, uint32_t *const value)
     tx[2] = (uint8_t)(siaddr >> 0);
 
     struct spi_ioc_transfer tr = {
-        .tx_buf = (unsigned long) tx,
-        .rx_buf = (unsigned long) rx,
+        .tx_buf = (unsigned long)tx,
+        .rx_buf = (unsigned long)rx,
         .len = SPI_NR_BYTES + spi_padding,
         .delay_usecs = 0,
         .speed_hz = spi_freq,
@@ -50,31 +49,29 @@ int spi_reg_read(const uint32_t addr, uint32_t *const value)
         return -1;
     }
 
-    uint32_t rxword =
-            (rx[3 + spi_padding] << 24) |
-            (rx[4 + spi_padding] << 16) |
-            (rx[5 + spi_padding] << 8) |
-            (rx[6 + spi_padding] << 0);
+    uint32_t rxword = (rx[3 + spi_padding] << 24) |
+                      (rx[4 + spi_padding] << 16) | (rx[5 + spi_padding] << 8) |
+                      (rx[6 + spi_padding] << 0);
 
     *value = rxword;
 
-    //T_D("RX: %02x %02x %02x-%02x %02x %02x %02x",
-    //    tx[0], tx[1], tx[2],
-    //    rx[3 + spi_padding],
-    //    rx[4 + spi_padding],
-    //    rx[5 + spi_padding],
-    //    rx[6 + spi_padding]);
+    // T_D("RX: %02x %02x %02x-%02x %02x %02x %02x",
+    //     tx[0], tx[1], tx[2],
+    //     rx[3 + spi_padding],
+    //     rx[4 + spi_padding],
+    //     rx[5 + spi_padding],
+    //     rx[6 + spi_padding]);
 
     return 0;
 }
 
 int spi_reg_write(const uint32_t addr, const uint32_t value)
 {
-    uint8_t tx[SPI_NR_BYTES] = { 0 };
-    uint8_t rx[sizeof(tx)] = { 0 };
+    uint8_t  tx[SPI_NR_BYTES] = {0};
+    uint8_t  rx[sizeof(tx)] = {0};
     uint32_t siaddr = TO_SPI(addr);
     uint32_t read_back;
-    int ret;
+    int      ret;
 
     tx[0] = (uint8_t)(0x80 | (siaddr >> 16));
     tx[1] = (uint8_t)(siaddr >> 8);
@@ -85,8 +82,8 @@ int spi_reg_write(const uint32_t addr, const uint32_t value)
     tx[6] = (uint8_t)(value >> 0);
 
     struct spi_ioc_transfer tr = {
-        .tx_buf = (unsigned long) tx,
-        .rx_buf = (unsigned long) rx,
+        .tx_buf = (unsigned long)tx,
+        .rx_buf = (unsigned long)rx,
         .len = sizeof(tx),
         .delay_usecs = 0,
         .speed_hz = spi_freq,
@@ -123,7 +120,8 @@ int spi_reg_io_init()
     }
     spi_fd = open(spi_dev, O_RDWR);
     if (spi_fd < 0) {
-        printf("ERROR:%d> could not open device %s=n\n", __LINE__, strerror(errno));
+        printf("ERROR:%d> could not open device %s=n\n", __LINE__,
+               strerror(errno));
         return -1;
     }
 
@@ -143,14 +141,14 @@ int spi_reg_io_init()
         return -1;
     }
 
-    //T_D("spi: %s opened", device);
+    // T_D("spi: %s opened", device);
 
     return 0;
 }
 
 int main(int argc, char **argv)
 {
-    int res;
+    int      res;
     uint32_t chip_id, val, adr;
 
     res = spi_reg_io_init();
@@ -159,7 +157,7 @@ int main(int argc, char **argv)
         if (0 == strcmp(argv[1], "r")) {
             adr = strtol(argv[2], NULL, 16);
             spi_reg_read(adr, &val);
-            printf("0x%x: 0x%x\n",adr,val);
+            printf("0x%x: 0x%x\n", adr, val);
             return res;
         } else if (0 == strcmp(argv[1], "w")) {
             adr = strtol(argv[2], NULL, 16);
@@ -177,4 +175,3 @@ int main(int argc, char **argv)
 
     return res;
 }
-

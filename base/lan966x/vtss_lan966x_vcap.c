@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_VCAP
 #include "vtss_lan966x_cil.h"
 
@@ -49,26 +48,38 @@ typedef struct {
     u32                           cnt;
     BOOL                          is_action;
 #if VTSS_OPT_DEBUG_PRINT
-    vtss_debug_printf_t           pr;
+    vtss_debug_printf_t pr;
 #endif
 } lan966x_vcap_info_t;
 
-static vtss_rc lan966x_vcap_cmd(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
+static vtss_rc lan966x_vcap_cmd(vtss_state_t        *vtss_state,
+                                lan966x_vcap_info_t *info)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(info->vcap);
-    u32          value, tgt = va->instance;
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(info->vcap);
+    u32 value, tgt = va->instance;
 
-    REG_WR(VCAP_MV_CFG(tgt),
-           VCAP_MV_CFG_MV_NUM_POS(info->mv_pos) |
-           VCAP_MV_CFG_MV_SIZE(info->mv_size));
+    REG_WR(VCAP_MV_CFG(tgt), VCAP_MV_CFG_MV_NUM_POS(info->mv_pos) |
+                                 VCAP_MV_CFG_MV_SIZE(info->mv_size));
     REG_WR(VCAP_UPDATE_CTRL(tgt),
            VCAP_UPDATE_CTRL_UPDATE_CMD(info->cmd) |
-           VCAP_UPDATE_CTRL_UPDATE_ENTRY_DIS(info->sel & LAN966X_VCAP_SEL_ENTRY ? 0 : 1) |
-           VCAP_UPDATE_CTRL_UPDATE_ACTION_DIS(info->sel & LAN966X_VCAP_SEL_ACTION ? 0 : 1) |
-           VCAP_UPDATE_CTRL_UPDATE_CNT_DIS(info->sel & LAN966X_VCAP_SEL_COUNTER ? 0 : 1) |
-           VCAP_UPDATE_CTRL_UPDATE_ADDR(info->addr) |
-           VCAP_UPDATE_CTRL_CLEAR_CACHE(info->cmd == LAN966X_VCAP_CMD_INIT ? 1 : 0) |
-           VCAP_UPDATE_CTRL_UPDATE_SHOT_M);
+               VCAP_UPDATE_CTRL_UPDATE_ENTRY_DIS(info->sel &
+                                                         LAN966X_VCAP_SEL_ENTRY
+                                                     ? 0
+                                                     : 1) |
+               VCAP_UPDATE_CTRL_UPDATE_ACTION_DIS(info->sel &
+                                                          LAN966X_VCAP_SEL_ACTION
+                                                      ? 0
+                                                      : 1) |
+               VCAP_UPDATE_CTRL_UPDATE_CNT_DIS(info->sel &
+                                                       LAN966X_VCAP_SEL_COUNTER
+                                                   ? 0
+                                                   : 1) |
+               VCAP_UPDATE_CTRL_UPDATE_ADDR(info->addr) |
+               VCAP_UPDATE_CTRL_CLEAR_CACHE(info->cmd == LAN966X_VCAP_CMD_INIT
+                                                ? 1
+                                                : 0) |
+               VCAP_UPDATE_CTRL_UPDATE_SHOT_M);
     do {
         REG_RD(VCAP_UPDATE_CTRL(tgt), &value);
     } while (value & VCAP_UPDATE_CTRL_UPDATE_SHOT_M);
@@ -76,45 +87,54 @@ static vtss_rc lan966x_vcap_cmd(vtss_state_t *vtss_state, lan966x_vcap_info_t *i
     return VTSS_RC_OK;
 }
 
-#define LAN966X_BITS_TO_WORDS(x) (((x)+31)/32)
+#define LAN966X_BITS_TO_WORDS(x) (((x) + 31) / 32)
 
-static u32 lan966x_vcap_tg_count(u32 tg)
-{
-    return tg;
-}
+static u32 lan966x_vcap_tg_count(u32 tg) { return tg; }
 
 #if VTSS_OPT_DEBUG_PRINT
 static const char *lan966x_vcap_tg_txt(u8 tg)
 {
-    return (tg == LAN966X_VCAP_TG_X1 ? "X1" :
-            tg == LAN966X_VCAP_TG_X2 ? "X2" :
-            tg == LAN966X_VCAP_TG_X4 ? "X4" : "XX");
+    return (tg == LAN966X_VCAP_TG_X1   ? "X1"
+            : tg == LAN966X_VCAP_TG_X2 ? "X2"
+            : tg == LAN966X_VCAP_TG_X4 ? "X4"
+                                       : "XX");
 }
 #endif
 
-static u32 lan966x_vcap_entry_addr(enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx)
+static u32 lan966x_vcap_entry_addr(enum vtss_lan966x_vcap vcap,
+                                   vtss_vcap_idx_t       *idx)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
-    u32                                  addr;
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
+    u32 addr;
 
-    addr = (idx->row * va->sw_count + (idx->col + 1) * va->sw_count/vtss_vcap_key_rule_count(idx->key_size));
+    addr =
+        (idx->row * va->sw_count + (idx->col + 1) * va->sw_count /
+                                       vtss_vcap_key_rule_count(idx->key_size));
     return (va->rows * va->sw_count - addr);
 }
 
-static u32 lan966x_vcap_key_type(enum vtss_lan966x_vcap vcap, vtss_vcap_key_size_t key_size)
+static u32 lan966x_vcap_key_type(enum vtss_lan966x_vcap vcap,
+                                 vtss_vcap_key_size_t   key_size)
 {
-    return (key_size == VTSS_VCAP_KEY_SIZE_QUARTER || vcap == VTSS_LAN966X_VCAP_ES0 ? LAN966X_VCAP_TG_X1 :
-            key_size == VTSS_VCAP_KEY_SIZE_HALF ? LAN966X_VCAP_TG_X2 : LAN966X_VCAP_TG_X4);
+    return (key_size == VTSS_VCAP_KEY_SIZE_QUARTER ||
+                    vcap == VTSS_LAN966X_VCAP_ES0
+                ? LAN966X_VCAP_TG_X1
+            : key_size == VTSS_VCAP_KEY_SIZE_HALF ? LAN966X_VCAP_TG_X2
+                                                  : LAN966X_VCAP_TG_X4);
 }
 
-static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
+static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t        *vtss_state,
+                                      lan966x_vcap_info_t *info)
 {
-    const struct vtss_lan966x_vcap_attrs     *va = vtss_lan966x_vcap_attrs_get(info->vcap);
-    const struct vtss_lan966x_vcap_tgs_attrs *ta = vtss_lan966x_vcap_key_tgs_attrs_get(info->vcap, va->sw_count);
-    u32                                      i, j, sw_cnt, val, msk, w, tg, tgw, tgt = va->instance;
-    u32                                      key_sw_cnt = 0, key_reg_cnt = 0, key_tgw = 0, key_offs = 0;
-    u32                                      act_sw_cnt = 0, act_reg_cnt = 0, act_tgw = 0, act_offs = 0;
-    u32                                      addr_old = info->addr;
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(info->vcap);
+    const struct vtss_lan966x_vcap_tgs_attrs *ta =
+        vtss_lan966x_vcap_key_tgs_attrs_get(info->vcap, va->sw_count);
+    u32 i, j, sw_cnt, val, msk, w, tg, tgw, tgt = va->instance;
+    u32 key_sw_cnt = 0, key_reg_cnt = 0, key_tgw = 0, key_offs = 0;
+    u32 act_sw_cnt = 0, act_reg_cnt = 0, act_tgw = 0, act_offs = 0;
+    u32 addr_old = info->addr;
 
     if (info->sel & LAN966X_VCAP_SEL_ENTRY) {
         key_sw_cnt = lan966x_vcap_tg_count(info->key_tg);
@@ -130,7 +150,8 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
 
     sw_cnt = MAX(key_sw_cnt, act_sw_cnt);
     sw_cnt = MAX(sw_cnt, info->sel & LAN966X_VCAP_SEL_COUNTER ? 1 : 0);
-    VTSS_N("sw_cnt: %u, key_sw_cnt: %u, act_sw_cnt: %u", sw_cnt, key_sw_cnt, act_sw_cnt);
+    VTSS_N("sw_cnt: %u, key_sw_cnt: %u, act_sw_cnt: %u", sw_cnt, key_sw_cnt,
+           act_sw_cnt);
     for (i = 0; i < sw_cnt; i++, info->addr++) {
         if (info->cmd == LAN966X_VCAP_CMD_READ) {
             // Read from cache
@@ -148,11 +169,15 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
                     info->key_tg = LAN966X_VCAP_TG_NONE;
                 } else if (key_tgw) {
                     // IS1/IS2 key, width 3/2/1
-                    tgw = ((info->addr % 4) == 0 ? 3 : (info->addr % 2) == 0 ? 2 : 1);
+                    tgw = ((info->addr % 4) == 0   ? 3
+                           : (info->addr % 2) == 0 ? 2
+                                                   : 1);
                     tg = (VTSS_EXTRACT_BITFIELD(val, 0, tgw) & ~msk);
-                    info->key_tg = ((tg & LAN966X_VCAP_TG_X1) ? LAN966X_VCAP_TG_X1 :
-                                    (tg & LAN966X_VCAP_TG_X2) ? LAN966X_VCAP_TG_X2 :
-                                    (tg & LAN966X_VCAP_TG_X4) ? LAN966X_VCAP_TG_X4 : LAN966X_VCAP_TG_NONE);
+                    info->key_tg =
+                        ((tg & LAN966X_VCAP_TG_X1)   ? LAN966X_VCAP_TG_X1
+                         : (tg & LAN966X_VCAP_TG_X2) ? LAN966X_VCAP_TG_X2
+                         : (tg & LAN966X_VCAP_TG_X4) ? LAN966X_VCAP_TG_X4
+                                                     : LAN966X_VCAP_TG_NONE);
                 } else {
                     // ES0 key, width 0
                     info->key_tg = LAN966X_VCAP_TG_X1;
@@ -161,9 +186,11 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
 
             // Calculate data and TG width
             tg = info->key_tg;
-            tgw = ((j != 0 || ta->tg_width == 0 || tg == LAN966X_VCAP_TG_NONE) ? 0 :
-                   (tg > LAN966X_VCAP_TG_X2 && (info->addr % 4) == 0) ? 3 :
-                   (tg > LAN966X_VCAP_TG_X1 && (info->addr % 2) == 0) ? 2 : 1);
+            tgw =
+                ((j != 0 || ta->tg_width == 0 || tg == LAN966X_VCAP_TG_NONE) ? 0
+                 : (tg > LAN966X_VCAP_TG_X2 && (info->addr % 4) == 0)        ? 3
+                 : (tg > LAN966X_VCAP_TG_X1 && (info->addr % 2) == 0)        ? 2
+                                                                      : 1);
             w = (va->sw_width % 32);
             w = ((j == (key_reg_cnt - 1) && w != 0 ? w : 32) - tgw);
 
@@ -174,13 +201,16 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
                 vtss_bs_set(info->data.entry, key_offs, w, val >> tgw);
                 vtss_bs_set(info->data.mask, key_offs, w, ~msk >> tgw);
             } else {
-                val = ((vtss_bs_get(info->data.entry, key_offs, w) << tgw) + VTSS_ENCODE_BITFIELD(tg, 0, tgw));
-                msk = ((vtss_bs_get(info->data.mask, key_offs, w) << tgw) + VTSS_ENCODE_BITFIELD(0xff, 0, tgw));
+                val = ((vtss_bs_get(info->data.entry, key_offs, w) << tgw) +
+                       VTSS_ENCODE_BITFIELD(tg, 0, tgw));
+                msk = ((vtss_bs_get(info->data.mask, key_offs, w) << tgw) +
+                       VTSS_ENCODE_BITFIELD(0xff, 0, tgw));
                 msk = ~msk;
                 REG_WR(VCAP_ENTRY_DAT(tgt, j), val);
                 REG_WR(VCAP_MASK_DAT(tgt, j), msk);
             }
-            VTSS_N("addr: %u, j: %u, val/msk: 0x%08x/%08x", info->addr, j, val, msk);
+            VTSS_N("addr: %u, j: %u, val/msk: 0x%08x/%08x", info->addr, j, val,
+                   msk);
             key_offs += w;
         }
 
@@ -193,8 +223,10 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
                     REG_RD(VCAP_ACTION_DAT(tgt, j), &val);
                     tgw = ((info->addr % 2) == 0 ? 2 : 1);
                     tg = VTSS_EXTRACT_BITFIELD(val, 0, tgw);
-                    info->act_tg = ((tg & LAN966X_VCAP_TG_X1) ? LAN966X_VCAP_TG_X1 :
-                                    (tg & LAN966X_VCAP_TG_X2) ? LAN966X_VCAP_TG_X2 : LAN966X_VCAP_TG_NONE);
+                    info->act_tg =
+                        ((tg & LAN966X_VCAP_TG_X1)   ? LAN966X_VCAP_TG_X1
+                         : (tg & LAN966X_VCAP_TG_X2) ? LAN966X_VCAP_TG_X2
+                                                     : LAN966X_VCAP_TG_NONE);
                 } else {
                     // IS1/ES0 action, width 0
                     info->act_tg = LAN966X_VCAP_TG_X1;
@@ -203,8 +235,9 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
 
             // Calculate data and TG width
             tg = info->act_tg;
-            tgw = ((j != 0 || act_tgw == 0 || tg == LAN966X_VCAP_TG_NONE) ? 0 :
-                   (tg > LAN966X_VCAP_TG_X1 && (info->addr % 2) == 0) ? 2 : 1);
+            tgw = ((j != 0 || act_tgw == 0 || tg == LAN966X_VCAP_TG_NONE) ? 0
+                   : (tg > LAN966X_VCAP_TG_X1 && (info->addr % 2) == 0)   ? 2
+                                                                          : 1);
             w = (va->act_width % 32);
             w = ((j == (act_reg_cnt - 1) && w != 0 ? w : 32) - tgw);
 
@@ -213,7 +246,8 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
                 REG_RD(VCAP_ACTION_DAT(tgt, j), &val);
                 vtss_bs_set(info->data.action, act_offs, w, val >> tgw);
             } else {
-                val = ((vtss_bs_get(info->data.action, act_offs, w) << tgw) + VTSS_ENCODE_BITFIELD(tg, 0, tgw));
+                val = ((vtss_bs_get(info->data.action, act_offs, w) << tgw) +
+                       VTSS_ENCODE_BITFIELD(tg, 0, tgw));
                 REG_WR(VCAP_ACTION_DAT(tgt, j), val);
             }
             VTSS_N("addr: %u, j: %u, val: 0x%08x", info->addr, j, val);
@@ -238,28 +272,37 @@ static vtss_rc lan966x_vcap_entry_cmd(vtss_state_t *vtss_state, lan966x_vcap_inf
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_vcap_entry_del(vtss_state_t *vtss_state, enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx)
+static vtss_rc lan966x_vcap_entry_del(vtss_state_t          *vtss_state,
+                                      enum vtss_lan966x_vcap vcap,
+                                      vtss_vcap_idx_t       *idx)
 {
 #if VTSS_OPT_TRACE
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
 #endif
-    lan966x_vcap_info_t                  info = {0};
+    lan966x_vcap_info_t info = {0};
 
     info.vcap = vcap;
     info.cmd = LAN966X_VCAP_CMD_INIT;
     info.sel = LAN966X_VCAP_SEL_ALL;
     info.addr = lan966x_vcap_entry_addr(vcap, idx);
-    info.mv_size = (lan966x_vcap_tg_count(lan966x_vcap_key_type(vcap, idx->key_size)) - 1);
-    VTSS_I("%s, row: %u, col: %u, addr: %u", va->name, idx->row, idx->col, info.addr);
+    info.mv_size =
+        (lan966x_vcap_tg_count(lan966x_vcap_key_type(vcap, idx->key_size)) - 1);
+    VTSS_I("%s, row: %u, col: %u, addr: %u", va->name, idx->row, idx->col,
+           info.addr);
     return lan966x_vcap_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_vcap_entry_move(vtss_state_t *vtss_state,
-                                       enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx, u32 count, BOOL up)
+static vtss_rc lan966x_vcap_entry_move(vtss_state_t          *vtss_state,
+                                       enum vtss_lan966x_vcap vcap,
+                                       vtss_vcap_idx_t       *idx,
+                                       u32                    count,
+                                       BOOL                   up)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
-    lan966x_vcap_info_t                  info = {0};
-    u32                                  cnt = (va->sw_count/vtss_vcap_key_rule_count(idx->key_size));
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
+    lan966x_vcap_info_t info = {0};
+    u32 cnt = (va->sw_count / vtss_vcap_key_rule_count(idx->key_size));
 
     if (count == 0) {
         VTSS_E("illegal count zero");
@@ -271,24 +314,30 @@ static vtss_rc lan966x_vcap_entry_move(vtss_state_t *vtss_state,
     info.addr = (lan966x_vcap_entry_addr(vcap, idx) - (count - 1) * cnt);
     info.mv_size = (count * cnt - 1);
     info.mv_pos = (cnt - 1);
-    VTSS_I("%s, row: %u, col: %u, %s, count: %u, up: %u, addr: %u",
-           va->name, idx->row, idx->col, vtss_vcap_key_size2txt(idx->key_size), count, up, info.addr);
+    VTSS_I("%s, row: %u, col: %u, %s, count: %u, up: %u, addr: %u", va->name,
+           idx->row, idx->col, vtss_vcap_key_size2txt(idx->key_size), count, up,
+           info.addr);
     return lan966x_vcap_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_vcap_entry_get(vtss_state_t *vtss_state,
-                                      enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
+static vtss_rc lan966x_vcap_entry_get(vtss_state_t          *vtss_state,
+                                      enum vtss_lan966x_vcap vcap,
+                                      vtss_vcap_idx_t       *idx,
+                                      u32                   *counter,
+                                      BOOL                   clear)
 {
 #if VTSS_OPT_TRACE
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
 #endif
-    lan966x_vcap_info_t                  info = {0};
+    lan966x_vcap_info_t info = {0};
 
     info.vcap = vcap;
     info.cmd = LAN966X_VCAP_CMD_READ;
     info.sel = LAN966X_VCAP_SEL_COUNTER;
     info.addr = lan966x_vcap_entry_addr(vcap, idx);
-    VTSS_I("%s, row: %u, col: %u, addr: %u", va->name, idx->row, idx->col, info.addr);
+    VTSS_I("%s, row: %u, col: %u, addr: %u", va->name, idx->row, idx->col,
+           info.addr);
     VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
     *counter = info.cnt;
     if (clear) {
@@ -303,18 +352,26 @@ static vtss_rc lan966x_vcap_entry_get(vtss_state_t *vtss_state,
  *  Utilities
  * ================================================================= */
 
-void vtss_lan966x_vcap_key_set(struct vtss_lan966x_vcap_data *data, u32 offset, u32 width, u32 value, u32 mask)
+void vtss_lan966x_vcap_key_set(struct vtss_lan966x_vcap_data *data,
+                               u32                            offset,
+                               u32                            width,
+                               u32                            value,
+                               u32                            mask)
 {
     if (width > 32) {
         VTSS_E("illegal width: %u, offset: %u", width, offset);
     } else {
-        vtss_bs_set(data->entry, offset, width, value & mask); /* Avoid 'match-off' */
-        vtss_bs_set(data->mask, offset , width, mask);
+        vtss_bs_set(data->entry, offset, width,
+                    value & mask); /* Avoid 'match-off' */
+        vtss_bs_set(data->mask, offset, width, mask);
     }
 }
 
 void vtss_lan966x_vcap_key_bytes_set(struct vtss_lan966x_vcap_data *data,
-                                     u32 offset, const u8 *val, const u8 *msk, u32 count)
+                                     u32                            offset,
+                                     const u8                      *val,
+                                     const u8                      *msk,
+                                     u32                            count)
 {
     u32 i, j, n = 0, value = 0, mask = 0;
 
@@ -336,36 +393,48 @@ void vtss_lan966x_vcap_key_bytes_set(struct vtss_lan966x_vcap_data *data,
     }
 }
 
-void vtss_lan966x_vcap_key_bit_set(struct vtss_lan966x_vcap_data *data, u32 offset, enum vtss_lan966x_vcap_bit val)
+void vtss_lan966x_vcap_key_bit_set(struct vtss_lan966x_vcap_data *data,
+                                   u32                            offset,
+                                   enum vtss_lan966x_vcap_bit     val)
 {
     vtss_lan966x_vcap_key_set(data, offset, 1,
                               val == VTSS_LAN966X_VCAP_BIT_1 ? 1 : 0,
                               val == VTSS_LAN966X_VCAP_BIT_ANY ? 0 : 1);
 }
 
-void vtss_lan966x_vcap_action_set(struct vtss_lan966x_vcap_data *data, u32 offset, u32 width, u32 value)
+void vtss_lan966x_vcap_action_set(struct vtss_lan966x_vcap_data *data,
+                                  u32                            offset,
+                                  u32                            width,
+                                  u32                            value)
 {
-    vtss_bs_set(data->action, offset, width, width == 1 ? (value ? 1 : 0) : value);
+    vtss_bs_set(data->action, offset, width,
+                width == 1 ? (value ? 1 : 0) : value);
 }
 
-void vtss_lan966x_vcap_action_bit_set(struct vtss_lan966x_vcap_data *data, u32 offset, u32 value)
+void vtss_lan966x_vcap_action_bit_set(struct vtss_lan966x_vcap_data *data,
+                                      u32                            offset,
+                                      u32                            value)
 {
     vtss_lan966x_vcap_action_set(data, offset, 1, value ? 1 : 0);
 }
 
-void vtss_lan966x_vcap_bit_set(enum vtss_lan966x_vcap_bit *out, vtss_vcap_bit_t in)
+void vtss_lan966x_vcap_bit_set(enum vtss_lan966x_vcap_bit *out,
+                               vtss_vcap_bit_t             in)
 {
-    *out = (in == VTSS_VCAP_BIT_0 ? VTSS_LAN966X_VCAP_BIT_0 :
-            in == VTSS_VCAP_BIT_1 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_ANY);
+    *out = (in == VTSS_VCAP_BIT_0   ? VTSS_LAN966X_VCAP_BIT_0
+            : in == VTSS_VCAP_BIT_1 ? VTSS_LAN966X_VCAP_BIT_1
+                                    : VTSS_LAN966X_VCAP_BIT_ANY);
 }
 
-static void lan966x_vcap_u8_set(struct vtss_lan966x_vcap_u8 *out, vtss_vcap_u8_t *in)
+static void lan966x_vcap_u8_set(struct vtss_lan966x_vcap_u8 *out,
+                                vtss_vcap_u8_t              *in)
 {
     out->value = in->value;
     out->mask = in->mask;
 }
 
-static void lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u16_t *in)
+static void lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out,
+                                 vtss_vcap_u16_t              *in)
 {
     int i;
 
@@ -377,7 +446,8 @@ static void lan966x_vcap_u16_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_u1
 }
 
 #if defined(VTSS_FEATURE_IS2)
-static void lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u32_t *in)
+static void lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out,
+                                 vtss_vcap_u32_t              *in)
 {
     int i;
 
@@ -389,7 +459,8 @@ static void lan966x_vcap_u32_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_u3
 }
 #endif
 
-static void lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out, vtss_vcap_u48_t *in)
+static void lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out,
+                                 vtss_vcap_u48_t              *in)
 {
     int i;
 
@@ -400,7 +471,8 @@ static void lan966x_vcap_u48_set(struct vtss_lan966x_vcap_u48 *out, vtss_vcap_u4
 }
 
 #if defined(VTSS_FEATURE_IS2)
-static void lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out, vtss_vcap_u128_t *in)
+static void lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out,
+                                  vtss_vcap_u128_t              *in)
 {
     int i;
 
@@ -410,14 +482,16 @@ static void lan966x_vcap_u128_set(struct vtss_lan966x_vcap_u128 *out, vtss_vcap_
     }
 }
 
-static void lan966x_vcap_vid_set(struct vtss_lan966x_vcap_u16 *out, vtss_vcap_vid_t *in)
+static void lan966x_vcap_vid_set(struct vtss_lan966x_vcap_u16 *out,
+                                 vtss_vcap_vid_t              *in)
 {
     out->value = in->value;
     out->mask = in->mask;
 }
 #endif
 
-static void lan966x_vcap_ipv4_set(struct vtss_lan966x_vcap_u32 *out, vtss_vcap_ip_t *in)
+static void lan966x_vcap_ipv4_set(struct vtss_lan966x_vcap_u32 *out,
+                                  vtss_vcap_ip_t               *in)
 {
     out->value = in->value;
     out->mask = in->mask;
@@ -428,8 +502,9 @@ static u32 lan966x_u8_to_u32(u8 *p)
     return ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
 }
 
-static void lan966x_port_no_set(vtss_state_t *vtss_state,
-                                struct vtss_lan966x_vcap_u8 *out, vtss_port_no_t port_no)
+static void lan966x_port_no_set(vtss_state_t                *vtss_state,
+                                struct vtss_lan966x_vcap_u8 *out,
+                                vtss_port_no_t               port_no)
 {
     if (port_no < vtss_state->port_count) {
         out->value = VTSS_CHIP_PORT(port_no);
@@ -447,20 +522,26 @@ static u32 lan966x_act_get(lan966x_vcap_info_t *info, u32 offs, u32 len)
     return vtss_bs_get(info->data.action, offs, len);
 }
 
-static void lan966x_debug_action(lan966x_vcap_info_t *info, const char *name, u32 offs, u32 len)
+static void lan966x_debug_action(lan966x_vcap_info_t *info,
+                                 const char          *name,
+                                 u32                  offs,
+                                 u32                  len)
 {
     info->pr("%s:%u ", name, lan966x_act_get(info, offs, len));
 }
 
-static void lan966x_debug_bits(lan966x_vcap_info_t *info, const char *name, u32 offset, u32 len)
+static void lan966x_debug_bits(lan966x_vcap_info_t *info,
+                               const char          *name,
+                               u32                  offset,
+                               u32                  len)
 {
     vtss_debug_printf_t pr = info->pr;
-    u32                 i,j, v, m;
+    u32                 i, j, v, m;
 
     if (name) {
         pr("%s:", name);
     }
-    if (len > 32)  {
+    if (len > 32) {
         // Recursive print of 32-bit chunks
         lan966x_debug_bits(info, NULL, offset, len - 32);
         lan966x_debug_bits(info, NULL, offset + len - 32, 32);
@@ -484,7 +565,12 @@ static void lan966x_debug_bits(lan966x_vcap_info_t *info, const char *name, u32 
     pr(name == NULL ? (len > 32 ? "" : ".") : (len > 24 ? "\n" : " "));
 }
 
-static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name, u32 offs, u32 offs_val, u32 len, BOOL debug_bits)
+static void lan966x_debug_action_ena(lan966x_vcap_info_t *info,
+                                     const char          *name,
+                                     u32                  offs,
+                                     u32                  offs_val,
+                                     u32                  len,
+                                     BOOL                 debug_bits)
 {
     vtss_debug_printf_t pr = info->pr;
     int                 i, length = VTSS_STRLEN(name);
@@ -501,52 +587,64 @@ static void lan966x_debug_action_ena(lan966x_vcap_info_t *info, const char *name
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
-#define LAN966X_DEBUG_ACT(vcap, name, fld)        lan966x_debug_action(info, name, \
-                                                                       VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O, \
-                                                                       VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
-#define LAN966X_DEBUG_ACT_ENA(vcap, name, f1, f2) lan966x_debug_action_ena(info, name, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 0)
-#define LAN966X_DEBUG_ENA_BITS(vcap, name, f1, f2) lan966x_debug_action_ena(info, name, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O, \
-                                                                           VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 1)
-#define LAN966X_DEBUG_ACT_BITS(vcap, name, fld)   lan966x_debug_bits(info, name, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
-#define LAN966X_DEBUG_BITS(vcap, name, fld)       lan966x_debug_bits(info, name, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
+#define LAN966X_DEBUG_ACT(vcap, name, fld)                                     \
+    lan966x_debug_action(info, name,                                           \
+                         VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O,          \
+                         VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
+#define LAN966X_DEBUG_ACT_ENA(vcap, name, f1, f2)                              \
+    lan966x_debug_action_ena(info, name,                                       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O,       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O,       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 0)
+#define LAN966X_DEBUG_ENA_BITS(vcap, name, f1, f2)                             \
+    lan966x_debug_action_ena(info, name,                                       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f1##_O,       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_O,       \
+                             VTSS_LAN966X_VCAP_##vcap##_ACTION_##f2##_L, 1)
+#define LAN966X_DEBUG_ACT_BITS(vcap, name, fld)                                \
+    lan966x_debug_bits(info, name,                                             \
+                       VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O,            \
+                       VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
+#define LAN966X_DEBUG_BITS(vcap, name, fld)                                    \
+    lan966x_debug_bits(info, name, VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O,   \
+                       VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
 
-#define LAN966X_VCAP_ACT_GET(vcap, fld)           vtss_bs_get(info->data.action, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
-#define LAN966X_VCAP_ENTRY_GET(vcap, fld)         vtss_bs_get(info->data.entry, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
-#define LAN966X_VCAP_MASK_GET(vcap, fld)          vtss_bs_get(info->data.mask, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
-#define LAN966X_VCAP_ACT_SET(vcap, fld, val)      vtss_lan966x_vcap_action_set(&info.data, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O, \
-                                                                     VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L, \
-                                                                     val)
+#define LAN966X_VCAP_ACT_GET(vcap, fld)                                        \
+    vtss_bs_get(info->data.action,                                             \
+                VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O,                   \
+                VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L)
+#define LAN966X_VCAP_ENTRY_GET(vcap, fld)                                      \
+    vtss_bs_get(info->data.entry, VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O,    \
+                VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
+#define LAN966X_VCAP_MASK_GET(vcap, fld)                                       \
+    vtss_bs_get(info->data.mask, VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_O,     \
+                VTSS_LAN966X_VCAP_##vcap##_KEY_##fld##_L)
+#define LAN966X_VCAP_ACT_SET(vcap, fld, val)                                   \
+    vtss_lan966x_vcap_action_set(&info.data,                                   \
+                                 VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O,  \
+                                 VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_L,  \
+                                 val)
 /* ================================================================= *
  *  IS1
  * ================================================================= */
 
-static vtss_rc lan966x_is1_entry_get(vtss_state_t *vtss_state,
-                                     vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
+static vtss_rc lan966x_is1_entry_get(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx,
+                                     u32             *counter,
+                                     BOOL             clear)
 {
-    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_IS1, idx, counter, clear);
+    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_IS1, idx,
+                                  counter, clear);
 }
 
-static void lan966x_vcap_range_update(struct vtss_lan966x_vcap_u8 *l4_rng, vtss_vcap_vr_type_t type, u32 range)
+static void lan966x_vcap_range_update(struct vtss_lan966x_vcap_u8 *l4_rng,
+                                      vtss_vcap_vr_type_t          type,
+                                      u32                          range)
 {
     u32 mask;
 
-    if (type != VTSS_VCAP_VR_TYPE_VALUE_MASK && range != VTSS_VCAP_RANGE_CHK_NONE) {
+    if (type != VTSS_VCAP_VR_TYPE_VALUE_MASK &&
+        range != VTSS_VCAP_RANGE_CHK_NONE) {
         /* Range checker has been allocated */
         mask = (1 << range);
         l4_rng->mask |= mask;
@@ -556,8 +654,11 @@ static void lan966x_vcap_range_update(struct vtss_lan966x_vcap_u8 *l4_rng, vtss_
     }
 }
 
-static void lan966x_vcap_l4port_update(struct vtss_lan966x_vcap_u8 *l4_rng, struct vtss_lan966x_vcap_u16 *val,
-                                       vtss_vcap_vr_t *vr, u32 range, BOOL *l4_used)
+static void lan966x_vcap_l4port_update(struct vtss_lan966x_vcap_u8  *l4_rng,
+                                       struct vtss_lan966x_vcap_u16 *val,
+                                       vtss_vcap_vr_t               *vr,
+                                       u32                           range,
+                                       BOOL                         *l4_used)
 {
     if (vr->type == VTSS_VCAP_VR_TYPE_VALUE_MASK) {
         /* Value/mask */
@@ -573,39 +674,41 @@ static void lan966x_vcap_l4port_update(struct vtss_lan966x_vcap_u8 *l4_rng, stru
     }
 }
 
-static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
-                                     vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, u32 counter)
+static vtss_rc lan966x_is1_entry_add(vtss_state_t     *vtss_state,
+                                     vtss_vcap_idx_t  *idx,
+                                     vtss_vcap_data_t *vcap_data,
+                                     u32               counter)
 {
     struct vtss_lan966x_vcap_is1_key_fields        f = {0};
     struct vtss_lan966x_vcap_is1_action_fields     fa = {0};
-    struct vtss_lan966x_vcap_is1_action_s1         *a = &fa.u.s1;
+    struct vtss_lan966x_vcap_is1_action_s1        *a = &fa.u.s1;
     struct vtss_lan966x_vcap_is1_key_s1_7tuple     def = {0};
     struct vtss_lan966x_vcap_is1_key_s1_5tuple_ip4 def_ipv4 = {0};
     vtss_vcap_u128_t                               def_sip = {0}, def_dip = {0};
     lan966x_vcap_info_t                            info = {0};
-    vtss_sdx_entry_t                               *sdx;
-    vtss_is1_data_t                                *is1 = &vcap_data->u.is1;
-    vtss_is1_key_t                                 *key = &is1->entry->key;
-    vtss_is1_action_t                              *action = &is1->entry->action;
-    vtss_is1_tag_t                                 *tag = &key->tag;
-    vtss_is1_frame_etype_t                         *etype = &key->frame.etype;
-    vtss_is1_frame_llc_t                           *llc = &key->frame.llc;
-    vtss_is1_frame_snap_t                          *snap = &key->frame.snap;
-    vtss_is1_frame_ipv4_t                          *ipv4 = &key->frame.ipv4;
-    vtss_is1_frame_ipv6_t                          *ipv6 = &key->frame.ipv6;
+    vtss_sdx_entry_t                              *sdx;
+    vtss_is1_data_t                               *is1 = &vcap_data->u.is1;
+    vtss_is1_key_t                                *key = &is1->entry->key;
+    vtss_is1_action_t                             *action = &is1->entry->action;
+    vtss_is1_tag_t                                *tag = &key->tag;
+    vtss_is1_frame_etype_t                        *etype = &key->frame.etype;
+    vtss_is1_frame_llc_t                          *llc = &key->frame.llc;
+    vtss_is1_frame_snap_t                         *snap = &key->frame.snap;
+    vtss_is1_frame_ipv4_t                         *ipv4 = &key->frame.ipv4;
+    vtss_is1_frame_ipv6_t                         *ipv6 = &key->frame.ipv6;
 #if defined(VTSS_FEATURE_RCL)
-    vtss_rce_key_t                                 *rk = &key->frame.rce_key;
-    vtss_rce_action_t                              *ra = &action->rce_action;
-    struct vtss_lan966x_vcap_u8                    *vid_idx;
-    vtss_vcap_u32_t                                frm_id = {0};
+    vtss_rce_key_t              *rk = &key->frame.rce_key;
+    vtss_rce_action_t           *ra = &action->rce_action;
+    struct vtss_lan966x_vcap_u8 *vid_idx;
+    vtss_vcap_u32_t              frm_id = {0};
 #endif
-    vtss_vcap_u8_t                                 *proto = NULL;
-    vtss_vcap_vr_t                                 *dscp, *sport, *dport;
-    vtss_vcap_key_size_t                           key_size;
-    vtss_vcap_u16_t                                et, sip_msb, dip_msb;
-    vtss_port_no_t                                 port_no;
-    u32                                            i, n;
-    BOOL                                           ip = 0, l4_used = 0, dmac_dip = 0, half_any = 0;
+    vtss_vcap_u8_t      *proto = NULL;
+    vtss_vcap_vr_t      *dscp, *sport, *dport;
+    vtss_vcap_key_size_t key_size;
+    vtss_vcap_u16_t      et, sip_msb, dip_msb;
+    vtss_port_no_t       port_no;
+    u32                  i, n;
+    BOOL                 ip = 0, l4_used = 0, dmac_dip = 0, half_any = 0;
 
     /* Check key size and type */
     switch (key->key_type) {
@@ -613,20 +716,17 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
         break;
     case VTSS_VCAP_KEY_TYPE_NORMAL:
-    case VTSS_VCAP_KEY_TYPE_IP_ADDR:
-        key_size = VTSS_VCAP_KEY_SIZE_HALF;
-        break;
+    case VTSS_VCAP_KEY_TYPE_IP_ADDR: key_size = VTSS_VCAP_KEY_SIZE_HALF; break;
     case VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR:
         key_size = VTSS_VCAP_KEY_SIZE_FULL;
         break;
-    default:
-        VTSS_E("illegal key type");
-        return VTSS_RC_ERROR;
+    default: VTSS_E("illegal key type"); return VTSS_RC_ERROR;
     }
 
     if (idx->key_size != key_size) {
         VTSS_E("illegal key_size: %s, expected: %s",
-               vtss_vcap_key_size2txt(idx->key_size), vtss_vcap_key_size2txt(key_size));
+               vtss_vcap_key_size2txt(idx->key_size),
+               vtss_vcap_key_size2txt(key_size));
         return VTSS_RC_ERROR;
     }
 
@@ -641,7 +741,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
     // Common fields placed in default struct
     def.lookup.value = is1->lookup;
     def.lookup.mask = 0x3;
-    def.igr_port_mask.mask = ~vtss_lan966x_port_mask(vtss_state, key->port_list);
+    def.igr_port_mask.mask =
+        ~vtss_lan966x_port_mask(vtss_state, key->port_list);
     vtss_lan966x_vcap_bit_set(&def.l2_mc, key->mac.dmac_mc);
     vtss_lan966x_vcap_bit_set(&def.l2_bc, key->mac.dmac_bc);
     vtss_lan966x_vcap_bit_set(&def.vlan_tagged, tag->tagged);
@@ -667,8 +768,7 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
 
     // Frame type specific fields
     switch (key->type) {
-    case VTSS_IS1_TYPE_ANY:
-        break;
+    case VTSS_IS1_TYPE_ANY: break;
     case VTSS_IS1_TYPE_ETYPE:
         def.etype_len = VTSS_LAN966X_VCAP_BIT_1;
         def.ip_snap = VTSS_LAN966X_VCAP_BIT_0;
@@ -728,7 +828,7 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
             lan966x_vcap_ipv4_set(&def_ipv4.l3_ip4_sip, &ipv4->sip);
             lan966x_vcap_ipv4_set(&def_ipv4.l3_ip4_dip, &ipv4->dip);
             for (i = 12; i < 16; i++) {
-                n = (15 - i)*8;
+                n = (15 - i) * 8;
                 def_sip.value[i] = ((ipv4->sip.value >> n) & 0xff);
                 def_sip.mask[i] = ((ipv4->sip.mask >> n) & 0xff);
                 def_dip.value[i] = ((ipv4->dip.value >> n) & 0xff);
@@ -758,13 +858,16 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         lan966x_vcap_range_update(&def.l4_rng, dscp->type, is1->dscp_range);
         if (vtss_vcap_udp_tcp_rule(proto)) {
             def.tcp_udp = VTSS_LAN966X_VCAP_BIT_1;
-            def.tcp = (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
+            def.tcp = (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1
+                                         : VTSS_LAN966X_VCAP_BIT_0);
 
             // Destination port/range
-            lan966x_vcap_l4port_update(&def.l4_rng, &def.etype, dport, is1->dport_range, &l4_used);
+            lan966x_vcap_l4port_update(&def.l4_rng, &def.etype, dport,
+                                       is1->dport_range, &l4_used);
 
             // Source port/range
-            lan966x_vcap_l4port_update(&def.l4_rng, &def.l4_sport, sport, is1->sport_range, &l4_used);
+            lan966x_vcap_l4port_update(&def.l4_rng, &def.l4_sport, sport,
+                                       is1->sport_range, &l4_used);
 
             if (l4_used) {
                 /* L4 used, ignore fragments and options */
@@ -778,11 +881,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
             def.etype.mask = proto->mask;
         }
         break;
-    case VTSS_IS1_TYPE_RCE:
-        break;
-    default:
-        VTSS_E("illegal frame type");
-        return VTSS_RC_ERROR;
+    case VTSS_IS1_TYPE_RCE: break;
+    default:                VTSS_E("illegal frame type"); return VTSS_RC_ERROR;
     }
 
     if (key->type == VTSS_IS1_TYPE_RCE) {
@@ -790,12 +890,14 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         // Quarter key
         info.key_tg = LAN966X_VCAP_TG_X1;
         f.key = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT;
-        f.u.s1_rt.first = (rk->smac ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
+        f.u.s1_rt.first =
+            (rk->smac ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
         lan966x_port_no_set(vtss_state, &f.u.s1_rt.igr_port, rk->port_no);
         vtss_lan966x_vcap_bit_set(&f.u.s1_rt.vlan_tagged, rk->tagged);
         lan966x_vcap_u48_set(&f.u.s1_rt.l2_mac, &rk->mac);
         vid_idx = &f.u.s1_rt.rt_vlan_idx;
-        if (vtss_rcl_vid_lookup(vtss_state, rk->vid, &vid_idx->value, FALSE) == VTSS_RC_OK) {
+        if (vtss_rcl_vid_lookup(vtss_state, rk->vid, &vid_idx->value, FALSE) ==
+            VTSS_RC_OK) {
             vid_idx->mask = 0xff;
         }
         if (rk->etype != VTSS_RCL_ETYPE_ANY) {
@@ -881,8 +983,11 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         } else {
             half_any = (key->type == VTSS_IS1_TYPE_ANY ? 1 : 0);
             f.key = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL;
-            if ((port_no = vtss_cmn_first_port_no_get(vtss_state, key->port_list)) != VTSS_PORT_NO_NONE) {
-                dmac_dip = vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[is1->lookup];
+            if ((port_no =
+                     vtss_cmn_first_port_no_get(vtss_state, key->port_list)) !=
+                VTSS_PORT_NO_NONE) {
+                dmac_dip = vtss_state->vcap.dmac_dip_conf[port_no]
+                               .dmac_dip[is1->lookup];
             }
             f.u.s1_normal.l2_smac = (dmac_dip ? def.l2_dmac : def.l2_smac);
             f.u.s1_normal.etype_len = def.etype_len;
@@ -892,7 +997,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
             f.u.s1_normal.l3_fragment = def.l3_fragment;
             f.u.s1_normal.l3_options = def.l3_options;
             f.u.s1_normal.l3_dscp = def.l3_dscp;
-            f.u.s1_normal.l3_ip4_sip = (dmac_dip && ip ? def_ipv4.l3_ip4_dip : def_ipv4.l3_ip4_sip);
+            f.u.s1_normal.l3_ip4_sip =
+                (dmac_dip && ip ? def_ipv4.l3_ip4_dip : def_ipv4.l3_ip4_sip);
             f.u.s1_normal.tcp_udp = def.tcp_udp;
             f.u.s1_normal.tcp = def.tcp;
             f.u.s1_normal.l4_sport = def.l4_sport;
@@ -928,7 +1034,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         fa.u.s1_rt.rte_inb_upd = (ra->rtp_inbound ? 1 : 0);
         if (ra->port_enable) {
             fa.u.s1_rt.fwd_ena = 1;
-            fa.u.s1_rt.fwd_mask = vtss_lan966x_port_mask(vtss_state, ra->port_list);
+            fa.u.s1_rt.fwd_mask =
+                vtss_lan966x_port_mask(vtss_state, ra->port_list);
         }
         if (ra->llct_enable) {
             fa.u.s1_rt.llct_ena = 1;
@@ -947,7 +1054,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         a->pag_val = action->pag;
         a->isdx_replace_ena = action->isdx_enable;
         a->isdx_add_val = action->isdx;
-        a->vid_replace_ena = (action->vid_enable || action->vid != VTSS_VID_NULL ? 1 : 0);
+        a->vid_replace_ena =
+            (action->vid_enable || action->vid != VTSS_VID_NULL ? 1 : 0);
         a->vid_add_val = action->vid;
         a->fid_sel = action->fid_sel;
         a->fid_val = action->fid_val;
@@ -957,7 +1065,8 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         a->dei_val = action->dei;
         a->vlan_pop_cnt_ena = action->pop_enable;
         a->vlan_pop_cnt = action->pop;
-        if (action->isdx_enable && (sdx = vtss_iflow_lookup(vtss_state, action->isdx)) != NULL) {
+        if (action->isdx_enable &&
+            (sdx = vtss_iflow_lookup(vtss_state, action->isdx)) != NULL) {
             vtss_lan966x_is1_action_update(vtss_state, sdx, action);
             a->sfid_ena = action->sfid_enable;
             a->sfid_val = action->sfid;
@@ -973,25 +1082,31 @@ static vtss_rc lan966x_is1_entry_add(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
     if (half_any) {
-        vtss_lan966x_vcap_key_bit_set(&info.data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
-                                      VTSS_LAN966X_VCAP_BIT_ANY);
+        vtss_lan966x_vcap_key_bit_set(
+            &info.data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
+            VTSS_LAN966X_VCAP_BIT_ANY);
     }
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_is1_entry_del(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx)
+static vtss_rc lan966x_is1_entry_del(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx)
 {
     return lan966x_vcap_entry_del(vtss_state, VTSS_LAN966X_VCAP_IS1, idx);
 }
 
-static vtss_rc lan966x_is1_entry_move(vtss_state_t *vtss_state,
-                                      vtss_vcap_idx_t *idx, u32 count, BOOL up)
+static vtss_rc lan966x_is1_entry_move(vtss_state_t    *vtss_state,
+                                      vtss_vcap_idx_t *idx,
+                                      u32              count,
+                                      BOOL             up)
 {
-    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS1, idx, count, up);
+    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS1, idx,
+                                   count, up);
 }
 
-static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
-                                        vtss_vcap_idx_t *idx, vtss_is1_action_t *act)
+static vtss_rc lan966x_is1_entry_update(vtss_state_t      *vtss_state,
+                                        vtss_vcap_idx_t   *idx,
+                                        vtss_is1_action_t *act)
 {
     lan966x_vcap_info_t info = {0};
 
@@ -1007,7 +1122,8 @@ static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_ENA, act->sgid_enable);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_SGID_VAL, act->sgid);
     LAN966X_VCAP_ACT_SET(IS1, S1_FLD_POLICE_ENA, act->dlb_enable);
-    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_POLICE_IDX, act->dlb + LAN966X_POLICER_DLB);
+    LAN966X_VCAP_ACT_SET(IS1, S1_FLD_POLICE_IDX,
+                         act->dlb + LAN966X_POLICER_DLB);
     info.cmd = LAN966X_VCAP_CMD_WRITE;
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
@@ -1017,12 +1133,14 @@ static vtss_rc lan966x_is1_entry_update(vtss_state_t *vtss_state,
  * ================================================================= */
 
 #if defined(VTSS_FEATURE_IS2)
-static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_info_t *info, vtss_acl_action_t *action)
+static vtss_rc lan966x_is2_action_set(vtss_state_t        *vtss_state,
+                                      lan966x_vcap_info_t *info,
+                                      vtss_acl_action_t   *action)
 {
-    struct vtss_lan966x_vcap_is2_action_fields    f = {0};
+    struct vtss_lan966x_vcap_is2_action_fields     f = {0};
     struct vtss_lan966x_vcap_is2_action_base_type *a = &f.u.base_type;
-    vtss_acl_port_action_t                        act = action->port_action;
-    u32                                           mask, pol_idx, ptp_cmd, ptp_add, ptp_opt;
+    vtss_acl_port_action_t                         act = action->port_action;
+    u32 mask, pol_idx, ptp_cmd, ptp_add, ptp_opt;
 
     if (info->act_tg == LAN966X_VCAP_TG_X1) {
         f.action = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP;
@@ -1032,17 +1150,17 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
         a->hit_me_once = action->cpu_once;
         a->cpu_copy_ena = action->cpu;
         a->cpu_qu_num = action->cpu_queue;
-        a->mask_mode = (act == VTSS_ACL_PORT_ACTION_FILTER ? 1 :
-                        act == VTSS_ACL_PORT_ACTION_PGID ? 2 :
-                        act == VTSS_ACL_PORT_ACTION_REDIR ? 3 : 0);
+        a->mask_mode = (act == VTSS_ACL_PORT_ACTION_FILTER  ? 1
+                        : act == VTSS_ACL_PORT_ACTION_PGID  ? 2
+                        : act == VTSS_ACL_PORT_ACTION_REDIR ? 3
+                                                            : 0);
         a->mirror_ena = action->mirror;
         a->lrn_dis = (action->learn ? 0 : 1);
         mask = vtss_lan966x_port_mask(vtss_state, action->port_list);
-        if (act != VTSS_ACL_PORT_ACTION_NONE &&
-            mask == 0 &&
-            action->cpu_once == 0 &&
-            action->cpu == 0) {
-            /* Forwarding and CPU copy disabled, discard using policer to avoid CPU copy */
+        if (act != VTSS_ACL_PORT_ACTION_NONE && mask == 0 &&
+            action->cpu_once == 0 && action->cpu == 0) {
+            /* Forwarding and CPU copy disabled, discard using policer to avoid
+             * CPU copy */
             pol_idx = LAN966X_POLICER_DISC;
             a->mask_mode = 0; // Use mode 0 to make Rx red counters increase
         } else if (action->police) {
@@ -1053,17 +1171,17 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
         a->police_ena = (pol_idx ? 1 : 0);
         a->police_idx = pol_idx;
         if (act == VTSS_ACL_PORT_ACTION_REDIR) {
-            mask &= vtss_lan966x_port_mask(vtss_state, vtss_state->l2.tx_forward_aggr);
+            mask &= vtss_lan966x_port_mask(vtss_state,
+                                           vtss_state->l2.tx_forward_aggr);
         }
         a->port_mask = mask;
 
         /* PTP actions */
-        ptp_cmd = 1;   /* ONE-STEP by default */
-        ptp_add = 0;   /* No add to CF field by default */
-        ptp_opt = 0;   /* No option bit by default */
+        ptp_cmd = 1; /* ONE-STEP by default */
+        ptp_add = 0; /* No add to CF field by default */
+        ptp_opt = 0; /* No option bit by default */
         switch (action->ptp_action) {
-        case VTSS_ACL_PTP_ACTION_ONE_STEP:
-            break;
+        case VTSS_ACL_PTP_ACTION_ONE_STEP: break;
         case VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY:
             ptp_add = 1; /* Egress delay */
             break;
@@ -1077,9 +1195,7 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
             ptp_cmd = 0; /* TWO-STEP */
             ptp_opt = 1;
             break;
-        default:
-            ptp_cmd = 0;
-            break;
+        default: ptp_cmd = 0; break;
         }
 
         switch (action->ptp.response) {
@@ -1088,54 +1204,59 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t *vtss_state, lan966x_vcap_inf
             ptp_cmd = 2; /* Delay request responce */
             ptp_opt = 1;
             break;
-        default:
-            break;
+        default: break;
         }
 
-        a->rew_op = ((ptp_cmd << 0) +
-                     (ptp_opt << 2) +
-                     (ptp_add << 3) +
+        a->rew_op = ((ptp_cmd << 0) + (ptp_opt << 2) + (ptp_add << 3) +
                      ((action->ptp.set_smac_to_port_mac ? 1 : 0) << 5) +
                      (action->ptp.dom_sel << 6));
 
         a->acl_id = (action->ifh_flag ? 1 : 0);
     }
-    return (vtss_lan966x_vcap_is2_action_pack(&f, &info->data) ? VTSS_RC_ERROR : VTSS_RC_OK);
+    return (vtss_lan966x_vcap_is2_action_pack(&f, &info->data) ? VTSS_RC_ERROR
+                                                               : VTSS_RC_OK);
 }
 
-static vtss_rc lan966x_is2_entry_get(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
+static vtss_rc lan966x_is2_entry_get(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx,
+                                     u32             *counter,
+                                     BOOL             clear)
 {
-    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_IS2, idx, counter, clear);
+    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_IS2, idx,
+                                  counter, clear);
 }
 
 static vtss_vcap_bit_t lan966x_ptp_bit_get(vtss_ace_ptp_t *ptp, u8 idx, u8 offs)
 {
     u8 msk = (1 << offs);
 
-    return ((ptp->header.mask[idx] & msk) == 0 ? VTSS_VCAP_BIT_ANY :
-            (ptp->header.value[idx] & msk) ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+    return ((ptp->header.mask[idx] & msk) == 0 ? VTSS_VCAP_BIT_ANY
+            : (ptp->header.value[idx] & msk)   ? VTSS_VCAP_BIT_1
+                                               : VTSS_VCAP_BIT_0);
 }
 
-static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
-                                     vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, u32 counter)
+static vtss_rc lan966x_is2_entry_add(vtss_state_t     *vtss_state,
+                                     vtss_vcap_idx_t  *idx,
+                                     vtss_vcap_data_t *vcap_data,
+                                     u32               counter)
 {
     struct vtss_lan966x_vcap_is2_key_fields      f = {0};
     struct vtss_lan966x_vcap_is2_key_ip6_tcp_udp def = {0};
     lan966x_vcap_info_t                          info = {0};
-    vtss_is2_data_t                              *is2 = &vcap_data->u.is2;
-    vtss_is2_entry_t                             *entry = is2->entry;
-    vtss_ace_t                                   *ace = &entry->ace;
-    vtss_ace_frame_ipv4_t                        *ipv4 = &ace->frame.ipv4;
-    vtss_ace_frame_ipv6_t                        *ipv6 = &ace->frame.ipv6;
-    vtss_vcap_u8_t                               *proto = NULL, *ds, l2_pl1, l2_pl2;
-    vtss_vcap_u16_t                              l2_pl0;
-    vtss_vcap_u32_t                              data, sip, dip, l3_pl0, l3_pl1;
-    vtss_vcap_u48_t                              *ip_data, smac;
-    vtss_vcap_udp_tcp_t                          *sport, *dport;
-    vtss_vcap_bit_t                              ttl, tcp_fin, tcp_syn, tcp_rst, tcp_psh, tcp_ack, tcp_urg;
-    vtss_vcap_bit_t                              fragment, options, sip_eq_dip, sport_eq_dport, seq_zero;
-    vtss_ace_ptp_t                               *ptp;
-    u32                                          i, val, msk;
+    vtss_is2_data_t                             *is2 = &vcap_data->u.is2;
+    vtss_is2_entry_t                            *entry = is2->entry;
+    vtss_ace_t                                  *ace = &entry->ace;
+    vtss_ace_frame_ipv4_t                       *ipv4 = &ace->frame.ipv4;
+    vtss_ace_frame_ipv6_t                       *ipv6 = &ace->frame.ipv6;
+    vtss_vcap_u8_t      *proto = NULL, *ds, l2_pl1, l2_pl2;
+    vtss_vcap_u16_t      l2_pl0;
+    vtss_vcap_u32_t      data, sip, dip, l3_pl0, l3_pl1;
+    vtss_vcap_u48_t     *ip_data, smac;
+    vtss_vcap_udp_tcp_t *sport, *dport;
+    vtss_vcap_bit_t ttl, tcp_fin, tcp_syn, tcp_rst, tcp_psh, tcp_ack, tcp_urg;
+    vtss_vcap_bit_t fragment, options, sip_eq_dip, sport_eq_dport, seq_zero;
+    vtss_ace_ptp_t *ptp;
+    u32             i, val, msk;
 
     info.vcap = VTSS_LAN966X_VCAP_IS2;
     info.cmd = LAN966X_VCAP_CMD_WRITE;
@@ -1145,10 +1266,13 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, info.addr);
 
     // Common fields placed in default struct
-    def.first = (entry->first ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
+    def.first =
+        (entry->first ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
     lan966x_vcap_u8_set(&def.pag, &ace->policy);
-    def.igr_port_mask.mask = ~vtss_lan966x_port_mask(vtss_state, ace->port_list);
-    def.host_match = (entry->host_match ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_ANY);
+    def.igr_port_mask.mask =
+        ~vtss_lan966x_port_mask(vtss_state, ace->port_list);
+    def.host_match = (entry->host_match ? VTSS_LAN966X_VCAP_BIT_1
+                                        : VTSS_LAN966X_VCAP_BIT_ANY);
     vtss_lan966x_vcap_bit_set(&def.l2_mc, ace->dmac_mc);
     vtss_lan966x_vcap_bit_set(&def.l2_bc, ace->dmac_bc);
     vtss_lan966x_vcap_bit_set(&def.vlan_tagged, ace->vlan.tagged);
@@ -1205,13 +1329,15 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
     lan966x_vcap_u128_set(&def.l3_ip6_dip, &ipv6->dip);
     lan966x_vcap_u128_set(&def.l3_ip6_sip, &ipv6->sip);
     vtss_lan966x_vcap_bit_set(&def.dip_eq_sip, sip_eq_dip);
-    def.tcp = (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
+    def.tcp =
+        (proto->value == 6 ? VTSS_LAN966X_VCAP_BIT_1 : VTSS_LAN966X_VCAP_BIT_0);
     def.l4_dport.value = dport->low;
     def.l4_dport.mask = dport->high;
     def.l4_sport.value = sport->low;
     def.l4_sport.mask = sport->high;
-    def.l4_rng.value = ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
-                        (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
+    def.l4_rng.value =
+        ((is2->srange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->srange)) |
+         (is2->drange == VTSS_VCAP_RANGE_CHK_NONE ? 0 : (1 << is2->drange)));
     def.l4_rng.mask = def.l4_rng.value;
     vtss_lan966x_vcap_bit_set(&def.sport_eq_dport, sport_eq_dport);
     if (ptp->enable) {
@@ -1327,13 +1453,16 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
         switch (ace->type) {
         case VTSS_ACE_TYPE_ANY:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE;
-            f.u.mac_etype.type.value = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID;
+            f.u.mac_etype.type.value =
+                VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID;
             f.u.mac_etype.type.mask = 0x80; // Override default type
             lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.any.dmac);
             lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.any.smac);
             for (i = 0; i < 6; i++) {
-                if (ace->frame.any.dmac.mask[i] != 0 || ace->frame.any.smac.mask[i] != 0) {
-                    // Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering. ARP frames must be mapped to ETYPE
+                if (ace->frame.any.dmac.mask[i] != 0 ||
+                    ace->frame.any.smac.mask[i] != 0) {
+                    // Match ETYPE/LLC/SNAP frames with DMAC/SMAC filtering. ARP
+                    // frames must be mapped to ETYPE
                     f.u.mac_etype.type.mask = 0xc;
                     break;
                 }
@@ -1341,8 +1470,10 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
             break;
         case VTSS_ACE_TYPE_ETYPE:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE;
-            lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac, &ace->frame.etype.dmac);
-            lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac, &ace->frame.etype.smac);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_dmac,
+                                 &ace->frame.etype.dmac);
+            lan966x_vcap_u48_set(&f.u.mac_etype.l2_smac,
+                                 &ace->frame.etype.smac);
             lan966x_vcap_u16_set(&f.u.mac_etype.etype, &ace->frame.etype.etype);
             ptp = &ace->frame.etype.ptp;
             if (ptp->enable) {
@@ -1355,8 +1486,10 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                 lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload1, &l2_pl1);
                 val = ptp->header.value[3];
                 msk = ptp->header.mask[3];
-                l2_pl2.value = (((val & 0x80) >> 5) | (val & 0x6) >> 1); // Bit 7,2,1
-                l2_pl2.mask  = (((msk & 0x80) >> 5) | (msk & 0x6) >> 1); // Bit 7,2,1
+                l2_pl2.value =
+                    (((val & 0x80) >> 5) | (val & 0x6) >> 1); // Bit 7,2,1
+                l2_pl2.mask =
+                    (((msk & 0x80) >> 5) | (msk & 0x6) >> 1); // Bit 7,2,1
                 lan966x_vcap_u8_set(&f.u.mac_etype.l2_payload2, &l2_pl2);
             } else {
                 l2_pl0 = ace->frame.etype.data;
@@ -1390,25 +1523,36 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
         case VTSS_ACE_TYPE_ARP:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_ARP;
             lan966x_vcap_u48_set(&f.u.arp.l2_smac, &ace->frame.arp.smac);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_addr_space_ok, ace->frame.arp.ethernet);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_proto_space_ok, ace->frame.arp.ip);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_len_ok, ace->frame.arp.length);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_tgt_match, ace->frame.arp.dmac_match);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_sender_match, ace->frame.arp.smac_match);
-            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_opcode_unknown, ace->frame.arp.unknown);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_addr_space_ok,
+                                      ace->frame.arp.ethernet);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_proto_space_ok,
+                                      ace->frame.arp.ip);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_len_ok,
+                                      ace->frame.arp.length);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_tgt_match,
+                                      ace->frame.arp.dmac_match);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_sender_match,
+                                      ace->frame.arp.smac_match);
+            vtss_lan966x_vcap_bit_set(&f.u.arp.arp_opcode_unknown,
+                                      ace->frame.arp.unknown);
             // Opcode bit 1: RARP flag
-            f.u.arp.arp_opcode.mask |= (ace->frame.arp.arp == VTSS_ACE_BIT_ANY ? 0 : 0x2);
-            f.u.arp.arp_opcode.value |= (ace->frame.arp.arp == VTSS_ACE_BIT_0 ? 0x2 :0);
+            f.u.arp.arp_opcode.mask |=
+                (ace->frame.arp.arp == VTSS_ACE_BIT_ANY ? 0 : 0x2);
+            f.u.arp.arp_opcode.value |=
+                (ace->frame.arp.arp == VTSS_ACE_BIT_0 ? 0x2 : 0);
             // Opcode bit 0: Reply flag
-            f.u.arp.arp_opcode.mask |= (ace->frame.arp.req == VTSS_ACE_BIT_ANY ? 0 : 0x1);
-            f.u.arp.arp_opcode.value |= (ace->frame.arp.req == VTSS_ACE_BIT_0 ? 0x1 :0);
+            f.u.arp.arp_opcode.mask |=
+                (ace->frame.arp.req == VTSS_ACE_BIT_ANY ? 0 : 0x1);
+            f.u.arp.arp_opcode.value |=
+                (ace->frame.arp.req == VTSS_ACE_BIT_0 ? 0x1 : 0);
             lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_dip, &ace->frame.arp.dip);
             lan966x_vcap_ipv4_set(&f.u.arp.l3_ip4_sip, &ace->frame.arp.sip);
             break;
         case VTSS_ACE_TYPE_IPV4:
         case VTSS_ACE_TYPE_IPV6:
             f.key = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP;
-            vtss_lan966x_vcap_bit_set(&f.u.ip4_tcp_udp.ip4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
+            vtss_lan966x_vcap_bit_set(&f.u.ip4_tcp_udp.ip4,
+                                      ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
             vtss_lan966x_vcap_bit_set(&f.u.ip4_tcp_udp.l3_fragment, fragment);
             vtss_lan966x_vcap_bit_set(&f.u.ip4_tcp_udp.l3_options, options);
             f.u.ip4_tcp_udp.l3_ttl_gt0 = def.l3_ttl_gt0;
@@ -1446,7 +1590,8 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                 f.u.ip4_tcp_udp.l4_1588_ver = def.l4_1588_ver;
             } else if (proto->mask == 0) {
                 // Any protocol
-                f.u.ip4_tcp_udp.type.value = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID;
+                f.u.ip4_tcp_udp.type.value =
+                    VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID;
                 f.u.ip4_tcp_udp.type.mask = 0xe;
             } else {
                 // Non-UDP/TCP protocol
@@ -1456,26 +1601,33 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t *vtss_state,
                 lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_0, &l3_pl0);
             }
             break;
-        default:
-            break;
+        default: break;
         }
     }
     VTSS_RC(lan966x_is2_action_set(vtss_state, &info, &ace->action));
-    return (vtss_lan966x_vcap_is2_key_pack(&f, &info.data) < 0 ? VTSS_RC_ERROR :
-            lan966x_vcap_entry_cmd(vtss_state, &info));
+    return (vtss_lan966x_vcap_is2_key_pack(&f, &info.data) < 0
+                ? VTSS_RC_ERROR
+                : lan966x_vcap_entry_cmd(vtss_state, &info));
 }
 
-static vtss_rc lan966x_is2_entry_del(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx)
+static vtss_rc lan966x_is2_entry_del(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx)
 {
     return lan966x_vcap_entry_del(vtss_state, VTSS_LAN966X_VCAP_IS2, idx);
 }
 
-static vtss_rc lan966x_is2_entry_move(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, u32 count, BOOL up)
+static vtss_rc lan966x_is2_entry_move(vtss_state_t    *vtss_state,
+                                      vtss_vcap_idx_t *idx,
+                                      u32              count,
+                                      BOOL             up)
 {
-    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS2, idx, count, up);
+    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS2, idx,
+                                   count, up);
 }
 
-static vtss_rc lan966x_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx, vtss_is2_data_t *is2)
+static vtss_rc lan966x_is2_entry_update(vtss_state_t    *vtss_state,
+                                        vtss_vcap_idx_t *idx,
+                                        vtss_is2_data_t *is2)
 {
     lan966x_vcap_info_t info = {0};
     vtss_port_no_t      port_no;
@@ -1493,7 +1645,8 @@ static vtss_rc lan966x_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_
     info.act_tg = LAN966X_VCAP_TG_X2;
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, info.addr);
     VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
-    LAN966X_VCAP_ACT_SET(IS2, BASE_TYPE_FLD_PORT_MASK, vtss_lan966x_port_mask(vtss_state, member));
+    LAN966X_VCAP_ACT_SET(IS2, BASE_TYPE_FLD_PORT_MASK,
+                         vtss_lan966x_port_mask(vtss_state, member));
     info.cmd = LAN966X_VCAP_CMD_WRITE;
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
@@ -1510,10 +1663,10 @@ static vtss_rc lan966x_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_
 #define ES0_ACT_PUSH_OT_NONE     3
 
 // ES0 TPID_SEL values
-#define TAG_TPID_CFG_0x8100   0  // Use 0x8100
-#define TAG_TPID_CFG_0x88A8   1  // Use 0x88A8
-#define TAG_TPID_CFG_PTPID    2  // Use custom from PORT_VLAN_CFG.PORT_TPID
-#define TAG_TPID_CFG_PTPID_NC 3  // As above, but unless ingress tag was a C-tag
+#define TAG_TPID_CFG_0x8100   0 // Use 0x8100
+#define TAG_TPID_CFG_0x88A8   1 // Use 0x88A8
+#define TAG_TPID_CFG_PTPID    2 // Use custom from PORT_VLAN_CFG.PORT_TPID
+#define TAG_TPID_CFG_PTPID_NC 3 // As above, but unless ingress tag was a C-tag
 
 // ES0 PCP_SEL values
 #define ES0_ACT_PCP_SEL_CL_PCP  0
@@ -1527,10 +1680,13 @@ static vtss_rc lan966x_is2_entry_update(vtss_state_t *vtss_state, vtss_vcap_idx_
 #define ES0_ACT_DEI_SEL_MAPPED  2
 #define ES0_ACT_DEI_SEL_DP      3
 
-static vtss_rc lan966x_es0_entry_get(vtss_state_t *vtss_state,
-                                     vtss_vcap_idx_t *idx, u32 *counter, BOOL clear)
+static vtss_rc lan966x_es0_entry_get(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx,
+                                     u32             *counter,
+                                     BOOL             clear)
 {
-    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_ES0, idx, counter, clear);
+    return lan966x_vcap_entry_get(vtss_state, VTSS_LAN966X_VCAP_ES0, idx,
+                                  counter, clear);
 }
 
 // (Selection, value) pair
@@ -1548,7 +1704,9 @@ typedef struct {
     lan966x_es0_sel_t dei;
 } lan966x_es0_tag_t;
 
-static void lan966x_es0_tag_get(vtss_es0_action_t *action, BOOL inner, lan966x_es0_tag_t *tag)
+static void lan966x_es0_tag_get(vtss_es0_action_t *action,
+                                BOOL               inner,
+                                lan966x_es0_tag_t *tag)
 {
     vtss_es0_tag_conf_t *conf;
 
@@ -1557,39 +1715,45 @@ static void lan966x_es0_tag_get(vtss_es0_action_t *action, BOOL inner, lan966x_e
         tag->tag_sel = (conf->tag == VTSS_ES0_TAG_NONE ? 0 : 1);
     } else {
         conf = &action->outer_tag;
-        tag->tag_sel = (conf->tag == VTSS_ES0_TAG_NONE ? ES0_ACT_PUSH_OT_NONE :
-                        conf->tag == VTSS_ES0_TAG_ES0 ? ES0_ACT_PUSH_OT_ES0 :
-                        ES0_ACT_PUSH_OT_PORT_ENA);
+        tag->tag_sel =
+            (conf->tag == VTSS_ES0_TAG_NONE  ? ES0_ACT_PUSH_OT_NONE
+             : conf->tag == VTSS_ES0_TAG_ES0 ? ES0_ACT_PUSH_OT_ES0
+                                             : ES0_ACT_PUSH_OT_PORT_ENA);
     }
     tag->tpid_sel = conf->tpid;
     tag->vid.sel = (conf->vid.sel ? 1 : 0);
     tag->vid.val = (conf->vid.sel ? conf->vid.val : 0);
-    tag->pcp.sel = (conf->pcp.sel == VTSS_ES0_PCP_CLASS ? ES0_ACT_PCP_SEL_CL_PCP :
-                    conf->pcp.sel == VTSS_ES0_PCP_ES0 ? ES0_ACT_PCP_SEL_PCP_ES0 :
-                    conf->pcp.sel == VTSS_ES0_PCP_MAPPED ? ES0_ACT_PCP_SEL_MAPPED :
-                    ES0_ACT_PCP_SEL_QOS);
+    tag->pcp.sel =
+        (conf->pcp.sel == VTSS_ES0_PCP_CLASS    ? ES0_ACT_PCP_SEL_CL_PCP
+         : conf->pcp.sel == VTSS_ES0_PCP_ES0    ? ES0_ACT_PCP_SEL_PCP_ES0
+         : conf->pcp.sel == VTSS_ES0_PCP_MAPPED ? ES0_ACT_PCP_SEL_MAPPED
+                                                : ES0_ACT_PCP_SEL_QOS);
     tag->pcp.val = conf->pcp.val;
-    tag->dei.sel = (conf->dei.sel == VTSS_ES0_DEI_CLASS ? ES0_ACT_DEI_SEL_CL_DEI :
-                    conf->dei.sel == VTSS_ES0_DEI_ES0 ? ES0_ACT_DEI_SEL_DEI_ES0 :
-                    conf->dei.sel == VTSS_ES0_DEI_MAPPED ? ES0_ACT_DEI_SEL_MAPPED :
-                    ES0_ACT_DEI_SEL_DP);
+    tag->dei.sel =
+        (conf->dei.sel == VTSS_ES0_DEI_CLASS    ? ES0_ACT_DEI_SEL_CL_DEI
+         : conf->dei.sel == VTSS_ES0_DEI_ES0    ? ES0_ACT_DEI_SEL_DEI_ES0
+         : conf->dei.sel == VTSS_ES0_DEI_MAPPED ? ES0_ACT_DEI_SEL_MAPPED
+                                                : ES0_ACT_DEI_SEL_DP);
     tag->dei.val = (conf->dei.val ? 1 : 0);
 }
 
-static vtss_rc lan966x_es0_entry_add(vtss_state_t *vtss_state,
-                                     vtss_vcap_idx_t *idx, vtss_vcap_data_t *vcap_data, u32 counter)
+static vtss_rc lan966x_es0_entry_add(vtss_state_t     *vtss_state,
+                                     vtss_vcap_idx_t  *idx,
+                                     vtss_vcap_data_t *vcap_data,
+                                     u32               counter)
 {
     struct vtss_lan966x_vcap_es0_key_fields    f = {0};
     struct vtss_lan966x_vcap_es0_action_fields a = {0};
     lan966x_vcap_info_t                        info = {0};
-    vtss_es0_data_t                            *es0 = &vcap_data->u.es0;
-    vtss_es0_key_t                             *key = &es0->entry->key;
-    vtss_es0_action_t                          *action = &es0->entry->action;
+    vtss_es0_data_t                           *es0 = &vcap_data->u.es0;
+    vtss_es0_key_t                            *key = &es0->entry->key;
+    vtss_es0_action_t                         *action = &es0->entry->action;
     lan966x_es0_tag_t                          tag;
 
     // Check key size
     if (idx->key_size != VTSS_VCAP_KEY_SIZE_FULL) {
-        VTSS_E("unsupported key_size: %s", vtss_vcap_key_size2txt(idx->key_size));
+        VTSS_E("unsupported key_size: %s",
+               vtss_vcap_key_size2txt(idx->key_size));
         return VTSS_RC_ERROR;
     }
 
@@ -1639,27 +1803,34 @@ static vtss_rc lan966x_es0_entry_add(vtss_state_t *vtss_state,
     a.u.vid.dei_b_val = tag.dei.val;
     a.u.vid.esdx = es0->esdx;
 
-    return (vtss_lan966x_vcap_es0_action_pack(&a, &info.data) < 0 ? VTSS_RC_ERROR :
-            vtss_lan966x_vcap_es0_key_pack(&f, &info.data) < 0 ? VTSS_RC_ERROR :
-            lan966x_vcap_entry_cmd(vtss_state, &info));
+    return (vtss_lan966x_vcap_es0_action_pack(&a, &info.data) < 0
+                ? VTSS_RC_ERROR
+            : vtss_lan966x_vcap_es0_key_pack(&f, &info.data) < 0
+                ? VTSS_RC_ERROR
+                : lan966x_vcap_entry_cmd(vtss_state, &info));
 }
 
-static vtss_rc lan966x_es0_entry_del(vtss_state_t *vtss_state, vtss_vcap_idx_t *idx)
+static vtss_rc lan966x_es0_entry_del(vtss_state_t    *vtss_state,
+                                     vtss_vcap_idx_t *idx)
 {
     return lan966x_vcap_entry_del(vtss_state, VTSS_LAN966X_VCAP_ES0, idx);
 }
 
-static vtss_rc lan966x_es0_entry_move(vtss_state_t *vtss_state,
-                                      vtss_vcap_idx_t *idx, u32 count, BOOL up)
+static vtss_rc lan966x_es0_entry_move(vtss_state_t    *vtss_state,
+                                      vtss_vcap_idx_t *idx,
+                                      u32              count,
+                                      BOOL             up)
 {
-    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_ES0, idx, count, up);
+    return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_ES0, idx,
+                                   count, up);
 }
 
-static vtss_rc lan966x_es0_entry_update(vtss_state_t *vtss_state,
-                                        vtss_vcap_idx_t *idx, vtss_es0_data_t *es0)
+static vtss_rc lan966x_es0_entry_update(vtss_state_t    *vtss_state,
+                                        vtss_vcap_idx_t *idx,
+                                        vtss_es0_data_t *es0)
 {
     lan966x_vcap_info_t info = {0};
-    vtss_es0_action_t   *action = &es0->entry->action;
+    vtss_es0_action_t  *action = &es0->entry->action;
     lan966x_es0_tag_t   tag;
 
     info.vcap = VTSS_LAN966X_VCAP_ES0;
@@ -1667,8 +1838,8 @@ static vtss_rc lan966x_es0_entry_update(vtss_state_t *vtss_state,
     info.sel = LAN966X_VCAP_SEL_ACTION;
     info.addr = lan966x_vcap_entry_addr(info.vcap, idx);
     info.act_tg = LAN966X_VCAP_TG_X1;
-    VTSS_I("row: %u, col: %u, addr: %u, port_no: %u, flags: 0x%x",
-           idx->row, idx->col, info.addr, es0->port_no, es0->flags);
+    VTSS_I("row: %u, col: %u, addr: %u, port_no: %u, flags: 0x%x", idx->row,
+           idx->col, info.addr, es0->port_no, es0->flags);
     VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
     lan966x_es0_tag_get(action, 0, &tag);
     if (es0->flags & VTSS_ES0_FLAG_OT_UVID) {
@@ -1704,19 +1875,19 @@ static vtss_rc lan966x_es0_entry_update(vtss_state_t *vtss_state,
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
+static vtss_rc lan966x_es0_eflow_update(vtss_state_t         *vtss_state,
+                                        const vtss_eflow_id_t flow_id)
 {
     lan966x_vcap_info_t info = {0};
-    vtss_vcap_obj_t     *obj = &vtss_state->vcap.es0.obj;
-    vtss_es0_data_t     *es0;
+    vtss_vcap_obj_t    *obj = &vtss_state->vcap.es0.obj;
+    vtss_es0_data_t    *es0;
     vtss_vcap_idx_t     idx;
-    vtss_vcap_entry_t   *cur;
-    vtss_eflow_entry_t  *eflow = vtss_eflow_lookup(vtss_state, flow_id);
-    vtss_xstat_entry_t  *stat;
+    vtss_vcap_entry_t  *cur;
+    vtss_eflow_entry_t *eflow = vtss_eflow_lookup(vtss_state, flow_id);
+    vtss_xstat_entry_t *stat;
     u32                 esdx = 0;
 
-    if (eflow != NULL &&
-        eflow->conf.cnt_enable &&
+    if (eflow != NULL && eflow->conf.cnt_enable &&
         (stat = vtss_estat_lookup(vtss_state, eflow->conf.cnt_id)) != NULL) {
         esdx = stat->idx;
     }
@@ -1731,7 +1902,8 @@ static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_efl
             info.sel = LAN966X_VCAP_SEL_ACTION;
             info.addr = lan966x_vcap_entry_addr(info.vcap, &idx);
             info.act_tg = LAN966X_VCAP_TG_X1;
-            VTSS_I("row: %u, col: %u, addr: %u, esdx: %u", idx.row, idx.col, info.addr, esdx);
+            VTSS_I("row: %u, col: %u, addr: %u, esdx: %u", idx.row, idx.col,
+                   info.addr, esdx);
             VTSS_RC(lan966x_vcap_entry_cmd(vtss_state, &info));
             LAN966X_VCAP_ACT_SET(ES0, VID_FLD_ESDX, esdx);
             info.cmd = LAN966X_VCAP_CMD_WRITE;
@@ -1746,10 +1918,12 @@ static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_efl
  * ================================================================= */
 
 #if defined(VTSS_FEATURE_IS2)
-static vtss_rc lan966x_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_policer_no_t policer_no)
+static vtss_rc lan966x_acl_policer_set(vtss_state_t               *vtss_state,
+                                       const vtss_acl_policer_no_t policer_no)
 {
-    vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
-    vtss_policer_conf_t     pol_conf;
+    vtss_acl_policer_conf_t *conf =
+        &vtss_state->vcap.acl_policer_conf[policer_no];
+    vtss_policer_conf_t pol_conf;
 
     VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
     if (conf->bit_rate_enable) {
@@ -1759,29 +1933,39 @@ static vtss_rc lan966x_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_
         pol_conf.frame_rate = 1;
         pol_conf.eir = conf->rate;
     }
-    return vtss_lan966x_qos_policer_conf_set(vtss_state, policer_no + LAN966X_POLICER_ACL, &pol_conf);
+    return vtss_lan966x_qos_policer_conf_set(vtss_state,
+                                             policer_no + LAN966X_POLICER_ACL,
+                                             &pol_conf);
 }
 
-static vtss_rc lan966x_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+static vtss_rc lan966x_acl_port_conf_set(vtss_state_t        *vtss_state,
+                                         const vtss_port_no_t port_no)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(VTSS_LAN966X_VCAP_IS2);
-    lan966x_vcap_info_t                  info = {0};
-    vtss_acl_port_conf_t                 *conf = &vtss_state->vcap.acl_port_conf[port_no];
-    vtss_acl_frame_key_t                 *key = &conf->key;
-    u32                                  ipv6, lookup = 0x1, port = VTSS_CHIP_PORT(port_no);
-    u32                                  enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(VTSS_LAN966X_VCAP_IS2);
+    lan966x_vcap_info_t   info = {0};
+    vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
+    vtss_acl_frame_key_t *key = &conf->key;
+    u32                   ipv6, lookup = 0x1, port = VTSS_CHIP_PORT(port_no);
+    u32 enable = (conf->policy_no == VTSS_ACL_POLICY_NO_NONE ? 0 : 1);
 
     VTSS_I("port_no: %u, port: %u", port_no, port);
 
     /* Enable/disable S2 and set default PAG */
-    ipv6 = (key->ipv6 == VTSS_ACL_KEY_ETYPE ? 3 : key->ipv6 == VTSS_ACL_KEY_EXT ? 0 : 2);
+    ipv6 = (key->ipv6 == VTSS_ACL_KEY_ETYPE ? 3
+            : key->ipv6 == VTSS_ACL_KEY_EXT ? 0
+                                            : 2);
     REG_WR(ANA_VCAP_S2_CFG(port),
            ANA_VCAP_S2_CFG_ENA(enable) |
-           ANA_VCAP_S2_CFG_ARP_DIS(key->arp == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
-           ANA_VCAP_S2_CFG_IP_TCPUDP_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
-           ANA_VCAP_S2_CFG_IP_OTHER_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE ? lookup : 0) |
-           ANA_VCAP_S2_CFG_IP6_CFG(ipv6) |
-           ANA_VCAP_S2_CFG_OAM_DIS(lookup));
+               ANA_VCAP_S2_CFG_ARP_DIS(key->arp == VTSS_ACL_KEY_ETYPE ? lookup
+                                                                      : 0) |
+               ANA_VCAP_S2_CFG_IP_TCPUDP_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE
+                                                 ? lookup
+                                                 : 0) |
+               ANA_VCAP_S2_CFG_IP_OTHER_DIS(key->ipv4 == VTSS_ACL_KEY_ETYPE
+                                                ? lookup
+                                                : 0) |
+               ANA_VCAP_S2_CFG_IP6_CFG(ipv6) | ANA_VCAP_S2_CFG_OAM_DIS(lookup));
 
     REG_WRM(ANA_VCAP_CFG(port),
             ANA_VCAP_CFG_PAG_VAL(enable ? conf->policy_no : 0),
@@ -1797,13 +1981,14 @@ static vtss_rc lan966x_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_po
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_acl_port_counter(vtss_state_t *vtss_state,
-                                        const vtss_port_no_t    port_no,
+static vtss_rc lan966x_acl_port_counter(vtss_state_t        *vtss_state,
+                                        const vtss_port_no_t port_no,
                                         vtss_acl_port_counter_t *const counter)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(VTSS_LAN966X_VCAP_IS2);
-    lan966x_vcap_info_t                  info = {0};
-    u32                                  port = VTSS_CHIP_PORT(port_no);
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(VTSS_LAN966X_VCAP_IS2);
+    lan966x_vcap_info_t info = {0};
+    u32                 port = VTSS_CHIP_PORT(port_no);
 
     info.vcap = VTSS_LAN966X_VCAP_IS2;
     info.cmd = (counter ? LAN966X_VCAP_CMD_READ : LAN966X_VCAP_CMD_WRITE);
@@ -1816,29 +2001,31 @@ static vtss_rc lan966x_acl_port_counter(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_acl_port_counter_get(vtss_state_t *vtss_state,
-                                            const vtss_port_no_t    port_no,
-                                            vtss_acl_port_counter_t *const counter)
+static vtss_rc lan966x_acl_port_counter_get(vtss_state_t        *vtss_state,
+                                            const vtss_port_no_t port_no,
+                                            vtss_acl_port_counter_t
+                                                *const counter)
 {
     return lan966x_acl_port_counter(vtss_state, port_no, counter);
 }
 
-static vtss_rc lan966x_acl_port_counter_clear(vtss_state_t *vtss_state,
+static vtss_rc lan966x_acl_port_counter_clear(vtss_state_t        *vtss_state,
                                               const vtss_port_no_t port_no)
 {
     return lan966x_acl_port_counter(vtss_state, port_no, NULL);
 }
 
-static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
-                               const vtss_ace_id_t ace_id, const vtss_ace_t *const ace)
+static vtss_rc lan966x_ace_add(vtss_state_t           *vtss_state,
+                               const vtss_ace_id_t     ace_id,
+                               const vtss_ace_t *const ace)
 {
-    vtss_vcap_obj_t             *obj = &vtss_state->vcap.is2.obj;
+    vtss_vcap_obj_t            *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_user_t            user = VTSS_IS2_USER_ACL;
     vtss_vcap_data_t            data;
-    vtss_is2_data_t             *is2 = &data.u.is2;
+    vtss_is2_data_t            *is2 = &data.u.is2;
     vtss_is2_entry_t            entry;
     vtss_res_chg_t              chg;
-    vtss_ace_udp_tcp_t          *sport = NULL, *dport = NULL;
+    vtss_ace_udp_tcp_t         *sport = NULL, *dport = NULL;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range;
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
     vtss_port_no_t              port_no;
@@ -1855,7 +2042,8 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
     // Check that half entry can be added
     VTSS_MEMSET(&chg, 0, sizeof(chg));
     chg.add_key[key_size] = 1;
-    if (vtss_vcap_lookup(vtss_state, obj, user, ace->id, &data, NULL) == VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, user, ace->id, &data, NULL) ==
+        VTSS_RC_OK) {
         chg.del_key[data.key_size] = 1;
 
         // Free any old range checkers
@@ -1881,7 +2069,8 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
             dport = &entry.ace.frame.ipv4.dport;
         }
     }
-    if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ace->frame.ipv6.proto)) {
+    if (ace->type == VTSS_ACE_TYPE_IPV6 &&
+        vtss_vcap_udp_tcp_rule(&ace->frame.ipv6.proto)) {
         sport = &entry.ace.frame.ipv6.sport;
         dport = &entry.ace.frame.ipv6.dport;
     }
@@ -1891,8 +2080,10 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
     entry.ace = *ace;
     if (sport && dport) {
         // Allocate new range checkers
-        VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
-        VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->drange, dport, 0));
+        VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport,
+                                              1));
+        VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->drange, dport,
+                                              0));
     }
 
     // Commit range checkers
@@ -1921,47 +2112,40 @@ static vtss_rc lan966x_ace_add(vtss_state_t *vtss_state,
     user = VTSS_IS2_USER_ACL_SIP;
     if (sip_smac_new) {
         data.key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
-        VTSS_RC(vtss_vcap_add(vtss_state, obj, user, ace->id, VTSS_VCAP_ID_LAST, &data, 0));
+        VTSS_RC(vtss_vcap_add(vtss_state, obj, user, ace->id, VTSS_VCAP_ID_LAST,
+                              &data, 0));
     } else if (sip_smac_old) {
         VTSS_RC(vtss_vcap_del(vtss_state, obj, user, ace->id));
     }
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+static vtss_rc lan966x_ace_del(vtss_state_t       *vtss_state,
+                               const vtss_ace_id_t ace_id)
 {
     // Delete main entry
     VTSS_RC(vtss_cmn_ace_del(vtss_state, ace_id));
 
     // Delete SIP/SMAC entry
-    VTSS_RC(vtss_vcap_del(vtss_state, &vtss_state->vcap.is2.obj, VTSS_IS2_USER_ACL_SIP, ace_id));
+    VTSS_RC(vtss_vcap_del(vtss_state, &vtss_state->vcap.is2.obj,
+                          VTSS_IS2_USER_ACL_SIP, ace_id));
     return VTSS_RC_OK;
 }
 #endif // VTSS_FEATURE_IS2
 
 static vtss_rc lan966x_vcap_range_commit(vtss_state_t *vtss_state)
 {
-    u32                   i, type;
+    u32                    i, type;
     vtss_vcap_range_chk_t *entry;
 
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
         entry = &vtss_state->vcap.range.entry[i];
         switch (entry->type) {
-        case VTSS_VCAP_RANGE_TYPE_SPORT:
-            type = 2;
-            break;
-        case VTSS_VCAP_RANGE_TYPE_DPORT:
-            type = 1;
-            break;
-        case VTSS_VCAP_RANGE_TYPE_SDPORT:
-            type = 3;
-            break;
-        case VTSS_VCAP_RANGE_TYPE_VID:
-            type = 4;
-            break;
-        case VTSS_VCAP_RANGE_TYPE_DSCP:
-            type = 5;
-            break;
+        case VTSS_VCAP_RANGE_TYPE_SPORT:  type = 2; break;
+        case VTSS_VCAP_RANGE_TYPE_DPORT:  type = 1; break;
+        case VTSS_VCAP_RANGE_TYPE_SDPORT: type = 3; break;
+        case VTSS_VCAP_RANGE_TYPE_VID:    type = 4; break;
+        case VTSS_VCAP_RANGE_TYPE_DSCP:   type = 5; break;
         default:
             if (entry->count == 0) {
                 type = 0;
@@ -1974,12 +2158,12 @@ static vtss_rc lan966x_vcap_range_commit(vtss_state_t *vtss_state)
         REG_WR(ANA_VCAP_RNG_CFG(i), ANA_VCAP_RNG_CFG_CFG(type));
         REG_WR(ANA_VCAP_RNG_VAL_CFG(i),
                ANA_VCAP_RNG_VAL_CFG_MIN_VAL(entry->min) |
-               ANA_VCAP_RNG_VAL_CFG_MAX_VAL(entry->max));
+                   ANA_VCAP_RNG_VAL_CFG_MAX_VAL(entry->max));
     }
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
+static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                               const vtss_port_no_t port_no,
                                               u8                   lookup,
                                               vtss_vcap_key_type_t key_new,
@@ -2024,8 +2208,8 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
     if ((key_new != key_old) || (dmac_dip_new != dmac_dip_old)) {
         vtss_res_t           res;
         u32                  step, add = 0;
-        vtss_vcap_entry_t    *cur, *next;
-        vtss_vcap_obj_t      *obj = &vtss_state->vcap.is1.obj;
+        vtss_vcap_entry_t   *cur, *next;
+        vtss_vcap_obj_t     *obj = &vtss_state->vcap.is1.obj;
         vtss_vcap_key_size_t key_size_new = vtss_vcap_key_type2size(key_new);
         vtss_vcap_key_size_t key_size_old = vtss_vcap_key_type2size(key_old);
 
@@ -2043,7 +2227,9 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
                     return VTSS_RC_ERROR;
                 }
                 if ((cur->data.u.is1.lookup != lookup) ||
-                    (vtss_cmn_first_port_no_get(vtss_state, copy->key.port_list) != port_no)) {
+                    (vtss_cmn_first_port_no_get(vtss_state,
+                                                copy->key.port_list) !=
+                     port_no)) {
                     // Skip if lookup differs or not first port in port list
                     continue;
                 }
@@ -2064,19 +2250,23 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
                     /* Update IS1 entry */
                     next = cur->next;
                     VTSS_RC(vtss_vcap_add(vtss_state, obj, cur->user, cur->id,
-                                          next && next->user == cur->user ? next->id : VTSS_VCAP_ID_LAST,
+                                          next && next->user == cur->user
+                                              ? next->id
+                                              : VTSS_VCAP_ID_LAST,
                                           &vcap_entry.data, 0));
                 }
             }
 
             if (step == 1 && add) {
                 // Check if resources are available.
-                // The resource change operation implemented above does not delete old rules
-                // before adding new rules, so we need an extra row to be able to do the update.
+                // The resource change operation implemented above does not
+                // delete old rules before adding new rules, so we need an extra
+                // row to be able to do the update.
                 res.is1.add++;
                 VTSS_RC(vtss_cmn_res_check(vtss_state, &res));
 
-                // Even if the total resource consumption goes down, we need that extra row
+                // Even if the total resource consumption goes down, we need
+                // that extra row
                 vtss_cmn_res_init(&res);
                 res.is1.add++;
                 VTSS_RC(vtss_cmn_res_check(vtss_state, &res));
@@ -2087,10 +2277,9 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
 
     // Setup port key
     REG_WR(ANA_VCAP_S1_CFG(port, lookup),
-           ANA_VCAP_S1_CFG_KEY_RT_CFG(7) |
-           ANA_VCAP_S1_CFG_KEY_IP6_CFG(ip6) |
-           ANA_VCAP_S1_CFG_KEY_IP4_CFG(ip4) |
-           ANA_VCAP_S1_CFG_KEY_OTHER_CFG(other));
+           ANA_VCAP_S1_CFG_KEY_RT_CFG(7) | ANA_VCAP_S1_CFG_KEY_IP6_CFG(ip6) |
+               ANA_VCAP_S1_CFG_KEY_IP4_CFG(ip4) |
+               ANA_VCAP_S1_CFG_KEY_OTHER_CFG(other));
 
     // Select between SMAC/SIP or DMAC/DIP in the IS1 lookup
     REG_WRM(ANA_VCAP_CFG(port), dmac_dip_new ? mask : 0, mask);
@@ -2098,18 +2287,20 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l2_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_l2_vcl_port_conf_set(vtss_state_t        *vtss_state,
+                                      const vtss_port_no_t port_no)
 {
     vtss_vcl_port_conf_t *conf = &vtss_state->l2.vcl_port_conf[port_no];
-    BOOL                 dmac_dip_new = conf->dmac_dip;
-    vtss_vcap_key_type_t key_old = vtss_state->l2.vcl_port_conf_old.key_type;
-    vtss_vcap_key_type_t key_new = conf->key_type;
+    BOOL                  dmac_dip_new = conf->dmac_dip;
+    vtss_vcap_key_type_t  key_old = vtss_state->l2.vcl_port_conf_old.key_type;
+    vtss_vcap_key_type_t  key_new = conf->key_type;
 
     // Setup first IS1 lookup
-    return vtss_lan966x_vcap_port_key_addr_set(vtss_state, port_no, 0, key_new, key_old, dmac_dip_new);
+    return vtss_lan966x_vcap_port_key_addr_set(vtss_state, port_no, 0, key_new,
+                                               key_old, dmac_dip_new);
 }
 
-vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
+vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                             const vtss_port_no_t port_no,
                                             u8                   lookup,
                                             vtss_vcap_key_type_t key_new,
@@ -2117,10 +2308,12 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
                                             BOOL                 dmac_dip_new)
 {
     vtss_rc rc;
-    BOOL    dmac_dip_old = vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[lookup];
+    BOOL    dmac_dip_old =
+        vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[lookup];
 
-    VTSS_I("port_no: %u, lookup: %u, key_new: %u, key_old: %u, dmac_dip_new: %d, dmac_dip_old: %d",
-           port_no, lookup, key_new, key_old, dmac_dip_new, dmac_dip_old);
+    VTSS_I(
+        "port_no: %u, lookup: %u, key_new: %u, key_old: %u, dmac_dip_new: %d, dmac_dip_old: %d",
+        port_no, lookup, key_new, key_old, dmac_dip_new, dmac_dip_old);
 
     if (lookup > 2) {
         VTSS_E("illegal lookup: %u, port_no: %u", lookup, port_no);
@@ -2128,16 +2321,12 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
     }
 
     vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[lookup] = dmac_dip_new;
-    rc = lan966x_vcap_port_key_addr_set(vtss_state,
-                                        port_no,
-                                        lookup,
-                                        key_new,
-                                        key_old,
-                                        dmac_dip_new,
-                                        dmac_dip_old);
+    rc = lan966x_vcap_port_key_addr_set(vtss_state, port_no, lookup, key_new,
+                                        key_old, dmac_dip_new, dmac_dip_old);
 
     if (rc != VTSS_RC_OK) {
-        vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[lookup] = dmac_dip_old; /* Restore old configuration */
+        vtss_state->vcap.dmac_dip_conf[port_no].dmac_dip[lookup] =
+            dmac_dip_old; /* Restore old configuration */
     }
     return rc;
 }
@@ -2145,14 +2334,15 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t         *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 #if VTSS_OPT_DEBUG_PRINT
-vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t             *vtss_state,
                                           const vtss_debug_printf_t pr,
-                                          const vtss_debug_info_t   *const info)
+                                          const vtss_debug_info_t *const info)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
+static vtss_rc lan966x_debug_is1(vtss_state_t        *vtss_state,
+                                 lan966x_vcap_info_t *info)
 {
     vtss_debug_printf_t pr = info->pr;
     u32                 type;
@@ -2163,43 +2353,57 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
         }
         LAN966X_DEBUG_ACT(IS1, "type", S1_FLD_TYPE);
         type = LAN966X_VCAP_ACT_GET(IS1, S1_FLD_TYPE);
-        pr("(%s) ", type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID ? "s1" : "s1_rt");
+        pr("(%s) ",
+           type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID ? "s1" : "s1_rt");
         if (type == VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID) {
-            LAN966X_DEBUG_ACT_ENA(IS1, "dscp", S1_FLD_DSCP_ENA, S1_FLD_DSCP_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "dscp", S1_FLD_DSCP_ENA,
+                                  S1_FLD_DSCP_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "qos", S1_FLD_QOS_ENA, S1_FLD_QOS_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "dp", S1_FLD_DP_ENA, S1_FLD_DP_VAL);
             LAN966X_DEBUG_ACT(IS1, "pag_mask", S1_FLD_PAG_OVERRIDE_MASK);
             LAN966X_DEBUG_ACT(IS1, "pag_val", S1_FLD_PAG_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "isdx", S1_FLD_ISDX_REPLACE_ENA, S1_FLD_ISDX_ADD_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "isdx", S1_FLD_ISDX_REPLACE_ENA,
+                                  S1_FLD_ISDX_ADD_VAL);
             pr("\n");
-            LAN966X_DEBUG_ACT_ENA(IS1, "vid", S1_FLD_VID_REPLACE_ENA, S1_FLD_VID_ADD_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "vid", S1_FLD_VID_REPLACE_ENA,
+                                  S1_FLD_VID_ADD_VAL);
             LAN966X_DEBUG_ACT(IS1, "fid_sel", S1_FLD_FID_SEL);
             LAN966X_DEBUG_ACT(IS1, "fid_val", S1_FLD_FID_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "pcp", S1_FLD_PCP_ENA, S1_FLD_PCP_VAL);
             LAN966X_DEBUG_ACT_ENA(IS1, "dei", S1_FLD_DEI_ENA, S1_FLD_DEI_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "pop", S1_FLD_VLAN_POP_CNT_ENA, S1_FLD_VLAN_POP_CNT);
+            LAN966X_DEBUG_ACT_ENA(IS1, "pop", S1_FLD_VLAN_POP_CNT_ENA,
+                                  S1_FLD_VLAN_POP_CNT);
             LAN966X_DEBUG_ACT(IS1, "custom_ace", S1_FLD_CUSTOM_ACE_TYPE_ENA);
             pr("\n");
-            LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_FLD_SFID_ENA, S1_FLD_SFID_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_FLD_SGID_ENA, S1_FLD_SGID_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_FLD_POLICE_ENA, S1_FLD_POLICE_IDX);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_FLD_SFID_ENA,
+                                  S1_FLD_SFID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_FLD_SGID_ENA,
+                                  S1_FLD_SGID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_FLD_POLICE_ENA,
+                                  S1_FLD_POLICE_IDX);
             LAN966X_DEBUG_ACT(IS1, "oam_sel", S1_FLD_OAM_SEL);
             LAN966X_DEBUG_ACT(IS1, "mrp_sel", S1_FLD_MRP_SEL);
             LAN966X_DEBUG_ACT(IS1, "dlr_sel", S1_FLD_DLR_SEL);
         } else {
             LAN966X_DEBUG_ACT(IS1, "isdx", S1_RT_FLD_ISDX_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_RT_FLD_SFID_ENA, S1_RT_FLD_SFID_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_RT_FLD_SGID_ENA, S1_RT_FLD_SGID_VAL);
-            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_RT_FLD_POLICE_ENA, S1_RT_FLD_POLICE_IDX);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sfid", S1_RT_FLD_SFID_ENA,
+                                  S1_RT_FLD_SFID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "sgid", S1_RT_FLD_SGID_ENA,
+                                  S1_RT_FLD_SGID_VAL);
+            LAN966X_DEBUG_ACT_ENA(IS1, "dlb", S1_RT_FLD_POLICE_ENA,
+                                  S1_RT_FLD_POLICE_IDX);
             LAN966X_DEBUG_ACT(IS1, "rtp_id", S1_RT_FLD_RTP_ID);
             LAN966X_DEBUG_ACT(IS1, "rtp_subid", S1_RT_FLD_RTP_SUBID);
             LAN966X_DEBUG_ACT(IS1, "rtp_inb_upd", S1_RT_FLD_RTE_INB_UPD);
             pr("\n");
-            LAN966X_DEBUG_ACT_ENA(IS1, "llct", S1_RT_FLD_LLCT_ENA, S1_RT_FLD_LLCT_PORT);
-            LAN966X_DEBUG_ENA_BITS(IS1, "fwd", S1_RT_FLD_FWD_ENA, S1_RT_FLD_FWD_MASK);
+            LAN966X_DEBUG_ACT_ENA(IS1, "llct", S1_RT_FLD_LLCT_ENA,
+                                  S1_RT_FLD_LLCT_PORT);
+            LAN966X_DEBUG_ENA_BITS(IS1, "fwd", S1_RT_FLD_FWD_ENA,
+                                   S1_RT_FLD_FWD_MASK);
             LAN966X_DEBUG_ACT(IS1, "src_filter", S1_RT_FLD_SRC_FILTER_ENA);
             LAN966X_DEBUG_ACT(IS1, "own_mac", S1_RT_FLD_OWN_MAC);
-            LAN966X_DEBUG_ACT_ENA(IS1, "cpu_copy", S1_RT_FLD_CPU_COPY_ENA, S1_RT_FLD_CPU_QU_NUM);
+            LAN966X_DEBUG_ACT_ENA(IS1, "cpu_copy", S1_RT_FLD_CPU_COPY_ENA,
+                                  S1_RT_FLD_CPU_QU_NUM);
             LAN966X_DEBUG_ACT(IS1, "tsn_dis", S1_RT_FLD_ANA2_TSN_DIS);
             LAN966X_DEBUG_ACT(IS1, "fwd_sel", S1_RT_FLD_FWD_SEL);
             LAN966X_DEBUG_ACT(IS1, "ct_sel", S1_RT_FLD_CT_SEL);
@@ -2213,19 +2417,22 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
         LAN966X_DEBUG_BITS(IS1, "type", S1_DBL_VID_FLD_TYPE);
         type = LAN966X_VCAP_ENTRY_GET(IS1, S1_DBL_VID_FLD_TYPE);
         pr("(%s) ",
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID ? "dbl_vid" :
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID ? "rt" :
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID ? "dmac_vid" : "?");
+           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID    ? "dbl_vid"
+           : type == VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID       ? "rt"
+           : type == VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID ? "dmac_vid"
+                                                                   : "?");
         if (type == VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID) {
             LAN966X_DEBUG_BITS(IS1, "lookup", S1_DBL_VID_FLD_LOOKUP);
-            LAN966X_DEBUG_BITS(IS1, "igr_port_mask", S1_DBL_VID_FLD_IGR_PORT_MASK);
+            LAN966X_DEBUG_BITS(IS1, "igr_port_mask",
+                               S1_DBL_VID_FLD_IGR_PORT_MASK);
             pr("\n");
             LAN966X_DEBUG_BITS(IS1, "l2_mc", S1_DBL_VID_FLD_L2_MC);
             LAN966X_DEBUG_BITS(IS1, "l2_bc", S1_DBL_VID_FLD_L2_BC);
             LAN966X_DEBUG_BITS(IS1, "ip_mc", S1_DBL_VID_FLD_IP_MC);
             LAN966X_DEBUG_BITS(IS1, "r_tagged", S1_DBL_VID_FLD_R_TAGGED);
             LAN966X_DEBUG_BITS(IS1, "vlan_tagged", S1_DBL_VID_FLD_VLAN_TAGGED);
-            LAN966X_DEBUG_BITS(IS1, "dbl_tagged", S1_DBL_VID_FLD_VLAN_DBL_TAGGED);
+            LAN966X_DEBUG_BITS(IS1, "dbl_tagged",
+                               S1_DBL_VID_FLD_VLAN_DBL_TAGGED);
             pr("\n");
             LAN966X_DEBUG_BITS(IS1, "tpid", S1_DBL_VID_FLD_TPID);
             LAN966X_DEBUG_BITS(IS1, "vid", S1_DBL_VID_FLD_VID);
@@ -2243,7 +2450,8 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             LAN966X_DEBUG_BITS(IS1, "ip4", S1_DBL_VID_FLD_IP4);
             pr("\n");
             LAN966X_DEBUG_BITS(IS1, "l3_fragment", S1_DBL_VID_FLD_L3_FRAGMENT);
-            LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0", S1_DBL_VID_FLD_L3_FRAG_OFS_GT0);
+            LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0",
+                               S1_DBL_VID_FLD_L3_FRAG_OFS_GT0);
             LAN966X_DEBUG_BITS(IS1, "l3_options", S1_DBL_VID_FLD_L3_OPTIONS);
             LAN966X_DEBUG_BITS(IS1, "l3_dscp", S1_DBL_VID_FLD_L3_DSCP);
             LAN966X_DEBUG_BITS(IS1, "tcp_udp", S1_DBL_VID_FLD_TCP_UDP);
@@ -2268,10 +2476,13 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     if (info->key_tg == LAN966X_VCAP_TG_X4) {
         LAN966X_DEBUG_BITS(IS1, "type", S1_7TUPLE_FLD_TYPE);
         type = LAN966X_VCAP_ENTRY_GET(IS1, S1_7TUPLE_FLD_TYPE);
-        pr("(%s) ",
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID ? "normal_ip6" :
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID ? "7tuple" :
-           type == VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID ? "5tuple_ip6 " : "?");
+        pr("(%s) ", type == VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID
+                        ? "normal_ip6"
+                    : type == VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID
+                        ? "7tuple"
+                    : type == VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID
+                        ? "5tuple_ip6 "
+                        : "?");
         LAN966X_DEBUG_BITS(IS1, "lookup", S1_7TUPLE_FLD_LOOKUP);
         LAN966X_DEBUG_BITS(IS1, "igr_port_mask", S1_7TUPLE_FLD_IGR_PORT_MASK);
         pr("\n");
@@ -2308,7 +2519,8 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
             pr("\n");
             LAN966X_DEBUG_BITS(IS1, "sip", S1_7TUPLE_FLD_L3_IP6_SIP);
             LAN966X_DEBUG_BITS(IS1, "l3_fragment", S1_7TUPLE_FLD_L3_FRAGMENT);
-            LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0", S1_7TUPLE_FLD_L3_FRAG_OFS_GT0);
+            LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0",
+                               S1_7TUPLE_FLD_L3_FRAG_OFS_GT0);
             LAN966X_DEBUG_BITS(IS1, "l3_options", S1_7TUPLE_FLD_L3_OPTIONS);
             LAN966X_DEBUG_BITS(IS1, "l3_dscp", S1_7TUPLE_FLD_L3_DSCP);
             LAN966X_DEBUG_BITS(IS1, "tcp_udp", S1_7TUPLE_FLD_TCP_UDP);
@@ -2324,9 +2536,10 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     // Half key
     LAN966X_DEBUG_BITS(IS1, "type", S1_NORMAL_FLD_TYPE);
     type = LAN966X_VCAP_ENTRY_GET(IS1, S1_NORMAL_FLD_TYPE);
-    pr("(%s) ",
-       LAN966X_VCAP_MASK_GET(IS1, S1_NORMAL_FLD_TYPE) == 0 ? "any" :
-       type == VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID ? "normal" : "5tuple_ip4");
+    pr("(%s) ", LAN966X_VCAP_MASK_GET(IS1, S1_NORMAL_FLD_TYPE) == 0 ? "any"
+                : type == VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID
+                    ? "normal"
+                    : "5tuple_ip4");
     LAN966X_DEBUG_BITS(IS1, "lookup", S1_NORMAL_FLD_LOOKUP);
     LAN966X_DEBUG_BITS(IS1, "igr_port_mask", S1_NORMAL_FLD_IGR_PORT_MASK);
     pr("\n");
@@ -2367,7 +2580,8 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
         pr("\n");
         LAN966X_DEBUG_BITS(IS1, "ip4", S1_5TUPLE_IP4_FLD_IP4);
         LAN966X_DEBUG_BITS(IS1, "l3_fragment", S1_5TUPLE_IP4_FLD_L3_FRAGMENT);
-        LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0", S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0);
+        LAN966X_DEBUG_BITS(IS1, "l3_frag_gt0",
+                           S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0);
         LAN966X_DEBUG_BITS(IS1, "l3_options", S1_5TUPLE_IP4_FLD_L3_OPTIONS);
         LAN966X_DEBUG_BITS(IS1, "l3_dscp", S1_5TUPLE_IP4_FLD_L3_DSCP);
         pr("\n");
@@ -2385,7 +2599,8 @@ static vtss_rc lan966x_debug_is1(vtss_state_t *vtss_state, lan966x_vcap_info_t *
 }
 
 #if defined(VTSS_FEATURE_IS2)
-static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
+static vtss_rc lan966x_debug_is2(vtss_state_t        *vtss_state,
+                                 lan966x_vcap_info_t *info)
 {
     vtss_debug_printf_t pr = info->pr;
     u32                 val, msk;
@@ -2393,19 +2608,23 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     if (info->is_action) {
         if (info->act_tg == LAN966X_VCAP_TG_X2) {
             LAN966X_DEBUG_ACT(IS2, "hit_me_once", BASE_TYPE_FLD_HIT_ME_ONCE);
-            LAN966X_DEBUG_ACT_ENA(IS2, "cpu_copy", BASE_TYPE_FLD_CPU_COPY_ENA, BASE_TYPE_FLD_CPU_QU_NUM);
+            LAN966X_DEBUG_ACT_ENA(IS2, "cpu_copy", BASE_TYPE_FLD_CPU_COPY_ENA,
+                                  BASE_TYPE_FLD_CPU_QU_NUM);
             LAN966X_DEBUG_ACT(IS2, "mirror", BASE_TYPE_FLD_MIRROR_ENA);
             LAN966X_DEBUG_ACT(IS2, "lrn_dis", BASE_TYPE_FLD_LRN_DIS);
             LAN966X_DEBUG_ACT(IS2, "isdx", BASE_TYPE_FLD_ISDX_ENA);
             LAN966X_DEBUG_ACT(IS2, "acl_id", BASE_TYPE_FLD_ACL_ID);
             pr("\n");
-            LAN966X_DEBUG_ACT_ENA(IS2, "police", BASE_TYPE_FLD_POLICE_ENA, BASE_TYPE_FLD_POLICE_IDX);
-            LAN966X_DEBUG_ACT(IS2, "police_vcap_only", BASE_TYPE_FLD_POLICE_VCAP_ONLY);
+            LAN966X_DEBUG_ACT_ENA(IS2, "police", BASE_TYPE_FLD_POLICE_ENA,
+                                  BASE_TYPE_FLD_POLICE_IDX);
+            LAN966X_DEBUG_ACT(IS2, "police_vcap_only",
+                              BASE_TYPE_FLD_POLICE_VCAP_ONLY);
             LAN966X_DEBUG_ACT(IS2, "mask_mode", BASE_TYPE_FLD_MASK_MODE);
             LAN966X_DEBUG_ACT_BITS(IS2, "port_mask", BASE_TYPE_FLD_PORT_MASK);
             LAN966X_DEBUG_ACT_BITS(IS2, "rew_op", BASE_TYPE_FLD_REW_OP);
         } else if (info->act_tg == LAN966X_VCAP_TG_X1) {
-            LAN966X_DEBUG_ACT_ENA(IS2, "cpu_copy", SMAC_SIP_FLD_CPU_COPY_ENA, SMAC_SIP_FLD_CPU_QU_NUM);
+            LAN966X_DEBUG_ACT_ENA(IS2, "cpu_copy", SMAC_SIP_FLD_CPU_COPY_ENA,
+                                  SMAC_SIP_FLD_CPU_QU_NUM);
             LAN966X_DEBUG_ACT(IS2, "fwd_kill", SMAC_SIP_FLD_FWD_KILL_ENA);
             LAN966X_DEBUG_ACT(IS2, "host_match", SMAC_SIP_FLD_HOST_MATCH);
         } else {
@@ -2428,11 +2647,13 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
         LAN966X_DEBUG_BITS(IS2, "type", CUSTOM_FLD_TYPE);
         val = LAN966X_VCAP_ENTRY_GET(IS2, CUSTOM_FLD_TYPE);
         msk = LAN966X_VCAP_MASK_GET(IS2, CUSTOM_FLD_TYPE);
-        pr("(%s) ",
-           msk == 0 ? "any" :
-           val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID ? "ip6_udp_tcp" :
-           val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID ? "ip6_other" :
-           val == VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID ? "custom" : "?");
+        pr("(%s) ", msk == 0 ? "any"
+                    : val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID
+                        ? "ip6_udp_tcp"
+                    : val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID
+                        ? "ip6_other"
+                    : val == VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID ? "custom"
+                                                                      : "?");
         LAN966X_DEBUG_BITS(IS2, "first", CUSTOM_FLD_FIRST);
         LAN966X_DEBUG_BITS(IS2, "pag", CUSTOM_FLD_PAG);
         LAN966X_DEBUG_BITS(IS2, "port_mask", CUSTOM_FLD_IGR_PORT_MASK);
@@ -2487,16 +2708,17 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     val = LAN966X_VCAP_ENTRY_GET(IS2, MAC_ETYPE_FLD_TYPE);
     msk = LAN966X_VCAP_MASK_GET(IS2, MAC_ETYPE_FLD_TYPE);
     pr("(%s) ",
-       msk == 0 ? "any" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID ? "etype" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID ? "llc" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID ? "snap" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID ? "arp" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID ? "ip4_udp_tcp" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID ? "ip4_other" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID ? "ip6_std" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID ? "oam" :
-       val == VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID ? "smac_sip6" : "?");
+       msk == 0                                               ? "any"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID   ? "etype"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID     ? "llc"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID    ? "snap"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID         ? "arp"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID ? "ip4_udp_tcp"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID   ? "ip4_other"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID     ? "ip6_std"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID         ? "oam"
+       : val == VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID   ? "smac_sip6"
+                                                              : "?");
 
     if (val == VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID) {
         LAN966X_DEBUG_BITS(IS2, "igr_port", SMAC_SIP6_FLD_IGR_PORT);
@@ -2593,7 +2815,8 @@ static vtss_rc lan966x_debug_is2(vtss_state_t *vtss_state, lan966x_vcap_info_t *
 }
 #endif // VTSS_FEATURE_IS2
 
-static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
+static vtss_rc lan966x_debug_es0(vtss_state_t        *vtss_state,
+                                 lan966x_vcap_info_t *info)
 {
     vtss_debug_printf_t pr = info->pr;
     u32                 x, i, tpid, vid_sel, vid, pcp_sel, pcp, dei_sel, dei;
@@ -2601,10 +2824,11 @@ static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     if (info->is_action) {
         x = LAN966X_VCAP_ACT_GET(ES0, VID_FLD_PUSH_OUTER_TAG);
         pr("outer:%u (%s) ", x,
-           x == ES0_ACT_PUSH_OT_PORT_ENA ? "port_ena" :
-           x == ES0_ACT_PUSH_OT_ES0 ? "es0" :
-           x == ES0_ACT_PUSH_OT_PORT ? "port" :
-           x == ES0_ACT_PUSH_OT_NONE ? "none" : "?");
+           x == ES0_ACT_PUSH_OT_PORT_ENA ? "port_ena"
+           : x == ES0_ACT_PUSH_OT_ES0    ? "es0"
+           : x == ES0_ACT_PUSH_OT_PORT   ? "port"
+           : x == ES0_ACT_PUSH_OT_NONE   ? "none"
+                                         : "?");
         LAN966X_DEBUG_ACT(ES0, "inner", VID_FLD_PUSH_INNER_TAG);
         pr("\n");
         for (i = 0; i < 2; i++) {
@@ -2627,24 +2851,24 @@ static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *
                 dei_sel = LAN966X_VCAP_ACT_GET(ES0, VID_FLD_TAG_A_DEI_SEL);
                 dei = LAN966X_VCAP_ACT_GET(ES0, VID_FLD_DEI_A_VAL);
             }
-            pr("tpid:%u(%s) ",
-               tpid,
-               tpid == TAG_TPID_CFG_0x8100 ? "c" :
-               tpid == TAG_TPID_CFG_0x88A8 ? "s" :
-               tpid == TAG_TPID_CFG_PTPID ? "port" : "port-c");
+            pr("tpid:%u(%s) ", tpid,
+               tpid == TAG_TPID_CFG_0x8100   ? "c"
+               : tpid == TAG_TPID_CFG_0x88A8 ? "s"
+               : tpid == TAG_TPID_CFG_PTPID  ? "port"
+                                             : "port-c");
             pr("vid_sel:%u(%s) ", vid_sel, vid_sel ? "vid" : "cl_vid+vid");
             pr("vid:%u ", vid);
-            pr("pcp_sel:%u(%s) ",
-               pcp_sel,
-               pcp_sel == ES0_ACT_PCP_SEL_CL_PCP ? "cl_pcp" :
-               pcp_sel == ES0_ACT_PCP_SEL_PCP_ES0 ? "pcp_es0" :
-               pcp_sel == ES0_ACT_PCP_SEL_MAPPED ? "mapped" : "qos");
+            pr("pcp_sel:%u(%s) ", pcp_sel,
+               pcp_sel == ES0_ACT_PCP_SEL_CL_PCP    ? "cl_pcp"
+               : pcp_sel == ES0_ACT_PCP_SEL_PCP_ES0 ? "pcp_es0"
+               : pcp_sel == ES0_ACT_PCP_SEL_MAPPED  ? "mapped"
+                                                    : "qos");
             pr("pcp:%u ", pcp);
-            pr("dei_sel:%u(%s) ",
-               dei_sel,
-               dei_sel == ES0_ACT_DEI_SEL_CL_DEI ? "cl_dei" :
-               dei_sel == ES0_ACT_DEI_SEL_DEI_ES0 ? "dei_es0" :
-               dei_sel == ES0_ACT_DEI_SEL_MAPPED ? "mapped" : "dp");
+            pr("dei_sel:%u(%s) ", dei_sel,
+               dei_sel == ES0_ACT_DEI_SEL_CL_DEI    ? "cl_dei"
+               : dei_sel == ES0_ACT_DEI_SEL_DEI_ES0 ? "dei_es0"
+               : dei_sel == ES0_ACT_DEI_SEL_MAPPED  ? "mapped"
+                                                    : "dp");
             pr("dei:%u\n", dei);
         }
         LAN966X_DEBUG_ACT(ES0, "esdx", VID_FLD_ESDX);
@@ -2665,17 +2889,18 @@ static vtss_rc lan966x_debug_es0(vtss_state_t *vtss_state, lan966x_vcap_info_t *
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
-                                  const vtss_debug_printf_t pr,
+static vtss_rc lan966x_debug_vcap(vtss_state_t                  *vtss_state,
+                                  const vtss_debug_printf_t      pr,
                                   const vtss_debug_info_t *const debug_info,
-                                  enum vtss_lan966x_vcap vcap,
-                                  vtss_rc (* dbg)(vtss_state_t *vtss_state,
-                                                  lan966x_vcap_info_t *info))
+                                  enum vtss_lan966x_vcap         vcap,
+                                  vtss_rc (*dbg)(vtss_state_t *vtss_state,
+                                                 lan966x_vcap_info_t *info))
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
-    lan966x_vcap_info_t                  info = {0};
-    u32                                  port, cnt, tgt = va->instance, rule_index = 0;
-    i32                                  i, j, found;
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
+    lan966x_vcap_info_t info = {0};
+    u32                 port, cnt, tgt = va->instance, rule_index = 0;
+    i32                 i, j, found;
 
     pr("Name     : %s\n", va->name);
     pr("Instance : %u\n", tgt);
@@ -2688,15 +2913,24 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
 
     vtss_lan966x_debug_reg_header(pr, va->name);
     vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_VER(tgt)), "VER");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_WIDTH(tgt)), "ENTRY_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_CNT(tgt)), "ENTRY_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_SWCNT(tgt)), "ENTRY_SWCNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_TG_WIDTH(tgt)), "ENTRY_TG_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_DEF_CNT(tgt)), "ACTION_DEF_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_WIDTH(tgt)), "ACTION_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CNT_WIDTH(tgt)), "CNT_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CORE_CNT(tgt)), "CORE_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_IF_CNT(tgt)), "IF_CNT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_WIDTH(tgt)),
+                           "ENTRY_WIDTH");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_CNT(tgt)),
+                           "ENTRY_CNT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_SWCNT(tgt)),
+                           "ENTRY_SWCNT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_TG_WIDTH(tgt)),
+                           "ENTRY_TG_WIDTH");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_DEF_CNT(tgt)),
+                           "ACTION_DEF_CNT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_WIDTH(tgt)),
+                           "ACTION_WIDTH");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CNT_WIDTH(tgt)),
+                           "CNT_WIDTH");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CORE_CNT(tgt)),
+                           "CORE_CNT");
+    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_IF_CNT(tgt)),
+                           "IF_CNT");
     pr("\n");
 
     info.vcap = vcap;
@@ -2714,7 +2948,9 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
             }
             port = (i - va->rows);
             pr("---------------------------------------------------------------\n");
-            cnt = (info.act_tg == LAN966X_VCAP_TG_NONE ? 1 : lan966x_vcap_tg_count(info.act_tg));
+            cnt = (info.act_tg == LAN966X_VCAP_TG_NONE
+                       ? 1
+                       : lan966x_vcap_tg_count(info.act_tg));
             pr("%u-%u (port %u)", info.addr, info.addr + cnt - 1, port);
             pr("\n---------------------------------------------------------------\n");
             pr("%s ", lan966x_vcap_tg_txt(info.act_tg));
@@ -2732,7 +2968,7 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
         // Read each subword until a valid TG is found, the read the whole entry
         found = 0;
         cnt = 1;
-        for (j = (va->sw_count - 1); j >= 0; ) {
+        for (j = (va->sw_count - 1); j >= 0;) {
             info.cmd = LAN966X_VCAP_CMD_READ;
             info.sel = LAN966X_VCAP_SEL_ALL;
             info.addr = (i * va->sw_count + j);
@@ -2779,9 +3015,9 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_debug_acl(vtss_state_t *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 const vtss_debug_info_t   *const info)
+static vtss_rc lan966x_debug_acl(vtss_state_t                  *vtss_state,
+                                 const vtss_debug_printf_t      pr,
+                                 const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS2)
     u32  port;
@@ -2793,43 +3029,51 @@ static vtss_rc lan966x_debug_acl(vtss_state_t *vtss_state,
         if (header)
             vtss_lan966x_debug_reg_header(pr, "ANA");
         header = 0;
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_VCAP_S2_CFG(port)), port, "S2_CFG");
+        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                                    REG_ADDR(ANA_VCAP_S2_CFG(port)), port,
+                                    "S2_CFG");
     }
     if (!header)
         pr("\n");
-    VTSS_RC(lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS2, lan966x_debug_is2));
+    VTSS_RC(lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS2,
+                               lan966x_debug_is2));
 #endif
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      const vtss_debug_info_t   *const info)
+vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t                  *vtss_state,
+                                      const vtss_debug_printf_t      pr,
+                                      const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, lan966x_debug_acl, vtss_state, pr, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, lan966x_debug_acl,
+                                  vtss_state, pr, info);
 }
 
-vtss_rc vtss_lan966x_debug_is1(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+vtss_rc vtss_lan966x_debug_is1(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
-    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS1, lan966x_debug_is1);
+    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS1,
+                              lan966x_debug_is1);
 }
 
-vtss_rc vtss_lan966x_debug_es0(vtss_state_t *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const vtss_debug_info_t   *const info)
+vtss_rc vtss_lan966x_debug_es0(vtss_state_t                  *vtss_state,
+                               const vtss_debug_printf_t      pr,
+                               const vtss_debug_info_t *const info)
 {
-    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_ES0, lan966x_debug_es0);
+    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_ES0,
+                              lan966x_debug_es0);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 
-static vtss_rc lan966x_vcap_initialize(vtss_state_t *vtss_state, enum vtss_lan966x_vcap vcap)
+static vtss_rc lan966x_vcap_initialize(vtss_state_t          *vtss_state,
+                                       enum vtss_lan966x_vcap vcap)
 {
-    const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(vcap);
-    lan966x_vcap_info_t                  info = {0};
+    const struct vtss_lan966x_vcap_attrs *va =
+        vtss_lan966x_vcap_attrs_get(vcap);
+    lan966x_vcap_info_t info = {0};
 
     // Initialize entries
     info.vcap = vcap;
@@ -2884,9 +3128,9 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     vtss_vcap_state_t *state = &vtss_state->vcap;
     vtss_vcap_obj_t   *is1 = &state->is1.obj;
 #if defined(VTSS_FEATURE_IS2)
-    vtss_vcap_obj_t   *is2 = &state->is2.obj;
+    vtss_vcap_obj_t *is2 = &state->is2.obj;
 #endif
-    vtss_vcap_obj_t   *es0 = &state->es0.obj;
+    vtss_vcap_obj_t *es0 = &state->es0.obj;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
@@ -2932,16 +3176,13 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         state->range_commit = lan966x_vcap_range_commit;
         break;
 
-    case VTSS_INIT_CMD_INIT:
-        VTSS_RC(lan966x_vcap_init(vtss_state));
-        break;
+    case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_vcap_init(vtss_state)); break;
 
     case VTSS_INIT_CMD_PORT_MAP:
         VTSS_RC(lan966x_vcap_port_map(vtss_state));
         break;
 
-    default:
-        break;
+    default: break;
     }
     return VTSS_RC_OK;
 }
