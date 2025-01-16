@@ -793,26 +793,26 @@ def handle_pp ast
     p = ast[:pp].to_s.strip
 
     case p
-    when /^\s*#\s*ifndef\s+(.*)/
+    when /^\s*#\s*ifndef\s+(.*)/m
         $pp_stack << { :type => :ifndef, :expr => $1 }
         #puts $pp_stack.last
 
-    when /^\s*#\s*ifdef\s+(.*)/
+    when /^\s*#\s*ifdef\s+(.*)/m
         $pp_stack << { :type => :ifdef, :expr => $1 }
         $pp_stack.last[:ignore] = :cplusplus if $1 == "__cplusplus"
         #puts $pp_stack.last
 
-    when /^\s*#\s*endif/
+    when /^\s*#\s*endif/m
         $pp_stack.pop
 
-    when /^\s*#\s*define\s+(.*)/
+    when /^\s*#\s*define\s+(.*)/m
         if ($pp_stack.size == 1 and
             $pp_stack[0][:type] == :ifndef and
             $pp_stack[0][:expr] == $1)
             $pp_stack[0][:ignore] = :file_guard
         end
 
-    when /^\s*#\s*else/
+    when /^\s*#\s*else/m
         last = $pp_stack.pop
         seq = []
         seq = last[:seq] if not last[:seq].nil?
@@ -821,7 +821,7 @@ def handle_pp ast
         $pp_stack << { :type => :else, :seq=> seq }
         #puts $pp_stack.last
 
-    when /^\s*#\s*elif\s+(.*)/
+    when /^\s*#\s*elif\s+(.*)/m
         last = $pp_stack.pop
         seq = []
         seq = last[:seq] if not last[:seq].nil?
@@ -830,7 +830,7 @@ def handle_pp ast
         $pp_stack << { :type => :elif, :expr => $1, :seq => seq }
         #puts $pp_stack.last
 
-    when /^\s*#\s*if\s+(.*)/
+    when /^\s*#\s*if\s+(.*)/m
         $pp_stack << { :type => :if, :expr => $1 }
         #puts $pp_stack.last
 
@@ -1190,7 +1190,9 @@ def impl_pp_stack_end stack
 
     stack.reverse.each do |p|
         if (p[:expr] and p[:expr].size > 0)
-            code << "#endif  // #{p[:expr]}"
+            e = p[:expr].clone
+            e.gsub! /\s*\\\n\s*/m, " "
+            code << "#endif  // #{e}"
         else
             code << "#endif"
         end
