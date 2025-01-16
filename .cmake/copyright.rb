@@ -26,7 +26,7 @@ def check f
     f_in.shift
   end
 
-  if f_in.size >= 2 and f_in[0] =~ /^(\#|\/\/|\/\*)?\s*Copyright \(c\) 2004-(\d\d\d\d) Microchip Technology Inc. and its subsidiaries.\s*(\*\/)?$/
+  if f_in.size >= 2 and f_in[0] =~ /^(\#|\/\/|\/\*)?\s*Copyright \(c\) 20\d\d-(\d\d\d\d) Microchip Technology Inc. and its subsidiaries.\s*(\*\/)?$/
     y = $2.to_i
     if y >= 2020 and y <= $year
       copyright_ok = true
@@ -69,6 +69,9 @@ end
   next if /mepa.docs.resources.jquery/ =~ f
   next if /mepa.docs.resources.bootstrap/ =~ f
   next if /.cmake\/docker\/SimpleGridClient/ =~ f
+
+  next if ".cmake/pod-base.yaml" == f
+  next if ".cmake/pod-build.yaml" == f
 
   next if [".vsd", ".svg", ".png", ".graphml", ".xls", ".txt", ".json", ".cer"].include? ext
   next if [".gitattributes", ".gitignore", "Gemfile.lock", "catch.hpp", "TODO"].include? base
