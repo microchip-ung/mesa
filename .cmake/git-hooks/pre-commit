@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+./.cmake/style -p
