@@ -835,8 +835,9 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t                *vtss_state,
 
     for (i = 0; i < table->max; i++) {
         entry = &table->entry[i];
-        if (entry->count == 0)
+        if (entry->count == 0) {
             continue;
+        }
         switch (entry->type) {
         case VTSS_VCAP_RANGE_TYPE_DPORT:  type = 1; break;
         case VTSS_VCAP_RANGE_TYPE_SPORT:  type = 2; break;
@@ -1074,8 +1075,9 @@ static void fa_debug_bits(fa_vcap_data_t *data,
         if (i != 0) {
             if (len > 65 && (j % 32) == 31) {
                 pr("\n%-*s", n + 1, "");
-            } else if ((j % 8) == 7)
+            } else if ((j % 8) == 7) {
                 pr(".");
+            }
         }
         j += offset;
         pr("%c", data->is_action ? vtss_bs_bit_get(data->action, j) ? '1' : '0'
@@ -1205,8 +1207,9 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
                 }
             }
 
-            if (type != data.vcap_type)
+            if (type != data.vcap_type) {
                 continue;
+            }
 
             port = (offset % RT_CHIP_PORTS_ALL);
             port_no = VTSS_PORT_NO_NONE;
@@ -1221,17 +1224,20 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
                         break;
                     }
                 }
-                if (skip)
+                if (skip) {
                     continue;
+                }
             }
 
             if (fa_vcap_entry_cmd(vtss_state, &data, addr, tg, FA_VCAP_CMD_READ,
                                   FA_VCAP_SEL_ACTION | FA_VCAP_SEL_COUNTER) !=
-                VTSS_RC_OK)
+                VTSS_RC_OK) {
                 continue;
+            }
 
-            if (hits_only && data.counter == 0)
+            if (hits_only && data.counter == 0) {
                 continue;
+            }
 
             /* Print default action */
             data.is_action = 1;
@@ -1265,8 +1271,9 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
         }
 
         /* Skip other VCAP types */
-        if (type != data.vcap_type)
+        if (type != data.vcap_type) {
             continue;
+        }
 
         /* Read each subword until a valid TG is found, then read whole entry */
         found = 0;
@@ -1288,8 +1295,9 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
             j -= cnt;
             found = 1;
 
-            if (hits_only && data.counter == 0)
+            if (hits_only && data.counter == 0) {
                 continue;
+            }
 
             /* Print entry */
             data.is_action = 0;
@@ -1370,8 +1378,9 @@ static void fa_clm_range_update(vtss_vcap_vr_type_t type,
         /* Range checker has been allocated */
         mask = (1 << range);
         info->range.mask |= mask;
-        if (type == VTSS_VCAP_VR_TYPE_RANGE_INCLUSIVE)
+        if (type == VTSS_VCAP_VR_TYPE_RANGE_INCLUSIVE) {
             info->range.value |= mask;
+        }
     }
 }
 
@@ -2608,8 +2617,9 @@ static vtss_rc fa_debug_clm_all(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (info->port_list[port_no] == 0)
+        if (info->port_list[port_no] == 0) {
             continue;
+        }
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_fa_debug_reg_header(pr, buf);
@@ -4433,8 +4443,9 @@ static vtss_rc fa_debug_acl(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (info->port_list[port_no] == 0)
+        if (info->port_list[port_no] == 0) {
             continue;
+        }
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
         vtss_fa_debug_reg_header(pr, buf);

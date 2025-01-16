@@ -207,25 +207,30 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t   *vtss_state,
             VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
-            VTSS_I("ts_cnt can not be retrieved from the packet supress warning for mode %d ", ts_props.phy_ts_mode);
+            VTSS_I(
+                "ts_cnt can not be retrieved from the packet supress warning for mode %d ",
+                ts_props.phy_ts_mode);
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
-            //'ts_cnt' should be similar 'tc' returned from fa_ts_io_pin_timeofday_get.
-            // PHY passes ingress timestamp in reserved field.
-            *ts_cnt = (u64)packet_ns << 16;
-            *timestamp_ok = TRUE;
+            VTSS_I(
+                "ts_cnt can not be retrieved from the packet supress warning for mode %d ",
+                ts_props.phy_ts_mode);
         } else {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
         }
     } else {
-        /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits nsec + 16 bits sub nsec) wrapping) */
+        /* The hw_tstamp is a tc in 16 bit nano second fragments (46 (30 bits
+         * nsec + 16 bits sub nsec) wrapping) */
         *ts_cnt = rx_info->hw_tstamp;
         *timestamp_ok = rx_info->hw_tstamp_decoded;
         /* if Sync message then subtract the p2p delay from rx time  */
         if (message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC) {
             *ts_cnt = *ts_cnt - ts_props.delay_comp.delay_cnt;
         }
-        /* link asymmetry compensation for Sync and PdelayResp events are not done in Jaguar2 on packets forwarded to the CPU */
-        if ((message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC || message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_P_DELAY_RESP) && ts_props.delay_comp.asymmetry_cnt != 0) {
+        /* link asymmetry compensation for Sync and PdelayResp events are not
+         * done in Jaguar2 on packets forwarded to the CPU */
+        if ((message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC ||
+             message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_P_DELAY_RESP) &&
+            ts_props.delay_comp.asymmetry_cnt != 0) {
             *ts_cnt = *ts_cnt - ts_props.delay_comp.asymmetry_cnt;
         }
     }

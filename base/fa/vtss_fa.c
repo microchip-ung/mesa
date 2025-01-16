@@ -1392,8 +1392,9 @@ static u32 dsm_cal_len(vtss_state_t *vtss_state, u32 *cal)
 {
     u32 i = 0, len = 0;
     while (i < FA_DSM_CAL_LEN) {
-        if (cal[i] != FA_DSM_CAL_EMPTY)
+        if (cal[i] != FA_DSM_CAL_EMPTY) {
             len++;
+        }
         i++;
     }
     return len;
@@ -1512,14 +1513,16 @@ static vtss_rc fa_dsm_chk_calendar(vtss_state_t *vtss_state,
 
         for (i = 0; i < num_of_slots; i++) {
             cnt = distances[i] - max_dist;
-            if (cnt < 0)
+            if (cnt < 0) {
                 cnt *= -1;
+            }
             u32 a = 0;
             for (j = (i + 1) % num_of_slots; j != i;
                  j = (j + 1) % num_of_slots, a++) {
                 cnt = cnt + distances[j] - max_dist;
-                if (cnt < 0)
+                if (cnt < 0) {
                     cnt *= -1;
+                }
                 if (cnt > max_dist) {
                     VTSS_E(
                         "Max distance violation for port %d cnt:%d max_dist:%d\n",
@@ -1881,8 +1884,9 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state,
         }
 
         for (a = 0; a < FA_DSM_CAL_LEN; a++) {
-            if (schedule[a] == FA_DSM_CAL_EMPTY)
+            if (schedule[a] == FA_DSM_CAL_EMPTY) {
                 break;
+            }
         }
 
         num_of_old_slots = a;

@@ -176,16 +176,19 @@ static inline vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
 {
     u32 i;
 
-    if (vlan == 0)
+    if (vlan == 0) {
         return VTSS_RC_ERROR;
+    }
 
     for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == vlan) {
-            if (rleg_id)
+            if (rleg_id) {
                 *rleg_id = i;
+            }
 
-            if (rleg)
+            if (rleg) {
                 *rleg = rleg_conf[i];
+            }
 
             return VTSS_RC_OK;
         }
@@ -2290,8 +2293,10 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
 
         if ((!r->ipv4_unicast_enable) && (!r->ipv6_unicast_enable) &&
             (!r->ipv4_multicast_enable) && (!r->ipv6_multicast_enable) &&
-            (!r->ipv4_icmp_redirect_enable) && (!r->ipv6_icmp_redirect_enable))
+            (!r->ipv4_icmp_redirect_enable) &&
+            (!r->ipv6_icmp_redirect_enable)) {
             continue;
+        }
 
         pr("%-5u%-5s%-7s%-7s%-7s%-7s%-9s%-9s%-5u", i,
            r->rleg_enable ? "ENA" : "DIS",
