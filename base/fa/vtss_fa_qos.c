@@ -5877,9 +5877,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                 buffer[index].ts = ts1;
                 index++;
             }
-            if (((ts1.seconds - ts0.seconds) > 2) || (index >= 1000)) {
+            if (((ts1.seconds - ts0.seconds) > 2) || (index >= 1000))
                 break;
-            }
         }
 
         for (i = 0; i < index; ++i) {
@@ -5930,9 +5929,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                 interval_start = TRUE;
             }
             old_count = count;
-            if (((ts1.seconds - ts0.seconds) > 2) || (index >= 1000)) {
+            if (((ts1.seconds - ts0.seconds) > 2) || (index >= 1000))
                 break;
-            }
         }
 
         for (i = 0; i < index; ++i) {

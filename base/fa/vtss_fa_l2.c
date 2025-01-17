@@ -163,9 +163,8 @@ static vtss_rc fa_mac_table_idle(vtss_state_t *vtss_state)
 
     while (1) {
         REG_RD(VTSS_LRN_COMMON_ACCESS_CTRL, &cmd);
-        if ((VTSS_M_LRN_COMMON_ACCESS_CTRL_MAC_TABLE_ACCESS_SHOT & cmd) == 0) {
+        if ((VTSS_M_LRN_COMMON_ACCESS_CTRL_MAC_TABLE_ACCESS_SHOT & cmd) == 0)
             break;
-        }
     }
     return VTSS_RC_OK;
 }
@@ -2894,9 +2893,8 @@ static vtss_rc fa_debug_vlan(vtss_state_t                  *vtss_state,
             VTSS_EXIT_ENTER();
         }
     }
-    if (!header) {
+    if (!header)
         pr("\n");
-    }
 
     return VTSS_RC_OK;
 }

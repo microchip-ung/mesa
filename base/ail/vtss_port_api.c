@@ -21,9 +21,8 @@ vtss_rc vtss_port_map_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END;
-             port_no++) {
+             port_no++)
             port_map[port_no] = vtss_state->port.map[port_no];
-        }
     }
     VTSS_EXIT();
     VTSS_D("exit");
@@ -57,9 +56,8 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
             /* Port numbers greater than or equal to the first unmapped port are
              * ignored */
             if (port_map[port_no].chip_port < 0 &&
-                port_no < vtss_state->port_count) {
+                port_no < vtss_state->port_count)
                 vtss_state->port_count = port_no;
-            }
         }
 
 #if defined(VTSS_FEATURE_LAYER2)
@@ -86,17 +84,15 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
             pgid_entry = &vtss_state->l2.pgid_table[pgid];
             pgid_entry->references = 1;
             for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-                 port_no++) {
+                 port_no++)
                 pgid_entry->member[port_no] = 1;
-            }
         }
 #endif /* VTSS_FEATURE_LAYER2 */
         rc = vtss_cil_port_map_set(vtss_state);
 #if defined(VTSS_FEATURE_LAYER2)
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 2);
-        if (rc == VTSS_RC_OK) { /* Update destination masks */
+        if (rc == VTSS_RC_OK) /* Update destination masks */
             rc = vtss_update_masks(vtss_state, 0, 1, 0);
-        }
         vtss_state->l2.pmap_done = TRUE;
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 2);
 #endif /* VTSS_FEATURE_LAYER2 */
@@ -139,9 +135,8 @@ vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t    inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         *control = vtss_state->port.clause_37[port_no];
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -156,9 +151,8 @@ vtss_rc vtss_port_conf_get(const vtss_inst_t       inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         *conf = vtss_state->port.conf[port_no];
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -336,9 +330,8 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
                 sizeof(clause_37_status)); /* Please Lint */
     if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no,
                                                  &clause_37_status)) !=
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         return rc;
-    }
     status->link_down = (clause_37_status.link ? 0 : 1);
     status->aneg_complete = clause_37_status.autoneg.complete;
 
@@ -346,18 +339,16 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
         /* Link has been down, so get the current status */
         if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no,
                                                      &clause_37_status)) !=
-            VTSS_RC_OK) {
+            VTSS_RC_OK)
             return rc;
-        }
         status->link = clause_37_status.link;
     } else {
         /* Link is still up */
         status->link = 1;
     }
     /* Link is down */
-    if (status->link == 0) {
+    if (status->link == 0)
         return VTSS_RC_OK;
-    }
 
     /* Link is up */
     if (vtss_state->port.conf[port_no].if_type ==
@@ -390,9 +381,8 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
                     status->fdx = 1;
                 } else if (adv->hdx && lp->hdx) {
                     status->fdx = 0;
-                } else {
+                } else
                     status->link = 0;
-                }
 
                 /* Flow control auto negotiation result */
                 status->aneg.obey_pause =
@@ -409,9 +399,8 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
                          : 0);
 
                 /* Remote fault */
-                if (lp->remote_fault != VTSS_PORT_CLAUSE_37_RF_LINK_OK) {
+                if (lp->remote_fault != VTSS_PORT_CLAUSE_37_RF_LINK_OK)
                     status->remote_fault = 1;
-                }
 
                 /* The speed is fixed */
                 status->speed = vtss_state->port.conf[port_no].speed;
@@ -483,9 +472,8 @@ vtss_rc vtss_port_counters_update(const vtss_inst_t    inst,
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         rc = vtss_cil_port_counters_update(vtss_state, port_no);
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -499,9 +487,8 @@ vtss_rc vtss_port_counters_clear(const vtss_inst_t    inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         rc = vtss_cil_port_counters_clear(vtss_state, port_no);
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -516,9 +503,8 @@ vtss_rc vtss_port_counters_get(const vtss_inst_t           inst,
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         rc = vtss_cil_port_counters_get(vtss_state, port_no, counters);
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -533,9 +519,8 @@ vtss_rc vtss_port_basic_counters_get(const vtss_inst_t            inst,
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         rc = vtss_cil_port_basic_counters_get(vtss_state, port_no, counters);
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -551,9 +536,8 @@ vtss_rc vtss_port_forward_state_get(const vtss_inst_t          inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+        VTSS_RC_OK)
         *forward = vtss_state->port.forward[port_no];
-    }
     VTSS_EXIT();
     return rc;
 }
@@ -576,9 +560,8 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t         inst,
         vtss_state->port.forward[port_no] = forward;
         rc = vtss_cil_port_forward_set(vtss_state, port_no);
 #if defined(VTSS_FEATURE_LAYER2)
-        if (rc == VTSS_RC_OK) {
+        if (rc == VTSS_RC_OK)
             rc = vtss_update_masks(vtss_state, 1, 0, 1);
-        }
 #endif /* VTSS_FEATURE_LAYER2 */
     }
     VTSS_EXIT();
@@ -714,10 +697,9 @@ vtss_rc vtss_miim_read(const vtss_inst_t            inst,
     VTSS_RC(vtss_inst_chip_no_check(inst, &vtss_state, chip_no));
 
     /* Direct access */
-    if (new_addr != miim_addr) {
+    if (new_addr != miim_addr)
         return vtss_cil_miim_read(vtss_state, miim_controller, new_addr, addr,
                                   value, FALSE);
-    }
 
     VTSS_ENTER();
     rc = vtss_cil_miim_read(vtss_state, miim_controller, miim_addr, addr, value,
@@ -741,10 +723,9 @@ vtss_rc vtss_miim_write(const vtss_inst_t            inst,
     VTSS_RC(vtss_inst_chip_no_check(inst, &vtss_state, chip_no));
 
     /* Direct access */
-    if (new_addr != miim_addr) {
+    if (new_addr != miim_addr)
         return vtss_cil_miim_write(vtss_state, miim_controller, new_addr, addr,
                                    value, FALSE);
-    }
 
     VTSS_ENTER();
     rc = vtss_cil_miim_write(vtss_state, miim_controller, miim_addr, addr,
@@ -1241,9 +1222,8 @@ vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (port_list[port_no]) {
+        if (port_list[port_no])
             return port_no;
-        }
     }
     return VTSS_PORT_NO_NONE;
 }
@@ -1259,9 +1239,8 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
          port_no++) {
         if ((u32)VTSS_CHIP_PORT(port_no) == chip_port &&
             VTSS_PORT_CHIP_SELECTED(port_no)) {
-            if (info->port_list[port_no]) {
+            if (info->port_list[port_no])
                 return port_no;
-            }
             break;
         }
     }
@@ -2290,15 +2269,13 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
     BOOL              header = 1;
     char              buf[32];
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT)) {
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT))
         return;
-    }
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no]) {
+        if (!info->port_list[port_no])
             continue;
-        }
 
         if (header) {
             header = 0;
@@ -2326,16 +2303,14 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
         pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr,
            map->miim_chip_no);
     }
-    if (!header) {
+    if (!header)
         pr("\n");
-    }
     header = 1;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no]) {
+        if (!info->port_list[port_no])
             continue;
-        }
         if (header) {
             header = 0;
             vtss_debug_print_header(pr, "Configuration");
@@ -2389,9 +2364,8 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
            : conf->max_tags == VTSS_PORT_MAX_TAGS_TWO ? "8"
                                                       : "?");
     }
-    if (!header) {
+    if (!header)
         pr("\n");
-    }
 
 #if defined(VTSS_FEATURE_LAYER2)
     header = 1;
@@ -2400,9 +2374,8 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
         vtss_stp_state_t    stp = vtss_state->l2.stp_state[port_no];
         vtss_auth_state_t   auth = vtss_state->l2.auth_state[port_no];
         vtss_port_forward_t fwd = vtss_state->port.forward[port_no];
-        if (!info->port_list[port_no]) {
+        if (!info->port_list[port_no])
             continue;
-        }
         if (header) {
             header = 0;
             vtss_debug_print_header(pr, "Forwarding");
@@ -2443,9 +2416,8 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
 #endif
         pr("\n");
     }
-    if (!header) {
+    if (!header)
         pr("\n");
-    }
 #endif /* VTSS_FEATURE_LAYER2 */
 }
 
@@ -2478,22 +2450,19 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
     vtss_port_ethernet_like_counters_t *eth = &counters.ethernet_like;
     char                                buf[80];
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT_CNT)) {
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT_CNT))
         return;
-    }
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         VTSS_SELECT_CHIP_PORT_NO(port_no);
         if (!info->port_list[port_no] ||
             vtss_cil_port_counters_get(vtss_state, port_no, &counters) !=
-                VTSS_RC_OK) {
+                VTSS_RC_OK)
             continue;
-        }
         if (info->clear &&
-            vtss_cil_port_counters_clear(vtss_state, port_no) != VTSS_RC_OK) {
+            vtss_cil_port_counters_clear(vtss_state, port_no) != VTSS_RC_OK)
             continue;
-        }
         VTSS_SPRINTF(buf, "Port %u Counters", port_no);
         vtss_debug_print_header(pr, buf);
 
@@ -2513,9 +2482,8 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
         vtss_debug_port_cnt(pr, "Pause", "", eth->dot3InPauseFrames,
                             eth->dot3OutPauseFrames);
         pr("\n");
-        if (!info->full) {
+        if (!info->full)
             continue;
-        }
 
         /* RMON counters */
         vtss_debug_port_cnt(pr, "64", "", rmon->rx_etherStatsPkts64Octets,

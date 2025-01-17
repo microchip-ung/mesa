@@ -1123,9 +1123,8 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
 
     /* Setup serial IO port enable register */
     for (port = 0; port < 32; port++) {
-        if (conf->port_conf[port].enabled) {
+        if (conf->port_conf[port].enabled)
             val |= VTSS_BIT(port);
-        }
     }
 
     /*

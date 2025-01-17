@@ -5116,9 +5116,8 @@ static vtss_rc fa_debug_serdes(vtss_state_t                  *vtss_state,
     }
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (info->port_list[port_no] == 0) {
+        if (info->port_list[port_no] == 0)
             continue;
-        }
 
         VTSS_RC(fa_debug_chip_serdes(vtss_state, pr, info, port_no));
     } /* Port loop */
@@ -5207,9 +5206,8 @@ static vtss_rc fa_debug_port(vtss_state_t                  *vtss_state,
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
 
-        if (info->port_list[port_no] == 0) {
+        if (info->port_list[port_no] == 0)
             continue;
-        }
         port = VTSS_CHIP_PORT(port_no);
 
         if (fa_is_high_speed_device(vtss_state, port_no)) {
@@ -5403,15 +5401,13 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t                  *vtss_state,
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count + 4;
          port_no++) {
         if (port_no < vtss_state->port_count) {
-            if (info->port_list[port_no] == 0 || cpu_port) {
+            if (info->port_list[port_no] == 0 || cpu_port)
                 continue;
-            }
             pr("Counters for port: %u (chip_port: %u):\n\n", port_no,
                VTSS_CHIP_PORT(port_no));
         } else {
-            if (!cpu_port) {
+            if (!cpu_port)
                 continue;
-            }
             pr("Counters for chip_port: %u:\n\n",
                RT_CHIP_PORT_CPU + port_no - vtss_state->port_count);
         }

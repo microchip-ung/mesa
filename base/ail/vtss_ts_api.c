@@ -1467,9 +1467,8 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     vtss_ts_timestamp_status_t *status;
     BOOL                        first = TRUE;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_TS)) {
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_TS))
         return;
-    }
 
     ts_conf = &vtss_state->ts.conf;
 
