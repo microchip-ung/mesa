@@ -339,7 +339,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         break;
     }
     case VTSS_SD25G28_MODE_FX100:
-    default: {
+    default:                      {
         VTSS_E(
             "vtss_sd25g28_get_conf_from_mode: invalid parameter value for f_mode\n");
         // ret_val->datarate= 25.7813e9;

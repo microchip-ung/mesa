@@ -607,7 +607,8 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
                     continue;
                 }
                 /* The ingress port is a member of this PVLAN */
-                for (e_port = VTSS_PORT_NO_START; e_port < port_count; e_port++) {
+                for (e_port = VTSS_PORT_NO_START; e_port < port_count;
+                     e_port++) {
                     if (vtss_state->l2.pvlan_table[pvlan_no].member[e_port]) {
                         member[e_port] = 1; /* Egress port also member */
                     }
@@ -630,7 +631,8 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
                 }
 
                 /* Exclude working port if it exists */
-                if (vtss_state->l2.port_protect[e_port].conf.port_no == i_port) {
+                if (vtss_state->l2.port_protect[e_port].conf.port_no ==
+                    i_port) {
                     member[e_port] = 0;
                 }
                 VTSS_N("i_port: %u %sforwarding to e_port %u", i_port,
@@ -1022,7 +1024,8 @@ vtss_rc vtss_mac_add(vtss_state_t                       *vtss_state,
                                                 &entry->vid_mac)) == NULL) {
                 return VTSS_RC_ERROR;
             }
-            for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
+            for (port_no = VTSS_PORT_NO_START; port_no < port_count;
+                 port_no++) {
                 VTSS_PORT_BF_SET(mac_entry->member, port_no,
                                  entry->destination[port_no]);
             }

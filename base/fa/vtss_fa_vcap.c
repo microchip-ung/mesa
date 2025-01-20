@@ -2417,8 +2417,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         /* TBD_MPLS */
         break;
 
-    case FA_VCAP_TG_X2:
-        FA_DEBUG_BITS(CLM, "type", X2_TYPE);
+    case FA_VCAP_TG_X2: FA_DEBUG_BITS(CLM, "type", X2_TYPE);
 #if !VTSS_OPT_LIGHT
         type = fa_entry_bs_get(data, CLM_KO_X2_TYPE, CLM_KL_X2_TYPE);
         pr("(%s) ", type == CLM_X2_TYPE_TRI_VID       ? "tri_vid"

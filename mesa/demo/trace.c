@@ -74,8 +74,7 @@ static void printf_trace_head(const char              *mname,
     m = (tv.tv_sec / 60 % 60);
     s = (tv.tv_sec % 60);
     u = tv.tv_usec;
-    printf("%u:%02u:%02u:%05u %s/%s/%s %s(%u) %s%s", h, m, s, u,
-           mname, gname,
+    printf("%u:%02u:%02u:%05u %s/%s/%s %s(%u) %s%s", h, m, s, u, mname, gname,
            level == MESA_TRACE_LEVEL_ERROR   ? "error"
            : level == MESA_TRACE_LEVEL_INFO  ? "info"
            : level == MESA_TRACE_LEVEL_DEBUG ? "debug"

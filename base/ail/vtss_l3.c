@@ -2268,7 +2268,8 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
 
         if ((!r->ipv4_unicast_enable) && (!r->ipv6_unicast_enable) &&
             (!r->ipv4_multicast_enable) && (!r->ipv6_multicast_enable) &&
-            (!r->ipv4_icmp_redirect_enable) && (!r->ipv6_icmp_redirect_enable)) {
+            (!r->ipv4_icmp_redirect_enable) &&
+            (!r->ipv6_icmp_redirect_enable)) {
             continue;
         }
 

@@ -243,8 +243,8 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     vtss_arch_t   arch;
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
 
-    if ((vtss_state =
-             VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL) {
+    if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state),
+                                     VTSS_MEM_FLAGS_NONE)) == NULL) {
         return VTSS_RC_ERROR;
     }
 
