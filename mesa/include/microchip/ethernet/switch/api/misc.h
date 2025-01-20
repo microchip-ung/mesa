@@ -283,6 +283,7 @@ mesa_rc mesa_poll_1sec(const mesa_inst_t inst);
 
 // Event (interrupt) types related to PTP in the switch chips
 typedef enum {
+    MESA_PTP_NONE_EV = 0,
     MESA_PTP_SYNC_EV = (1 << 0), // PTP Synchronization pulse update
     MESA_PTP_EXT_SYNC_EV =
         (1 << 1), // PTP External Synchronization input  (Sync 0 on Serval)
