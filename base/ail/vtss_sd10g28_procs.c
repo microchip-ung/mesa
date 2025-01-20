@@ -219,8 +219,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     u8                           cmu;
     vtss_sd10g28_preset_struct_t preset;
 
-    rslt = VTSS_RC_OK;
-
     rslt =
         vtss_sd10g28_get_conf_from_mode(config.is_6g, config.mode, mode_args);
 

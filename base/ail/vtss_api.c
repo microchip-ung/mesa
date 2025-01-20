@@ -244,8 +244,9 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
 
     if ((vtss_state =
-             VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL)
+             VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL) {
         return VTSS_RC_ERROR;
+    }
 
     VTSS_MEMSET(vtss_state, 0, sizeof(*vtss_state));
     vtss_state->cookie = VTSS_STATE_COOKIE;
@@ -346,12 +347,14 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
     VTSS_RC(vtss_ail_create(vtss_state, 0));
 
     /* Setup default instance */
-    if (vtss_default_inst == NULL)
+    if (vtss_default_inst == NULL) {
         vtss_default_inst = vtss_state;
+    }
 
     /* Return instance to application */
-    if (inst != NULL)
+    if (inst != NULL) {
         *inst = vtss_state;
+    }
 
     VTSS_D("exit");
 
@@ -365,8 +368,9 @@ vtss_rc vtss_inst_destroy(const vtss_inst_t inst)
 
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (vtss_state == vtss_default_inst)
+        if (vtss_state == vtss_default_inst) {
             vtss_default_inst = NULL;
+        }
         VTSS_OS_FREE(vtss_state, VTSS_MEM_FLAGS_NONE);
     }
     VTSS_D("exit");
@@ -381,8 +385,9 @@ vtss_rc vtss_init_conf_get(const vtss_inst_t inst, vtss_init_conf_t *const conf)
     vtss_rc       rc;
 
     VTSS_D("enter");
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *conf = vtss_state->init_conf;
+    }
     VTSS_D("exit");
 
     return rc;
@@ -944,8 +949,9 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
 
     VTSS_MEMSET(info, 0, sizeof(*info));
     info->chip_no = VTSS_CHIP_NO_ALL;
-    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
+    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         info->port_list[port_no] = 1;
+    }
     return VTSS_RC_OK;
 }
 
@@ -957,8 +963,9 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_debug_info_print(vtss_state, pr, info);
+    }
     VTSS_EXIT();
 
     return rc;

@@ -885,9 +885,11 @@ static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
 
 static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width)
 {
-    if (width > 40)
-        return; /* Max width is 5 bytes - 40 bits. In worst case this will
-                   spread over 6 bytes - 48 bits*/
+    if (width > 40) {
+        /* Max width is 5 bytes - 40 bits.
+           In worst case this will spread over 6 bytes - 48 bits*/
+        return;
+    }
 
     u32 byte = (35 - (pos / 8)); /* Calculate the Start IFH byte position of
                                     this IFH bit position */
@@ -897,29 +899,35 @@ static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width
         VTSS_ENCODE_BITFIELD64(value, bit, width); /* Encode the bit field into
                                                       a 32 bit variable. */
 
-    if (encode & 0xFF)
+    if (encode & 0xFF) {
         bin_hdr[byte] |=
             (u8)((encode & 0xFF)); /* The b0-b7 goes into the start IFH byte */
-    if (encode & 0xFF00)
+    }
+    if (encode & 0xFF00) {
         bin_hdr[byte - 1] |=
             (u8)((encode & 0xFF00) >>
                  8); /* The b8-b15 goes into the next IFH byte */
-    if (encode & 0xFF0000)
+    }
+    if (encode & 0xFF0000) {
         bin_hdr[byte - 2] |=
             (u8)((encode & 0xFF0000) >>
                  16); /* The b16-b23 goes into the next IFH byte */
-    if (encode & 0xFF000000)
+    }
+    if (encode & 0xFF000000) {
         bin_hdr[byte - 3] |=
             (u8)((encode & 0xFF000000) >>
                  24); /* The b24-b31 goes into the next IFH byte */
-    if (encode & 0xFF00000000)
+    }
+    if (encode & 0xFF00000000) {
         bin_hdr[byte - 4] |=
             (u8)((encode & 0xFF00000000) >>
                  32); /* The b32-b39 goes into the next IFH byte */
-    if (encode & 0xFF0000000000)
+    }
+    if (encode & 0xFF0000000000) {
         bin_hdr[byte - 5] |=
             (u8)((encode & 0xFF0000000000) >>
                  40); /* The b40-b47 goes into the next IFH byte */
+    }
 }
 
 /*****************************************************************************/
@@ -1290,18 +1298,19 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
 
     vtss_fa_debug_reg_header(pr, "FRAME_COPY_CFG");
     for (qu = 0; qu < 12; qu++) {
-        if (qu < 8)
+        if (qu < 8) {
             vtss_fa_debug_reg_inst(vtss_state, pr,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_CPU_QU");
-        else if (qu == 8)
+        } else if (qu == 8) {
             vtss_fa_debug_reg_inst(vtss_state, pr,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_LRN_ALL");
-        else
+        } else {
             vtss_fa_debug_reg_inst(vtss_state, pr,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_MIRROR_PROBE");
+        }
     }
     pr("\n");
 

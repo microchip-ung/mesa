@@ -1509,10 +1509,9 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     vtss_sd10g65_synth_mult_calc_rslt_t synth_mult_calc_rslt;
 
     // Set default preset values
-    rslt = vtss_sd10g65_set_default_preset_values(&preset);
+    vtss_sd10g65_set_default_preset_values(&preset);
     // Default values;
-    rslt = VTSS_RC_OK;
-    rslt = vtss_sd10g65_setup_rx_args_init(&config_rx);
+    vtss_sd10g65_setup_rx_args_init(&config_rx);
     if (config.inp_loop == TRUE) {
         if ((config.pad_loop == TRUE) || (config.cmos_loop == TRUE)) {
             VTSS_E(

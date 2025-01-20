@@ -678,11 +678,6 @@ static vtss_rc srvl_afi_init(vtss_state_t *vtss_state)
     // In srvl_afi_alloc(), there's a long story that tells how the slots are
     // used, and why the following register needs to be set to
     // VTSS_AFI_SLOT_DIVIDER.
-    // Unfortunately, it's a debug register, so we publish it here.
-#define VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT(x)          \
-    VTSS_ENCODE_BITFIELD(x, 0, 7)
-#define VTSS_M_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT             \
-    VTSS_ENCODE_BITMASK(0, 7)
     SRVL_WRM(VTSS_QSYS_TIMED_FRAME_CFG_TFRM_MISC,
              VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT(
                  VTSS_AFI_SLOT_DIVIDER),

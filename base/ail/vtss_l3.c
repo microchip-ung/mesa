@@ -176,16 +176,19 @@ static inline vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
 {
     u32 i;
 
-    if (vlan == 0)
+    if (vlan == 0) {
         return VTSS_RC_ERROR;
+    }
 
     for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == vlan) {
-            if (rleg_id)
+            if (rleg_id) {
                 *rleg_id = i;
+            }
 
-            if (rleg)
+            if (rleg) {
                 *rleg = rleg_conf[i];
+            }
 
             return VTSS_RC_OK;
         }
@@ -638,21 +641,6 @@ static inline vtss_rc nh_update(vtss_state_t *vtss_state,
     return (enable ? vtss_cil_l3_arp_set(vtss_state, idx, nb) : VTSS_RC_OK);
 }
 
-/* Look for a next-hop in a list */
-static inline vtss_l3_nh_t *nh_lookup(vtss_state_t *vtss_state,
-                                      vtss_l3_nh_t *list,
-                                      vtss_l3_nh_t *nh)
-{
-    vtss_l3_nh_t *cur;
-
-    for (cur = list; cur != NULL; cur = cur->next) {
-        if (nh_cmp(&cur->nh, &nh->nh) == 0) {
-            break;
-        }
-    }
-    return cur;
-}
-
 /* - Next-hop groups ----------------------------------------------- */
 
 static inline vtss_l3_nh_grp_t *nh_grp_alloc(vtss_state_t *vtss_state, u8 cnt)
@@ -804,16 +792,6 @@ static inline int mc_rt_cmp(const vtss_l3_mc_rt_t *a, const vtss_l3_mc_rt_t *b)
         return cmp1;
     }
     return cmp2;
-}
-
-static inline int mc_mask_cmp(const u32 *a, const u32 *b)
-{
-    for (u16 i = 0; i < 4; i++) {
-        if (a[i] != b[i]) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
@@ -1555,7 +1533,7 @@ static inline vtss_rc nb_update(vtss_state_t *vtss_state, vtss_l3_nb_t *nb)
         for (nh = grp->list, idx = grp->idx; nh != NULL; nh = nh->next, idx++) {
             if (nh_cmp(&nh->nh, &nb->nh) == 0 &&
                 (rc = nh_update(vtss_state, idx, nb)) != VTSS_RC_OK) {
-                return VTSS_RC_OK;
+                return rc;
             }
         }
     }
@@ -2290,8 +2268,9 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
 
         if ((!r->ipv4_unicast_enable) && (!r->ipv6_unicast_enable) &&
             (!r->ipv4_multicast_enable) && (!r->ipv6_multicast_enable) &&
-            (!r->ipv4_icmp_redirect_enable) && (!r->ipv6_icmp_redirect_enable))
+            (!r->ipv4_icmp_redirect_enable) && (!r->ipv6_icmp_redirect_enable)) {
             continue;
+        }
 
         pr("%-5u%-5s%-7s%-7s%-7s%-7s%-9s%-9s%-5u", i,
            r->rleg_enable ? "ENA" : "DIS",

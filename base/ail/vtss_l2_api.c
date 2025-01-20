@@ -53,14 +53,16 @@ static void vtss_pgid_members_get(vtss_state_t *vtss_state,
 
     /* Store raw port members */
     pgid_entry = &vtss_state->l2.pgid_table[pgid];
-    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++)
+    for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         member[port_no] =
             (port_no < vtss_state->port_count ? pgid_entry->member[port_no]
                                               : 0);
+    }
 
     /* Reserved entries are used direcly (e.g. GLAG masks) */
-    if (pgid_entry->resv || !vtss_state->l2.pmap_done)
+    if (pgid_entry->resv || !vtss_state->l2.pmap_done) {
         return;
+    }
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
@@ -68,12 +70,14 @@ static void vtss_pgid_members_get(vtss_state_t *vtss_state,
         protect = &vtss_state->l2.port_protect[port_no];
         if ((port = protect->conf.port_no) != VTSS_PORT_NO_NONE &&
             protect->conf.type == VTSS_EPS_PORT_1_PLUS_1) {
-            if (member[port]) /* Include working port if protection port is
+            if (member[port]) { /* Include working port if protection port is
                                  member */
                 member[port_no] = 1;
-            if (member[port_no]) /* Include protection port if working port is
+            }
+            if (member[port_no]) { /* Include protection port if working port is
                                     member */
                 member[port] = 1;
+            }
         }
 
         /* Check if aggregated ports or destination group members are port
@@ -122,8 +126,9 @@ static vtss_mac_entry_t *vtss_mac_entry_get(vtss_state_t *vtss_state,
     vtss_mac_entry_t *cur, *old;
 
     /* Check if table is empty */
-    if (vtss_state->l2.mac_ptr_count == 0)
+    if (vtss_state->l2.mac_ptr_count == 0) {
         return NULL;
+    }
 
     /* Locate page using binary search */
     for (first = 0, last = vtss_state->l2.mac_ptr_count - 1; first != last;) {
@@ -141,13 +146,16 @@ static vtss_mac_entry_t *vtss_mac_entry_get(vtss_state_t *vtss_state,
     cur = vtss_state->l2.mac_list_ptr[first];
     /* Go back one page if entry greater */
     if (first != 0 &&
-        (cur->mach > mach || (cur->mach == mach && cur->macl > macl)))
+        (cur->mach > mach || (cur->mach == mach && cur->macl > macl))) {
         cur = vtss_state->l2.mac_list_ptr[first - 1];
+    }
 
     /* Look for greater entry using linear search */
-    for (old = NULL; cur != NULL; old = cur, cur = cur->next)
-        if (cur->mach > mach || (cur->mach == mach && cur->macl > macl))
+    for (old = NULL; cur != NULL; old = cur, cur = cur->next) {
+        if (cur->mach > mach || (cur->mach == mach && cur->macl > macl)) {
             break;
+        }
+    }
 
     return (next ? cur : old);
 }
@@ -164,8 +172,9 @@ static void vtss_mac_pages_update(vtss_state_t *vtss_state)
 
         /* Move one page forward */
         for (count = 0; count != VTSS_MAC_PAGE_SIZE && cur != NULL;
-             cur = cur->next, count++)
+             cur = cur->next, count++) {
             ;
+        }
     }
     vtss_state->l2.mac_ptr_count = i;
 }
@@ -183,8 +192,9 @@ static vtss_mac_entry_t *vtss_mac_entry_add(vtss_state_t         *vtss_state,
 
     /* Look for previous or existing entry in used list */
     if ((tmp = vtss_mac_entry_get(vtss_state, mach, macl, 0)) != NULL &&
-        tmp->mach == mach && tmp->macl == macl)
+        tmp->mach == mach && tmp->macl == macl) {
         return (tmp->user == user ? tmp : NULL);
+    }
 
     /* Allocate entry from free list */
     if ((cur = vtss_state->l2.mac_list_free) == NULL) {
@@ -234,10 +244,11 @@ static vtss_rc vtss_mac_entry_del(vtss_state_t         *vtss_state,
             }
 
             /* Remove from used list */
-            if (old == NULL)
+            if (old == NULL) {
                 vtss_state->l2.mac_list_used = cur->next;
-            else
+            } else {
                 old->next = cur->next;
+            }
 
             /* Insert in free list */
             cur->next = vtss_state->l2.mac_list_free;
@@ -290,12 +301,14 @@ static vtss_rc vtss_mac_table_update(vtss_state_t *vtss_state)
 
     for (cur = vtss_state->l2.mac_list_used; cur != NULL; cur = cur->next) {
         vtss_mach_macl_set(&vid_mac, cur->mach, cur->macl);
-        if (!vtss_ipmc_mac(vtss_state, &vid_mac))
+        if (!vtss_ipmc_mac(vtss_state, &vid_mac)) {
             continue;
+        }
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             pgid_entry->member[port_no] =
                 VTSS_PORT_BF_GET(cur->member, port_no);
+        }
         vtss_pgid_members_get(vtss_state, pgid, pgid_entry->member);
         (void)vtss_mac_entry_update(vtss_state, cur, pgid);
     }
@@ -311,8 +324,9 @@ static vtss_rc vtss_pgid_table_write(vtss_state_t *vtss_state, u32 pgid)
     VTSS_N("pgid: %u", pgid);
 
     /* Ignore unused entries */
-    if (vtss_state->l2.pgid_table[pgid].references == 0)
+    if (vtss_state->l2.pgid_table[pgid].references == 0) {
         return VTSS_RC_OK;
+    }
 
     /* Get port members */
     vtss_pgid_members_get(vtss_state, pgid, member);
@@ -339,8 +353,9 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
     /* Search for matching or unused entry in PGID table */
     for (pgid = 0; pgid < vtss_state->l2.pgid_count; pgid++) {
         pgid_entry = &vtss_state->l2.pgid_table[pgid];
-        if (pgid_entry->resv) /* Skip reserved entries */
+        if (pgid_entry->resv) { /* Skip reserved entries */
             continue;
+        }
 
         if (pgid_entry->references == 0) {
             /* Check if the first unused entry is found or the pgid can be
@@ -352,9 +367,11 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
         } else {
             /* Check if an existing entry matches */
             for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-                 port_no++)
-                if (member[port_no] != pgid_entry->member[port_no])
+                 port_no++) {
+                if (member[port_no] != pgid_entry->member[port_no]) {
                     break;
+                }
+            }
             if (port_no == vtss_state->port_count &&
                 pgid_entry->cpu_copy == cpu_copy &&
                 pgid_entry->cpu_queue == cpu_queue) {
@@ -382,8 +399,9 @@ static vtss_rc vtss_pgid_alloc(vtss_state_t *vtss_state,
     pgid_entry = &vtss_state->l2.pgid_table[pgid_free];
     pgid_entry->references = 1;
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++)
+         port_no++) {
         pgid_entry->member[port_no] = member[port_no];
+    }
     pgid_entry->cpu_copy = cpu_copy;
     pgid_entry->cpu_queue = cpu_queue;
     return vtss_pgid_table_write(vtss_state, pgid_free);
@@ -397,8 +415,9 @@ static vtss_rc vtss_pgid_free(vtss_state_t *vtss_state, u32 pgid)
     VTSS_D("pgid: %u", pgid);
 
     /* Ignore IPv4/IPv6 MC free */
-    if (pgid == VTSS_PGID_NONE)
+    if (pgid == VTSS_PGID_NONE) {
         return VTSS_RC_OK;
+    }
 
     if (pgid > vtss_state->l2.pgid_count) {
         VTSS_E("illegal pgid: %u", pgid);
@@ -407,8 +426,9 @@ static vtss_rc vtss_pgid_free(vtss_state_t *vtss_state, u32 pgid)
 
     /* Do not free reserved PGIDs */
     pgid_entry = &vtss_state->l2.pgid_table[pgid];
-    if (pgid_entry->resv)
+    if (pgid_entry->resv) {
         return VTSS_RC_OK;
+    }
 
     /* Check if pgid already free */
     if (pgid_entry->references == 0) {
@@ -431,12 +451,13 @@ static vtss_port_no_t vtss_aggr_port(vtss_state_t  *vtss_state,
     if ((aggr_no = vtss_state->l2.port_aggr_no[port]) != VTSS_AGGR_NO_NONE) {
         /* Aggregated, use first operational port in aggregation */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             if (vtss_state->l2.port_state[port_no] &&
                 vtss_state->l2.port_aggr_no[port_no] == aggr_no) {
                 lport_no = port_no;
                 break;
             }
+        }
     }
     return lport_no;
 }
@@ -547,8 +568,9 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
 
     /* Update learn mask */
     if (src_update &&
-        (rc = vtss_cil_l2_learn_state_set(vtss_state, learn)) != VTSS_RC_OK)
+        (rc = vtss_cil_l2_learn_state_set(vtss_state, learn)) != VTSS_RC_OK) {
         return rc;
+    }
 
 #if defined(VTSS_FEATURE_PACKET)
     if (vtss_state->packet.npi_conf.enable) {
@@ -581,45 +603,54 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             /* Include members of the same PVLAN */
             for (pvlan_no = VTSS_PVLAN_NO_START; pvlan_no < VTSS_PVLAN_NO_END;
                  pvlan_no++) {
-                if (vtss_state->l2.pvlan_table[pvlan_no].member[i_port] == 0)
+                if (vtss_state->l2.pvlan_table[pvlan_no].member[i_port] == 0) {
                     continue;
+                }
                 /* The ingress port is a member of this PVLAN */
-                for (e_port = VTSS_PORT_NO_START; e_port < port_count; e_port++)
-                    if (vtss_state->l2.pvlan_table[pvlan_no].member[e_port])
+                for (e_port = VTSS_PORT_NO_START; e_port < port_count; e_port++) {
+                    if (vtss_state->l2.pvlan_table[pvlan_no].member[e_port]) {
                         member[e_port] = 1; /* Egress port also member */
+                    }
+                }
             }
 
             /* Exclude protection port if it exists */
             if ((port_p = vtss_state->l2.port_protect[i_port].conf.port_no) !=
-                VTSS_PORT_NO_NONE)
+                VTSS_PORT_NO_NONE) {
                 member[port_p] = 0;
+            }
 
             member[i_port] = 0;
             aggr_no = vtss_state->l2.port_aggr_no[i_port];
             for (e_port = VTSS_PORT_NO_START; e_port < port_count; e_port++) {
                 /* Exclude members of the same aggregation */
                 if (aggr_no != VTSS_AGGR_NO_NONE &&
-                    vtss_state->l2.port_aggr_no[e_port] == aggr_no)
+                    vtss_state->l2.port_aggr_no[e_port] == aggr_no) {
                     member[e_port] = 0;
+                }
 
                 /* Exclude working port if it exists */
-                if (vtss_state->l2.port_protect[e_port].conf.port_no == i_port)
+                if (vtss_state->l2.port_protect[e_port].conf.port_no == i_port) {
                     member[e_port] = 0;
+                }
                 VTSS_N("i_port: %u %sforwarding to e_port %u", i_port,
                        member[e_port] ? "" : "NOT ", e_port);
 
                 /* Exclude ports, which are not egress forwarding */
-                if (!VTSS_PORT_TX_FORWARDING(vtss_state->port.forward[e_port]))
+                if (!VTSS_PORT_TX_FORWARDING(vtss_state->port.forward[e_port])) {
                     member[e_port] = 0;
+                }
 
                 /* Exclude ports not allowed by assymmetric PVLANs */
-                if (!vtss_state->l2.apvlan_table[i_port][e_port])
+                if (!vtss_state->l2.apvlan_table[i_port][e_port]) {
                     member[e_port] = 0;
+                }
             }
         }
         if ((rc = vtss_cil_l2_src_table_write(vtss_state, i_port, member)) !=
-            VTSS_RC_OK)
+            VTSS_RC_OK) {
             return rc;
+        }
     } /* src_update */
 
     /* Update PGID table (destination masks) */
@@ -640,8 +671,9 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             aggr_index[i_port] = 0;
 
             /* If port is not forwarding, continue */
-            if (!tx_forward[i_port])
+            if (!tx_forward[i_port]) {
                 continue;
+            }
 
             aggr_no = vtss_state->l2.port_aggr_no[i_port];
             VTSS_D("port_no: %u, aggr_no: %u is forwarding", i_port, aggr_no);
@@ -656,8 +688,9 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
                     vtss_state->l2.port_aggr_no[e_port] == aggr_no) {
                     /* Port is forwarding and member of the same aggregation */
                     aggr_count[i_port]++;
-                    if (e_port < i_port && i_port < VTSS_PORT_ARRAY_SIZE)
+                    if (e_port < i_port && i_port < VTSS_PORT_ARRAY_SIZE) {
                         aggr_index[i_port]++;
+                    }
                 }
             }
         }
@@ -682,8 +715,9 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             }
             /* Write to aggregation table */
             if ((rc = vtss_cil_l2_aggr_table_write(vtss_state, ac, member)) !=
-                VTSS_RC_OK)
+                VTSS_RC_OK) {
                 return rc;
+            }
 
             /* Update IS2 if first aggregation mask changed */
             if (chg) {
@@ -698,8 +732,9 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
             if ((rc = vtss_cil_l2_pmap_table_write(vtss_state, i_port,
                                                    vtss_aggr_port(vtss_state,
                                                                   i_port))) !=
-                VTSS_RC_OK)
+                VTSS_RC_OK) {
                 return rc;
+            }
         }
     } /* aggr_update */
 
@@ -987,9 +1022,10 @@ vtss_rc vtss_mac_add(vtss_state_t                       *vtss_state,
                                                 &entry->vid_mac)) == NULL) {
                 return VTSS_RC_ERROR;
             }
-            for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++)
+            for (port_no = VTSS_PORT_NO_START; port_no < port_count; port_no++) {
                 VTSS_PORT_BF_SET(mac_entry->member, port_no,
                                  entry->destination[port_no]);
+            }
             mac_entry->cpu_copy = cpu_copy;
             mac_entry->cpu_copy_smac = entry->copy_to_cpu_smac;
             mac_entry->cpu_queue = cpu_queue;
@@ -997,8 +1033,9 @@ vtss_rc vtss_mac_add(vtss_state_t                       *vtss_state,
     }
 
     /* No further processing in warm start mode */
-    if (vtss_state->warm_start_cur)
+    if (vtss_state->warm_start_cur) {
         return VTSS_RC_OK;
+    }
 
     if (ipmc) {
         /* IPv4/IPv6 multicast address, use pseudo PGID */
@@ -1039,8 +1076,9 @@ vtss_rc vtss_mac_table_add(const vtss_inst_t                   inst,
         entry->vid_mac.mac.addr[3], entry->vid_mac.mac.addr[4],
         entry->vid_mac.mac.addr[5], entry->copy_to_cpu, entry->locked);
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_add(vtss_state, VTSS_MAC_USER_NONE, entry);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1061,8 +1099,9 @@ vtss_rc vtss_mac_del(vtss_state_t               *vtss_state,
     VTSS_RC(vtss_mac_entry_del(vtss_state, user, vid_mac));
 
     /* No further processing in warm start mode */
-    if (vtss_state->warm_start_cur)
+    if (vtss_state->warm_start_cur) {
         return VTSS_RC_OK;
+    }
 
     /* Free PGID and delete if the entry exists */
     entry.vid_mac = *vid_mac;
@@ -1087,8 +1126,9 @@ vtss_rc vtss_mac_table_del(const vtss_inst_t           inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_del(vtss_state, VTSS_MAC_USER_NONE, vid_mac);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1232,8 +1272,9 @@ vtss_rc vtss_mac_table_get_next(const vtss_inst_t             inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_get_next(vtss_state, vid_mac, entry);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1246,8 +1287,9 @@ vtss_rc vtss_mac_table_age_time_get(const vtss_inst_t                inst,
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *age_time = vtss_state->l2.mac_age_time;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1282,21 +1324,24 @@ static vtss_rc vtss_mac_age(vtss_state_t    *vtss_state,
     VTSS_D("enter, pgid_age: %u, pgid: %u, vid_age: %u, vid: %u, count: %u",
            pgid_age, pgid, vid_age, vid, count);
 
-    if (pgid_age && pgid < vtss_state->port_count)
+    if (pgid_age && pgid < vtss_state->port_count) {
         port_no = vtss_aggr_port(vtss_state, pgid);
+    }
 
     for (i = 0; i < count; i++) {
         if ((rc = VTSS_RC_COLD(vtss_cil_l2_mac_table_age(vtss_state, pgid_age,
                                                          pgid, vid_age,
-                                                         vid))) != VTSS_RC_OK)
+                                                         vid))) != VTSS_RC_OK) {
             return rc;
+        }
 
         /* Age logical port */
         if (port_no != VTSS_PORT_NO_NONE &&
             (rc = VTSS_RC_COLD(vtss_cil_l2_mac_table_age(vtss_state, pgid_age,
                                                          port_no, vid_age,
-                                                         vid))) != VTSS_RC_OK)
+                                                         vid))) != VTSS_RC_OK) {
             return rc;
+        }
     }
     return VTSS_RC_OK;
 }
@@ -1308,8 +1353,9 @@ vtss_rc vtss_mac_table_age(const vtss_inst_t inst)
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 0, 0, 0, 0, 1);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1321,8 +1367,9 @@ vtss_rc vtss_mac_table_vlan_age(const vtss_inst_t inst, const vtss_vid_t vid)
 
     VTSS_D("vid: %u", vid);
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 0, 0, 1, vid, 1);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1334,8 +1381,9 @@ vtss_rc vtss_mac_table_flush(const vtss_inst_t inst)
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 0, 0, 0, 0, 2);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1348,8 +1396,9 @@ vtss_rc vtss_mac_table_port_flush(const vtss_inst_t    inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 1, port_no, 0, 0, 2);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1361,8 +1410,9 @@ vtss_rc vtss_mac_table_vlan_flush(const vtss_inst_t inst, const vtss_vid_t vid)
 
     VTSS_D("vid: %u", vid);
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 0, 0, 1, vid, 2);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1376,8 +1426,9 @@ vtss_rc vtss_mac_table_vlan_port_flush(const vtss_inst_t    inst,
 
     VTSS_D("port_no: %u, vid: %u", port_no, vid);
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_mac_age(vtss_state, 1, port_no, 1, vid, 2);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1402,10 +1453,12 @@ vtss_rc vtss_mac_table_status_get(const vtss_inst_t              inst,
         (rc = vtss_cil_l2_mac_table_status_get(vtss_state, status)) ==
             VTSS_RC_OK) {
         /* Read and clear events */
-        if (vtss_state->l2.mac_status.learned)
+        if (vtss_state->l2.mac_status.learned) {
             status->learned = 1;
-        if (vtss_state->l2.mac_status.aged)
+        }
+        if (vtss_state->l2.mac_status.aged) {
             status->aged = 1;
+        }
         VTSS_MEMSET(&vtss_state->l2.mac_status, 0, sizeof(*status));
     }
     VTSS_EXIT();
@@ -1422,8 +1475,9 @@ vtss_rc vtss_learn_port_mode_get(const vtss_inst_t        inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *mode = vtss_state->l2.learn_mode[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1459,8 +1513,9 @@ vtss_rc vtss_port_state_get(const vtss_inst_t    inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *state = vtss_state->l2.port_state[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1541,8 +1596,9 @@ vtss_rc vtss_stp_port_state_get(const vtss_inst_t       inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *state = vtss_state->l2.stp_state[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1858,8 +1914,9 @@ vtss_rc vtss_vlan_port_conf_get(const vtss_inst_t            inst,
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *conf = vtss_state->l2.vlan_port_conf[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -1894,10 +1951,11 @@ vtss_rc vtss_vlan_port_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] =
                 VTSS_PORT_BF_GET(vtss_state->l2.vlan_table[vid].member,
                                  port_no);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -1920,8 +1978,9 @@ vtss_rc vtss_vlan_port_members_set(const vtss_inst_t inst,
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
             VTSS_PORT_BF_SET(vlan_entry->member, port_no, member[port_no]);
-            if (member[port_no])
+            if (member[port_no]) {
                 vlan_entry->flags |= VLAN_FLAGS_ENABLED;
+            }
         }
         rc = VTSS_RC_COLD(vtss_cmn_vlan_members_set(vtss_state, vid));
     }
@@ -2098,8 +2157,9 @@ vtss_rc vtss_isolated_port_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.isolated_port[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2115,8 +2175,9 @@ vtss_rc vtss_isolated_port_members_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.isolated_port[port_no] = member[port_no];
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_isolated_port_members_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2148,8 +2209,9 @@ vtss_rc vtss_pvlan_port_members_get(const vtss_inst_t     inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         pvlan_entry = &vtss_state->l2.pvlan_table[pvlan_no];
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = pvlan_entry->member[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2169,8 +2231,9 @@ vtss_rc vtss_pvlan_port_members_set(const vtss_inst_t     inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         pvlan_entry = &vtss_state->l2.pvlan_table[pvlan_no];
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             pvlan_entry->member[port_no] = member[port_no];
+        }
         rc = vtss_update_masks(vtss_state, 1, 0, 0);
     }
     VTSS_EXIT();
@@ -2230,8 +2293,9 @@ vtss_rc vtss_dgroup_port_conf_get(const vtss_inst_t              inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *conf = vtss_state->l2.dgroup_port_conf[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2305,10 +2369,11 @@ vtss_rc vtss_aggr_port_members_set(const vtss_inst_t    inst,
         {
             for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
                  port_no++) {
-                if (member[port_no])
+                if (member[port_no]) {
                     vtss_state->l2.port_aggr_no[port_no] = aggr_no;
-                else if (vtss_state->l2.port_aggr_no[port_no] == aggr_no)
+                } else if (vtss_state->l2.port_aggr_no[port_no] == aggr_no) {
                     vtss_state->l2.port_aggr_no[port_no] = VTSS_AGGR_NO_NONE;
+                }
             }
             rc = vtss_update_masks(vtss_state, 1, 1, 1);
         }
@@ -2324,8 +2389,9 @@ vtss_rc vtss_aggr_mode_get(const vtss_inst_t inst, vtss_aggr_mode_t *const mode)
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *mode = vtss_state->l2.aggr_mode;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2433,8 +2499,9 @@ vtss_rc vtss_mirror_ingress_ports_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.mirror_ingress[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2451,8 +2518,9 @@ vtss_rc vtss_mirror_ingress_ports_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.mirror_ingress[port_no] = VTSS_BOOL(member[port_no]);
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_mirror_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2470,8 +2538,9 @@ vtss_rc vtss_mirror_egress_ports_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.mirror_egress[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2488,8 +2557,9 @@ vtss_rc vtss_mirror_egress_ports_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.mirror_egress[port_no] = VTSS_BOOL(member[port_no]);
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_mirror_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2563,8 +2633,9 @@ vtss_rc vtss_eps_port_conf_get(const vtss_inst_t           inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *conf = vtss_state->l2.port_protect[port_no].conf;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2583,8 +2654,9 @@ vtss_rc vtss_eps_port_conf_set(const vtss_inst_t                 inst,
         VTSS_RC_OK) {
         vtss_state->l2.port_protect[port_no].conf = *conf;
         rc = vtss_update_masks(vtss_state, 1, 1, 1);
-        if (rc == VTSS_RC_OK)
+        if (rc == VTSS_RC_OK) {
             rc = VTSS_RC_COLD(vtss_cmn_eps_port_set(vtss_state, port_no));
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2600,8 +2672,9 @@ vtss_rc vtss_eps_port_selector_get(const vtss_inst_t          inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *selector = vtss_state->l2.port_protect[port_no].selector;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2620,8 +2693,9 @@ vtss_rc vtss_eps_port_selector_set(const vtss_inst_t         inst,
         VTSS_RC_OK) {
         vtss_state->l2.port_protect[port_no].selector = selector;
         rc = vtss_update_masks(vtss_state, 1, 0, 1);
-        if (rc == VTSS_RC_OK)
+        if (rc == VTSS_RC_OK) {
             rc = VTSS_RC_COLD(vtss_cmn_eps_port_set(vtss_state, port_no));
+        }
         conf = &vtss_state->l2.port_protect[port_no].conf;
         if (rc == VTSS_RC_OK && conf->type == VTSS_EPS_PORT_1_FOR_1) {
             /* Flush port for 1:1 protection */
@@ -2650,8 +2724,9 @@ vtss_rc vtss_uc_flood_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.uc_flood[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2668,8 +2743,9 @@ vtss_rc vtss_uc_flood_members_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.uc_flood[port_no] = member[port_no];
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_flood_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2687,8 +2763,9 @@ vtss_rc vtss_mc_flood_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.mc_flood[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2705,8 +2782,9 @@ vtss_rc vtss_mc_flood_members_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.mc_flood[port_no] = member[port_no];
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_flood_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2726,8 +2804,9 @@ vtss_rc vtss_ipv4_mc_flood_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.ipv4_mc_flood[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2744,8 +2823,9 @@ vtss_rc vtss_ipv4_mc_flood_members_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.ipv4_mc_flood[port_no] = VTSS_BOOL(member[port_no]);
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_flood_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2841,8 +2921,9 @@ vtss_rc vtss_ipv6_mc_flood_members_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             member[port_no] = vtss_state->l2.ipv6_mc_flood[port_no];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -2859,8 +2940,9 @@ vtss_rc vtss_ipv6_mc_flood_members_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             vtss_state->l2.ipv6_mc_flood[port_no] = VTSS_BOOL(member[port_no]);
+        }
         rc = VTSS_RC_COLD(vtss_cil_l2_flood_conf_set(vtss_state));
     }
     VTSS_EXIT();
@@ -2874,8 +2956,9 @@ vtss_rc vtss_ipv6_mc_ctrl_flood_get(const vtss_inst_t inst, BOOL *const scope)
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *scope = vtss_state->l2.ipv6_mc_scope;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2906,8 +2989,9 @@ vtss_rc vtss_vcl_port_conf_get(const vtss_inst_t           inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *conf = vtss_state->l2.vcl_port_conf[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2981,8 +3065,9 @@ vtss_rc vtss_vce_add(const vtss_inst_t       inst,
            vce_id == VTSS_VCE_ID_LAST ? "(last)" : "");
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_vce_add(vtss_state, vce_id, vce);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -2995,8 +3080,9 @@ vtss_rc vtss_vce_del(const vtss_inst_t inst, const vtss_vce_id_t vce_id)
     VTSS_D("vce_id: %u", vce_id);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_vce_del(vtss_state, vce_id);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -4612,7 +4698,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     vtss_vcap_entry_t *cur;
     vtss_tce_id_t      cur_id;
     vtss_vcap_id_t     id, id_next = VTSS_VCAP_ID_LAST;
-    vtss_port_no_t     port_no;
+    vtss_port_no_t     port_no, port_cnt = vtss_state->port_count;
     BOOL               port_del[VTSS_PORTS];
 #if defined(VTSS_FEATURE_XSTAT)
     vtss_xstat_entry_t *stat = NULL;
@@ -4645,7 +4731,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
 
     /* Check resource consumption */
     vtss_cmn_res_init(&res);
-    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+    for (port_no = 0; port_no < port_cnt; port_no++) {
         port_del[port_no] = 0;
         if (tce->key.port_list[port_no]) {
             res.es0.add++;
@@ -4675,7 +4761,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     }
 
     /* Delete resources */
-    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+    for (port_no = 0; port_no < port_cnt; port_no++) {
         if (port_del[port_no]) {
             id = vtss_tce2id(tce->id, port_no);
             VTSS_RC(vtss_vcap_del(vtss_state, obj, user, id));
@@ -4747,7 +4833,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
         entry.action.rtag.pop = TRUE;
     }
 #endif
-    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+    for (port_no = 0; port_no < port_cnt; port_no++) {
         if (tce->key.port_list[port_no]) {
             entry.key.port_no = port_no;
             es0->port_no = port_no;
@@ -5141,8 +5227,9 @@ vtss_rc vtss_vlan_trans_group_get(const vtss_inst_t                inst,
     VTSS_D("group_id: %u", conf->group_id);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_vlan_trans_group_get(vtss_state, conf, next);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -5157,8 +5244,9 @@ vtss_rc vtss_vlan_trans_group_to_port_set(const vtss_inst_t inst,
     VTSS_D("group_id: %u", conf->group_id);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_vlan_trans_port_conf_set(vtss_state, conf);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -5173,8 +5261,9 @@ vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                inst,
     VTSS_D("group_id: %u", conf->group_id);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_cmn_vlan_trans_port_conf_get(vtss_state, conf, next);
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -5266,8 +5355,9 @@ vtss_rc vtss_auth_port_state_get(const vtss_inst_t        inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *state = vtss_state->l2.auth_state[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -5353,15 +5443,17 @@ static void vtss_mac_entry_add_sync(vtss_state_t     *vtss_state,
     vtss_port_no_t port_no;
 
     /* Skip if already added */
-    if (cur->flags & VTSS_MAC_FLAG_ADDED)
+    if (cur->flags & VTSS_MAC_FLAG_ADDED) {
         return;
+    }
 
     /* Add entry */
     cur->flags |= VTSS_MAC_FLAG_ADDED;
     member = vtss_state->l2.pgid_table[VTSS_PGID_NONE].member;
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++)
+         port_no++) {
         member[port_no] = VTSS_PORT_BF_GET(cur->member, port_no);
+    }
     vtss_mach_macl_set(&vid_mac, cur->mach, cur->macl);
     if (vtss_ipmc_mac(vtss_state, &vid_mac)) {
         rc = VTSS_RC_OK;
@@ -5401,8 +5493,9 @@ static vtss_rc vtss_mac_table_sync(vtss_state_t *vtss_state)
                     break;
                 }
             }
-            if (!found)
+            if (!found) {
                 break;
+            }
         }
 
         vtss_mach_macl_get(&mac_entry.vid_mac, &mach, &macl);
@@ -5534,12 +5627,14 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_VLAN_SVL)
         vlan_entry->fid = vid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
-        if (vid != VTSS_VID_DEFAULT)
+        if (vid != VTSS_VID_DEFAULT) {
             continue;
+        }
         vlan_entry->flags |= VLAN_FLAGS_ENABLED;
         for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END;
-             port_no++)
+             port_no++) {
             VTSS_PORT_BF_SET(vlan_entry->member, port_no, 1);
+        }
     }
 
 #if defined(VTSS_FEATURE_L2_MSTP)
@@ -5721,16 +5816,19 @@ vtss_rc vtss_cmn_vlan_members_get(vtss_state_t    *state,
 #endif /* VTSS_FEATURE_HW_PROT */
 
         protect = &state->l2.port_protect[port_no];
-        if ((port_p = protect->conf.port_no) == VTSS_PORT_NO_NONE)
+        if ((port_p = protect->conf.port_no) == VTSS_PORT_NO_NONE) {
             continue;
+        }
 
         if (protect->conf.type == VTSS_EPS_PORT_1_PLUS_1) {
             /* Port is 1+1 protected, include both ports if one of them is VLAN
              * member */
-            if (member[port_no])
+            if (member[port_no]) {
                 member[port_p] = 1;
-            if (member[port_p])
+            }
+            if (member[port_p]) {
                 member[port_no] = 1;
+            }
         } else if (member[port_no]) {
             /* Port is 1:1 protected and VLAN member */
             if (protect->selector == VTSS_EPS_SELECTOR_WORKING) {
@@ -6821,8 +6919,9 @@ static void vtss_debug_print_xrow(vtss_state_t                  *vtss_state,
         }
         pr("\n");
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 }
 
 static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
@@ -8887,8 +8986,9 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no])
+        if (!info->port_list[port_no]) {
             continue;
+        }
         if (header) {
             header = 0;
             pr("Port  Type  ");
@@ -8913,14 +9013,16 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
                                                         : "untag",
            conf->ingress_filter);
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
     header = 1;
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         entry = &vtss_state->l2.vlan_table[vid];
-        if (!(entry->flags & VLAN_FLAGS_ENABLED) && !info->full)
+        if (!(entry->flags & VLAN_FLAGS_ENABLED) && !info->full) {
             continue;
+        }
         if (header) {
             pr("VID   ");
 #if defined(VTSS_FEATURE_VLAN_SVL)
@@ -8982,8 +9084,9 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
         /* Leave critical region briefly */
         VTSS_EXIT_ENTER();
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vtss_vlan_counters_t counters;
@@ -9011,8 +9114,9 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no])
+        if (!info->port_list[port_no]) {
             continue;
+        }
         if (header) {
             header = 0;
             pr("Port  Isolation\n");
@@ -9020,8 +9124,9 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
         pr("%-6u%s\n", port_no,
            vtss_bool_txt(vtss_state->l2.isolated_port[port_no]));
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 
     vtss_debug_print_port_header(vtss_state, pr, "PVLAN  ", 0, 1);
     {
@@ -9041,8 +9146,9 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
     header = 1;
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no])
+        if (!info->port_list[port_no]) {
             continue;
+        }
         if (header) {
             header = 0;
             vtss_debug_print_port_header(vtss_state, pr, "APVLAN  ", 0, 1);
@@ -9051,8 +9157,9 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
         vtss_debug_print_port_members(vtss_state, pr,
                                       vtss_state->l2.apvlan_table[port_no], 1);
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 }
 
 void vtss_debug_print_mac_entry(const vtss_debug_printf_t pr,
@@ -9162,8 +9269,9 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
         vtss_debug_print_ports(vtss_state, pr, entry->member, 1);
         VTSS_EXIT_ENTER();
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 
     /* MAC address table in chip */
     header = 1;
@@ -9175,8 +9283,9 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
                                    pgid);
         VTSS_EXIT_ENTER();
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 }
 
 static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
@@ -9197,9 +9306,10 @@ static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
         pr("%-4u  ", aggr_no);
         VTSS_PORT_BF_CLR(member);
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++)
+             port_no++) {
             VTSS_PORT_BF_SET(member, port_no,
                              vtss_state->l2.port_aggr_no[port_no] == aggr_no);
+        }
         vtss_debug_print_ports(vtss_state, pr, member, 1);
     }
     pr("\n");
@@ -9294,10 +9404,11 @@ static void vtss_debug_print_port_none(const vtss_debug_printf_t pr,
                                        vtss_port_no_t            port_no)
 {
     pr("%s: ", name);
-    if (port_no == VTSS_PORT_NO_NONE)
+    if (port_no == VTSS_PORT_NO_NONE) {
         pr("None");
-    else
+    } else {
         pr("%u", port_no);
+    }
     pr("\n");
 }
 
@@ -9377,24 +9488,27 @@ static void vtss_debug_print_eps(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        if (!info->port_list[port_no])
+        if (!info->port_list[port_no]) {
             continue;
+        }
         if (header) {
             header = 0;
             pr("Port  Protection  Type  Selector\n");
         }
         eps = &vtss_state->l2.port_protect[port_no];
-        if (eps->conf.port_no == VTSS_PORT_NO_NONE)
+        if (eps->conf.port_no == VTSS_PORT_NO_NONE) {
             VTSS_STRCPY(buf, "None");
-        else
+        } else {
             VTSS_SPRINTF(buf, "%-4u", eps->conf.port_no);
+        }
         pr("%-4u  %-10s  %-4s  %s\n", port_no, buf,
            eps->conf.type == VTSS_EPS_PORT_1_PLUS_1 ? "1+1" : "1:1",
            eps->selector == VTSS_EPS_SELECTOR_WORKING ? "Working"
                                                       : "Protection");
     }
-    if (!header)
+    if (!header) {
         pr("\n");
+    }
 }
 
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
@@ -9670,27 +9784,35 @@ void vtss_l2_debug_print(vtss_state_t                  *vtss_state,
                          const vtss_debug_printf_t      pr,
                          const vtss_debug_info_t *const info)
 {
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VLAN))
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VLAN)) {
         vtss_debug_print_vlan(vtss_state, pr, info);
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PVLAN))
+    }
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PVLAN)) {
         vtss_debug_print_pvlan(vtss_state, pr, info);
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MAC_TABLE))
+    }
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MAC_TABLE)) {
         vtss_debug_print_mac_table(vtss_state, pr, info);
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_AGGR))
+    }
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_AGGR)) {
         vtss_debug_print_aggr(vtss_state, pr, info);
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_STP))
+    }
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_STP)) {
         vtss_debug_print_stp(vtss_state, pr, info);
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MIRROR))
+    }
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MIRROR)) {
         vtss_debug_print_mirror(vtss_state, pr, info);
+    }
 #if defined(VTSS_FEATURE_L2_ERPS)
     if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_ERPS))
         vtss_debug_print_erps(vtss_state, pr, info);
 #endif
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EPS))
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EPS)) {
         vtss_debug_print_eps(vtss_state, pr, info);
+    }
 #if defined(VTSS_FEATURE_VCAP)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VXLAT))
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VXLAT)) {
         vtss_debug_print_vlan_trans(vtss_state, pr, info);
+    }
 #endif
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
     vtss_debug_print_ipmc(vtss_state, pr, info);

@@ -56,8 +56,9 @@ vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
     vtss_init_conf_t *conf = &vtss_state->init_conf;
 
     /* Return if restart has already been updated */
-    if (vtss_state->restart_updated)
+    if (vtss_state->restart_updated) {
         return VTSS_RC_OK;
+    }
     vtss_state->restart_updated = 1;
 
     vtss_state->restart_prev =
@@ -123,8 +124,9 @@ void vtss_cmn_counter_8_update(u8                   value,
         counter->value = 0;
     } else {
         /* Accumulate counter */
-        if (new < counter->prev)
+        if (new < counter->prev) {
             add = (1ULL << 8); /* Wrapped */
+        }
         counter->value += (new + add - counter->prev);
     }
     counter->prev = new;
@@ -150,8 +152,9 @@ void vtss_cmn_counter_16_update(u16                  value,
         counter->value = 0;
     } else {
         /* Accumulate counter */
-        if (new < counter->prev)
+        if (new < counter->prev) {
             add = (1ULL << 16); /* Wrapped */
+        }
         counter->value += (new + add - counter->prev);
     }
     counter->prev = new;
@@ -188,8 +191,9 @@ void vtss_cmn_counter_32_cmd(u32                  value,
         break;
     case VTSS_COUNTER_CMD_UPDATE:
         /* Accumulate counter */
-        if (new < counter->prev)
+        if (new < counter->prev) {
             add = (1ULL << 32); /* Wrapped */
+        }
         counter->value += (new + add - counter->prev);
         break;
     default: break;
@@ -249,8 +253,9 @@ void vtss_cmn_counter_40_update(u32                  lsb,
         counter->value = 0;
     } else {
         /* Accumulate counter */
-        if (new < counter->prev)
+        if (new < counter->prev) {
             add = (1ULL << 40); /* Wrapped */
+        }
         counter->value += (new + add - counter->prev);
     }
     counter->prev = new;
@@ -316,8 +321,9 @@ void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
     int i, len = VTSS_STRLEN(header);
 
     pr("%s\n", header);
-    for (i = 0; i < len; i++)
+    for (i = 0; i < len; i++) {
         pr(layer ? "=" : "-");
+    }
     pr("\n\n");
 }
 
@@ -406,8 +412,9 @@ vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
                                const vtss_debug_printf_t      pr,
                                const vtss_debug_info_t *const info)
 {
-    if (!vtss_debug_group_enabled(pr, info, group))
+    if (!vtss_debug_group_enabled(pr, info, group)) {
         return VTSS_RC_OK;
+    }
 
     return dbg(vtss_state, pr, info);
 }
@@ -450,8 +457,9 @@ static void vtss_debug_print_init(vtss_state_t                  *vtss_state,
                                   const vtss_debug_printf_t      pr,
                                   const vtss_debug_info_t *const info)
 {
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_INIT))
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_INIT)) {
         return;
+    }
 
     pr("Target     : 0x%04X\n", vtss_state->create.target);
     pr("Chip / Rev : 0x%04X / %d\n", vtss_state->misc.chip_id.part_number,
@@ -523,19 +531,23 @@ void vtss_debug_print_port_header(vtss_state_t             *vtss_state,
 {
     u32 i, port;
 
-    if (count == 0)
+    if (count == 0) {
         count = vtss_state->port_count;
-    if (txt != NULL)
+    }
+    if (txt != NULL) {
         pr("%s", txt);
+    }
     for (port = 0; port < count; port++) {
         i = (port & 7);
-        if (i == 0 || i == 7 || (port == (count - 1) && i > 2))
+        if (i == 0 || i == 7 || (port == (count - 1) && i > 2)) {
             pr("%s%u", port != 0 && i == 0 ? "." : "", port);
-        else if (port < 10 || i > 2)
+        } else if (port < 10 || i > 2) {
             pr(" ");
+        }
     }
-    if (nl)
+    if (nl) {
         pr("\n");
+    }
 }
 
 void vtss_debug_print_ports(vtss_state_t             *vtss_state,
@@ -550,8 +562,9 @@ void vtss_debug_print_ports(vtss_state_t             *vtss_state,
         pr("%s%s", port_no == 0 || (port_no & 7) ? "" : ".",
            VTSS_PORT_BF_GET(member, port_no) ? "1" : "0");
     }
-    if (nl)
+    if (nl) {
         pr("\n");
+    }
 }
 
 void vtss_debug_print_port_members(vtss_state_t             *vtss_state,
@@ -564,8 +577,9 @@ void vtss_debug_print_port_members(vtss_state_t             *vtss_state,
 
     VTSS_PORT_BF_CLR(member);
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++)
+         port_no++) {
         VTSS_PORT_BF_SET(member, port_no, port_member[port_no]);
+    }
     vtss_debug_print_ports(vtss_state, pr, member, nl);
 }
 
@@ -619,8 +633,9 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
                                     const vtss_debug_info_t *const info)
 {
     if (info->layer != VTSS_DEBUG_LAYER_ALL &&
-        info->layer != VTSS_DEBUG_LAYER_AIL)
+        info->layer != VTSS_DEBUG_LAYER_AIL) {
         return VTSS_RC_OK;
+    }
 
     vtss_debug_print_header_underlined(pr, "Application Interface Layer", 1);
 
@@ -647,8 +662,9 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
 #endif /* VTSS_FEATURE_QOS */
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EVC))
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EVC)) {
         vtss_qos_debug_print_dlb(vtss_state, pr, info);
+    }
 #endif
 
 #if defined(VTSS_FEATURE_PACKET)
@@ -672,8 +688,9 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_LAYER3)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_L3))
+    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_L3)) {
         vtss_debug_print_l3(vtss_state, pr, info);
+    }
 #endif /* VTSS_FEATURE_LAYER3 */
 
 #if defined(VTSS_FEATURE_AFI_SWC)
@@ -693,13 +710,15 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
     vtss_chip_no_t chip_no;
 
     if (info->layer != VTSS_DEBUG_LAYER_ALL &&
-        info->layer != VTSS_DEBUG_LAYER_CIL)
+        info->layer != VTSS_DEBUG_LAYER_CIL) {
         return VTSS_RC_OK;
+    }
 
     /* Print CIL information for all devices */
     for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
-        if (info->chip_no != VTSS_CHIP_NO_ALL && chip_no != info->chip_no)
+        if (info->chip_no != VTSS_CHIP_NO_ALL && chip_no != info->chip_no) {
             continue;
+        }
         VTSS_SELECT_CHIP(chip_no);
         VTSS_SPRINTF(buf, "Chip Interface Layer[%u]", chip_no);
         vtss_debug_print_header_underlined(pr, buf, 1);

@@ -19,8 +19,9 @@ vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t            inst,
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         *conf = vtss_state->packet.rx_conf;
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -56,8 +57,9 @@ vtss_rc vtss_packet_rx_port_conf_get(const vtss_inst_t                 inst,
     VTSS_D("enter");
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK)
+        VTSS_RC_OK) {
         *conf = vtss_state->packet.rx_port_conf[port_no];
+    }
     VTSS_EXIT();
     return rc;
 }
@@ -147,6 +149,10 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
             (state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER ? 1 : 0);
         VTSS_RC(vtss_cmn_vlan_members_get(state, vid, vlan_member));
     }
+
+    // Ctidy
+    filter[0].filter = VTSS_PACKET_FILTER_DISCARD;
+    filter[0].tpid = 0;
 
     for (port_tx = VTSS_PORT_NO_START; port_tx < state->port_count; port_tx++) {
         /* Discard by default */
@@ -260,8 +266,9 @@ vtss_rc vtss_packet_frame_filter(const vtss_inst_t                     inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_packet_filter(vtss_state, info, filter);
+    }
     return rc;
 }
 
@@ -287,8 +294,9 @@ vtss_rc vtss_packet_port_filter_get(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK)
+    if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = vtss_packet_port_filter(vtss_state, info, filter, 1);
+    }
     return rc;
 }
 
@@ -743,8 +751,9 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     char                   buf[16];
     vtss_packet_rx_conf_t *conf = &vtss_state->packet.rx_conf;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PACKET))
+    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PACKET)) {
         return;
+    }
 
     vtss_debug_print_header(pr, "Registrations");
     {
@@ -754,8 +763,9 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
-            if (!info->port_list[port_no])
+            if (!info->port_list[port_no]) {
                 continue;
+            }
             if (header) {
                 header = 0;
                 pr("Port  BPDU              GARP              ");
@@ -779,8 +789,9 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_OCELOT */
             pr("\n");
         }
-        if (!header)
+        if (!header) {
             pr("\n");
+        }
     }
 
     vtss_debug_print_value(pr, "BPDU", conf->reg.bpdu_cpu_only);

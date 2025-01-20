@@ -60,7 +60,7 @@ static void printf_trace_head(const char              *mname,
                               const char              *lcont)
 {
     struct timeval tv;
-    int            h, m, s;
+    int            h, m, s, u;
     const char    *p, *base_name = file;
 
     for (p = file; *p != 0; p++) {
@@ -73,7 +73,8 @@ static void printf_trace_head(const char              *mname,
     h = (tv.tv_sec / 3600 % 24);
     m = (tv.tv_sec / 60 % 60);
     s = (tv.tv_sec % 60);
-    printf("%u:%02u:%02u:%05lu %s/%s/%s %s(%u) %s%s", h, m, s, tv.tv_usec,
+    u = tv.tv_usec;
+    printf("%u:%02u:%02u:%05u %s/%s/%s %s(%u) %s%s", h, m, s, u,
            mname, gname,
            level == MESA_TRACE_LEVEL_ERROR   ? "error"
            : level == MESA_TRACE_LEVEL_INFO  ? "info"

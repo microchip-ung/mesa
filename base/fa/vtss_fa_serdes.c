@@ -2243,8 +2243,9 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             eye_height =
                 fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-            if (pr)
+            if (pr) {
                 pr("cfg_eq_res:%d eye_height:%d\n", cfg_eq_res, eye_height);
+            }
 #endif
             eye_arr[cfg_eq_res] = eye_height;
             reg_val[cfg_eq_res] = cfg_eq_res;
@@ -2255,8 +2256,9 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
                 VTSS_F_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(reg_val[indx]),
                 VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr)
+        if (pr) {
             pr("Using cfg_eq_res:%d \n", reg_val[indx]);
+        }
 
 #endif
     } else if (type == FA_SERDES_TYPE_25G) {
@@ -2272,9 +2274,10 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             eye_height =
                 fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-            if (pr)
+            if (pr) {
                 pr("ln_cfg_vga_ctrl:%d eye_height:%d\n", ln_cfg_vga_ctrl,
                    eye_height);
+            }
 #endif
             eye_arr[ln_cfg_vga_ctrl] = eye_height;
             reg_val[ln_cfg_vga_ctrl] = ln_cfg_vga_ctrl;
@@ -2287,8 +2290,9 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             VTSS_M_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0);
 
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr)
+        if (pr) {
             pr("Using ln_cfg_vga_ctrl:%d \n", reg_val[indx]);
+        }
 #endif
 #endif
     } else {
@@ -2319,12 +2323,13 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr)
+    if (pr) {
         pr("Adjust %s EQR, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
                                        : "25G",
            cfg_vga_ctrl);
+    }
 #endif
     while (cfg_vga_ctrl <= CTLE_PRM_RANGE) {
         if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
@@ -2342,8 +2347,9 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr)
+        if (pr) {
             pr("eqr_val:%d eye_height:%d\n", cfg_vga_ctrl, eye_height);
+        }
 #endif
 
         eye_arr[cfg_vga_ctrl] = eye_height;
@@ -2364,8 +2370,9 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr)
+    if (pr) {
         pr("Using eqr_ctrl:%d \n", reg_val[indx]);
+    }
 #endif
 
     return VTSS_RC_OK;
@@ -2392,12 +2399,13 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr)
+    if (pr) {
         pr("Adjust %s EQC, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
                                        : "25G",
            cfg_eqc_force);
+    }
 #endif
 
     while (cfg_eqc_force <= CTLE_PRM_RANGE) {
@@ -2416,8 +2424,9 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr)
+        if (pr) {
             pr("cfg_eqc_force:%d eye_height:%d\n", cfg_eqc_force, eye_height);
+        }
 #endif
         eye_arr[cfg_eqc_force] = eye_height;
         reg_val[cfg_eqc_force] = cfg_eqc_force;
@@ -2437,8 +2446,9 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr)
+    if (pr) {
         pr("Using cfg_eqc_force:%d \n", reg_val[indx]);
+    }
 #endif
     return VTSS_RC_OK;
 }
@@ -4215,7 +4225,7 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
     vtss_rc           rc = VTSS_RC_OK;
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     u32               value;
-    u16               tap_dly, tap_adv, ampl;
+    u16               tap_dly = 0, tap_adv = 0, ampl = 0;
 
     if (vtss_state->init_conf.serdes_tap_get == NULL) {
         return VTSS_RC_OK; // Not available

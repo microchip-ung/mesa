@@ -338,10 +338,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         VTSS_D("Mode is SGMII/1G LAN");
         break;
     }
-    case VTSS_SD25G28_MODE_FX100: {
-        // TODO
-        break;
-    }
+    case VTSS_SD25G28_MODE_FX100:
     default: {
         VTSS_E(
             "vtss_sd25g28_get_conf_from_mode: invalid parameter value for f_mode\n");
@@ -398,8 +395,6 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
     vtss_sd25g28_mode_args_t     sd25g28_mode;
     vtss_sd25g28_mode_args_t    *mode_args = &sd25g28_mode;
     vtss_sd25g28_preset_struct_t preset;
-
-    rslt = VTSS_RC_OK;
 
     rslt = vtss_sd25g28_get_conf_from_mode(config.mode, mode_args);
 

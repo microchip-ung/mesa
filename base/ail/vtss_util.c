@@ -34,10 +34,11 @@ void vtss_bs_bit_set(void *vptr, u32 offset, u8 value)
     int boff = BYTE_OFFSET(offset);
     u8 *cptr = vptr;
     u8  mask = VTSS_BIT(offset % BPC);
-    if (value)
+    if (value) {
         cptr[boff] |= mask;
-    else
+    } else {
         cptr[boff] &= ~mask;
+    }
 }
 
 /*
@@ -79,8 +80,9 @@ u32 vtss_bs_get(const void *vptr, u32 offset, u32 len)
     while (len > 0) {
         /* Work bit by bit */
         value <<= 1;
-        if (vtss_bs_bit_get(cptr, --offset))
+        if (vtss_bs_bit_get(cptr, --offset)) {
             value++;
+        }
         len--;
     }
     return value;

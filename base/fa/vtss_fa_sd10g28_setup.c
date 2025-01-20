@@ -596,10 +596,8 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t *vtss_state,
         indx = vtss_fa_port2sd_indx(vtss_state, p);
 
         if (res_struct->is_6g[0] == 1) {
-            sd_tgt = VTSS_TO_SD6G_LANE(indx);
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
-            sd_tgt = VTSS_TO_SD10G_LANE(indx);
             sd_lane_tgt = VTSS_TO_SD_LANE(indx + RT_SERDES_10G_START);
         }
 
