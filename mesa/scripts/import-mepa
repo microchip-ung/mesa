@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'open3'
+require 'thread'
+require 'optparse'
+require 'fileutils'
+
+$opt = { }
+OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0}"
+
+    opts.on("-s", "--sha SHA", "SHA To import") do |s|
+        $opt[:sha] = s
+    end
+
+    opts.on("-r", "--ref PATH", "Reference") do |o|
+        $opt[:ref] = o
+    end
+end.parse!
+
+$opt[:url] = "ssh://git@bitbucket.microchip.com/unge/sw-mepa.git"
+$opt[:out] = "mepa_tmp"
+
+if $opt[:sha].nil?
+  puts "--sha parameter missing"
+  exit -1
+end
+
+def run cmd
+  out = %x{#{cmd}}
+  if $?.to_i != 0
+      raise "Cmd failed: #{out}"
+  end
+  return out
+end
+
+$top = File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))
+Dir.chdir($top)
+
+%x{git diff-index --quiet HEAD}
+if $?.to_i != 0
+  puts "Uncomitted changes detected. Please commit everything before running this script"
+  exit -1
+end
+
+status = run("git status --porcelain=v1").split("\n")
+
+status.each do |l|
+  if l =~ /\?\? (.*)/
+    if $1.size >= $opt[:out].size
+      if $1[0..$opt[:out].size-1] == $opt[:out]
+        puts "Output (#{$opt[:out]}) folder already present, and it is not under git control"
+        exit -1
+      end
+    end
+  end
+end
+
+run "rm -rf mepa"
+run "rm -rf #{$opt[:out]}"
+ref = ""
+if $opt[:ref]
+  ref = " --reference #{$opt[:ref]}"
+end
+
+run "git clone #{ref} #{$opt[:url]} #{$opt[:out]}"
+run "cd #{$opt[:out]}; git reset --hard #{$opt[:sha]}; rm -rf .git; mv mepa ../mepa; cd ..; rm -rf #{$opt[:out]}"
+
+run "git add mepa"
+run "git commit -m \"IMPORT: mepa #{$opt[:sha]}\n\nFrom URL: #{$opt[:url]}\""
+
+puts ""
+puts "Done:"
+puts run "git log HEAD~1..HEAD"
