@@ -5035,10 +5035,10 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         shape_act, leak_act, wred_act, tag_remark_act, tas_act, tas_state_act,
         tas_count_act, print_queue_act;
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    BOOL ingr_mapping_act;
+    BOOL ingr_mapping_act = FALSE;
 #endif
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-    BOOL egr_mapping_act;
+    BOOL egr_mapping_act = FALSE;
 #endif
 
     VTSS_D("has_action %u  action %u", info->has_action, info->action);

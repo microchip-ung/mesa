@@ -450,7 +450,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_MISC_CHIP_FAMILY: c = MESA_CHIP_FAMILY_UNKNOWN;
+    case MESA_CAP_MISC_CHIP_FAMILY:
 #if defined(VTSS_ARCH_LUTON26)
         c = MESA_CHIP_FAMILY_CARACAL;
 #elif defined(VTSS_ARCH_OCELOT)
@@ -465,6 +465,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = MESA_CHIP_FAMILY_LAN966X;
 #elif defined(VTSS_ARCH_LAN969X)
         c = MESA_CHIP_FAMILY_LAN969X;
+#else
+        c = MESA_CHIP_FAMILY_UNKNOWN;
 #endif
         break;
 
@@ -490,26 +492,22 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
-    case MESA_CAP_MISC_SWITCH_BW: c = MESA_SWITCH_BW_UNKNOWN;
+    case MESA_CAP_MISC_SWITCH_BW:
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7546TSN)
         c = MESA_SWITCH_BW_64;
-#endif
-#if defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7549TSN)
+#elif defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7549TSN)
         c = MESA_SWITCH_BW_90;
-#endif
-#if defined(VTSS_CHIP_7552) || defined(VTSS_CHIP_7552TSN)
+#elif defined(VTSS_CHIP_7552) || defined(VTSS_CHIP_7552TSN)
         c = MESA_SWITCH_BW_128;
-#endif
-#if defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7556TSN)
+#elif defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7556TSN)
         c = MESA_SWITCH_BW_160;
-#endif
-#if defined(VTSS_CHIP_7558) || defined(VTSS_CHIP_7558TSN)
+#elif defined(VTSS_CHIP_7558) || defined(VTSS_CHIP_7558TSN)
         c = MESA_SWITCH_BW_200;
-#endif
-#if defined(VTSS_CHIP_969X)
+#elif defined(VTSS_CHIP_969X)
         c = MESA_SWITCH_BW_90; // TBD
+#else
+        c = MESA_SWITCH_BW_UNKNOWN;
 #endif
-
         break;
 
     // Packet
