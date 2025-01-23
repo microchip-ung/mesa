@@ -1,7 +1,7 @@
 # Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 project(vtss_api)
 
