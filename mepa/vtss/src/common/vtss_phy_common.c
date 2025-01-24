@@ -1020,8 +1020,10 @@ vtss_rc csr_wr(vtss_state_t *vtss_state, vtss_port_no_t port_no, u16 mmd, BOOL i
                     else
                         port = (mmd == 0x1e) ? PHY_BASE_PORT(port_no) : port_no;
                     VTSS_RC(vtss_state->init_conf.spi_32bit_read_write(vtss_state, port, 0, (u8)mmd, (u16)addr, &value));
+                    return VTSS_RC_OK;
                 } else {
                     VTSS_RC(vtss_phy_10g_spi_read_write(vtss_state, port_no, 0, (u8)mmd, (u16)addr, &value));
+                    return VTSS_RC_OK;
                 }
             }
             VTSS_N("SPI 10G WR port %u is_32_bit %s : reg %0xX%0x = 0x%0x", port_no, is32 ? "TRUE" : "FALSE", mmd, addr, value);
@@ -1859,12 +1861,13 @@ vtss_rc vtss_phy_callout_set(const vtss_inst_t        inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        if (vtss_state->callout_ctx[port_no] || vtss_state->callout[port_no]) {
-            rc = VTSS_RC_ERROR;
-        } else {
+        if (!(vtss_state->callout_ctx[port_no] && vtss_state->callout[port_no])) {
             vtss_state->callout[port_no] = co;
             vtss_state->callout_ctx[port_no] = c;
+        } else {
+            rc = VTSS_RC_ERROR;
         }
+
     }
     VTSS_EXIT();
 

@@ -10,6 +10,14 @@
 #define T_E(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
 
 #define PHY_FAMILIES 16
+
+#define MEPA_GLOBAL_REG_DEV_ID 0x1E /* MMD ID of GLOBAL Registers */
+#define MEPA_REG_DEV_ID_1      0x1  /* MMD ID 1 */
+#define MEPA_REG_ADDR_0        0    /* Register Address 0x0 */
+#define MEPA_REG_ADDR_5        5    /* Register Address 0x5 */
+#define MEPA_REG_ADDR_2        2    /* Register Address 0x2 */
+#define MEPA_REG_ADDR_3        3    /* Register Address 0x3 */
+
 static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
 mepa_trace_func_t MEPA_TRACE_FUNCTION = 0;
@@ -38,7 +46,8 @@ void MEPA_trace(mepa_trace_group_t  group,
 }
 
 uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx)
+                         struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
+                         uint32_t       port_no)
 {
     uint32_t i;
     uint32_t phy_id = 0;
@@ -54,12 +63,16 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 
     // TODO, this check would be more robust if we combine it with the values of
     // mmd=1 reg 2 and reg3 (on venice this is 0x0007 0x0400)
-    if (callout->mmd_read) {
-        callout->mmd_read(callout_ctx, 30, 0, &reg3);
-        for (i = 0; i < sizeof(special) / sizeof(special[0]); i++) {
-            if (reg3 == special[i]) {
-                return reg3;
-            }
+
+    if (callout->spi_read) {
+        callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, (uint32_t*)&reg3);
+    } else if (callout->mmd_read) {
+        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, &reg3);
+    }
+
+    for (i = 0; i < sizeof(special) / sizeof(special[0]); i++) {
+        if (reg3 == special[i]) {
+            return reg3;
         }
     }
 
@@ -67,16 +80,15 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     reg3 = 0;
 
     if (callout->miim_read) {
-        callout->miim_read(callout_ctx, 2, &reg2);
-        callout->miim_read(callout_ctx, 3, &reg3);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_2, &reg2);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_3, &reg3);
     }
 
     // Maybe it is a PHY responding to MMD and not MIIM
     if (callout->mmd_read && reg2 == 0 && reg3 == 0) {
-        callout->mmd_read(callout_ctx, 0x1, 0x2, &reg2);
-        callout->mmd_read(callout_ctx, 0x1, 0x3, &reg3);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_2, &reg2);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_3, &reg3);
     }
-
     phy_id = ((uint32_t)reg2) << 16 | reg3;
 
     return phy_id;
@@ -230,7 +242,7 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
     if (conf->dummy_phy_cap > 0) {
         phy_id = 0xdeadbeef;
     } else {
-        phy_id = mepa_phy_id_get(callout, callout_ctx);
+        phy_id = mepa_phy_id_get(callout, callout_ctx, conf->numeric_handle);
     }
 
     //if (phy_id != conf->id) {
@@ -1184,6 +1196,19 @@ mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
     return dev->drv->mepa_ts->mepa_ts_test_config(dev, test_id, reg_dump);
 }
 
+mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev, mepa_pch_mch_mismatch_info_t *const info)
+{
+    if (!dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_ts->mepa_ts_pch_mch_error_info_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_pch_mch_error_info_get(dev, info);
+}
+
 mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
                              const mepa_debug_print_t pr,
                              const mepa_debug_info_t   *const info)
@@ -1204,7 +1229,7 @@ mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value)
     return dev->drv->mepa_driver_sqi_read(dev, value);
 }
 
-mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, mepa_start_of_frame_conf_t *const conf)
+mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, const mepa_start_of_frame_conf_t *const conf)
 {
     if (!dev->drv->mepa_driver_start_of_frame_conf_set) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -1220,6 +1245,15 @@ mepa_rc mepa_start_of_frame_conf_get(struct mepa_device *dev, mepa_start_of_fram
     }
 
     return dev->drv->mepa_driver_start_of_frame_conf_get(dev, rd_val);
+}
+
+mepa_rc mepa_framepreempt_set(struct mepa_device *dev, const mepa_bool_t value)
+{
+    if (!dev->drv->mepa_driver_framepreempt_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_framepreempt_set(dev, value);
 }
 
 mepa_rc mepa_framepreempt_get(struct mepa_device *dev, mepa_bool_t *const value)

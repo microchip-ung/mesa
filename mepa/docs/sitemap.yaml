@@ -3,7 +3,7 @@
 
 ---
 conf:
-    rel_name: "MEPA-2023.03"
+    rel_name: "MEPA-2024.12"
 
 pages:
     - name: "README"
@@ -23,7 +23,10 @@ pages:
           src:  "mepa/docs/release-notes/mepa-2023.03.adoc"
         - name: "MEPA-2023.09"
           src:  "mepa/docs/release-notes/mepa-2023.09.adoc"
-
+        - name: "MEPA-2024.09"
+          src:  "mepa/docs/release-notes/mepa-2024.09.adoc"
+        - name: "MEPA-2024.12"
+          src:  "mepa/docs/release-notes/mepa-2024.12.adoc"
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"
@@ -34,6 +37,7 @@ pages:
     - name: "Functional descriptions"
       pages:
         - src: "mepa/docs/mepa_instantiation.adoc"
+        - src: "mepa/docs/linkup_config.adoc"
         - src: "mepa/docs/basic.adoc"
         - src: "mepa/docs/diag.adoc"
         - src: "mepa/docs/events.adoc"
@@ -41,7 +45,11 @@ pages:
         - src: "mepa/docs/macsec.adoc"
         - src: "mepa/docs/warm-restart-phy.adoc"
         - src: "mepa/docs/eee.adoc"
-        - src: "mepa/docs/phy-reset-considerations.adoc"
+
+    - name: "PHY-Specific Functional Descriptions"
+      pages:
+        - name: "LAN8814"
+          src:  "mepa/docs/lan8814-chip-specific.adoc"
 
     - name: "MEPA API Reference"
       pages:
@@ -51,6 +59,10 @@ pages:
         - src:  "mepa/include/microchip/ethernet/phy/api/types.h"
         - src:  "mepa/include/microchip/ethernet/phy/api/phy.h"
         - src:  "mepa/include/microchip/ethernet/phy/api.h"
+
+    - name: "PHY-Specific API Reference"
+      pages:
+        - src:  "mepa/microchip/lan8814/include/microchip/lan8814_cs.h"
 
     - name: "Licenses"
       src:  "mepa/docs/licenses.adoc"

@@ -87,7 +87,7 @@ typedef struct {
                                    vtss_port_no_t port_no);
     vtss_rc (* phy_10g_pkt_gen_conf)(struct vtss_state_s *vtss_state,
                                             const vtss_port_no_t        port_no,
-                                            vtss_phy_10g_pkt_gen_conf_t *const conf);
+                                            const vtss_phy_10g_pkt_gen_conf_t *const conf);
     vtss_rc (* phy_10g_pkt_mon_conf)(struct vtss_state_s *vtss_state,
                                             const vtss_port_no_t        port_no,
                                             vtss_phy_10g_pkt_mon_conf_t *const conf);
@@ -198,7 +198,7 @@ typedef struct {
 
     vtss_rc (* malibu_phy_10g_pkt_gen_conf)(struct vtss_state_s *vtss_state,
                                             const vtss_port_no_t        port_no,
-                                            vtss_phy_10g_pkt_gen_conf_t *const conf);
+                                            const vtss_phy_10g_pkt_gen_conf_t *const conf);
     vtss_rc (* malibu_phy_10g_pkt_mon_conf)(struct vtss_state_s *vtss_state,
                                             const vtss_port_no_t        port_no,
                                             vtss_phy_10g_pkt_mon_conf_t *const conf);

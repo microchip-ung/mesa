@@ -11490,6 +11490,7 @@ static vtss_rc malibu_phy_10g_mode_conf_set(vtss_state_t *vtss_state,
         mode->rate = VTSS_RPTR_RATE_10_3125;
     }
     VTSS_I("phy_10g_mode_conf_set - %u\n",port_no);
+    vtss_state->phy_10g_state[port_no].mode.channel_id = vtss_state->phy_10g_state[port_no].channel_id;
     if (vtss_state->phy_10g_state[port_no].family != VTSS_PHY_FAMILY_MALIBU) {
         VTSS_E("phy_10g_mode_conf_set- chip %x is not of MALIBU family\n",(vtss_state->phy_10g_state[port_no].type));
         return VTSS_RC_ERROR;
@@ -11536,6 +11537,7 @@ static vtss_rc malibu_phy_10g_mode_conf_set(vtss_state_t *vtss_state,
                 VTSS_ENCODE_BITMASK(4,4));
         VTSS_I(" NON-Repeater mode being configured ");
     }
+    CSR_WARM_WRM(port_no, VTSS_GLOBAL_SPI_CTRL_SPI_CTRL, 1, 0x1);
     if (malibu_rev_a(vtss_state, port_no)) {
 
         //Setting SYNTH_FREQ_MULT_BYP to 0 as the Pre-recorded settings do not use this configuration and it causes port-up issue (Only required for Malibu Rev-A
@@ -14600,6 +14602,10 @@ static void vtss_phy_malibu_register_dump( struct vtss_state_s *vtss_state,
     pr("\n\n\t:-:-:-:  EXP_CFG  :-:-:-:");
     PHY_MALIBU_DISP_REG(port_no, EXP_CFG, &val, l);
     pr("\n");
+
+    pr("\n\n\t:-:-:-:  MACSEC  :-:-:-:");
+    vtss_macsec_dbg_reg_dump(vtss_state, port_no, pr);
+
 }
 static void prnt_reg(char *reg_name,u32 value,const vtss_debug_printf_t pr) {
     int tcount = 0;
@@ -16442,7 +16448,7 @@ static vtss_rc malibu_phy_10g_prbs_mon_status_get(struct vtss_state_s *vtss_stat
 
 static vtss_rc malibu_phy_10g_pkt_gen_conf(struct vtss_state_s *vtss_state,
         const vtss_port_no_t        port_no,
-        vtss_phy_10g_pkt_gen_conf_t *const conf) 
+        const vtss_phy_10g_pkt_gen_conf_t *const conf)
 {
     u16 tmac = 0;
     u16 ts = 0;
@@ -16463,7 +16469,7 @@ static vtss_rc malibu_phy_10g_pkt_gen_conf(struct vtss_state_s *vtss_state,
                      VTSS_F_FIFO_BIST_Datapath_Control_Datapath_Control_EGR_XGMII_PG_SEL,
                      conf->ingress == TRUE ? VTSS_F_FIFO_BIST_Datapath_Control_Datapath_Control_IGR_XGMII_PG_SEL :
                      VTSS_F_FIFO_BIST_Datapath_Control_Datapath_Control_EGR_XGMII_PG_SEL);
-        if (conf->frames == TRUE ) {
+        if (conf->frames == TRUE) {
             if (conf->frame_single != TRUE) {
                 CSR_WARM_WRM(port_no,VTSS_FIFO_BIST_GEN_CFG_GEN_CFG,
                              0,

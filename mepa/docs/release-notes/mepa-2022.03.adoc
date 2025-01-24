@@ -30,9 +30,9 @@ This release contains following contents:
 
 ==== LAN8814
 
-* MEPA-97     Indy P4 Features: PHY Registers dump
-* MEPA-105    Indy P4 Features: TS Registers dump
-* MEPA-127    Indy P4 Features: In-band time stamping
+* MEPA-97     LAN8814 P4 Features: PHY Registers dump
+* MEPA-105    LAN8814 P4 Features: TS Registers dump
+* MEPA-127    LAN8814 P4 Features: In-band time stamping
 
 
 === Documentation updates
@@ -44,5 +44,5 @@ This release contains following contents:
 === Bug Fixes
 
 * MEPA-115    Cable Diagnostics for LAN8814
-* MEPA-113    Indy(lan8814) phy issue when there is forced speed/duplex configuration
+* MEPA-113    LAN8814(lan8814) phy issue when there is forced speed/duplex configuration
 * MEPA-114    configuring admin.enable = FALSE in mepa_driver_conf_set causes VSC8574 PHY config to be cleared as seen with mepa_driver_conf_get

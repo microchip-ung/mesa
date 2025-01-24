@@ -10,7 +10,7 @@ it.
 
 == Pre-requests and preparations
 
-In order to follow this getting started guide, a version of the MESA package
+In order to follow this getting started guide, a version of the MEPA package
 and a PHY is needed.
 
 To build and load the MEPA library a Linux development machine with root access
@@ -26,15 +26,96 @@ to another. Here are the instructions on how to do this on Ubuntu 18:
 sudo apt-get install cmake cmake-curses-gui build-essential ruby
 ----
 
+Next we need a folder called `mscc` in `/opt` where the toolchains
+and BSP will be installed as explained later in the guide.
+
+----
+sudo mkdir -p /opt/mscc
+----
+
 == Extracting the sources
 
-The first step is to extract the MESA package:
+The first step is to extract the MEPA package:
 
 ----
-$ tar xf mesa-<version>.tar.gz
-$ cd mesa-<version>
+$ tar xf mepa-<version>.tar.gz
+$ cd mepa-<version>
 ----
-Note: MEPA related source is present in mesa-<version>/mepa.
+
+Note: MEPA related source is present in mepa-<version>/mepa.
+
+== Create a CMake project (and download BSP and toolchain)
+
+To build the sources a CMake project is needed. The easiest way to create a
+CMake project is to use the `./.cmake/create_cmake_project.rb` script:
+
+----
+$ ./.cmake/create_cmake_project.rb
+Usage: create_cmake_project <preset name> [output-folder]
+
+Valid presets:
+    mipsel
+    mipsel-debug
+    arm64
+    arm64-debug
+    arm64-asan
+    arm
+    arm-debug
+    x86
+----
+
+Lets prepare a project for arm64 based targets:
+
+----
+
+./.cmake/create_cmake_project.rb arm64
+----
+
+Once the script is run the appropriate released package will be extracted in /opt/mscc/ folder.
+The BSP source package will be also be installed automatically if not availbale in /opt/mscc/.
+
+----
+
+Removing old code base...
+sh -c "rm -r sw-mesa"
+Fetching latest copy...
+sudo /usr/local/bin/mscc-install-pkg -t mesa/v2024.03-SOAK-8-g314df891d@2024.03-soak mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak
+mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak seems to be installed already.
+mkdir -p sw-mesa && cp -r /opt/mscc/mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak/* sw-mesa
+sudo /usr/local/bin/mscc-install-pkg -t brsdk/2023.02.8-1052-brsdk mscc-brsdk-arm64-2023.02.8-1052;
+/opt/mscc/.mscc-install-pkg-tmp
+wget -q -O - http://herent-sw-pkg.microsemi.net/jenkins/brsdk/2023.02.8-1052-brsdk/mscc-brsdk-arm64-2023.02.8-1052.tar.gz | tar -C /opt/mscc/.mscc-install-pkg-tmp -xzf -
+Package mscc-brsdk-arm64-2023.02.8-1052 installed
+mkdir -p build-arm64
+ln -s /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/cmake cmake
+./cmake -DCMAKE_TOOLCHAIN_FILE=/opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release ..
+-- The C compiler identification is GNU 10.4.0
+-- The CXX compiler identification is GNU 10.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Project name          = vtss_api
+--   Type                = Release
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -Wall -Wno-array-bounds -Wno-stringop-overflow -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
+--   EXE_LINKER_FLAGS    =
+--   shared_linker_flags =
+-- Build mepa including
+-- Looking for include file endian.h
+-- Looking for include file endian.h - found
+-- Looking for include file asm/byteorder.h
+-- Looking for include file asm/byteorder.h - found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/administrator/sw-mepa/build-arm64
+
+----
 
 == Selecting the Target and Building the SW
 
@@ -42,28 +123,19 @@ MEPA package supports cmake build infrastructure. Project configuration settings
 may be specified interactively through the ccmake GUI.
 
 The CMake project allows you to select what targets to build. By default, BUILD_mepa
-(mepa common) and MEPA_vtss_opt_1g are selected. Other targets should be selected as per
-requirement.
+(mepa common) is selected. Other targets should be selected as per requirement.
 
-Sample run of LAN8814(Indy) library:
-
-----
-cd mepa
-mkdir build
-----
-
-Run cmake:
+Sample run of LAN8814 library:
 
 ----
-cmake ..
+cd build-arm64
 ----
 
 Run ccmake:
 
 ----
-ccmake .
+ccmake ..
 ----
-
 Select MEPA_lan8814 target from ccmake GUI as below:
 
 ----
@@ -76,12 +148,10 @@ MEPA_ksz9031                     OFF
 MEPA_lan8814                     ON
 MEPA_vtss                        OFF
 MEPA_vtss_opt_10g                OFF
-MEPA_vtss_opt_1g                 ON
+MEPA_vtss_opt_1g                 OFF
 MEPA_vtss_opt_cnt                64
 MEPA_vtss_opt_macsec             OFF
 MEPA_vtss_opt_ts                 OFF
-
-
 
 
 
@@ -93,6 +163,9 @@ Press [t] to toggle advanced mode (Currently Off)
 ----
 
 Note:: To list of all targets available, use option 't' in the GUI:
+
+After enabling the necessary targets Press [c] to configure the targets.
+After configuration is complete Press [g] to generate Makefile with enabled targets.
 
 Run make:
 

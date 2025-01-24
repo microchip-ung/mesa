@@ -159,10 +159,11 @@ with `0b10`.
 
 If the PHY is connected to a MAC which generates frames with `ExtType == 0b10`
 and signales timestamp request in extension bit 31, then
-`mepa_reset_param_t::framepreempt_en` shall be set to true when calling
-`mepa_reset()`.
+Frame Preemption on the PHY can be Enabled through API `mepa_framepreempt_set()`.
+The API's Boolean Argument `value` enables or disables frame preemption on a specified PHY port.
 
-The configured value can be read back using `mepa_framepreempt_get()`.
+The API `mepa_framepreempt_get()` determines the status of frame preemption on a port,
+indicating whether Frame Preemption is enabled or disabled.
 
 == PHY Self-Test Frame Generation and Checking
 The API `mepa_selftest_start()` is used to start PHY self-test Frame generation in connector loopback mode.
@@ -205,6 +206,7 @@ NOTE: PRBS CHECK DOES NOT RESTORE QSGMII SETTINGS AFTER OPERATION SO A CHIP RESE
 `mepa_sqi_read()` +
 `mepa_start_of_frame_conf_set()` +
 `mepa_start_of_frame_conf_get()` +
+`mepa_framepreempt_set()` +
 `mepa_framepreempt_get()` +
 `mepa_selftest_start()` +
 `mepa_selftest_read()` +

@@ -104,6 +104,7 @@ typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_ctx         *ctx,
  * \brief SPI  read function
  *
  * \param ctx   [IN]  Pointer to a callout structure
+ * \param port_no [IN]  Port Number
  * \param mmd   [IN]  MMD register.
  * \param addr  [IN]  Start register address (0-65535).
  * \param value [OUT] Pointer to a value.
@@ -113,25 +114,28 @@ typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_ctx         *ctx,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_spi_read_t)(struct mepa_callout_ctx          *ctx,
-                                   const uint8_t                     mmd,
-                                   const uint16_t                    addr,
-                                   uint32_t                         *const value);
+                                 mepa_port_no_t                   port_no,
+                                 const uint8_t                     mmd,
+                                 const uint16_t                    addr,
+                                 uint32_t                         *const value);
 
 /**
  * \brief SPI  64bit read function
  *
- * \param ctx   [IN]  Pointer to a callout structure
- * \param mmd   [IN]  MMD register.
- * \param addr  [IN]  Start register address (0-65535).
- * \param value [OUT] Pointer to a value (64bit).
+ * \param ctx     [IN]  Pointer to a callout structure
+ * \param port_no [IN]  Port Number
+ * \param mmd     [IN]  MMD register.
+ * \param addr    [IN]  Start register address (0-65535).
+ * \param value   [OUT] Pointer to a value (64bit).
  *
  * \return
  *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_spi_read_64bit_t)(struct mepa_callout_ctx          *ctx,
-                                         const uint8_t                     mmd,
-                                         const uint16_t                    addr,
+                                         mepa_port_no_t                   port_no,
+                                         const uint8_t                    mmd,
+                                         const uint16_t                   addr,
                                          uint64_t                         *const value);
 
 
@@ -148,15 +152,17 @@ typedef mepa_rc (*mepa_spi_read_64bit_t)(struct mepa_callout_ctx          *ctx,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_spi_write_t)(struct mepa_callout_ctx          *ctx,
+                                    mepa_port_no_t                   port_no,
                                     const uint8_t                     mmd,
                                     const uint16_t                    addr,
-                                    const uint32_t                    value);
+                                    uint32_t                    *const value);
 
 
 /**
  * \brief SPI  64bit write function
  *
  * \param ctx   [IN]  Pointer to a callout structure
+ * \param port_no [IN]  Port Number
  * \param mmd   [IN]  MMD register.
  * \param addr  [IN]  Start register address (0-65535).
  * \param value [OUT] Pointer to a value.(64bit).
@@ -165,10 +171,11 @@ typedef mepa_rc (*mepa_spi_write_t)(struct mepa_callout_ctx          *ctx,
  *   MEPA_RC_NOT_IMPLEMENTED when not supported.\n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_spi_write_64bit_t)(struct mepa_callout_ctx          *ctx,
-                                          const uint8_t                     mmd,
-                                          const uint16_t                    addr,
-                                          const uint64_t                    value);
+typedef mepa_rc (*mepa_spi_write_64bit_t)(struct mepa_callout_ctx        ctx,
+                                          mepa_port_no_t                 port_no,
+                                          const uint8_t                  mmd,
+                                          const uint16_t                 addr,
+                                          uint64_t                       *const value);
 
 
 typedef void (*mepa_trace_func_t)(const mepa_trace_data_t *data, va_list args);
@@ -859,7 +866,7 @@ mepa_rc mepa_eee_status_get(struct mepa_device *dev, uint8_t *const advertisemen
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, mepa_start_of_frame_conf_t *const conf);
+mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, const mepa_start_of_frame_conf_t *const conf);
 
 /**
  * \brief PHY get SOF value
@@ -872,6 +879,18 @@ mepa_rc mepa_start_of_frame_conf_set(struct mepa_device *dev, mepa_start_of_fram
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_start_of_frame_conf_get(struct mepa_device *dev, mepa_start_of_frame_conf_t *const value);
+
+/**
+ * \brief PHY Set Frame Preemption
+ *
+ * \param dev   [IN]   Driver instance.
+ * \param value [IN]   Frame Preemption Enable/Disable
+ *
+ * \return
+ *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
+ *   MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_framepreempt_set(struct mepa_device *dev, const mepa_bool_t value);
 
 /**
  * \brief PHY get Frame Preemption

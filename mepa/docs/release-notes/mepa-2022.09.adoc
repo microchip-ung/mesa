@@ -33,9 +33,9 @@ This release contains following contents:
 ==== LAN8814
 
 * MEPA-161     Enable 32-bit rx timestamping option on Lan8814
-* MEPA-139     Indy P4 Features: Signal Quality Index(SQI)
-* MEPA-138     Indy P4 Features: Start of Frame (SOF) Pulses
-* MEPA-137     Indy P4 Features: Frame Preemption
+* MEPA-139     LAN8814 P4 Features: Signal Quality Index(SQI)
+* MEPA-138     LAN8814 P4 Features: Start of Frame (SOF) Pulses
+* MEPA-137     LAN8814 P4 Features: Frame Preemption
 
 
 === Documentation updates
@@ -47,7 +47,7 @@ This release contains following contents:
 
 ==== LAN8814
 
-* MEPA-75      Work-around for Indy internal phy latency compensation
+* MEPA-75      Work-around for LAN8814 internal phy latency compensation
 * MEPA-177     CLONE - PTP: In P2P TC onestep with VLAN tag, path delay is not calculated
 * MEPA-118     Unable to Manually set MDI/MDIX via API mepa_driver_conf_set
 * MEPA-178     PTP: high offset and mean path delay is observed when ptp configuration is applied for TS accuracy test

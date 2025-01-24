@@ -1,0 +1,147 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= Port Link Up Configuration
+== Port Link Up Configuration
+
+== Port Link Up Sequence
+
+The expected sequence of APIs to be followed by the application in order to link up the port of any PHY is as follows:
+
+. PHY Instance Create   : `mepa_create()`
+. PHY Link Base port    : `mepa_link_base_port()`
+. PHY Reset             : `mepa_reset()` All three Reset Points
+. PHY Configuration Set : `mepa_conf_set()`
+. PHY Port Status       : `mepa_poll()`
+
+
+== MEPA Instance Create
+
+The creation of MEPA instances must be initiated by the application. A MEPA instance is established through the invocation of
+the `mepa_create()` function. Upon successful execution, this function returns a pointer to `mepa_device_t`.
+
+The `mepa_device_t` serves as a representation of an individual PHY and is essential for the operation of all subsequent
+MEPA API calls pertaining to that specific PHY.To Create MEPA Instance `mepa_callout`, `mepa_callout_ctx` and `mepa_board_conf_t`
+are the necessary params. For Each Port of the PHY Seperate Software Instance is created.
+
+
+== Link Base Port
+
+In Multi-Port PHYs, there will be common or shared resources among the PHY ports.These resources are
+allocated as part of the first PHY port (base port) of the chip, all other Ports of the PHY will be Linked to
+this Base Port using the MEPA API `mepa_link_base_port()` to access the common chip-level resourses of the PHY.
+
+== Reset Configuration
+
+Reset API is expected to be the first API to do Hardware Configuration in the PHY once the PHY is Powered Up and it
+is mandatory for all the PHYs in order to do the Chip Reset, update the Microcontroller Configurations and to get all
+the Workarrounds Applied to the PHY.
+
+`mepa_reset()` API has three Reset Points and all the reset points to be called consecutively in the following sequence.
+
+. `MEPA_RESET_POINT_PRE`
+. `MEPA_RESET_POINT_DEFAULT`
+. `MEPA_RESET_POINT_POST`
+
+All the Reset points should be called for all the Ports of the PHY in the above sequence at the start of Application.
+User can call `MEPA_RESET_POINT_DEFAULT` Reset point anytime to change the Media Interface type after initial configuration. After
+Reset User can call `mepa_conf_set()` API to Configure or Modify the Port Configurations.
+
+== Port Config through Conf_Set
+Once `mepa_reset()` is done and successful, port needs to be configured using `mepa_conf_set()` with the appropriate configurations.
+These configurations mainly include speed, flow control , Aneg Configs, Duplex, media type and channel configuration. If Auto - Negotiation
+is selected then user can configure the Aneg advertise capabilities through this MEPA API.
+
+There are multiple Arguments in `mepa_conf_t` structure where many of the arguments are specific to particular type of PHY it will not be used
+by other PHYs.
+
+The arguments available in `mepa_conf_t` and which arguments are supported by which PHYs are listed in the following table.
+User is Expected to follow this table and do the necessary configuration for the corresponding PHY.
+
+[cols="1,1", options="header"]
+|===
+|Arguments of `mepa_conf_t`
+| Supported By
+
+| speed
+| All PHYs
+
+| fdx
+.2+| VSC 1G PHYs,  LAN88XX
+
+| flow_control
+
+| adv_dis
+|  -
+
+| admin
+.5+| VSC 1G PHYs,  LAN88XX
+
+| aneg
+
+| mac_if_aneg_ena
+
+| man_neg
+
+| mdi_mode
+
+| force_ams_mode_sel
+| VSC 1G PHYs
+
+| conf_10g
+| VSC 10G PHYs
+|===
+
+
+Following table will provide the short Description about different arguments available in `mepa_conf_t` structure.
+
+[cols="1,1", options="header"]
+|===
+| Argument           | Description
+| speed              | Port Speed to be Configured, select `MESA_SPEED_AUTO` if Aneg
+| fdx                | Full Duplex or Half Duplex
+| flow_control       | Enable or Disable Flow Control
+| adv_dis            | Disable Aneg Advertisements
+| admin              | Admin access to change all the Aneg abilities
+| aneg               | Auto Negotiation Advertise Abilities
+| mac_if_aneg_ena    | Enable auto-negotiation on host mac interface
+| man_neg            | To chose the current PHY port needs to be in master or slave in ANEG mode for 1G
+| mdi_mode           | MDI/MDIX/Auto Mode to select crossover and polarity detection
+| force_ams_mode_sel | Serdes Media or Copper Media or Auto - Based on AMS the media mode will be selected
+| conf_10g           | Mode and Media Configuration of VSC 10G PHYs
+|===
+
+To configure the VSC 10G PHYs the argument `conf_10g` of `mepa_conf_t` needs to be configured following table provides the
+breakdown the argument `conf_10g` with Short Description of each argument.
+
+[cols="1,1", options="header"]
+|===
+| Arguments of `conf_10g`                     | Description
+| oper_mode - `phy10g_oper_mode_t`            | Phy Operating Mode based on Speed
+| interface_mode  - `phy10g_interface_mode_t` | Phy Interface, this will vary for different SKUs of various VSC 10G PHYs
+| channel_id - `mepa_phy_channel_id_t `       | Channel Number of the PHY Port
+| h_media  - `phy_media_t`                    | Host side Media Connected
+| l_media  - `phy_media_t`                    | Line side Media Connected
+| channel_high_to_low                         | If Channel id decreasing order w.r.t port number increasing then set this to `1`
+|===
+
+MEPA Supports different Host Side and Line Side Media Connections provided in `phy_media_t`, but VSC 10G PHYs will only support
+following Media.
+
+. MEPA_MEDIA_TYPE_SR_SC +
+. MEPA_MEDIA_TYPE_SR2_SC +
+. MEPA_MEDIA_TYPE_DAC_SC
+. MEPA_MEDIA_TYPE_ZR_SC
+. MEPA_MEDIA_TYPE_ZR2_SC
+. MEPA_MEDIA_TYPE_KR_SC
+
+
+== PHY Status Poll
+Once the Forced Configuration oe Auto_negotiation is completed the Link Status of the Port can be retrieved by Polling MEPA API
+`mepa_poll()` which will provide the Link Status (Up/Down), Port Speed and Aneg Status.
+
+
+== Sample Port LinkUp Configuration
+
+Refer ADOC link:mepa-app-doc.html#mepa_demo/docs/port-config[Port - Confiuration] section and
+link:mepa-app-doc.html#mepa_demo/mepa_apps/phy_port_config.c@l66[Sample Source Code Port Config] for Refference.

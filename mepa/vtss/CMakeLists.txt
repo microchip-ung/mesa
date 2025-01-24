@@ -65,7 +65,7 @@ MEPA_DRV(LIB_NAME mepa_drv_vtss_10g_macsec_ts
 
 set(mepa_vtss_custom_defs)
 
-option(MEPA_vtss_opt_1g      "Compile vtss family with 1G support" ON)
+option(MEPA_vtss_opt_1g      "Compile vtss family with 1G support" OFF)
 if (${MEPA_vtss_opt_1g})
     set(mepa_vtss_custom_defs ${mepa_vtss_custom_defs} -DVTSS_OPT_PHY_1G=1)
 else()

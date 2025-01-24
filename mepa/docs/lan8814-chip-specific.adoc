@@ -1,0 +1,120 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+== Introduction
+
+The LAN8814 Ethernet PHY, offers quad port configurations and capable of 1G, 100M and 10M speeds.This document
+describes about the chip specific APIs and its details.
+
+These are the available chip specific APIs available for LAN8814
+
+    * link:#mepa/docs/lan8814-chip-specific@_repetitive_count[Repetitive count]
+    * link:#mepa/docs/lan8814-chip-specific@_auto_downshift[Auto Downshift]
+
+== Directory layout
+
+    * link:#mepa/microchip/lan8814/include/microchip/lan8814_cs.h[./mepa/microchip/lan8814/include/microchip/lan8814_cs.h] - Auto-downshift, Repetitive count Chip specific APIs
+
+== Repetitive count
+
+The Repetitive count is number of times the application calls `mepa_poll()` per second. For ex., rep_cnt = 10 means port poll
+API will be called 10 times per sec by the application. The repetitive count offers flexibility in determining how frequently the application polls a port per second.
+This can be configured with `lan8814_rep_count_set()` API and a sample application call is mentioned below.
+
+Sample Application call::
+
+Lets consider an example where the application polls a port 5 times a sec
+.....
+// initialize rep count as 5 before starting the polling
+uint8_t rep_cnt = 5;
+
+mepa_status_t status[MAX_BOARD_PORT_CNT];
+
+// Set rep count when Performing Port initialization
+mepa_rc port_init()
+{
+   ----
+   for (port_no = 0;port_no < MAX_BAORD_PORT_CNT; port_no++) {
+      ----
+      //After creating dev and linking base port to dev perform rep_count set
+       if (lan8814_rep_count_set(dev, rep_cnt) != MEPA_RC_OK) {
+           return MEPA_RC_ERROR;
+       }
+      ----
+   }
+   ----
+   return MEPA_RC_OK;
+}
+
+int main()
+{
+    ----
+    if (port_init() != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    // start polling till Maximum board count
+    for (port_no = 0; port_no < MAX_BAORD_PORT_CNT; port_no++)
+    {
+        if (mepa_poll(dev, &status[port_no]) != MEPA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+    }
+    ----
+}
+.....
+
+NOTE::
+If the application has missed to set rep_cnt with `lan8814_rep_count_set()`, then a default value of '1' will be set(i.e., polling will be done once per sec).
+
+== Auto Downshift
+
+Downshift allows an interface to link at a lower advertised speed when unable to establish a stable link at the maximum speed. For ex: LAN8814 is configured for 1G Speed
+and unable to establish link, then downshift will be performed to 100M Speed.
+This Downshift can be enabled for LAN8814 via `lan8814_downshift_conf_set()` with the attribute `lan8814_downshift_conf_t`.
+In LAN8814 Hardware support for Downshift is not available and a software solution has been added. Downshift will be triggered
+if it exceeds the threshold wait time configured by the application. A sample application example is provided down below.
+
+Sample application call::
+
+Lets consider the same example as above with the downshift enabled and threshold configured for 4secs by the application
+.....
+
+mepa_status_t status[MAX_BOARD_PORT_CNT];
+
+
+mepa_rc port_init()
+{
+   ----
+   lan8814_phy_downshift_t conf = {'dsh_enable': TRUE,'dsh_thr_cnt':'MEPA_PHY_DOWNSHIFT_CNT_4'};
+   for (port_no = 0;port_no < MAX_BAORD_PORT_CNT; port_no++) {
+      ----
+      //After creating dev and linking base port to dev perform rep_count set
+       if (lan8814_rep_count_set(dev[port_no], rep_cnt) != MEPA_RC_OK) {
+           return MEPA_RC_ERROR;
+       }
+       // configure downshift for every port that has LAN8814
+       if (lan8814_downshift_conf_set(dev[port_no], &conf) != MEPA_RC_OK) {
+           return MEPA_RC_ERROR;
+       }
+      ----
+   }
+   ----
+   return MEPA_RC_OK;
+}
+
+int main()
+{
+    ----
+    if (port_init() != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+    // start polling till Maximum board count
+    for (port_no = 0; port_no < MAX_BAORD_PORT_CNT; port_no++)
+    {
+        if (mepa_poll(dev, &status[port_no]) != MEPA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+    }
+    ----
+}
+.....

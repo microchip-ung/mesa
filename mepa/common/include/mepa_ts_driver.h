@@ -429,6 +429,18 @@ typedef mepa_rc (*mepa_ts_fifo_entry_get_t)(struct mepa_device *dev, mepa_fifo_t
 /** \brief Sample Test configurations */
 typedef mepa_rc (*mepa_ts_test_config_t) (struct mepa_device *dev, uint16_t test_id, mepa_bool_t reg_dump);
 
+/**
+ * \brief PCH/MCH error information will be stored. Usually called on the Egress PORT (MAC to PHY) to ensure the PCH/MCH header recieved is valid.
+ *
+ * \param dev     [IN] Driver instance.
+ * \param info    [OUT] PCH/MCH header mismatch information.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+typedef mepa_rc (*mepa_ts_pch_mch_error_info_get_t) (struct mepa_device *dev, mepa_pch_mch_mismatch_info_t *const info);
+
 /** \brief PHY Timestamp Driver */
 typedef struct mepa_ts_driver {
     mepa_ts_init_conf_get_t                 mepa_ts_init_conf_get;
@@ -468,6 +480,7 @@ typedef struct mepa_ts_driver {
     mepa_ts_fifo_read_install_t             mepa_ts_fifo_read_install;
     mepa_ts_fifo_empty_t                    mepa_ts_fifo_empty;
     mepa_ts_fifo_entry_get_t                mepa_ts_fifo_get;
+    mepa_ts_pch_mch_error_info_get_t        mepa_ts_pch_mch_error_info_get;
 } mepa_ts_driver_t;
 
 #endif

@@ -2199,7 +2199,6 @@ vtss_rc vtss_phy_ext_event_poll(const vtss_inst_t     inst,
                                 const vtss_port_no_t  port_no,
                                 vtss_phy_event_t      *const ev_mask);
 
-#if defined(VTSS_FEATURE_MACSEC) && defined(KAT_TEST_ENABLE_1G)
 
 /**
  * \brief EPG generated frame for Known Answer Test (KAT)
@@ -2215,8 +2214,6 @@ vtss_rc vtss_phy_ext_event_poll(const vtss_inst_t     inst,
 vtss_rc vtss_phy_epg_gen_kat_frame( const vtss_inst_t        inst,
                                     const vtss_port_no_t     port_no,
                                     BOOL                     match);
-
-#endif  /* VTSS_FEATURE_MACSEC && KAT_TEST_ENABLE_1G */
 
 
 

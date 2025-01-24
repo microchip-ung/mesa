@@ -8706,7 +8706,7 @@ static vtss_rc venice_phy_10g_vscope_conf_set( struct vtss_state_s * vtss_state,
 
 static vtss_rc phy_10g_pkt_gen_conf(struct vtss_state_s *vtss_state,
         const vtss_port_no_t        port_no,
-        vtss_phy_10g_pkt_gen_conf_t *const conf)
+        const vtss_phy_10g_pkt_gen_conf_t *const conf)
 {
     u16 tmac = 0;
     u16 ts = 0;

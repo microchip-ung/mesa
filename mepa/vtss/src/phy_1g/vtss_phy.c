@@ -435,6 +435,10 @@ static vtss_rc vtss_phy_rd_wr_masked(vtss_state_t         *vtss_state,
     read_func = vtss_state->init_conf.miim_read;
     write_func = vtss_state->init_conf.miim_write;
 
+    if(vtss_state->callout_ctx[port_no] == NULL) {
+        VTSS_E("callout_ctx for port %d is %p", port_no,vtss_state->callout_ctx[port_no]);
+        return VTSS_RC_ERROR;
+    }
     /* Page is encoded in address */
     page = (addr >> 5);
     reg = (addr & 0x1f);
@@ -12230,6 +12234,7 @@ vtss_rc vtss_phy_pre_reset(const vtss_inst_t           inst,
         }
     }
     VTSS_EXIT();
+    VTSS_D("Exit vtss_phy_pre_reset port_no:%d", port_no);
     return rc;
 }
 
@@ -12260,6 +12265,7 @@ vtss_rc vtss_phy_post_reset(const vtss_inst_t           inst,
         }
     }
     VTSS_EXIT();
+    VTSS_D("Exit vtss_phy_post_reset port_no:%d", port_no);
     return rc;
 }
 
@@ -12276,7 +12282,7 @@ vtss_rc vtss_phy_reset(const vtss_inst_t           inst,
     vtss_state_t *vtss_state;
     vtss_rc      rc;
 
-    VTSS_D("vtss_phy_reset, Port:%d", port_no);
+    VTSS_D("Enter vtss_phy_reset, Port:%d", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->phy_state[port_no].reset = *conf;
@@ -12311,6 +12317,7 @@ vtss_rc vtss_phy_reset(const vtss_inst_t           inst,
         }
     }
     VTSS_EXIT();
+    VTSS_D("Exit vtss_phy_reset, Port:%d", port_no);
     return rc;
 }
 
@@ -14999,11 +15006,43 @@ static vtss_rc vtss_phy_reset_lcpll_private(vtss_state_t *vtss_state, vtss_port_
         VTSS_I("vtss_phy_reset_lcpll_private: Skipping LCPLL Reset, Not Valid during warmstart Port: %d", port_no);
         return VTSS_RC_OK;
     }
-
+    VTSS_I("vtss_phy_pll5g_reset: Entering LCPLL Reset private function, Port: %d \n", port_no);
     switch (ps->family) {
     case VTSS_PHY_FAMILY_ATOM:
-        VTSS_I("vtss_phy_reset_lcpll_private: Skipping LCPLL Reset, Not Valid for ATOM FAMILY Port: %d", port_no);
-        return (rc);
+        VTSS_I("vtss_phy_reset_lcpll_private: ATOM12 LCPLL Reset, Port: %d \n", port_no);
+        rc = VTSS_RC_OK;
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8023));  // Read LCPLL Config Vector into PRAM
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0xd7dd));  // Set Address to Poke
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x8686));  // Poke to Reset PLL Startup State Machine, set disable_fsm:bit 118 for Atom12
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80c0));  // Rewrite PLL Config Vector
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        MEPA_MSLEEP(10); // 10msec sleep
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x82d6));  // Poke to De-Assert Reset of PLL State Machine, clear disable_fsm:bit 118 Atom12
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
+        VTSS_RC(PHY_WR_PAGE(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80c0));  // Rewrite PLL Config Vector
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        MEPA_MSLEEP(10); // 10msec sleep
+
+        VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
+        VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_SERDES_STATUS, &reg_val));
+
         break;
 
     case VTSS_PHY_FAMILY_TESLA:
@@ -15059,6 +15098,7 @@ static vtss_rc vtss_phy_reset_lcpll_private(vtss_state_t *vtss_state, vtss_port_
     }
 
     MEPA_MSLEEP(110); // 110msec sleep to allow re-calibration of LCPLL
+    VTSS_I("vtss_phy_pll5g_reset: Returning from LCPLL Reset private function, Port: %d", port_no);
 
     return (rc);
 }
@@ -15799,7 +15839,6 @@ vtss_rc vtss_phy_debug_tr_regdump_print(vtss_state_t *vtss_state,
 }
 #endif /* End of DEBUG_TOKEN_RING_REGDUMP_EN */
 
-#if defined(VTSS_FEATURE_MACSEC) && defined(KAT_TEST_ENABLE_1G)
 
 /* **************************************************************** */
 /*            Configuring EPG for MACSEC Known Answer Test (KAT)    */
@@ -15817,14 +15856,12 @@ static vtss_rc vtss_phy_epg_gen_kat_frame_private(vtss_state_t *vtss_state, cons
     u16                reg30e = 0;
     u16                index = 0;
     u8                 loop_cnt = 2;
-    vtss_phy_type_t    phy_id;
     BOOL               enable_mac_counter = FALSE;
     u16                tr_reg17 = 0;
     u16                tr_reg18 = 0;
 
     /* Clear Counters */
     VTSS_I("Configure EPG to send 300 Packets  \n");
-    phy_id = vtss_state->phy_state[port_no].type;
 
    /* Clear Counters 21E3 Tx Good Pkt Counters and 22E3 Tx CRC Counters by reading them */
     VTSS_RC(vtss_phy_page_ext3(vtss_state, port_no));
@@ -16011,13 +16048,6 @@ static vtss_rc vtss_phy_epg_gen_kat_frame_private(vtss_state_t *vtss_state, cons
     }
 
     printf("ETH-IP-UDP 125 Byte Pkt Created port_no: %d \n", port_no);
-    printf("ff ff ff ff ff f1 ff ff ff ff ff f2 08 00 45 00 \n"); // Octets: 0-15
-    printf("00 6b 00 00 00 00 ff 11 4e 2f c0 a8 76 00 c0 a8 \n"); // Octets: 16-31
-    if (match) {
-        printf("76 01 00 00 01 3f 00 57 00 00 00 00 00 00 00 00 \n\n"); // Octets: 32-47
-    } else {
-        printf("76 01 00 00 01 40 00 57 00 00 00 00 00 00 00 00 \n\n"); // Octets: 32-47
-    }
 
     VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, EPG_CTRL_REG_1, &reg29e));     /* Write 30E1 to Select UDP Dport=319  */
     reg29e |= VTSS_F_EPG_CTRL_REG_1_EPG_RUN_STOP;  // Run!!  Bit 14: 1=Run, 0=Stop
@@ -16084,7 +16114,6 @@ vtss_rc vtss_phy_epg_gen_kat_frame( const vtss_inst_t        inst,
     return rc;
 }
 
-#endif /* VTSS_FEATURE_MACSEC && KAT_TEST_ENABLE_1G */
 
 // Function for configuring/updating the MAC SerDes OB_CNTRL PHY settings.
 // In - port_no - Phy port number.

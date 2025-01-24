@@ -71,7 +71,7 @@ The MEPA trace function is a single global variable. Traces will only work when
 a function is assigned to MEPA_TRACE_FUNCTION.
 
 For trace callback `mepa_trace_func_t`, application specific implementation
-must be passed to print the traces supported by API. For Indy, the trace flag
+must be passed to print the traces supported by API. For LAN8814, the trace flag
 `MEPA_TRACE_GRP_GEN` can be used to enable General PHY related traces. Each
 application may have its own conditions on when to enable traces. When the
 callback `mepa_trace_func_t` is executed, application can print or ignore the
@@ -282,68 +282,6 @@ void APPL_example3(int port_no) {
 }
 ----
 
-== MEPA Reset Considerations
+== Port Link Up Sequence
 
-The MEPA library offers a `mepa_reset()` function to perform a soft-reset of the
-PHY.
-
-Beside from the software reset procedure, some boards may introduce SW
-requirements to the board code to either perform a hardware reset, or take the
-PHYs out of reset (or coma-mode) in the first place. The hardware reset is
-typically done by controlling a GPIO, and is out of scope from MEPA.
-
-The required reset sequence is still (unfortunately) still slightly different
-for the individual PHYs. For some PHYs the soft reset is optional if a HW reset
-is performed, and some PHYs requires a multi stage reset procedure.
-
-[none]
-* `mepa_reset_point_t` Point at which reset to be performed
-** PRE_RESET Used to program microcontroller in the PHY, this is to be called
-once per the whole PHY , for the base port of the PHY i.e. the PHY port which
-is mapped to channel 0.  This has to be called before PHY reset.
-** DEFAULT Used to reset or reinitialize PHY. This is to be called when CHIP
-doing cold reset. But not while doing warm reset.
-** POST_RESET Used after PHY reset is done and it can be used for all the ports
-within PHY.
-** POST_MAC_RESET Used to reset PHY after MAC initialization.
-
-MEPA Reset considerations for available PHY's can be inferred
-from: link:#mepa/docs/phy-reset-considerations[PHY Reset consideration documentation]
-
-== Link Up Sequence
-
-Once reset is done and successful, port needs to be
-configured using `mepa_conf_set()` with the appropriate settings
-`mepa_conf_t`. These configurations mainly include speed, flow control
-and full duplex mode. Once these configurations are successfully applied,
-port current status will be shared to the link partner. Both of them will negotiate
-master and slave status. During auto-negotiation, link partners advertise
-capabilities to each other and compare their own capabilities with those they
-received from link partner. The highest speed and duplex settings common to the
-two link partners is selected as the best operating mode. Finally, link will
-come up after auto-negotiation is completed.
-
-Link Base port::
-Some Microchip devices support multiple PHYs within a single chip. When this
-is the case, there will be common or shared resources among the PHY ports.
-These resources are allocated as part of the first PHY port (base port) of the
-chip. All other PHYs within that multi-PHY chip will then link to this base
-port using API `mepa_link_base_port()` to have access to the chip-level
-(common) resources.
-
-PHY Status Poll:: Once the links auto-negotiation is completed, the link
-state(up/down) can be retrieved by polling PHY using `mepa_poll()` API
-which includes:
-
-* Link status(up/down), Full duplex and Dual-media port(copper/fiber) status.
-* `mepa_aneg_t` Auto-negotiation status.
-* `mepa_port_speed_t` Port speed.
-
-Sequence of APIs to be called is as following::
-
-. PHY Create : `mepa_create()`
-. PHY Configuration Get : `mepa_conf_get()`
-. PHY Configuration Set : `mepa_conf_set()`
-. PHY Reset : `mepa_reset()`
-. PHY Link Base port : `mepa_link_base_port()`
-. PHY Status : `mepa_poll()`
+Port Link Up Configuration Sequence can be Inferred from : link:#mepa/docs/linkup_config[Link Up Configuration]

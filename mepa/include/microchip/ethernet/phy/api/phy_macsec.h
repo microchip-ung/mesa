@@ -1051,6 +1051,8 @@ typedef enum {
     MEPA_MACSEC_BYPASS_TAG_ZERO,                      /**< Disable */
     MEPA_MACSEC_BYPASS_TAG_ONE,                       /**< Bypass 1 tag */
     MEPA_MACSEC_BYPASS_TAG_TWO,                       /**< Bypass 2 tags */
+    MEPA_MACSEC_BYPASS_TAG_THREE,                     /**< Bypass 3 tags */
+    MEPA_MACSEC_BYPASS_TAG_FOUR,                      /**< Bypass 4 tags */
 } mepa_macsec_tag_bypass_t;
 
 

@@ -247,13 +247,22 @@ typedef enum {
     MEPA_MEDIA_TYPE_NONE,       /**< None          */
 } phy10g_media_t;
 
+/** \brief PHY Channel ID */
+typedef enum {
+    MEPA_CHANNELID_NONE,	/**< None */
+    MEPA_CHANNELID_0,		/**<Channel 0 */
+    MEPA_CHANNELID_1,		/**<Channel 1 */
+    MEPA_CHANNELID_2, 		/**<Channel 2 */
+    MEPA_CHANNELID_3,		/**<Channel 3 */
+} mepa_phy_channel_id_t;
+
 typedef struct {
-    phy10g_oper_mode_t oper_mode;
+    phy10g_oper_mode_t      oper_mode;
     phy10g_interface_mode_t interface_mode;
-    uint32_t channel_id;
-    phy10g_media_t h_media;
-    phy10g_media_t l_media;
-    mepa_bool_t    channel_high_to_low; /* If Channel id decreasing order w.r.t port number increasing set this to one */
+    mepa_phy_channel_id_t   channel_id;
+    phy10g_media_t          h_media;
+    phy10g_media_t          l_media;
+    mepa_bool_t             channel_high_to_low; /* If Channel id decreasing order w.r.t port number increasing set this to one */
 }phy10g_conf_t;
 
 /** \brief Represents the configuration that is applied to PHY. */
@@ -351,6 +360,8 @@ typedef enum {
     MEPA_GPIO_MODE_LED_DISABLE_EXTENDED,
     MEPA_GPIO_MODE_RCVRD_CLK_OUT1,
     MEPA_GPIO_MODE_RCVRD_CLK_OUT2,
+    MEPA_GPIO_MODE_PTP_REF_CLK,
+    MEPA_GPIO_MODE_PTP_REF_ADJ,
     MEPA_GPIO_MODE_PUSH_PULL,
     MEPA_GPIO_MODE_OPEN_SOURCE,
     MEPA_GPIO_MODE_OPEN_DRAIN,

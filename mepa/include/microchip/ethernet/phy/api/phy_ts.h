@@ -143,6 +143,13 @@ typedef enum {
     MEPA_TS_TC_OP_MODE_C = 2, /**< Sub local time at ingress and add at egress from CF and use 48 bits in CF */
 }mepa_ts_tc_op_mode_t;
 
+/** \structure for MCH/PCH configs */
+typedef struct {
+    mepa_bool_t pch_en; /* Enable/Diable PCH */
+    mepa_bool_t save_ts_with_crc_err; /* Enable to save TS for PCH/MCH even though Packet has CRC errors*/
+    mepa_bool_t mch_en; /* Enable/Disable the MCH */
+} mepa_mch_pch_t;
+
 /** \brief PHY timestamp unit initialization parameters */
 typedef struct {
     mepa_ts_clock_freq_t          clk_freq;         /**< Reference clock frequency */
@@ -156,6 +163,7 @@ typedef struct {
     mepa_ts_tc_op_mode_t          tc_op_mode;       /**< TC operating mode */
     mepa_bool_t                   dly_req_recv_10byte_ts; /**< Store 10-byte ingress timestamp for delay request message. Used for auto delay req/response. */
     mepa_bool_t                   tx_auto_followup_ts; /**< If true, PHY will insert timestamp in follow-up message instead of generating interrupt to application. */
+    mepa_mch_pch_t                mch_pch_conf; /**< Configuration for PCH and MCH. */
 } mepa_ts_init_conf_t;
 
 /** \brief PHY timestamp unit reset */
@@ -361,6 +369,13 @@ typedef struct {
     mepa_ts_ptp_delaym_type_t       delaym_type;        /**< delay measurement method: P2P, E2E */
 } mepa_ts_sample_conf_t;
 
+/** \brief PTP PCH/MCH error info */
+typedef struct {
+    mepa_bool_t subportid_mismatch;   /**< set when PCH/MCH header with wrong subportid */
+    mepa_bool_t crc_error;            /**< set when PCH/MCH header with wrong CRC updated */
+    mepa_bool_t ext_type_mismatch;    /**< set when PCH/MCH header has extension type mismatch according to USGMII spec */
+    mepa_bool_t pkt_type_mismatch;    /**< set when PCH/MCH header Packet type mismatch */
+} mepa_pch_mch_mismatch_info_t;
 /**
  * \brief Enable/Disable the timestamp block (Mode:TSU in Bypass mode).
  *
@@ -876,6 +891,19 @@ mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev);
 mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
                             uint16_t                               test_id,
                             mepa_bool_t                            reg_dump);
+
+/**
+ * \brief PCH/MCH error information will be stored. Usually called on the Egress PORT (MAC to PHY) to ensure the PCH/MCH header recieved is valid.
+ *
+ * \param dev     [IN] Driver instance.
+ * \param info    [OUT] PCH/MCH header mismatch information.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev,
+                                       mepa_pch_mch_mismatch_info_t *const info);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

@@ -117,7 +117,7 @@ typedef struct {
     mepa_bool_t             ctx_status;
     mepa_cable_diag_result_t cd_res;
     lan887x_tc10_data_t         tc10_cfg;
-    mepa_gpio_conf_t        led3_conf;
+    mepa_gpio_conf_t        led_conf[4];
     /* Pointer to the device of base port on the phy chip */
     //mepa_device_t           *base_dev;
 } phy_data_t;

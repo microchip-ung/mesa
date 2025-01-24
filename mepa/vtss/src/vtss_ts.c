@@ -6,6 +6,7 @@
 #include <mepa_ts_driver.h>
 #include <vtss_phy_api.h>
 #include "vtss_private.h"
+#include "common/vtss_phy_common.h"
 
 #include <string.h>
 
@@ -133,7 +134,7 @@ static mesa_rc mepa_to_vtss_encap(mepa_ts_pkt_encap_t encap, vtss_phy_ts_encap_t
         *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
         break;
     case MEPA_TS_ENCAP_ETH_HSR_PTP:
-        *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_IP_PTP;
+        *vsc_encap = VTSS_PHY_TS_ENCAP_ETH_HSR_PTP;
         break;
     case MEPA_TS_ENCAP_NONE:
         *vsc_encap = VTSS_PHY_TS_ENCAP_NONE;

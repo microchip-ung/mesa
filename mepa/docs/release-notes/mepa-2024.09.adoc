@@ -1,0 +1,61 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2024.09
+
+== MEPA-2024.09
+
+|===
+|Version:          |MEPA-2024.09
+|Previous Version: |MEPA-2023.09
+|Date:             |2024-09-27
+|Description:      |Release Notes
+|===
+
+
+=== Bug Status
+
+==== Fixed:
+  * MEPA-503: LAN8814 100M mode link failure
+  * MEPA-584: MEPA Reset sequence for VSC8258 (Malibu10) and general MEPA configuration calls for the Malibu10 PHY
+  * MEPA-600: Timestamp Origin Field Not Updated for HSR encapsulated Packets in Egress BC2Step E2E Mode
+  * MEPA-603: VSC8574 ANEG not completing successfully with Link Partner LAN8740, causing Link Down Issue
+  * MEPA-698: MACsec Application Bug - Packet Number Configuration is not reflecting the Actual value configured
+  * MEPA-729: Loopback not get configured
+
+==== Fixed but not verified:
+  None.
+
+==== New features:
+  * MEPA-305: Create MACSec KAT demo Sample Application using MEPA API
+  * MEPA-364: phy_10g_conf_get for Malibu 10G
+  * MEPA-496: LAN887X driver(advanced) merge to master branch
+  * MEPA-497: LAN887X updates for B0
+  * MEPA-546: Auto-downshift feature LAN8814
+  * MEPA-557: Macsec operational DEMO sample application
+  * MEPA-558: GPIO sample application for EDSx
+  * MEPA-571: MACsec Block dropping packet when LSB 32 bit PN rollover to 0 in XPN Cipher suit
+  * MEPA-585: create edsx configuration inside mscc brsdk to build edsx images with jenkins for sw-mepa
+  * MEPA-588: SYNCe   sample application
+  * MEPA-589: COMA mode sample application
+  * MEPA-592: Moving m25g7.master code changes from sw-mesa to sw-mepa
+  * MEPA-593: Moving mepa-demo and EDSX MEBA code from sw-mesa to sw-mepa
+  * MEPA-598: Port the recent mepa changes done on sw-mesa to sw-mepa repository
+  * MEPA-599: Create separate target for meba and mepa_demo
+  * MEPA-609: SW-MEPA cleanup work
+  * MEPA-610: [MACSec UNH Compliance] Sample Application has to support two more commands ( SecTag Field Config and to enable 128 Bit AES Encryption)
+  * MEPA-616: Replicating MEPA-584 reset changes for M10G in mepa-demo application
+  * MEPA-621: 25G support to be added  mepa-demo
+  * MEPA-632: User Guide for Port Config Sample App on EDS X Platform
+  * MEPA-633: User Guide for KAT MACsec Demo Sample App on EDS X Platform.
+  * MEPA-634: User Guide for MACsec Demo Sample App on EDS X Platform
+  * MEPA-636: User Guide for SyncE Sample App on EDS X Platform.
+  * MEPA-642: Port config sample application modification for 10g conf set and reset
+  * MEPA-645: definition of T_E need to be change in vtss_private.h due to redefinition issue
+  * MEPA-704: CLONE - API Guide for LAN8814 Chip Specific APIs
+  * MEPA-711: Adding the Control Frame Configuration Support in MACsec Application for Malibu25G PHY and  Change the Ethertype and MAC address display from Decimal to Hexadecimal
+
+
+==== Known issues:
+  * MEPA-124: [Viper] vtss_phy_sd6g_patch_private() corrections and enhancement.
+  * MEPA-506: BC/TC 1-step E2E: Reserved field, CF values and origin timestamp is not updating in some of the delay request and Sync packets

@@ -4,7 +4,7 @@
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 
-#include "../../common/include/lan8814_registers.h" // Re-use Indy register defines
+#include "../../common/include/lan8814_registers.h" // Re-use LAN8814 register defines
 #include "lan884x_private.h"
 
 mepa_rc pfe_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
@@ -22,7 +22,7 @@ mepa_rc pfe_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uin
 
     rc = dev->callout->miim_read(dev->callout_ctx, addr, &reg_val);
     if (rc == MESA_RC_OK) {
-        if (mask != INDY_DEF_MASK) {
+        if (mask != LAN8814_DEF_MASK) {
             reg_val = (reg_val & ~mask) | (value & mask);
         } else {
             reg_val = value;
@@ -42,26 +42,26 @@ mepa_rc pfe_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uin
 mepa_rc pfe_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t *value)
 {
     // Set-up to MMD register.
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_CTRL, mmd, INDY_DEF_MASK));
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_CTRL,
-                               INDY_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, INDY_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
+                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // Read the value
-    MEPA_RC(pfe_direct_reg_rd(dev, INDY_MMD_ACCESS_ADDR_DATA, value));
+    MEPA_RC(pfe_direct_reg_rd(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value));
     return MEPA_RC_OK;
 }
 
 mepa_rc pfe_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t value, uint16_t mask)
 {
     // Set-up to MMD register.
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_CTRL, mmd, INDY_DEF_MASK));
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_ADDR_DATA, addr, INDY_DEF_MASK));
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_CTRL,
-                               INDY_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, INDY_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
+                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // write the value
-    MEPA_RC(pfe_direct_reg_wr(dev, INDY_MMD_ACCESS_ADDR_DATA, value, mask));
+    MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value, mask));
     return MEPA_RC_OK;
 }
 
@@ -75,10 +75,10 @@ static mepa_rc pfe_get_device_info(mepa_device_t *dev)
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t id;
 
-    pfe_direct_reg_rd(dev, INDY_DEVICE_ID_2, &id);
+    pfe_direct_reg_rd(dev, LAN8814_DEVICE_ID_2, &id);
 
-    data->dev.model = INDY_X_DEV_ID_MODEL(id);
-    data->dev.rev = INDY_X_DEV_ID_REV(id);
+    data->dev.model = LAN8814_X_DEV_ID_MODEL(id);
+    data->dev.rev = LAN8814_X_DEV_ID_REV(id);
     T_I(MEPA_TRACE_GRP_GEN, "model 0x%x rev %d\n", data->dev.model, data->dev.rev);
 
     return MEPA_RC_OK;
@@ -120,7 +120,7 @@ static mepa_device_t *pfe_probe(mepa_driver_t *drv,
 static mepa_rc pfe_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
-        pfe_direct_reg_wr(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_RESET, INDY_F_BASIC_CTRL_SOFT_RESET);
+        pfe_direct_reg_wr(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
     }
     MEPA_MSLEEP(1);
     pfe_get_device_info(dev);
@@ -147,9 +147,9 @@ static mesa_rc pfe_conf_set(mepa_device_t      *dev,
     MEPA_EXIT(dev);
 
     if (config->admin.enable) {
-        pfe_direct_reg_wr(dev, INDY_BASIC_CONTROL, 0, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+        pfe_direct_reg_wr(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
     } else {
-        pfe_direct_reg_wr(dev, INDY_BASIC_CONTROL, INDY_F_BASIC_CTRL_SOFT_POW_DOWN, INDY_F_BASIC_CTRL_SOFT_POW_DOWN);
+        pfe_direct_reg_wr(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
 
     return MESA_RC_OK;
@@ -266,8 +266,8 @@ static mepa_rc pfe_poll(mepa_device_t *dev, mepa_status_t *status)
     phy_data_t *data = (phy_data_t *) dev->data;
 
     MEPA_ENTER(dev);
-    pfe_direct_reg_rd(dev, INDY_BASIC_STATUS, &val);
-    status->link = (val & INDY_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
+    pfe_direct_reg_rd(dev, LAN8814_BASIC_STATUS, &val);
+    status->link = (val & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
 
     if (data->loopback.near_end_ena == TRUE) {
         // loops back to Mac. Ignore Line side status to Link partner.
@@ -279,7 +279,7 @@ static mepa_rc pfe_poll(mepa_device_t *dev, mepa_status_t *status)
         status->speed = MEPA_SPEED_UNDEFINED;
         status->fdx = 1;
         // check if auto-negotiation is completed or not.
-        if (!data->loopback.near_end_ena && status->link && !(val & INDY_F_BASIC_STATUS_ANEG_COMPLETE)) {
+        if (!data->loopback.near_end_ena && status->link && !(val & LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) {
             T_I(MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
             status->link = 0;
         } else if (data->loopback.near_end_ena) {
@@ -290,47 +290,47 @@ static mepa_rc pfe_poll(mepa_device_t *dev, mepa_status_t *status)
             goto end;
         }
         // Obtain speed and duplex from link partner's advertised capability.
-        pfe_direct_reg_rd(dev, INDY_ANEG_LP_BASE, &val);
-        pfe_direct_reg_rd(dev, INDY_ANEG_MSTR_SLV_STATUS, &val2);
+        pfe_direct_reg_rd(dev, LAN8814_ANEG_LP_BASE, &val);
+        pfe_direct_reg_rd(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val2);
         // 1G half duplex is not supported. Refer direct register - 9
-        if ((val2 & INDY_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
+        if ((val2 & LAN8814_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
             data->conf.aneg.speed_1g_fdx) {
             status->speed = MEPA_SPEED_1G;
             status->fdx = 1;
-        } else if ((val & INDY_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
                    data->conf.aneg.speed_100m_fdx) {
             status->speed = MEPA_SPEED_100M;
             status->fdx = 1;
-        } else if ((val & INDY_F_ANEG_LP_BASE_100_X_HALF_DUP) &&
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_HALF_DUP) &&
                    data->conf.aneg.speed_100m_hdx) {
             status->speed = MEPA_SPEED_100M;
             status->fdx = 0;
-        } else if ((val & INDY_F_ANEG_LP_BASE_10_T_FULL_DUP) &&
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_FULL_DUP) &&
                    data->conf.aneg.speed_10m_fdx) {
             status->speed = MEPA_SPEED_10M;
             status->fdx = 1;
-        } else if ((val & INDY_F_ANEG_LP_BASE_10_T_HALF_DUP) &&
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_HALF_DUP) &&
                    data->conf.aneg.speed_10m_hdx) {
             status->speed = MEPA_SPEED_10M;
             status->fdx = 0;
         }
         // Get flow control status
-        lp_sym_pause = (val & INDY_F_ANEG_LP_BASE_SYM_PAUSE) ? 1 : 0;
-        lp_asym_pause = (val & INDY_F_ANEG_LP_BASE_ASYM_PAUSE) ? 1 : 0;
+        lp_sym_pause = (val & LAN8814_F_ANEG_LP_BASE_SYM_PAUSE) ? 1 : 0;
+        lp_asym_pause = (val & LAN8814_F_ANEG_LP_BASE_ASYM_PAUSE) ? 1 : 0;
         status->aneg.obey_pause = data->conf.flow_control && (lp_sym_pause || lp_asym_pause);
         status->aneg.generate_pause = data->conf.flow_control && lp_sym_pause;
     } else {
         uint8_t speed;
         // Forced speed
-        pfe_direct_reg_rd(dev, INDY_BASIC_CONTROL, &val2);
-        speed = (!!(val2 & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
-                (!!(val2 & INDY_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
+        pfe_direct_reg_rd(dev, LAN8814_BASIC_CONTROL, &val2);
+        speed = (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
+                (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
         status->speed = (speed == 0) ? MEPA_SPEED_10M :
                         (speed == 1) ? MEPA_SPEED_100M :
                         (speed == 2) ? MEPA_SPEED_1G : MEPA_SPEED_UNDEFINED;
-        status->fdx = !!(val2 & INDY_F_BASIC_CTRL_DUP_MODE);
+        status->fdx = !!(val2 & LAN8814_F_BASIC_CTRL_DUP_MODE);
         //check that aneg is not enabled.
-        if (val2 & INDY_F_BASIC_CTRL_ANEG_ENA) {
+        if (val2 & LAN8814_F_BASIC_CTRL_ANEG_ENA) {
             T_W(MEPA_TRACE_GRP_GEN, "Aneg is enabled for forced speed config on port %d", data->port_no);
         }
     }
@@ -348,9 +348,9 @@ static mepa_rc pfe_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *statu
     uint16_t val;
 
     MEPA_ENTER(dev);
-    pfe_direct_reg_rd(dev, INDY_ANEG_MSTR_SLV_STATUS, &val);
-    status->master_cfg_fault = (val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
-    status->master = val & INDY_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
+    pfe_direct_reg_rd(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val);
+    status->master_cfg_fault = (val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
+    status->master = val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
     MEPA_EXIT(dev);
     T_I(MEPA_TRACE_GRP_GEN, "aneg status get mstr %d", status->master);
     return MEPA_RC_OK;

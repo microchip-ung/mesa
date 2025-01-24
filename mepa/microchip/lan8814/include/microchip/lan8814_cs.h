@@ -15,13 +15,13 @@
 typedef enum {
     MEPA_PHY_DOWNSHIFT_CNT_4 = 4,
     MEPA_PHY_DOWNSHIFT_CNT_6 = 6,
-} indy_downshift_conf_t;
+} lan8814_downshift_conf_t;
 
 /** \brief Represents the downshift configuration that is applied to PHY. */
 typedef struct {
     mepa_bool_t dsh_enable;   /**< enable downshift for the PHY */
-    indy_downshift_conf_t dsh_thr_cnt;   /** <Downshift threshold count */
-} indy_phy_downshift_t;
+    lan8814_downshift_conf_t dsh_thr_cnt;   /** <Downshift threshold count */
+} lan8814_phy_downshift_t;
 
 /**
  * \brief
@@ -42,7 +42,7 @@ typedef struct {
   * This API needs to be called for all the ports by the application before mepa_phy_reset()
   *
   **/
-mepa_rc indy_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt);
+mepa_rc lan8814_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt);
 
 /**
  * \brief
@@ -60,6 +60,6 @@ mepa_rc indy_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt);
  * and couldn't establish link for 4 or 6 secs the speed will be downshifted from 1G to 100M.
  */
 
-mepa_rc indy_downshift_conf_set(mepa_device_t *dev, const indy_phy_downshift_t *dsh);
+mepa_rc lan8814_downshift_conf_set(mepa_device_t *dev, const lan8814_phy_downshift_t *dsh);
 
 #endif

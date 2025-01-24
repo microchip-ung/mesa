@@ -5581,6 +5581,7 @@ static vtss_rc vtss_macsec_frame_get_priv(vtss_state_t                  *vtss_st
         return dbg_counter_incr(vtss_state, port_no, VTSS_RC_ERR_MACSEC_BUFFER_TOO_SMALL);
     }
 
+
     // Disable the triggers in order to be able to read the FIFO.
     if (phy10g) {
         CSR_WR(port_no, VTSS_MACSEC_EGR_CAPT_DEBUG_REGS_CAPT_DEBUG_TRIGGER, 0);
