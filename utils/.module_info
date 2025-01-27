@@ -1,0 +1,21 @@
+# Copyright (c) 2006-2020 Microsemi Corporation "Microsemi". All Rights Reserved.
+# SPDX-License-Identifier: MIT
+---
+license: MIT
+name: ut-utils
+source: Microchip
+attribution_file: LICENSE
+---
+files:
+- test/lm_ut_strchr.c
+- test/lm_ut_strcspn.c
+- test/lm_ut_strspn.c
+license: Apache-2.0 WITH LLVM-exception
+source: https://github.com/llvm/llvm-project
+version: 15.0.7
+upstream-sha: 8dfdcc7b7bf66834a761bd8de445840ef68e4d1a
+name: llvm-libc-tests
+attribution: |
+  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+  See https://llvm.org/LICENSE.txt for license information.
+  SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
