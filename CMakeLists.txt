@@ -18,10 +18,20 @@ option(BUILD_MESA_DEMO   "Build the MESA demo" ON)
 option(MESA_OPSYS_LINUX  "Build the MESA for Linux" ON)
 option(MESA_OPSYS_VELOCITYSP "Build the MESA for VelocitySP" OFF)
 option(MESA_WRAP         "Generate and build the MESA Wrapper" ON)
+option(MESA_USE_INLINE_UTILS "Use the inline version of the utils library" ON)
 
 mark_as_advanced(BUILD_MESA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
 
 include(.cmake/doxygen.cmake)
+
+if (${MESA_OPSYS_LINUX})
+    add_definitions(-DLMU_BOOL_IS_UINT8)
+endif()
+
+if (${MESA_USE_INLINE_UTILS})
+    add_subdirectory(utils)
+endif ()
+include_directories(${lm_utils_SOURCE_DIR}/include)
 
 add_subdirectory(mepa)
 
