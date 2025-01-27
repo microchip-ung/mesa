@@ -139,6 +139,7 @@ pipeline {
                         unstash name: "bin-arm64"
                         unstash name: "bin-arm"
                         sh ".cmake/aggr-artifacts.rb"
+                        sh "tar -czf images/et.tar.gz -C mesa/demo test"
                     }
                 }
             }
