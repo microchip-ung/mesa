@@ -85,6 +85,8 @@ files.select! do |x|
         false
     when /base\/\w+\/.*_reg_\w+.h$/, /base\/\w+\/.*_regs_\w+.h$/
         false
+    when /^utils/
+        false
     when /_symregs.c$/
         false
     else
