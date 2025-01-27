@@ -82,7 +82,8 @@ system("rm *.log")
 puts "-----Download and unpack all test folders from Jenkins-----"
 $systems.each { |system|
     # Compose path to the image and test folder of the requested branch
-    jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
+#    jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
+    jenkins_images = "https://ung.jenkins.microchip.com/job/UNGE/job/sw-mesa/job" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
 
     puts("Download latest test folder from jenkins")
     dl_file "#{jenkins_images}/et.tar.gz", "et.tar.gz"
@@ -98,8 +99,8 @@ $parallel_threads = []
 $sequential_threads = []
 def start_test(system)
     # Compose path to the image and test folder of the requested branch
-    jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
-
+#    jenkins_images = "http://soft00.microsemi.net:8080/job/API-mesa/job/" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
+    jenkins_images = "https://ung.jenkins.microchip.com/job/UNGE/job/sw-mesa/job" + system[:branch] + "/lastSuccessfulBuild/artifact/images"
     puts("Start test suites on system #{system[:name]} in a thread")
     t = Thread.new do
         system "GIT_BRANCH_NAME=#{system[:branch]} ./utils/run-suites-on.rb --system #{system[:name]} --dir #{system[:name]}-#{system[:branch]}-test/test --image #{jenkins_images}/#{system[:image]}"
