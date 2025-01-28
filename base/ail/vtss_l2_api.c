@@ -3188,6 +3188,18 @@ static vtss_rc vtss_gate_status_get(vtss_state_t                  *vtss_state,
     return rc;
 }
 
+// Convert to nanoseconds, sec_msb assumed less than 4 to avoid wrapping
+static u64 vtss_ts2nsec(vtss_timestamp_t *ts)
+{
+    u64 t = ts->sec_msb;
+
+    t <<= 32;
+    t += ts->seconds;
+    t *= 1000000000UL;
+    t += ts->nanoseconds;
+    return t;
+}
+
 vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t                  inst,
                                 const vtss_psfp_gate_id_t          id,
                                 const vtss_psfp_gate_conf_t *const conf)
@@ -3195,13 +3207,31 @@ vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t                  inst,
     vtss_rc                 rc;
     vtss_state_t           *vtss_state;
     vtss_psfp_gate_status_t status;
+    vtss_psfp_gate_conf_t  *c;
+    vtss_timestamp_t        ts, *bt;
+    u64                     tc, base, now, ct, n;
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
         (rc = vtss_psfp_gate_id_check(vtss_state, id)) == VTSS_RC_OK &&
         (rc = vtss_gate_status_get(vtss_state, id, &status)) == VTSS_RC_OK) {
-        vtss_state->l2.psfp.gate[id] = *conf;
+        c = &vtss_state->l2.psfp.gate[id];
+        *c = *conf;
+        ct = c->config.cycle_time;
+        rc = VTSS_FUNC(ts.timeofday_get, &ts, &tc);
+        if (c->enable && c->config_change && ct > 0U && rc == VTSS_RC_OK) {
+            bt = &c->config.base_time;
+            base = vtss_ts2nsec(bt);
+            // Margin of (ct + 100 msec)
+            now = (vtss_ts2nsec(&ts) + ct + 100000000UL);
+            if (base < now && ts.sec_msb < 4U && bt->sec_msb < 4U) {
+                // Base time is in the past, move it into the future.
+                n = VTSS_DIV64(now - base, ct);
+                vtss_timestampAddNano(bt, n * ct);
+            }
+        }
         rc = vtss_cil_l2_psfp_gate_conf_set(vtss_state, id);
+        *c = *conf;
     }
     VTSS_EXIT();
     return rc;
