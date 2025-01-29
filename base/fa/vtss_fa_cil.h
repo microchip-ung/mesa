@@ -45,12 +45,18 @@
 //                               -----------
 //                               30 port devices + 14 'shadow' devices
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LAIKA)
+#define FA_TGT 0
+#define LA_TGT 0
+#define LK_TGT 1
+#elif defined(VTSS_ARCH_SPARX5)
 #define FA_TGT 1
 #define LA_TGT 0
+#define LK_TGT 0
 #else
 #define FA_TGT 0
 #define LA_TGT 1
+#define LK_TGT 0
 #endif
 
 // CIL constants, which are different for FA/LA
