@@ -205,6 +205,7 @@ typedef enum {
     MESA_PORT_INTERFACE_DXGMII_5G, // 2x2G5 devices. Mode 'F'. Uses 2G5 device. */
     MESA_PORT_INTERFACE_DXGMII_10G, // 2x5G devices.  Mode 'U'. Uses primary
                                     // device. */
+    MESA_PORT_INTERFACE_CPU,        // Exposed CPU port. */
 } mesa_port_interface_t;
 
 /** \brief PHY reset structure */
@@ -622,6 +623,12 @@ typedef struct {
     mesa_bool_t fiber;     // Indication of if the link is a fiber link
     mesa_bool_t copper;    // Indication of if the link is a copper link
 } mesa_port_status_t;
+
+// Port PCS parameter struct
+typedef struct {
+    mesa_port_interface_t if_type; // Input:  To calculate PCS type
+    mesa_bool_t           link;    // Output: Link up/down
+} mesa_pcs_status_t;
 
 // Serdes macro mode
 typedef enum {
