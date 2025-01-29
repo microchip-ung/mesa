@@ -1084,6 +1084,11 @@ static vtss_rc vtss_fa_verify_target(vtss_state_t *vtss_state)
         goto err_exit;
     case VTSS_TARGET_LAN9694: // Laguna-40
         return VTSS_RC_OK;
+    case VTSS_TARGET_P64H:
+        if (chip_id == VTSS_TARGET_P64H) {
+            return VTSS_RC_OK;
+        }
+        goto err_exit;
     default:
         VTSS_E("Target (%x) not supported", vtss_state->create.target);
         return VTSS_RC_ERROR;
