@@ -96,6 +96,9 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // Supports in-band-status through SGMII control word
 #define MEBA_PORT_CAP_IN_BAND_STATUS 0x1000000000
 
+// Change to SFP when it has PCS link as opposed to SFP detect
+#define MEBA_PORT_CAP_DUAL_SFP_LINK 0x2000000000
+
 #define MEBA_PORT_CAP_HDX (MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_100M_HDX)
 
 // Tri-speed port full duplex only

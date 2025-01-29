@@ -189,7 +189,8 @@ static port_map_t port_table_endnode_carrier[] = {
 #define CAP_DUAL                                                               \
     (MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY |          \
      MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH |                         \
-     MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT)
+     MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT |                    \
+     MEBA_PORT_CAP_DUAL_SFP_LINK)
 
 static port_map_t port_table_endnode_carrier_dual[] = {
 //-------------------------------------------------------------------------------------------------------------------------------
