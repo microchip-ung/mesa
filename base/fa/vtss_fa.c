@@ -2603,6 +2603,9 @@ vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
 {
     switch (vtss_state->create.target) {
+    case VTSS_TARGET_P64H:
+        vtss_state->vtss_features[FEATURE_FRER] = TRUE;
+        break;
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7549:
     case VTSS_TARGET_7552:
