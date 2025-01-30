@@ -902,6 +902,7 @@ vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
 /* ================================================================= *
  *  MIIM control
  * ================================================================= */
+#if !defined(VTSS_ARCH_LAIKA)
 
 /* PHY commands */
 #define PHY_CMD_ADDRESS  0 /* 10G: Address */
@@ -1071,6 +1072,8 @@ vtss_rc vtss_cil_mmd_write(vtss_state_t          *vtss_state,
     return fa_miim_cmd(vtss_state, PHY_CMD_WRITE, 0, miim_controller, miim_addr,
                        mmd, &data, report_errors);
 }
+
+#endif /* !VTSS_ARCH_LAIKA */
 
 /* ================================================================= *
  *  KR related functions
