@@ -891,7 +891,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
                 VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(val),
                 VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
     }
-#else
+#elif defined(VTSS_ARCH_LAN969X)
     REG_WRM(VTSS_DEVCPU_GCB_SIO_CLOCK,
             VTSS_F_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD(val),
             VTSS_M_DEVCPU_GCB_SIO_CLOCK_SYS_CLK_PERIOD);
