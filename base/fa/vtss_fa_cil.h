@@ -14,7 +14,9 @@
 #include "../ail/vtss_sd10g28_procs.h"
 #include "../ail/vtss_sd25g28_procs.h"
 #include "vtss_fa_reg.h"
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LAIKA)
+#include "vtss_lk_regs.h"
+#elif defined(VTSS_ARCH_SPARX5)
 #include "vtss_fa_regs.h"
 #else
 #include "vtss_la_regs.h"
