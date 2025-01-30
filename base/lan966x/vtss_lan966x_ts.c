@@ -39,7 +39,7 @@ static u64 nominal_tod_increment;
 #define HW_PS_PR_SEC    1000000000000LL
 #define HW_PS_PR_NS     1000
 #define ADJ_UNITS_PR_NS 10
-#define PPS_WIDTH       200 /* Width of 1PPS pulse in ns */
+#define PPS_WIDTH       1000000 /* Width of 1PPS pulse in ns */
 
 /* Actions on PTP pins */
 #define PTP_PIN_ACTION_IDLE   0
