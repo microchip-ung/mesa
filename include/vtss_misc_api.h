@@ -556,6 +556,12 @@ vtss_rc vtss_mdio_conf_set(const vtss_inst_t             inst,
 #define VTSS_GPIOS 78
 #endif /* VTSS_ARCH_LAN966X */
 
+#if defined(VTSS_ARCH_LAIKA)
+/** \brief Number of GPIOs */
+#undef VTSS_GPIOS
+#define VTSS_GPIOS 0
+#endif /* VTSS_ARCH_LAIKA */
+
 /** \brief GPIO number */
 typedef u32 vtss_gpio_no_t;
 
@@ -733,6 +739,11 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t      inst,
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS 3
 #endif /* VTSS_ARCH_SPARX5 */
+
+#if defined(VTSS_ARCH_LAIKA)
+/** \brief Number of serial GPIO groups */
+#define VTSS_SGPIO_GROUPS 0
+#endif /* VTSS_ARCH_LAIKA */
 
 /** \brief Serial GPIO group */
 typedef u32 vtss_sgpio_group_t;

@@ -430,6 +430,13 @@ typedef enum {
 #endif
 #endif
 
+#if defined(VTSS_ARCH_LAIKA)
+#if (VTSS_PORT_COUNT < 32)
+#undef VTSS_PORT_COUNT
+#define VTSS_PORT_COUNT 32 /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 32 */
+#endif
+
 /* Number of ports may optionally be less than number of chip ports */
 #if VTSS_OPT_PORT_COUNT &&                                                     \
     ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
