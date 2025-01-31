@@ -16,6 +16,9 @@
 #define VTSS_10G_PHY_GPIO_MAX   12  /**< Max value of gpio_no parameter */
 #define VTSS_10G_PHY_GPIO_MAL_MAX   40  /**< Max value of gpio_no parameter,Malibu */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /** \brief 10G Phy operating mode enum type */
 typedef enum {
@@ -3177,5 +3180,7 @@ vtss_rc vtss_phy_10g_extended2_event_enable_set(const vtss_inst_t               
 vtss_rc vtss_phy_10g_channel_id_get (const vtss_inst_t inst,
                                      const vtss_port_no_t port_no,
                                      uint8_t *const channel_id);
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* _VTSS_PHY_10G_API_H_ */
