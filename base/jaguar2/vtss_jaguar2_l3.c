@@ -444,21 +444,21 @@ vtss_rc vtss_cil_l3_debug_sticky_clear(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-static void jr2_l3_debug_cnt(const vtss_debug_printf_t pr,
-                             const char               *name,
-                             u64                       rx_cnt,
-                             u64                       tx_cnt)
+static void jr2_l3_debug_cnt(lmu_ss_t   *ss,
+                             const char *name,
+                             u64         rx_cnt,
+                             u64         tx_cnt)
 {
     vtss_chip_counter_t c1, c2;
 
     c1.value = rx_cnt;
     c2.value = tx_cnt;
 
-    vtss_jr2_debug_cnt(pr, name, "", &c1, &c2);
+    vtss_jr2_debug_cnt(ss, name, "", &c1, &c2);
 }
 
 vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     BOOL                header = 1, found = 0;
@@ -467,12 +467,12 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
     char                buf0[16], buf1[16];
     vtss_l3_counters_t *cnt;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_L3)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_L3)) {
         return VTSS_RC_OK;
     }
 
-    vtss_jr2_debug_reg_header(pr, "ANA_L3");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_L3_COMMON_ROUTING_CFG,
+    vtss_jr2_debug_reg_header(ss, "ANA_L3");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_L3_COMMON_ROUTING_CFG,
                        "ROUTING_CFG");
     pr("\n");
 
@@ -549,7 +549,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
         header = 1;
     }
 
-    VTSS_RC(vtss_jr2_debug_lpm(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_debug_lpm(vtss_state, ss, info));
 
     for (i = 0; i < VTSS_ARP_CNT; i++) {
         JR2_RD(VTSS_ANA_L3_ARP_ARP_CFG_0(i), &cfg0);
@@ -602,14 +602,14 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
 
     if (info->clear || info->full) {
         /* Read and clear sticky bits */
-        vtss_jr2_debug_reg_header(pr, "ANA_L3:STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_reg_header(ss, "ANA_L3:STICKY");
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_L3_LPM_REMAP_STICKY_L3_LPM_REMAP_STICKY,
                               "LPM_REMAP_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_VLAN_STICKY,
                               "VLAN_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_L3_ARP_IPMC_STICKY,
                               "ARP_IPMC_STICKY");
     }
@@ -623,22 +623,22 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
 
         pr("RLEG %u counters:\n\n", i);
         cnt = &vtss_state->l3.statistics.interface_counter[i];
-        jr2_l3_debug_cnt(pr, "ipv4_uc_packets", cnt->ipv4uc_received_frames,
+        jr2_l3_debug_cnt(ss, "ipv4_uc_packets", cnt->ipv4uc_received_frames,
                          cnt->ipv4uc_transmitted_frames);
-        jr2_l3_debug_cnt(pr, "ipv4_uc_bytes", cnt->ipv4uc_received_octets,
+        jr2_l3_debug_cnt(ss, "ipv4_uc_bytes", cnt->ipv4uc_received_octets,
                          cnt->ipv4uc_transmitted_octets);
-        jr2_l3_debug_cnt(pr, "ipv6_uc_packets", cnt->ipv6uc_received_frames,
+        jr2_l3_debug_cnt(ss, "ipv6_uc_packets", cnt->ipv6uc_received_frames,
                          cnt->ipv6uc_transmitted_frames);
-        jr2_l3_debug_cnt(pr, "ipv6_uc_bytes", cnt->ipv6uc_received_octets,
+        jr2_l3_debug_cnt(ss, "ipv6_uc_bytes", cnt->ipv6uc_received_octets,
                          cnt->ipv6uc_transmitted_octets);
 
-        jr2_l3_debug_cnt(pr, "ipv4_mc_packets", cnt->ipv4mc_received_frames,
+        jr2_l3_debug_cnt(ss, "ipv4_mc_packets", cnt->ipv4mc_received_frames,
                          cnt->ipv4mc_transmitted_frames);
-        jr2_l3_debug_cnt(pr, "ipv4_mc_bytes", cnt->ipv4mc_received_octets,
+        jr2_l3_debug_cnt(ss, "ipv4_mc_bytes", cnt->ipv4mc_received_octets,
                          cnt->ipv4mc_transmitted_octets);
-        jr2_l3_debug_cnt(pr, "ipv6_mc_packets", cnt->ipv6mc_received_frames,
+        jr2_l3_debug_cnt(ss, "ipv6_mc_packets", cnt->ipv6mc_received_frames,
                          cnt->ipv6mc_transmitted_frames);
-        jr2_l3_debug_cnt(pr, "ipv6_mc_bytes", cnt->ipv6mc_received_octets,
+        jr2_l3_debug_cnt(ss, "ipv6_mc_bytes", cnt->ipv6mc_received_octets,
                          cnt->ipv6mc_transmitted_octets);
         pr("\n");
     }

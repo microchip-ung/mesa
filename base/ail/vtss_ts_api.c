@@ -1458,7 +1458,7 @@ static const char *one_pps_mode_disp(vtss_ts_ext_clock_one_pps_mode_t m)
 }
 
 void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
-                         const vtss_debug_printf_t      pr,
+                         lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info)
 {
     u32                         i, j;
@@ -1467,7 +1467,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     vtss_ts_timestamp_status_t *status;
     BOOL                        first = TRUE;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_TS)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_TS)) {
         return;
     }
 

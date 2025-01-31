@@ -6782,9 +6782,7 @@ vtss_rc vtss_cmn_vce_del(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id)
 
 #if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_XFLOW)
-static void vtss_debug_print_w6(const vtss_debug_printf_t pr,
-                                BOOL                      enable,
-                                u32                       val)
+static void vtss_debug_print_w6(lmu_ss_t *ss, BOOL enable, u32 val)
 {
     if (enable) {
         pr("%-6u", val);
@@ -6794,7 +6792,7 @@ static void vtss_debug_print_w6(const vtss_debug_printf_t pr,
 }
 
 static void vtss_debug_print_iflow(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     vtss_sdx_entry_t  *sdx;
@@ -6833,23 +6831,23 @@ static void vtss_debug_print_iflow(vtss_state_t                  *vtss_state,
             pr("\n");
         }
         conf = &sdx->conf;
-        vtss_debug_print_w6(pr, TRUE, sdx->sdx);
+        vtss_debug_print_w6(ss, TRUE, sdx->sdx);
 #if defined(VTSS_FEATURE_XSTAT)
-        vtss_debug_print_w6(pr, conf->cnt_enable, conf->cnt_id);
+        vtss_debug_print_w6(ss, conf->cnt_enable, conf->cnt_id);
 #endif
 #if defined(VTSS_FEATURE_XDLB)
-        vtss_debug_print_w6(pr, conf->dlb_enable, conf->dlb_id);
+        vtss_debug_print_w6(ss, conf->dlb_enable, conf->dlb_id);
 #endif
 #if defined(VTSS_FEATURE_VOP)
-        vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE,
+        vtss_debug_print_w6(ss, conf->voe_idx != VTSS_VOE_IDX_NONE,
                             conf->voe_idx);
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
-        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE,
+        vtss_debug_print_w6(ss, conf->voi_idx != VTSS_VOI_IDX_NONE,
                             conf->voi_idx);
 #endif
 #if defined(VTSS_FEATURE_FRER)
-        vtss_debug_print_w6(pr, conf->frer.mstream_enable,
+        vtss_debug_print_w6(ss, conf->frer.mstream_enable,
                             conf->frer.mstream_id);
         pr("%-10s", vtss_bool_txt(conf->frer.generation));
 #endif
@@ -6857,7 +6855,7 @@ static void vtss_debug_print_iflow(vtss_state_t                  *vtss_state,
         pr("%-10s", vtss_bool_txt(conf->frer.pop));
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-        vtss_debug_print_w6(pr, conf->psfp.filter_enable, conf->psfp.filter_id);
+        vtss_debug_print_w6(ss, conf->psfp.filter_enable, conf->psfp.filter_id);
 #endif
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
         pr("  %u", conf->cut_through_disable);
@@ -6870,7 +6868,7 @@ static void vtss_debug_print_iflow(vtss_state_t                  *vtss_state,
 }
 
 static void vtss_debug_print_eflow(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     vtss_eflow_entry_t *eflow;
@@ -6897,16 +6895,16 @@ static void vtss_debug_print_eflow(vtss_state_t                  *vtss_state,
             pr("\n");
         }
         conf = &eflow->conf;
-        vtss_debug_print_w6(pr, TRUE, i + 1);
+        vtss_debug_print_w6(ss, TRUE, i + 1);
 #if defined(VTSS_FEATURE_XSTAT)
-        vtss_debug_print_w6(pr, conf->cnt_enable, conf->cnt_id);
+        vtss_debug_print_w6(ss, conf->cnt_enable, conf->cnt_id);
 #endif
 #if defined(VTSS_FEATURE_VOP)
-        vtss_debug_print_w6(pr, conf->voe_idx != VTSS_VOE_IDX_NONE,
+        vtss_debug_print_w6(ss, conf->voe_idx != VTSS_VOE_IDX_NONE,
                             conf->voe_idx);
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
-        vtss_debug_print_w6(pr, conf->voi_idx != VTSS_VOI_IDX_NONE,
+        vtss_debug_print_w6(ss, conf->voi_idx != VTSS_VOI_IDX_NONE,
                             conf->voi_idx);
 #endif
         pr("\n");
@@ -6919,7 +6917,7 @@ static void vtss_debug_print_eflow(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_XSTAT)
 static void vtss_debug_print_xrow(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info,
                                   vtss_xrow_header_t            *hdr)
 {
@@ -6927,7 +6925,7 @@ static void vtss_debug_print_xrow(vtss_state_t                  *vtss_state,
     u16                row_idx, col_idx, size, count;
     BOOL               header = TRUE;
 
-    vtss_debug_print_header(pr, hdr->name);
+    vtss_debug_print_header(ss, hdr->name);
     pr("max_count : %u\n", hdr->max_count);
     pr("count     : %u\n", hdr->count);
     for (size = 0; size < 9; size++) {
@@ -6958,7 +6956,7 @@ static void vtss_debug_print_xrow(vtss_state_t                  *vtss_state,
 }
 
 static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     vtss_xstat_entry_t     *stat;
@@ -6968,7 +6966,7 @@ static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
     char                    buf[80];
     BOOL                    first = TRUE;
 
-    vtss_debug_print_xrow(vtss_state, pr, info,
+    vtss_debug_print_xrow(vtss_state, ss, info,
                           &vtss_state->l2.istat_table.hdr);
     for (i = 0; i < VTSS_EVC_STAT_CNT; i++) {
         stat = &vtss_state->l2.istat.table[i];
@@ -7021,7 +7019,7 @@ static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
 }
 
 static void vtss_debug_print_estat(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     vtss_xstat_entry_t    *stat;
@@ -7030,7 +7028,7 @@ static void vtss_debug_print_estat(vtss_state_t                  *vtss_state,
     BOOL                   first = TRUE;
     char                   buf[80];
 
-    vtss_debug_print_xrow(vtss_state, pr, info,
+    vtss_debug_print_xrow(vtss_state, ss, info,
                           &vtss_state->l2.estat_table.hdr);
     for (i = 0; i < VTSS_EVC_STAT_CNT; i++) {
         stat = &vtss_state->l2.estat.table[i];
@@ -7080,7 +7078,7 @@ static char *vtss_opt_bool_str(vtss_opt_bool_t *b, char *buf)
 
 #if defined(VTSS_FEATURE_XDLB)
 static void vtss_debug_print_dlb(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     vtss_xpol_entry_t       *pol;
@@ -7088,7 +7086,7 @@ static void vtss_debug_print_dlb(vtss_state_t                  *vtss_state,
     u16                      i, j;
     BOOL                     first = TRUE, cm = 1;
 
-    vtss_debug_print_xrow(vtss_state, pr, info, &vtss_state->l2.pol_table.hdr);
+    vtss_debug_print_xrow(vtss_state, ss, info, &vtss_state->l2.pol_table.hdr);
     for (i = 0; i < VTSS_EVC_POL_CNT; i++) {
         pol = &vtss_state->l2.pol.table[i];
         if (pol->cnt == 0) {
@@ -7142,9 +7140,9 @@ static void vtss_debug_print_dlb(vtss_state_t                  *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_FRER)
-static void vtss_debug_print_stream(const vtss_debug_printf_t pr,
-                                    vtss_frer_stream_conf_t  *conf,
-                                    BOOL                      mstream)
+static void vtss_debug_print_stream(lmu_ss_t                *ss,
+                                    vtss_frer_stream_conf_t *conf,
+                                    BOOL                     mstream)
 {
     pr("%-5u%-5s%-6u%-6u", conf->recovery,
        conf->alg == VTSS_FRER_RECOVERY_ALG_VECTOR ? "Vcr" : "Mch", conf->hlen,
@@ -7155,9 +7153,9 @@ static void vtss_debug_print_stream(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static void vtss_debug_frer_cnt(const vtss_debug_printf_t pr,
-                                const char               *name,
-                                vtss_counter_t            cnt)
+static void vtss_debug_frer_cnt(lmu_ss_t      *ss,
+                                const char    *name,
+                                vtss_counter_t cnt)
 {
     char buf[80];
 
@@ -7165,21 +7163,20 @@ static void vtss_debug_frer_cnt(const vtss_debug_printf_t pr,
     pr("%-19s%19" PRIu64 "   \n", buf, cnt);
 }
 
-static void vtss_debug_print_frer_cnt(const vtss_debug_printf_t pr,
-                                      vtss_frer_counters_t     *c)
+static void vtss_debug_print_frer_cnt(lmu_ss_t *ss, vtss_frer_counters_t *c)
 {
-    vtss_debug_frer_cnt(pr, "OutOfOrder", c->out_of_order_packets);
-    vtss_debug_frer_cnt(pr, "Rogue", c->rogue_packets);
-    vtss_debug_frer_cnt(pr, "Passed", c->passed_packets);
-    vtss_debug_frer_cnt(pr, "Discarded", c->discarded_packets);
-    vtss_debug_frer_cnt(pr, "Lost", c->lost_packets);
-    vtss_debug_frer_cnt(pr, "TagLess", c->tagless_packets);
-    vtss_debug_frer_cnt(pr, "Resets", c->resets);
+    vtss_debug_frer_cnt(ss, "OutOfOrder", c->out_of_order_packets);
+    vtss_debug_frer_cnt(ss, "Rogue", c->rogue_packets);
+    vtss_debug_frer_cnt(ss, "Passed", c->passed_packets);
+    vtss_debug_frer_cnt(ss, "Discarded", c->discarded_packets);
+    vtss_debug_frer_cnt(ss, "Lost", c->lost_packets);
+    vtss_debug_frer_cnt(ss, "TagLess", c->tagless_packets);
+    vtss_debug_frer_cnt(ss, "Resets", c->resets);
     pr("\n");
 }
 
 static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_xms_entry_t        *ms;
@@ -7189,7 +7186,7 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
     u16                      i, j, idx;
     BOOL                     first;
 
-    vtss_debug_print_xrow(vtss_state, pr, info, &vtss_state->l2.ms_table.hdr);
+    vtss_debug_print_xrow(vtss_state, ss, info, &vtss_state->l2.ms_table.hdr);
     for (i = 0; i < 2; i++) {
         first = TRUE;
         for (j = 0; j < vtss_state->l2.ms_table.hdr.max_count; j++) {
@@ -7208,7 +7205,7 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
                             pr("MSID  Port  IDX   Rec  Alg  Hlen  Rst   CSID\n");
                         }
                         pr("%-6u%-6u%-6u", j, port_no, idx);
-                        vtss_debug_print_stream(pr,
+                        vtss_debug_print_stream(ss,
                                                 &vtss_state->l2
                                                      .mstream_conf[idx],
                                                 TRUE);
@@ -7221,7 +7218,7 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
                         /* Counters */
                         pr("Counters for MSID %u, port %u, IDX %u\n", j,
                            port_no, idx);
-                        vtss_debug_print_frer_cnt(pr, &c);
+                        vtss_debug_print_frer_cnt(ss, &c);
                     }
                     idx++;
                 }
@@ -7247,7 +7244,7 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
                     pr("CSID  Rec  Alg  Hlen  Rst\n");
                 }
                 pr("%-6u", j);
-                vtss_debug_print_stream(pr, conf, FALSE);
+                vtss_debug_print_stream(ss, conf, FALSE);
             } else if (vtss_cil_l2_cstream_cnt_get(vtss_state, j, &c) ==
                            VTSS_RC_OK &&
                        (info->clear == 0 ||
@@ -7255,7 +7252,7 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
                             VTSS_RC_OK)) {
                 /* Counters */
                 pr("Counters for CSID %u\n", j);
-                vtss_debug_print_frer_cnt(pr, &c);
+                vtss_debug_print_frer_cnt(ss, &c);
             }
         }
         if (!first) {
@@ -7293,9 +7290,9 @@ static char *vtss_ts_str(vtss_timestamp_t *ts, char *buf, int max)
     return buf;
 }
 
-static void vtss_debug_print_gcl(const vtss_debug_printf_t pr,
-                                 vtss_psfp_gcl_conf_t     *conf,
-                                 vtss_psfp_gcl_t          *gcl)
+static void vtss_debug_print_gcl(lmu_ss_t             *ss,
+                                 vtss_psfp_gcl_conf_t *conf,
+                                 vtss_psfp_gcl_t      *gcl)
 {
     u16  i;
     char buf[64];
@@ -7314,7 +7311,7 @@ static void vtss_debug_print_gcl(const vtss_debug_printf_t pr,
 }
 
 static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     u16                i;
@@ -7333,7 +7330,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
                 pr("ID    Gate  MaxSDU  BlockOversize\n");
             }
             pr("%-6u", i);
-            vtss_debug_print_w6(pr, conf->gate_enable, conf->gate_id);
+            vtss_debug_print_w6(ss, conf->gate_enable, conf->gate_id);
             pr("%-8u%s/%u\n", conf->max_sdu,
                vtss_opt_bool_str(&conf->block_oversize, buf),
                vtss_cil_l2_psfp_filter_status_get(vtss_state, i, &status) ==
@@ -7364,7 +7361,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
             pr("OctExc   : %s\n",
                vtss_opt_bool_str(&conf->close_octets_exceeded, buf));
             pr("Change   : %u\n", conf->config_change ? 1 : 0);
-            vtss_debug_print_gcl(pr, &conf->config, &psfp->admin_gcl[i]);
+            vtss_debug_print_gcl(ss, &conf->config, &psfp->admin_gcl[i]);
             pr("\n");
             if (vtss_gate_status_get(vtss_state, i, &status) == VTSS_RC_OK) {
                 pr("Status\n");
@@ -7377,7 +7374,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
                 pr("Pending  : %u\n", status.config_pending ? 1 : 0);
                 pr("InvRx    : %u\n", status.close_invalid_rx);
                 pr("OctExc   : %u\n", status.close_octets_exceeded);
-                vtss_debug_print_gcl(pr, &psfp->oper_conf[i],
+                vtss_debug_print_gcl(ss, &psfp->oper_conf[i],
                                      &psfp->oper_gcl[i]);
                 pr("\n");
             }
@@ -7388,7 +7385,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_RCL)
 static void vtss_debug_print_rcl(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     vtss_rcl_vid_entry_t *entry;
@@ -7415,7 +7412,7 @@ static void vtss_debug_print_rcl(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_VCAP)
 static void vtss_debug_print_vcl(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     vtss_port_no_t        port_no;
@@ -7441,8 +7438,8 @@ static void vtss_debug_print_vcl(vtss_state_t                  *vtss_state,
     }
 }
 
-static void vtss_debug_print_vlan_trans(vtss_state_t             *vtss_state,
-                                        const vtss_debug_printf_t pr,
+static void vtss_debug_print_vlan_trans(vtss_state_t *vtss_state,
+                                        lmu_ss_t     *ss,
                                         const vtss_debug_info_t *const info)
 {
     vtss_vlan_trans_grp2vlan_conf_t conf;
@@ -7476,38 +7473,38 @@ static void vtss_debug_print_vlan_trans(vtss_state_t             *vtss_state,
             next = TRUE;
         }
         pr("%-7u  ", port_conf.group_id);
-        vtss_debug_print_ports(vtss_state, pr, port_conf.ports, 1);
+        vtss_debug_print_ports(vtss_state, ss, port_conf.ports, 1);
     }
 
     pr("\n");
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
-    vtss_vcap_debug_print_is1(vtss_state, pr, info);
+    vtss_vcap_debug_print_is1(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_IS1/CLM */
-    vtss_vcap_debug_print_es0(vtss_state, pr, info);
-    vtss_debug_print_vcl(vtss_state, pr, info);
+    vtss_vcap_debug_print_es0(vtss_state, ss, info);
+    vtss_debug_print_vcl(vtss_state, ss, info);
 #if defined(VTSS_FEATURE_XFLOW)
-    vtss_debug_print_iflow(vtss_state, pr, info);
+    vtss_debug_print_iflow(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
-    vtss_debug_print_istat(vtss_state, pr, info);
+    vtss_debug_print_istat(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_XDLB)
-    vtss_debug_print_dlb(vtss_state, pr, info);
+    vtss_debug_print_dlb(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_XFLOW)
-    vtss_debug_print_eflow(vtss_state, pr, info);
+    vtss_debug_print_eflow(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
-    vtss_debug_print_estat(vtss_state, pr, info);
+    vtss_debug_print_estat(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_FRER)
-    vtss_debug_print_frer(vtss_state, pr, info);
+    vtss_debug_print_frer(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    vtss_debug_print_psfp(vtss_state, pr, info);
+    vtss_debug_print_psfp(vtss_state, ss, info);
 #endif
 #if defined(VTSS_FEATURE_RCL)
-    vtss_debug_print_rcl(vtss_state, pr, info);
+    vtss_debug_print_rcl(vtss_state, ss, info);
 #endif
 }
 #endif // VTSS_FEATURE_VCAP
@@ -8985,7 +8982,7 @@ vtss_rc vtss_rb_proxy_node_id_get_next(const vtss_inst_t             inst,
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
 /* Print counters in two columns */
-static void vtss_debug_vlan_cnt(const vtss_debug_printf_t  pr,
+static void vtss_debug_vlan_cnt(lmu_ss_t                  *ss,
                                 const char                *name,
                                 vtss_vlan_counter_types_t *cnt)
 {
@@ -9000,7 +8997,7 @@ static void vtss_debug_vlan_cnt(const vtss_debug_printf_t  pr,
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 
 static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to the VTSS_EXIT_ENTER
@@ -9065,7 +9062,7 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
             pr("OT  ");
 #endif
             vtss_debug_print_port_header(
-                vtss_state, pr, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ",
+                vtss_state, ss, "VSI   Mgmt  MSTI  Lrn  Fld  Mir  Flt  Iso  ",
                 0, 1);
             header = 0;
         }
@@ -9094,7 +9091,7 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
            entry->flags & VLAN_FLAGS_MIRROR ? 1 : 0,
            entry->flags & VLAN_FLAGS_FILTER ? 1 : 0,
            entry->flags & VLAN_FLAGS_ISOLATED ? 1 : 0);
-        vtss_debug_print_ports(vtss_state, pr, entry->member, 0);
+        vtss_debug_print_ports(vtss_state, ss, entry->member, 0);
         pr(" <- VLAN Members\n");
 #if defined(VTSS_FEATURE_L2_ERPS)
         pr("%-49s", "");
@@ -9110,7 +9107,7 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
             VTSS_PORT_BF_SET(erps_discard, port_no,
                              entry->erps_discard_cnt[port_no] ? 1 : 0);
         }
-        vtss_debug_print_ports(vtss_state, pr, erps_discard, 0);
+        vtss_debug_print_ports(vtss_state, ss, erps_discard, 0);
         pr(" <- ERPS Discard\n");
 #endif // VTSS_FEATURE_L2_ERPS
 
@@ -9130,16 +9127,16 @@ static void vtss_debug_print_vlan(vtss_state_t                  *vtss_state,
                 VTSS_RC_OK)
             continue;
         pr("VLAN ID %u Counters:\n\n", vid);
-        vtss_debug_vlan_cnt(pr, "Unicast", &counters.rx_vlan_unicast);
-        vtss_debug_vlan_cnt(pr, "Multicast", &counters.rx_vlan_multicast);
-        vtss_debug_vlan_cnt(pr, "Broadcast", &counters.rx_vlan_broadcast);
+        vtss_debug_vlan_cnt(ss, "Unicast", &counters.rx_vlan_unicast);
+        vtss_debug_vlan_cnt(ss, "Multicast", &counters.rx_vlan_multicast);
+        vtss_debug_vlan_cnt(ss, "Broadcast", &counters.rx_vlan_broadcast);
         pr("\n");
     }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
 }
 
 static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     BOOL           header = 1;
@@ -9161,14 +9158,14 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
         pr("\n");
     }
 
-    vtss_debug_print_port_header(vtss_state, pr, "PVLAN  ", 0, 1);
+    vtss_debug_print_port_header(vtss_state, ss, "PVLAN  ", 0, 1);
     {
         vtss_pvlan_no_t pvlan_no;
 
         for (pvlan_no = VTSS_PVLAN_NO_START; pvlan_no < VTSS_PVLAN_NO_END;
              pvlan_no++) {
             pr("%-7u", pvlan_no);
-            vtss_debug_print_port_members(vtss_state, pr,
+            vtss_debug_print_port_members(vtss_state, ss,
                                           vtss_state->l2.pvlan_table[pvlan_no]
                                               .member,
                                           1);
@@ -9184,10 +9181,10 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
         }
         if (header) {
             header = 0;
-            vtss_debug_print_port_header(vtss_state, pr, "APVLAN  ", 0, 1);
+            vtss_debug_print_port_header(vtss_state, ss, "APVLAN  ", 0, 1);
         }
         pr("%-6u  ", port_no);
-        vtss_debug_print_port_members(vtss_state, pr,
+        vtss_debug_print_port_members(vtss_state, ss,
                                       vtss_state->l2.apvlan_table[port_no], 1);
     }
     if (!header) {
@@ -9195,17 +9192,17 @@ static void vtss_debug_print_pvlan(vtss_state_t                  *vtss_state,
     }
 }
 
-void vtss_debug_print_mac_entry(const vtss_debug_printf_t pr,
-                                const char               *name,
-                                BOOL                     *header,
-                                vtss_mac_table_entry_t   *entry,
-                                u32                       pgid)
+void vtss_debug_print_mac_entry(lmu_ss_t               *ss,
+                                const char             *name,
+                                BOOL                   *header,
+                                vtss_mac_table_entry_t *entry,
+                                u32                     pgid)
 {
     u8 *p = &entry->vid_mac.mac.addr[0];
 
     if (*header) {
         *header = 0;
-        vtss_debug_print_header(pr, name);
+        vtss_debug_print_header(ss, name);
         pr("VID   MAC                PGID  CPU  Que  Locked  Age");
         pr("\n");
     }
@@ -9215,8 +9212,8 @@ void vtss_debug_print_mac_entry(const vtss_debug_printf_t pr,
        entry->locked, entry->aged);
 }
 
-static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static void vtss_debug_print_mac_table(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to the VTSS_EXIT_ENTER
@@ -9227,24 +9224,24 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
     BOOL                   header = 1;
     u32                    pgid;
 
-    vtss_debug_print_value(pr, "Age time", vtss_state->l2.mac_age_time);
-    vtss_debug_print_value(pr, "MAC table size",
+    vtss_debug_print_value(ss, "Age time", vtss_state->l2.mac_age_time);
+    vtss_debug_print_value(ss, "MAC table size",
                            sizeof(vtss_mac_entry_t) * VTSS_MAC_ADDRS);
-    vtss_debug_print_value(pr, "MAC table maximum", VTSS_MAC_ADDRS);
-    vtss_debug_print_value(pr, "MAC table count",
+    vtss_debug_print_value(ss, "MAC table maximum", VTSS_MAC_ADDRS);
+    vtss_debug_print_value(ss, "MAC table count",
                            vtss_state->l2.mac_table_count);
     pr("\n");
 
-    vtss_debug_print_port_header(vtss_state, pr, "Flood Members  ", 0, 1);
+    vtss_debug_print_port_header(vtss_state, ss, "Flood Members  ", 0, 1);
     pr("Unicast        ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.uc_flood, 1);
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.uc_flood, 1);
     pr("Multicast      ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.mc_flood, 1);
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.mc_flood, 1);
     pr("IPv4 MC        ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.ipv4_mc_flood,
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.ipv4_mc_flood,
                                   1);
     pr("IPv6 MC        ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.ipv6_mc_flood,
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.ipv6_mc_flood,
                                   1);
     pr("\n");
 
@@ -9270,7 +9267,7 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
         while (vtss_mac_index_get(vtss_state, &mac_entry, &pgid, 1) ==
                VTSS_RC_OK) {
             vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
-            vtss_debug_print_mac_entry(pr, "Index Entries", &header, &mac_entry,
+            vtss_debug_print_mac_entry(ss, "Index Entries", &header, &mac_entry,
                                        pgid);
             VTSS_EXIT_ENTER();
         }
@@ -9285,8 +9282,8 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
     for (entry = vtss_state->l2.mac_list_used; entry != NULL;
          entry = entry->next) {
         if (header) {
-            vtss_debug_print_header(pr, "API Entries");
-            vtss_debug_print_port_header(vtss_state, pr,
+            vtss_debug_print_header(ss, "API Entries");
+            vtss_debug_print_port_header(vtss_state, ss,
                                          "User  VID   MAC                CPU  ",
                                          0, 1);
             header = 0;
@@ -9299,7 +9296,7 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
                                               : "?",
            vid_mac.vid, p[0], p[1], p[2], p[3], p[4], p[5], entry->cpu_copy,
            entry->cpu_copy_smac);
-        vtss_debug_print_ports(vtss_state, pr, entry->member, 1);
+        vtss_debug_print_ports(vtss_state, ss, entry->member, 1);
         VTSS_EXIT_ENTER();
     }
     if (!header) {
@@ -9312,7 +9309,7 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
     while (vtss_cil_l2_mac_table_get_next(vtss_state, &mac_entry, &pgid) ==
            VTSS_RC_OK) {
         vtss_mac_pgid_get(vtss_state, &mac_entry, pgid);
-        vtss_debug_print_mac_entry(pr, "Chip Entries", &header, &mac_entry,
+        vtss_debug_print_mac_entry(ss, "Chip Entries", &header, &mac_entry,
                                    pgid);
         VTSS_EXIT_ENTER();
     }
@@ -9322,7 +9319,7 @@ static void vtss_debug_print_mac_table(vtss_state_t             *vtss_state,
 }
 
 static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_port_no_t     port_no;
@@ -9334,7 +9331,7 @@ static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
     vtss_aggr_no_t     aggr_no;
 
     VTSS_PORT_BF_CLR(member);
-    vtss_debug_print_port_header(vtss_state, pr, "LLAG  ", 0, 1);
+    vtss_debug_print_port_header(vtss_state, ss, "LLAG  ", 0, 1);
     for (aggr_no = VTSS_AGGR_NO_START; aggr_no < VTSS_AGGR_NO_END; aggr_no++) {
         pr("%-4u  ", aggr_no);
         VTSS_PORT_BF_CLR(member);
@@ -9343,19 +9340,19 @@ static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
             VTSS_PORT_BF_SET(member, port_no,
                              vtss_state->l2.port_aggr_no[port_no] == aggr_no);
         }
-        vtss_debug_print_ports(vtss_state, pr, member, 1);
+        vtss_debug_print_ports(vtss_state, ss, member, 1);
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Mode");
+    vtss_debug_print_header(ss, "Mode");
     mode = &vtss_state->l2.aggr_mode;
-    vtss_debug_print_value(pr, "SMAC", mode->smac_enable);
-    vtss_debug_print_value(pr, "DMAC", mode->dmac_enable);
-    vtss_debug_print_value(pr, "SIP/DIP", mode->sip_dip_enable);
-    vtss_debug_print_value(pr, "SPORT/DPORT", mode->sport_dport_enable);
+    vtss_debug_print_value(ss, "SMAC", mode->smac_enable);
+    vtss_debug_print_value(ss, "DMAC", mode->dmac_enable);
+    vtss_debug_print_value(ss, "SIP/DIP", mode->sip_dip_enable);
+    vtss_debug_print_value(ss, "SPORT/DPORT", mode->sport_dport_enable);
     pr("\n");
 
-    vtss_debug_print_port_header(vtss_state, pr,
+    vtss_debug_print_port_header(vtss_state, ss,
                                  "PGID  Count  Resv  CPU  Queue  ", 0, 1);
     for (pgid = 0; pgid < vtss_state->l2.pgid_count; pgid++) {
         pgid_entry = &vtss_state->l2.pgid_table[pgid];
@@ -9373,12 +9370,12 @@ static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
         pr("%-4u  %-5u  %-4u  %-3u  %-5u  ", pgid, pgid_entry->references,
            pgid_entry->resv, pgid_entry->cpu_copy, pgid_entry->cpu_queue);
 
-        vtss_debug_print_port_members(vtss_state, pr, pgid_entry->member, 1);
+        vtss_debug_print_port_members(vtss_state, ss, pgid_entry->member, 1);
     }
     pr("\n");
-    vtss_debug_print_value(pr, "PGID count", vtss_state->l2.pgid_count);
-    vtss_debug_print_value(pr, "PGID drop", vtss_state->l2.pgid_drop);
-    vtss_debug_print_value(pr, "PGID flood", vtss_state->l2.pgid_flood);
+    vtss_debug_print_value(ss, "PGID count", vtss_state->l2.pgid_count);
+    vtss_debug_print_value(ss, "PGID drop", vtss_state->l2.pgid_drop);
+    vtss_debug_print_value(ss, "PGID flood", vtss_state->l2.pgid_flood);
     pr("\n");
 
     pr("Port  Destination Group\n");
@@ -9390,9 +9387,9 @@ static void vtss_debug_print_aggr(vtss_state_t                  *vtss_state,
     pr("\n");
 }
 
-static void vtss_debug_print_stp_state(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
-                                       vtss_stp_state_t         *state)
+static void vtss_debug_print_stp_state(vtss_state_t     *vtss_state,
+                                       lmu_ss_t         *ss,
+                                       vtss_stp_state_t *state)
 {
     vtss_port_no_t   port_no;
     vtss_stp_state_t s;
@@ -9409,22 +9406,22 @@ static void vtss_debug_print_stp_state(vtss_state_t             *vtss_state,
 }
 
 static void vtss_debug_print_stp(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    vtss_debug_print_port_header(vtss_state, pr, "STP   ", 0, 1);
+    vtss_debug_print_port_header(vtss_state, ss, "STP   ", 0, 1);
     pr("      ");
-    vtss_debug_print_stp_state(vtss_state, pr, vtss_state->l2.stp_state);
+    vtss_debug_print_stp_state(vtss_state, ss, vtss_state->l2.stp_state);
     pr("\n");
 
 #if defined(VTSS_FEATURE_L2_MSTP)
     {
         vtss_msti_t msti;
 
-        vtss_debug_print_port_header(vtss_state, pr, "MSTI  ", 0, 1);
+        vtss_debug_print_port_header(vtss_state, ss, "MSTI  ", 0, 1);
         for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
             pr("%-4u  ", msti);
-            vtss_debug_print_stp_state(vtss_state, pr,
+            vtss_debug_print_stp_state(vtss_state, ss,
                                        vtss_state->l2.mstp_table[msti].state);
         }
         pr("\n");
@@ -9432,9 +9429,9 @@ static void vtss_debug_print_stp(vtss_state_t                  *vtss_state,
 #endif
 }
 
-static void vtss_debug_print_port_none(const vtss_debug_printf_t pr,
-                                       const char               *name,
-                                       vtss_port_no_t            port_no)
+static void vtss_debug_print_port_none(lmu_ss_t      *ss,
+                                       const char    *name,
+                                       vtss_port_no_t port_no)
 {
     pr("%s: ", name);
     if (port_no == VTSS_PORT_NO_NONE) {
@@ -9446,25 +9443,25 @@ static void vtss_debug_print_port_none(const vtss_debug_printf_t pr,
 }
 
 static void vtss_debug_print_mirror(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     vtss_mirror_conf_t *conf = &vtss_state->l2.mirror_conf;
 
-    vtss_debug_print_port_header(vtss_state, pr, "         ", 0, 0);
+    vtss_debug_print_port_header(vtss_state, ss, "         ", 0, 0);
     pr(" CPU\n");
 
     pr("Ingress: ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.mirror_ingress,
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.mirror_ingress,
                                   0);
     pr(" %u\n", vtss_state->l2.mirror_cpu_ingress);
 
     pr("Egress : ");
-    vtss_debug_print_port_members(vtss_state, pr, vtss_state->l2.mirror_egress,
+    vtss_debug_print_port_members(vtss_state, ss, vtss_state->l2.mirror_egress,
                                   0);
     pr(" %u\n\n", vtss_state->l2.mirror_cpu_egress);
 
-    vtss_debug_print_port_none(pr, "Mirror Port      ", conf->port_no);
+    vtss_debug_print_port_none(ss, "Mirror Port      ", conf->port_no);
     pr("Mirror Forwarding: %s\n", vtss_bool_txt(conf->fwd_enable));
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
     defined(VTSS_ARCH_LAN969X)
@@ -9483,7 +9480,7 @@ static void vtss_debug_print_mirror(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_L2_ERPS)
 static void vtss_debug_print_erps(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_erpi_t        erpi;
@@ -9491,12 +9488,12 @@ static void vtss_debug_print_erps(vtss_state_t                  *vtss_state,
     int                i;
     vtss_vid_t         vid;
 
-    vtss_debug_print_port_header(vtss_state, pr, "ERPI  ", 0, 0);
+    vtss_debug_print_port_header(vtss_state, ss, "ERPI  ", 0, 0);
     pr("  VLANs\n");
     for (erpi = VTSS_ERPI_START; erpi < VTSS_ERPI_END; erpi++) {
         entry = &vtss_state->l2.erps_table[erpi];
         pr("%-4u  ", erpi);
-        vtss_debug_print_ports(vtss_state, pr, entry->port_member, 0);
+        vtss_debug_print_ports(vtss_state, ss, entry->port_member, 0);
         pr("  ");
         for (vid = VTSS_VID_NULL, i = 0; vid < VTSS_VIDS; vid++) {
             if (VTSS_BF_GET(entry->vlan_member, vid)) {
@@ -9511,7 +9508,7 @@ static void vtss_debug_print_erps(vtss_state_t                  *vtss_state,
 #endif // VTSS_FEATURE_L2_ERPS
 
 static void vtss_debug_print_eps(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     vtss_port_no_t   port_no;
@@ -9545,8 +9542,7 @@ static void vtss_debug_print_eps(vtss_state_t                  *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
-static void vtss_debug_print_ipv6_addr(const vtss_debug_printf_t pr,
-                                       vtss_ipv6_t              *ipv6)
+static void vtss_debug_print_ipv6_addr(lmu_ss_t *ss, vtss_ipv6_t *ipv6)
 {
     int i;
 
@@ -9556,7 +9552,7 @@ static void vtss_debug_print_ipv6_addr(const vtss_debug_printf_t pr,
 }
 
 static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_ipmc_info_t *ipmc = &vtss_state->l2.ipmc;
@@ -9566,7 +9562,7 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
     u32               ipv6, src_free_count = 0, dst_free_count = 0;
     BOOL              header;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_IPMC))
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_IPMC))
         return;
 
     for (src = ipmc->obj.src_free; src != NULL; src = src->next) {
@@ -9576,13 +9572,13 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
         dst_free_count++;
     }
 
-    vtss_debug_print_value(pr, "State size", sizeof(*ipmc));
-    vtss_debug_print_value(pr, "Source count", ipmc->obj.src_count);
-    vtss_debug_print_value(pr, "Source free", src_free_count);
-    vtss_debug_print_value(pr, "Source maximum", ipmc->obj.src_max);
-    vtss_debug_print_value(pr, "Destination count", ipmc->obj.dst_count);
-    vtss_debug_print_value(pr, "Destination free", dst_free_count);
-    vtss_debug_print_value(pr, "Destination maximum", ipmc->obj.dst_max);
+    vtss_debug_print_value(ss, "State size", sizeof(*ipmc));
+    vtss_debug_print_value(ss, "Source count", ipmc->obj.src_count);
+    vtss_debug_print_value(ss, "Source free", src_free_count);
+    vtss_debug_print_value(ss, "Source maximum", ipmc->obj.src_max);
+    vtss_debug_print_value(ss, "Destination count", ipmc->obj.dst_count);
+    vtss_debug_print_value(ss, "Destination free", dst_free_count);
+    vtss_debug_print_value(ss, "Destination maximum", ipmc->obj.dst_max);
     pr("\n");
 
     /* SIP Table */
@@ -9593,23 +9589,23 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
             pr("%-6s%-6u%-6u", src->data.ssm ? "SSM" : "ASM", src->data.vid,
                src->data.fid);
             if (ipv6)
-                vtss_debug_print_ipv6_addr(pr, &src->data.sip.ipv6);
+                vtss_debug_print_ipv6_addr(ss, &src->data.sip.ipv6);
             else
                 pr("0x%08x", src->data.sip.ipv4);
             pr("\n\n");
             header = 1;
             for (dst = src->dest; dst != NULL; dst = dst->next) {
                 if (header) {
-                    vtss_debug_print_port_header(vtss_state, pr, buf, 0, 1);
+                    vtss_debug_print_port_header(vtss_state, ss, buf, 0, 1);
                     header = 0;
                 }
                 pr("  ");
                 if (ipv6)
-                    vtss_debug_print_ipv6_addr(pr, &dst->data.dip.ipv6);
+                    vtss_debug_print_ipv6_addr(ss, &dst->data.dip.ipv6);
                 else
                     pr("0x%08x", dst->data.dip.ipv4);
                 pr(" ");
-                vtss_debug_print_ports(vtss_state, pr, dst->data.member, 1);
+                vtss_debug_print_ports(vtss_state, ss, dst->data.member, 1);
             }
             pr("\n");
         }
@@ -9617,26 +9613,26 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_IS1)
     if (vtss_state->arch == VTSS_ARCH_L26) {
-        vtss_vcap_debug_print_is1(vtss_state, pr, info);
+        vtss_vcap_debug_print_is1(vtss_state, ss, info);
     }
 #endif /* VTSS_FEATURE_IS1 */
 
 #if defined(VTSS_FEATURE_IS2)
     if (vtss_state->arch == VTSS_ARCH_JR1) {
-        vtss_vcap_debug_print_is2(vtss_state, pr, info);
+        vtss_vcap_debug_print_is2(vtss_state, ss, info);
     }
 #endif /* VTSS_FEATURE_IS2 */
 
-    vtss_debug_print_mac_table(vtss_state, pr, info);
+    vtss_debug_print_mac_table(vtss_state, ss, info);
 }
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 
 #if defined(VTSS_FEATURE_REDBOX)
-static void vtss_debug_cnt(const vtss_debug_printf_t pr,
-                           const char               *col1,
-                           const char               *col2,
-                           vtss_counter_t            c1,
-                           vtss_counter_t            c2)
+static void vtss_debug_cnt(lmu_ss_t      *ss,
+                           const char    *col1,
+                           const char    *col2,
+                           vtss_counter_t c1,
+                           vtss_counter_t c2)
 {
     char buf[64];
 
@@ -9653,24 +9649,24 @@ static void vtss_debug_cnt(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static void vtss_debug_rb_cnt(const vtss_debug_printf_t pr,
-                              int                       i,
-                              const char               *txt,
-                              vtss_rb_port_counters_t  *c)
+static void vtss_debug_rb_cnt(lmu_ss_t                *ss,
+                              int                      i,
+                              const char              *txt,
+                              vtss_rb_port_counters_t *c)
 {
     pr("RedBox %u, port %s counters:\n", i, txt);
-    vtss_debug_cnt(pr, "Local", "", c->rx_local, c->tx_local);
-    vtss_debug_cnt(pr, "Untagged", "", c->rx_untagged, c->tx_untagged);
-    vtss_debug_cnt(pr, "Tagged", "", c->rx_tagged, c->tx_tagged);
-    vtss_debug_cnt(pr, "WrongLan", "DuplZero", c->rx_wrong_lan,
+    vtss_debug_cnt(ss, "Local", "", c->rx_local, c->tx_local);
+    vtss_debug_cnt(ss, "Untagged", "", c->rx_untagged, c->tx_untagged);
+    vtss_debug_cnt(ss, "Tagged", "", c->rx_tagged, c->tx_tagged);
+    vtss_debug_cnt(ss, "WrongLan", "DuplZero", c->rx_wrong_lan,
                    c->tx_dupl_zero);
-    vtss_debug_cnt(pr, "Own", "DuplOne", c->rx_own, c->tx_dupl_one);
-    vtss_debug_cnt(pr, NULL, "DuplMulti", 0, c->tx_dupl_multi);
+    vtss_debug_cnt(ss, "Own", "DuplOne", c->rx_own, c->tx_dupl_one);
+    vtss_debug_cnt(ss, NULL, "DuplMulti", 0, c->tx_dupl_multi);
     pr("\n");
 }
 
 static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     vtss_rc              rc;
@@ -9732,9 +9728,9 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
             vtss_rb_cnt_get(vtss_state, i, &cnt) != VTSS_RC_OK) {
             continue;
         }
-        vtss_debug_rb_cnt(pr, i, "A", &cnt.port_a);
-        vtss_debug_rb_cnt(pr, i, "B", &cnt.port_b);
-        vtss_debug_rb_cnt(pr, i, "C", &cnt.port_c);
+        vtss_debug_rb_cnt(ss, i, "A", &cnt.port_a);
+        vtss_debug_rb_cnt(ss, i, "B", &cnt.port_b);
+        vtss_debug_rb_cnt(ss, i, "C", &cnt.port_c);
         if (info->clear) {
             vtss_cil_l2_rb_counters_update(vtss_state, i, TRUE);
         }
@@ -9814,46 +9810,46 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
 #endif
 
 void vtss_l2_debug_print(vtss_state_t                  *vtss_state,
-                         const vtss_debug_printf_t      pr,
+                         lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info)
 {
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VLAN)) {
-        vtss_debug_print_vlan(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_VLAN)) {
+        vtss_debug_print_vlan(vtss_state, ss, info);
     }
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PVLAN)) {
-        vtss_debug_print_pvlan(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PVLAN)) {
+        vtss_debug_print_pvlan(vtss_state, ss, info);
     }
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MAC_TABLE)) {
-        vtss_debug_print_mac_table(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_MAC_TABLE)) {
+        vtss_debug_print_mac_table(vtss_state, ss, info);
     }
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_AGGR)) {
-        vtss_debug_print_aggr(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_AGGR)) {
+        vtss_debug_print_aggr(vtss_state, ss, info);
     }
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_STP)) {
-        vtss_debug_print_stp(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_STP)) {
+        vtss_debug_print_stp(vtss_state, ss, info);
     }
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MIRROR)) {
-        vtss_debug_print_mirror(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_MIRROR)) {
+        vtss_debug_print_mirror(vtss_state, ss, info);
     }
 #if defined(VTSS_FEATURE_L2_ERPS)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_ERPS))
-        vtss_debug_print_erps(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_ERPS))
+        vtss_debug_print_erps(vtss_state, ss, info);
 #endif
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EPS)) {
-        vtss_debug_print_eps(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_EPS)) {
+        vtss_debug_print_eps(vtss_state, ss, info);
     }
 #if defined(VTSS_FEATURE_VCAP)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_VXLAT)) {
-        vtss_debug_print_vlan_trans(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_VXLAT)) {
+        vtss_debug_print_vlan_trans(vtss_state, ss, info);
     }
 #endif
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
-    vtss_debug_print_ipmc(vtss_state, pr, info);
+    vtss_debug_print_ipmc(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
-        if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_REDBOX))
-            vtss_debug_print_redbox(vtss_state, pr, info);
+        if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_REDBOX))
+            vtss_debug_print_redbox(vtss_state, ss, info);
     }
 #endif
 }

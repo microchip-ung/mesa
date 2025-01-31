@@ -1371,32 +1371,30 @@ vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t        *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-static void jr2_debug_pmask_header(vtss_state_t             *vtss_state,
-                                   const vtss_debug_printf_t pr,
-                                   const char               *name)
+static void jr2_debug_pmask_header(vtss_state_t *vtss_state,
+                                   lmu_ss_t     *ss,
+                                   const char   *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%-34s", name == NULL ? "Port" : name);
-    vtss_jr2_debug_print_port_header(vtss_state, pr, buf);
+    vtss_jr2_debug_print_port_header(vtss_state, ss, buf);
 }
 
-static void jr2_debug_pmask(const vtss_debug_printf_t pr,
-                            const char               *name,
-                            u64                       pmask)
+static void jr2_debug_pmask(lmu_ss_t *ss, const char *name, u64 pmask)
 {
     pr("%-34s", name);
-    vtss_jr2_debug_print_pmask(pr, pmask);
+    vtss_jr2_debug_print_pmask(ss, pmask);
 }
 
-#define JR2_DEBUG_VLAN(pr, addr, name)                                         \
-    JR2_DEBUG_REG_NAME(pr, ANA_L3, COMMON_VLAN_##addr, "VLAN_" name);
+#define JR2_DEBUG_VLAN(ss, addr, name)                                         \
+    JR2_DEBUG_REG_NAME(ss, ANA_L3, COMMON_VLAN_##addr, "VLAN_" name);
 
-static vtss_rc jr2_debug_vlan_entry(vtss_state_t             *vtss_state,
-                                    const vtss_debug_printf_t pr,
-                                    vtss_vid_t                vid,
-                                    vtss_vid_t                vlan_idx,
-                                    BOOL                      header)
+static vtss_rc jr2_debug_vlan_entry(vtss_state_t *vtss_state,
+                                    lmu_ss_t     *ss,
+                                    vtss_vid_t    vid,
+                                    vtss_vid_t    vlan_idx,
+                                    BOOL          header)
 {
     u32  value;
     u64  pmask;
@@ -1406,7 +1404,7 @@ static vtss_rc jr2_debug_vlan_entry(vtss_state_t             *vtss_state,
     JR2_RD(VTSS_ANA_L3_VLAN_VLAN_CFG(vlan_idx), &value);
 
     if (header) {
-        jr2_debug_pmask_header(vtss_state, pr,
+        jr2_debug_pmask_header(vtss_state, ss,
                                "VID  IDX   FID  MSTI  L/F/M/F/P");
     }
     VTSS_SPRINTF(buf, "%-5u%-6u%-5u%-6u%u/%u/%u/%u/%u", vid, vlan_idx,
@@ -1417,25 +1415,25 @@ static vtss_rc jr2_debug_vlan_entry(vtss_state_t             *vtss_state,
                  VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(value),
                  VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
                  VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(value));
-    jr2_debug_pmask(pr, buf, pmask);
+    jr2_debug_pmask(ss, buf, pmask);
 
     return VTSS_RC_OK;
 }
 
-static void jr2_debug_vlan_cfg(vtss_state_t             *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               vtss_vid_t                vid,
-                               BOOL                      header)
+static void jr2_debug_vlan_cfg(vtss_state_t *vtss_state,
+                               lmu_ss_t     *ss,
+                               vtss_vid_t    vid,
+                               BOOL          header)
 {
     if (header) {
-        vtss_jr2_debug_reg_header(pr, "ANA_L3");
+        vtss_jr2_debug_reg_header(ss, "ANA_L3");
     }
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_L3_VLAN_VLAN_CFG(vid), vid,
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_ANA_L3_VLAN_VLAN_CFG(vid), vid,
                             "VLAN_CFG");
 }
 
 static vtss_rc jr2_debug_vlan(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
@@ -1453,47 +1451,47 @@ static vtss_rc jr2_debug_vlan(vtss_state_t                  *vtss_state,
             continue;
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_jr2_debug_reg_header(pr, buf);
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_header(ss, buf);
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_CL_PORT_VLAN_FILTER_CTRL(port, 0),
                                 port, "ANA:VLAN_FILTER_CTRL");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_CL_PORT_VLAN_CTRL(port), port,
                                 "ANA:VLAN_CTRL");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_CL_PORT_VLAN_TPID_CTRL(port), port,
                                 "ANA:TPID_CTRL");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_REW_PORT_PORT_VLAN_CFG(port), port,
                                 "REW:PORT_VLAN_CFG");
-        vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_REW_PORT_TAG_CTRL(port),
+        vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_REW_PORT_TAG_CTRL(port),
                                 port, "REW:TAG_CTRL");
         pr("\n");
     }
 
-    vtss_jr2_debug_reg_header(pr, "VLAN COMMON");
-    JR2_DEBUG_VLAN(pr, CTRL, "CTRL");
-    JR2_DEBUG_REG_NAME(pr, ANA_CL, COMMON_VLAN_STAG_CFG(0), "VLAN_STAG_CFG(0)");
-    JR2_DEBUG_REG_NAME(pr, ANA_CL, COMMON_VLAN_STAG_CFG(1), "VLAN_STAG_CFG(1)");
-    JR2_DEBUG_REG_NAME(pr, ANA_CL, COMMON_VLAN_STAG_CFG(2), "VLAN_STAG_CFG(2)");
+    vtss_jr2_debug_reg_header(ss, "VLAN COMMON");
+    JR2_DEBUG_VLAN(ss, CTRL, "CTRL");
+    JR2_DEBUG_REG_NAME(ss, ANA_CL, COMMON_VLAN_STAG_CFG(0), "VLAN_STAG_CFG(0)");
+    JR2_DEBUG_REG_NAME(ss, ANA_CL, COMMON_VLAN_STAG_CFG(1), "VLAN_STAG_CFG(1)");
+    JR2_DEBUG_REG_NAME(ss, ANA_CL, COMMON_VLAN_STAG_CFG(2), "VLAN_STAG_CFG(2)");
     pr("\n");
 
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     JR2_RD_PMASK(VTSS_ANA_L3_COMMON_VLAN_FILTER_CTRL, &pmask);
-    jr2_debug_pmask(pr, "FILTER_CTRL", pmask);
+    jr2_debug_pmask(ss, "FILTER_CTRL", pmask);
     JR2_RD_PMASK(VTSS_ANA_L3_COMMON_VLAN_ISOLATED_CFG, &pmask);
-    jr2_debug_pmask(pr, "ISOLATED_CFG", pmask);
+    jr2_debug_pmask(ss, "ISOLATED_CFG", pmask);
     JR2_RD_PMASK(VTSS_ANA_L3_COMMON_VLAN_COMMUNITY_CFG, &pmask);
-    jr2_debug_pmask(pr, "COMMUNITY_CFG", pmask);
+    jr2_debug_pmask(ss, "COMMUNITY_CFG", pmask);
     pr("\n");
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
         if (info->full || (vlan_entry->flags & VLAN_FLAGS_ENABLED)) {
-            VTSS_RC(jr2_debug_vlan_entry(vtss_state, pr, vid, vid, header));
+            VTSS_RC(jr2_debug_vlan_entry(vtss_state, ss, vid, vid, header));
             header = 0;
             if ((vlan_entry->vsi_enable) && (vlan_entry->vsi != NULL)) {
-                VTSS_RC(jr2_debug_vlan_entry(vtss_state, pr, vid,
+                VTSS_RC(jr2_debug_vlan_entry(vtss_state, ss, vid,
                                              VTSS_VIDS + vlan_entry->vsi->vsi,
                                              header));
             }
@@ -1508,10 +1506,10 @@ static vtss_rc jr2_debug_vlan(vtss_state_t                  *vtss_state,
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
         vlan_entry = &vtss_state->l2.vlan_table[vid];
         if (info->full || (vlan_entry->flags & VLAN_FLAGS_ENABLED)) {
-            jr2_debug_vlan_cfg(vtss_state, pr, vid, header);
+            jr2_debug_vlan_cfg(vtss_state, ss, vid, header);
             header = 0;
             if ((vlan_entry->vsi_enable) && (vlan_entry->vsi != NULL)) {
-                jr2_debug_vlan_cfg(vtss_state, pr,
+                jr2_debug_vlan_cfg(vtss_state, ss,
                                    VTSS_VIDS + vlan_entry->vsi->vsi, header);
             }
             /* Leave critical region briefly */
@@ -1525,19 +1523,19 @@ static vtss_rc jr2_debug_vlan(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_src_table(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     u32  port;
     u64  pmask;
     char buf[32];
 
-    vtss_debug_print_header(pr, "Source Masks");
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    vtss_debug_print_header(ss, "Source Masks");
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         JR2_RDX_PMASK(VTSS_ANA_AC_SRC_SRC_CFG, port, &pmask);
         VTSS_SPRINTF(buf, "%u", port);
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
     }
     pr("\n");
 
@@ -1545,19 +1543,19 @@ static vtss_rc jr2_debug_src_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_aggr_table(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     u32  ac;
     u64  pmask;
     char buf[32];
 
-    vtss_debug_print_header(pr, "Aggregation Masks");
-    jr2_debug_pmask_header(vtss_state, pr, "AC");
+    vtss_debug_print_header(ss, "Aggregation Masks");
+    jr2_debug_pmask_header(vtss_state, ss, "AC");
     for (ac = 0; ac < 16; ac++) {
         JR2_RDX_PMASK(VTSS_ANA_AC_AGGR_AGGR_CFG, ac, &pmask);
         VTSS_SPRINTF(buf, "%u", ac);
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
     }
     pr("\n");
 
@@ -1565,7 +1563,7 @@ static vtss_rc jr2_debug_aggr_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info,
                                     u32                            pgid_start,
                                     u32                            pgid_end,
@@ -1576,8 +1574,8 @@ static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
     char buf[32];
 
     if (!header || *header) {
-        vtss_debug_print_header(pr, "Destination Masks");
-        jr2_debug_pmask_header(vtss_state, pr,
+        vtss_debug_print_header(ss, "Destination Masks");
+        jr2_debug_pmask_header(vtss_state, ss,
                                "PGID            CPU  Que  Stack");
 
         if (header) {
@@ -1608,7 +1606,7 @@ static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
                      cpu_copy,
                      VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_QU(value),
                      VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_STACK_TYPE_ENA(value));
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
     }
 
     if (!header) {
@@ -1619,23 +1617,23 @@ static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_pvlan(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     u64 pmask;
 
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     JR2_RD_PMASK(VTSS_ANA_L3_COMMON_VLAN_ISOLATED_CFG, &pmask);
-    jr2_debug_pmask(pr, "ISOLATED_CFG", pmask);
+    jr2_debug_pmask(ss, "ISOLATED_CFG", pmask);
     JR2_RD_PMASK(VTSS_ANA_L3_COMMON_VLAN_COMMUNITY_CFG, &pmask);
-    jr2_debug_pmask(pr, "COMMUNITY_CFG", pmask);
+    jr2_debug_pmask(ss, "COMMUNITY_CFG", pmask);
     pr("\n");
 
-    return jr2_debug_src_table(vtss_state, pr, info);
+    return jr2_debug_src_table(vtss_state, ss, info);
 }
 
 static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
@@ -1660,7 +1658,7 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
         mac_entry.copy_to_cpu =
             VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_COPY_ENA(value);
 
-        vtss_debug_print_mac_entry(pr, "Dynamic Entries (GET_NEXT)", &header,
+        vtss_debug_print_mac_entry(ss, "Dynamic Entries (GET_NEXT)", &header,
                                    &mac_entry, chip_pgid);
         VTSS_EXIT_ENTER();
     }
@@ -1683,7 +1681,7 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
             mac_entry.copy_to_cpu =
                 VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_COPY_ENA(value);
 
-            vtss_debug_print_mac_entry(pr, "Static Entries (GET)", &header,
+            vtss_debug_print_mac_entry(ss, "Static Entries (GET)", &header,
                                        &mac_entry, chip_pgid);
         }
         VTSS_EXIT_ENTER();
@@ -1696,7 +1694,7 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
     header = 1;
     for (chip_pgid = 0; chip_pgid < VTSS_PGIDS; chip_pgid++) {
         if (VTSS_BF_GET(pgids_to_print, chip_pgid)) {
-            VTSS_RC(jr2_debug_pgid_table(vtss_state, pr, info, chip_pgid,
+            VTSS_RC(jr2_debug_pgid_table(vtss_state, ss, info, chip_pgid,
                                          chip_pgid + 1, &header));
         }
     }
@@ -1705,85 +1703,85 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
         pr("\n");
     }
 
-    vtss_jr2_debug_reg_header(pr, "LRN:COMMON");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_COMMON_ACCESS_CTRL,
+    vtss_jr2_debug_reg_header(ss, "LRN:COMMON");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_COMMON_ACCESS_CTRL,
                        "COMMON_ACCESS_CTRL");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_MAC_ACCESS_CFG_0,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_MAC_ACCESS_CFG_0,
                        "MAC_ACCESS_CFG_0");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_MAC_ACCESS_CFG_1,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_MAC_ACCESS_CFG_1,
                        "MAC_ACCESS_CFG_1");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_MAC_ACCESS_CFG_2,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_MAC_ACCESS_CFG_2,
                        "MAC_ACCESS_CFG_2");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_SCAN_NEXT_CFG,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_SCAN_NEXT_CFG,
                        "SCAN_NEXT_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_SCAN_NEXT_CFG_1,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_SCAN_NEXT_CFG_1,
                        "SCAN_NEXT_CFG_1");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_SCAN_NEXT_CNT,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_SCAN_NEXT_CNT,
                        "SCAN_NEXT_CNT");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG(0),
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG(0),
                        "AUTOAGE_CFG(0)");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG(1),
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG(1),
                        "AUTOAGE_CFG(1)");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG(2),
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG(2),
                        "AUTOAGE_CFG(2)");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG(3),
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG(3),
                        "AUTOAGE_CFG(3)");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG_1,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG_1,
                        "AUTOAGE_CFG_1");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTOAGE_CFG_2,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTOAGE_CFG_2,
                        "AUTOAGE_CFG_2");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_AUTO_LRN_CFG,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_AUTO_LRN_CFG,
                        "AUTO_LRN_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_L2_COMMON_LRN_CFG,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_L2_COMMON_LRN_CFG,
                        "L2:LRN_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_LRN_COMMON_LATEST_POS_STATUS,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_LRN_COMMON_LATEST_POS_STATUS,
                        "LATEST_POS_STATUS");
 
     pr("\n");
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     JR2_RD_PMASK(VTSS_ANA_L2_COMMON_LRN_SECUR_CFG, &pmask);
-    jr2_debug_pmask(pr, "LRN_SECUR_CFG", pmask);
+    jr2_debug_pmask(ss, "LRN_SECUR_CFG", pmask);
     JR2_RD_PMASK(VTSS_ANA_L2_COMMON_LRN_SECUR_LOCKED_CFG, &pmask);
-    jr2_debug_pmask(pr, "LRN_SECUR_LOCKED_CFG", pmask);
+    jr2_debug_pmask(ss, "LRN_SECUR_LOCKED_CFG", pmask);
     JR2_RD_PMASK(VTSS_ANA_L2_COMMON_AUTO_LRN_CFG, &pmask);
-    jr2_debug_pmask(pr, "AUTO_LRN_CFG", pmask);
+    jr2_debug_pmask(ss, "AUTO_LRN_CFG", pmask);
     JR2_RD_PMASK(VTSS_ANA_L2_COMMON_LRN_COPY_CFG, &pmask);
-    jr2_debug_pmask(pr, "LRN_COPY_CFG", pmask);
+    jr2_debug_pmask(ss, "LRN_COPY_CFG", pmask);
     pr("\n");
 
     /* Read and clear sticky bits */
     if (info->full) {
-        vtss_jr2_debug_reg_header(pr, "STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_CL_STICKY_FILTER_STICKY,
+        vtss_jr2_debug_reg_header(ss, "STICKY");
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_CL_STICKY_FILTER_STICKY,
                               "ANA_CL:FILTER_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_CL_STICKY_VLAN_FILTER_STICKY(0),
                               "ANA_CL:VLAN_FILTER_STICKY(0)");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_CL_STICKY_VLAN_FILTER_STICKY(1),
                               "ANA_CL:VLAN_FILTER_STICKY(1)");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_CL_STICKY_VLAN_FILTER_STICKY(2),
                               "ANA_CL:VLAN_FILTER_STICKY(2)");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_CL_STICKY_CLASS_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_CL_STICKY_CLASS_STICKY,
                               "ANA_CL:CLASS_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_CL_STICKY_CAT_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_CL_STICKY_CAT_STICKY,
                               "ANA_CL:CAT_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_CL_STICKY_ADV_CL_MPLS_STICKY,
                               "ANA_CL:ADV_CL_MPLS_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_CL_STICKY_ADV_CL_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_CL_STICKY_ADV_CL_STICKY,
                               "ANA_CL:ADV_CL_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_CL_STICKY_MIP_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_CL_STICKY_MIP_STICKY,
                               "ANA_CL:MIP_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr,
+        vtss_jr2_debug_sticky(vtss_state, ss,
                               VTSS_ANA_CL_STICKY_IP_HDR_CHK_STICKY,
                               "ANA_CL:IP_HDR_CHK_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_L2_STICKY_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_L2_STICKY_STICKY,
                               "ANA_L2:L2_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_ANA_AC_PS_STICKY_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_AC_PS_STICKY_STICKY,
                               "ANA_AC:PS_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, pr, VTSS_LRN_COMMON_EVENT_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_LRN_COMMON_EVENT_STICKY,
                               "LRN:EVENT_STICKY");
         pr("\n");
     }
@@ -1792,52 +1790,52 @@ static vtss_rc jr2_debug_mac_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_vxlat(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, pr, info));
-    VTSS_RC(vtss_jr2_debug_es0(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, ss, info));
+    VTSS_RC(vtss_jr2_debug_es0(vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 
 static vtss_rc jr2_debug_aggr(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32 port;
 
-    vtss_jr2_debug_reg_header(pr, "Logical Ports");
+    vtss_jr2_debug_reg_header(ss, "Logical Ports");
     for (port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_CL_PORT_PORT_ID_CFG(port), port,
                                 "PORT_ID_CFG");
     }
     pr("\n");
 
-    VTSS_RC(jr2_debug_src_table(vtss_state, pr, info));
-    VTSS_RC(jr2_debug_aggr_table(vtss_state, pr, info));
-    VTSS_RC(jr2_debug_pgid_table(vtss_state, pr, info, 0, VTSS_PGID_JAGUAR_2,
+    VTSS_RC(jr2_debug_src_table(vtss_state, ss, info));
+    VTSS_RC(jr2_debug_aggr_table(vtss_state, ss, info));
+    VTSS_RC(jr2_debug_pgid_table(vtss_state, ss, info, 0, VTSS_PGID_JAGUAR_2,
                                  NULL));
 
     return VTSS_RC_OK;
 }
 
 static vtss_rc jr2_debug_stp(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32  msti;
     u64  pmask;
     char buf[16];
 
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
         JR2_RDX_PMASK(VTSS_ANA_L3_MSTP_MSTP_LRN_CFG, msti, &pmask);
         VTSS_SPRINTF(buf, "MSTP_LRN_CFG_%u", msti);
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
         JR2_RDX_PMASK(VTSS_ANA_L3_MSTP_MSTP_FWD_CFG, msti, &pmask);
         VTSS_SPRINTF(buf, "MSTP_FWD_CFG_%u", msti);
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
     }
     pr("\n");
 
@@ -1845,7 +1843,7 @@ static vtss_rc jr2_debug_stp(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_mirror(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     u32  i, j;
@@ -1857,68 +1855,68 @@ static vtss_rc jr2_debug_mirror(vtss_state_t                  *vtss_state,
                      i == JR2_MIRROR_PROBE_RX   ? "Rx"
                      : i == JR2_MIRROR_PROBE_TX ? "Tx"
                                                 : "VLAN");
-        vtss_jr2_debug_reg_header(pr, buf);
+        vtss_jr2_debug_reg_header(ss, buf);
         j = QFWD_FRAME_COPY_CFG_MIRROR_PROBE(i);
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(j), j,
                                 "QFWD:FRAME_COPY_CFG");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_REW_COMMON_MIRROR_PROBE_CFG(i), i,
                                 "REW:PROBE_CFG");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_REW_COMMON_MIRROR_TAG_A_CFG(i), i,
                                 "REW:TAG_A_CFG");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_REW_COMMON_MIRROR_TAG_B_CFG(i), i,
                                 "REW:TAG_B_CFG");
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_AC_MIRROR_PROBE_PROBE_CFG(i), i,
                                 "ANA_AC:PROBE_CFG");
         pr("\n");
 
-        jr2_debug_pmask_header(vtss_state, pr, NULL);
+        jr2_debug_pmask_header(vtss_state, ss, NULL);
         JR2_RDX_PMASK(VTSS_ANA_AC_MIRROR_PROBE_PROBE_PORT_CFG, i, &pmask);
         VTSS_SPRINTF(buf, "PROBE_PORT_CFG_%u", i);
-        jr2_debug_pmask(pr, buf, pmask);
+        jr2_debug_pmask(ss, buf, pmask);
         pr("\n");
     }
 
-    jr2_debug_pmask_header(vtss_state, pr, NULL);
+    jr2_debug_pmask_header(vtss_state, ss, NULL);
     JR2_RD_PMASK(VTSS_ANA_AC_PS_COMMON_VSTAX_GMIRROR_CFG, &pmask);
-    jr2_debug_pmask(pr, "ANA_AC:GMIRROR_CFG", pmask);
+    jr2_debug_pmask(ss, "ANA_AC:GMIRROR_CFG", pmask);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 static vtss_rc jr2_debug_stack(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     vtss_vstax_upsid_t upsid;
 
-    vtss_jr2_debug_reg_header(pr, "ANA_L2/ANA_CL");
-    JR2_DEBUG_REG(pr, ANA_L2, COMMON_VSTAX_CTRL);
-    JR2_DEBUG_REG(pr, ANA_CL, COMMON_UPSID_CFG);
+    vtss_jr2_debug_reg_header(ss, "ANA_L2/ANA_CL");
+    JR2_DEBUG_REG(ss, ANA_L2, COMMON_VSTAX_CTRL);
+    JR2_DEBUG_REG(ss, ANA_CL, COMMON_UPSID_CFG);
     pr("\n");
 
-    vtss_jr2_debug_reg_header(pr, "REW");
-    JR2_DEBUG_REG_NAME(pr, REW, COMMON_VSTAX_PORT_GRP_CFG(0),
+    vtss_jr2_debug_reg_header(ss, "REW");
+    JR2_DEBUG_REG_NAME(ss, REW, COMMON_VSTAX_PORT_GRP_CFG(0),
                        "PORT_GRP_CFG(0)");
-    JR2_DEBUG_REG_NAME(pr, REW, COMMON_VSTAX_PORT_GRP_CFG(1),
+    JR2_DEBUG_REG_NAME(ss, REW, COMMON_VSTAX_PORT_GRP_CFG(1),
                        "PORT_GRP_CFG(1)");
     pr("\n");
 
-    vtss_jr2_debug_reg_header(pr, "ANA_AC");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_AC_PS_COMMON_STACK_A_CFG,
+    vtss_jr2_debug_reg_header(ss, "ANA_AC");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_AC_PS_COMMON_STACK_A_CFG,
                        "STACK_A_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_AC_PS_COMMON_STACK_CFG,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_AC_PS_COMMON_STACK_CFG,
                        "STACK_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr,
+    vtss_jr2_debug_reg(vtss_state, ss,
                        VTSS_ANA_AC_PS_COMMON_COMMON_EQUAL_STACK_LINK_TTL_CFG,
                        "LINK_TTL_CFG");
     for (upsid = VTSS_VSTAX_UPSID_MIN; upsid <= VTSS_VSTAX_UPSID_MAX; upsid++) {
-        JR2_DEBUG_REG(pr, ANA_AC, UPSID_UPSID_CFG(upsid));
+        JR2_DEBUG_REG(ss, ANA_AC, UPSID_UPSID_CFG(upsid));
     }
     pr("\n");
 
@@ -1926,25 +1924,25 @@ static vtss_rc jr2_debug_stack(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_jr2_l2_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN, jr2_debug_vlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN, jr2_debug_pvlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE,
-                                   jr2_debug_mac_table, vtss_state, pr, info));
+                                   jr2_debug_mac_table, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT, jr2_debug_vxlat,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR, jr2_debug_aggr,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, jr2_debug_stp,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR, jr2_debug_mirror,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STACK, jr2_debug_stack,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
 
     return VTSS_RC_OK;
 }

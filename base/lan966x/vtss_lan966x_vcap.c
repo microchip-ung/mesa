@@ -48,7 +48,7 @@ typedef struct {
     u32                           cnt;
     BOOL                          is_action;
 #if VTSS_OPT_DEBUG_PRINT
-    vtss_debug_printf_t pr;
+    lmu_ss_t *ss;
 #endif
 } lan966x_vcap_info_t;
 
@@ -527,7 +527,8 @@ static void lan966x_debug_action(lan966x_vcap_info_t *info,
                                  u32                  offs,
                                  u32                  len)
 {
-    info->pr("%s:%u ", name, lan966x_act_get(info, offs, len));
+    lmu_ss_t *ss = info->ss;
+    pr("%s:%u ", name, lan966x_act_get(info, offs, len));
 }
 
 static void lan966x_debug_bits(lan966x_vcap_info_t *info,
@@ -535,8 +536,8 @@ static void lan966x_debug_bits(lan966x_vcap_info_t *info,
                                u32                  offset,
                                u32                  len)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 i, j, v, m;
+    lmu_ss_t *ss = info->ss;
+    u32       i, j, v, m;
 
     if (name) {
         pr("%s:", name);
@@ -572,9 +573,9 @@ static void lan966x_debug_action_ena(lan966x_vcap_info_t *info,
                                      u32                  len,
                                      BOOL                 debug_bits)
 {
-    vtss_debug_printf_t pr = info->pr;
-    int                 i, length = VTSS_STRLEN(name);
-    BOOL                enable = vtss_bs_bit_get(info->data.action, offs);
+    lmu_ss_t *ss = info->ss;
+    int       i, length = VTSS_STRLEN(name);
+    BOOL      enable = vtss_bs_bit_get(info->data.action, offs);
 
     for (i = 0; i < length; i++) {
         pr("%c", enable ? VTSS_TOUPPER(name[i]) : VTSS_TOLOWER(name[i]));
@@ -2334,8 +2335,8 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 #if VTSS_OPT_DEBUG_PRINT
-vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t             *vtss_state,
-                                          const vtss_debug_printf_t pr,
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
                                           const vtss_debug_info_t *const info)
 {
     return VTSS_RC_OK;
@@ -2344,8 +2345,8 @@ vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t             *vtss_state,
 static vtss_rc lan966x_debug_is1(vtss_state_t        *vtss_state,
                                  lan966x_vcap_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 type;
+    lmu_ss_t *ss = info->ss;
+    u32       type;
 
     if (info->is_action) {
         if (info->act_tg != LAN966X_VCAP_TG_X1) {
@@ -2602,8 +2603,8 @@ static vtss_rc lan966x_debug_is1(vtss_state_t        *vtss_state,
 static vtss_rc lan966x_debug_is2(vtss_state_t        *vtss_state,
                                  lan966x_vcap_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 val, msk;
+    lmu_ss_t *ss = info->ss;
+    u32       val, msk;
 
     if (info->is_action) {
         if (info->act_tg == LAN966X_VCAP_TG_X2) {
@@ -2818,8 +2819,8 @@ static vtss_rc lan966x_debug_is2(vtss_state_t        *vtss_state,
 static vtss_rc lan966x_debug_es0(vtss_state_t        *vtss_state,
                                  lan966x_vcap_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 x, i, tpid, vid_sel, vid, pcp_sel, pcp, dei_sel, dei;
+    lmu_ss_t *ss = info->ss;
+    u32       x, i, tpid, vid_sel, vid, pcp_sel, pcp, dei_sel, dei;
 
     if (info->is_action) {
         x = LAN966X_VCAP_ACT_GET(ES0, VID_FLD_PUSH_OUTER_TAG);
@@ -2890,7 +2891,7 @@ static vtss_rc lan966x_debug_es0(vtss_state_t        *vtss_state,
 }
 
 static vtss_rc lan966x_debug_vcap(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const debug_info,
                                   enum vtss_lan966x_vcap         vcap,
                                   vtss_rc (*dbg)(vtss_state_t *vtss_state,
@@ -2911,30 +2912,30 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t                  *vtss_state,
     pr("Act_width: %u\n", va->act_width);
     pr("Def_cnt  : %u\n\n", va->default_cnt);
 
-    vtss_lan966x_debug_reg_header(pr, va->name);
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_VER(tgt)), "VER");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_WIDTH(tgt)),
+    vtss_lan966x_debug_reg_header(ss, va->name);
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_VER(tgt)), "VER");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ENTRY_WIDTH(tgt)),
                            "ENTRY_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_CNT(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ENTRY_CNT(tgt)),
                            "ENTRY_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_SWCNT(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ENTRY_SWCNT(tgt)),
                            "ENTRY_SWCNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ENTRY_TG_WIDTH(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ENTRY_TG_WIDTH(tgt)),
                            "ENTRY_TG_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_DEF_CNT(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ACTION_DEF_CNT(tgt)),
                            "ACTION_DEF_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_ACTION_WIDTH(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_ACTION_WIDTH(tgt)),
                            "ACTION_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CNT_WIDTH(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_CNT_WIDTH(tgt)),
                            "CNT_WIDTH");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_CORE_CNT(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_CORE_CNT(tgt)),
                            "CORE_CNT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(VCAP_IF_CNT(tgt)),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(VCAP_IF_CNT(tgt)),
                            "IF_CNT");
     pr("\n");
 
     info.vcap = vcap;
-    info.pr = pr;
+    info.ss = ss;
     for (i = (va->rows + va->default_cnt - 1); i >= 0; i--) {
         if ((u32)i >= va->rows) {
             // Default action
@@ -3016,7 +3017,7 @@ static vtss_rc lan966x_debug_vcap(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc lan966x_debug_acl(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS2)
@@ -3027,41 +3028,41 @@ static vtss_rc lan966x_debug_acl(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_lan966x_debug_reg_header(pr, "ANA");
+            vtss_lan966x_debug_reg_header(ss, "ANA");
         header = 0;
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_VCAP_S2_CFG(port)), port,
                                     "S2_CFG");
     }
     if (!header)
         pr("\n");
-    VTSS_RC(lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS2,
+    VTSS_RC(lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_IS2,
                                lan966x_debug_is2));
 #endif
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, lan966x_debug_acl,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 vtss_rc vtss_lan966x_debug_is1(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_IS1,
+    return lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_IS1,
                               lan966x_debug_is1);
 }
 
 vtss_rc vtss_lan966x_debug_es0(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    return lan966x_debug_vcap(vtss_state, pr, info, VTSS_LAN966X_VCAP_ES0,
+    return lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_ES0,
                               lan966x_debug_es0);
 }
 #endif // VTSS_OPT_DEBUG_PRINT

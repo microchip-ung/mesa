@@ -716,7 +716,7 @@ static char *debug_ring_state_string(const vtss_mrp_ring_state_t state)
 }
 
 void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
     u32                      i, div, mrp_idx;
@@ -727,7 +727,7 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
     vtss_mrp_status_t        mrp_status;
     vtss_mrp_counters_t      mrp_counters;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MRP)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_MRP)) {
         return;
     }
 

@@ -1896,12 +1896,12 @@ static vtss_rc l26_ace_status_get(vtss_state_t            *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-static void l26_debug_bits(const vtss_debug_printf_t pr,
-                           const char               *name,
-                           u32                      *entry,
-                           u32                      *mask,
-                           u32                       offset,
-                           u32                       len)
+static void l26_debug_bits(lmu_ss_t   *ss,
+                           const char *name,
+                           u32        *entry,
+                           u32        *mask,
+                           u32         offset,
+                           u32         len)
 {
     u32 i, j;
 
@@ -1919,31 +1919,31 @@ static void l26_debug_bits(const vtss_debug_printf_t pr,
     pr(len > 23 ? "\n" : " ");
 }
 
-static void l26_debug_bit(const vtss_debug_printf_t pr,
-                          const char               *name,
-                          u32                      *entry,
-                          u32                      *mask,
-                          u32                       offset)
+static void l26_debug_bit(lmu_ss_t   *ss,
+                          const char *name,
+                          u32        *entry,
+                          u32        *mask,
+                          u32         offset)
 {
-    l26_debug_bits(pr, name, entry, mask, offset, 1);
+    l26_debug_bits(ss, name, entry, mask, offset, 1);
 }
 
-static void l26_debug_mac_bits(const vtss_debug_printf_t pr,
-                               const char               *name,
-                               u32                      *entry,
-                               u32                      *mask,
-                               u32                       offset)
+static void l26_debug_mac_bits(lmu_ss_t   *ss,
+                               const char *name,
+                               u32        *entry,
+                               u32        *mask,
+                               u32         offset)
 {
-    l26_debug_bits(pr, name, entry, mask, offset, 16);      /* MAC_HIGH */
-    l26_debug_bits(pr, NULL, entry, mask, offset + 16, 32); /* MAC_LOW */
+    l26_debug_bits(ss, name, entry, mask, offset, 16);      /* MAC_HIGH */
+    l26_debug_bits(ss, NULL, entry, mask, offset + 16, 32); /* MAC_LOW */
 }
 
-static void l26_debug_action(const vtss_debug_printf_t pr,
-                             const char               *name,
-                             u32                      *entry,
-                             u32                       offs,
-                             u32                       offs_val,
-                             u32                       len)
+static void l26_debug_action(lmu_ss_t   *ss,
+                             const char *name,
+                             u32        *entry,
+                             u32         offs,
+                             u32         offs_val,
+                             u32         len)
 {
     BOOL enable, multi = 0;
     u32  num = 0;
@@ -1969,43 +1969,43 @@ static void l26_debug_action(const vtss_debug_printf_t pr,
     pr(" ");
 }
 
-static void l26_debug_fld(const vtss_debug_printf_t pr,
-                          const char               *name,
-                          u32                      *entry,
-                          u32                       offs,
-                          u32                       len)
+static void l26_debug_fld(lmu_ss_t   *ss,
+                          const char *name,
+                          u32        *entry,
+                          u32         offs,
+                          u32         len)
 {
     pr("%s:%u ", name, vtss_bs_get(entry, offs, len));
 }
 
-static vtss_rc l26_debug_is1(vtss_state_t             *vtss_state,
-                             u32                      *entry,
-                             u32                      *mask,
-                             u32                       typegroup,
-                             u32                       cnt,
-                             const vtss_debug_printf_t pr)
+static vtss_rc l26_debug_is1(vtss_state_t *vtss_state,
+                             u32          *entry,
+                             u32          *mask,
+                             u32           typegroup,
+                             u32           cnt,
+                             lmu_ss_t     *ss)
 {
     if (mask == NULL) {
         /* Print action */
         if (vtss_bs_get(entry, 0, 2) == IS1_ACTION_TYPE_NORMAL) {
             /* Normal IS1 action */
-            l26_debug_action(pr, "dscp", entry, 2, 3,
+            l26_debug_action(ss, "dscp", entry, 2, 3,
                              6);                         /* DSCP_ENA/DSCP_VAL */
-            l26_debug_action(pr, "dp", entry, 9, 10, 1); /* DP_ENA/DP_VAL */
-            l26_debug_action(pr, "qos", entry, 11, 12, 3); /* QOS_ENA/QOS_VAL */
-            l26_debug_action(pr, "pag", entry, 15, 16, 8); /* PAG_ENA/PAG_VAL */
-            l26_debug_action(pr, "vid", entry, 24, 25,
+            l26_debug_action(ss, "dp", entry, 9, 10, 1); /* DP_ENA/DP_VAL */
+            l26_debug_action(ss, "qos", entry, 11, 12, 3); /* QOS_ENA/QOS_VAL */
+            l26_debug_action(ss, "pag", entry, 15, 16, 8); /* PAG_ENA/PAG_VAL */
+            l26_debug_action(ss, "vid", entry, 24, 25,
                              12); /* VID_ENA/VID_VAL */
-            l26_debug_action(pr, "pcp", entry, 51, 52,
+            l26_debug_action(ss, "pcp", entry, 51, 52,
                              3); /* PCP_DEI_ENA/PCP_VAL */
-            l26_debug_action(pr, "dei", entry, 55, 0, 0);  /* DEI_VAL */
-            l26_debug_action(pr, "pop", entry, 56, 57, 2); /* POP_ENA/POP_VAL */
-            l26_debug_action(pr, "hm", entry, 59, 0, 0);   /* HOST_MATCH */
-            l26_debug_action(pr, "fid", entry, 37, 39,
+            l26_debug_action(ss, "dei", entry, 55, 0, 0);  /* DEI_VAL */
+            l26_debug_action(ss, "pop", entry, 56, 57, 2); /* POP_ENA/POP_VAL */
+            l26_debug_action(ss, "hm", entry, 59, 0, 0);   /* HOST_MATCH */
+            l26_debug_action(ss, "fid", entry, 37, 39,
                              12); /* FID_SEL & FID_VAL */
         } else {
             /* SMAC/SIP action */
-            l26_debug_action(pr, "hm", entry, 2, 0, 0); /* HOST_MATCH */
+            l26_debug_action(ss, "hm", entry, 2, 0, 0); /* HOST_MATCH */
         }
         pr("cnt:%u", cnt); /* HIT_STICKY */
         return VTSS_RC_OK;
@@ -2014,67 +2014,67 @@ static vtss_rc l26_debug_is1(vtss_state_t             *vtss_state,
     /* Print entry */
     if (typegroup == VCAP_TG_VAL_IS1_IP4) {
         /* SMAC/SIP4 entry */
-        l26_debug_bits(pr, "igr_port", entry, mask, 0, 5);
+        l26_debug_bits(ss, "igr_port", entry, mask, 0, 5);
         pr("\n");
-        l26_debug_mac_bits(pr, "l2_smac", entry, mask, 5);
-        l26_debug_bits(pr, "l3_ip_sip", entry, mask, 53, 32);
+        l26_debug_mac_bits(ss, "l2_smac", entry, mask, 5);
+        l26_debug_bits(ss, "l3_ip_sip", entry, mask, 53, 32);
         return VTSS_RC_OK;
     }
 
-    l26_debug_bit(pr, "is1_type", entry, mask, 0);
+    l26_debug_bit(ss, "is1_type", entry, mask, 0);
     if (vtss_bs_get(entry, 0, 1)) {
         /* SMAC/SIP6 entry */
-        l26_debug_bits(pr, "igr_port", entry, mask, 1, 5);
+        l26_debug_bits(ss, "igr_port", entry, mask, 1, 5);
         pr("\n");
-        l26_debug_mac_bits(pr, "l2_smac", entry, mask, 6);
-        l26_debug_bits(pr, "sip_3", entry, mask, 54, 32);
-        l26_debug_bits(pr, "sip_2", entry, mask, 86, 32);
-        l26_debug_bits(pr, "sip_1", entry, mask, 118, 32);
-        l26_debug_bits(pr, "sip_0", entry, mask, 150, 32);
+        l26_debug_mac_bits(ss, "l2_smac", entry, mask, 6);
+        l26_debug_bits(ss, "sip_3", entry, mask, 54, 32);
+        l26_debug_bits(ss, "sip_2", entry, mask, 86, 32);
+        l26_debug_bits(ss, "sip_1", entry, mask, 118, 32);
+        l26_debug_bits(ss, "sip_0", entry, mask, 150, 32);
         return VTSS_RC_OK;
     }
 
-    l26_debug_bit(pr, "first", entry, mask, 1);
-    l26_debug_bits(pr, "igr_port_mask", entry, mask, 2, 27);
-    l26_debug_bit(pr, "vlan_tagged", entry, mask, 29);
-    l26_debug_bit(pr, "vlan_dbl_tagged", entry, mask, 30);
-    l26_debug_bit(pr, "tpid", entry, mask, 31);
+    l26_debug_bit(ss, "first", entry, mask, 1);
+    l26_debug_bits(ss, "igr_port_mask", entry, mask, 2, 27);
+    l26_debug_bit(ss, "vlan_tagged", entry, mask, 29);
+    l26_debug_bit(ss, "vlan_dbl_tagged", entry, mask, 30);
+    l26_debug_bit(ss, "tpid", entry, mask, 31);
     pr("\n");
-    l26_debug_bits(pr, "vid", entry, mask, 32, 12);
-    l26_debug_bit(pr, "dei", entry, mask, 44);
-    l26_debug_bits(pr, "pcp", entry, mask, 45, 3);
+    l26_debug_bits(ss, "vid", entry, mask, 32, 12);
+    l26_debug_bit(ss, "dei", entry, mask, 44);
+    l26_debug_bits(ss, "pcp", entry, mask, 45, 3);
     pr("\n");
-    l26_debug_mac_bits(pr, "l2_smac", entry, mask, 48);
-    l26_debug_bit(pr, "l2_mc", entry, mask, 96);
-    l26_debug_bit(pr, "l2_bc", entry, mask, 97);
-    l26_debug_bit(pr, "ip_mc", entry, mask, 98);
+    l26_debug_mac_bits(ss, "l2_smac", entry, mask, 48);
+    l26_debug_bit(ss, "l2_mc", entry, mask, 96);
+    l26_debug_bit(ss, "l2_bc", entry, mask, 97);
+    l26_debug_bit(ss, "ip_mc", entry, mask, 98);
     pr("\n");
-    l26_debug_bits(pr, "etype", entry, mask, 100, 16);
+    l26_debug_bits(ss, "etype", entry, mask, 100, 16);
     pr("\n");
-    l26_debug_bit(pr, "etype_len", entry, mask, 99);
-    l26_debug_bit(pr, "ip_snap", entry, mask, 116);
-    l26_debug_bit(pr, "ip4", entry, mask, 117);
+    l26_debug_bit(ss, "etype_len", entry, mask, 99);
+    l26_debug_bit(ss, "ip_snap", entry, mask, 116);
+    l26_debug_bit(ss, "ip4", entry, mask, 117);
     pr("\n");
-    l26_debug_bit(pr, "l3_fragment", entry, mask, 118);
-    l26_debug_bit(pr, "l3_options", entry, mask, 119);
-    l26_debug_bits(pr, "l3_dscp", entry, mask, 120, 6);
+    l26_debug_bit(ss, "l3_fragment", entry, mask, 118);
+    l26_debug_bit(ss, "l3_options", entry, mask, 119);
+    l26_debug_bits(ss, "l3_dscp", entry, mask, 120, 6);
     pr("\n");
-    l26_debug_bits(pr, "l3_ip4_sip", entry, mask, 126, 32);
-    l26_debug_bit(pr, "tcp_udp", entry, mask, 158);
-    l26_debug_bit(pr, "tcp", entry, mask, 159);
-    l26_debug_bits(pr, "l4_sport", entry, mask, 160, 16);
-    l26_debug_bits(pr, "l4_rng", entry, mask, 176, 8);
+    l26_debug_bits(ss, "l3_ip4_sip", entry, mask, 126, 32);
+    l26_debug_bit(ss, "tcp_udp", entry, mask, 158);
+    l26_debug_bit(ss, "tcp", entry, mask, 159);
+    l26_debug_bits(ss, "l4_sport", entry, mask, 160, 16);
+    l26_debug_bits(ss, "l4_rng", entry, mask, 176, 8);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_debug_is2(vtss_state_t             *vtss_state,
-                             u32                      *entry,
-                             u32                      *mask,
-                             u32                       typegroup,
-                             u32                       cnt,
-                             const vtss_debug_printf_t pr)
+static vtss_rc l26_debug_is2(vtss_state_t *vtss_state,
+                             u32          *entry,
+                             u32          *mask,
+                             u32           typegroup,
+                             u32           cnt,
+                             lmu_ss_t     *ss)
 {
     u32 is2type, mode;
 
@@ -2086,22 +2086,22 @@ static vtss_rc l26_debug_is2(vtss_state_t             *vtss_state,
            : mode == 1 ? "filter"
            : mode == 2 ? "policy"
                        : "redir");
-        l26_debug_bits(pr, "mask", entry, NULL, 18, 26); /* PORT_MASK */
-        l26_debug_action(pr, "hit", entry, 0, 0, 0);     /* HIT_ME_ONCE */
-        l26_debug_action(pr, "cpu", entry, 1, 2,
+        l26_debug_bits(ss, "mask", entry, NULL, 18, 26); /* PORT_MASK */
+        l26_debug_action(ss, "hit", entry, 0, 0, 0);     /* HIT_ME_ONCE */
+        l26_debug_action(ss, "cpu", entry, 1, 2,
                          3); /* CPU_COPY_ENA/CPU_QU_NUM */
-        l26_debug_action(pr, "mir", entry, 7, 0, 0); /* MIRROR_ENA */
-        l26_debug_action(pr, "lrn", entry, 8, 0, 0); /* LRN_DIS */
-        l26_debug_action(pr, "pol", entry, 9, 10,
+        l26_debug_action(ss, "mir", entry, 7, 0, 0); /* MIRROR_ENA */
+        l26_debug_action(ss, "lrn", entry, 8, 0, 0); /* LRN_DIS */
+        l26_debug_action(ss, "pol", entry, 9, 10,
                          8); /* POLICER_ENA/POLICE_IDX */
-        l26_debug_action(pr, "one", entry, 44, 0, 0); /* PTP_ENA[0] */
-        l26_debug_action(pr, "two", entry, 45, 0, 0); /* PTP_ENA[1] */
+        l26_debug_action(ss, "one", entry, 44, 0, 0); /* PTP_ENA[0] */
+        l26_debug_action(ss, "two", entry, 45, 0, 0); /* PTP_ENA[1] */
         pr("cnt:%u ", cnt);                           /* HIT_CNT */
         return VTSS_RC_OK;
     }
 
     /* Print entry */
-    l26_debug_bits(pr, "type", entry, mask, 0, 3);
+    l26_debug_bits(ss, "type", entry, mask, 0, 3);
     is2type = vtss_bs_get(entry, 0, 3);
     pr("(%s) ", vtss_bs_get(mask, 0, 3) == 0  ? "any"
                 : is2type == ACL_TYPE_ETYPE   ? "etype"
@@ -2112,14 +2112,14 @@ static vtss_rc l26_debug_is2(vtss_state_t             *vtss_state,
                 : is2type == ACL_TYPE_IPV4    ? "ipv4"
                 : is2type == ACL_TYPE_IPV6    ? "ipv6"
                                               : "?");
-    l26_debug_bit(pr, "first", entry, mask, 3);
-    l26_debug_bits(pr, "pag", entry, mask, 4, 8);
-    l26_debug_bits(pr, "igr", entry, mask, 12, 27);
-    l26_debug_bit(pr, "vlan", entry, mask, 39);
-    l26_debug_bit(pr, "host", entry, mask, 40);
-    l26_debug_bits(pr, "vid", entry, mask, 41, 12);
-    l26_debug_bit(pr, "dei", entry, mask, 53);
-    l26_debug_bits(pr, "pcp", entry, mask, 54, 3);
+    l26_debug_bit(ss, "first", entry, mask, 3);
+    l26_debug_bits(ss, "pag", entry, mask, 4, 8);
+    l26_debug_bits(ss, "igr", entry, mask, 12, 27);
+    l26_debug_bit(ss, "vlan", entry, mask, 39);
+    l26_debug_bit(ss, "host", entry, mask, 40);
+    l26_debug_bits(ss, "vid", entry, mask, 41, 12);
+    l26_debug_bit(ss, "dei", entry, mask, 53);
+    l26_debug_bits(ss, "pcp", entry, mask, 54, 3);
     pr("\n");
 
     switch (is2type) {
@@ -2127,116 +2127,116 @@ static vtss_rc l26_debug_is2(vtss_state_t             *vtss_state,
     case ACL_TYPE_LLC:
     case ACL_TYPE_SNAP:
         /* Common format */
-        l26_debug_mac_bits(pr, "l2_dmac", entry, mask, 57);
-        l26_debug_mac_bits(pr, "l2_smac", entry, mask, 105);
-        l26_debug_bit(pr, "l2_mc", entry, mask, 153);
-        l26_debug_bit(pr, "l2_bc", entry, mask, 154);
+        l26_debug_mac_bits(ss, "l2_dmac", entry, mask, 57);
+        l26_debug_mac_bits(ss, "l2_smac", entry, mask, 105);
+        l26_debug_bit(ss, "l2_mc", entry, mask, 153);
+        l26_debug_bit(ss, "l2_bc", entry, mask, 154);
         pr("\n");
 
         /* Specific format */
         switch (is2type) {
         case ACL_TYPE_ETYPE:
-            l26_debug_bits(pr, "etype", entry, mask, 155, 16);
-            l26_debug_bits(pr, "l2_payload", entry, mask, 171, 16);
+            l26_debug_bits(ss, "etype", entry, mask, 155, 16);
+            l26_debug_bits(ss, "l2_payload", entry, mask, 171, 16);
             pr("\n");
             break;
         case ACL_TYPE_LLC:
-            l26_debug_bits(pr, "l2_llc", entry, mask, 155, 32);
+            l26_debug_bits(ss, "l2_llc", entry, mask, 155, 32);
             break;
         case ACL_TYPE_SNAP:
-            l26_debug_bits(pr, "l2_snap", entry, mask, 155, 8);
-            l26_debug_bits(pr, NULL, entry, mask, 163, 32);
+            l26_debug_bits(ss, "l2_snap", entry, mask, 155, 8);
+            l26_debug_bits(ss, NULL, entry, mask, 163, 32);
             break;
         }
         break;
     case ACL_TYPE_ARP:
-        l26_debug_mac_bits(pr, "l2_smac", entry, mask, 57);
-        l26_debug_bit(pr, "l2_mc", entry, mask, 105);
-        l26_debug_bit(pr, "l2_bc", entry, mask, 106);
-        l26_debug_bit(pr, "addr_ok", entry, mask, 107);
-        l26_debug_bit(pr, "proto_ok", entry, mask, 108);
-        l26_debug_bit(pr, "len_ok", entry, mask, 109);
+        l26_debug_mac_bits(ss, "l2_smac", entry, mask, 57);
+        l26_debug_bit(ss, "l2_mc", entry, mask, 105);
+        l26_debug_bit(ss, "l2_bc", entry, mask, 106);
+        l26_debug_bit(ss, "addr_ok", entry, mask, 107);
+        l26_debug_bit(ss, "proto_ok", entry, mask, 108);
+        l26_debug_bit(ss, "len_ok", entry, mask, 109);
         pr("\n");
-        l26_debug_bit(pr, "t_match", entry, mask, 110);
-        l26_debug_bit(pr, "s_match", entry, mask, 111);
-        l26_debug_bit(pr, "op_unk", entry, mask, 112);
-        l26_debug_bits(pr, "op", entry, mask, 113, 2);
-        l26_debug_bit(pr, "dip_eq_sip", entry, mask, 179);
+        l26_debug_bit(ss, "t_match", entry, mask, 110);
+        l26_debug_bit(ss, "s_match", entry, mask, 111);
+        l26_debug_bit(ss, "op_unk", entry, mask, 112);
+        l26_debug_bits(ss, "op", entry, mask, 113, 2);
+        l26_debug_bit(ss, "dip_eq_sip", entry, mask, 179);
         pr("\n");
-        l26_debug_bits(pr, "l3_ip4_dip", entry, mask, 115, 32);
-        l26_debug_bits(pr, "l3_ip4_sip", entry, mask, 147, 32);
+        l26_debug_bits(ss, "l3_ip4_dip", entry, mask, 115, 32);
+        l26_debug_bits(ss, "l3_ip4_sip", entry, mask, 147, 32);
         break;
     case ACL_TYPE_UDP_TCP:
     case ACL_TYPE_IPV4:
         /* Common format */
-        l26_debug_bit(pr, "l2_mc", entry, mask, 57);
-        l26_debug_bit(pr, "l2_bc", entry, mask, 58);
-        l26_debug_bit(pr, "ip4", entry, mask, 59);
-        l26_debug_bit(pr, "l3_fragment", entry, mask, 60);
-        l26_debug_bit(pr, "l3_fragoffs", entry, mask, 61);
-        l26_debug_bit(pr, "l3_options", entry, mask, 62);
-        l26_debug_bit(pr, "l3_ttl", entry, mask, 63);
+        l26_debug_bit(ss, "l2_mc", entry, mask, 57);
+        l26_debug_bit(ss, "l2_bc", entry, mask, 58);
+        l26_debug_bit(ss, "ip4", entry, mask, 59);
+        l26_debug_bit(ss, "l3_fragment", entry, mask, 60);
+        l26_debug_bit(ss, "l3_fragoffs", entry, mask, 61);
+        l26_debug_bit(ss, "l3_options", entry, mask, 62);
+        l26_debug_bit(ss, "l3_ttl", entry, mask, 63);
         pr("\n");
-        l26_debug_bits(pr, "l3_tos", entry, mask, 64, 8);
+        l26_debug_bits(ss, "l3_tos", entry, mask, 64, 8);
 
         /* Specific format */
         if (is2type == ACL_TYPE_UDP_TCP) {
             pr("\n");
-            l26_debug_bits(pr, "l3_ip4_dip", entry, mask, 81, 32);
-            l26_debug_bits(pr, "l3_ip4_sip", entry, mask, 113, 32);
-            l26_debug_bits(pr, "l4_dport", entry, mask, 146, 16);
-            l26_debug_bits(pr, "l4_sport", entry, mask, 162, 16);
-            l26_debug_bits(pr, "l4_rng", entry, mask, 178, 8);
+            l26_debug_bits(ss, "l3_ip4_dip", entry, mask, 81, 32);
+            l26_debug_bits(ss, "l3_ip4_sip", entry, mask, 113, 32);
+            l26_debug_bits(ss, "l4_dport", entry, mask, 146, 16);
+            l26_debug_bits(ss, "l4_sport", entry, mask, 162, 16);
+            l26_debug_bits(ss, "l4_rng", entry, mask, 178, 8);
             pr("\n");
-            l26_debug_bit(pr, "tcp", entry, mask, 72);
-            l26_debug_bits(pr, "1588_dom", entry, mask, 73, 8);
-            l26_debug_bit(pr, "dip_eq_sip", entry, mask, 145);
-            l26_debug_bit(pr, "sp_eq_dp", entry, mask, 186);
+            l26_debug_bit(ss, "tcp", entry, mask, 72);
+            l26_debug_bits(ss, "1588_dom", entry, mask, 73, 8);
+            l26_debug_bit(ss, "dip_eq_sip", entry, mask, 145);
+            l26_debug_bit(ss, "sp_eq_dp", entry, mask, 186);
             pr("\n");
-            l26_debug_bit(pr, "seq_eq0", entry, mask, 187);
-            l26_debug_bit(pr, "fin", entry, mask, 188);
-            l26_debug_bit(pr, "syn", entry, mask, 189);
-            l26_debug_bit(pr, "rst", entry, mask, 190);
-            l26_debug_bit(pr, "psh", entry, mask, 191);
-            l26_debug_bit(pr, "ack", entry, mask, 192);
-            l26_debug_bit(pr, "urg", entry, mask, 193);
+            l26_debug_bit(ss, "seq_eq0", entry, mask, 187);
+            l26_debug_bit(ss, "fin", entry, mask, 188);
+            l26_debug_bit(ss, "syn", entry, mask, 189);
+            l26_debug_bit(ss, "rst", entry, mask, 190);
+            l26_debug_bit(ss, "psh", entry, mask, 191);
+            l26_debug_bit(ss, "ack", entry, mask, 192);
+            l26_debug_bit(ss, "urg", entry, mask, 193);
             pr("\n");
         } else {
-            l26_debug_bits(pr, "proto", entry, mask, 72, 8);
-            l26_debug_bit(pr, "dip_eq_sip", entry, mask, 144);
+            l26_debug_bits(ss, "proto", entry, mask, 72, 8);
+            l26_debug_bit(ss, "dip_eq_sip", entry, mask, 144);
             pr("\n");
-            l26_debug_bits(pr, "l3_ip4_dip", entry, mask, 80, 32);
-            l26_debug_bits(pr, "l3_ip4_sip", entry, mask, 112, 32);
-            l26_debug_mac_bits(pr, "l3_payload", entry, mask, 145);
+            l26_debug_bits(ss, "l3_ip4_dip", entry, mask, 80, 32);
+            l26_debug_bits(ss, "l3_ip4_sip", entry, mask, 112, 32);
+            l26_debug_mac_bits(ss, "l3_payload", entry, mask, 145);
         }
         break;
     case ACL_TYPE_IPV6:
-        l26_debug_bit(pr, "l2_mc", entry, mask, 57);
-        l26_debug_bit(pr, "l2_bc", entry, mask, 58);
-        l26_debug_bits(pr, "proto", entry, mask, 59, 8);
+        l26_debug_bit(ss, "l2_mc", entry, mask, 57);
+        l26_debug_bit(ss, "l2_bc", entry, mask, 58);
+        l26_debug_bits(ss, "proto", entry, mask, 59, 8);
         pr("\n");
-        l26_debug_bits(pr, "sip_3", entry, mask, 67, 32);
-        l26_debug_bits(pr, "sip_2", entry, mask, 99, 32);
-        l26_debug_bits(pr, "sip_1", entry, mask, 131, 32);
-        l26_debug_bits(pr, "sip_0", entry, mask, 163, 32);
+        l26_debug_bits(ss, "sip_3", entry, mask, 67, 32);
+        l26_debug_bits(ss, "sip_2", entry, mask, 99, 32);
+        l26_debug_bits(ss, "sip_1", entry, mask, 131, 32);
+        l26_debug_bits(ss, "sip_0", entry, mask, 163, 32);
         break;
     default: VTSS_E("Invalid IS2 type: %d", is2type); return VTSS_RC_ERROR;
     }
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_debug_es0(vtss_state_t             *vtss_state,
-                             u32                      *entry,
-                             u32                      *mask,
-                             u32                       typegroup,
-                             u32                       cnt,
-                             const vtss_debug_printf_t pr)
+static vtss_rc l26_debug_es0(vtss_state_t *vtss_state,
+                             u32          *entry,
+                             u32          *mask,
+                             u32           typegroup,
+                             u32           cnt,
+                             lmu_ss_t     *ss)
 {
     u32 val;
 
     if (mask == NULL) {
         /* Print action */
-        l26_debug_bit(pr, "vld", entry, NULL, 0); /* VLD */
+        l26_debug_bit(ss, "vld", entry, NULL, 0); /* VLD */
         val = vtss_bs_get(entry, 1, 2);           /* TAG_ES0 */
         pr("tag_es0:%u (%s) ", val,
            val == VTSS_ES0_TAG_NONE   ? "none"
@@ -2249,51 +2249,51 @@ static vtss_rc l26_debug_es0(vtss_state_t             *vtss_state,
            : val == VTSS_ES0_TPID_S    ? "s"
            : val == VTSS_ES0_TPID_PORT ? "port"
                                        : "c/port");
-        l26_debug_fld(pr, "tag_vid_sel", entry, 5, 2); /* TAG_VID_SEL */
+        l26_debug_fld(ss, "tag_vid_sel", entry, 5, 2); /* TAG_VID_SEL */
         pr("\n");
-        l26_debug_fld(pr, "vid_a", entry, 7, 12);  /* VID_A_VAL */
-        l26_debug_fld(pr, "vid_b", entry, 19, 12); /* VID_B_VAL */
+        l26_debug_fld(ss, "vid_a", entry, 7, 12);  /* VID_A_VAL */
+        l26_debug_fld(ss, "vid_b", entry, 19, 12); /* VID_B_VAL */
         val = vtss_bs_get(entry, 31, 2);           /* QOS_SRC_SEL */
         pr("qos_src_sel:%u (%s) ", val,
            val == VTSS_ES0_QOS_CLASS  ? "class"
            : val == VTSS_ES0_QOS_ES0  ? "es0"
            : val == VTSS_ES0_QOS_PORT ? "port"
                                       : "mapped");
-        l26_debug_fld(pr, "pcp", entry, 33, 3);    /* PCP_VAL */
-        l26_debug_bit(pr, "dei", entry, NULL, 36); /* DEI_VAL */
+        l26_debug_fld(ss, "pcp", entry, 33, 3);    /* PCP_VAL */
+        l26_debug_bit(ss, "dei", entry, NULL, 36); /* DEI_VAL */
         pr("cnt:%u ", cnt);                        /* HIT_CNT */
         return VTSS_RC_OK;
     }
 
     /* Print entry */
-    l26_debug_bits(pr, "egr_port", entry, mask, 0, 5);
-    l26_debug_bits(pr, "igr_port", entry, mask, 5, 5);
+    l26_debug_bits(ss, "egr_port", entry, mask, 0, 5);
+    l26_debug_bits(ss, "igr_port", entry, mask, 5, 5);
     pr("\n");
-    l26_debug_bits(pr, "vid", entry, mask, 10, 12);
-    l26_debug_bit(pr, "dei", entry, mask, 22);
-    l26_debug_bits(pr, "pcp", entry, mask, 23, 3);
-    l26_debug_bit(pr, "l2_mc", entry, mask, 26);
-    l26_debug_bit(pr, "l2_bc", entry, mask, 27);
+    l26_debug_bits(ss, "vid", entry, mask, 10, 12);
+    l26_debug_bit(ss, "dei", entry, mask, 22);
+    l26_debug_bits(ss, "pcp", entry, mask, 23, 3);
+    l26_debug_bit(ss, "l2_mc", entry, mask, 26);
+    l26_debug_bit(ss, "l2_bc", entry, mask, 27);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
-#define L26_DEBUG_VCAP(pr, name, tgt)                                          \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_VCAP_CORE_VCAP_CONST_##name(tgt),  \
+#define L26_DEBUG_VCAP(ss, name, tgt)                                          \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_VCAP_CORE_VCAP_CONST_##name(tgt),  \
                        #name)
 
 static vtss_rc l26_debug_vcap(vtss_state_t                  *vtss_state,
                               int                            bank,
                               const char                    *name,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info,
                               vtss_rc (*dbg)(vtss_state_t *vtss_state,
                                              u32          *entry,
                                              u32          *mask,
                                              u32           typegroup,
                                              u32           cnt,
-                                             const vtss_debug_printf_t pr))
+                                             lmu_ss_t     *ss))
 {
     /*lint --e{454, 455, 456) */ // Due to VTSS_EXIT_ENTER
     const tcam_props_t *tcam = &tcam_info[bank];
@@ -2303,17 +2303,17 @@ static vtss_rc l26_debug_vcap(vtss_state_t                  *vtss_state,
     u32                 cnt, typegroup, tgt;
     BOOL                is_entry;
 
-    vtss_debug_print_header(pr, name);
+    vtss_debug_print_header(ss, name);
 
-    vtss_l26_debug_reg_header(pr, "VCAP_CONST");
+    vtss_l26_debug_reg_header(ss, "VCAP_CONST");
     tgt = tcam->target;
-    L26_DEBUG_VCAP(pr, ENTRY_WIDTH, tgt);
-    L26_DEBUG_VCAP(pr, ENTRY_CNT, tgt);
-    L26_DEBUG_VCAP(pr, ENTRY_SWCNT, tgt);
-    L26_DEBUG_VCAP(pr, ENTRY_TG_WIDTH, tgt);
-    L26_DEBUG_VCAP(pr, ACTION_DEF_CNT, tgt);
-    L26_DEBUG_VCAP(pr, ACTION_WIDTH, tgt);
-    L26_DEBUG_VCAP(pr, CNT_WIDTH, tgt);
+    L26_DEBUG_VCAP(ss, ENTRY_WIDTH, tgt);
+    L26_DEBUG_VCAP(ss, ENTRY_CNT, tgt);
+    L26_DEBUG_VCAP(ss, ENTRY_SWCNT, tgt);
+    L26_DEBUG_VCAP(ss, ENTRY_TG_WIDTH, tgt);
+    L26_DEBUG_VCAP(ss, ACTION_DEF_CNT, tgt);
+    L26_DEBUG_VCAP(ss, ACTION_WIDTH, tgt);
+    L26_DEBUG_VCAP(ss, CNT_WIDTH, tgt);
     pr("\n");
 
     for (i = (tcam->actions - 1); i >= 0; i--) {
@@ -2334,23 +2334,23 @@ static vtss_rc l26_debug_vcap(vtss_state_t                  *vtss_state,
                 continue;
 
             /* Print entry */
-            VTSS_RC(dbg(vtss_state, entry, mask, typegroup, 0, pr));
+            VTSS_RC(dbg(vtss_state, entry, mask, typegroup, 0, ss));
             pr("\n");
 
             if (info->full) {
-                vtss_l26_debug_reg_header(pr, "VCAP");
+                vtss_l26_debug_reg_header(ss, "VCAP");
                 vtss_l26_debug_reg(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_TG_DAT(tcam->target),
                     "TG_DAT");
                 for (j = 0; j < tcam->entry_width; j++) {
                     vtss_l26_debug_reg_inst(
-                        vtss_state, pr,
+                        vtss_state, ss,
                         VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_ENTRY_DAT(
                             tcam->target, j),
                         j, "ENTRY_DAT");
                     vtss_l26_debug_reg_inst(
-                        vtss_state, pr,
+                        vtss_state, ss,
                         VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_MASK_DAT(tcam->target,
                                                                      j),
                         j, "ENTRY_MASK");
@@ -2381,7 +2381,7 @@ static vtss_rc l26_debug_vcap(vtss_state_t                  *vtss_state,
         /* Print action */
         pr("%d (%s %d): ", i, is_entry ? "rule" : "port",
            is_entry ? (tcam->entries - i - 1) : (i - tcam->entries));
-        VTSS_RC(dbg(vtss_state, entry, NULL, typegroup, cnt, pr));
+        VTSS_RC(dbg(vtss_state, entry, NULL, typegroup, cnt, ss));
         pr("\n-------------------------------------------\n");
     }
     pr("\n");
@@ -2389,33 +2389,33 @@ static vtss_rc l26_debug_vcap(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_l26_debug_vcap_is1(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    return l26_debug_vcap(vtss_state, VTSS_TCAM_S1, "IS1", pr, info,
+    return l26_debug_vcap(vtss_state, VTSS_TCAM_S1, "IS1", ss, info,
                           l26_debug_is1);
 }
 
 vtss_rc vtss_l26_debug_vcap_es0(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    return l26_debug_vcap(vtss_state, VTSS_TCAM_ES0, "ES0", pr, info,
+    return l26_debug_vcap(vtss_state, VTSS_TCAM_ES0, "ES0", ss, info,
                           l26_debug_es0);
 }
 
 vtss_rc vtss_l26_debug_range_checkers(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     u32 i;
 
-    vtss_l26_debug_reg_header(pr, "Range Checkers");
+    vtss_l26_debug_reg_header(ss, "Range Checkers");
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_COMMON_VCAP_RNG_TYPE_CFG(i), i,
                                 "RNG_TYPE_CFG");
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_COMMON_VCAP_RNG_VAL_CFG(i), i,
                                 "RNG_VAL_CFG");
     }
@@ -2424,14 +2424,14 @@ vtss_rc vtss_l26_debug_range_checkers(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_l26_debug_vcap_port(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32 port;
 
-    vtss_l26_debug_reg_header(pr, "ANA:VCAP_CFG");
+    vtss_l26_debug_reg_header(ss, "ANA:VCAP_CFG");
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
-        vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VCAP_CFG(port),
+        vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_VCAP_CFG(port),
                                 port, "VCAP_CFG");
     }
     pr("\n");
@@ -2439,24 +2439,24 @@ vtss_rc vtss_l26_debug_vcap_port(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc l26_debug_acl(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, pr, info));
-    VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, pr, info));
-    VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, pr, info));
-    VTSS_RC(l26_debug_vcap(vtss_state, VTSS_TCAM_S2, "IS2", pr, info,
+    VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, ss, info));
+    VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, ss, info));
+    VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, ss, info));
+    VTSS_RC(l26_debug_vcap(vtss_state, VTSS_TCAM_S2, "IS2", ss, info,
                            l26_debug_is2));
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_l26_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, l26_debug_acl,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

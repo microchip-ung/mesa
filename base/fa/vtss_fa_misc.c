@@ -1281,104 +1281,104 @@ static vtss_rc fa_sgpio_read(vtss_state_t            *vtss_state,
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
 
-#define FA_DEBUG_GPIO(pr, addr, name)                                          \
-    FA_DEBUG_REG_NAME(pr, DEVCPU_GCB, GPIO_##addr, "GPIO_" name)
-#define FA_DEBUG_SIO(pr, addr, name)                                           \
-    FA_DEBUG_REG_NAME(pr, DEVCPU_GCB, SIO_##addr, "SIO_" name)
-#define FA_DEBUG_SIO_INST(pr, addr, i, name)                                   \
-    vtss_fa_debug_reg_inst(vtss_state, pr,                                     \
+#define FA_DEBUG_GPIO(ss, addr, name)                                          \
+    FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, GPIO_##addr, "GPIO_" name)
+#define FA_DEBUG_SIO(ss, addr, name)                                           \
+    FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, SIO_##addr, "SIO_" name)
+#define FA_DEBUG_SIO_INST(ss, addr, i, name)                                   \
+    vtss_fa_debug_reg_inst(vtss_state, ss,                                     \
                            REG_ADDR(VTSS_DEVCPU_GCB_SIO_##addr), i,            \
                            "SIO_" name)
-#define FA_DEBUG_TGT(pr, name) jr_debug_tgt(pr, #name, VTSS_TO_##name)
+#define FA_DEBUG_TGT(ss, name) jr_debug_tgt(ss, #name, VTSS_TO_##name)
 
 static vtss_rc fa_debug_misc(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32  i, g;
     char name[32];
     pr("Name          Target\n");
 
-    vtss_fa_debug_reg_header(pr, "GPIOs");
-    FA_DEBUG_GPIO(pr, OUT, "OUT");
-    FA_DEBUG_GPIO(pr, OUT1, "OUT1");
-    FA_DEBUG_GPIO(pr, OE, "OE");
-    FA_DEBUG_GPIO(pr, OE1, "OE1");
-    FA_DEBUG_GPIO(pr, IN, "IN");
-    FA_DEBUG_GPIO(pr, IN1, "IN1");
-    FA_DEBUG_GPIO(pr, INTR, "INTR");
-    FA_DEBUG_GPIO(pr, INTR_ENA, "INTR_ENA");
-    FA_DEBUG_GPIO(pr, INTR_IDENT, "INTR_IDENT");
-    FA_DEBUG_GPIO(pr, ALT(0), "ALT_0(0-31)");
-    FA_DEBUG_GPIO(pr, ALT(1), "ALT_1(0-31)");
-    FA_DEBUG_GPIO(pr, ALT1(0), "ALT1_0(32-63)");
-    FA_DEBUG_GPIO(pr, ALT1(1), "ALT1_1(32-63)");
+    vtss_fa_debug_reg_header(ss, "GPIOs");
+    FA_DEBUG_GPIO(ss, OUT, "OUT");
+    FA_DEBUG_GPIO(ss, OUT1, "OUT1");
+    FA_DEBUG_GPIO(ss, OE, "OE");
+    FA_DEBUG_GPIO(ss, OE1, "OE1");
+    FA_DEBUG_GPIO(ss, IN, "IN");
+    FA_DEBUG_GPIO(ss, IN1, "IN1");
+    FA_DEBUG_GPIO(ss, INTR, "INTR");
+    FA_DEBUG_GPIO(ss, INTR_ENA, "INTR_ENA");
+    FA_DEBUG_GPIO(ss, INTR_IDENT, "INTR_IDENT");
+    FA_DEBUG_GPIO(ss, ALT(0), "ALT_0(0-31)");
+    FA_DEBUG_GPIO(ss, ALT(1), "ALT_1(0-31)");
+    FA_DEBUG_GPIO(ss, ALT1(0), "ALT1_0(32-63)");
+    FA_DEBUG_GPIO(ss, ALT1(1), "ALT1_1(32-63)");
     pr("\n");
     for (g = 0; g < VTSS_SGPIO_GROUPS; g++) {
         VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
-        vtss_fa_debug_reg_header(pr, name);
+        vtss_fa_debug_reg_header(ss, name);
         for (i = 0; i < 4; i++) {
 #if defined(VTSS_ARCH_SPARX5)
-            FA_DEBUG_SIO_INST(pr, INPUT_DATA(g, i), i, "INPUT_DATA");
-            FA_DEBUG_SIO_INST(pr, INTR_POL(g, i), i, "INTR_POL");
-            FA_DEBUG_SIO_INST(pr, INTR(g, i), i, "INTR");
-            FA_DEBUG_SIO_INST(pr, INPUT_DATA(g, i), i, "INPUT_DATA");
-            FA_DEBUG_SIO_INST(pr, INTR_POL(g, i), i, "INTR_POL");
-            FA_DEBUG_SIO_INST(pr, INTR(g, i), i, "INTR");
+            FA_DEBUG_SIO_INST(ss, INPUT_DATA(g, i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(ss, INTR_POL(g, i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(ss, INTR(g, i), i, "INTR");
+            FA_DEBUG_SIO_INST(ss, INPUT_DATA(g, i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(ss, INTR_POL(g, i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(ss, INTR(g, i), i, "INTR");
 #else
-            FA_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-            FA_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
-            FA_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
-            FA_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-            FA_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
-            FA_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
+            FA_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(ss, INTR_POL(i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(ss, INTR(i), i, "INTR");
+            FA_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");
+            FA_DEBUG_SIO_INST(ss, INTR_POL(i), i, "INTR_POL");
+            FA_DEBUG_SIO_INST(ss, INTR(i), i, "INTR");
 #endif
         }
 #if defined(VTSS_ARCH_SPARX5)
-        FA_DEBUG_SIO(pr, PORT_ENA(g), "PORT_ENA");
-        FA_DEBUG_SIO(pr, CFG(g), "CFG");
-        FA_DEBUG_SIO(pr, CLOCK(g), "CLOCK");
+        FA_DEBUG_SIO(ss, PORT_ENA(g), "PORT_ENA");
+        FA_DEBUG_SIO(ss, CFG(g), "CFG");
+        FA_DEBUG_SIO(ss, CLOCK(g), "CLOCK");
 #else
-        FA_DEBUG_SIO(pr, PORT_ENA, "PORT_ENA");
-        FA_DEBUG_SIO(pr, CFG, "CFG");
-        FA_DEBUG_SIO(pr, CLOCK, "CLOCK");
+        FA_DEBUG_SIO(ss, PORT_ENA, "PORT_ENA");
+        FA_DEBUG_SIO(ss, CFG, "CFG");
+        FA_DEBUG_SIO(ss, CLOCK, "CLOCK");
 #endif
         for (i = 0; i < 32; i++) {
 #if defined(VTSS_ARCH_SPARX5)
-            FA_DEBUG_SIO_INST(pr, PORT_CFG(g, i), i, "PORT_CFG");
+            FA_DEBUG_SIO_INST(ss, PORT_CFG(g, i), i, "PORT_CFG");
 #else
-            FA_DEBUG_SIO_INST(pr, PORT_CFG(i), i, "PORT_CFG");
+            FA_DEBUG_SIO_INST(ss, PORT_CFG(i), i, "PORT_CFG");
 #endif
         }
         pr("\n");
     }
 
-    vtss_fa_debug_reg_header(pr, "IRQs");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_RAW, "INTR_RAW");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_TRIGGER(0), "INTR_TRIGGER(0)");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_FORCE, "INTR_FORCE");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_STICKY, "INTR_STICKY");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_BYPASS, "INTR_BYPASS");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_ENA, "INTR_ENA");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_ENA_CLR, "INTR_ENA_CLR");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_ENA_SET, "INTR_ENA_SET");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_IDENT, "INTR_IDENT");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_ENA, "DEV_INTR_ENA");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_STICKY, "DEV_INTR_STICKY");
-    FA_DEBUG_REG_NAME(pr, CPU, INTR_IDENT, "DEV_INTR_IDENT");
-    FA_DEBUG_REG_NAME(pr, CPU, EXT_SRC_INTR_POL, "EXT_SRC_INTR_POL");
-    FA_DEBUG_REG_NAME(pr, CPU, EXT_DST_INTR_POL, "EXT_DST_INTR_POL");
-    FA_DEBUG_REG_NAME(pr, CPU, EXT_DST_INTR_DRV, "EXT_DST_INTR_DRV");
+    vtss_fa_debug_reg_header(ss, "IRQs");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_RAW, "INTR_RAW");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_TRIGGER(0), "INTR_TRIGGER(0)");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_FORCE, "INTR_FORCE");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_STICKY, "INTR_STICKY");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_BYPASS, "INTR_BYPASS");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_ENA, "INTR_ENA");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_ENA_CLR, "INTR_ENA_CLR");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_ENA_SET, "INTR_ENA_SET");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_IDENT, "INTR_IDENT");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_ENA, "DEV_INTR_ENA");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_STICKY, "DEV_INTR_STICKY");
+    FA_DEBUG_REG_NAME(ss, CPU, INTR_IDENT, "DEV_INTR_IDENT");
+    FA_DEBUG_REG_NAME(ss, CPU, EXT_SRC_INTR_POL, "EXT_SRC_INTR_POL");
+    FA_DEBUG_REG_NAME(ss, CPU, EXT_DST_INTR_POL, "EXT_DST_INTR_POL");
+    FA_DEBUG_REG_NAME(ss, CPU, EXT_DST_INTR_DRV, "EXT_DST_INTR_DRV");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, fa_debug_misc,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif

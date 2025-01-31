@@ -1528,7 +1528,7 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s        *vtss_state,
 
 #if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -1538,121 +1538,121 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
     /* REW:PORT */
     for (port = 0; port <= RT_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 0)),
                           "PTP_MODE_CFG[0]");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 1)),
                           "PTP_MODE_CFG[1]");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_MISC_CFG(port)),
+        vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_PTP_MISC_CFG(port)),
                           "PTP_MISC_CFG");
-        vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_PTP_EDLY_CFG(port)),
+        vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_PTP_EDLY_CFG(port)),
                           "PTP_EDLY_CFG");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_EDLY_CFG1(port)),
                           "PTP_EDLY_CFG1");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_IDLY1_CFG(port)),
                           "PTP_IDLY1_CFG");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_IDLY1_CFG1(port)),
                           "PTP_IDLY1_CFG1");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_IDLY2_CFG(port)),
                           "PTP_IDLY2_CFG");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_IDLY2_CFG1(port)),
                           "PTP_IDLY2_CFG1");
     }
 
     /* REW:PTP_CTRL */
-    vtss_fa_debug_reg_header(pr, "REW:PTP_CTRL");
+    vtss_fa_debug_reg_header(ss, "REW:PTP_CTRL");
 #if defined(VTSS_ARCH_SPARX5)
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL),
                       "PTP_TWOSTEP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP),
                       "PTP_TWOSTEP_STAMP");
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP_SUBNS),
                       "PTP_TWOSTEP_STAMP_SUBNS");
 #else
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL),
                       "PTP_TWOSTEP_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC),
                       "PTP_TWOSTEP_STAMP");
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS),
                       "PTP_TWOSTEP_STAMP_SUBNS");
 #endif
 
     /* DEVCPU_PTP:PTP_CFG */
-    vtss_fa_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_INTR),
+    vtss_fa_debug_reg_header(ss, "DEVCPU_PTP:PTP_CFG");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_INTR),
                       "PTP_PIN_INTR");
-    vtss_fa_debug_reg(vtss_state, pr,
+    vtss_fa_debug_reg(vtss_state, ss,
                       REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA),
                       "PTP_PIN_INTR_ENA");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_INTR_IDENT),
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_PTP_PTP_INTR_IDENT),
                       "PTP_PIN_INTR_IDENT");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_PTP_PTP_DOM_CFG),
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_PTP_PTP_DOM_CFG),
                       "PTP_DOM_CFG");
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
         VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
-        vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx)),
                           "PTP_PIN_CFG");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(idx)),
                           "PTP_TOD_SEC_MSB");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(idx)),
                           "PTP_TOD_SEC_LSB");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(idx)),
                           "PTP_TOD_NSEC");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(idx)),
                           "PTP_TOD_NSEC_FRAC");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_NTP_NSEC(idx)), "NTP_NSEC");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(idx)),
                           "PIN_WF_HIGH_PERIOD");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(idx)),
                           "PIN_WF_LOW_PERIOD");
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PIN_IOBOUNCH_DELAY(idx)),
                           "PIN_IOBOUNCH_DELAY");
     }
 
     /* ANA_ACL::PTP_MISC_CTRL */
-    vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MISC_CTRL");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CTRL),
+    vtss_fa_debug_reg_header(ss, "ANA_ACL::PTP_MISC_CTRL");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CTRL),
                       "PTP_MISC_CTRL");
 
     /* ANA_ACL::PTP_MASTER */
-    vtss_fa_debug_reg_header(pr, "ANA_ACL::PTP_MASTER_CFG");
+    vtss_fa_debug_reg_header(ss, "ANA_ACL::PTP_MASTER_CFG");
     for (idx = 0; idx < VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_SRC_PORT_CFG[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx)), buf);
         VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
-        vtss_fa_debug_reg(vtss_state, pr,
+        vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CFG(idx)), buf);
     }
 
@@ -1670,28 +1670,28 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
             VTSS_SPRINTF(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
-            vtss_fa_debug_reg_header(pr, buf);
-            vtss_fa_debug_reg(vtss_state, pr,
+            vtss_fa_debug_reg_header(ss, buf);
+            vtss_fa_debug_reg(vtss_state, ss,
                               REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port))),
                               "PTP_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV2G5(port))),
                 "PTP_RXDLY_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV2G5(port))),
                 "PTP_TXDLY_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV2G5(port))),
                 "PTP_PREDICT_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV2G5(port))),
                 "DEV_TX_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV2G5(port))),
                 "DEV_PFRAME_CFG");
             break;
@@ -1699,28 +1699,28 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
             VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_fa_debug_reg_header(pr, buf);
-            vtss_fa_debug_reg(vtss_state, pr,
+            vtss_fa_debug_reg_header(ss, buf);
+            vtss_fa_debug_reg(vtss_state, ss,
                               REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV10G(port))),
                               "PTP_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_RXDLY_CFG(VTSS_TO_DEV10G(port))),
                 "PTP_RXDLY_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV10G(port))),
                 "PTP_TXDLY_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV10G(port))),
                 "PTP_PREDICT_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV10G(port))),
                 "DEV_TX_CFG");
             vtss_fa_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV10G(port))),
                 "DEV_PFRAME_CFG");
             break;
@@ -1734,11 +1734,11 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_fa_ts_debug_print(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, fa_debug_ts, vtss_state,
-                                  pr, info);
+                                  ss, info);
 }
 #endif
 

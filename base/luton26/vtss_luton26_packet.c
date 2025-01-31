@@ -810,24 +810,24 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-#define L26_DEBUG_CPU_FWD(pr, addr, i, name)                                   \
-    vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_CPU_FWD_##addr, i,   \
+#define L26_DEBUG_CPU_FWD(ss, addr, i, name)                                   \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i,   \
                             "FWD_" name)
-#define L26_DEBUG_XTR(pr, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_XTR_##addr,          \
+#define L26_DEBUG_XTR(ss, addr, name)                                          \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr,          \
                        "XTR_" name)
-#define L26_DEBUG_XTR_INST(pr, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_XTR_XTR_##addr, i,  \
+#define L26_DEBUG_XTR_INST(ss, addr, i, name)                                  \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i,  \
                             "XTR_" name)
-#define L26_DEBUG_INJ(pr, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_INJ_INJ_##addr,          \
+#define L26_DEBUG_INJ(ss, addr, name)                                          \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr,          \
                        "INJ_" name)
-#define L26_DEBUG_INJ_INST(pr, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_INJ_INJ_##addr, i,  \
+#define L26_DEBUG_INJ_INST(ss, addr, i, name)                                  \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i,  \
                             "INJ_" name)
 
 static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32  i, port;
@@ -841,56 +841,56 @@ static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_l26_debug_reg_header(pr, buf);
-        L26_DEBUG_CPU_FWD(pr, CFG(port), port, "CFG");
-        L26_DEBUG_CPU_FWD(pr, BPDU_CFG(port), port, "BPDU_CFG");
-        L26_DEBUG_CPU_FWD(pr, GARP_CFG(port), port, "GARP_CFG");
-        L26_DEBUG_CPU_FWD(pr, CCM_CFG(port), port, "CCM_CFG");
+        vtss_l26_debug_reg_header(ss, buf);
+        L26_DEBUG_CPU_FWD(ss, CFG(port), port, "CFG");
+        L26_DEBUG_CPU_FWD(ss, BPDU_CFG(port), port, "BPDU_CFG");
+        L26_DEBUG_CPU_FWD(ss, GARP_CFG(port), port, "GARP_CFG");
+        L26_DEBUG_CPU_FWD(ss, CCM_CFG(port), port, "CCM_CFG");
         pr("\n");
     }
 
     /* Analyzer CPU queue mappings */
-    vtss_l26_debug_reg_header(pr, "CPU Queues");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
+    vtss_l26_debug_reg_header(ss, "CPU Queues");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
     for (i = 0; i < 16; i++)
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
                                 "CPUQ_8021_CFG");
     pr("\n");
 
     /* Packet extraction registers */
-    vtss_l26_debug_reg_header(pr, "Extraction");
+    vtss_l26_debug_reg_header(ss, "Extraction");
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++)
-        L26_DEBUG_XTR_INST(pr, FRM_PRUNING(i), i, "FRM_PRUNING");
+        L26_DEBUG_XTR_INST(ss, FRM_PRUNING(i), i, "FRM_PRUNING");
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++)
-        L26_DEBUG_XTR_INST(pr, GRP_CFG(i), i, "GRP_CFG");
+        L26_DEBUG_XTR_INST(ss, GRP_CFG(i), i, "GRP_CFG");
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++)
-        L26_DEBUG_XTR_INST(pr, MAP(i), i, "MAP");
-    L26_DEBUG_XTR(pr, DATA_PRESENT, "DATA_PRESENT");
-    L26_DEBUG_XTR(pr, QU_DBG, "QU_DBG");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_SCH_SCH_CPU, "SCH_CPU");
+        L26_DEBUG_XTR_INST(ss, MAP(i), i, "MAP");
+    L26_DEBUG_XTR(ss, DATA_PRESENT, "DATA_PRESENT");
+    L26_DEBUG_XTR(ss, QU_DBG, "QU_DBG");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_SCH_SCH_CPU, "SCH_CPU");
     pr("\n");
 
     /* Packet injection registers */
-    vtss_l26_debug_reg_header(pr, "Injection");
+    vtss_l26_debug_reg_header(ss, "Injection");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        L26_DEBUG_INJ_INST(pr, GRP_CFG(i), i, "GRP_CFG");
+        L26_DEBUG_INJ_INST(ss, GRP_CFG(i), i, "GRP_CFG");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        L26_DEBUG_INJ_INST(pr, CTRL(i), i, "CTRL");
+        L26_DEBUG_INJ_INST(ss, CTRL(i), i, "CTRL");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        L26_DEBUG_INJ_INST(pr, ERR(i), i, "ERR");
-    L26_DEBUG_INJ(pr, STATUS, "STATUS");
+        L26_DEBUG_INJ_INST(ss, ERR(i), i, "ERR");
+    L26_DEBUG_INJ(ss, STATUS, "STATUS");
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_l26_packet_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, l26_debug_pkt,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 

@@ -2797,19 +2797,19 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define L26_DEBUG_HSIO(pr, addr, name)                                         \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_MACRO_CTRL_##addr, name)
-#define L26_DEBUG_MAC(pr, addr, i, name)                                       \
-    vtss_l26_debug_reg_inst(vtss_state, pr,                                    \
+#define L26_DEBUG_HSIO(ss, addr, name)                                         \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_MACRO_CTRL_##addr, name)
+#define L26_DEBUG_MAC(ss, addr, i, name)                                       \
+    vtss_l26_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEV_CMN_MAC_CFG_STATUS_MAC_##addr, i,         \
                             "MAC_" name)
-#define L26_DEBUG_PCS(pr, addr, i, name)                                       \
-    vtss_l26_debug_reg_inst(vtss_state, pr,                                    \
+#define L26_DEBUG_PCS(ss, addr, i, name)                                       \
+    vtss_l26_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_##addr, i,         \
                             "PCS_" name)
 
 static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32            i, value, port, tgt;
@@ -2824,50 +2824,50 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
 
     for (i = 0; info->full && i < 8; i++) {
         VTSS_SPRINTF(buf, "SerDes1G_%u", i);
-        vtss_l26_debug_reg_header(pr, buf);
+        vtss_l26_debug_reg_header(ss, buf);
         VTSS_RC(l26_sd1g_read(vtss_state, 1 << i));
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, "COMMON_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, "COMMON_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
                        "PLL_STATUS");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
-        L26_DEBUG_HSIO(pr, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
+        L26_DEBUG_HSIO(ss, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
                        "DFT_STATUS");
         pr("\n");
     }
 
     for (i = 0; info->full && i < 4; i++) {
         VTSS_SPRINTF(buf, "SerDes6G_%u", i);
-        vtss_l26_debug_reg_header(pr, buf);
+        vtss_l26_debug_reg_header(ss, buf);
         VTSS_RC(l26_sd6g_read(vtss_state, 1 << i));
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, "COMMON_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS,
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, "COMMON_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS,
                        "PLL_STATUS");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DIG_CFG, "DIG_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG0, "DFT_CFG0");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG1, "DFT_CFG1");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG2, "DFT_CFG2");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_TP_CFG0, "TP_CFG0");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_TP_CFG1, "TP_CFG1");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_MISC_CFG, "MISC_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_OB_ANEG_CFG,
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DIG_CFG, "DIG_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG0, "DFT_CFG0");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG1, "DFT_CFG1");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG2, "DFT_CFG2");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_TP_CFG0, "TP_CFG0");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_TP_CFG1, "TP_CFG1");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_MISC_CFG, "MISC_CFG");
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_OB_ANEG_CFG,
                        "OB_ANEG_CFG");
-        L26_DEBUG_HSIO(pr, SERDES6G_DIG_STATUS_SERDES6G_DFT_STATUS,
+        L26_DEBUG_HSIO(ss, SERDES6G_DIG_STATUS_SERDES6G_DFT_STATUS,
                        "DFT_STATUS");
         pr("\n");
     }
@@ -2879,28 +2879,28 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
             continue;
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_l26_debug_reg_header(pr, buf);
+        vtss_l26_debug_reg_header(ss, buf);
         tgt = VTSS_TO_DEV(port);
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 port > 9
                                     ? VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt)
                                     : VTSS_DEV_GMII_PORT_MODE_CLOCK_CFG(tgt),
                                 port, "CLOCK_CFG");
-        L26_DEBUG_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
-        L26_DEBUG_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        L26_DEBUG_MAC(pr, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
-        L26_DEBUG_MAC(pr, TAGS_CFG(tgt), port, "TAGS_CFG");
-        L26_DEBUG_MAC(pr, FC_CFG(tgt), port, "FC_CFG");
-        L26_DEBUG_PCS(pr, CFG(tgt), port, "CFG");
-        L26_DEBUG_PCS(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        L26_DEBUG_PCS(pr, SD_CFG(tgt), port, "SD_CFG");
-        L26_DEBUG_PCS(pr, ANEG_CFG(tgt), port, "ANEG_CFG");
-        L26_DEBUG_PCS(pr, ANEG_STATUS(tgt), port, "ANEG_STATUS");
-        L26_DEBUG_PCS(pr, LINK_STATUS(tgt), port, "LINK_STATUS");
+        L26_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
+        L26_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        L26_DEBUG_MAC(ss, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
+        L26_DEBUG_MAC(ss, TAGS_CFG(tgt), port, "TAGS_CFG");
+        L26_DEBUG_MAC(ss, FC_CFG(tgt), port, "FC_CFG");
+        L26_DEBUG_PCS(ss, CFG(tgt), port, "CFG");
+        L26_DEBUG_PCS(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        L26_DEBUG_PCS(ss, SD_CFG(tgt), port, "SD_CFG");
+        L26_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
+        L26_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
+        L26_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
         vtss_l26_debug_reg_inst(
-            vtss_state, pr, VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+            vtss_state, ss, VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
             port, "PCS_FX100_CFG");
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 VTSS_DEV_PCS_FX100_STATUS_PCS_FX100_STATUS(tgt),
                                 port, "FX100_STATUS");
         pr("\n");
@@ -2910,11 +2910,11 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void l26_debug_cnt(const vtss_debug_printf_t pr,
-                          const char               *col1,
-                          const char               *col2,
-                          vtss_chip_counter_t      *c1,
-                          vtss_chip_counter_t      *c2)
+static void l26_debug_cnt(lmu_ss_t            *ss,
+                          const char          *col1,
+                          const char          *col2,
+                          vtss_chip_counter_t *c1,
+                          vtss_chip_counter_t *c2)
 {
     char buf[400];
 
@@ -2927,21 +2927,21 @@ static void l26_debug_cnt(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static void l26_debug_cnt_inst(const vtss_debug_printf_t pr,
-                               u32                       i,
-                               const char               *col1,
-                               const char               *col2,
-                               vtss_chip_counter_t      *c1,
-                               vtss_chip_counter_t      *c2)
+static void l26_debug_cnt_inst(lmu_ss_t            *ss,
+                               u32                  i,
+                               const char          *col1,
+                               const char          *col2,
+                               vtss_chip_counter_t *c1,
+                               vtss_chip_counter_t *c2)
 {
     char buf[200];
 
     VTSS_SPRINTF(buf, "%s_%u", col1, i);
-    l26_debug_cnt(pr, buf, col2, c1, c2);
+    l26_debug_cnt(ss, buf, col2, c1, c2);
 }
 
 static vtss_rc l26_debug_port_cnt(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455) */ // Due to VTSS_EXIT_ENTER
@@ -2984,63 +2984,63 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t                  *vtss_state,
         } else {
             pr("Counters for port: %u (port_no %u):\n\n", port, port_no);
             if (info->full || info->action != 3) {
-                l26_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
-                l26_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
-                l26_debug_cnt(pr, "mc", "", &cnt->rx_multicast,
+                l26_debug_cnt(ss, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
+                l26_debug_cnt(ss, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
+                l26_debug_cnt(ss, "mc", "", &cnt->rx_multicast,
                               &cnt->tx_multicast);
-                l26_debug_cnt(pr, "bc", "", &cnt->rx_broadcast,
+                l26_debug_cnt(ss, "bc", "", &cnt->rx_broadcast,
                               &cnt->tx_broadcast);
             }
 
             /* Detailed MAC counters */
             if (info->full || info->action == 2) {
-                l26_debug_cnt(pr, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
-                l26_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
-                l26_debug_cnt(pr, "65_127", "", &cnt->rx_65_127,
+                l26_debug_cnt(ss, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
+                l26_debug_cnt(ss, "64", "", &cnt->rx_64, &cnt->tx_64);
+                l26_debug_cnt(ss, "65_127", "", &cnt->rx_65_127,
                               &cnt->tx_65_127);
-                l26_debug_cnt(pr, "128_255", "", &cnt->rx_128_255,
+                l26_debug_cnt(ss, "128_255", "", &cnt->rx_128_255,
                               &cnt->tx_128_255);
-                l26_debug_cnt(pr, "256_511", "", &cnt->rx_256_511,
+                l26_debug_cnt(ss, "256_511", "", &cnt->rx_256_511,
                               &cnt->tx_256_511);
-                l26_debug_cnt(pr, "512_1023", "", &cnt->rx_512_1023,
+                l26_debug_cnt(ss, "512_1023", "", &cnt->rx_512_1023,
                               &cnt->tx_512_1023);
-                l26_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526,
+                l26_debug_cnt(ss, "1024_1526", "", &cnt->rx_1024_1526,
                               &cnt->tx_1024_1526);
-                l26_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max,
+                l26_debug_cnt(ss, "jumbo", "", &cnt->rx_1527_max,
                               &cnt->tx_1527_max);
             }
             if (!cpu_port) {
-                l26_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
-                l26_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
-                l26_debug_cnt(pr, "long", NULL, &cnt->rx_longs, NULL);
-                l26_debug_cnt(pr, "frag", NULL, &cnt->rx_fragments, NULL);
-                l26_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
-                l26_debug_cnt(pr, "control", NULL, &cnt->rx_control, NULL);
+                l26_debug_cnt(ss, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
+                l26_debug_cnt(ss, "short", NULL, &cnt->rx_shorts, NULL);
+                l26_debug_cnt(ss, "long", NULL, &cnt->rx_longs, NULL);
+                l26_debug_cnt(ss, "frag", NULL, &cnt->rx_fragments, NULL);
+                l26_debug_cnt(ss, "jabber", NULL, &cnt->rx_jabbers, NULL);
+                l26_debug_cnt(ss, "control", NULL, &cnt->rx_control, NULL);
             }
         }
 
         if (info->full || info->action == 1 || info->action == 3) {
             /* Queue system counters */
-            l26_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
+            l26_debug_cnt(ss, "cat_drop", cpu_port ? NULL : "drops",
                           &cnt->rx_classified_drops, &cnt->tx_drops);
-            l26_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
+            l26_debug_cnt(ss, "dr_local", cpu_port ? NULL : "aged",
                           &cnt->dr_local, &cnt->tx_aging);
-            l26_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
+            l26_debug_cnt(ss, "dr_tail", NULL, &cnt->dr_tail, NULL);
             for (i = 0; i < VTSS_PRIOS; i++)
-                l26_debug_cnt_inst(pr, i, "green", "", &cnt->rx_green_class[i],
+                l26_debug_cnt_inst(ss, i, "green", "", &cnt->rx_green_class[i],
                                    &cnt->tx_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                l26_debug_cnt_inst(pr, i, "yellow", "",
+                l26_debug_cnt_inst(ss, i, "yellow", "",
                                    &cnt->rx_yellow_class[i],
                                    &cnt->tx_yellow_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                l26_debug_cnt_inst(pr, i, "red", NULL, &cnt->rx_red_class[i],
+                l26_debug_cnt_inst(ss, i, "red", NULL, &cnt->rx_red_class[i],
                                    NULL);
             for (i = 0; i < VTSS_PRIOS; i++)
-                l26_debug_cnt_inst(pr, i, "dr_green", NULL,
+                l26_debug_cnt_inst(ss, i, "dr_green", NULL,
                                    &cnt->dr_green_class[i], NULL);
             for (i = 0; i < VTSS_PRIOS; i++)
-                l26_debug_cnt_inst(pr, i, "dr_yellow", NULL,
+                l26_debug_cnt_inst(ss, i, "dr_yellow", NULL,
                                    &cnt->dr_yellow_class[i], NULL);
         }
         pr("\n");
@@ -3048,11 +3048,11 @@ static vtss_rc l26_debug_port_cnt(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void l26_debug_wm_dump(const vtss_debug_printf_t pr,
-                              const char               *reg_name,
-                              u32                      *value,
-                              u32                       i,
-                              u32                       multiplier)
+static void l26_debug_wm_dump(lmu_ss_t   *ss,
+                              const char *reg_name,
+                              u32        *value,
+                              u32         i,
+                              u32         multiplier)
 {
     u32 q;
     pr("%-25s", reg_name);
@@ -3063,7 +3063,7 @@ static void l26_debug_wm_dump(const vtss_debug_printf_t pr,
 }
 
 static vtss_rc l26_debug_wm(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 
 {
@@ -3141,13 +3141,13 @@ static vtss_rc l26_debug_wm(vtss_state_t                  *vtss_state,
                    &val4[q]);
         }
 
-        l26_debug_wm_dump(pr, "Queue level:", id, 8, 1);
-        l26_debug_wm_dump(pr, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8,
+        l26_debug_wm_dump(ss, "Queue level:", id, 8, 1);
+        l26_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8,
                           L26_BUFFER_CELL_SZ);
-        l26_debug_wm_dump(pr, "Qu Ingr Ref Rsrv (Frames):", val2, 8, 1);
-        l26_debug_wm_dump(pr, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8,
+        l26_debug_wm_dump(ss, "Qu Ingr Ref Rsrv (Frames):", val2, 8, 1);
+        l26_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8,
                           L26_BUFFER_CELL_SZ);
-        l26_debug_wm_dump(pr, "Qu Egr Ref Rsrv  (Frames):", val4, 8, 1);
+        l26_debug_wm_dump(ss, "Qu Egr Ref Rsrv  (Frames):", val4, 8, 1);
         pr("\n");
 
         /* Configure reserved space for port */
@@ -3172,13 +3172,13 @@ static vtss_rc l26_debug_wm(vtss_state_t                  *vtss_state,
         L26_RD(VTSS_SYS_RES_CTRL_RES_CFG((q + 216 + 512)), &val3[q]);
         L26_RD(VTSS_SYS_RES_CTRL_RES_CFG((q + 216 + 768)), &val4[q]);
     }
-    l26_debug_wm_dump(pr, "QoS level:", id, 8, 1);
-    l26_debug_wm_dump(pr, "QoS Ingr Buf Rsrv (Bytes) :", val1, 8,
+    l26_debug_wm_dump(ss, "QoS level:", id, 8, 1);
+    l26_debug_wm_dump(ss, "QoS Ingr Buf Rsrv (Bytes) :", val1, 8,
                       L26_BUFFER_CELL_SZ);
-    l26_debug_wm_dump(pr, "QoS Ingr Ref Rsrv (Frames):", val2, 8, 1);
-    l26_debug_wm_dump(pr, "QoS Egr Buf Rsrv  (Bytes) :", val3, 8,
+    l26_debug_wm_dump(ss, "QoS Ingr Ref Rsrv (Frames):", val2, 8, 1);
+    l26_debug_wm_dump(ss, "QoS Egr Buf Rsrv  (Bytes) :", val3, 8,
                       L26_BUFFER_CELL_SZ);
-    l26_debug_wm_dump(pr, "QoS Egr Ref Rsrv  (Frames):", val4, 8, 1);
+    l26_debug_wm_dump(ss, "QoS Egr Ref Rsrv  (Frames):", val4, 8, 1);
     pr("\n");
 
     pr("Color level:\n");
@@ -3216,15 +3216,15 @@ vtss_rc vtss_cil_port_serdes_debug(vtss_state_t        *vtss_state,
 }
 
 vtss_rc vtss_l26_port_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, l26_debug_port,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   l26_debug_port_cnt, vtss_state, pr, info));
+                                   l26_debug_port_cnt, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, l26_debug_wm,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 

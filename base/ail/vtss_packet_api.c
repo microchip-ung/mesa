@@ -744,18 +744,18 @@ static const char *vtss_packet_reg_txt(vtss_packet_reg_type_t type)
 }
 
 void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32                    i;
     char                   buf[16];
     vtss_packet_rx_conf_t *conf = &vtss_state->packet.rx_conf;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PACKET)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PACKET)) {
         return;
     }
 
-    vtss_debug_print_header(pr, "Registrations");
+    vtss_debug_print_header(ss, "Registrations");
     {
         vtss_port_no_t              port_no;
         vtss_packet_rx_port_conf_t *port_conf;
@@ -794,63 +794,63 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
         }
     }
 
-    vtss_debug_print_value(pr, "BPDU", conf->reg.bpdu_cpu_only);
+    vtss_debug_print_value(ss, "BPDU", conf->reg.bpdu_cpu_only);
     for (i = 0; i < 16; i++) {
         VTSS_SPRINTF(buf, "GARP_%u", i);
-        vtss_debug_print_value(pr, buf, conf->reg.garp_cpu_only[i]);
+        vtss_debug_print_value(ss, buf, conf->reg.garp_cpu_only[i]);
     }
-    vtss_debug_print_value(pr, "IPMC", conf->reg.ipmc_ctrl_cpu_copy);
-    vtss_debug_print_value(pr, "IGMP", conf->reg.igmp_cpu_only);
-    vtss_debug_print_value(pr, "MLD", conf->reg.mld_cpu_only);
+    vtss_debug_print_value(ss, "IPMC", conf->reg.ipmc_ctrl_cpu_copy);
+    vtss_debug_print_value(ss, "IGMP", conf->reg.igmp_cpu_only);
+    vtss_debug_print_value(ss, "MLD", conf->reg.mld_cpu_only);
     pr("\n");
 
-    vtss_debug_print_header(pr, "Queue Mappings");
-    vtss_debug_print_value(pr, "BPDU", conf->map.bpdu_queue);
-    vtss_debug_print_value(pr, "GARP", conf->map.garp_queue);
-    vtss_debug_print_value(pr, "LEARN", conf->map.learn_queue);
-    vtss_debug_print_value(pr, "IGMP", conf->map.igmp_queue);
-    vtss_debug_print_value(pr, "IPMC", conf->map.ipmc_ctrl_queue);
-    vtss_debug_print_value(pr, "MAC_VID", conf->map.mac_vid_queue);
-    vtss_debug_print_value(pr, "SFLOW", conf->map.sflow_queue);
-    vtss_debug_print_value(pr, "LRN_ALL", conf->map.lrn_all_queue);
+    vtss_debug_print_header(ss, "Queue Mappings");
+    vtss_debug_print_value(ss, "BPDU", conf->map.bpdu_queue);
+    vtss_debug_print_value(ss, "GARP", conf->map.garp_queue);
+    vtss_debug_print_value(ss, "LEARN", conf->map.learn_queue);
+    vtss_debug_print_value(ss, "IGMP", conf->map.igmp_queue);
+    vtss_debug_print_value(ss, "IPMC", conf->map.ipmc_ctrl_queue);
+    vtss_debug_print_value(ss, "MAC_VID", conf->map.mac_vid_queue);
+    vtss_debug_print_value(ss, "SFLOW", conf->map.sflow_queue);
+    vtss_debug_print_value(ss, "LRN_ALL", conf->map.lrn_all_queue);
 #if defined(VTSS_FEATURE_LAYER3)
-    vtss_debug_print_value(pr, "L3_UC", conf->map.l3_uc_queue);
-    vtss_debug_print_value(pr, "L3_OTHER", conf->map.l3_other_queue);
+    vtss_debug_print_value(ss, "L3_UC", conf->map.l3_uc_queue);
+    vtss_debug_print_value(ss, "L3_OTHER", conf->map.l3_other_queue);
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
-        vtss_debug_print_value(pr, "SV", conf->map.sv_queue);
+        vtss_debug_print_value(ss, "SV", conf->map.sv_queue);
     }
 #endif
     pr("\n");
 
-    vtss_debug_print_header(pr, "NPI");
-    vtss_debug_print_value(pr, "Enabled", vtss_state->packet.npi_conf.enable);
+    vtss_debug_print_header(ss, "NPI");
+    vtss_debug_print_value(ss, "Enabled", vtss_state->packet.npi_conf.enable);
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
-        vtss_debug_print_value(pr, "NPI_PORT",
+        vtss_debug_print_value(ss, "NPI_PORT",
                                vtss_state->packet.npi_conf.port_no);
         for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
             VTSS_SPRINTF(buf, "REDIR:CPUQ_%u", i);
-            vtss_debug_print_value(pr, buf, conf->queue[i].npi.enable);
+            vtss_debug_print_value(ss, buf, conf->queue[i].npi.enable);
         }
     }
     pr("\n");
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-    vtss_debug_print_header(pr, "CPU Shaper");
-    vtss_debug_print_value(pr, "Enabled",
+    vtss_debug_print_header(ss, "CPU Shaper");
+    vtss_debug_print_value(ss, "Enabled",
                            !(conf->shaper_rate == VTSS_BITRATE_DISABLED));
     if (conf->shaper_rate != VTSS_BITRATE_DISABLED) {
-        vtss_debug_print_value(pr, "Rate", conf->shaper_rate);
+        vtss_debug_print_value(ss, "Rate", conf->shaper_rate);
     }
     pr("\n");
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
 
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
-    vtss_debug_print_header(pr, "CPU Queue Shaper");
+    vtss_debug_print_header(ss, "CPU Queue Shaper");
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
         VTSS_SPRINTF(buf, "CPU_Queue_%u", i);
-        vtss_debug_print_value(pr, buf, conf->queue[i].rate);
+        vtss_debug_print_value(ss, buf, conf->queue[i].rate);
     }
 #endif
 }

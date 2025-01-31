@@ -332,35 +332,35 @@ u32     vtss_jr2_vtss_pgid(const vtss_state_t *const state, u32 pgid);
 u32     vtss_jr2_chip_pgid(vtss_state_t *vtss_state, u32 pgid);
 // JR2-TBD vtss_rc vtss_jr2_isdx_update_es0(vtss_state_t *vtss_state,
 //                                  BOOL isdx_ena, u32 isdx, u32 isdx_mask);
-void vtss_jr2_debug_cnt(const vtss_debug_printf_t pr,
-                        const char               *col1,
-                        const char               *col2,
-                        vtss_chip_counter_t      *c1,
-                        vtss_chip_counter_t      *c2);
-void vtss_jr2_debug_reg_header(const vtss_debug_printf_t pr, const char *name);
-void vtss_jr2_debug_reg(vtss_state_t             *vtss_state,
-                        const vtss_debug_printf_t pr,
-                        u32                       addr,
-                        const char               *name);
-void vtss_jr2_debug_reg_inst(vtss_state_t             *vtss_state,
-                             const vtss_debug_printf_t pr,
-                             u32                       addr,
-                             u32                       i,
-                             const char               *name);
-void vtss_jr2_debug_print_port_header(vtss_state_t             *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      const char               *txt);
-void vtss_jr2_debug_print_pmask(const vtss_debug_printf_t pr, u64 pmask);
+void vtss_jr2_debug_cnt(lmu_ss_t            *ss,
+                        const char          *col1,
+                        const char          *col2,
+                        vtss_chip_counter_t *c1,
+                        vtss_chip_counter_t *c2);
+void vtss_jr2_debug_reg_header(lmu_ss_t *ss, const char *name);
+void vtss_jr2_debug_reg(vtss_state_t *vtss_state,
+                        lmu_ss_t     *ss,
+                        u32           addr,
+                        const char   *name);
+void vtss_jr2_debug_reg_inst(vtss_state_t *vtss_state,
+                             lmu_ss_t     *ss,
+                             u32           addr,
+                             u32           i,
+                             const char   *name);
+void vtss_jr2_debug_print_port_header(vtss_state_t *vtss_state,
+                                      lmu_ss_t     *ss,
+                                      const char   *txt);
+void vtss_jr2_debug_print_pmask(lmu_ss_t *ss, u64 pmask);
 
-void vtss_jr2_debug_sticky(vtss_state_t             *vtss_state,
-                           const vtss_debug_printf_t pr,
-                           u32                       addr,
-                           const char               *name);
+void vtss_jr2_debug_sticky(vtss_state_t *vtss_state,
+                           lmu_ss_t     *ss,
+                           u32           addr,
+                           const char   *name);
 
 /* Port functions */
 vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_jr2_port_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t  *vtss_state,
                                    vtss_port_no_t port_no);
@@ -372,9 +372,9 @@ vtss_rc vtss_jr2_counter_update(vtss_state_t        *vtss_state,
 u32     vtss_jr2_wm_high_get(vtss_state_t *vtss_state,
                              u32 queue); /* Returns WRED wm_high in bytes */
 vtss_rc vtss_jr2_wm_update(vtss_state_t *vtss_state);
-vtss_rc vtss_jr2_port_debug_qres(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 BOOL                      res_stat_cur);
+vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 BOOL          res_stat_cur);
 
 /* Miscellaneous functions */
 vtss_rc vtss_jr2_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -385,7 +385,7 @@ vtss_rc vtss_jr2_gpio_mode(vtss_state_t          *vtss_state,
                            const vtss_gpio_no_t   gpio_no,
                            const vtss_gpio_mode_t mode);
 vtss_rc vtss_jr2_misc_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 
 /* QoS functions */
@@ -408,7 +408,7 @@ vtss_rc vtss_jr2_policer_conf_set(vtss_state_t            *vtss_state,
                                   u32                      idx,
                                   vtss_dlb_policer_conf_t *dlb_conf);
 vtss_rc vtss_jr2_qos_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_QOS */
 
@@ -425,13 +425,13 @@ vtss_rc vtss_jr2_isdx_set(vtss_state_t     *vtss_state,
                           u32               vsi,
                           BOOL              independent_mep);
 vtss_rc vtss_jr2_l2_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 
 /* L3 functions */
 vtss_rc vtss_jr2_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 /* Packet functions */
 vtss_rc vtss_jr2_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -440,12 +440,12 @@ vtss_rc vtss_jr2_l2cp_conf_set(vtss_state_t         *vtss_state,
                                u32                   l2cp,
                                vtss_jr2_l2cp_conf_t *conf);
 vtss_rc vtss_jr2_packet_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info);
 
 #if defined(VTSS_FEATURE_AFI_SWC)
 vtss_rc vtss_jr2_afi_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #if defined(VTSS_AFI_V2)
 vtss_rc vtss_jr2_afi_init(vtss_state_t *const   vtss_state,
@@ -458,7 +458,7 @@ vtss_rc vtss_jr2_afi_init(vtss_state_t *const   vtss_state,
 u32     vtss_j2_voi_idx_to_mip_idx(vtss_voi_idx_t voi_idx);
 vtss_rc vtss_jr2_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_jr2_oam_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_VOP */
 
@@ -480,19 +480,19 @@ vtss_rc vtss_jr2_vcap_port_key_set(vtss_state_t        *vtss_state,
                                    BOOL                 dmac_dip,
                                    BOOL                 tri_vid_idx);
 vtss_rc vtss_jr2_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 vtss_rc vtss_jr2_debug_clm_a(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info);
 vtss_rc vtss_jr2_debug_clm_b(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info);
 vtss_rc vtss_jr2_debug_clm_c(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info);
 vtss_rc vtss_jr2_debug_es0(vtss_state_t                  *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info);
 
 vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t  *vtss_state,
@@ -500,7 +500,7 @@ vtss_rc vtss_jr2_vcap_port_l2_update(vtss_state_t  *vtss_state,
 vtss_rc vtss_jr2_vcap_port_qos_update(vtss_state_t  *vtss_state,
                                       vtss_port_no_t port_no);
 vtss_rc vtss_jr2_debug_lpm(vtss_state_t                  *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_VCAP */
 
@@ -508,7 +508,7 @@ vtss_rc vtss_jr2_debug_lpm(vtss_state_t                  *vtss_state,
 /* Timestamp functions */
 vtss_rc vtss_jr2_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_jr2_ts_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_TIMESTAMP */
 

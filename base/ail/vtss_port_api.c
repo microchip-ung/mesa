@@ -2296,8 +2296,8 @@ vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t    inst,
 
 /* - Debug print --------------------------------------------------- */
 
-static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
     vtss_port_no_t    port_no;
@@ -2308,7 +2308,7 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
     BOOL              header = 1;
     char              buf[32];
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PORT)) {
         return;
     }
 
@@ -2321,7 +2321,7 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
         if (header) {
             header = 0;
             VTSS_SPRINTF(buf, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
-            vtss_debug_print_header(pr, buf);
+            vtss_debug_print_header(ss, buf);
             pr("Port  Chip Port  Chip  ");
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
     defined(VTSS_ARCH_LAN969X)
@@ -2356,7 +2356,7 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
         }
         if (header) {
             header = 0;
-            vtss_debug_print_header(pr, "Configuration");
+            vtss_debug_print_header(ss, "Configuration");
             pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  ");
 #if defined(VTSS_FEATURE_PFC)
             pr("PFC[0-7]  ");
@@ -2423,7 +2423,7 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
         }
         if (header) {
             header = 0;
-            vtss_debug_print_header(pr, "Forwarding");
+            vtss_debug_print_header(ss, "Forwarding");
             pr("Port  State  Forwarding  STP State   Auth State  Rx Fwd    Tx Fwd    Aggr Fwd\n");
         }
 
@@ -2468,11 +2468,11 @@ static void vtss_port_debug_print_conf(vtss_state_t             *vtss_state,
 }
 
 /* Print counters in two columns */
-static void vtss_debug_port_cnt(const vtss_debug_printf_t pr,
-                                const char               *col1,
-                                const char               *col2,
-                                vtss_port_counter_t       c1,
-                                vtss_port_counter_t       c2)
+static void vtss_debug_port_cnt(lmu_ss_t           *ss,
+                                const char         *col1,
+                                const char         *col2,
+                                vtss_port_counter_t c1,
+                                vtss_port_counter_t c2)
 {
     char buf[200];
 
@@ -2485,8 +2485,8 @@ static void vtss_debug_port_cnt(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
-                                           const vtss_debug_printf_t pr,
+static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
+                                           lmu_ss_t     *ss,
                                            const vtss_debug_info_t *const info)
 {
     vtss_port_no_t                      port_no;
@@ -2496,7 +2496,7 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
     vtss_port_ethernet_like_counters_t *eth = &counters.ethernet_like;
     char                                buf[80];
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_PORT_CNT)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PORT_CNT)) {
         return;
     }
 
@@ -2513,22 +2513,22 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
             continue;
         }
         VTSS_SPRINTF(buf, "Port %u Counters", port_no);
-        vtss_debug_print_header(pr, buf);
+        vtss_debug_print_header(ss, buf);
 
         /* Basic counters */
-        vtss_debug_port_cnt(pr, "Packets", "", rmon->rx_etherStatsPkts,
+        vtss_debug_port_cnt(ss, "Packets", "", rmon->rx_etherStatsPkts,
                             rmon->tx_etherStatsPkts);
-        vtss_debug_port_cnt(pr, "Octets", "", rmon->rx_etherStatsOctets,
+        vtss_debug_port_cnt(ss, "Octets", "", rmon->rx_etherStatsOctets,
                             rmon->tx_etherStatsOctets);
-        vtss_debug_port_cnt(pr, "Unicast", "", ifg->ifInUcastPkts,
+        vtss_debug_port_cnt(ss, "Unicast", "", ifg->ifInUcastPkts,
                             ifg->ifOutUcastPkts);
-        vtss_debug_port_cnt(pr, "Multicast", "",
+        vtss_debug_port_cnt(ss, "Multicast", "",
                             rmon->rx_etherStatsMulticastPkts,
                             rmon->tx_etherStatsMulticastPkts);
-        vtss_debug_port_cnt(pr, "Broadcast", "",
+        vtss_debug_port_cnt(ss, "Broadcast", "",
                             rmon->rx_etherStatsBroadcastPkts,
                             rmon->tx_etherStatsBroadcastPkts);
-        vtss_debug_port_cnt(pr, "Pause", "", eth->dot3InPauseFrames,
+        vtss_debug_port_cnt(ss, "Pause", "", eth->dot3InPauseFrames,
                             eth->dot3OutPauseFrames);
         pr("\n");
         if (!info->full) {
@@ -2536,24 +2536,24 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
         }
 
         /* RMON counters */
-        vtss_debug_port_cnt(pr, "64", "", rmon->rx_etherStatsPkts64Octets,
+        vtss_debug_port_cnt(ss, "64", "", rmon->rx_etherStatsPkts64Octets,
                             rmon->tx_etherStatsPkts64Octets);
-        vtss_debug_port_cnt(pr, "65-127", "",
+        vtss_debug_port_cnt(ss, "65-127", "",
                             rmon->rx_etherStatsPkts65to127Octets,
                             rmon->tx_etherStatsPkts65to127Octets);
-        vtss_debug_port_cnt(pr, "128-255", "",
+        vtss_debug_port_cnt(ss, "128-255", "",
                             rmon->rx_etherStatsPkts128to255Octets,
                             rmon->tx_etherStatsPkts128to255Octets);
-        vtss_debug_port_cnt(pr, "256-511", "",
+        vtss_debug_port_cnt(ss, "256-511", "",
                             rmon->rx_etherStatsPkts256to511Octets,
                             rmon->tx_etherStatsPkts256to511Octets);
-        vtss_debug_port_cnt(pr, "512-1023", "",
+        vtss_debug_port_cnt(ss, "512-1023", "",
                             rmon->rx_etherStatsPkts512to1023Octets,
                             rmon->tx_etherStatsPkts512to1023Octets);
-        vtss_debug_port_cnt(pr, "1024-1526", "",
+        vtss_debug_port_cnt(ss, "1024-1526", "",
                             rmon->rx_etherStatsPkts1024to1518Octets,
                             rmon->tx_etherStatsPkts1024to1518Octets);
-        vtss_debug_port_cnt(pr, "1527-    ", "",
+        vtss_debug_port_cnt(ss, "1527-    ", "",
                             rmon->rx_etherStatsPkts1519toMaxOctets,
                             rmon->tx_etherStatsPkts1519toMaxOctets);
         pr("\n");
@@ -2566,7 +2566,7 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
             /* Priority counters */
             for (prio = VTSS_PRIO_START; prio < VTSS_PRIO_END; prio++) {
                 VTSS_SPRINTF(buf, "Class %u", prio);
-                vtss_debug_port_cnt(pr, buf, "",
+                vtss_debug_port_cnt(ss, buf, "",
                                     prop->rx_prio[prio - VTSS_PRIO_START],
                                     prop->tx_prio[prio - VTSS_PRIO_START]);
             }
@@ -2575,20 +2575,20 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
 #endif
 
         /* Drop and error counters */
-        vtss_debug_port_cnt(pr, "Drops", "", rmon->rx_etherStatsDropEvents,
+        vtss_debug_port_cnt(ss, "Drops", "", rmon->rx_etherStatsDropEvents,
                             rmon->tx_etherStatsDropEvents);
-        vtss_debug_port_cnt(pr, "CRC/Alignment", "Late/Exc. Coll.",
+        vtss_debug_port_cnt(ss, "CRC/Alignment", "Late/Exc. Coll.",
                             rmon->rx_etherStatsCRCAlignErrors,
                             ifg->ifOutErrors);
-        vtss_debug_port_cnt(pr, "Undersize", NULL,
+        vtss_debug_port_cnt(ss, "Undersize", NULL,
                             rmon->rx_etherStatsUndersizePkts, 0);
-        vtss_debug_port_cnt(pr, "Oversize", NULL,
+        vtss_debug_port_cnt(ss, "Oversize", NULL,
                             rmon->rx_etherStatsOversizePkts, 0);
-        vtss_debug_port_cnt(pr, "Fragments", NULL, rmon->rx_etherStatsFragments,
+        vtss_debug_port_cnt(ss, "Fragments", NULL, rmon->rx_etherStatsFragments,
                             0);
-        vtss_debug_port_cnt(pr, "Jabbers", NULL, rmon->rx_etherStatsJabbers, 0);
+        vtss_debug_port_cnt(ss, "Jabbers", NULL, rmon->rx_etherStatsJabbers, 0);
 #if defined(VTSS_FEATURE_PORT_CNT_BRIDGE)
-        vtss_debug_port_cnt(pr, "Filtered", NULL,
+        vtss_debug_port_cnt(ss, "Filtered", NULL,
                             counters.bridge.dot1dTpPortInDiscards, 0);
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
 
@@ -2597,14 +2597,14 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
             vtss_port_dot3br_counters_t *dot3br = &counters.dot3br;
 
             pr("\n");
-            vtss_debug_port_cnt(pr, "AssError", NULL,
+            vtss_debug_port_cnt(ss, "AssError", NULL,
                                 dot3br->aMACMergeFrameAssErrorCount, 0);
-            vtss_debug_port_cnt(pr, "SmdError", NULL,
+            vtss_debug_port_cnt(ss, "SmdError", NULL,
                                 dot3br->aMACMergeFrameSmdErrorCount, 0);
-            vtss_debug_port_cnt(pr, "AssOk", "HoldCount",
+            vtss_debug_port_cnt(ss, "AssOk", "HoldCount",
                                 dot3br->aMACMergeFrameAssOkCount,
                                 dot3br->aMACMergeHoldCount);
-            vtss_debug_port_cnt(pr, "FragCount", "",
+            vtss_debug_port_cnt(ss, "FragCount", "",
                                 dot3br->aMACMergeFragCountRx,
                                 dot3br->aMACMergeFragCountTx);
         }
@@ -2618,19 +2618,19 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
 
             for (prio = VTSS_PRIO_START; prio < VTSS_PRIO_END; prio++) {
                 pr("\nClass %u:\n", prio);
-                vtss_debug_port_cnt(pr, "Green", "",
+                vtss_debug_port_cnt(ss, "Green", "",
                                     evc->rx_green[prio - VTSS_PRIO_START],
                                     evc->tx_green[prio - VTSS_PRIO_START]);
-                vtss_debug_port_cnt(pr, "Yellow", "",
+                vtss_debug_port_cnt(ss, "Yellow", "",
                                     evc->rx_yellow[prio - VTSS_PRIO_START],
                                     evc->tx_yellow[prio - VTSS_PRIO_START]);
-                vtss_debug_port_cnt(pr, "Red", NULL,
+                vtss_debug_port_cnt(ss, "Red", NULL,
                                     evc->rx_red[prio - VTSS_PRIO_START], 0);
-                vtss_debug_port_cnt(pr, "Green Drops", NULL,
+                vtss_debug_port_cnt(ss, "Green Drops", NULL,
                                     evc->rx_green_discard[prio -
                                                           VTSS_PRIO_START],
                                     0);
-                vtss_debug_port_cnt(pr, "Yellow Drops", NULL,
+                vtss_debug_port_cnt(ss, "Yellow Drops", NULL,
                                     evc->rx_yellow_discard[prio -
                                                            VTSS_PRIO_START],
                                     0);
@@ -2642,11 +2642,11 @@ static void vtss_port_debug_print_counters(vtss_state_t             *vtss_state,
 }
 
 void vtss_port_debug_print(vtss_state_t                  *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {
-    vtss_port_debug_print_conf(vtss_state, pr, info);
-    vtss_port_debug_print_counters(vtss_state, pr, info);
+    vtss_port_debug_print_conf(vtss_state, ss, info);
+    vtss_port_debug_print_counters(vtss_state, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

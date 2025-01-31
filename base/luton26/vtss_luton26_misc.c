@@ -979,115 +979,113 @@ static vtss_rc l26_fan_rotation_update(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-static void l26_debug_tgt(const vtss_debug_printf_t pr,
-                          const char               *name,
-                          u32                       to)
+static void l26_debug_tgt(lmu_ss_t *ss, const char *name, u32 to)
 {
     u32 tgt = ((to >> 16) & 0x3f);
     pr("%-10s  0x%02x (%u)\n", name, tgt, tgt);
 }
 
-#define L26_DEBUG_TGT(pr, name) l26_debug_tgt(pr, #name, VTSS_TO_##name)
-#define L26_DEBUG_GPIO(pr, addr, name)                                         \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr,       \
+#define L26_DEBUG_TGT(ss, name) l26_debug_tgt(ss, #name, VTSS_TO_##name)
+#define L26_DEBUG_GPIO(ss, addr, name)                                         \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr,       \
                        "GPIO_" name)
-#define L26_DEBUG_SIO(pr, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr,    \
+#define L26_DEBUG_SIO(ss, addr, name)                                          \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr,    \
                        "SIO_" name)
-#define L26_DEBUG_SIO_INST(pr, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, pr,                                    \
+#define L26_DEBUG_SIO_INST(ss, addr, i, name)                                  \
+    vtss_l26_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, i,            \
                             "SIO_" name)
-#define L26_DEBUG_REG_NAME(pr, tgt, addr, name)                                \
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_##tgt##_##addr, name)
+#define L26_DEBUG_REG_NAME(ss, tgt, addr, name)                                \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_##tgt##_##addr, name)
 
 static vtss_rc l26_debug_misc(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32  port, i;
     char buf[32];
 
     pr("Name        Target\n");
-    L26_DEBUG_TGT(pr, DEVCPU_ORG);
-    L26_DEBUG_TGT(pr, SYS);
-    L26_DEBUG_TGT(pr, ANA);
-    L26_DEBUG_TGT(pr, REW);
-    L26_DEBUG_TGT(pr, ES0);
-    L26_DEBUG_TGT(pr, S1);
-    L26_DEBUG_TGT(pr, S2);
-    L26_DEBUG_TGT(pr, DEVCPU_GCB);
-    L26_DEBUG_TGT(pr, DEVCPU_QS);
-    L26_DEBUG_TGT(pr, DEVCPU_PI);
-    L26_DEBUG_TGT(pr, MACRO_CTRL);
+    L26_DEBUG_TGT(ss, DEVCPU_ORG);
+    L26_DEBUG_TGT(ss, SYS);
+    L26_DEBUG_TGT(ss, ANA);
+    L26_DEBUG_TGT(ss, REW);
+    L26_DEBUG_TGT(ss, ES0);
+    L26_DEBUG_TGT(ss, S1);
+    L26_DEBUG_TGT(ss, S2);
+    L26_DEBUG_TGT(ss, DEVCPU_GCB);
+    L26_DEBUG_TGT(ss, DEVCPU_QS);
+    L26_DEBUG_TGT(ss, DEVCPU_PI);
+    L26_DEBUG_TGT(ss, MACRO_CTRL);
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "DEV_%u", port);
-        l26_debug_tgt(pr, buf, VTSS_TO_DEV(port));
+        l26_debug_tgt(ss, buf, VTSS_TO_DEV(port));
     }
     pr("\n");
 
-    vtss_l26_debug_reg_header(pr, "GPIOs");
-    L26_DEBUG_GPIO(pr, OUT, "OUT");
-    L26_DEBUG_GPIO(pr, IN, "IN");
-    L26_DEBUG_GPIO(pr, OE, "OE");
-    L26_DEBUG_GPIO(pr, INTR, "INTR");
-    L26_DEBUG_GPIO(pr, INTR_ENA, "INTR_ENA");
-    L26_DEBUG_GPIO(pr, INTR_IDENT, "INTR_IDENT");
-    L26_DEBUG_GPIO(pr, ALT(0), "ALT_0");
-    L26_DEBUG_GPIO(pr, ALT(1), "ALT_1");
+    vtss_l26_debug_reg_header(ss, "GPIOs");
+    L26_DEBUG_GPIO(ss, OUT, "OUT");
+    L26_DEBUG_GPIO(ss, IN, "IN");
+    L26_DEBUG_GPIO(ss, OE, "OE");
+    L26_DEBUG_GPIO(ss, INTR, "INTR");
+    L26_DEBUG_GPIO(ss, INTR_ENA, "INTR_ENA");
+    L26_DEBUG_GPIO(ss, INTR_IDENT, "INTR_IDENT");
+    L26_DEBUG_GPIO(ss, ALT(0), "ALT_0");
+    L26_DEBUG_GPIO(ss, ALT(1), "ALT_1");
     pr("\n");
 
-    vtss_l26_debug_reg_header(pr, "SGPIO");
+    vtss_l26_debug_reg_header(ss, "SGPIO");
     for (i = 0; i < 4; i++)
-        L26_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
+        L26_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");
     for (i = 0; i < 4; i++)
-        L26_DEBUG_SIO_INST(pr, INT_POL(i), i, "INT_POL");
-    L26_DEBUG_SIO(pr, PORT_INT_ENA, "PORT_INT_ENA");
+        L26_DEBUG_SIO_INST(ss, INT_POL(i), i, "INT_POL");
+    L26_DEBUG_SIO(ss, PORT_INT_ENA, "PORT_INT_ENA");
     for (i = 0; i < 32; i++)
-        L26_DEBUG_SIO_INST(pr, PORT_CONFIG(i), i, "PORT_CONFIG");
-    L26_DEBUG_SIO(pr, PORT_ENABLE, "PORT_ENABLE");
-    L26_DEBUG_SIO(pr, CONFIG, "CONFIG");
-    L26_DEBUG_SIO(pr, CLOCK, "CLOCK");
+        L26_DEBUG_SIO_INST(ss, PORT_CONFIG(i), i, "PORT_CONFIG");
+    L26_DEBUG_SIO(ss, PORT_ENABLE, "PORT_ENABLE");
+    L26_DEBUG_SIO(ss, CONFIG, "CONFIG");
+    L26_DEBUG_SIO(ss, CLOCK, "CLOCK");
     for (i = 0; i < 4; i++)
-        L26_DEBUG_SIO_INST(pr, INT_REG(i), i, "INT_REG");
+        L26_DEBUG_SIO_INST(ss, INT_REG(i), i, "INT_REG");
     pr("\n");
 
-    vtss_l26_debug_reg_header(pr, "IRQs");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR, "INTR_IDENT");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_RAW, "INTR_RAW");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_ENA, "INTR_ENA");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, ICPU_IRQ0_ENA, "ICPU_IRQ0_ENA");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, ICPU_IRQ1_ENA, "ICPU_IRQ1_ENA");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, ICPU_IRQ0_IDENT, "ICPU_IRQ0_IDENT");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, ICPU_IRQ1_IDENT, "ICPU_IRQ1_IDENT");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_IRQ0_ENA, "EXT_IRQ0_ENA");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_IRQ1_ENA, "EXT_IRQ1_ENA");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_IRQ0_IDENT, "EXT_IRQ0_IDENT");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_IRQ1_IDENT, "EXT_IRQ1_IDENT");
+    vtss_l26_debug_reg_header(ss, "IRQs");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR, "INTR_IDENT");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_RAW, "INTR_RAW");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_ENA, "INTR_ENA");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, ICPU_IRQ0_ENA, "ICPU_IRQ0_ENA");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, ICPU_IRQ1_ENA, "ICPU_IRQ1_ENA");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, ICPU_IRQ0_IDENT, "ICPU_IRQ0_IDENT");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, ICPU_IRQ1_IDENT, "ICPU_IRQ1_IDENT");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ0_ENA, "EXT_IRQ0_ENA");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ1_ENA, "EXT_IRQ1_ENA");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ0_IDENT, "EXT_IRQ0_IDENT");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ1_IDENT, "EXT_IRQ1_IDENT");
 
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, XTR_RDY0_INTR_CFG,
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY0_INTR_CFG,
                        "XTR_RDY0_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, XTR_RDY1_INTR_CFG,
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY1_INTR_CFG,
                        "XTR_RDY1_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, XTR_RDY2_INTR_CFG,
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY2_INTR_CFG,
                        "XTR_RDY2_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, XTR_RDY3_INTR_CFG,
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY3_INTR_CFG,
                        "XTR_RDY3_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, FDMA_INTR_CFG, "FDMA_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, SW0_INTR_CFG, "SW0_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, SW1_INTR_CFG, "SW1_INTR_CFG");
-    L26_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, PTP_SYNC_INTR_CFG,
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, FDMA_INTR_CFG, "FDMA_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, SW0_INTR_CFG, "SW0_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, SW1_INTR_CFG, "SW1_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, PTP_SYNC_INTR_CFG,
                        "PTP_SYNC_INTR_CFG");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_l26_misc_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, l26_debug_misc,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

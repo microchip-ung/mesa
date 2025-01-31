@@ -118,26 +118,26 @@ typedef struct {
 /* Common functions */
 vtss_rc vtss_l26_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32     vtss_l26_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
-void vtss_l26_debug_reg_header(const vtss_debug_printf_t pr, const char *name);
-void vtss_l26_debug_reg(vtss_state_t             *vtss_state,
-                        const vtss_debug_printf_t pr,
-                        u32                       addr,
-                        const char               *name);
-void vtss_l26_debug_reg_inst(vtss_state_t             *vtss_state,
-                             const vtss_debug_printf_t pr,
-                             u32                       addr,
-                             u32                       i,
-                             const char               *name);
-void vtss_l26_debug_print_port_header(vtss_state_t             *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      const char               *txt);
+void    vtss_l26_debug_reg_header(lmu_ss_t *ss, const char *name);
+void    vtss_l26_debug_reg(vtss_state_t *vtss_state,
+                           lmu_ss_t     *ss,
+                           u32           addr,
+                           const char   *name);
+void    vtss_l26_debug_reg_inst(vtss_state_t *vtss_state,
+                                lmu_ss_t     *ss,
+                                u32           addr,
+                                u32           i,
+                                const char   *name);
+void    vtss_l26_debug_print_port_header(vtss_state_t *vtss_state,
+                                         lmu_ss_t     *ss,
+                                         const char   *txt);
 
 /* Port functions */
 vtss_rc vtss_l26_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_l26_port_max_tags_set(vtss_state_t  *vtss_state,
                                    vtss_port_no_t port_no);
 vtss_rc vtss_l26_port_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 /* Miscellaneous functions */
 vtss_rc vtss_l26_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
@@ -148,7 +148,7 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
 vtss_rc vtss_l26_chip_id_get(vtss_state_t         *vtss_state,
                              vtss_chip_id_t *const chip_id);
 vtss_rc vtss_l26_misc_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 
 /* QoS functions */
@@ -169,7 +169,7 @@ vtss_rc vtss_l26_evc_policer_conf_set(vtss_state_t               *vtss_state,
                                       const vtss_evc_policer_id_t policer_id);
 #endif /* VTSS_FEATURE_QOS_POLICER_DLB */
 vtss_rc vtss_l26_qos_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 
 /* L2 functions */
@@ -177,13 +177,13 @@ vtss_rc vtss_l26_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_l26_vcl_port_conf_set(vtss_state_t        *vtss_state,
                                    const vtss_port_no_t port_no);
 vtss_rc vtss_l26_l2_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 
 /* Packet functions */
 vtss_rc vtss_l26_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_l26_packet_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info);
 
 /* VCAP functions */
@@ -195,25 +195,25 @@ vtss_rc vtss_l26_acl_evc_policer_move(vtss_state_t       *vtss_state,
                                       u16                 policer_old,
                                       u16                 policer_new);
 vtss_rc vtss_l26_debug_range_checkers(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
 vtss_rc vtss_l26_debug_vcap_port(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 vtss_rc vtss_l26_debug_vcap_is1(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 vtss_rc vtss_l26_debug_vcap_es0(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 vtss_rc vtss_l26_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 #if defined(VTSS_FEATURE_TIMESTAMP)
 /* Timestamp functions */
 vtss_rc vtss_l26_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_l26_ts_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_TIMESTAMP */
 

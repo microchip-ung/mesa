@@ -1982,7 +1982,7 @@ vtss_rc vtss_cmn_qce_del(vtss_state_t       *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_EVC_POLICERS)
 void vtss_qos_debug_print_dlb(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32                      i;
@@ -2003,7 +2003,7 @@ void vtss_qos_debug_print_dlb(vtss_state_t                  *vtss_state,
         }
         if (header) {
             header = 0;
-            vtss_debug_print_header(pr, "Policers");
+            vtss_debug_print_header(ss, "Policers");
             pr("Policer  Type    CM  CF  Rate  CIR         CBS         EIR         EBS         ");
 #if defined(VTSS_ARCH_LUTON26)
             pr("Count  L26 Policer");
@@ -2030,7 +2030,7 @@ void vtss_qos_debug_print_dlb(vtss_state_t                  *vtss_state,
 }
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
-static void vtss_debug_print_packet_rate(const vtss_debug_printf_t      pr,
+static void vtss_debug_print_packet_rate(lmu_ss_t                      *ss,
                                          const vtss_debug_info_t *const info,
                                          const char                    *name,
                                          vtss_packet_rate_t             rate,
@@ -2062,12 +2062,13 @@ static void vtss_debug_print_packet_rate(const vtss_debug_printf_t      pr,
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                   \
     defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-static void vtss_debug_print_map(const vtss_debug_printf_t      pr,
+static void vtss_debug_print_map(lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info,
                                  const vtss_qos_map_adm_t      *m)
 {
     {
-        u16 id, ix, res;
+        u16 id, key, ix, res;
+        u8  flags;
         int len;
 
         pr("QoS %s Map Id Config:\n\n", m->name);
@@ -2097,13 +2098,13 @@ static void vtss_debug_print_map(const vtss_debug_printf_t      pr,
             pr(" Ix  Id Key Len Flg\n");
             for (ix = 0; ix < m->ix[res].entry_len; ix++) {
                 id = m->ix[res].entry[ix].id;
-                len = m->key2len(m->ix[res].entry[ix].key);
+                key = m->ix[res].entry[ix].key;
+                len = m->key2len(key);
+                flags = m->ix[res].entry[ix].flags;
                 if (info->full || (id != VTSS_QOS_MAP_ID_NONE) ||
                     ((ix < m->ix[res].free) && len)) {
                     if (id != VTSS_QOS_MAP_ID_NONE) {
-                        pr("%3u %3u %3u %3d x%02x", ix, id,
-                           m->ix[res].entry[ix].key, len,
-                           m->ix[res].entry[ix].flags);
+                        pr("%3u %3u %3u %3d x%02x", ix, id, key, len, flags);
                         if ((ix != m->id.entry[id].ix) ||
                             (res != m->id.entry[id].res)) {
                             pr(" <-- INCONSISTENT TABLES!");
@@ -2112,9 +2113,7 @@ static void vtss_debug_print_map(const vtss_debug_printf_t      pr,
                             pr(" <-- INCONSISTENT FREE!");
                         }
                     } else {
-                        pr("%3u   - %3d %3d x%02x", ix,
-                           m->ix[res].entry[ix].key, len,
-                           m->ix[res].entry[ix].flags);
+                        pr("%3u   - %3d %3d x%02x", ix, key, len, flags);
                     }
                     pr("\n");
                 }
@@ -2174,34 +2173,34 @@ static u8 bool8_to_u8(BOOL *array)
 #endif
 
 void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     vtss_port_no_t   port_no;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_QOS)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_QOS)) {
         return;
     }
 
-    vtss_debug_print_value(pr, "Number of priorities", conf->prios);
-    vtss_debug_print_packet_rate(pr, info, "Storm Unicast", conf->policer_uc,
+    vtss_debug_print_value(ss, "Number of priorities", conf->prios);
+    vtss_debug_print_packet_rate(ss, info, "Storm Unicast", conf->policer_uc,
                                  conf->policer_uc_frame_rate,
                                  conf->policer_uc_mode);
-    vtss_debug_print_packet_rate(pr, info, "Storm Multicast", conf->policer_mc,
+    vtss_debug_print_packet_rate(ss, info, "Storm Multicast", conf->policer_mc,
                                  conf->policer_mc_frame_rate,
                                  conf->policer_mc_mode);
-    vtss_debug_print_packet_rate(pr, info, "Storm Broadcast", conf->policer_bc,
+    vtss_debug_print_packet_rate(ss, info, "Storm Broadcast", conf->policer_bc,
                                  conf->policer_bc_frame_rate,
                                  conf->policer_bc_mode);
     pr("\n");
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    vtss_debug_print_map(pr, info, &vtss_state->qos.imap);
+    vtss_debug_print_map(ss, info, &vtss_state->qos.imap);
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-    vtss_debug_print_map(pr, info, &vtss_state->qos.emap);
+    vtss_debug_print_map(ss, info, &vtss_state->qos.emap);
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_WRED_V2)
@@ -2584,11 +2583,11 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
           defined(VTSS_FEATURE_QCL_KEY_TYPE) */
 
 #if defined(VTSS_FEATURE_VCAP)
-    vtss_vcap_debug_print_range_checkers(vtss_state, pr, info);
+    vtss_vcap_debug_print_range_checkers(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_VCAP */
 
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
-    vtss_vcap_debug_print_is1(vtss_state, pr, info);
+    vtss_vcap_debug_print_is1(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_IS1/CLM */
 
 #if defined(VTSS_FEATURE_QOS_TAS)

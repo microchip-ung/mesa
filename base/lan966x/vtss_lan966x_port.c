@@ -1883,7 +1883,7 @@ static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
@@ -1893,21 +1893,21 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
     u32 i;
 
     VTSS_SPRINTF(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
-    vtss_lan966x_debug_reg_header(pr, buf);
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_HW_CFG), "HW_CFG");
+    vtss_lan966x_debug_reg_header(ss, buf);
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_HW_CFG), "HW_CFG");
     pr("\n");
 
     for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
         VTSS_SPRINTF(buf, "SD6G[%u]: %s", i,
                      vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG(i)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG(i)),
                                "SD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_CFG2(i)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG2(i)),
                                "SD_CFG2");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_MPLL_CFG(i)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_MPLL_CFG(i)),
                                "MPLL_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(HSIO_SD_STAT(i)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_STAT(i)),
                                "SD_STAT");
         pr("\n");
     }
@@ -1918,42 +1918,42 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
             continue;
         }
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_CLOCK_CFG(port)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_CLOCK_CFG(port)),
                                "CLOCK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_ENA_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_ENA_CFG(port)),
                                "MAC_ENA_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_MODE_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_MODE_CFG(port)),
                                "MAC_MODE_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_MAC_ADV_CHK_CFG(port)),
                                "MAC_ADV_CHK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_IFG_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_IFG_CFG(port)),
                                "MAC_IFG_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_MAC_HDX_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_HDX_CFG(port)),
                                "MAC_HDX_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_MAC_MAXLEN_CFG(port)),
                                "MAC_MAXLEN_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(QSYS_SW_PORT_MODE(port)),
                                "SW_PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_PORT_MODE(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(QSYS_PORT_MODE(port)),
                                "PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(SYS_FRONT_PORT_MODE(port)),
                                "SW_PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PAUSE_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PAUSE_CFG(port)),
                                "SYS_PAUSE_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_PFC_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_PFC_CFG(port)),
                                "ANA_PFC_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PORT_MISC(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PORT_MISC(port)),
                                "PORT_MISC");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PCS1G_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_CFG(port)),
                                "PCS1G_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PCS1G_SD_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_SD_CFG(port)),
                                "PCS1G_SD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_PCS1G_ANEG_CFG(port)),
                                "PCS1G_ANEG_CFG");
         pr("\n");
@@ -1961,26 +1961,26 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void lan966x_debug_cnt_inst(const vtss_debug_printf_t pr,
-                                   u32                       i,
-                                   const char               *col1,
-                                   const char               *col2,
-                                   vtss_chip_counter_t      *c1,
-                                   vtss_chip_counter_t      *c2)
+static void lan966x_debug_cnt_inst(lmu_ss_t            *ss,
+                                   u32                  i,
+                                   const char          *col1,
+                                   const char          *col2,
+                                   vtss_chip_counter_t *c1,
+                                   vtss_chip_counter_t *c2)
 {
     char buf1[80], buf2[80];
 
     VTSS_SPRINTF(buf1, "%s_%u", col1 && VTSS_STRLEN(col1) ? col1 : col2, i);
     VTSS_SPRINTF(buf2, "%s_%u", col2 && VTSS_STRLEN(col2) ? col2 : col1, i);
-    vtss_lan966x_debug_cnt(pr, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
+    vtss_lan966x_debug_cnt(ss, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
 }
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-static void lan966x_debug_cnt(const vtss_debug_printf_t pr,
-                              const char               *col1,
-                              const char               *col2,
-                              vtss_dual_counter_t      *c1,
-                              vtss_dual_counter_t      *c2)
+static void lan966x_debug_cnt(lmu_ss_t            *ss,
+                              const char          *col1,
+                              const char          *col2,
+                              vtss_dual_counter_t *c1,
+                              vtss_dual_counter_t *c2)
 {
     u32                 i;
     char                buf1[32], buf2[32];
@@ -1997,7 +1997,7 @@ static void lan966x_debug_cnt(const vtss_debug_printf_t pr,
         }
         VTSS_SPRINTF(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_lan966x_debug_cnt(pr, buf1, NULL, &ca, NULL);
+            vtss_lan966x_debug_cnt(ss, buf1, NULL, &ca, NULL);
         } else {
             if (VTSS_STRLEN(col2) != 0) {
                 VTSS_SPRINTF(buf2, "%s_%s", name, col2);
@@ -2005,23 +2005,23 @@ static void lan966x_debug_cnt(const vtss_debug_printf_t pr,
                 VTSS_STRCPY(buf2, "");
             }
             cb.prev = (i ? c2->pmac : c2->emac);
-            vtss_lan966x_debug_cnt(pr, buf1, buf2, &ca, &cb);
+            vtss_lan966x_debug_cnt(ss, buf1, buf2, &ca, &cb);
         }
     }
 }
 #else
-static void lan966x_debug_cnt(const vtss_debug_printf_t pr,
-                              const char               *col1,
-                              const char               *col2,
-                              vtss_chip_counter_t      *c1,
-                              vtss_chip_counter_t      *c2)
+static void lan966x_debug_cnt(lmu_ss_t            *ss,
+                              const char          *col1,
+                              const char          *col2,
+                              vtss_chip_counter_t *c1,
+                              vtss_chip_counter_t *c2)
 {
-    vtss_lan966x_debug_cnt(pr, col1, col2, c1, c2);
+    vtss_lan966x_debug_cnt(ss, col1, col2, c1, c2);
 }
 #endif
 
 static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     vtss_port_no_t                port_no = 0;
@@ -2065,78 +2065,78 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
 
         // Basic MAC counters
         if (port < VTSS_CHIP_PORTS && (info->full || info->action != 3)) {
-            lan966x_debug_cnt(pr, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
-            lan966x_debug_cnt(pr, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
-            lan966x_debug_cnt(pr, "mc", "", &cnt->rx_multicast,
+            lan966x_debug_cnt(ss, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
+            lan966x_debug_cnt(ss, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
+            lan966x_debug_cnt(ss, "mc", "", &cnt->rx_multicast,
                               &cnt->tx_multicast);
-            lan966x_debug_cnt(pr, "bc", "", &cnt->rx_broadcast,
+            lan966x_debug_cnt(ss, "bc", "", &cnt->rx_broadcast,
                               &cnt->tx_broadcast);
         }
 
         // Detailed MAC counters
         if (port < VTSS_CHIP_PORTS && (info->full || info->action == 2)) {
-            lan966x_debug_cnt(pr, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
-            lan966x_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
-            lan966x_debug_cnt(pr, "65_127", "", &cnt->rx_65_127,
+            lan966x_debug_cnt(ss, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
+            lan966x_debug_cnt(ss, "64", "", &cnt->rx_64, &cnt->tx_64);
+            lan966x_debug_cnt(ss, "65_127", "", &cnt->rx_65_127,
                               &cnt->tx_65_127);
-            lan966x_debug_cnt(pr, "128_255", "", &cnt->rx_128_255,
+            lan966x_debug_cnt(ss, "128_255", "", &cnt->rx_128_255,
                               &cnt->tx_128_255);
-            lan966x_debug_cnt(pr, "256_511", "", &cnt->rx_256_511,
+            lan966x_debug_cnt(ss, "256_511", "", &cnt->rx_256_511,
                               &cnt->tx_256_511);
-            lan966x_debug_cnt(pr, "512_1023", "", &cnt->rx_512_1023,
+            lan966x_debug_cnt(ss, "512_1023", "", &cnt->rx_512_1023,
                               &cnt->tx_512_1023);
-            lan966x_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526,
+            lan966x_debug_cnt(ss, "1024_1526", "", &cnt->rx_1024_1526,
                               &cnt->tx_1024_1526);
-            lan966x_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max,
+            lan966x_debug_cnt(ss, "jumbo", "", &cnt->rx_1527_max,
                               &cnt->tx_1527_max);
-            lan966x_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
-            lan966x_debug_cnt(pr, "symbol", NULL, &cnt->rx_symbol_errors, NULL);
-            lan966x_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
-            lan966x_debug_cnt(pr, "long", NULL, &cnt->rx_longs, NULL);
-            lan966x_debug_cnt(pr, "frag", NULL, &cnt->rx_fragments, NULL);
-            lan966x_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
-            lan966x_debug_cnt(pr, "control", NULL, &cnt->rx_control, NULL);
+            lan966x_debug_cnt(ss, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
+            lan966x_debug_cnt(ss, "symbol", NULL, &cnt->rx_symbol_errors, NULL);
+            lan966x_debug_cnt(ss, "short", NULL, &cnt->rx_shorts, NULL);
+            lan966x_debug_cnt(ss, "long", NULL, &cnt->rx_longs, NULL);
+            lan966x_debug_cnt(ss, "frag", NULL, &cnt->rx_fragments, NULL);
+            lan966x_debug_cnt(ss, "jabber", NULL, &cnt->rx_jabbers, NULL);
+            lan966x_debug_cnt(ss, "control", NULL, &cnt->rx_control, NULL);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-            vtss_lan966x_debug_cnt(pr, "mm_ass_err", NULL,
+            vtss_lan966x_debug_cnt(ss, "mm_ass_err", NULL,
                                    &cnt->rx_mm_assembly_errors, NULL);
-            vtss_lan966x_debug_cnt(pr, "mm_smd_err", NULL,
+            vtss_lan966x_debug_cnt(ss, "mm_smd_err", NULL,
                                    &cnt->rx_mm_smd_errors, NULL);
-            vtss_lan966x_debug_cnt(pr, "mm_ass_ok", "mm_hold",
+            vtss_lan966x_debug_cnt(ss, "mm_ass_ok", "mm_hold",
                                    &cnt->rx_mm_assembly_ok, &cnt->tx_mm_hold);
-            vtss_lan966x_debug_cnt(pr, "mm_frag", "", &cnt->rx_mm_fragments,
+            vtss_lan966x_debug_cnt(ss, "mm_frag", "", &cnt->rx_mm_fragments,
                                    &cnt->tx_mm_fragments);
 #endif
         }
 
         // QS counters
         if (info->full || cpu_port || info->action == 3) {
-            vtss_lan966x_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
+            vtss_lan966x_debug_cnt(ss, "cat_drop", cpu_port ? NULL : "drops",
                                    &cnt->rx_classified_drops, &cnt->tx_drops);
-            vtss_lan966x_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
+            vtss_lan966x_debug_cnt(ss, "dr_local", cpu_port ? NULL : "aged",
                                    &cnt->dr_local, &cnt->tx_aging);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-            vtss_lan966x_debug_cnt(pr, "dr_tail", cpu_port ? NULL : "ct",
+            vtss_lan966x_debug_cnt(ss, "dr_tail", cpu_port ? NULL : "ct",
                                    &cnt->dr_tail, &cnt->tx_ct);
             if (!cpu_port) {
-                vtss_lan966x_debug_cnt(pr, NULL, "llct", NULL, &cnt->tx_llct);
+                vtss_lan966x_debug_cnt(ss, NULL, "llct", NULL, &cnt->tx_llct);
             }
 #else
-            vtss_lan966x_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
+            vtss_lan966x_debug_cnt(ss, "dr_tail", NULL, &cnt->dr_tail, NULL);
 #endif
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "green", "",
+                lan966x_debug_cnt_inst(ss, i, "green", "",
                                        &cnt->rx_green_class[i],
                                        &cnt->tx_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "yellow", "",
+                lan966x_debug_cnt_inst(ss, i, "yellow", "",
                                        &cnt->rx_yellow_class[i],
                                        &cnt->tx_yellow_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, "red", "dr_green",
+                lan966x_debug_cnt_inst(ss, i, "red", "dr_green",
                                        &cnt->rx_red_class[i],
                                        &cnt->dr_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(pr, i, NULL, "dr_yellow", NULL,
+                lan966x_debug_cnt_inst(ss, i, NULL, "dr_yellow", NULL,
                                        &cnt->dr_yellow_class[i]);
         }
         pr("\n");
@@ -2194,13 +2194,13 @@ static const char *lan966x_qsys_resource_to_str(u32 resource)
     return "INVALID";
 }
 
-static void lan966x_debug_qres_print(vtss_state_t             *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     u32                       idx,
-                                     vtss_phys_port_no_t       chip_port,
-                                     u32                       resource,
-                                     u32                       prio,
-                                     u32                       val)
+static void lan966x_debug_qres_print(vtss_state_t       *vtss_state,
+                                     lmu_ss_t           *ss,
+                                     u32                 idx,
+                                     vtss_phys_port_no_t chip_port,
+                                     u32                 resource,
+                                     u32                 prio,
+                                     u32                 val)
 {
     char buf[20];
 
@@ -2210,9 +2210,9 @@ static void lan966x_debug_qres_print(vtss_state_t             *vtss_state,
        val);
 }
 
-vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t             *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     BOOL                      res_stat_cur)
+vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
+                                     lmu_ss_t     *ss,
+                                     BOOL          res_stat_cur)
 {
     vtss_phys_port_no_t chip_port;
     u32                 resource, resource_base, port_base, idx, prio, val;
@@ -2227,7 +2227,7 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t             *vtss_state,
     REG_RD(QSYS_RES_STAT(255), &val);
     val =
         res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
-    lan966x_debug_qres_print(vtss_state, pr, 255, -1, 0, 7, val);
+    lan966x_debug_qres_print(vtss_state, ss, 255, -1, 0, 7, val);
 
     for (resource = 0; resource < 4; resource++) {
         resource_base = resource * 256;
@@ -2240,7 +2240,7 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t             *vtss_state,
                                    : QSYS_RES_STAT_MAXUSE_X(val);
                 if (val) {
                     // Only print non-zero values or we will be flooded.
-                    lan966x_debug_qres_print(vtss_state, pr, idx, chip_port,
+                    lan966x_debug_qres_print(vtss_state, ss, idx, chip_port,
                                              resource, prio, val);
                 }
             }
@@ -2259,11 +2259,11 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void lan966x_debug_wm_dump(const vtss_debug_printf_t pr,
-                                  const char               *reg_name,
-                                  u32                      *value,
-                                  u32                       i,
-                                  BOOL                      bytes)
+static void lan966x_debug_wm_dump(lmu_ss_t   *ss,
+                                  const char *reg_name,
+                                  u32        *value,
+                                  u32         i,
+                                  BOOL        bytes)
 {
     u32 q;
     pr("%-26s", reg_name);
@@ -2274,7 +2274,7 @@ static void lan966x_debug_wm_dump(const vtss_debug_printf_t pr,
 }
 
 static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 
 {
@@ -2369,11 +2369,11 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
             REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 512), &val3[q]);
             REG_RD(QSYS_RES_CFG(port * VTSS_PRIOS + q + 768), &val4[q]);
         }
-        lan966x_debug_wm_dump(pr, "Queue level rsrv WMs:", id, 8, FALSE);
-        lan966x_debug_wm_dump(pr, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8, TRUE);
-        lan966x_debug_wm_dump(pr, "Qu Ingr Ref Rsrv (Frames):", val2, 8, FALSE);
-        lan966x_debug_wm_dump(pr, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8, TRUE);
-        lan966x_debug_wm_dump(pr, "Qu Egr Ref Rsrv  (Frames):", val4, 8, FALSE);
+        lan966x_debug_wm_dump(ss, "Queue level rsrv WMs:", id, 8, FALSE);
+        lan966x_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8, TRUE);
+        lan966x_debug_wm_dump(ss, "Qu Ingr Ref Rsrv (Frames):", val2, 8, FALSE);
+        lan966x_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8, TRUE);
+        lan966x_debug_wm_dump(ss, "Qu Egr Ref Rsrv  (Frames):", val4, 8, FALSE);
         pr("\n");
 
         /* Configure reserved space for port */
@@ -2401,12 +2401,12 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
         REG_RD(QSYS_RES_CFG(q + 216 + 768), &val4[q]);
         val5[q] = (value & VTSS_BIT(q) ? 1 : 0);
     }
-    lan966x_debug_wm_dump(pr, "QoS level:", id, 8, FALSE);
-    lan966x_debug_wm_dump(pr, "QoS Ingr Buf (Bytes) :", val1, 8, TRUE);
-    lan966x_debug_wm_dump(pr, "QoS Ingr Ref (Frames):", val2, 8, FALSE);
-    lan966x_debug_wm_dump(pr, "QoS Egr Buf  (Bytes) :", val3, 8, TRUE);
-    lan966x_debug_wm_dump(pr, "QoS Egr Ref  (Frames):", val4, 8, FALSE);
-    lan966x_debug_wm_dump(pr, "QoS Reservation Mode :", val5, 8, FALSE);
+    lan966x_debug_wm_dump(ss, "QoS level:", id, 8, FALSE);
+    lan966x_debug_wm_dump(ss, "QoS Ingr Buf (Bytes) :", val1, 8, TRUE);
+    lan966x_debug_wm_dump(ss, "QoS Ingr Ref (Frames):", val2, 8, FALSE);
+    lan966x_debug_wm_dump(ss, "QoS Egr Buf  (Bytes) :", val3, 8, TRUE);
+    lan966x_debug_wm_dump(ss, "QoS Egr Ref  (Frames):", val4, 8, FALSE);
+    lan966x_debug_wm_dump(ss, "QoS Reservation Mode :", val5, 8, FALSE);
     pr("\n");
 
     pr("Color level:\n");
@@ -2459,23 +2459,23 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
         }
     }
 
-    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, FALSE));
-    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, pr, TRUE));
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, ss, FALSE));
+    VTSS_RC(vtss_lan966x_port_debug_qres(vtss_state, ss, TRUE));
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_lan966x_port_debug_print(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, lan966x_debug_port,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   lan966x_debug_port_cnt, vtss_state, pr,
+                                   lan966x_debug_port_cnt, vtss_state, ss,
                                    info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif // VTSS_OPT_DEBUG_PRINT

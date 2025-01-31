@@ -169,9 +169,9 @@ typedef struct {
 } srvl_tcam_data_t;
 
 typedef struct {
-    BOOL                is_action;
-    vtss_debug_printf_t pr;
-    srvl_tcam_data_t    data;
+    BOOL             is_action;
+    lmu_ss_t        *ss;
+    srvl_tcam_data_t data;
 } srvl_debug_info_t;
 
 static void srvl_debug_bits(srvl_debug_info_t *info,
@@ -179,9 +179,10 @@ static void srvl_debug_bits(srvl_debug_info_t *info,
                             u32                offset,
                             u32                len)
 {
-    vtss_debug_printf_t pr = info->pr;
-    srvl_tcam_data_t   *data = &info->data;
-    u32                 i, j;
+    lmu_ss_t *ss = info->ss;
+    ;
+    srvl_tcam_data_t *data = &info->data;
+    u32               i, j;
 
     if (name)
         pr("%s: ", name);
@@ -212,8 +213,9 @@ static void srvl_debug_bytes(srvl_debug_info_t *info,
                              u32                offset,
                              u32                len)
 {
-    u32  i, n, count;
-    char buf[64];
+    lmu_ss_t *ss = info->ss;
+    u32       i, n, count;
+    char      buf[64];
 
     n = (len % 32);
     if (n == 0)
@@ -232,7 +234,7 @@ static void srvl_debug_bytes(srvl_debug_info_t *info,
             VTSS_SPRINTF(buf, "%s_%u", name, count - i - 1);
             srvl_debug_bits(info, buf, offset, n);
             if (n <= 24)
-                info->pr("\n");
+                pr("\n");
             offset += n;
             n = 32;
         }
@@ -306,11 +308,12 @@ static void srvl_debug_action_len(srvl_debug_info_t *info,
                                   u32                offs_val,
                                   u32                len_val)
 {
-    vtss_debug_printf_t pr = info->pr;
-    srvl_tcam_data_t   *data = &info->data;
-    BOOL                enable, multi = 0;
-    u32                 num = 0;
-    int                 i, length = VTSS_STRLEN(name);
+    lmu_ss_t *ss = info->ss;
+    ;
+    srvl_tcam_data_t *data = &info->data;
+    BOOL              enable, multi = 0;
+    u32               num = 0;
+    int               i, length = VTSS_STRLEN(name);
 
     if (offs_val != 0 && len != 1) {
         /* 'Enable' field consists of multiple bits */
@@ -346,7 +349,8 @@ static void srvl_debug_fld(srvl_debug_info_t *info,
                            u32                offs,
                            u32                len)
 {
-    info->pr("%s:%u ", name, srvl_act_bs_get(info, offs, len));
+    lmu_ss_t *ss = info->ss;
+    pr("%s:%u ", name, srvl_act_bs_get(info, offs, len));
 }
 
 /* ================================================================= *
@@ -1068,31 +1072,31 @@ static vtss_rc srvl_vcap_port_get(vtss_state_t *vtss_state,
  *  VCAP debug print utilities
  * ================================================================= */
 
-#define SRVL_DEBUG_VCAP(pr, name, tgt)                                         \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_VCAP_CORE_VCAP_CONST_##name(tgt), \
+#define SRVL_DEBUG_VCAP(ss, name, tgt)                                         \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_VCAP_CORE_VCAP_CONST_##name(tgt), \
                         #name)
 
-static vtss_rc srvl_debug_tcam(vtss_state_t             *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               const tcam_props_t       *tcam,
-                               BOOL                      entry)
+static vtss_rc srvl_debug_tcam(vtss_state_t       *vtss_state,
+                               lmu_ss_t           *ss,
+                               const tcam_props_t *tcam,
+                               BOOL                entry)
 {
     u32 i, tgt = tcam->target;
 
-    vtss_srvl_debug_reg_header(pr, "VCAP");
+    vtss_srvl_debug_reg_header(ss, "VCAP");
 
     /* Entry/mask */
     if (entry) {
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_TG_DAT(tgt),
                             "TG_DAT");
         for (i = 0; i < tcam->entry_words; i++) {
             vtss_srvl_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_ENTRY_DAT(tgt, i), i,
                 "ENTRY_DAT");
             vtss_srvl_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_MASK_DAT(tgt, i), i,
                 "MASK_DAT");
         }
@@ -1102,11 +1106,11 @@ static vtss_rc srvl_debug_tcam(vtss_state_t             *vtss_state,
     /* Action/counter */
     for (i = 0; i < tcam->action_words; i++)
         vtss_srvl_debug_reg_inst(
-            vtss_state, pr,
+            vtss_state, ss,
             VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_ACTION_DAT(tgt, i), i,
             "ACTION_DAT");
     for (i = 0; i < tcam->counter_words; i++)
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_VCAP_CORE_VCAP_CORE_CACHE_VCAP_CNT_DAT(tgt,
                                                                              i),
                                  i, "CNT_DAT");
@@ -1118,7 +1122,7 @@ static vtss_rc srvl_debug_tcam(vtss_state_t             *vtss_state,
 static vtss_rc srvl_debug_vcap(vtss_state_t                  *vtss_state,
                                int                            bank,
                                const char                    *name,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const debug_info,
                                vtss_rc (*dbg)(srvl_debug_info_t *dbg_info))
 {
@@ -1130,8 +1134,8 @@ static vtss_rc srvl_debug_vcap(vtss_state_t                  *vtss_state,
     u32                 tgt = tcam->target, action_width;
     const char         *txt;
 
-    info.pr = pr;
-    vtss_debug_print_header(pr, name);
+    info.ss = ss;
+    vtss_debug_print_header(ss, name);
 
     pr("tg_width           : %u\n", tcam->tg_width);
     pr("sw_count           : %u\n", tcam->sw_count);
@@ -1151,14 +1155,14 @@ static vtss_rc srvl_debug_vcap(vtss_state_t                  *vtss_state,
     pr("counter_width      : %u\n", tcam->counter_width);
     pr("\n");
 
-    vtss_srvl_debug_reg_header(pr, "VCAP_CONST");
-    SRVL_DEBUG_VCAP(pr, ENTRY_WIDTH, tgt);
-    SRVL_DEBUG_VCAP(pr, ENTRY_CNT, tgt);
-    SRVL_DEBUG_VCAP(pr, ENTRY_SWCNT, tgt);
-    SRVL_DEBUG_VCAP(pr, ENTRY_TG_WIDTH, tgt);
-    SRVL_DEBUG_VCAP(pr, ACTION_DEF_CNT, tgt);
-    SRVL_DEBUG_VCAP(pr, ACTION_WIDTH, tgt);
-    SRVL_DEBUG_VCAP(pr, CNT_WIDTH, tgt);
+    vtss_srvl_debug_reg_header(ss, "VCAP_CONST");
+    SRVL_DEBUG_VCAP(ss, ENTRY_WIDTH, tgt);
+    SRVL_DEBUG_VCAP(ss, ENTRY_CNT, tgt);
+    SRVL_DEBUG_VCAP(ss, ENTRY_SWCNT, tgt);
+    SRVL_DEBUG_VCAP(ss, ENTRY_TG_WIDTH, tgt);
+    SRVL_DEBUG_VCAP(ss, ACTION_DEF_CNT, tgt);
+    SRVL_DEBUG_VCAP(ss, ACTION_WIDTH, tgt);
+    SRVL_DEBUG_VCAP(ss, CNT_WIDTH, tgt);
     pr("\n");
 
     for (i = (tcam->action_count - 1); i >= 0; i--) {
@@ -1182,7 +1186,7 @@ static vtss_rc srvl_debug_vcap(vtss_state_t                  *vtss_state,
         if (i >= tcam->entry_count) {
             /* Raw TCAM action/counter dump */
             if (debug_info->full)
-                VTSS_RC(srvl_debug_tcam(vtss_state, pr, tcam, 0));
+                VTSS_RC(srvl_debug_tcam(vtss_state, ss, tcam, 0));
 
             /* Print default action */
             info.is_action = 1;
@@ -1202,7 +1206,7 @@ static vtss_rc srvl_debug_vcap(vtss_state_t                  *vtss_state,
 
         /* Raw TCAM entry/mask dump */
         if (debug_info->full)
-            VTSS_RC(srvl_debug_tcam(vtss_state, pr, tcam, 1));
+            VTSS_RC(srvl_debug_tcam(vtss_state, ss, tcam, 1));
 
         for (j = (tcam->sw_count - 1); j >= 0; j--) {
             data->tg_sw = VTSS_EXTRACT_BITFIELD(data->tg, j * tcam->tg_width,
@@ -1321,7 +1325,7 @@ static vtss_rc srvl_is0_entry_add(vtss_state_t     *vtss_state,
 
         // Key
 
-#define MASK(expr, len) ((expr) ? 0 : VTSS_BITMASK(len))
+#define MASK(exss, len) ((expr) ? 0 : VTSS_BITMASK(len))
         srvl_vcap_key_set(data, IS0_FKO_MLL_IGR_PORT, IS0_FKL_MLL_IGR_PORT,
                           VTSS_CHIP_PORT(key->mll.ingress_port),
                           MASK(key->mll.ingress_port_dontcare,
@@ -1486,8 +1490,9 @@ static vtss_rc srvl_is0_entry_move(vtss_state_t    *vtss_state,
 
 static vtss_rc srvl_debug_is0(srvl_debug_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    srvl_tcam_data_t   *data = &info->data;
+    lmu_ss_t *ss = info->ss;
+    ;
+    srvl_tcam_data_t *data = &info->data;
 
     if (data->tg_sw == VCAP_TG_FULL) {
         if (!info->is_action) {
@@ -1602,10 +1607,10 @@ static vtss_rc srvl_debug_is0(srvl_debug_info_t *info)
 }
 
 vtss_rc vtss_srvl_debug_is0_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS0, "IS0", pr, info,
+    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS0, "IS0", ss, info,
                            srvl_debug_is0);
 }
 #endif /* VTSS_FEATURE_IS0 */
@@ -2111,8 +2116,8 @@ static vtss_rc srvl_is1_entry_move(vtss_state_t    *vtss_state,
 
 static void srvl_debug_is1_base(srvl_debug_info_t *info, u32 offset)
 {
-    u32                 old_offset = info->data.key_offset;
-    vtss_debug_printf_t pr = info->pr;
+    lmu_ss_t *ss = info->ss;
+    u32       old_offset = info->data.key_offset;
 
     info->data.key_offset += (offset - IS1_QKO_LOOKUP); /* Adjust offset */
     srvl_debug_bits(info, "lookup", IS1_QKO_LOOKUP, IS1_QKL_LOOKUP);
@@ -2136,21 +2141,22 @@ static void srvl_debug_is1_base(srvl_debug_info_t *info, u32 offset)
 
 static void srvl_debug_is1_inner(srvl_debug_info_t *info, u32 offset)
 {
-    u32 old_offset = info->data.key_offset;
+    lmu_ss_t *ss = info->ss;
+    u32       old_offset = info->data.key_offset;
 
     info->data.key_offset += (offset - IS1_QKO_INNER_TPID); /* Adjust offset */
     srvl_debug_bit(info, "in_tpid", IS1_QKO_INNER_TPID);
     srvl_debug_u12(info, "in_vid", IS1_QKO_INNER_VID);
     srvl_debug_bit(info, "in_dei", IS1_QKO_INNER_DEI);
     srvl_debug_u3(info, "in_pcp", IS1_QKO_INNER_PCP);
-    info->pr("\n");
+    pr("\n");
     info->data.key_offset = old_offset; /* Restore offset */
 }
 
 static void srvl_debug_is1_misc(srvl_debug_info_t *info, u32 offset)
 {
-    u32                 old_offset = info->data.key_offset;
-    vtss_debug_printf_t pr = info->pr;
+    lmu_ss_t *ss = info->ss;
+    u32       old_offset = info->data.key_offset;
 
     info->data.key_offset += (offset - IS1_QKO_ETYPE_LEN); /* Adjust offset */
     srvl_debug_bit(info, "etype_len", IS1_QKO_ETYPE_LEN);
@@ -2168,7 +2174,8 @@ static void srvl_debug_is1_misc(srvl_debug_info_t *info, u32 offset)
 
 static void srvl_debug_is1_l4(srvl_debug_info_t *info, u32 offset)
 {
-    u32 old_offset = info->data.key_offset;
+    lmu_ss_t *ss = info->ss;
+    u32       old_offset = info->data.key_offset;
 
     info->data.key_offset +=
         (offset - IS1_HKO_NORMAL_TCP_UDP); /* Adjust offset */
@@ -2176,15 +2183,15 @@ static void srvl_debug_is1_l4(srvl_debug_info_t *info, u32 offset)
     srvl_debug_bit(info, "tcp", IS1_HKO_NORMAL_TCP);
     srvl_debug_u16(info, "l4_sport", IS1_HKO_NORMAL_L4_SPORT);
     srvl_debug_u8(info, "l4_rng", IS1_HKO_NORMAL_L4_RNG);
-    info->pr("\n");
+    pr("\n");
     info->data.key_offset = old_offset; /* Restore offset */
 }
 
 static vtss_rc srvl_debug_is1(srvl_debug_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    srvl_tcam_data_t   *data = &info->data;
-    u32                 type;
+    lmu_ss_t         *ss = info->ss;
+    srvl_tcam_data_t *data = &info->data;
+    u32               type;
 
     if (info->is_action) {
         /* Print action */
@@ -2319,7 +2326,7 @@ static vtss_rc srvl_debug_is1(srvl_debug_info_t *info)
 }
 
 vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     u32  port, i;
@@ -2330,20 +2337,20 @@ vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_srvl_debug_reg_header(pr, "ANA:PORT");
+            vtss_srvl_debug_reg_header(ss, "ANA:PORT");
         header = 0;
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VCAP_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_VCAP_CFG(port),
                                  port, "VCAP_CFG");
         for (i = 0; i < 3; i++) {
             VTSS_SPRINTF(buf, "VCAP_S1_CFG_%u", port);
-            vtss_srvl_debug_reg_inst(vtss_state, pr,
+            vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ANA_PORT_VCAP_S1_KEY_CFG(port, i), i,
                                      buf);
         }
     }
     if (!header)
         pr("\n");
-    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS1, "IS1", pr, info,
+    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS1, "IS1", ss, info,
                            srvl_debug_is1);
 }
 
@@ -2924,8 +2931,9 @@ static vtss_rc srvl_is2_entry_update(vtss_state_t    *vtss_state,
 
 static void srvl_debug_is2_base(srvl_debug_info_t *info, u32 offset)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 old_offset = info->data.key_offset;
+    lmu_ss_t *ss = info->ss;
+    ;
+    u32 old_offset = info->data.key_offset;
 
     info->data.key_offset += (offset - IS2_FKO_PAG); /* Adjust offset */
     srvl_debug_bits(info, "pag", IS2_FKO_PAG, IS2_FKL_PAG);
@@ -2947,12 +2955,13 @@ static void srvl_debug_is2_base(srvl_debug_info_t *info, u32 offset)
 
 static void srvl_debug_is2_l3(srvl_debug_info_t *info, u32 offset)
 {
-    u32 old_offset = info->data.key_offset;
+    lmu_ss_t *ss = info->ss;
+    u32       old_offset = info->data.key_offset;
 
     info->data.key_offset +=
         (offset - IS2_HKO_IP4_OTHER_L3_PROTO); /* Adjust offset */
     srvl_debug_u8(info, "proto", IS2_HKO_IP4_OTHER_L3_PROTO);
-    info->pr("\n");
+    pr("\n");
     srvl_debug_bytes(info, "l3_payload", IS2_HKO_IP4_OTHER_L3_PAYLOAD,
                      IS2_HKL_IP4_OTHER_L3_PAYLOAD);
     info->data.key_offset = old_offset; /* Restore offset */
@@ -2960,8 +2969,9 @@ static void srvl_debug_is2_l3(srvl_debug_info_t *info, u32 offset)
 
 static void srvl_debug_is2_l4(srvl_debug_info_t *info, u32 offset)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 old_offset = info->data.key_offset;
+    lmu_ss_t *ss = info->ss;
+    ;
+    u32 old_offset = info->data.key_offset;
 
     info->data.key_offset +=
         (offset - IS2_HKO_IP4_TCP_UDP_TCP); /* Adjust offset */
@@ -2988,9 +2998,10 @@ static void srvl_debug_is2_l4(srvl_debug_info_t *info, u32 offset)
 
 static vtss_rc srvl_debug_is2(srvl_debug_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    srvl_tcam_data_t   *data = &info->data;
-    u32                 type, x;
+    lmu_ss_t *ss = info->ss;
+    ;
+    srvl_tcam_data_t *data = &info->data;
+    u32               type, x;
 
     if (info->is_action) {
         /* Print action */
@@ -3198,7 +3209,7 @@ static vtss_rc srvl_debug_is2(srvl_debug_info_t *info)
 }
 
 static vtss_rc srvl_debug_is2_all(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -3208,17 +3219,17 @@ static vtss_rc srvl_debug_is2_all(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_srvl_debug_reg_header(pr, "ANA:PORT");
+            vtss_srvl_debug_reg_header(ss, "ANA:PORT");
         header = 0;
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_VCAP_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_VCAP_CFG(port),
                                  port, "VCAP_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ANA_PORT_VCAP_S2_CFG(port), port,
                                  "VCAP_S2_CFG");
     }
     if (!header)
         pr("\n");
-    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS2, "IS2", pr, info,
+    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS2, "IS2", ss, info,
                            srvl_debug_is2);
 }
 
@@ -3515,9 +3526,10 @@ static vtss_rc srvl_es0_eflow_update(vtss_state_t         *vtss_state,
 
 static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 {
-    vtss_debug_printf_t pr = info->pr;
-    u32                 i, x, offs;
-    char                buf[20], buf_1[16];
+    lmu_ss_t *ss = info->ss;
+    ;
+    u32  i, x, offs;
+    char buf[20], buf_1[16];
 
     if (info->is_action) {
         /* Print action */
@@ -3600,7 +3612,7 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 }
 
 vtss_rc vtss_srvl_debug_es0_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -3610,14 +3622,14 @@ vtss_rc vtss_srvl_debug_es0_all(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_srvl_debug_reg_header(pr, "REW:PORT");
+            vtss_srvl_debug_reg_header(ss, "REW:PORT");
         header = 0;
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_REW_PORT_PORT_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_REW_PORT_PORT_CFG(port),
                                  port, "PORT_CFG");
     }
     if (!header)
         pr("\n");
-    return srvl_debug_vcap(vtss_state, VTSS_TCAM_ES0, "ES0", pr, info,
+    return srvl_debug_vcap(vtss_state, VTSS_TCAM_ES0, "ES0", ss, info,
                            srvl_debug_es0);
 }
 
@@ -4041,18 +4053,18 @@ vtss_rc vtss_srvl_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
     u32 i;
 
-    vtss_srvl_debug_reg_header(pr, "Range Checkers");
+    vtss_srvl_debug_reg_header(ss, "Range Checkers");
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ANA_COMMON_VCAP_RNG_TYPE_CFG(i), i,
                                  "RNG_TYPE_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ANA_COMMON_VCAP_RNG_VAL_CFG(i), i,
                                  "RNG_VAL_CFG");
     }
@@ -4061,19 +4073,19 @@ vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc srvl_debug_acl(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, pr, info));
-    return srvl_debug_is2_all(vtss_state, pr, info);
+    VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, ss, info));
+    return srvl_debug_is2_all(vtss_state, ss, info);
 }
 
 vtss_rc vtss_srvl_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, srvl_debug_acl,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

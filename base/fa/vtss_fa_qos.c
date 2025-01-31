@@ -4517,9 +4517,7 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t  *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
-static void fa_debug_print_reg2bf(const vtss_debug_printf_t pr,
-                                  u32                       value,
-                                  u32                       len)
+static void fa_debug_print_reg2bf(lmu_ss_t *ss, u32 value, u32 len)
 {
     u32 i;
 
@@ -4530,15 +4528,15 @@ static void fa_debug_print_reg2bf(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static vtss_rc fa_debug_qos_leak_chain(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static vtss_rc fa_debug_qos_leak_chain(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
-    u32                    layer, group, se, cnt, value;
+    u32                    layer, group, se, cnt, value, prev, next;
     vtss_qos_leak_layer_t *ll;
     vtss_qos_leak_group_t *lg;
 
-    vtss_debug_print_header(pr, "QoS Leak List Configuration");
+    vtss_debug_print_header(ss, "QoS Leak List Configuration");
 
     for (layer = 0; layer < RT_HSCH_LAYERS; layer++) {
         // Select layer to be accessed.
@@ -4585,7 +4583,9 @@ static vtss_rc fa_debug_qos_leak_chain(vtss_state_t             *vtss_state,
                         pr("Error: cnt %u > %u!\n", cnt, lg->max_ses);
                         break;
                     }
-                    pr("%u<%u>%u ", ll->entry[se].prev, se, ll->entry[se].next);
+                    prev = ll->entry[se].prev;
+                    next = ll->entry[se].next;
+                    pr("%u<%u>%u ", prev, se, next);
                     /* Check for consistency with leak chain in hw */
                     if (layer == 3) { /* Queue shapers */
                         REG_RD(VTSS_HSCH_QSHP_CONNECT(se), &value);
@@ -4620,9 +4620,9 @@ static vtss_rc fa_debug_qos_leak_chain(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc fa_debug_qos_scheduler_element(vtss_state_t *vtss_state,
-                                              const vtss_debug_printf_t pr,
-                                              const u32                 layer,
-                                              const u32                 se)
+                                              lmu_ss_t     *ss,
+                                              const u32     layer,
+                                              const u32     se)
 {
     u32 value;
 
@@ -4660,9 +4660,9 @@ static vtss_rc fa_debug_qos_scheduler_element(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t *vtss_state,
-                                            const vtss_debug_printf_t pr,
-                                            const u32                 ix_start,
-                                            const int                 length)
+                                            lmu_ss_t     *ss,
+                                            const u32     ix_start,
+                                            const int     length)
 {
     u32  ix, col, value;
     int  len;
@@ -4707,11 +4707,11 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t             *vtss_state,
-                                           const vtss_debug_printf_t pr,
-                                           const u32                 res,
-                                           const u32                 ix_start,
-                                           const int                 length)
+static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t *vtss_state,
+                                           lmu_ss_t     *ss,
+                                           const u32     res,
+                                           const u32     ix_start,
+                                           const int     length)
 {
     u32  ix, col, addr, value;
     int  len;
@@ -4753,11 +4753,12 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t             *vtss_state,
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 static void fa_debug_qos_mapping(vtss_state_t                   *vtss_state,
-                                 const vtss_debug_printf_t       pr,
+                                 lmu_ss_t                       *ss,
                                  const vtss_debug_info_t *const  info,
                                  const vtss_qos_map_adm_t *const m)
 {
     u32 i, res;
+    u16 key;
 
     for (res = 0; res < VTSS_QOS_MAP_RESOURCES; res++) {
         char buf[64];
@@ -4765,16 +4766,16 @@ static void fa_debug_qos_mapping(vtss_state_t                   *vtss_state,
             continue; /* Resource not present */
         }
         VTSS_SPRINTF(buf, "QoS %s Mapping Tables Res %u", m->name, res);
-        vtss_debug_print_header(pr, buf);
+        vtss_debug_print_header(ss, buf);
         if (info->full) {
             if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
                 for (i = 0; i < VTSS_QOS_INGRESS_MAP_ROWS; i++) {
-                    (void)fa_debug_qos_ingress_mapping(vtss_state, pr, i, 1);
+                    (void)fa_debug_qos_ingress_mapping(vtss_state, ss, i, 1);
                 }
             } else {
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
                 for (i = 0; i < VTSS_QOS_EGRESS_MAP_ROWS; i++) {
-                    (void)fa_debug_qos_egress_mapping(vtss_state, pr, res, i,
+                    (void)fa_debug_qos_egress_mapping(vtss_state, ss, res, i,
                                                       1);
                 }
 #endif
@@ -4785,13 +4786,14 @@ static void fa_debug_qos_mapping(vtss_state_t                   *vtss_state,
 
             i = 0;
             while (i < m->ix[res].free) {
-                len = m->key2len(m->ix[res].entry[i].key);
+                key = m->ix[res].entry[i].key;
+                len = m->key2len(key);
                 if (m->ix[res].entry[i].id != VTSS_QOS_MAP_ID_NONE) {
                     if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
-                        (void)fa_debug_qos_ingress_mapping(vtss_state, pr, i,
+                        (void)fa_debug_qos_ingress_mapping(vtss_state, ss, i,
                                                            len);
                     } else {
-                        (void)fa_debug_qos_egress_mapping(vtss_state, pr, res,
+                        (void)fa_debug_qos_egress_mapping(vtss_state, ss, res,
                                                           i, len);
                     }
                     empty = FALSE;
@@ -4800,7 +4802,7 @@ static void fa_debug_qos_mapping(vtss_state_t                   *vtss_state,
                     i += len;
                 } else {
                     pr("Error: ix[%u].entry[%u].key %d gives zero length!\n",
-                       res, i, m->ix[res].entry[i].key);
+                       res, i, key);
                     break;
                 }
             }
@@ -4828,9 +4830,9 @@ static char *debug_tas_state_string(u32 value)
     return ("INVALID");
 }
 
-static vtss_rc debug_tas_entry_print(vtss_state_t             *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     u32                      *entry_idx)
+static vtss_rc debug_tas_entry_print(vtss_state_t *vtss_state,
+                                     lmu_ss_t     *ss,
+                                     u32          *entry_idx)
 {
     u32 value;
 #if defined(VTSS_ARCH_SPARX5)
@@ -4896,10 +4898,10 @@ static vtss_rc debug_tas_entry_print(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc debug_tas_conf_print(vtss_state_t             *vtss_state,
-                                    const vtss_debug_printf_t pr,
-                                    u32                       list_idx,
-                                    BOOL                      any_state)
+static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,
+                                    lmu_ss_t     *ss,
+                                    u32           list_idx,
+                                    BOOL          any_state)
 {
     u32 i, value, state, entry_idx;
 #if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
@@ -5001,13 +5003,13 @@ static vtss_rc debug_tas_conf_print(vtss_state_t             *vtss_state,
 #if !defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
         /* Read the list elements */
         for (i = 0; i < gcl_length; ++i) {
-            debug_tas_entry_print(vtss_state, pr, &i);
+            debug_tas_entry_print(vtss_state, ss, &i);
         }
 #else
         /* Read the list elements */
         entry_first = entry_idx;
         do {
-            debug_tas_entry_print(vtss_state, pr, &entry_idx);
+            debug_tas_entry_print(vtss_state, ss, &entry_idx);
         } while (entry_idx != entry_first);
 #endif
         pr("\n");
@@ -5018,7 +5020,7 @@ static vtss_rc debug_tas_conf_print(vtss_state_t             *vtss_state,
 #endif
 
 static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no, chip_port;
@@ -5139,7 +5141,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
     if (!info->has_action ||
         basics_act) { /* Basic configuration must be printed */
         vtss_debug_print_header(
-            pr, "QoS basic classification (ingress) configuration");
+            ss, "QoS basic classification (ingress) configuration");
 
         pr("Port configuration:\n");
         pr("-------------------\n");
@@ -5232,15 +5234,15 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     if (!info->has_action || ingr_mapping_act) {
         /* Ingress mapping configuration must be printed */
-        vtss_debug_print_header(pr, "QoS ingress mapping tables");
-        fa_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.imap);
+        vtss_debug_print_header(ss, "QoS ingress mapping tables");
+        fa_debug_qos_mapping(vtss_state, ss, info, &vtss_state->qos.imap);
         pr("\n");
     }
 #endif
 
     if (!info->has_action ||
         gen_pol_act) { /* General policing configuration must be printed */
-        vtss_debug_print_header(pr, "QoS Policing (general configuration)");
+        vtss_debug_print_header(ss, "QoS Policing (general configuration)");
         REG_RD(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG, &value);
         pr("%-32s: %4u\n", "POL_UPD_INT",
            VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(value));
@@ -5250,7 +5252,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
     if (!info->has_action ||
         service_pol_grp_act) { /* Service policing group configuration must be
                                   printed */
-        vtss_debug_print_header(pr, "QoS Service Policing");
+        vtss_debug_print_header(ss, "QoS Service Policing");
         pr("LB Group configuration:\n");
         pr("-----------------------\n");
         pr("IDX             ");
@@ -5386,7 +5388,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
     }
 
     if ((!info->has_action && info->full) || print_queue_act) {
-        vtss_debug_print_header(pr, "QoS queue info printing");
+        vtss_debug_print_header(ss, "QoS queue info printing");
 
         for (qno = 0; qno < RT_CORE_QUEUE_CNT; qno++) {
             REG_WR(VTSS_XQS_MAP_CFG_CFG, qno);
@@ -5575,7 +5577,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
     if (!info->has_action ||
         port_pol_act) { /* Port policing configuration must be printed */
-        vtss_debug_print_header(pr, "QoS Port Policing");
+        vtss_debug_print_header(ss, "QoS Port Policing");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -5599,7 +5601,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG_FC_STATE(value));
             pr("%-32s: ", "FC_ENA");
             fa_debug_print_reg2bf(
-                pr, VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG_FC_ENA(value),
+                ss, VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG_FC_ENA(value),
                 4);
             REG_RD(VTSS_DSM_ETH_FC_CFG(chip_port), &value);
             pr("%-32s: %4u\n", "FC_ANA_ENA",
@@ -5626,7 +5628,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                        &value);
                 pr("%-32s: ", "CPU_QU_MASK");
                 fa_debug_print_reg2bf(
-                    pr,
+                    ss,
                     VTSS_X_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_CFG_CPU_QU_MASK(
                         value),
                     8);
@@ -5647,7 +5649,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                        value));
                 pr("%-32s: ", "TRAFFIC_TYPE_MASK");
                 fa_debug_print_reg2bf(
-                    pr,
+                    ss,
                     VTSS_X_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_CFG_TRAFFIC_TYPE_MASK(
                         value),
                     8);
@@ -5681,7 +5683,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
     if (!info->has_action ||
         storm_pol_act) { /* Storm Policing configuration must be printed */
-        vtss_debug_print_header(pr, "QoS Storm Policing");
+        vtss_debug_print_header(ss, "QoS Storm Policing");
         REG_RD(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG, &value);
         pr("%-32s: %3u\n", "STORM_GAP_VALUE",
            VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_STORM_GAP_VALUE(value));
@@ -5705,7 +5707,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                    value));
             pr("%-32s: ", "STORM_CPU_QU_MASK");
             fa_debug_print_reg2bf(
-                pr,
+                ss,
                 VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_STORM_CTRL_STORM_CPU_QU_MASK(
                     value),
                 8);
@@ -5717,7 +5719,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                    value));
             pr("%-32s: ", "STORM_TRAFFIC_TYPE_MASK");
             fa_debug_print_reg2bf(
-                pr,
+                ss,
                 VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_STORM_CTRL_STORM_TRAFFIC_TYPE_MASK(
                     value),
                 8);
@@ -5726,7 +5728,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         REG_RD(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STICKY, &value);
         pr("%-32s: ", "POL_STORM_ACTIVE_STICKY");
         fa_debug_print_reg2bf(
-            pr,
+            ss,
             VTSS_X_ANA_AC_POL_POL_ALL_CFG_POL_STICKY_POL_STORM_ACTIVE_STICKY(
                 value),
             8);
@@ -5744,7 +5746,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         vtss_tas_gcl_state_t *gcl;
         vtss_tas_list_t      *lists = vtss_state->qos.tas.tas_lists;
 
-        vtss_debug_print_header(pr, "QoS Time Aware Scheduler");
+        vtss_debug_print_header(ss, "QoS Time Aware Scheduler");
         if (div == 0) {
             pr("GCLs allocated:\n");
             pr("port   stop  scheduled  list        list_in_use  list_entry_idx  list_profile_idx\n");
@@ -5842,7 +5844,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                                           this is not the one */
                 continue;
             }
-            (void)debug_tas_conf_print(vtss_state, pr, i, (div > 1));
+            (void)debug_tas_conf_print(vtss_state, ss, i, (div > 1));
         }
     }
 
@@ -5967,7 +5969,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         // Only show the scheduling hierarchy if HQoS is not present, otherwise
         // use the HQoS debug cmd
         vtss_debug_print_header(
-            pr, "QoS scheduler hierarchy (L0 SEs in normal mode)");
+            ss, "QoS scheduler hierarchy (L0 SEs in normal mode)");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -5994,7 +5996,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                 pr("OT SE: %u  Chip Port %u\n", se, chip_port);
                 REG_WR(VTSS_XQS_MAP_CFG_CFG, (se / CFGRATIO));
                 vtss_fa_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     REG_ADDR(VTSS_XQS_QLIMIT_SE_SHR(0, (se % CFGRATIO))),
                     (se % CFGRATIO), "XQS:QLIMIT_SE_SHR");
                 pr("\n");
@@ -6006,7 +6008,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
     if (!info->has_action ||
         band_act) { /* Bandwidth distribution configuration must be printed */
-        vtss_debug_print_header(pr, "QoS bandwidth distribution configuration");
+        vtss_debug_print_header(ss, "QoS bandwidth distribution configuration");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -6051,40 +6053,40 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (info->port_list[port_no]) {
                 port = VTSS_CHIP_PORT(port_no);
                 VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-                vtss_fa_debug_reg_header(pr, buf);
+                vtss_fa_debug_reg_header(ss, buf);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
                     tgt = VTSS_TO_HIGH_DEV(port);
                     vtss_fa_debug_reg_inst(
-                        vtss_state, pr,
+                        vtss_state, ss,
                         REG_ADDR(VTSS_DEV10G_ENABLE_CONFIG(tgt)), port,
                         "DEV10G:ENABLE_CONFIG");
                     vtss_fa_debug_reg_inst(
-                        vtss_state, pr, REG_ADDR(VTSS_DEV10G_VERIF_CONFIG(tgt)),
+                        vtss_state, ss, REG_ADDR(VTSS_DEV10G_VERIF_CONFIG(tgt)),
                         port, "DEV10G:VERIF_CONFIG");
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_DEV10G_MM_STATUS(tgt)),
                                            port, "DEV10G:MM_STATUS");
                 } else {
                     tgt = VTSS_TO_DEV2G5(port);
                     vtss_fa_debug_reg_inst(
-                        vtss_state, pr, REG_ADDR(VTSS_DEV1G_ENABLE_CONFIG(tgt)),
+                        vtss_state, ss, REG_ADDR(VTSS_DEV1G_ENABLE_CONFIG(tgt)),
                         port, "DEV1G:ENABLE_CONFIG");
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_DEV1G_VERIF_CONFIG(tgt)),
                                            port, "DEV1G:VERIF_CONFIG");
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_DEV1G_MM_STATUS(tgt)),
                                            port, "DEV1G:MM_STATUS");
                 }
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_DSM_PREEMPT_CFG(port)),
                                        port, "DSM:PREEMPT_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_DSM_IPG_SHRINK_CFG(port)),
                                        port, "DSM:IPG_SHRINK_CFG");
                 for (i = 0; i < 8; i++) {
                     j = FA_HSCH_L0_SE(port, i);
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_HSCH_HSCH_L0_CFG(j)),
                                            j, "HSCH_L0_CFG");
                 }
@@ -6095,8 +6097,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         for (i = 0; i < 5120; i++) {
             REG_RD(VTSS_QRES_RES_STAT_CUR(i), &value);
             if (value != 0) {
-                vtss_fa_debug_reg_header(pr, "QRES");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_header(ss, "QRES");
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_QRES_RES_STAT_CUR(i)), i,
                                        "QRES:RES_STAT_CUR");
             }
@@ -6105,7 +6107,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
     if (!info->has_action ||
         shape_act) { /* Shapers configuration must be printed */
-        vtss_debug_print_header(pr, "QoS Shapers");
+        vtss_debug_print_header(ss, "QoS Shapers");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START;
@@ -6124,13 +6126,13 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             }
             se = chip_port;
             pr("Port shaper, layer %u, se %u:\n", layer, se);
-            fa_debug_qos_scheduler_element(vtss_state, pr, layer, se);
+            fa_debug_qos_scheduler_element(vtss_state, ss, layer, se);
 
             layer = 0;
             for (i = 0; i < 8; i++) {
                 se = FA_HSCH_L0_SE(chip_port, i);
                 pr("Queue %u shaper, layer %u, se %u:\n", i, layer, se);
-                fa_debug_qos_scheduler_element(vtss_state, pr, layer, se);
+                fa_debug_qos_scheduler_element(vtss_state, ss, layer, se);
             }
         }
     }
@@ -6138,12 +6140,12 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
     if (!info->has_action ||
         leak_act) { /* Leak chain configuration must be printed */
         // Leak (DLB shaper) chain configuration.
-        fa_debug_qos_leak_chain(vtss_state, pr, info);
+        fa_debug_qos_leak_chain(vtss_state, ss, info);
     }
 
     if (!info->has_action ||
         wred_act) { /* WRED configuration must be printed */
-        vtss_debug_print_header(pr, "QoS WRED configuration");
+        vtss_debug_print_header(ss, "QoS WRED configuration");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -6181,7 +6183,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
     if (!info->has_action ||
         tag_remark_act) { /* Tag remarking configuration must be printed */
-        vtss_debug_print_header(pr, "QoS tag remarking (egress) configuration");
+        vtss_debug_print_header(ss, "QoS tag remarking (egress) configuration");
         pr("Port configuration:\n");
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -6260,8 +6262,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
     if (!info->has_action ||
         egr_mapping_act) { /* Egress mapping configuration must be printed */
-        vtss_debug_print_header(pr, "QoS egress mapping tables");
-        fa_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.emap);
+        vtss_debug_print_header(ss, "QoS egress mapping tables");
+        fa_debug_qos_mapping(vtss_state, ss, info, &vtss_state->qos.emap);
         pr("\n");
     }
 #endif
@@ -6269,11 +6271,11 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, fa_debug_qos,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 #endif
 

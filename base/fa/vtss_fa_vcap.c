@@ -44,7 +44,7 @@ typedef struct {
     /* Debug print fields */
     BOOL is_action;
 #if VTSS_OPT_DEBUG_PRINT
-    vtss_debug_printf_t pr;
+    lmu_ss_t *ss;
 #endif
 } fa_vcap_data_t;
 
@@ -1025,7 +1025,8 @@ static void fa_debug_action(fa_vcap_data_t *data,
                             u32             offs,
                             u32             len)
 {
-    data->pr("%s:%u ", name, fa_act_get(data, offs, len));
+    lmu_ss_t *ss = data->ss;
+    pr("%s:%u ", name, fa_act_get(data, offs, len));
 }
 
 static int toupper_(int c)
@@ -1050,9 +1051,9 @@ static void fa_debug_action_ena(fa_vcap_data_t *data,
                                 u32             offs_val,
                                 u32             len)
 {
-    vtss_debug_printf_t pr = data->pr;
-    int                 i, length = VTSS_STRLEN(name);
-    BOOL                enable = vtss_bs_bit_get(data->action, offs);
+    lmu_ss_t *ss = data->ss;
+    int       i, length = VTSS_STRLEN(name);
+    BOOL      enable = vtss_bs_bit_get(data->action, offs);
 
     for (i = 0; i < length; i++) {
         pr("%c", enable ? toupper_(name[i]) : tolower_(name[i]));
@@ -1065,9 +1066,9 @@ static void fa_debug_bits(fa_vcap_data_t *data,
                           u32             offset,
                           u32             len)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 i, j;
-    int                 n = VTSS_STRLEN(name);
+    lmu_ss_t *ss = data->ss;
+    u32       i, j;
+    int       n = VTSS_STRLEN(name);
 
     pr("%s:", name);
     for (i = 0; i < len; i++) {
@@ -1128,7 +1129,7 @@ static const char *fa_vcap_tg_txt(u8 tg)
 
 static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
                              vtss_vcap_type_t               type,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info,
                              vtss_rc (*dbg)(vtss_state_t   *vtss_state,
                                             fa_vcap_data_t *data))
@@ -1148,37 +1149,37 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    vtss_debug_print_header(pr, props->name);
+    vtss_debug_print_header(ss, props->name);
 
     VTSS_MEMSET(&reg_info, 0, sizeof(reg_info));
     reg_info.bank = bank;
     VTSS_RC(fa_vcap_reg_info_get(vtss_state, &reg_info));
 
     if (info->full) {
-        vtss_fa_debug_reg_header(pr, "VCAP_CONST");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.entry_width, "ENTRY_WIDTH");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.entry_cnt, "ENTRY_CNT");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.entry_swcnt, "ENTRY_SWCNT");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.action_def_cnt,
+        vtss_fa_debug_reg_header(ss, "VCAP_CONST");
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.entry_width, "ENTRY_WIDTH");
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.entry_cnt, "ENTRY_CNT");
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.entry_swcnt, "ENTRY_SWCNT");
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.action_def_cnt,
                           "ACTION_DEF_CNT");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.action_width,
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.action_width,
                           "ACTION_WIDTH");
-        vtss_fa_debug_reg(vtss_state, pr, reg_info.cnt_width, "CNT_WIDTH");
+        vtss_fa_debug_reg(vtss_state, ss, reg_info.cnt_width, "CNT_WIDTH");
         pr("\n");
     }
 
     if (props->props->vcap_super && !mpls_terse) {
-        vtss_fa_debug_reg_header(pr, "VCAP_SUPER");
+        vtss_fa_debug_reg_header(ss, "VCAP_SUPER");
         for (i = 0; i < FA_VCAP_SUPER_BLK_COUNT; i++) {
             REG_WR(VTSS_VCAP_SUPER_VCAP_CORE_IDX, i);
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_VCAP_SUPER_VCAP_CORE_MAP), i,
                                    "CORE_MAP");
         }
         pr("\n");
     }
 
-    data.pr = pr;
+    data.ss = ss;
 
     for (i = (props->props->action_count - 1); i >= 0; i--) {
         /* Leave critical region briefly */
@@ -2223,8 +2224,8 @@ static vtss_rc fa_clm_c_entry_get(vtss_state_t    *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 type;
+    lmu_ss_t *ss = data->ss;
+    u32       type;
 
     if (data->is_action) {
         switch (data->type) {
@@ -2607,7 +2608,7 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 
 static vtss_rc fa_debug_clm_all(vtss_state_t                  *vtss_state,
                                 vtss_vcap_type_t               type,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
@@ -2621,41 +2622,41 @@ static vtss_rc fa_debug_clm_all(vtss_state_t                  *vtss_state,
         }
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_fa_debug_reg_header(pr, buf);
+        vtss_fa_debug_reg_header(ss, buf);
         for (i = 0; i < 2; i++) {
             j = ((type == VTSS_VCAP_TYPE_CLM_A   ? 0
                   : type == VTSS_VCAP_TYPE_CLM_B ? 2
                                                  : 4) +
                  i);
             VTSS_SPRINTF(buf, "ADV_CL_CFG_%u", port);
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_ANA_CL_ADV_CL_CFG(port, j)), j,
                                    buf);
         }
         pr("\n");
     }
-    return fa_debug_vcap(vtss_state, type, pr, info, fa_debug_clm);
+    return fa_debug_vcap(vtss_state, type, ss, info, fa_debug_clm);
 }
 
 vtss_rc vtss_fa_debug_clm_a(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
-    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_A, pr, info);
+    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_A, ss, info);
 }
 
 vtss_rc vtss_fa_debug_clm_b(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
-    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_B, pr, info);
+    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_B, ss, info);
 }
 
 vtss_rc vtss_fa_debug_clm_c(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
-    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_C, pr, info);
+    return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_C, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
@@ -2772,8 +2773,8 @@ static vtss_rc fa_lpm_entry_get(vtss_state_t    *vtss_state,
 
 static vtss_rc fa_debug_lpm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 type;
+    lmu_ss_t *ss = data->ss;
+    u32       type;
 
     if (data->is_action) {
         /* Show action fields */
@@ -2854,10 +2855,10 @@ static vtss_rc fa_debug_lpm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 }
 
 vtss_rc vtss_fa_debug_lpm(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
-    return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_LPM, pr, info,
+    return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_LPM, ss, info,
                          fa_debug_lpm);
 }
 #endif // VTSS_FEATURE_LPM
@@ -3726,9 +3727,9 @@ static vtss_rc fa_is2_entry_update(vtss_state_t    *vtss_state,
 
 static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 cnt_id, cnt, type;
-    const char         *str;
+    lmu_ss_t   *ss = data->ss;
+    u32         cnt_id, cnt, type;
+    const char *str;
 
     if (data->vcap_type != VTSS_VCAP_TYPE_IS2 &&
         data->vcap_type != VTSS_VCAP_TYPE_IS2_B) {
@@ -4286,9 +4287,9 @@ static vtss_rc fa_es2_entry_get(vtss_state_t    *vtss_state,
 
 static vtss_rc fa_debug_es2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 cnt_id, cnt, type;
-    const char         *str;
+    lmu_ss_t   *ss = data->ss;
+    u32         cnt_id, cnt, type;
+    const char *str;
 
     if (data->vcap_type != VTSS_VCAP_TYPE_ES2) {
         VTSS_E("not TYPE_ES2");
@@ -4433,7 +4434,7 @@ static vtss_rc fa_debug_es2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 
 #if defined(VTSS_FEATURE_IS2)
 static vtss_rc fa_debug_acl(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
@@ -4447,20 +4448,20 @@ static vtss_rc fa_debug_acl(vtss_state_t                  *vtss_state,
         }
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ANA_ACL_VCAP_S2_CFG(port)), port,
                                "VCAP_S2_CFG");
         for (i = 0; i < 4; i++) {
             VTSS_SPRINTF(buf, "IS2_KEY_SEL_%u", i);
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_ANA_ACL_VCAP_S2_KEY_SEL(port,
                                                                          i)),
                                    port, buf);
         }
         for (i = 0; i < 2; i++) {
             VTSS_SPRINTF(buf, "ES2_KEY_SEL_%u", i);
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_EACL_VCAP_ES2_KEY_SEL(port,
                                                                        i)),
                                    port, buf);
@@ -4470,17 +4471,17 @@ static vtss_rc fa_debug_acl(vtss_state_t                  *vtss_state,
 
     for (i = 0; i < VTSS_ACL_POLICERS; i++) {
         VTSS_SPRINTF(buf, "Policer %u", i);
-        vtss_fa_debug_reg_header(pr, buf);
+        vtss_fa_debug_reg_header(ss, buf);
         vtss_fa_debug_reg_inst(
-            vtss_state, pr,
+            vtss_state, ss,
             REG_ADDR(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(i)), i,
             "ACL_CTRL");
         vtss_fa_debug_reg_inst(
-            vtss_state, pr,
+            vtss_state, ss,
             REG_ADDR(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_RATE_CFG(i)), i,
             "ACL_RATE_CFG");
         vtss_fa_debug_reg_inst(
-            vtss_state, pr,
+            vtss_state, ss,
             REG_ADDR(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_THRES_CFG(i)), i,
             "ACL_THRES_CFG");
         pr("\n");
@@ -4488,45 +4489,45 @@ static vtss_rc fa_debug_acl(vtss_state_t                  *vtss_state,
 
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
         VTSS_SPRINTF(buf, "Range %u", i);
-        vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ANA_ACL_VCAP_S2_RNG_CTRL(i)), i,
                                "S2_RNG_CTRL");
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ANA_ACL_VCAP_S2_RNG_VALUE_CFG(i)),
                                i, "S2_RNG_VAL");
         pr("\n");
     }
 
-    vtss_fa_debug_reg_header(pr, "SIP Table");
+    vtss_fa_debug_reg_header(ss, "SIP Table");
     for (i = 0; i < VTSS_ACL_SIP_CNT; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ANA_ACL_SWAP_SIP(i)), i,
                                "SWAP_SIP");
     }
     pr("\n");
 
-    VTSS_RC(vtss_fa_debug_lpm(vtss_state, pr,
+    VTSS_RC(vtss_fa_debug_lpm(vtss_state, ss,
                               info)); /* SIP/SMAC check in LPM */
-    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2, pr, info,
+    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2, ss, info,
                           fa_debug_is2));
 #if !VTSS_OPT_LIGHT
-    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2_B, pr, info,
+    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_IS2_B, ss, info,
                           fa_debug_is2));
 #endif
 #if defined(VTSS_FEATURE_ES2)
-    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES2, pr, info,
+    VTSS_RC(fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES2, ss, info,
                           fa_debug_es2));
 #endif
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_fa_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_ACL, fa_debug_acl,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - ACL ----------------------------------------------------------- */
@@ -5716,9 +5717,9 @@ static void fa_debug_es0_tag(const char     *name,
                              u32             pcp_val,
                              u32             dei_val)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 x;
-    char                buf[16];
+    lmu_ss_t *ss = data->ss;
+    u32       x;
+    char      buf[16];
 
     x = fa_act_get(data, tpid_sel, ES0_AL_ES0_TAG_A_TPID_SEL);
     pr("tpid_%s_sel:%u (%s) ", name, x,
@@ -5771,8 +5772,8 @@ static void fa_debug_es0_tag(const char     *name,
 
 static vtss_rc fa_debug_es0(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
-    vtss_debug_printf_t pr = data->pr;
-    u32                 x, type;
+    lmu_ss_t *ss = data->ss;
+    u32       x, type;
 
     if (data->is_action) {
         FA_DEBUG_ACT(ES0, "push_outer", ES0_PUSH_OUTER_TAG);
@@ -5864,14 +5865,14 @@ static vtss_rc fa_debug_es0(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 }
 
 vtss_rc vtss_fa_debug_es0(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
-    vtss_fa_debug_reg_header(pr, "REW");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_ES0_CTRL), "ES0_CTRL");
+    vtss_fa_debug_reg_header(ss, "REW");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_ES0_CTRL), "ES0_CTRL");
     pr("\n");
 
-    return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES0, pr, info,
+    return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES0, ss, info,
                          fa_debug_es0);
 }
 #endif // VTSS_OPT_DEBUG_PRINT

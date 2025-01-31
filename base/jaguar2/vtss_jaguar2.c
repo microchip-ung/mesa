@@ -369,14 +369,14 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
  *  Debug print utility functions
  * ================================================================= */
 
-void vtss_jr2_debug_print_port_header(vtss_state_t             *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      const char               *txt)
+void vtss_jr2_debug_print_port_header(vtss_state_t *vtss_state,
+                                      lmu_ss_t     *ss,
+                                      const char   *txt)
 {
-    vtss_debug_print_port_header(vtss_state, pr, txt, VTSS_CHIP_PORTS + 1, 1);
+    vtss_debug_print_port_header(vtss_state, ss, txt, VTSS_CHIP_PORTS + 1, 1);
 }
 
-void vtss_jr2_debug_print_pmask(const vtss_debug_printf_t pr, u64 pmask)
+void vtss_jr2_debug_print_pmask(lmu_ss_t *ss, u64 pmask)
 {
     u32 port;
 
@@ -387,18 +387,18 @@ void vtss_jr2_debug_print_pmask(const vtss_debug_printf_t pr, u64 pmask)
     pr("\n");
 }
 
-void vtss_jr2_debug_reg_header(const vtss_debug_printf_t pr, const char *name)
+void vtss_jr2_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%-32s  Tgt   Addr  ", name);
-    vtss_debug_print_reg_header(pr, buf);
+    vtss_debug_print_reg_header(ss, buf);
 }
 
-void vtss_jr2_debug_reg(vtss_state_t             *vtss_state,
-                        const vtss_debug_printf_t pr,
-                        u32                       addr,
-                        const char               *name)
+void vtss_jr2_debug_reg(vtss_state_t *vtss_state,
+                        lmu_ss_t     *ss,
+                        u32           addr,
+                        const char   *name)
 {
     u32  value;
     char buf[100];
@@ -406,27 +406,27 @@ void vtss_jr2_debug_reg(vtss_state_t             *vtss_state,
     if (vtss_jr2_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
         VTSS_SPRINTF(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
                      addr & 0x3fff);
-        vtss_debug_print_reg(pr, buf, value);
+        vtss_debug_print_reg(ss, buf, value);
     }
 }
 
-void vtss_jr2_debug_reg_inst(vtss_state_t             *vtss_state,
-                             const vtss_debug_printf_t pr,
-                             u32                       addr,
-                             u32                       i,
-                             const char               *name)
+void vtss_jr2_debug_reg_inst(vtss_state_t *vtss_state,
+                             lmu_ss_t     *ss,
+                             u32           addr,
+                             u32           i,
+                             const char   *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_jr2_debug_reg(vtss_state, pr, addr, buf);
+    vtss_jr2_debug_reg(vtss_state, ss, addr, buf);
 }
 
-void vtss_jr2_debug_cnt(const vtss_debug_printf_t pr,
-                        const char               *col1,
-                        const char               *col2,
-                        vtss_chip_counter_t      *c1,
-                        vtss_chip_counter_t      *c2)
+void vtss_jr2_debug_cnt(lmu_ss_t            *ss,
+                        const char          *col1,
+                        const char          *col2,
+                        vtss_chip_counter_t *c1,
+                        vtss_chip_counter_t *c2)
 {
     char buf[80];
 
@@ -443,11 +443,11 @@ void vtss_jr2_debug_cnt(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-static void jr2_debug_reg_clr(vtss_state_t             *vtss_state,
-                              const vtss_debug_printf_t pr,
-                              u32                       addr,
-                              const char               *name,
-                              BOOL                      clr)
+static void jr2_debug_reg_clr(vtss_state_t *vtss_state,
+                              lmu_ss_t     *ss,
+                              u32           addr,
+                              const char   *name,
+                              BOOL          clr)
 {
     u32  value, tgt;
     char buf[64];
@@ -468,41 +468,41 @@ static void jr2_debug_reg_clr(vtss_state_t             *vtss_state,
             addr &= 0x3ffff;
         }
         VTSS_SPRINTF(buf, "%-32s  0x%02x 0x%05x", name, tgt, addr);
-        vtss_debug_print_reg(pr, buf, value);
+        vtss_debug_print_reg(ss, buf, value);
     }
 } // jr2_debug_reg_clr
 
-void vtss_jr2_debug_sticky(vtss_state_t             *vtss_state,
-                           const vtss_debug_printf_t pr,
-                           u32                       addr,
-                           const char               *name)
+void vtss_jr2_debug_sticky(vtss_state_t *vtss_state,
+                           lmu_ss_t     *ss,
+                           u32           addr,
+                           const char   *name)
 {
-    jr2_debug_reg_clr(vtss_state, pr, addr, name, 1);
+    jr2_debug_reg_clr(vtss_state, ss, addr, name, 1);
 } // vtss_jr2_debug_sticky
 
 vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_jr2_misc_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_jr2_port_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_jr2_l2_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_misc_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_jr2_port_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_jr2_l2_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_LAYER3)
-    VTSS_RC(vtss_jr2_l3_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_l3_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_LAYER3 */
-    VTSS_RC(vtss_jr2_vcap_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_vcap_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_QOS)
-    VTSS_RC(vtss_jr2_qos_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_qos_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_QOS */
-    VTSS_RC(vtss_jr2_packet_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_packet_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_AFI_SWC)
-    VTSS_RC(vtss_jr2_afi_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_afi_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_AFI_SWC */
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    VTSS_RC(vtss_jr2_ts_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_ts_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_TIMESTAMP */
 #if defined(VTSS_FEATURE_VOP)
-    VTSS_RC(vtss_jr2_oam_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_jr2_oam_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_VOP */
     return VTSS_RC_OK;
 }

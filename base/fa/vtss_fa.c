@@ -91,16 +91,16 @@ vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask)
 }
 
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_fa_debug_print_port_header(vtss_state_t             *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     const char               *txt)
+void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state,
+                                     lmu_ss_t     *ss,
+                                     const char   *txt)
 {
-    vtss_debug_print_port_header(vtss_state, pr, txt, RT_CHIP_PORTS, 1);
+    vtss_debug_print_port_header(vtss_state, ss, txt, RT_CHIP_PORTS, 1);
 }
 
-void vtss_fa_debug_print_pmask(vtss_state_t             *vtss_state,
-                               const vtss_debug_printf_t pr,
-                               vtss_port_mask_t         *pmask)
+void vtss_fa_debug_print_pmask(vtss_state_t     *vtss_state,
+                               lmu_ss_t         *ss,
+                               vtss_port_mask_t *pmask)
 {
     u32 port;
 
@@ -111,25 +111,24 @@ void vtss_fa_debug_print_pmask(vtss_state_t             *vtss_state,
     pr("\n");
 }
 
-void vtss_fa_debug_print_reg_header(const vtss_debug_printf_t pr,
-                                    const char               *name)
+void vtss_fa_debug_print_reg_header(lmu_ss_t *ss, const char *name)
 {
     pr("%-43s  31    24.23    16.15     8.7      0 Hex\n", name);
 }
 
-void vtss_fa_debug_reg_header(const vtss_debug_printf_t pr, const char *name)
+void vtss_fa_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%-34s", name);
-    vtss_fa_debug_print_reg_header(pr, buf);
+    vtss_fa_debug_print_reg_header(ss, buf);
 }
 
-static void fa_debug_reg_clr(vtss_state_t             *vtss_state,
-                             const vtss_debug_printf_t pr,
-                             u32                       addr,
-                             const char               *name,
-                             BOOL                      clr)
+static void fa_debug_reg_clr(vtss_state_t *vtss_state,
+                             lmu_ss_t     *ss,
+                             u32           addr,
+                             const char   *name,
+                             BOOL          clr)
 {
     u32  value;
     char buf[100];
@@ -137,43 +136,43 @@ static void fa_debug_reg_clr(vtss_state_t             *vtss_state,
     if (vtss_fa_rd(vtss_state, addr, &value) == VTSS_RC_OK &&
         (clr == 0 || vtss_fa_wr(vtss_state, addr, value) == VTSS_RC_OK)) {
         VTSS_SPRINTF(buf, "%-32s  0x%07x", name, addr);
-        vtss_debug_print_reg(pr, buf, value);
+        vtss_debug_print_reg(ss, buf, value);
     }
 }
 
-void vtss_fa_debug_reg(vtss_state_t             *vtss_state,
-                       const vtss_debug_printf_t pr,
-                       u32                       addr,
-                       const char               *name)
+void vtss_fa_debug_reg(vtss_state_t *vtss_state,
+                       lmu_ss_t     *ss,
+                       u32           addr,
+                       const char   *name)
 {
-    fa_debug_reg_clr(vtss_state, pr, addr, name, 0);
+    fa_debug_reg_clr(vtss_state, ss, addr, name, 0);
 }
 
-void vtss_fa_debug_reg_inst(vtss_state_t             *vtss_state,
-                            const vtss_debug_printf_t pr,
-                            u32                       addr,
-                            u32                       i,
-                            const char               *name)
+void vtss_fa_debug_reg_inst(vtss_state_t *vtss_state,
+                            lmu_ss_t     *ss,
+                            u32           addr,
+                            u32           i,
+                            const char   *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_fa_debug_reg(vtss_state, pr, addr, buf);
+    vtss_fa_debug_reg(vtss_state, ss, addr, buf);
 }
 
-void vtss_fa_debug_sticky(vtss_state_t             *vtss_state,
-                          const vtss_debug_printf_t pr,
-                          u32                       addr,
-                          const char               *name)
+void vtss_fa_debug_sticky(vtss_state_t *vtss_state,
+                          lmu_ss_t     *ss,
+                          u32           addr,
+                          const char   *name)
 {
-    fa_debug_reg_clr(vtss_state, pr, addr, name, 1);
+    fa_debug_reg_clr(vtss_state, ss, addr, name, 1);
 }
 
-void vtss_fa_debug_cnt(const vtss_debug_printf_t pr,
-                       const char               *col1,
-                       const char               *col2,
-                       vtss_chip_counter_t      *c1,
-                       vtss_chip_counter_t      *c2)
+void vtss_fa_debug_cnt(lmu_ss_t            *ss,
+                       const char          *col1,
+                       const char          *col2,
+                       vtss_chip_counter_t *c1,
+                       vtss_chip_counter_t *c2)
 {
     char buf[80];
 
@@ -424,39 +423,39 @@ BOOL fa_is_target(vtss_state_t *vtss_state)
 
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_fa_misc_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_fa_port_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_fa_l2_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_misc_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_fa_port_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_fa_l2_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_LAYER3)
-    VTSS_RC(vtss_fa_l3_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_l3_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_IS2)
-    VTSS_RC(vtss_fa_vcap_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_vcap_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_IS2 */
 #if defined(VTSS_FEATURE_QOS)
-    VTSS_RC(vtss_fa_qos_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_qos_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_QOS */
-    VTSS_RC(vtss_fa_packet_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_packet_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_AFI_SWC)
-    VTSS_RC(vtss_fa_afi_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_afi_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_AFI_SWC */
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    VTSS_RC(vtss_fa_ts_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_ts_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_TIMESTAMP */
 #if defined(VTSS_FEATURE_VOP)
-    VTSS_RC(vtss_fa_vop_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_fa_vop_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_VOP */
 #if defined(VTSS_FEATURE_MRP)
-    VTSS_RC(vtss_lan969x_mrp_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_lan969x_mrp_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_MRP */
 #if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_FDMA)) {
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_FDMA)) {
         if (vtss_state->fdma_state.fdma_func.fdma_debug_print != NULL) {
             return vtss_state->fdma_state.fdma_func.fdma_debug_print(vtss_state,
-                                                                     pr, info);
+                                                                     ss, info);
         } else {
             return VTSS_RC_ERROR;
         }
@@ -1941,8 +1940,7 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state,
 
 #if VTSS_OPT_DEBUG_PRINT
 // Dump the dsm taxi calendar
-vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t             *vtss_state,
-                              const vtss_debug_printf_t pr)
+vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
     u32 len, val, port;
     u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
@@ -1977,8 +1975,7 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t             *vtss_state,
 }
 
 // Dump the auto calendar
-vtss_rc vtss_fa_cell_cal_debug(vtss_state_t             *vtss_state,
-                               const vtss_debug_printf_t pr)
+vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
     u32            cal, bw = 0, this_bw = 0, val, port_bw = 0;
     fa_cal_speed_t spd;

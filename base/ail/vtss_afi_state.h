@@ -528,7 +528,7 @@ typedef struct {
 
 vtss_rc vtss_afi_inst_create(struct vtss_state_s *vtss_state);
 void    vtss_afi_debug_print(struct vtss_state_s           *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info);
 
 // ========================================

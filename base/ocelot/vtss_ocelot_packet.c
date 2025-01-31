@@ -85,14 +85,14 @@ static const char *srvl_afi_qsys_resource_to_str(u32 resource)
 /**
  * srvl_afi_debug_qres_print()
  */
-static void srvl_afi_debug_qres_print(vtss_state_t             *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      u32                       idx,
-                                      vtss_phys_port_no_t       chip_port,
-                                      u32                       resource,
-                                      u32                       prio,
-                                      u32                       inuse,
-                                      u32                       maxuse)
+static void srvl_afi_debug_qres_print(vtss_state_t       *vtss_state,
+                                      lmu_ss_t           *ss,
+                                      u32                 idx,
+                                      vtss_phys_port_no_t chip_port,
+                                      u32                 resource,
+                                      u32                 prio,
+                                      u32                 inuse,
+                                      u32                 maxuse)
 {
     char buf[20];
 
@@ -105,8 +105,7 @@ static void srvl_afi_debug_qres_print(vtss_state_t             *vtss_state,
 /**
  * srvl_afi_debug_qres()
  */
-static vtss_rc srvl_afi_debug_qres(vtss_state_t             *vtss_state,
-                                   const vtss_debug_printf_t pr)
+static vtss_rc srvl_afi_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
     vtss_phys_port_no_t chip_port;
     u32 resource, resource_base, port_base, idx, prio, val, inuse, addr;
@@ -117,7 +116,7 @@ static vtss_rc srvl_afi_debug_qres(vtss_state_t             *vtss_state,
 
     addr = VTSS_QSYS_RES_CTRL_RES_STAT(255);
     SRVL_RD(addr, &val);
-    srvl_afi_debug_qres_print(vtss_state, pr, 255, (vtss_phys_port_no_t)-1, 0,
+    srvl_afi_debug_qres_print(vtss_state, ss, 255, (vtss_phys_port_no_t)-1, 0,
                               7, VTSS_X_QSYS_RES_CTRL_RES_STAT_INUSE(val),
                               VTSS_X_QSYS_RES_CTRL_RES_STAT_MAXUSE(val));
 
@@ -133,7 +132,7 @@ static vtss_rc srvl_afi_debug_qres(vtss_state_t             *vtss_state,
                 if (inuse) {
                     // Only print non-zero values or we will be flooded.
                     srvl_afi_debug_qres_print(
-                        vtss_state, pr, idx, chip_port, resource, prio, inuse,
+                        vtss_state, ss, idx, chip_port, resource, prio, inuse,
                         VTSS_X_QSYS_RES_CTRL_RES_STAT_MAXUSE(val));
                 }
             }
@@ -1641,24 +1640,24 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define SRVL_DEBUG_CPU_FWD(pr, addr, i, name)                                  \
-    vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_CPU_FWD_##addr, i,  \
+#define SRVL_DEBUG_CPU_FWD(ss, addr, i, name)                                  \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i,  \
                              "FWD_" name)
-#define SRVL_DEBUG_XTR(pr, addr, name)                                         \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_XTR_XTR_##addr,         \
+#define SRVL_DEBUG_XTR(ss, addr, name)                                         \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr,         \
                         "XTR_" name)
-#define SRVL_DEBUG_XTR_INST(pr, addr, i, name)                                 \
-    vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_XTR_XTR_##addr, i, \
+#define SRVL_DEBUG_XTR_INST(ss, addr, i, name)                                 \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i, \
                              "XTR_" name)
-#define SRVL_DEBUG_INJ(pr, addr, name)                                         \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_QS_INJ_INJ_##addr,         \
+#define SRVL_DEBUG_INJ(ss, addr, name)                                         \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr,         \
                         "INJ_" name)
-#define SRVL_DEBUG_INJ_INST(pr, addr, i, name)                                 \
-    vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_DEVCPU_QS_INJ_INJ_##addr, i, \
+#define SRVL_DEBUG_INJ_INST(ss, addr, i, name)                                 \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i, \
                              "INJ_" name)
 
 static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32  i, port;
@@ -1667,72 +1666,72 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_srvl_debug_reg_header(pr, buf);
-        SRVL_DEBUG_CPU_FWD(pr, CFG(port), port, "CFG");
-        SRVL_DEBUG_CPU_FWD(pr, BPDU_CFG(port), port, "BPDU_CFG");
-        SRVL_DEBUG_CPU_FWD(pr, GARP_CFG(port), port, "GARP_CFG");
-        SRVL_DEBUG_CPU_FWD(pr, CCM_CFG(port), port, "CCM_CFG");
+        vtss_srvl_debug_reg_header(ss, buf);
+        SRVL_DEBUG_CPU_FWD(ss, CFG(port), port, "CFG");
+        SRVL_DEBUG_CPU_FWD(ss, BPDU_CFG(port), port, "BPDU_CFG");
+        SRVL_DEBUG_CPU_FWD(ss, GARP_CFG(port), port, "GARP_CFG");
+        SRVL_DEBUG_CPU_FWD(ss, CCM_CFG(port), port, "CCM_CFG");
         pr("\n");
     }
 
     /* Analyzer CPU queue mappings */
-    vtss_srvl_debug_reg_header(pr, "CPU Queues");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
+    vtss_srvl_debug_reg_header(ss, "CPU Queues");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
     for (i = 0; i < 16; i++)
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
                                  "CPUQ_8021_CFG");
     pr("\n");
 
     /* Packet extraction registers */
-    vtss_srvl_debug_reg_header(pr, "Extraction");
+    vtss_srvl_debug_reg_header(ss, "Extraction");
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++)
-        SRVL_DEBUG_XTR_INST(pr, FRM_PRUNING(i), i, "FRM_PRUNING");
+        SRVL_DEBUG_XTR_INST(ss, FRM_PRUNING(i), i, "FRM_PRUNING");
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++)
-        SRVL_DEBUG_XTR_INST(pr, GRP_CFG(i), i, "GRP_CFG");
+        SRVL_DEBUG_XTR_INST(ss, GRP_CFG(i), i, "GRP_CFG");
 #if defined(VTSS_DEVCPU_QS_XTR_XTR_CFG)
-    SRVL_DEBUG_XTR(pr, CFG, "CFG");
+    SRVL_DEBUG_XTR(ss, CFG, "CFG");
 #endif
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_QSYS_SYSTEM_CPU_GROUP_MAP,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_CPU_GROUP_MAP,
                         "CPU_GROUP_MAP");
-    SRVL_DEBUG_XTR(pr, DATA_PRESENT, "DATA_PRESENT");
+    SRVL_DEBUG_XTR(ss, DATA_PRESENT, "DATA_PRESENT");
     pr("\n");
 
     /* Packet injection registers */
-    vtss_srvl_debug_reg_header(pr, "Injection");
+    vtss_srvl_debug_reg_header(ss, "Injection");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        SRVL_DEBUG_INJ_INST(pr, GRP_CFG(i), i, "GRP_CFG");
+        SRVL_DEBUG_INJ_INST(ss, GRP_CFG(i), i, "GRP_CFG");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        SRVL_DEBUG_INJ_INST(pr, CTRL(i), i, "CTRL");
+        SRVL_DEBUG_INJ_INST(ss, CTRL(i), i, "CTRL");
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++)
-        SRVL_DEBUG_INJ_INST(pr, ERR(i), i, "ERR");
-    SRVL_DEBUG_INJ(pr, STATUS, "STATUS");
+        SRVL_DEBUG_INJ_INST(ss, ERR(i), i, "ERR");
+    SRVL_DEBUG_INJ(ss, STATUS, "STATUS");
     pr("\n");
 
-    vtss_srvl_debug_reg_header(pr, "DMA xtr/inj");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG,
+    vtss_srvl_debug_reg_header(ss, "DMA xtr/inj");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG,
                         "XTRINJ_MANUAL_CFG");
-    vtss_srvl_debug_reg(vtss_state, pr,
+    vtss_srvl_debug_reg(vtss_state, ss,
                         VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_ENA,
                         "XTRINJ_MANUAL_INTR_ENA");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR,
                         "XTRINJ_MANUAL_INTR");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_FDMA_FDMA_EVT_ERR,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_FDMA_FDMA_EVT_ERR,
                         "FDMA_EVT_ERR");
-    vtss_srvl_debug_reg_inst(vtss_state, pr,
+    vtss_srvl_debug_reg_inst(vtss_state, ss,
                              VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_0),
                              VTSS_CHIP_PORT_CPU_0, "SYSTEM_PORT_MODE");
-    vtss_srvl_debug_reg_inst(vtss_state, pr,
+    vtss_srvl_debug_reg_inst(vtss_state, ss,
                              VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_1),
                              VTSS_CHIP_PORT_CPU_1, "SYSTEM_PORT_MODE");
     pr("\n");
 
     if (vtss_state->packet.npi_conf.enable) {
-        vtss_srvl_debug_reg_header(pr, "NPI");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_QSYS_SYSTEM_EXT_CPU_CFG,
+        vtss_srvl_debug_reg_header(ss, "NPI");
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_EXT_CPU_CFG,
                             "EXT_CPU_CFG");
         port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_SYS_SYSTEM_PORT_MODE(port), port,
                                  "SYSTEM_PORT_MODE");
     }
@@ -1741,24 +1740,24 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_srvl_packet_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, srvl_debug_pkt,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 #if defined(VTSS_FEATURE_AFI_SWC)
 static vtss_rc srvl_debug_afi(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32 timer, slot, cnt = 0;
 
     /* AFI Timers */
-    vtss_srvl_debug_reg_header(pr, "Timers");
+    vtss_srvl_debug_reg_header(ss, "Timers");
     for (timer = 0; timer < VTSS_ARRSZ(vtss_state->afi.timers); timer++) {
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(timer),
                                  timer, "CFG");
     }
@@ -1804,17 +1803,17 @@ static vtss_rc srvl_debug_afi(vtss_state_t                  *vtss_state,
            vtss_state->afi.fps_per_section[cnt]);
     }
 
-    VTSS_RC(srvl_afi_debug_qres(vtss_state, pr));
+    VTSS_RC(srvl_afi_debug_qres(vtss_state, ss));
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_srvl_afi_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, srvl_debug_afi,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 #endif /* VTSS_FEATURE_AFI_SWC */
 

@@ -1079,7 +1079,7 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s        *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     u32            port;
@@ -1092,20 +1092,20 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(REW_PTP_MISC_CFG(port)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(REW_PTP_MISC_CFG(port)),
                                "REW_PTP_MISC_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(REW_PTP_EDLY_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(REW_PTP_EDLY_CFG(port)),
                                "REW_PTP_EDLY_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(REW_PTP_IDLY1_CFG(port)),
                                "REW_PTP_IDLY1_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(REW_PTP_IDLY2_CFG(port)),
                                "REW_PTP_IDLY2_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(REW_PTP_SMAC_LOW(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(REW_PTP_SMAC_LOW(port)),
                                "REW_PTP_SMAC_LOW");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(REW_PTP_SMAC_HIGH(port)),
                                "REW_PTP_SMAC_HIGH");
     }
@@ -1115,96 +1115,96 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "SYS:PTPPORT[%u]", port);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PCH_CFG(port)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PCH_CFG(port)),
                                "SYS_PCH_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PTP_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PTP_CFG(port)),
                                "SYS_PTP_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(SYS_PTP_RXDLY_CFG(port)),
                                "SYS_PTP_RXDLY_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(SYS_PTP_TXDLY_CFG(port)),
                                "SYS_PTP_TXDLY_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(SYS_PTP_EVENTS(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PTP_EVENTS(port)),
                                "SYS_PTP_EVENTS");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(SYS_PTP_MODE_CFG(port, 0)),
                                "SYS_PTP_MODE_CFG[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(SYS_PTP_MODE_CFG(port, 1)),
                                "SYS_PTP_MODE_CFG[1]");
     }
 
     /* PTP:PTP_CFG */
-    vtss_lan966x_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_PIN_INTR),
+    vtss_lan966x_debug_reg_header(ss, "DEVCPU_PTP:PTP_CFG");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_PIN_INTR),
                            "PTP_PIN_INTR");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_PIN_INTR_ENA),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_PIN_INTR_ENA),
                            "PTP_PIN_INTR_ENA");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_INTR_IDENT),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_INTR_IDENT),
                            "PTP_INTR_IDENT");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_DOM_CFG),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_DOM_CFG),
                            "PTP_DOM_CFG");
 
     /* PTP:PTP_PINS */
     for (idx = 0; idx <= 7; idx++) {
         VTSS_SPRINTF(buf, "PTP:PTP_PINS[%u]", idx);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_PIN_CFG(idx)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_PIN_CFG(idx)),
                                "PTP_PIN_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TOD_SEC_MSB(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TOD_SEC_MSB(idx)),
                                "PTP_TOD_SEC_MSB");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TOD_SEC_LSB(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TOD_SEC_LSB(idx)),
                                "PTP_TOD_SEC_LSB");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TOD_NSEC(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TOD_NSEC(idx)),
                                "PTP_TOD_NSEC");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TOD_NSEC_FRAC(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TOD_NSEC_FRAC(idx)),
                                "PTP_TOD_NSEC_FRAC");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_NTP_NSEC(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_NTP_NSEC(idx)),
                                "PTP_NTP_NSEC");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(PTP_WF_HIGH_PERIOD(idx)),
                                "PTP_WF_HIGH_PERIOD");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_WF_LOW_PERIOD(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_WF_LOW_PERIOD(idx)),
                                "PTP_WF_LOW_PERIOD");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_PIN_IO_DELAY(idx)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_PIN_IO_DELAY(idx)),
                                "PTP_PIN_IO_DELAY");
     }
 
     /* PTP:PTP_TS_FIFO */
-    vtss_lan966x_debug_reg_header(pr, "PTP:PTP_TS_FIFO");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TWOSTEP_CTRL),
+    vtss_lan966x_debug_reg_header(ss, "PTP:PTP_TS_FIFO");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TWOSTEP_CTRL),
                            "PTP_TWOSTEP_CTRL");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_TWOSTEP_STAMP),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TWOSTEP_STAMP),
                            "PTP_TWOSTEP_STAMP");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(PTP_WRP), "PTP_WRP");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_WRP), "PTP_WRP");
 
     /* DEV:PORT_MODE */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "DEV:PORT_MODE[%u]", port);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PTP_MISC_CFG(port)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PTP_MISC_CFG(port)),
                                "PTP_MISC_CFG");
 
         VTSS_SPRINTF(buf, "DEV[%u]:PHASE_DETECTOR_CTRL[0-1]", port);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port, 0)),
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PHAD_CTRL(port, 0)),
                                "PHAD_CTRL[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(DEV_PHAD_CTRL(port, 1)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PHAD_CTRL(port, 1)),
                                "PHAD_CTRL[1]");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_PHAD_CYC_STAT(port, 0)),
                                "PHAD_CYC_STAT[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_PHAD_CYC_STAT(port, 1)),
                                "PHAD_CYC_STAT[1]");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_PHAD_ERR_STAT(port, 0)),
                                "PHAD_ERR_STAT[0]");
-        vtss_lan966x_debug_reg(vtss_state, pr,
+        vtss_lan966x_debug_reg(vtss_state, ss,
                                REG_ADDR(DEV_PHAD_ERR_STAT(port, 1)),
                                "PHAD_ERR_STAT[1]");
     }
@@ -1215,11 +1215,11 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, lan966x_debug_ts,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

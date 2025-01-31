@@ -314,9 +314,9 @@ char *vtss_mac_txt(vtss_mac_t *mac)
 }
 
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
-                                        const char               *header,
-                                        BOOL                      layer)
+void vtss_debug_print_header_underlined(lmu_ss_t   *ss,
+                                        const char *header,
+                                        BOOL        layer)
 {
     int i, len = VTSS_STRLEN(header);
 
@@ -327,7 +327,7 @@ void vtss_debug_print_header_underlined(const vtss_debug_printf_t pr,
     pr("\n\n");
 }
 
-void vtss_debug_print_header(const vtss_debug_printf_t pr, const char *header)
+void vtss_debug_print_header(lmu_ss_t *ss, const char *header)
 {
     pr("%s:\n\n", header);
 }
@@ -388,12 +388,12 @@ static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
     [VTSS_DEBUG_GROUP_MUX] = "MUX",
 };
 
-BOOL vtss_debug_group_enabled(const vtss_debug_printf_t      pr,
+BOOL vtss_debug_group_enabled(lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info,
                               const vtss_debug_group_t       group)
 {
     if (info->group == VTSS_DEBUG_GROUP_ALL || info->group == group) {
-        vtss_debug_print_header_underlined(pr,
+        vtss_debug_print_header_underlined(ss,
                                            group < VTSS_DEBUG_GROUP_COUNT
                                                ? vtss_debug_group_name[group]
                                                : "?",
@@ -405,43 +405,36 @@ BOOL vtss_debug_group_enabled(const vtss_debug_printf_t      pr,
 
 vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
                                vtss_rc (*dbg)(vtss_state_t *vtss_state,
-                                              const vtss_debug_printf_t pr,
+                                              lmu_ss_t     *ss,
                                               const vtss_debug_info_t
                                                   *const info),
                                vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    if (!vtss_debug_group_enabled(pr, info, group)) {
+    if (!vtss_debug_group_enabled(ss, info, group)) {
         return VTSS_RC_OK;
     }
 
-    return dbg(vtss_state, pr, info);
+    return dbg(vtss_state, ss, info);
 }
 
-void vtss_debug_print_sticky(const vtss_debug_printf_t pr,
-                             const char               *name,
-                             u32                       value,
-                             u32                       mask)
+void vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 mask)
 {
     pr("%-32s: %u\n", name, VTSS_BOOL(value & mask));
 }
 
-void vtss_debug_print_value(const vtss_debug_printf_t pr,
-                            const char               *name,
-                            u32                       value)
+void vtss_debug_print_value(lmu_ss_t *ss, const char *name, u32 value)
 {
     pr("%-32s: %u\n", name, value);
 }
 
-void vtss_debug_print_reg_header(const vtss_debug_printf_t pr, const char *name)
+void vtss_debug_print_reg_header(lmu_ss_t *ss, const char *name)
 {
     pr("%-32s  31    24.23    16.15     8.7      0 Hex\n", name);
 }
 
-void vtss_debug_print_reg(const vtss_debug_printf_t pr,
-                          const char               *name,
-                          u32                       value)
+void vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value)
 {
     u32 i;
 
@@ -454,10 +447,10 @@ void vtss_debug_print_reg(const vtss_debug_printf_t pr,
 }
 
 static void vtss_debug_print_init(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_INIT)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_INIT)) {
         return;
     }
 
@@ -523,11 +516,11 @@ static void vtss_debug_print_init(vtss_state_t                  *vtss_state,
 }
 
 /* Print port header, e.g, "0      7.8     15.16    23.24  28" */
-void vtss_debug_print_port_header(vtss_state_t             *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  const char               *txt,
-                                  u32                       count,
-                                  BOOL                      nl)
+void vtss_debug_print_port_header(vtss_state_t *vtss_state,
+                                  lmu_ss_t     *ss,
+                                  const char   *txt,
+                                  u32           count,
+                                  BOOL          nl)
 {
     u32 i, port;
 
@@ -550,10 +543,10 @@ void vtss_debug_print_port_header(vtss_state_t             *vtss_state,
     }
 }
 
-void vtss_debug_print_ports(vtss_state_t             *vtss_state,
-                            const vtss_debug_printf_t pr,
-                            u8                       *member,
-                            BOOL                      nl)
+void vtss_debug_print_ports(vtss_state_t *vtss_state,
+                            lmu_ss_t     *ss,
+                            u8           *member,
+                            BOOL          nl)
 {
     vtss_port_no_t port_no;
 
@@ -567,8 +560,8 @@ void vtss_debug_print_ports(vtss_state_t             *vtss_state,
     }
 }
 
-void vtss_debug_print_port_members(vtss_state_t             *vtss_state,
-                                   const vtss_debug_printf_t pr,
+void vtss_debug_print_port_members(vtss_state_t *vtss_state,
+                                   lmu_ss_t     *ss,
                                    BOOL port_member[VTSS_PORT_ARRAY_SIZE],
                                    BOOL nl)
 {
@@ -580,18 +573,18 @@ void vtss_debug_print_port_members(vtss_state_t             *vtss_state,
          port_no++) {
         VTSS_PORT_BF_SET(member, port_no, port_member[port_no]);
     }
-    vtss_debug_print_ports(vtss_state, pr, member, nl);
+    vtss_debug_print_ports(vtss_state, ss, member, nl);
 }
 
 #if defined(VTSS_FEATURE_AFI_SWC)
 static void vtss_debug_print_afi(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_AFI_V1)
     u32 slot, cnt = 0;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_AFI)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_AFI)) {
         return;
     }
 
@@ -629,7 +622,7 @@ static void vtss_debug_print_afi(vtss_state_t                  *vtss_state,
 
 /* Print Application Interface Layer state */
 static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     if (info->layer != VTSS_DEBUG_LAYER_ALL &&
@@ -637,64 +630,64 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
         return VTSS_RC_OK;
     }
 
-    vtss_debug_print_header_underlined(pr, "Application Interface Layer", 1);
+    vtss_debug_print_header_underlined(ss, "Application Interface Layer", 1);
 
-    vtss_debug_print_init(vtss_state, pr, info);
+    vtss_debug_print_init(vtss_state, ss, info);
 
 #if defined(VTSS_FEATURE_MISC)
-    vtss_misc_debug_print(vtss_state, pr, info);
+    vtss_misc_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_MISC */
 
 #if defined(VTSS_FEATURE_PORT_CONTROL)
-    vtss_port_debug_print(vtss_state, pr, info);
+    vtss_port_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_PORT_CONTROL */
 
 #if defined(VTSS_FEATURE_LAYER2)
-    vtss_l2_debug_print(vtss_state, pr, info);
+    vtss_l2_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_LAYER2 */
 
 #if defined(VTSS_FEATURE_VCAP)
-    vtss_vcap_debug_print_acl(vtss_state, pr, info);
+    vtss_vcap_debug_print_acl(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_VCAP */
 
 #if defined(VTSS_FEATURE_QOS)
-    vtss_qos_debug_print(vtss_state, pr, info);
+    vtss_qos_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_QOS */
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_EVC)) {
-        vtss_qos_debug_print_dlb(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_EVC)) {
+        vtss_qos_debug_print_dlb(vtss_state, ss, info);
     }
 #endif
 
 #if defined(VTSS_FEATURE_PACKET)
-    vtss_packet_debug_print(vtss_state, pr, info);
+    vtss_packet_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_PACKET */
 
 #if defined(VTSS_AFI_V2)
-    vtss_afi_debug_print(vtss_state, pr, info);
+    vtss_afi_debug_print(vtss_state, ss, info);
 #endif /* VTSS_AFI_V2 */
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    vtss_ts_debug_print(vtss_state, pr, info);
+    vtss_ts_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 #if defined(VTSS_FEATURE_VOP)
-    vtss_oam_debug_print(vtss_state, pr, info);
+    vtss_oam_debug_print(vtss_state, ss, info);
 #endif
 
 #if defined(VTSS_FEATURE_MRP)
-    vtss_mrp_debug_print(vtss_state, pr, info);
+    vtss_mrp_debug_print(vtss_state, ss, info);
 #endif
 
 #if defined(VTSS_FEATURE_LAYER3)
-    if (vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_L3)) {
-        vtss_debug_print_l3(vtss_state, pr, info);
+    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_L3)) {
+        vtss_debug_print_l3(vtss_state, ss, info);
     }
 #endif /* VTSS_FEATURE_LAYER3 */
 
 #if defined(VTSS_FEATURE_AFI_SWC)
-    vtss_debug_print_afi(vtss_state, pr, info);
+    vtss_debug_print_afi(vtss_state, ss, info);
 #endif
 
     return VTSS_RC_OK;
@@ -702,7 +695,7 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
 
 /* Print Chip Interface Layer state */
 static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     vtss_rc        rc = VTSS_RC_OK;
@@ -721,18 +714,18 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
         }
         VTSS_SELECT_CHIP(chip_no);
         VTSS_SPRINTF(buf, "Chip Interface Layer[%u]", chip_no);
-        vtss_debug_print_header_underlined(pr, buf, 1);
-        rc = vtss_cil_debug_info_print(vtss_state, pr, info);
+        vtss_debug_print_header_underlined(ss, buf, 1);
+        rc = vtss_cil_debug_info_print(vtss_state, ss, info);
     }
     return rc;
 }
 
 vtss_rc vtss_cmn_debug_info_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_debug_ail_print(vtss_state, pr, info));
-    return vtss_debug_cil_print(vtss_state, pr, info);
+    VTSS_RC(vtss_debug_ail_print(vtss_state, ss, info));
+    return vtss_debug_cil_print(vtss_state, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

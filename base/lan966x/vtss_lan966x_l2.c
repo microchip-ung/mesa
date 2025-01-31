@@ -1462,8 +1462,8 @@ vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t        *vtss_state,
 /* ================================================================= *
  *  Debug print
  * ================================================================= */
-static vtss_rc lan966x_debug_mac_table(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static vtss_rc lan966x_debug_mac_table(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
     u32  value, port, i;
@@ -1490,9 +1490,9 @@ static vtss_rc lan966x_debug_mac_table(vtss_state_t             *vtss_state,
     if (!header)
         pr("\n");
 
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_PMAC_CFG), "PMAC_CFG");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_PMAC_CFG), "PMAC_CFG");
     for (i = 0; i < VTSS_MAC_INDEX_VID_CNT; i++) {
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_PMAC_VLAN_CFG(i)), i,
                                     "PMAC_VLAN_CFG");
     }
@@ -1501,72 +1501,72 @@ static vtss_rc lan966x_debug_mac_table(vtss_state_t             *vtss_state,
     /* Read and clear analyzer sticky bits */
     REG_RD(ANA_ANEVENTS, &value);
     REG_WR(ANA_ANEVENTS, value);
-    vtss_debug_print_sticky(pr, "FLOOD_DISCARD", value,
+    vtss_debug_print_sticky(ss, "FLOOD_DISCARD", value,
                             ANA_ANEVENTS_FLOOD_DISCARD_M);
-    vtss_debug_print_sticky(pr, "MSTI_DROP", value, ANA_ANEVENTS_MSTI_DROP_M);
-    vtss_debug_print_sticky(pr, "ACLKILL", value, ANA_ANEVENTS_ACLKILL_M);
-    vtss_debug_print_sticky(pr, "ACLUSED", value, ANA_ANEVENTS_ACLUSED_M);
-    vtss_debug_print_sticky(pr, "AUTOAGE", value, ANA_ANEVENTS_AUTOAGE_M);
-    vtss_debug_print_sticky(pr, "LEARN_DROP", value, ANA_ANEVENTS_LEARN_DROP_M);
-    vtss_debug_print_sticky(pr, "AGED_ENTRY", value, ANA_ANEVENTS_AGED_ENTRY_M);
-    vtss_debug_print_sticky(pr, "CPU_LEARN_FAILED", value,
+    vtss_debug_print_sticky(ss, "MSTI_DROP", value, ANA_ANEVENTS_MSTI_DROP_M);
+    vtss_debug_print_sticky(ss, "ACLKILL", value, ANA_ANEVENTS_ACLKILL_M);
+    vtss_debug_print_sticky(ss, "ACLUSED", value, ANA_ANEVENTS_ACLUSED_M);
+    vtss_debug_print_sticky(ss, "AUTOAGE", value, ANA_ANEVENTS_AUTOAGE_M);
+    vtss_debug_print_sticky(ss, "LEARN_DROP", value, ANA_ANEVENTS_LEARN_DROP_M);
+    vtss_debug_print_sticky(ss, "AGED_ENTRY", value, ANA_ANEVENTS_AGED_ENTRY_M);
+    vtss_debug_print_sticky(ss, "CPU_LEARN_FAILED", value,
                             ANA_ANEVENTS_CPU_LEARN_FAILED_M);
-    vtss_debug_print_sticky(pr, "AUTO_LEARN_FAILED", value,
+    vtss_debug_print_sticky(ss, "AUTO_LEARN_FAILED", value,
                             ANA_ANEVENTS_AUTO_LEARN_FAILED_M);
-    vtss_debug_print_sticky(pr, "LEARN_REMOVE", value,
+    vtss_debug_print_sticky(ss, "LEARN_REMOVE", value,
                             ANA_ANEVENTS_LEARN_REMOVE_M);
-    vtss_debug_print_sticky(pr, "AUTO_LEARNED", value,
+    vtss_debug_print_sticky(ss, "AUTO_LEARNED", value,
                             ANA_ANEVENTS_AUTO_LEARNED_M);
-    vtss_debug_print_sticky(pr, "AUTO_MOVED", value, ANA_ANEVENTS_AUTO_MOVED_M);
-    vtss_debug_print_sticky(pr, "CLASSIFIED_DROP", value,
+    vtss_debug_print_sticky(ss, "AUTO_MOVED", value, ANA_ANEVENTS_AUTO_MOVED_M);
+    vtss_debug_print_sticky(ss, "CLASSIFIED_DROP", value,
                             ANA_ANEVENTS_CLASSIFIED_DROP_M);
-    vtss_debug_print_sticky(pr, "CLASSIFIED_COPY", value,
+    vtss_debug_print_sticky(ss, "CLASSIFIED_COPY", value,
                             ANA_ANEVENTS_CLASSIFIED_COPY_M);
-    vtss_debug_print_sticky(pr, "VLAN_DISCARD", value,
+    vtss_debug_print_sticky(ss, "VLAN_DISCARD", value,
                             ANA_ANEVENTS_VLAN_DISCARD_M);
-    vtss_debug_print_sticky(pr, "FWD_DISCARD", value,
+    vtss_debug_print_sticky(ss, "FWD_DISCARD", value,
                             ANA_ANEVENTS_FWD_DISCARD_M);
-    vtss_debug_print_sticky(pr, "MULTICAST_FLOOD", value,
+    vtss_debug_print_sticky(ss, "MULTICAST_FLOOD", value,
                             ANA_ANEVENTS_MULTICAST_FLOOD_M);
-    vtss_debug_print_sticky(pr, "UNICAST_FLOOD", value,
+    vtss_debug_print_sticky(ss, "UNICAST_FLOOD", value,
                             ANA_ANEVENTS_UNICAST_FLOOD_M);
-    vtss_debug_print_sticky(pr, "DEST_KNOWN", value, ANA_ANEVENTS_DEST_KNOWN_M);
-    vtss_debug_print_sticky(pr, "BUCKET3_MATCH", value,
+    vtss_debug_print_sticky(ss, "DEST_KNOWN", value, ANA_ANEVENTS_DEST_KNOWN_M);
+    vtss_debug_print_sticky(ss, "BUCKET3_MATCH", value,
                             ANA_ANEVENTS_BUCKET3_MATCH_M);
-    vtss_debug_print_sticky(pr, "BUCKET2_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET2_MATCH", value,
                             ANA_ANEVENTS_BUCKET2_MATCH_M);
-    vtss_debug_print_sticky(pr, "BUCKET1_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET1_MATCH", value,
                             ANA_ANEVENTS_BUCKET1_MATCH_M);
-    vtss_debug_print_sticky(pr, "BUCKET0_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET0_MATCH", value,
                             ANA_ANEVENTS_BUCKET0_MATCH_M);
-    vtss_debug_print_sticky(pr, "CPU_OPERATION", value,
+    vtss_debug_print_sticky(ss, "CPU_OPERATION", value,
                             ANA_ANEVENTS_CPU_OPERATION_M);
-    vtss_debug_print_sticky(pr, "DMAC_LOOKUP", value,
+    vtss_debug_print_sticky(ss, "DMAC_LOOKUP", value,
                             ANA_ANEVENTS_DMAC_LOOKUP_M);
-    vtss_debug_print_sticky(pr, "SMAC_LOOKUP", value,
+    vtss_debug_print_sticky(ss, "SMAC_LOOKUP", value,
                             ANA_ANEVENTS_SMAC_LOOKUP_M);
-    vtss_debug_print_sticky(pr, "SEQ_GEN_ERR_0", value,
+    vtss_debug_print_sticky(ss, "SEQ_GEN_ERR_0", value,
                             ANA_ANEVENTS_SEQ_GEN_ERR_0_M);
-    vtss_debug_print_sticky(pr, "SEQ_GEN_ERR_1", value,
+    vtss_debug_print_sticky(ss, "SEQ_GEN_ERR_1", value,
                             ANA_ANEVENTS_SEQ_GEN_ERR_1_M);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_debug_src_table(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static vtss_rc lan966x_debug_src_table(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info)
 {
     u32 port, mask;
 
-    vtss_debug_print_header(pr, "Source Masks");
-    vtss_lan966x_debug_print_port_header(vtss_state, pr, "Port  ");
+    vtss_debug_print_header(ss, "Source Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, ss, "Port  ");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         REG_RD(ANA_PGID(PGID_SRC + port), &mask);
         mask = ANA_PGID_PGID_X(mask);
         pr("%-4u  ", port);
-        vtss_lan966x_debug_print_mask(pr, mask);
+        vtss_lan966x_debug_print_mask(ss, mask);
     }
     pr("\n");
 
@@ -1574,36 +1574,36 @@ static vtss_rc lan966x_debug_src_table(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc lan966x_debug_aggr(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     u32 i, mask, value;
 
-    VTSS_RC(lan966x_debug_src_table(vtss_state, pr, info));
+    VTSS_RC(lan966x_debug_src_table(vtss_state, ss, info));
 
-    vtss_debug_print_header(pr, "Aggregation Masks");
-    vtss_lan966x_debug_print_port_header(vtss_state, pr, "AC    ");
+    vtss_debug_print_header(ss, "Aggregation Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, ss, "AC    ");
     for (i = 0; i < LAN966X_ACS; i++) {
         REG_RD(ANA_PGID(PGID_AGGR + i), &mask);
         mask = ANA_PGID_PGID_X(mask);
         pr("%-4u  ", i);
-        vtss_lan966x_debug_print_mask(pr, mask);
+        vtss_lan966x_debug_print_mask(ss, mask);
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Destination Masks");
-    vtss_lan966x_debug_print_port_header(vtss_state, pr, "PGID  CPU  Queue  ");
+    vtss_debug_print_header(ss, "Destination Masks");
+    vtss_lan966x_debug_print_port_header(vtss_state, ss, "PGID  CPU  Queue  ");
     for (i = 0; i < VTSS_PGIDS; i++) {
         REG_RD(ANA_PGID(i), &value);
         mask = ANA_PGID_PGID_X(value);
         REG_RD(ANA_PGID_CFG(i), &value);
         pr("%-4u  %-3u  %-5u  ", i, mask & VTSS_BIT(VTSS_CHIP_PORT_CPU) ? 1 : 0,
            ANA_PGID_CFG_CPUQ_DST_PGID_X(value));
-        vtss_lan966x_debug_print_mask(pr, mask);
+        vtss_lan966x_debug_print_mask(ss, mask);
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Flooding PGIDs");
+    vtss_debug_print_header(ss, "Flooding PGIDs");
     for (i = 0; i < VTSS_PRIOS; i++) {
         REG_RD(ANA_FLOODING(i), &value);
         pr("UNICAST_%u  : %u\n", i, ANA_FLOODING_FLD_UNICAST_X(value));
@@ -1617,15 +1617,15 @@ static vtss_rc lan966x_debug_aggr(vtss_state_t                  *vtss_state,
     pr("MC6_DATA   : %u\n", ANA_FLOODING_IPMC_FLD_MC6_DATA_X(value));
     pr("\n");
 
-    vtss_lan966x_debug_reg_header(pr, "Aggr. Mode");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_AGGR_CFG), "AGGR_CFG");
+    vtss_lan966x_debug_reg_header(ss, "Aggr. Mode");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_AGGR_CFG), "AGGR_CFG");
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 static vtss_rc lan966x_debug_stp(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -1635,9 +1635,9 @@ static vtss_rc lan966x_debug_stp(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_lan966x_debug_reg_header(pr, "ANA");
+            vtss_lan966x_debug_reg_header(ss, "ANA");
         header = 0;
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_PORT_CFG(port)), port,
                                     "PORT_CFG");
     }
@@ -1649,7 +1649,7 @@ static vtss_rc lan966x_debug_stp(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_FRER)
 static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_sdx_entry_t *sdx;
@@ -1701,16 +1701,16 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
         for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_PORT_BF_GET(ms->port_list, port_no)) {
                 VTSS_SPRINTF(buf, "MSID %u, port %u", i, port_no);
-                vtss_lan966x_debug_reg_header(pr, buf);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_header(ss, buf);
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(QSYS_FRER_CFG_MBM(idx)),
                                             idx, "FRER_CFG_MBM");
                 REG_WRM(QSYS_FRER_CFG, QSYS_FRER_CFG_ADDR(idx),
                         QSYS_FRER_CFG_ADDR_M);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(QSYS_FRER_STA_MBM), idx,
                                             "FRER_STA_MBM");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(QSYS_FRER_HST_MBM), idx,
                                             "FRER_HST_MBM");
                 idx++;
@@ -1723,14 +1723,14 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
             continue;
         }
         VTSS_SPRINTF(buf, "CSID %u", i);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(QSYS_FRER_CFG_CMP(i)), i,
                                     "QSYS:FRER_CFG_CMP");
         REG_WRM(QSYS_FRER_CFG, QSYS_FRER_CFG_ADDR(i), QSYS_FRER_CFG_ADDR_M);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_STA_CMP),
+        vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(QSYS_FRER_STA_CMP),
                                     i, "QSYS:FRER_STA_CMP");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(QSYS_FRER_HST_CMP),
+        vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(QSYS_FRER_HST_CMP),
                                     i, "QSYS:FRER_HST_CMP");
         pr("\n");
     }
@@ -1740,7 +1740,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_PSFP)
 static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     u16  i, j;
@@ -1753,14 +1753,14 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
             conf->block_oversize.enable) {
             if (first) {
                 first = FALSE;
-                vtss_lan966x_debug_reg_header(pr, "PSFP Filters");
+                vtss_lan966x_debug_reg_header(ss, "PSFP Filters");
             }
             REG_WR(ANA_SFIDTIDX, ANA_SFIDTIDX_SFID_INDEX(i));
             REG_WR(ANA_SFIDACCESS,
                    ANA_SFIDACCESS_SFID_TBL_CMD(LAN966X_TBL_CMD_READ));
-            vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(ANA_SFIDTIDX),
+            vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(ANA_SFIDTIDX),
                                         i, "SFIDTIDX");
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(ANA_SFIDACCESS), i,
                                         "SFIDACCESS");
         }
@@ -1772,34 +1772,34 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
     for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
             VTSS_SPRINTF(buf, "PSFP Gate %u", i);
-            vtss_lan966x_debug_reg_header(pr, buf);
+            vtss_lan966x_debug_reg_header(ss, buf);
             REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(i));
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_1),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_1),
                                    "SG_CFG_1");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_2),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_2),
                                    "SG_CFG_2");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_3),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_3),
                                    "SG_CFG_3");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_4),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_4),
                                    "SG_CFG_4");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_CFG_5),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_5),
                                    "SG_CFG_5");
             for (j = 0; j < 4; j++) {
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(ANA_SG_GCL_GS_CFG(j)), j,
                                             "GS_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(ANA_SG_GCL_TI_CFG(j)), j,
                                             "TI_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(ANA_SG_GCL_OCT_CFG(j)), j,
                                             "OCT_CFG");
             }
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_1),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_STS_1),
                                    "SG_STS_1");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_2),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_STS_2),
                                    "SG_STS_2");
-            vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_SG_STS_3),
+            vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_STS_3),
                                    "SG_STS_3");
             pr("\n");
         }
@@ -1810,19 +1810,19 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_VCAP)
 static vtss_rc lan966x_debug_vxlat(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_lan966x_debug_is1(vtss_state, pr, info));
-    VTSS_RC(vtss_lan966x_debug_es0(vtss_state, pr, info));
-    VTSS_RC(lan966x_debug_frer(vtss_state, pr, info));
-    VTSS_RC(lan966x_debug_psfp(vtss_state, pr, info));
+    VTSS_RC(vtss_lan966x_debug_is1(vtss_state, ss, info));
+    VTSS_RC(vtss_lan966x_debug_es0(vtss_state, ss, info));
+    VTSS_RC(lan966x_debug_frer(vtss_state, ss, info));
+    VTSS_RC(lan966x_debug_psfp(vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif
 
 static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_vid_t         vid;
@@ -1846,26 +1846,26 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
             VTSS_SPRINTF(buf, "Port %u (CPU)", port);
         }
 
-        vtss_lan966x_debug_reg_header(pr, buf);
+        vtss_lan966x_debug_reg_header(ss, buf);
         if (port != VTSS_CHIP_PORT_CPU_1) {
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(ANA_VLAN_CFG(port)), port,
                                         "ANA:VLAN_CFG");
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(ANA_DROP_CFG(port)), port,
                                         "ANA:DROP_CFG");
         }
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(REW_PORT_VLAN_CFG(port)), port,
                                     "REW:VLAN_CFG");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr, REG_ADDR(REW_TAG_CFG(port)),
+        vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(REW_TAG_CFG(port)),
                                     port, "REW:TAG_CFG");
         pr("\n");
     }
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_VLAN_ETYPE_CFG),
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_VLAN_ETYPE_CFG),
                            "ETYPE_CFG");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_ADVLEARN), "ADVLEARN");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_VLANMASK), "VLANMASK");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_ADVLEARN), "ADVLEARN");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_VLANMASK), "VLANMASK");
     pr("\n");
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
@@ -1885,7 +1885,7 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
         fid = ANA_FID_MAP_FID_VAL_X(fid);
         if (header)
             vtss_lan966x_debug_print_port_header(
-                vtss_state, pr, "VID   FID  Lrn  Fld  Mir  Flt  Prv  ");
+                vtss_state, ss, "VID   FID  Lrn  Fld  Mir  Flt  Prv  ");
         header = 0;
 
         pr("%-6u%-5u%-5u%-5u%-5u%-5u%-5u", vid, fid,
@@ -1894,7 +1894,7 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
            ANA_VLANTIDX_VLAN_MIRROR_X(value) ? 1 : 0,
            ANA_VLANTIDX_VLAN_SRC_CHK_X(value) ? 1 : 0,
            ANA_VLANTIDX_VLAN_PRIV_VLAN_X(value) ? 1 : 0);
-        vtss_lan966x_debug_print_mask(pr, mask);
+        vtss_lan966x_debug_print_mask(ss, mask);
 
         /* Leave critical region briefly */
         VTSS_EXIT_ENTER();
@@ -1906,19 +1906,19 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc lan966x_debug_pvlan(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
-    vtss_lan966x_debug_reg_header(pr, "ANA");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_ISOLATED_PORTS),
+    vtss_lan966x_debug_reg_header(ss, "ANA");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_ISOLATED_PORTS),
                            "ISOLATED_PORTS");
     pr("\n");
 
-    return lan966x_debug_src_table(vtss_state, pr, info);
+    return lan966x_debug_src_table(vtss_state, ss, info);
 }
 
 static vtss_rc lan966x_debug_mirror(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     u32 port, value, mask = 0;
@@ -1929,41 +1929,41 @@ static vtss_rc lan966x_debug_mirror(vtss_state_t                  *vtss_state,
         if (value & ANA_PORT_CFG_SRC_MIRROR_ENA_M)
             mask |= VTSS_BIT(port);
     }
-    vtss_lan966x_debug_print_port_header(vtss_state, pr, "Mirror   ");
+    vtss_lan966x_debug_print_port_header(vtss_state, ss, "Mirror   ");
     pr("Ingress  ");
-    vtss_lan966x_debug_print_mask(pr, mask);
+    vtss_lan966x_debug_print_mask(ss, mask);
     REG_RD(ANA_EMIRRORPORTS, &mask);
     pr("Egress   ");
-    vtss_lan966x_debug_print_mask(pr, mask);
+    vtss_lan966x_debug_print_mask(ss, mask);
     REG_RD(ANA_MIRRORPORTS, &mask);
     pr("Ports    ");
-    vtss_lan966x_debug_print_mask(pr, mask);
+    vtss_lan966x_debug_print_mask(ss, mask);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN, lan966x_debug_vlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN, lan966x_debug_pvlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE,
-                                   lan966x_debug_mac_table, vtss_state, pr,
+                                   lan966x_debug_mac_table, vtss_state, ss,
                                    info));
 #if defined(VTSS_FEATURE_VCAP)
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT, lan966x_debug_vxlat,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
 #endif
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR, lan966x_debug_aggr,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, lan966x_debug_stp,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR,
-                                   lan966x_debug_mirror, vtss_state, pr, info));
+                                   lan966x_debug_mirror, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif // VTSS_OPT_DEBUG_PRINT

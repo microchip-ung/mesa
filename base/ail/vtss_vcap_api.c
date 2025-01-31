@@ -2173,13 +2173,13 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 #if VTSS_OPT_DEBUG_PRINT
 static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t   *table,
                                       const char                    *name,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     u32                    i;
     vtss_vcap_range_chk_t *entry;
 
-    vtss_debug_print_header(pr, name);
+    vtss_debug_print_header(ss, name);
     pr("Index  Type  Count  Range\n");
     for (i = 0; i < table->max; i++) {
         entry = &table->entry[i];
@@ -2196,11 +2196,11 @@ static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t   *table,
     pr("\n");
 }
 
-void vtss_vcap_debug_print_range_checkers(vtss_state_t             *vtss_state,
-                                          const vtss_debug_printf_t pr,
+void vtss_vcap_debug_print_range_checkers(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
                                           const vtss_debug_info_t *const info)
 {
-    vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", pr,
+    vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", ss,
                               info);
 }
 #endif
@@ -2224,7 +2224,7 @@ const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
 #if VTSS_OPT_DEBUG_PRINT
-static void vtss_vcap_debug_print(const vtss_debug_printf_t      pr,
+static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info,
                                   vtss_vcap_obj_t               *obj,
                                   u32                            data_size,
@@ -2244,7 +2244,7 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t      pr,
     }
 
     if (vcap_super != NULL) {
-        vtss_debug_print_header(pr, "VCAP_SUPER");
+        vtss_debug_print_header(ss, "VCAP_SUPER");
 
         pr("obj_size       : %zu\n", sizeof(*vcap_super));
         pr("row_count      : %u\n", vcap_super->row_count);
@@ -2262,7 +2262,7 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t      pr,
     }
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
-    vtss_debug_print_header(pr, obj->name);
+    vtss_debug_print_header(ss, obj->name);
 
     pr("obj_size        : %u\n", obj_size);
     pr("data_size       : %u\n", data_size);
@@ -2370,61 +2370,61 @@ static void vtss_vcap_debug_print(const vtss_debug_printf_t      pr,
 
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
 void vtss_vcap_debug_print_is1(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS1)
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.is1.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.is1.obj,
                           sizeof(vtss_is1_data_t), sizeof(vtss_is1_info_t));
 #endif /* VTSS_FEATURE_IS1 */
 #if defined(VTSS_FEATURE_CLM)
-    vtss_vcap_debug_print_clm_b(vtss_state, pr, info);
+    vtss_vcap_debug_print_clm_b(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_CLM */
 }
 #endif /* VTSS_FEATURE_IS1/CLM */
 
 #if defined(VTSS_FEATURE_CLM)
 void vtss_vcap_debug_print_clm_a(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_a.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.clm_a.obj,
                           sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 
 void vtss_vcap_debug_print_clm_b(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_b.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.clm_b.obj,
                           sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 
 void vtss_vcap_debug_print_clm_c(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.clm_c.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.clm_c.obj,
                           sizeof(vtss_is1_data_t), sizeof(vtss_clm_info_t));
 }
 #endif /* VTSS_FEATURE_CLM */
 
 #if defined(VTSS_FEATURE_IS2)
 void vtss_vcap_debug_print_is2(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.is2.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.is2.obj,
                           sizeof(vtss_is2_data_t), sizeof(vtss_is2_info_t));
 }
 #endif /* VTSS_FEATURE_IS2 */
 
 #if defined(VTSS_FEATURE_ES0)
 void vtss_vcap_debug_print_es0(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.es0.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.es0.obj,
                           sizeof(vtss_es0_data_t), sizeof(vtss_es0_info_t));
 }
 #endif /* VTSS_FEATURE_ES0 */
@@ -2440,7 +2440,7 @@ static const char *vtss_acl_key_txt(vtss_acl_key_t key)
 #endif
 
 void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS2)
@@ -2452,7 +2452,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     char                  buf[64];
 #endif
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_ACL)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_ACL)) {
         return;
     }
 
@@ -2467,7 +2467,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
         if (header) {
             header = 0;
             pr("Port  Policy  CPU  Once  Queue  Policer  Learn  IPV4/IPV6/ARP      ");
-            vtss_debug_print_port_header(vtss_state, pr, "Mirror  PTP  Port  ",
+            vtss_debug_print_port_header(vtss_state, ss, "Mirror  PTP  Port  ",
                                          0, 0);
             pr("\n");
         }
@@ -2497,7 +2497,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
            : act->port_action == VTSS_ACL_PORT_ACTION_FILTER ? "Filt"
            : act->port_action == VTSS_ACL_PORT_ACTION_REDIR  ? "Redir"
                                                              : "?");
-        vtss_debug_print_port_members(vtss_state, pr, act->port_list, 0);
+        vtss_debug_print_port_members(vtss_state, ss, act->port_list, 0);
         pr("\n");
     }
     if (!header) {
@@ -2552,14 +2552,14 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers",
-                              pr, info);
+                              ss, info);
     vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers",
-                              pr, info);
+                              ss, info);
 #endif
 #endif // VTSS_FEATURE_IS2
 
 #if defined(VTSS_FEATURE_VCAP)
-    vtss_vcap_debug_print_range_checkers(vtss_state, pr, info);
+    vtss_vcap_debug_print_range_checkers(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_VCAP */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
@@ -2567,7 +2567,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
         u32             i, j;
         vtss_ip_addr_t *sip;
 
-        vtss_debug_print_header(pr, "SIP Table");
+        vtss_debug_print_header(ss, "SIP Table");
         pr("IDX  Address\n");
         for (i = 0; i < VTSS_ACL_SIP_CNT; i++) {
             sip = &vtss_state->vcap.acl_sip_table[i].sip;
@@ -2586,25 +2586,25 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_LUTON26)
-    vtss_vcap_debug_print_is1(vtss_state, pr, info);
+    vtss_vcap_debug_print_is1(vtss_state, ss, info);
 #endif /* VTSS_ARCH_LUTON26 */
 
 #if defined(VTSS_FEATURE_IS2)
-    vtss_vcap_debug_print_is2(vtss_state, pr, info);
+    vtss_vcap_debug_print_is2(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_IS2 */
 
 #if defined(VTSS_FEATURE_LPM)
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.lpm.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.lpm.obj,
                           sizeof(vtss_lpm_data_t), sizeof(vtss_lpm_info_t));
 #endif /* VTSS_FEATURE_LPM */
 
 #if defined(VTSS_FEATURE_IS2_B)
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.is2_b.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.is2_b.obj,
                           sizeof(vtss_is2_data_t), sizeof(vtss_is2_info_t));
 #endif /* VTSS_FEATURE_IS2_B */
 
 #if defined(VTSS_FEATURE_ES2)
-    vtss_vcap_debug_print(pr, info, &vtss_state->vcap.es2.obj,
+    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.es2.obj,
                           sizeof(vtss_is2_data_t), sizeof(vtss_is2_info_t));
 #endif /* VTSS_FEATURE_ES2 */
 }

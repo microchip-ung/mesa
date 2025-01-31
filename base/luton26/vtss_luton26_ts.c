@@ -709,7 +709,7 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s        *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     u32  value;
@@ -717,74 +717,74 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
     char buf[32];
 
     /* DEVCPU_GCB: PTP_TIMER */
-    vtss_l26_debug_reg_header(pr, "GCB:PTP_TIMER");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_SECS,
+    vtss_l26_debug_reg_header(ss, "GCB:PTP_TIMER");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_SECS,
                        "PTP_TOD_SECS");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS,
                        "PTP_TOD_NANOSECS");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY,
                        "PTP_DELAY");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL,
                        "PTP_TIMER_CTRL");
     /* DEVCPU_GCB: PTP_CFG */
-    vtss_l26_debug_reg_header(pr, "GCB:PTP_CFG");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+    vtss_l26_debug_reg_header(ss, "GCB:PTP_CFG");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
                        "PTP_MISC_CFG");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_CFG,
                        "PTP_UPPER_LIMIT_CFG");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG,
                        "PTP_UPPER_LIMIT_1_TIME_ADJ_CFG");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
                        "PTP_SYNC_INTR_ENA_CFG");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
                        "GEN_EXT_CLK_HIGH_PERIOD_CFG");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
                        "GEN_EXT_CLK_LOW_PERIOD_CFG");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
                        "GEN_EXT_CLK_CFG");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG,
                        "CLK_ADJ_CFG");
     /* DEVCPU_GCB: PTP_STAT */
-    vtss_l26_debug_reg_header(pr, "GCB:PTP_STAT");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg_header(ss, "GCB:PTP_STAT");
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT,
                        "PTP_CURRENT_TIME_STAT");
-    vtss_l26_debug_reg(vtss_state, pr,
+    vtss_l26_debug_reg(vtss_state, ss,
                        VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT,
                        "EXT_SYNC_CURRENT_TIME_STAT");
 
     L26_RD(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, &value);
     L26_WR(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, value);
     vtss_debug_print_sticky(
-        pr, "CLK_ADJ_UPD_STICKY", value,
+        ss, "CLK_ADJ_UPD_STICKY", value,
         VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY);
     vtss_debug_print_sticky(
-        pr, "EXT_SYNC_CURRENT_TIME_STICKY", value,
+        ss, "EXT_SYNC_CURRENT_TIME_STICKY", value,
         VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY);
-    vtss_debug_print_sticky(pr, "SYNC_STAT", value,
+    vtss_debug_print_sticky(ss, "SYNC_STAT", value,
                             VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_SYNC_STAT);
 
     /* SYS_PORT:PTP */
-    vtss_l26_debug_reg_header(pr, "SYS:PORT:PTP");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_DELAY, "PTP_DELAY");
+    vtss_l26_debug_reg_header(ss, "SYS:PORT:PTP");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_DELAY, "PTP_DELAY");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "PTP_CFG(%u)", port);
-        vtss_l26_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_CFG(port), buf);
+        vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_CFG(port), buf);
     }
 
     /* ANA:: */
-    vtss_l26_debug_reg_header(pr, "ANA::PTP");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
+    vtss_l26_debug_reg_header(ss, "ANA::PTP");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
                        "PTP_ID_HIGH");
-    vtss_l26_debug_reg(vtss_state, pr, VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
                        "PTP_ID_LOW");
 
     pr("\n");
@@ -793,11 +793,11 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_l26_ts_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, l26_debug_ts, vtss_state,
-                                  pr, info);
+                                  ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

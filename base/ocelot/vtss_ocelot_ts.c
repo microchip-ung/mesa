@@ -997,7 +997,7 @@ static vtss_rc srvl_ts_status_change(vtss_state_t        *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -1007,107 +1007,107 @@ static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
     /* DEVCPU_PTP:PTP_PINS */
     for (ix = 0; ix <= 4; ix++) {
         VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", ix);
-        vtss_srvl_debug_reg_header(pr, buf);
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg_header(ss, buf);
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(ix),
                             "PTP_PIN_CFG");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_MSB(ix),
                             "PTP_TOD_SEC_MSB");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_LSB(ix),
                             "PTP_TOD_SEC_LSB");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(ix),
                             "PTP_TOD_NSEC");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_NSF(ix), "PTP_NSF");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(ix),
                             "PIN_WF_HIGH_PERIOD");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(ix),
                             "PIN_WF_LOW_PERIOD");
     }
 
     /* DEVCPU_PTP: PTP_CFG */
-    vtss_srvl_debug_reg_header(pr, "GCB:PTP_CFG");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG,
+    vtss_srvl_debug_reg_header(ss, "GCB:PTP_CFG");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG,
                         "PTP_MISC_CFG");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_CFG,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_CFG,
                         "CLK_ADJ_CFG");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_FRQ,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_FRQ,
                         "CLK_ADJ_FRQ");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR,
                         "PTP_PIN_INTR");
-    vtss_srvl_debug_reg(vtss_state, pr,
+    vtss_srvl_debug_reg(vtss_state, ss,
                         VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA,
                         "PTP_PIN_INTR_ENA");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_INTR_IDENT,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_INTR_IDENT,
                         "PTP_INTR_IDENT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG,
                         "PTP_SYS_CLK_CFG");
     /* DEVCPU_PTP: PTP_STATUS */
-    vtss_srvl_debug_reg_header(pr, "GCB:PTP_STAT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSF,
+    vtss_srvl_debug_reg_header(ss, "GCB:PTP_STAT");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSF,
                         "PTP_STATUS_PTP_CUR_NSF");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSEC,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_NSEC,
                         "PTP_STATUS_PTP_CUR_NSEC");
-    vtss_srvl_debug_reg(vtss_state, pr,
+    vtss_srvl_debug_reg(vtss_state, ss,
                         VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_SEC_LSB,
                         "PTP_STATUS_PTP_CUR_SEC_LSB");
-    vtss_srvl_debug_reg(vtss_state, pr,
+    vtss_srvl_debug_reg(vtss_state, ss,
                         VTSS_DEVCPU_PTP_PTP_STATUS_PTP_CUR_SEC_MSB,
                         "PTP_STATUS_PTP_CUR_SEC_MSB");
 
     /* DEV:PORT_MODE */
-    vtss_srvl_debug_reg_header(pr, "DEV:PORT_MODE");
+    vtss_srvl_debug_reg_header(ss, "DEV:PORT_MODE");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "RX_PATH_DELAY_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEV_PORT_MODE_RX_PATH_DELAY(VTSS_TO_DEV(port)),
                             buf);
         VTSS_SPRINTF(buf, "TX_PATH_DELAY_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEV_PORT_MODE_TX_PATH_DELAY(VTSS_TO_DEV(port)),
                             buf);
     }
 
     /* SYS:PTP (common to Serval1 and Ocelot) */
-    vtss_srvl_debug_reg_header(pr, "SYS:PTP");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_TXSTAMP,
+    vtss_srvl_debug_reg_header(ss, "SYS:PTP");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_TXSTAMP,
                         "PTP_TXSTAMP");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_NXT, "PTP_NXT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_SYS_PTP_PTP_CFG, "PTP_CFG");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_NXT, "PTP_NXT");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_CFG, "PTP_CFG");
 
     /* SYS_PORT:PTP (common to Serval1 and Ocelot) */
-    vtss_srvl_debug_reg_header(pr, "REW:PORT");
+    vtss_srvl_debug_reg_header(ss, "REW:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_CFG(port), buf);
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_CFG(port), buf);
         VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_DLY1_CFG(port),
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_DLY1_CFG(port),
                             buf);
     }
     /* ANA_PORT:PTP (common to Serval1 and Ocelot) */
-    vtss_srvl_debug_reg_header(pr, "ANA:PORT");
+    vtss_srvl_debug_reg_header(ss, "ANA:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_CFG(port), buf);
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_CFG(port), buf);
         VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_DLY1_CFG(port),
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_DLY1_CFG(port),
                             buf);
         VTSS_SPRINTF(buf, "PTP_DLY2_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_PORT_PTP_DLY2_CFG(port),
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_DLY2_CFG(port),
                             buf);
     }
 
     /* ANA:: (common to Serval1 and Ocelot) */
-    vtss_srvl_debug_reg_header(pr, "ANA::PTP");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
+    vtss_srvl_debug_reg_header(ss, "ANA::PTP");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
                         "PTP_ID_HIGH");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
                         "PTP_ID_LOW");
 
     pr("\n");
@@ -1116,11 +1116,11 @@ static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_srvl_ts_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, srvl_debug_ts,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 static vtss_rc srvl_ts_domain_timeofday_get(vtss_state_t     *vtss_state,

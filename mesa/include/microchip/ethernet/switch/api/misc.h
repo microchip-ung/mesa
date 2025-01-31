@@ -194,6 +194,16 @@ mesa_rc mesa_debug_info_print(const mesa_inst_t              inst,
                               const mesa_debug_printf_t      prntf,
                               const mesa_debug_info_t *const info);
 
+// Print default information to buffer
+// prntf [IN]  Debug printf function.
+// info [IN]   Debug information
+// len [IN]    Buffer length
+// buf [OUT]   Ouput buffer
+mesa_rc mesa_debug_info_print_buf(const mesa_inst_t              inst,
+                                  const mesa_debug_info_t *const info,
+                                  const int                      len,
+                                  char                          *buf);
+
 /* - API protection functions -------------------------------------- */
 
 // API lock structure

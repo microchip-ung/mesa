@@ -756,13 +756,13 @@ static vtss_rc l26_qos_status_get(vtss_state_t      *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32            i, value, port;
     vtss_port_no_t port_no;
 
-    vtss_debug_print_header(pr, "QoS Storm Control");
+    vtss_debug_print_header(ss, "QoS Storm Control");
 
     L26_RD(VTSS_ANA_ANA_STORMLIMIT_BURST, &value);
     pr("Burst: %u\n", VTSS_X_ANA_ANA_STORMLIMIT_BURST_STORM_BURST(value));
@@ -776,7 +776,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Classification Config");
+    vtss_debug_print_header(ss, "QoS Port Classification Config");
 
     pr("Port PCP CLS DEI DPL TC_EN DC_EN\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -799,7 +799,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     pr("\n");
 
     vtss_debug_print_header(
-        pr, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
+        ss, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
 
     pr("Port QoS class (8*DEI+PCP)           DP level (8*DEI+PCP)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -832,7 +832,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Leaky Bucket and Scheduler Config");
+    vtss_debug_print_header(ss, "QoS Port Leaky Bucket and Scheduler Config");
 
     L26_RD(VTSS_SYS_SCH_LB_DWRR_FRM_ADJ, &value);
     pr("Frame Adjustment (gap value): %u bytes\n",
@@ -859,7 +859,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr,
+    vtss_debug_print_header(ss,
                             "QoS Port and Queue Shaper enable/disable Config");
 
     pr("Port P Q0-Q7    Ex Q0-Q7\n");
@@ -873,7 +873,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
         L26_RD(VTSS_SYS_SCH_SCH_SHAPING_CTRL(port), &value);
         queue_shaper = VTSS_X_SYS_SCH_SCH_SHAPING_CTRL_PRIO_SHAPING_ENA(value);
         queue_excess = VTSS_X_SYS_SCH_SCH_SHAPING_CTRL_PRIO_LB_EXS_ENA(value);
-        pr("%4u %u %u%u%u%u%u%u%u%u %u%u%u%u%u%u%u%u\n", port_no,
+        pr("%4u %u %u%u%u%u%u%u%u%u ", port_no,
            VTSS_BOOL(value & VTSS_F_SYS_SCH_SCH_SHAPING_CTRL_PORT_SHAPING_ENA),
            VTSS_BOOL(queue_shaper & VTSS_BIT(0)),
            VTSS_BOOL(queue_shaper & VTSS_BIT(1)),
@@ -882,8 +882,8 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
            VTSS_BOOL(queue_shaper & VTSS_BIT(4)),
            VTSS_BOOL(queue_shaper & VTSS_BIT(5)),
            VTSS_BOOL(queue_shaper & VTSS_BIT(6)),
-           VTSS_BOOL(queue_shaper & VTSS_BIT(7)),
-           VTSS_BOOL(queue_excess & VTSS_BIT(0)),
+           VTSS_BOOL(queue_shaper & VTSS_BIT(7)));
+        pr("%u%u%u%u%u%u%u%u\n", VTSS_BOOL(queue_excess & VTSS_BIT(0)),
            VTSS_BOOL(queue_excess & VTSS_BIT(1)),
            VTSS_BOOL(queue_excess & VTSS_BIT(2)),
            VTSS_BOOL(queue_excess & VTSS_BIT(3)),
@@ -894,7 +894,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr,
+    vtss_debug_print_header(ss,
                             "QoS Port and Queue Shaper Burst and Rate Config");
 
     pr("Port Queue Burst Rate\n");
@@ -922,7 +922,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Tag Remarking Config");
+    vtss_debug_print_header(ss, "QoS Port Tag Remarking Config");
 
     pr("Port Mode PCP DEI\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -941,7 +941,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Tag Remarking Map");
+    vtss_debug_print_header(ss, "QoS Port Tag Remarking Map");
 
     pr("Port PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -971,7 +971,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port DSCP Remarking Config");
+    vtss_debug_print_header(ss, "QoS Port DSCP Remarking Config");
 
     pr("Port I_Mode Trans E_Mode\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -990,7 +990,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS DSCP Config");
+    vtss_debug_print_header(ss, "QoS DSCP Config");
 
     pr("DSCP Trans CLS DPL Rewr Trust Remap_DP0 Remap_DP1\n");
     for (i = 0; i < 64; i++) {
@@ -1011,7 +1011,7 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS DSCP Classification from QoS Config");
+    vtss_debug_print_header(ss, "QoS DSCP Classification from QoS Config");
 
     pr("QoS DSCP_DP0 DSCP_DP1\n");
     for (i = 0; i < 8; i++) {
@@ -1024,22 +1024,22 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, pr, info));
-    VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, pr, info));
-    VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, pr, info));
+    VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, ss, info));
+    VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, ss, info));
+    VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, ss, info));
 
-    vtss_debug_print_header(pr, "QoS Port and Queue Policer");
+    vtss_debug_print_header(ss, "QoS Port and Queue Policer");
 
-    vtss_l26_debug_reg_header(pr, "Policer Config");
+    vtss_l26_debug_reg_header(ss, "Policer Config");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
         port = VTSS_CHIP_PORT(port_no);
-        vtss_l26_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_POL_CFG(port),
+        vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_POL_CFG(port),
                                 port, "POL_CFG");
-        vtss_l26_debug_reg_inst(vtss_state, pr,
+        vtss_l26_debug_reg_inst(vtss_state, ss,
                                 VTSS_SYS_POL_MISC_POL_FLOWC(port), port,
                                 "POL_FLOWC");
     }
@@ -1095,11 +1095,11 @@ static vtss_rc l26_debug_qos(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_l26_qos_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, l26_debug_qos,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

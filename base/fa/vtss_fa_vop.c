@@ -1661,17 +1661,17 @@ static vtss_rc fa_voi_conf_set(vtss_state_t                *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_COM(pr, name)                                                        \
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_VOP_##name),               \
+#define D_COM(ss, name)                                                        \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_VOP_##name),               \
                       "COMMON:" #name)
-#define D_COM_I(pr, name, i)                                                   \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
+#define D_COM_I(ss, name, i)                                                   \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
                            "COMMON:" #name)
-#define D_VOE_I(pr, name, i)                                                   \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
+#define D_VOE_I(ss, name, i)                                                   \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
                            "VOE:" #name)
-#define D_VOE_II(pr, name, i1, i2)                                             \
-    vtss_fa_debug_reg_inst(vtss_state, pr,                                     \
+#define D_VOE_II(ss, name, i1, i2)                                             \
+    vtss_fa_debug_reg_inst(vtss_state, ss,                                     \
                            REG_ADDR(VTSS_VOP_##name((i1), (i2))), (i2),        \
                            "VOE:" #name)
 #define DR_COM(name, v)                                                        \
@@ -1690,21 +1690,21 @@ static vtss_rc fa_voi_conf_set(vtss_state_t                *vtss_state,
     {                                                                          \
         REG_RD(VTSS_VOP_##name((i1), (i2)), &v);                               \
     }
-#define D_D_MIP_I(pr, name, i)                                                 \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_ANA_CL_##name(i)),    \
+#define D_D_MIP_I(ss, name, i)                                                 \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name(i)),    \
                            (i), "DOWN_MIP:" #name)
-#define D_U_MIP_I(pr, name, i)                                                 \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_REW_##name(i)), (i),  \
+#define D_U_MIP_I(ss, name, i)                                                 \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_REW_##name(i)), (i),  \
                            "UP_MIP:" #name)
-#define D_D_MIP_S(pr, name)                                                    \
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_ANA_CL_##name),            \
+#define D_D_MIP_S(ss, name)                                                    \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name),            \
                       "DOWN_MIP:" #name)
-#define D_U_MIP_S(pr, name)                                                    \
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_REW_##name),               \
+#define D_U_MIP_S(ss, name)                                                    \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_##name),               \
                       "UP_MIP:" #name)
 
 static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     u32 i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt,
@@ -1768,48 +1768,48 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
     }
 
     if (!info->has_action || vop) { /* VOP configuration must be printed */
-        vtss_fa_debug_reg_header(pr, "VOP");
-        D_COM(pr, VOP_CTRL);
-        D_COM(pr, CPU_EXTR_CFG);
-        D_COM(pr, CPU_EXTR_CFG_1);
-        D_COM(pr, CPU_EXTR_CFG_2);
-        D_COM(pr, CPU_EXTR_MPLS);
-        D_COM(pr, CPU_EXTR_L3);
-        D_COM(pr, VERSION_CTRL);
-        D_COM(pr, VERSION_CTRL_2);
-        D_COM(pr, VERSION_CTRL_3);
-        D_COM(pr, VERSION_CTRL_MPLS);
+        vtss_fa_debug_reg_header(ss, "VOP");
+        D_COM(ss, VOP_CTRL);
+        D_COM(ss, CPU_EXTR_CFG);
+        D_COM(ss, CPU_EXTR_CFG_1);
+        D_COM(ss, CPU_EXTR_CFG_2);
+        D_COM(ss, CPU_EXTR_MPLS);
+        D_COM(ss, CPU_EXTR_L3);
+        D_COM(ss, VERSION_CTRL);
+        D_COM(ss, VERSION_CTRL_2);
+        D_COM(ss, VERSION_CTRL_3);
+        D_COM(ss, VERSION_CTRL_MPLS);
         for (i = 0; i < 8; ++i) {
-            D_COM_I(pr, OAM_GENERIC_CFG, i);
+            D_COM_I(ss, OAM_GENERIC_CFG, i);
         }
         for (i = 0; i < 8; ++i) {
-            D_COM_I(pr, MPLS_GENERIC_CODEPOINT, i);
+            D_COM_I(ss, MPLS_GENERIC_CODEPOINT, i);
         }
-        D_COM(pr, LOC_CTRL);
+        D_COM(ss, LOC_CTRL);
         for (i = 0; i < 7; ++i) {
-            D_COM_I(pr, LOC_PERIOD_CFG, i);
+            D_COM_I(ss, LOC_PERIOD_CFG, i);
         }
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, HMO_PERIOD_CFG, i);
+            D_COM_I(ss, HMO_PERIOD_CFG, i);
         }
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, HMO_FORCE_SLOT_CFG, i);
+            D_COM_I(ss, HMO_FORCE_SLOT_CFG, i);
         }
-        D_COM(pr, HMO_TIMER_CFG);
-        D_COM(pr, LOC_SCAN_STICKY);
-        D_COM(pr, MASTER_INTR_CTRL);
+        D_COM(ss, HMO_TIMER_CFG);
+        D_COM(ss, LOC_SCAN_STICKY);
+        D_COM(ss, MASTER_INTR_CTRL);
 #if defined(VTSS_ARCH_SPARX5)
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, VOE32_INTR, i);
+            D_COM_I(ss, VOE32_INTR, i);
         }
 #else
-        D_COM(pr, VOE32_INTR);
+        D_COM(ss, VOE32_INTR);
 #endif
         for (i = 0; i < (FA_TGT ? 7 : 2); ++i) {
-            D_COM_I(pr, INTR, i);
+            D_COM_I(ss, INTR, i);
         }
-        D_COM(pr, COMMON_MEP_MC_MAC_LSB);
-        D_COM(pr, COMMON_MEP_MC_MAC_MSB);
+        D_COM(ss, COMMON_MEP_MC_MAC_LSB);
+        D_COM(ss, COMMON_MEP_MC_MAC_MSB);
         pr("\n");
     } /* Print VOP configurations */
 
@@ -1824,41 +1824,41 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             DR_VOE_I(VOE_CTRL, i, w);
             if (info->full || (v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) {
                 VTSS_SPRINTF(buf, "VOE_CONF %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                D_VOE_I(pr, VOE_MISC_CONFIG, i);
-                D_VOE_I(pr, VOE_COMMON_CFG, i);
-                D_VOE_I(pr, VOE_CTRL, i);
-                D_VOE_I(pr, VOE_MEPID_CFG, i);
-                D_VOE_I(pr, PEER_MEPID_CFG, i);
-                D_VOE_I(pr, SAM_COSID_SEQ_CFG, i);
-                D_VOE_I(pr, SAM_NON_OAM_SEQ_CFG, i);
-                D_VOE_I(pr, OAM_CPU_COPY_CTRL, i);
-                D_VOE_I(pr, OAM_CPU_COPY_CTRL_2, i);
-                D_VOE_I(pr, PDU_VOE_PASS, i);
-                D_VOE_I(pr, OAM_CNT_OAM_CTRL, i);
-                D_VOE_I(pr, OAM_CNT_DATA_CTRL, i);
-                D_VOE_I(pr, OAM_CNT_DATA_CTRL_2, i);
-                D_VOE_I(pr, MEP_UC_MAC_LSB, i);
-                D_VOE_I(pr, MEP_UC_MAC_MSB, i);
-                D_VOE_I(pr, OAM_HW_CTRL, i);
-                D_VOE_I(pr, LOOPBACK_ENA, i);
-                D_VOE_I(pr, LOOPBACK_CFG, i);
-                D_VOE_I(pr, TX_TRANSID_UPDATE, i);
-                D_VOE_I(pr, CCM_CFG, i);
+                vtss_fa_debug_reg_header(ss, buf);
+                D_VOE_I(ss, VOE_MISC_CONFIG, i);
+                D_VOE_I(ss, VOE_COMMON_CFG, i);
+                D_VOE_I(ss, VOE_CTRL, i);
+                D_VOE_I(ss, VOE_MEPID_CFG, i);
+                D_VOE_I(ss, PEER_MEPID_CFG, i);
+                D_VOE_I(ss, SAM_COSID_SEQ_CFG, i);
+                D_VOE_I(ss, SAM_NON_OAM_SEQ_CFG, i);
+                D_VOE_I(ss, OAM_CPU_COPY_CTRL, i);
+                D_VOE_I(ss, OAM_CPU_COPY_CTRL_2, i);
+                D_VOE_I(ss, PDU_VOE_PASS, i);
+                D_VOE_I(ss, OAM_CNT_OAM_CTRL, i);
+                D_VOE_I(ss, OAM_CNT_DATA_CTRL, i);
+                D_VOE_I(ss, OAM_CNT_DATA_CTRL_2, i);
+                D_VOE_I(ss, MEP_UC_MAC_LSB, i);
+                D_VOE_I(ss, MEP_UC_MAC_MSB, i);
+                D_VOE_I(ss, OAM_HW_CTRL, i);
+                D_VOE_I(ss, LOOPBACK_ENA, i);
+                D_VOE_I(ss, LOOPBACK_CFG, i);
+                D_VOE_I(ss, TX_TRANSID_UPDATE, i);
+                D_VOE_I(ss, CCM_CFG, i);
                 for (k = 0; k < 12; ++k) {
-                    D_VOE_II(pr, CCM_MEGID_CFG, i, k);
+                    D_VOE_II(ss, CCM_MEGID_CFG, i, k);
                 }
-                D_VOE_I(pr, SLM_CONFIG, i);
-                D_VOE_I(pr, SLM_TEST_ID, i);
+                D_VOE_I(ss, SLM_CONFIG, i);
+                D_VOE_I(ss, SLM_TEST_ID, i);
                 for (k = 0; k < 8; ++k) {
-                    D_VOE_II(pr, SLM_PEER_LIST, i, k);
+                    D_VOE_II(ss, SLM_PEER_LIST, i, k);
                 }
                 if (w & VTSS_M_VOP_VOE_CTRL_G_8113_1_ENA) {
-                    D_VOE_I(pr, G_8113_1_CFG, i);
-                    D_VOE_I(pr, G_8113_1_REMOTE_MIPID, i);
-                    D_VOE_I(pr, G_8113_1_REMOTE_MIPID1, i);
-                    D_VOE_I(pr, G_8113_1_REMOTE_MIPID2, i);
-                    D_VOE_I(pr, G_8113_1_REMOTE_MIPID3, i);
+                    D_VOE_I(ss, G_8113_1_CFG, i);
+                    D_VOE_I(ss, G_8113_1_REMOTE_MIPID, i);
+                    D_VOE_I(ss, G_8113_1_REMOTE_MIPID1, i);
+                    D_VOE_I(ss, G_8113_1_REMOTE_MIPID2, i);
+                    D_VOE_I(ss, G_8113_1_REMOTE_MIPID3, i);
                 }
             }
         }
@@ -1875,43 +1875,43 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
             if (info->full || (v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) {
                 VTSS_SPRINTF(buf, "VOE_STAT %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                D_VOE_I(pr, RX_SEL_OAM_CNT, i);
-                D_VOE_I(pr, RX_OAM_FRM_CNT, i);
-                D_VOE_I(pr, TX_SEL_OAM_CNT, i);
-                D_VOE_I(pr, TX_OAM_FRM_CNT, i);
-                D_VOE_I(pr, CCM_RX_FRM_CNT, i);
-                D_VOE_I(pr, CCM_TX_SEQ_CFG, i);
-                D_VOE_I(pr, CCM_RX_SEQ_CFG, i);
-                D_VOE_I(pr, CCM_RX_WARNING, i);
-                D_VOE_I(pr, CCM_ERR, i);
-                D_VOE_I(pr, CCM_RX_ERR_1, i);
-                D_VOE_I(pr, LBM_TX_TRANSID_CFG, i);
-                D_VOE_I(pr, LBR_TX_FRM_CNT, i);
-                D_VOE_I(pr, LBR_RX_TRANSID_CFG, i);
-                D_VOE_I(pr, LBR_RX_FRM_CNT, i);
-                D_VOE_I(pr, LBR_RX_TRANSID_ERR_CNT, i);
-                D_VOE_I(pr, DM_PDU_CNT, i);
-                D_VOE_I(pr, LM_PDU_CNT, i);
-                D_VOE_I(pr, TX_OAM_DISCARD, i);
-                D_VOE_I(pr, RX_OAM_DISCARD, i);
-                D_VOE_I(pr, PDU_EXTRACT, i);
-                D_VOE_I(pr, AUTO_HIT_ME_ONCE, i);
-                D_VOE_I(pr, SYNLM_EXTRACT, i);
-                D_VOE_I(pr, OAM_TX_STICKY, i);
-                D_VOE_I(pr, OAM_RX_STICKY, i);
-                D_VOE_I(pr, OAM_RX_STICKY2, i);
-                D_VOE_I(pr, CCM_STAT, i);
-                D_VOE_I(pr, CCM_STAT_2, i);
-                D_VOE_I(pr, CCM_RX_LAST, i);
-                D_VOE_I(pr, INTR_STICKY, i);
-                D_VOE_I(pr, INTR_ENA, i);
-                D_VOE_I(pr, SLM_TX_FRM_CNT, i);
-                D_VOE_I(pr, TX_OAM_DISCARD, i);
-                D_VOE_I(pr, RX_OAM_DISCARD, i);
-                D_VOE_I(pr, CCM_TX_FCB_CFG, i);
-                D_VOE_I(pr, CCM_RX_FCB_CFG, i);
-                D_VOE_I(pr, LBR_CRC_ERR_CNT, i);
+                vtss_fa_debug_reg_header(ss, buf);
+                D_VOE_I(ss, RX_SEL_OAM_CNT, i);
+                D_VOE_I(ss, RX_OAM_FRM_CNT, i);
+                D_VOE_I(ss, TX_SEL_OAM_CNT, i);
+                D_VOE_I(ss, TX_OAM_FRM_CNT, i);
+                D_VOE_I(ss, CCM_RX_FRM_CNT, i);
+                D_VOE_I(ss, CCM_TX_SEQ_CFG, i);
+                D_VOE_I(ss, CCM_RX_SEQ_CFG, i);
+                D_VOE_I(ss, CCM_RX_WARNING, i);
+                D_VOE_I(ss, CCM_ERR, i);
+                D_VOE_I(ss, CCM_RX_ERR_1, i);
+                D_VOE_I(ss, LBM_TX_TRANSID_CFG, i);
+                D_VOE_I(ss, LBR_TX_FRM_CNT, i);
+                D_VOE_I(ss, LBR_RX_TRANSID_CFG, i);
+                D_VOE_I(ss, LBR_RX_FRM_CNT, i);
+                D_VOE_I(ss, LBR_RX_TRANSID_ERR_CNT, i);
+                D_VOE_I(ss, DM_PDU_CNT, i);
+                D_VOE_I(ss, LM_PDU_CNT, i);
+                D_VOE_I(ss, TX_OAM_DISCARD, i);
+                D_VOE_I(ss, RX_OAM_DISCARD, i);
+                D_VOE_I(ss, PDU_EXTRACT, i);
+                D_VOE_I(ss, AUTO_HIT_ME_ONCE, i);
+                D_VOE_I(ss, SYNLM_EXTRACT, i);
+                D_VOE_I(ss, OAM_TX_STICKY, i);
+                D_VOE_I(ss, OAM_RX_STICKY, i);
+                D_VOE_I(ss, OAM_RX_STICKY2, i);
+                D_VOE_I(ss, CCM_STAT, i);
+                D_VOE_I(ss, CCM_STAT_2, i);
+                D_VOE_I(ss, CCM_RX_LAST, i);
+                D_VOE_I(ss, INTR_STICKY, i);
+                D_VOE_I(ss, INTR_ENA, i);
+                D_VOE_I(ss, SLM_TX_FRM_CNT, i);
+                D_VOE_I(ss, TX_OAM_DISCARD, i);
+                D_VOE_I(ss, RX_OAM_DISCARD, i);
+                D_VOE_I(ss, CCM_TX_FCB_CFG, i);
+                D_VOE_I(ss, CCM_RX_FCB_CFG, i);
+                D_VOE_I(ss, LBR_CRC_ERR_CNT, i);
             }
         }
         pr("\n");
@@ -2019,12 +2019,12 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                D_D_MIP_I(pr, MIP_CFG, i);
-                D_D_MIP_I(pr, CCM_HMO_CTRL, i);
-                D_D_MIP_I(pr, MIP_CL_VID_CTRL, i);
-                D_D_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_D_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_fa_debug_reg_header(ss, buf);
+                D_D_MIP_I(ss, MIP_CFG, i);
+                D_D_MIP_I(ss, CCM_HMO_CTRL, i);
+                D_D_MIP_I(ss, MIP_CL_VID_CTRL, i);
+                D_D_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_D_MIP_I(ss, LBM_MAC_LOW, i);
             }
         }
     }
@@ -2043,36 +2043,36 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                D_U_MIP_I(pr, MIP_CFG, i);
-                D_U_MIP_I(pr, CCM_HMO_CTRL, i);
-                D_U_MIP_I(pr, MIP_VID_CTRL, i);
-                D_U_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_U_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_fa_debug_reg_header(ss, buf);
+                D_U_MIP_I(ss, MIP_CFG, i);
+                D_U_MIP_I(ss, CCM_HMO_CTRL, i);
+                D_U_MIP_I(ss, MIP_VID_CTRL, i);
+                D_U_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_U_MIP_I(ss, LBM_MAC_LOW, i);
             }
         }
     }
 
     if (!info->has_action || mip_status) { /* MIP status must be printed */
         VTSS_SPRINTF(buf, "DOWN_MIP_STAT");
-        vtss_fa_debug_reg_header(pr, buf);
-        D_D_MIP_S(pr, MIP_STICKY);
+        vtss_fa_debug_reg_header(ss, buf);
+        D_D_MIP_S(ss, MIP_STICKY);
         pr("\n");
 
         VTSS_SPRINTF(buf, "UP_MIP_STAT");
-        vtss_fa_debug_reg_header(pr, buf);
-        D_U_MIP_S(pr, MIP_STICKY_EVENT);
+        vtss_fa_debug_reg_header(ss, buf);
+        D_U_MIP_S(ss, MIP_STICKY_EVENT);
     }
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_fa_vop_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, fa_debug_vop,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 #undef D_COM

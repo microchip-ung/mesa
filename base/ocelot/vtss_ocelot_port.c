@@ -2968,9 +2968,7 @@ static vtss_rc srvl_port_buf_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-static void srvl_debug_fld_nl(const vtss_debug_printf_t pr,
-                              const char               *name,
-                              u32                       value)
+static void srvl_debug_fld_nl(lmu_ss_t *ss, const char *name, u32 value)
 {
     pr("%-20s: %u\n", name, value);
 }
@@ -2979,98 +2977,98 @@ static void srvl_debug_fld_nl(const vtss_debug_printf_t pr,
 #define SRVL_GET_BIT(tgt, addr, fld, value)                                    \
     (VTSS_F_##tgt##_##addr##_##fld & (value) ? 1 : 0)
 
-#define SRVL_DEBUG_HSIO(pr, addr, name)                                        \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_HSIO_##addr, name)
-#define SRVL_DEBUG_MAC(pr, addr, i, name)                                      \
-    vtss_srvl_debug_reg_inst(vtss_state, pr,                                   \
+#define SRVL_DEBUG_HSIO(ss, addr, name)                                        \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_HSIO_##addr, name)
+#define SRVL_DEBUG_MAC(ss, addr, i, name)                                      \
+    vtss_srvl_debug_reg_inst(vtss_state, ss,                                   \
                              VTSS_DEV_MAC_CFG_STATUS_MAC_##addr, i,            \
                              "MAC_" name)
-#define SRVL_DEBUG_PCS(pr, addr, i, name)                                      \
-    vtss_srvl_debug_reg_inst(vtss_state, pr,                                   \
+#define SRVL_DEBUG_PCS(ss, addr, i, name)                                      \
+    vtss_srvl_debug_reg_inst(vtss_state, ss,                                   \
                              VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_##addr, i,        \
                              "PCS_" name)
 
-#define SRVL_DEBUG_HSIO_BIT(pr, addr, fld, value)                              \
-    srvl_debug_fld_nl(pr, #fld, SRVL_GET_BIT(HSIO, addr, fld, x))
-#define SRVL_DEBUG_HSIO_FLD(pr, addr, fld, value)                              \
-    srvl_debug_fld_nl(pr, #fld, SRVL_GET_FLD(HSIO, addr, fld, x))
-#define SRVL_DEBUG_RAW(pr, offset, length, value, name)                        \
-    srvl_debug_fld_nl(pr, name, VTSS_EXTRACT_BITFIELD(value, offset, length))
+#define SRVL_DEBUG_HSIO_BIT(ss, addr, fld, value)                              \
+    srvl_debug_fld_nl(ss, #fld, SRVL_GET_BIT(HSIO, addr, fld, x))
+#define SRVL_DEBUG_HSIO_FLD(ss, addr, fld, value)                              \
+    srvl_debug_fld_nl(ss, #fld, SRVL_GET_FLD(HSIO, addr, fld, x))
+#define SRVL_DEBUG_RAW(ss, offset, length, value, name)                        \
+    srvl_debug_fld_nl(ss, name, VTSS_EXTRACT_BITFIELD(value, offset, length))
 
-static vtss_rc srvl_debug_serdes6g(vtss_state_t             *vtss_state,
-                                   const vtss_debug_printf_t pr,
-                                   u32                       inst,
-                                   const char               *buf)
+static vtss_rc srvl_debug_serdes6g(vtss_state_t *vtss_state,
+                                   lmu_ss_t     *ss,
+                                   u32           inst,
+                                   const char   *buf)
 {
     u32 x;
 
-    vtss_srvl_debug_reg_header(pr, buf);
+    vtss_srvl_debug_reg_header(ss, buf);
     VTSS_RC(srvl_sd6g_lock(vtss_state));
     VTSS_RC(srvl_sd6g_read(vtss_state, 1 << inst));
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, "COMMON_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS, "PLL_STATUS");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DIG_CFG, "DIG_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG0, "DFT_CFG0");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG1, "DFT_CFG1");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG2, "DFT_CFG2");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_TP_CFG0, "TP_CFG0");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_TP_CFG1, "TP_CFG1");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_MISC_CFG, "MISC_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_CFG_SERDES6G_OB_ANEG_CFG, "OB_ANEG_CFG");
-    SRVL_DEBUG_HSIO(pr, SERDES6G_DIG_STATUS_SERDES6G_DFT_STATUS, "DFT_STATUS");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, "COMMON_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS, "PLL_STATUS");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DIG_CFG, "DIG_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG0, "DFT_CFG0");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG1, "DFT_CFG1");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_DFT_CFG2, "DFT_CFG2");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_TP_CFG0, "TP_CFG0");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_TP_CFG1, "TP_CFG1");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_MISC_CFG, "MISC_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_CFG_SERDES6G_OB_ANEG_CFG, "OB_ANEG_CFG");
+    SRVL_DEBUG_HSIO(ss, SERDES6G_DIG_STATUS_SERDES6G_DFT_STATUS, "DFT_STATUS");
 
     pr("\n%s:OB_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG, &x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_ENA1V_MODE, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_POL, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_POST0, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_PREC, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_SR_H, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_SR, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_ENA1V_MODE, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_POL, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_POST0, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_PREC, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_SR_H, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, OB_SR, x);
 
     pr("\n%s:OB_CFG1:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, &x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, OB_ENA_CAS, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, OB_LEV, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, OB_ENA_CAS, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, OB_LEV, x);
 
     pr("\n%s:DES_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_DES_CFG, &x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_MBTR_CTRL,
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_MBTR_CTRL,
                         x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_CPMD_SEL, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_BW_ANA, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_CPMD_SEL, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, DES_BW_ANA, x);
 
     pr("\n%s:IB_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG, &x);
 
     pr("\n%s:SER_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_SER_CFG, &x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, SER_ENALI, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, SER_ENALI, x);
 
     pr("\n%s:PLL_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, &x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_DIV4, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ENA_ROT, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG,
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_DIV4, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ENA_ROT, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG,
                         PLL_FSM_CTRL_DATA, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_FSM_ENA, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ROT_DIR, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ROT_FRQ, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_FSM_ENA, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ROT_DIR, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, PLL_ROT_FRQ, x);
 
     pr("\n%s:COMMON_CFG:\n", buf);
     SRVL_RD(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, &x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, ENA_LANE, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, HRATE, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, QRATE, x);
-    SRVL_DEBUG_HSIO_FLD(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, IF_MODE, x);
-    SRVL_DEBUG_HSIO_BIT(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, ENA_LANE, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, HRATE, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, QRATE, x);
+    SRVL_DEBUG_HSIO_FLD(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, IF_MODE, x);
+    SRVL_DEBUG_HSIO_BIT(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
                         SE_AUTO_SQUELCH_ENA, x);
     VTSS_RC(srvl_sd6g_unlock(vtss_state));
 
@@ -3078,7 +3076,7 @@ static vtss_rc srvl_debug_serdes6g(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc srvl_debug_port(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     u32            port, tgt;
@@ -3093,28 +3091,28 @@ static vtss_rc srvl_debug_port(vtss_state_t                  *vtss_state,
             continue;
 
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_srvl_debug_reg_header(pr, buf);
+        vtss_srvl_debug_reg_header(ss, buf);
         tgt = VTSS_TO_DEV(port);
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_DEV_PORT_MODE_CLOCK_CFG(tgt), port,
                                  "CLOCK_CFG");
-        SRVL_DEBUG_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
-        SRVL_DEBUG_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        SRVL_DEBUG_MAC(pr, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
-        SRVL_DEBUG_MAC(pr, TAGS_CFG(tgt), port, "TAGS_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        SRVL_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
+        SRVL_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        SRVL_DEBUG_MAC(ss, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
+        SRVL_DEBUG_MAC(ss, TAGS_CFG(tgt), port, "TAGS_CFG");
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_SYS_PAUSE_CFG_MAC_FC_CFG(port), port,
                                  "FC_CFG");
-        SRVL_DEBUG_PCS(pr, CFG(tgt), port, "CFG");
-        SRVL_DEBUG_PCS(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        SRVL_DEBUG_PCS(pr, SD_CFG(tgt), port, "SD_CFG");
-        SRVL_DEBUG_PCS(pr, ANEG_CFG(tgt), port, "ANEG_CFG");
-        SRVL_DEBUG_PCS(pr, ANEG_STATUS(tgt), port, "ANEG_STATUS");
-        SRVL_DEBUG_PCS(pr, LINK_STATUS(tgt), port, "LINK_STATUS");
+        SRVL_DEBUG_PCS(ss, CFG(tgt), port, "CFG");
+        SRVL_DEBUG_PCS(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        SRVL_DEBUG_PCS(ss, SD_CFG(tgt), port, "SD_CFG");
+        SRVL_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
+        SRVL_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
+        SRVL_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
         vtss_srvl_debug_reg_inst(
-            vtss_state, pr, VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
+            vtss_state, ss, VTSS_DEV_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
             port, "PCS_FX100_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_DEV_PCS_FX100_STATUS_PCS_FX100_STATUS(tgt),
                                  port, "FX100_STATUS");
         pr("\n");
@@ -3130,63 +3128,63 @@ static vtss_rc srvl_debug_port(vtss_state_t                  *vtss_state,
 
         if (serdes6g) {
             VTSS_SPRINTF(buf, "SerDes6G_%u", inst);
-            (void)srvl_debug_serdes6g(vtss_state, pr, inst, buf);
+            (void)srvl_debug_serdes6g(vtss_state, ss, inst, buf);
         } else {
             VTSS_SPRINTF(buf, "SerDes1G_%u", inst);
-            vtss_srvl_debug_reg_header(pr, buf);
+            vtss_srvl_debug_reg_header(ss, buf);
             VTSS_RC(srvl_sd1g_read(vtss_state, 1 << inst));
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                             "COMMON_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
                             "PLL_STATUS");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
-            SRVL_DEBUG_HSIO(pr, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
+            SRVL_DEBUG_HSIO(ss, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
                             "DFT_STATUS");
 
             pr("\n%s:IB_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_IB_CFG, &x);
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
                                 IB_DET_LEV, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
+            SRVL_DEBUG_HSIO_BIT(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
                                 IB_ENA_DC_COUPLING, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
+            SRVL_DEBUG_HSIO_BIT(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG,
                                 IB_ENA_DETLEV, x);
 
             pr("\n%s:DES_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_DES_CFG, &x);
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
                                 DES_MBTR_CTRL, x);
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
                                 DES_CPMD_SEL, x);
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG,
                                 DES_BW_ANA, x);
 
             pr("\n%s:OB_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_OB_CFG, &x);
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_OB_CFG,
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_OB_CFG,
                                 OB_AMP_CTRL, x);
 
             pr("\n%s:COMMON_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, &x);
-            SRVL_DEBUG_RAW(pr, 7, 1, x, "HRATE");
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
+            SRVL_DEBUG_RAW(ss, 7, 1, x, "HRATE");
+            SRVL_DEBUG_HSIO_BIT(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                                 ENA_LANE, x);
-            SRVL_DEBUG_HSIO_BIT(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
+            SRVL_DEBUG_HSIO_BIT(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                                 SE_AUTO_SQUELCH_ENA, x);
 
             pr("\n%s:PLL_CFG:\n", buf);
             SRVL_RD(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, &x);
-            SRVL_DEBUG_RAW(pr, 21, 1, x, "PLL_FSM_RC_DIV2");
-            SRVL_DEBUG_HSIO_FLD(pr, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG,
+            SRVL_DEBUG_RAW(ss, 21, 1, x, "PLL_FSM_RC_DIV2");
+            SRVL_DEBUG_HSIO_FLD(ss, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG,
                                 PLL_FSM_CTRL_DATA, x);
         }
         pr("\n");
@@ -3196,28 +3194,28 @@ static vtss_rc srvl_debug_port(vtss_state_t                  *vtss_state,
     if (vtss_state->sys_config.using_pcie) {
         inst = 2; /* Serdes2 == PCIe */
         VTSS_SPRINTF(buf, "SerDes6G_%u (PCIe)", inst);
-        (void)srvl_debug_serdes6g(vtss_state, pr, inst, buf);
+        (void)srvl_debug_serdes6g(vtss_state, ss, inst, buf);
     }
 
     return VTSS_RC_OK;
 }
 
-static void srvl_debug_cnt_inst(const vtss_debug_printf_t pr,
-                                u32                       i,
-                                const char               *col1,
-                                const char               *col2,
-                                vtss_chip_counter_t      *c1,
-                                vtss_chip_counter_t      *c2)
+static void srvl_debug_cnt_inst(lmu_ss_t            *ss,
+                                u32                  i,
+                                const char          *col1,
+                                const char          *col2,
+                                vtss_chip_counter_t *c1,
+                                vtss_chip_counter_t *c2)
 {
     char buf1[80], buf2[80];
 
     VTSS_SPRINTF(buf1, "%s_%u", col1 && strlen(col1) ? col1 : col2, i);
     VTSS_SPRINTF(buf2, "%s_%u", col2 && strlen(col2) ? col2 : col1, i);
-    vtss_srvl_debug_cnt(pr, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
+    vtss_srvl_debug_cnt(ss, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
 }
 
 static vtss_rc srvl_debug_port_cnt(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
@@ -3268,66 +3266,66 @@ static vtss_rc srvl_debug_port_cnt(vtss_state_t                  *vtss_state,
         } else {
             pr("Counters for port: %u (chip_port %u):\n\n", port_no, port);
             if (info->full || info->action != 3) {
-                vtss_srvl_debug_cnt(pr, "oct", "", &cnt->rx_octets,
+                vtss_srvl_debug_cnt(ss, "oct", "", &cnt->rx_octets,
                                     &cnt->tx_octets);
-                vtss_srvl_debug_cnt(pr, "uc", "", &cnt->rx_unicast,
+                vtss_srvl_debug_cnt(ss, "uc", "", &cnt->rx_unicast,
                                     &cnt->tx_unicast);
-                vtss_srvl_debug_cnt(pr, "mc", "", &cnt->rx_multicast,
+                vtss_srvl_debug_cnt(ss, "mc", "", &cnt->rx_multicast,
                                     &cnt->tx_multicast);
-                vtss_srvl_debug_cnt(pr, "bc", "", &cnt->rx_broadcast,
+                vtss_srvl_debug_cnt(ss, "bc", "", &cnt->rx_broadcast,
                                     &cnt->tx_broadcast);
             }
 
             /* Detailed MAC Ccounters */
             if (info->full || info->action == 2) {
-                vtss_srvl_debug_cnt(pr, "pause", "", &cnt->rx_pause,
+                vtss_srvl_debug_cnt(ss, "pause", "", &cnt->rx_pause,
                                     &cnt->tx_pause);
-                vtss_srvl_debug_cnt(pr, "64", "", &cnt->rx_64, &cnt->tx_64);
-                vtss_srvl_debug_cnt(pr, "65_127", "", &cnt->rx_65_127,
+                vtss_srvl_debug_cnt(ss, "64", "", &cnt->rx_64, &cnt->tx_64);
+                vtss_srvl_debug_cnt(ss, "65_127", "", &cnt->rx_65_127,
                                     &cnt->tx_65_127);
-                vtss_srvl_debug_cnt(pr, "128_255", "", &cnt->rx_128_255,
+                vtss_srvl_debug_cnt(ss, "128_255", "", &cnt->rx_128_255,
                                     &cnt->tx_128_255);
-                vtss_srvl_debug_cnt(pr, "256_511", "", &cnt->rx_256_511,
+                vtss_srvl_debug_cnt(ss, "256_511", "", &cnt->rx_256_511,
                                     &cnt->tx_256_511);
-                vtss_srvl_debug_cnt(pr, "512_1023", "", &cnt->rx_512_1023,
+                vtss_srvl_debug_cnt(ss, "512_1023", "", &cnt->rx_512_1023,
                                     &cnt->tx_512_1023);
-                vtss_srvl_debug_cnt(pr, "1024_1526", "", &cnt->rx_1024_1526,
+                vtss_srvl_debug_cnt(ss, "1024_1526", "", &cnt->rx_1024_1526,
                                     &cnt->tx_1024_1526);
-                vtss_srvl_debug_cnt(pr, "jumbo", "", &cnt->rx_1527_max,
+                vtss_srvl_debug_cnt(ss, "jumbo", "", &cnt->rx_1527_max,
                                     &cnt->tx_1527_max);
-                vtss_srvl_debug_cnt(pr, "crc", NULL, &cnt->rx_crc_align_errors,
+                vtss_srvl_debug_cnt(ss, "crc", NULL, &cnt->rx_crc_align_errors,
                                     NULL);
-                vtss_srvl_debug_cnt(pr, "symbol", NULL, &cnt->rx_symbol_errors,
+                vtss_srvl_debug_cnt(ss, "symbol", NULL, &cnt->rx_symbol_errors,
                                     NULL);
-                vtss_srvl_debug_cnt(pr, "short", NULL, &cnt->rx_shorts, NULL);
-                vtss_srvl_debug_cnt(pr, "long", NULL, &cnt->rx_longs, NULL);
-                vtss_srvl_debug_cnt(pr, "frag", NULL, &cnt->rx_fragments, NULL);
-                vtss_srvl_debug_cnt(pr, "jabber", NULL, &cnt->rx_jabbers, NULL);
-                vtss_srvl_debug_cnt(pr, "control", NULL, &cnt->rx_control,
+                vtss_srvl_debug_cnt(ss, "short", NULL, &cnt->rx_shorts, NULL);
+                vtss_srvl_debug_cnt(ss, "long", NULL, &cnt->rx_longs, NULL);
+                vtss_srvl_debug_cnt(ss, "frag", NULL, &cnt->rx_fragments, NULL);
+                vtss_srvl_debug_cnt(ss, "jabber", NULL, &cnt->rx_jabbers, NULL);
+                vtss_srvl_debug_cnt(ss, "control", NULL, &cnt->rx_control,
                                     NULL);
             }
         }
 
         if (info->full || info->action == 1 || info->action == 3) {
             /* Queue system counters */
-            vtss_srvl_debug_cnt(pr, "cat_drop", cpu_port ? NULL : "drops",
+            vtss_srvl_debug_cnt(ss, "cat_drop", cpu_port ? NULL : "drops",
                                 &cnt->rx_classified_drops, &cnt->tx_drops);
-            vtss_srvl_debug_cnt(pr, "dr_local", cpu_port ? NULL : "aged",
+            vtss_srvl_debug_cnt(ss, "dr_local", cpu_port ? NULL : "aged",
                                 &cnt->dr_local, &cnt->tx_aging);
-            vtss_srvl_debug_cnt(pr, "dr_tail", NULL, &cnt->dr_tail, NULL);
+            vtss_srvl_debug_cnt(ss, "dr_tail", NULL, &cnt->dr_tail, NULL);
             for (i = 0; i < VTSS_PRIOS; i++)
-                srvl_debug_cnt_inst(pr, i, "green", "", &cnt->rx_green_class[i],
+                srvl_debug_cnt_inst(ss, i, "green", "", &cnt->rx_green_class[i],
                                     &cnt->tx_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                srvl_debug_cnt_inst(pr, i, "yellow", "",
+                srvl_debug_cnt_inst(ss, i, "yellow", "",
                                     &cnt->rx_yellow_class[i],
                                     &cnt->tx_yellow_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                srvl_debug_cnt_inst(pr, i, "red", "dr_green",
+                srvl_debug_cnt_inst(ss, i, "red", "dr_green",
                                     &cnt->rx_red_class[i],
                                     &cnt->dr_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                srvl_debug_cnt_inst(pr, i, NULL, "dr_yellow", NULL,
+                srvl_debug_cnt_inst(ss, i, NULL, "dr_yellow", NULL,
                                     &cnt->dr_yellow_class[i]);
         }
         pr("\n");
@@ -3335,11 +3333,11 @@ static vtss_rc srvl_debug_port_cnt(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void srvl_debug_wm_dump(const vtss_debug_printf_t pr,
-                               const char               *reg_name,
-                               u32                      *value,
-                               u32                       i,
-                               u32                       multiplier)
+static void srvl_debug_wm_dump(lmu_ss_t   *ss,
+                               const char *reg_name,
+                               u32        *value,
+                               u32         i,
+                               u32         multiplier)
 {
     u32 q;
     pr("%-26s", reg_name);
@@ -3350,7 +3348,7 @@ static void srvl_debug_wm_dump(const vtss_debug_printf_t pr,
 }
 
 static vtss_rc srvl_debug_wm(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 
 {
@@ -3469,13 +3467,13 @@ static vtss_rc srvl_debug_wm(vtss_state_t                  *vtss_state,
                     &val4[q]);
         }
 
-        srvl_debug_wm_dump(pr, "Queue level rsrv WMs:", id, 8, 1);
-        srvl_debug_wm_dump(pr, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8,
+        srvl_debug_wm_dump(ss, "Queue level rsrv WMs:", id, 8, 1);
+        srvl_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", val1, 8,
                            SRVL_BUFFER_CELL_SZ);
-        srvl_debug_wm_dump(pr, "Qu Ingr Ref Rsrv (Frames):", val2, 8, 1);
-        srvl_debug_wm_dump(pr, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8,
+        srvl_debug_wm_dump(ss, "Qu Ingr Ref Rsrv (Frames):", val2, 8, 1);
+        srvl_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", val3, 8,
                            SRVL_BUFFER_CELL_SZ);
-        srvl_debug_wm_dump(pr, "Qu Egr Ref Rsrv  (Frames):", val4, 8, 1);
+        srvl_debug_wm_dump(ss, "Qu Egr Ref Rsrv  (Frames):", val4, 8, 1);
         pr("\n");
 
         /* Configure reserved space for port */
@@ -3505,14 +3503,14 @@ static vtss_rc srvl_debug_wm(vtss_state_t                  *vtss_state,
         SRVL_RD(VTSS_QSYS_RES_CTRL_RES_CFG((q + 216 + 768)), &val4[q]);
         val5[q] = (value & VTSS_BIT(q)) ? 1 : 0;
     }
-    srvl_debug_wm_dump(pr, "QoS level:", id, 8, 1);
-    srvl_debug_wm_dump(pr, "QoS Ingr Buf (Bytes) :", val1, 8,
+    srvl_debug_wm_dump(ss, "QoS level:", id, 8, 1);
+    srvl_debug_wm_dump(ss, "QoS Ingr Buf (Bytes) :", val1, 8,
                        SRVL_BUFFER_CELL_SZ);
-    srvl_debug_wm_dump(pr, "QoS Ingr Ref (Frames):", val2, 8, 1);
-    srvl_debug_wm_dump(pr, "QoS Egr Buf  (Bytes) :", val3, 8,
+    srvl_debug_wm_dump(ss, "QoS Ingr Ref (Frames):", val2, 8, 1);
+    srvl_debug_wm_dump(ss, "QoS Egr Buf  (Bytes) :", val3, 8,
                        SRVL_BUFFER_CELL_SZ);
-    srvl_debug_wm_dump(pr, "QoS Egr Ref  (Frames):", val4, 8, 1);
-    srvl_debug_wm_dump(pr, "QoS Reservation Mode :", val5, 8, 1);
+    srvl_debug_wm_dump(ss, "QoS Egr Ref  (Frames):", val4, 8, 1);
+    srvl_debug_wm_dump(ss, "QoS Reservation Mode :", val5, 8, 1);
     pr("\n");
 
     pr("Color level:\n");
@@ -3577,15 +3575,15 @@ static vtss_rc srvl_debug_wm(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_srvl_port_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, srvl_debug_port,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   srvl_debug_port_cnt, vtss_state, pr, info));
+                                   srvl_debug_port_cnt, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, srvl_debug_wm,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 

@@ -1441,7 +1441,7 @@ vtss_rc vtss_cil_ts_conf_set(vtss_state_t               *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     u32            port;
@@ -1452,90 +1452,90 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
     /* REW:PORT */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_jr2_debug_reg_header(pr, buf);
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_MODE_CFG(port, 0),
+        vtss_jr2_debug_reg_header(ss, buf);
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_MODE_CFG(port, 0),
                            "PTP_MODE_CFG[0]");
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_MODE_CFG(port, 1),
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_MODE_CFG(port, 1),
                            "PTP_MODE_CFG[1]");
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_EDLY_CFG(port),
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_EDLY_CFG(port),
                            "PTP_EDLY_CFG");
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_IDLY1_CFG(port),
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_IDLY1_CFG(port),
                            "PTP_IDLY1_CFG");
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PORT_PTP_IDLY2_CFG(port),
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_IDLY2_CFG(port),
                            "PTP_IDLY2_CFG");
     }
 
     /* REW:PTP_CTRL */
-    vtss_jr2_debug_reg_header(pr, "REW:PTP_CTRL");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL,
+    vtss_jr2_debug_reg_header(ss, "REW:PTP_CTRL");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PTP_CTRL_PTP_TWOSTEP_CTRL,
                        "PTP_TWOSTEP_CTRL");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PTP_CTRL_PTP_TWOSTEP_STAMP,
                        "PTP_TWOSTEP_STAMP");
 
     /* DEVCPU_PTP:PTP_CFG */
-    vtss_jr2_debug_reg_header(pr, "DEVCPU_PTP:PTP_CFG");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG,
+    vtss_jr2_debug_reg_header(ss, "DEVCPU_PTP:PTP_CFG");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_MISC_CFG,
                        "PTP_MISC_CFG");
 
     /* ANA_ACL::PTP_MISC_CTRL */
-    vtss_jr2_debug_reg_header(pr, "ANA_ACL::PTP_MISC_CTRL");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_ACL_VCAP_S2_PTP_MISC_CTRL,
+    vtss_jr2_debug_reg_header(ss, "ANA_ACL::PTP_MISC_CTRL");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_ACL_VCAP_S2_PTP_MISC_CTRL,
                        "PTP_MISC_CTRL");
 
     for (idx = 0; idx <= 2; idx++) {
         VTSS_SPRINTF(buf, "CLK_ADJ_CFG[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_CFG(idx), buf);
     }
     for (idx = 0; idx <= 2; idx++) {
         VTSS_SPRINTF(buf, "CLK_ADJ_FRQ[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_FRQ(idx), buf);
     }
     for (idx = 0; idx <= 2; idx++) {
         VTSS_SPRINTF(buf, "DOM_PTP_CLOCK_ID_MSB[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_MSB(idx), buf);
         VTSS_SPRINTF(buf, "DOM_PTP_CLOCK_ID_LSB[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_LSB(idx), buf);
         VTSS_SPRINTF(buf, "DOM_PTP_SRC_PORT_CFG[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_ANA_ACL_PTP_DOM_PTP_SRC_PORT_CFG(idx), buf);
         VTSS_SPRINTF(buf, "PTP_DOM_PTP_MISC_CFG[%u]", idx);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_ANA_ACL_PTP_DOM_PTP_MISC_CFG(idx), buf);
     }
 
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR,
                        "PTP_PIN_INTR");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR_ENA,
                        "PTP_PIN_INTR_ENA");
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_DEVCPU_PTP_PTP_CFG_PTP_INTR_IDENT,
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_INTR_IDENT,
                        "PTP_PIN_INTR_IDENT");
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
         VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
-        vtss_jr2_debug_reg_header(pr, buf);
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg_header(ss, buf);
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(idx),
                            "PTP_PIN_CFG");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_MSB(idx),
                            "PTP_TOD_SEC_MSB");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_LSB(idx),
                            "PTP_TOD_SEC_LSB");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_NSEC(idx),
                            "PTP_TOD_NSEC");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_NSF(idx), "PTP_NSF");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_HIGH_PERIOD(idx),
                            "PIN_WF_HIGH_PERIOD");
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PIN_WF_LOW_PERIOD(idx),
                            "PIN_WF_LOW_PERIOD");
     }
@@ -1553,9 +1553,9 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
             VTSS_SPRINTF(buf, "DEV1G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             vtss_jr2_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_DEV1G_DEV_CFG_STATUS_PTP_CFG(VTSS_TO_DEV1G(port)),
                 "PTP_CFG");
             break;
@@ -1563,9 +1563,9 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
             VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             vtss_jr2_debug_reg(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_DEV10G_DEV_CFG_STATUS_PTP_CFG(VTSS_TO_DEV(port)),
                 "PTP_CFG");
             break;
@@ -1579,11 +1579,11 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_jr2_ts_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, jr2_debug_ts, vtss_state,
-                                  pr, info);
+                                  ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

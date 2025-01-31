@@ -2029,7 +2029,7 @@ static vtss_rc lan969x_mrp_event_get(vtss_state_t           *vtss_state,
 }
 
 static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32              i, v, div, mrp_idx;
@@ -2086,59 +2086,59 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full || VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
                 VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_header(ss, buf);
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_CTRL(i)), i,
                                        "MEP_MRP_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_FWD_CTRL(i)),
                                        i, "MEP_MRP_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_RING_MASK_CFG(i)),
                                        i, "MEP_RING_MASK_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ICON_MASK_CFG(i)),
                                        i, "MEP_ICON_MASK_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_FWD_CTRL(i)),
                                        i, "MEP_TST_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_CFG(i)), i,
                                        "MEP_TST_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_PRIO_CFG(i)),
                                        i, "MEP_TST_PRIO_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_FWD_CTRL(i)),
                                        i, "MEP_ITST_FWD_CTRL");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_CFG(i)), i,
                                        "MEP_ITST_CFG");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_MAC_LSB(i)), i,
                                        "MEP_MRP_MAC_LSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_MAC_MSB(i)), i,
                                        "MEP_MRP_MAC_MSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_BEST_MAC_LSB(i)),
                                        i, "BEST_MRP_MAC_LSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_BEST_MAC_MSB(i)),
                                        i, "BEST_MRP_MAC_MSB");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_INTR_ENA(i)),
                                        i, "MEP_MRP_INTR_ENA");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_TX_CFG(i, 0)),
                                        i, "MRP_MRP_TX_CFG[0]");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_TX_CFG(i, 1)),
                                        i, "MRP_MRP_TX_CFG[1]");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_STAT(i)), i,
                                        "MRP_TST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_STAT(i)), i,
                                        "MRP_ITST_STAT");
                 pr("\n");
@@ -2146,16 +2146,16 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
         }
 
         VTSS_SPRINTF(buf, "Relevant VOP configuration %u", 0);
-        vtss_fa_debug_reg_header(pr, buf);
-        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_TICK_CFG), 0,
+        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_TICK_CFG), 0,
                                "VOP_TICK_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_MRP_TS_CFG), 0,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_MRP_TS_CFG), 0,
                                "VOP_MRP_TS_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_LOC_CTRL), 0,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_LOC_CTRL), 0,
                                "VOP_LOC_CTRL");
-        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_VOP_CTRL), 0,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_VOP_CTRL), 0,
                                "VOP_VOP_CTRL");
-        vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_VOP_CPU_EXTR_MRP),
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_CPU_EXTR_MRP),
                                0, "VOP_CPU_EXTR_MRP");
         pr("\n");
     }
@@ -2174,38 +2174,38 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full || VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
                 VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_fa_debug_reg_header(pr, buf);
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_header(ss, buf);
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_STICKY(i)), i,
                                        "MEP_MRP_STICKY");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_RX_CNT(i)), i,
                                        "VTSS_VOP_MRP_TST_RX_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_RX_LOC_CNT(i)),
                                        i, "MEP_TST_RX_LOC_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_RX_CNT(i)), i,
                                        "VTSS_VOP_MRP_ITST_RX_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_RX_LOC_CNT(i)),
                                        i, "MEP_ITST_RX_LOC_CNT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_STAT(i)), i,
                                        "MRP_TST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_STAT(i)), i,
                                        "MRP_ITST_STAT");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_TST_TX_TS(i)), i,
                                        "MRP_TST_TX_TS");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_ITST_TX_TS(i)), i,
                                        "MRP_ITST_TX_TS");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_TX_SEQ(i, 0)),
                                        i, "MRP_MRP_TX_SEQ");
-                vtss_fa_debug_reg_inst(vtss_state, pr,
+                vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_TX_SEQ(i, 1)),
                                        i, "MRP_MRP_TX_SEQ");
                 pr("\n");
@@ -2234,7 +2234,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
                 pr("in_ring_transitions: %u\n", mrp_data->in_ring_transitions);
 
                 if (mrp_data->tst_loc_idx != LOC_PERIOD_CNT) {
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_VOP_LOC_PERIOD_CFG(
                                                mrp_data->tst_loc_idx)),
                                            mrp_data->tst_loc_idx,
@@ -2242,7 +2242,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
                 }
 
                 if (mrp_data->itst_loc_idx != LOC_PERIOD_CNT) {
-                    vtss_fa_debug_reg_inst(vtss_state, pr,
+                    vtss_fa_debug_reg_inst(vtss_state, ss,
                                            REG_ADDR(VTSS_VOP_LOC_PERIOD_CFG(
                                                mrp_data->itst_loc_idx)),
                                            mrp_data->itst_loc_idx,
@@ -2259,11 +2259,11 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_lan969x_mrp_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_MRP, lan969x_debug_mrp,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 static vtss_rc lan969x_mrp_poll_1sec(vtss_state_t *vtss_state)

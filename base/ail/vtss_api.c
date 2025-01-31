@@ -956,18 +956,60 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
 }
 
 vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
-                              const vtss_debug_printf_t      pr,
+                              const vtss_debug_printf_t      prntf,
                               const vtss_debug_info_t *const info)
+{
+    vtss_rc rc;
+    int     i = 0, j = 0, len = (1024 * 1024);
+    char    c, *buf = VTSS_OS_MALLOC(len, VTSS_MEM_FLAGS_NONE);
+
+    if (buf == NULL) {
+        return VTSS_RC_ERROR;
+    }
+
+    *buf = 0;
+    len--;
+    rc = vtss_debug_info_print_buf(inst, info, len, buf);
+    // Print in chunks for backward compatibility
+    while (i < len) {
+        c = buf[i++];
+        if (c == '\0') {
+            prntf(buf + j);
+            break;
+        } else if (i == (j + 128)) {
+            c = buf[i];
+            buf[i] = '\0';
+            prntf(buf + j);
+            buf[i] = c;
+            j = i;
+        }
+    }
+    if (i >= len) {
+        prntf("\n--- Truncated due to buffer size ---\n");
+    }
+    VTSS_OS_FREE(buf, VTSS_MEM_FLAGS_NONE);
+    return rc;
+}
+
+vtss_rc vtss_debug_info_print_buf(const vtss_inst_t              inst,
+                                  const vtss_debug_info_t *const info,
+                                  const int                      len,
+                                  char                          *buf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
+    lmu_ss_t      ss = {};
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cmn_debug_info_print(vtss_state, pr, info);
+        ss.buf.begin = buf;
+        ss.buf.end = (buf + len);
+        rc = vtss_cmn_debug_info_print(vtss_state, &ss, info);
+        if (ss.overflow) {
+            rc = LM_RC_ERROR;
+        }
     }
     VTSS_EXIT();
-
     return rc;
 }
 #endif // VTSS_OPT_DEBUG_PRINT

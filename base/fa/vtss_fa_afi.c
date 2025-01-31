@@ -18,9 +18,9 @@
 //
 /******************************************************************************/
 
-static void fa_afi_debug_frame_hdr(const vtss_debug_printf_t pr,
-                                   const char               *hdr,
-                                   const char               *hdr1)
+static void fa_afi_debug_frame_hdr(lmu_ss_t   *ss,
+                                   const char *hdr,
+                                   const char *hdr1)
 {
     pr(hdr);
     pr("FrmPtr NxtPtr Type  Delay [ns] Cnt Dst Pri Sht FP\n");
@@ -28,9 +28,9 @@ static void fa_afi_debug_frame_hdr(const vtss_debug_printf_t pr,
     pr("------ ------ ----- ---------- --- --- --- --- -----\n");
 }
 
-static vtss_rc fa_afi_debug_frame_entry(vtss_state_t             *vtss_state,
-                                        const vtss_debug_printf_t pr,
-                                        u32                      *frm_ptr)
+static vtss_rc fa_afi_debug_frame_entry(vtss_state_t *vtss_state,
+                                        lmu_ss_t     *ss,
+                                        u32          *frm_ptr)
 {
     u32 val, type, next, part0, part1, delay_cc;
     u64 delay_ns;
@@ -69,7 +69,7 @@ static vtss_rc fa_afi_debug_frame_entry(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc fa_afi_debug(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     u64 t_us[8], base_us;
@@ -104,7 +104,7 @@ static vtss_rc fa_afi_debug(vtss_state_t                  *vtss_state,
 
     // TTI Table
     pr("\nTTI Table\n");
-    fa_afi_debug_frame_hdr(pr, "Idx  TickIdx TmrLen Period [us] Jit ",
+    fa_afi_debug_frame_hdr(ss, "Idx  TickIdx TmrLen Period [us] Jit ",
                            "---- ------- ------ ----------- --- ");
     for (idx = 0; idx < VTSS_AFI_SLOW_INJ_CNT; idx++) {
         u32 tick_idx, tmr_len;
@@ -122,14 +122,14 @@ static vtss_rc fa_afi_debug(vtss_state_t                  *vtss_state,
         // Get pointer to first frame table entry
         REG_RD(VTSS_AFI_TTI_FRM(idx), &val);
         frm_ptr = VTSS_X_AFI_TTI_FRM_FRM_PTR(val);
-        if (fa_afi_debug_frame_entry(vtss_state, pr, &frm_ptr) != VTSS_RC_OK) {
+        if (fa_afi_debug_frame_entry(vtss_state, ss, &frm_ptr) != VTSS_RC_OK) {
             break;
         }
     }
 
     // DTI Table
     pr("\nDTI table\n");
-    fa_afi_debug_frame_hdr(pr, "Idx ", "--- ");
+    fa_afi_debug_frame_hdr(ss, "Idx ", "--- ");
     for (idx = 0; idx < VTSS_AFI_FAST_INJ_CNT; idx++) {
         BOOL first = 1;
 
@@ -149,7 +149,7 @@ static vtss_rc fa_afi_debug(vtss_state_t                  *vtss_state,
             } else {
                 pr("%-4s", "");
             }
-            if (fa_afi_debug_frame_entry(vtss_state, pr, &frm_ptr) !=
+            if (fa_afi_debug_frame_entry(vtss_state, ss, &frm_ptr) !=
                     VTSS_RC_OK ||
                 frm_ptr == 0) {
                 break;
@@ -157,8 +157,8 @@ static vtss_rc fa_afi_debug(vtss_state_t                  *vtss_state,
         }
     }
 
-    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, pr, FALSE));
-    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, pr, TRUE));
+    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, ss, FALSE));
+    VTSS_RC(vtss_fa_port_debug_qres(vtss_state, ss, TRUE));
 
     return VTSS_RC_OK;
 }
@@ -1360,11 +1360,11 @@ static vtss_rc fa_afi_port_admin_stop(vtss_state_t  *vtss_state,
 }
 
 vtss_rc vtss_fa_afi_debug_print(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, fa_afi_debug,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 static vtss_rc fa_afi_init(vtss_state_t *vtss_state)

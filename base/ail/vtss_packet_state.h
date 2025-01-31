@@ -89,7 +89,7 @@ vtss_rc vtss_cmn_packet_hints_update(const struct vtss_state_s *const state,
 
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_packet_debug_print(struct vtss_state_s           *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info);
 #endif
 #endif /* VTSS_FEATURE_PACKET */

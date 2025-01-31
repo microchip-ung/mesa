@@ -661,13 +661,13 @@ static vtss_rc lan966x_oam_voe_poll_1sec(vtss_state_t *vtss_state)
 }
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_REG(pr, name)                                                        \
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(name), name)
-#define D_REG_I(pr, name, i)                                                   \
-    vtss_lan966x_debug_reg_inst(vtss_state, pr, name, (i), name)
+#define D_REG(ss, name)                                                        \
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(name), name)
+#define D_REG_I(ss, name, i)                                                   \
+    vtss_lan966x_debug_reg_inst(vtss_state, ss, name, (i), name)
 
 static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32  i, k, v, div, voe_idx;
@@ -713,45 +713,45 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
     }
 
     if (!info->has_action || vop) { /* VOP configuration must be printed */
-        vtss_lan966x_debug_reg_header(pr, "VOP");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MEP_CTRL),
+        vtss_lan966x_debug_reg_header(ss, "VOP");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MEP_CTRL),
                                "MEP_MEP_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_CPU_CFG),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG),
                                "MEP_CPU_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_CPU_CFG_1),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG_1),
                                "MEP_CPU_CFG_1");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MRP_CPU_CFG),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_CPU_CFG),
                                "MEP_MRP_CPU_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_DLR_CPU_CFG),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DLR_CPU_CFG),
                                "MEP_DLR_CPU_CFG");
         for (i = 0; i < 8; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(MEP_GENERIC_CFG(i)), i,
                                         "MEP_GENERIC_CFG");
         for (i = 0; i < 7; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(MEP_LOC_PERIOD_CFG(i)), i,
                                         "MEP_LOC_PERIOD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_LOC_CTRL),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_LOC_CTRL),
                                "MEP_LOC_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_LOC_SCAN_STICKY),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_LOC_SCAN_STICKY),
                                "MEP_LOC_SCAN_STICKY");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_INTR_CTRL),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_INTR_CTRL),
                                "MEP_INTR_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_INTR), "MEP_INTR");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_INTR), "MEP_INTR");
         for (i = 0; i < 7; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, pr,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(MEP_VOE_CNT_CTRL(i)), i,
                                         "MEP_VOE_CNT_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MC_MAC_MSB),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_MSB),
                                "MEP_MC_MAC_MSB");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MC_MAC_LSB),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_LSB),
                                "MEP_MC_MAC_LSB");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_TICK_CFG),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_TICK_CFG),
                                "MEP_TICK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_MRP_RX_TS_CFG),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_RX_TS_CFG),
                                "MEP_MRP_RX_TS_CFG");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(MEP_DBG_STICKY),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DBG_STICKY),
                                "MEP_DBG_STICKY");
         pr("\n");
     }
@@ -769,52 +769,52 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
                 VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(pr, buf);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_header(ss, buf);
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_BASIC_CTRL(i)), i,
                                             "MEP_BASIC_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_MEL_CTRL(i)), i,
                                             "MEP_MEL_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CPU_COPY_CTRL(i)), i,
                                             "MEP_CPU_COPY_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_FWD_CTRL(i)), i,
                                             "MEP_FWD_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CNT_OAM_CTRL(i)), i,
                                             "MEP_CNT_OAM_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CNT_DATA_CTRL(i)), i,
                                             "MEP_CNT_DATA_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_UC_MAC_LSB(i)), i,
                                             "MEP_UC_MAC_LSB");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_UC_MAC_MSB(i)), i,
                                             "MEP_UC_MAC_MSB");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_HW_CTRL(i)), i,
                                             "MEP_HW_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_CFG(i)), i,
                                             "MEP_CCM_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(REW_PTP_SEQ_NO(i)), i,
                                             "REW_PTP_SEQ_NO");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
                                             "MEP_CCM_RX_SEQ_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_MEPID_CFG(i)), i,
                                             "MEP_CCM_MEPID_CFG");
                 for (k = 0; k < 12; ++k)
-                    vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                    vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                                 REG_ADDR(MEP_CCM_MEGID_CFG(i,
                                                                            k)),
                                                 11 - k, "MEP_CCM_MEGID_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_INTR_ENA(i)), i,
                                             "MEP_INTR_ENA");
                 pr("\n");
@@ -836,32 +836,32 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
                 VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(pr, buf);
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_header(ss, buf);
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_CFG(i)), i,
                                             "MEP_CCM_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_RX_VL_FC_CNT(i)),
                                             i, "MEP_CCM_RX_VL_FC_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_RX_IV_FC_CNT(i)),
                                             i, "MEP_CCM_RX_IV_FC_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(REW_PTP_SEQ_NO(i)), i,
                                             "REW_PTP_SEQ_NO");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
                                             "MEP_CCM_RX_SEQ_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_RX_STICKY(i)), i,
                                             "MEP_RX_STICKY");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_STICKY(i)), i,
                                             "MEP_STICKY");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_RX_SEL_CNT(i)), i,
                                             "MEP_RX_SEL_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_RX_FRM_CNT(i)), i,
                                             "MEP_RX_FRM_CNT");
             }
@@ -882,11 +882,11 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
                 VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(pr, buf);
+                vtss_lan966x_debug_reg_header(ss, buf);
 
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) {
                     VTSS_SPRINTF(buf, "Priority %u", k);
-                    vtss_lan966x_debug_reg_inst(vtss_state, pr,
+                    vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                                 REG_ADDR(MEP_PORT_RX_FRM_CNT(i)),
                                                 ((i * VTSS_PRIO_ARRAY_SIZE) +
                                                  k),
@@ -901,11 +901,11 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, lan966x_debug_oam,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 #undef D_REG

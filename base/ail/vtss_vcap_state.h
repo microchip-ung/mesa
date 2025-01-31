@@ -1563,7 +1563,7 @@ const char *vtss_vcap_type_txt(vtss_vcap_type_t type);
 #if defined(VTSS_FEATURE_IS0)
 void vtss_vcap_is0_init(vtss_vcap_data_t *data, vtss_is0_entry_t *entry);
 void vtss_vcap_debug_print_is0(struct vtss_state_s           *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_IS0 */
 #if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
@@ -1571,7 +1571,7 @@ vtss_vcap_obj_t *vtss_vcap_is1_obj_get(struct vtss_state_s *vtss_state);
 void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry);
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_is1(struct vtss_state_s           *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 #endif
 vtss_rc vtss_vcap_is1_update(struct vtss_state_s *vtss_state,
@@ -1580,13 +1580,13 @@ vtss_rc vtss_vcap_is1_update(struct vtss_state_s *vtss_state,
 #if defined(VTSS_FEATURE_CLM)
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_clm_a(struct vtss_state_s           *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 void vtss_vcap_debug_print_clm_b(struct vtss_state_s           *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 void vtss_vcap_debug_print_clm_c(struct vtss_state_s           *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif
 vtss_rc vtss_vcap_clm_update(struct vtss_state_s           *vtss_state,
@@ -1601,7 +1601,7 @@ vtss_rc vtss_vcap_clm_update_masq_hit_ena(struct vtss_state_s *vtss_state,
 void    vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry);
 vtss_rc vtss_vcap_is2_update(struct vtss_state_s *vtss_state);
 void    vtss_vcap_debug_print_is2(struct vtss_state_s           *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_IS2 */
 #if defined(VTSS_FEATURE_ES0)
@@ -1617,7 +1617,7 @@ vtss_rc vtss_vcap_es0_update(struct vtss_state_s *vtss_state,
                              u16                  flags);
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_es0(struct vtss_state_s           *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 #endif
 #endif /* VTSS_FEATURE_ES0 */
@@ -1625,8 +1625,8 @@ const char          *vtss_vcap_key_size2txt(vtss_vcap_key_size_t key_size);
 const char          *vtss_vcap_key_type2txt(vtss_vcap_key_type_t key_type);
 vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type);
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_vcap_debug_print_range_checkers(struct vtss_state_s      *vtss_state,
-                                          const vtss_debug_printf_t pr,
+void vtss_vcap_debug_print_range_checkers(struct vtss_state_s *vtss_state,
+                                          lmu_ss_t            *ss,
                                           const vtss_debug_info_t *const info);
 #endif
 #if defined(VTSS_FEATURE_IS2)
@@ -1644,7 +1644,7 @@ char   *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf);
 #endif // VTSS_FEATURE_IS2
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_acl(struct vtss_state_s           *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 #endif
 #endif /* VTSS_FEATURE_VCAP */

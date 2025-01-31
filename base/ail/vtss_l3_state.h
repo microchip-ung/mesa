@@ -190,7 +190,7 @@ void    vtss_l3_integrity_check(const struct vtss_state_s *vtss_state,
                                 const char                *file,
                                 unsigned                   line);
 void    vtss_debug_print_l3(struct vtss_state_s           *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info);
 
 #endif /* VTSS_FEATURE_LAYER3 */

@@ -634,7 +634,7 @@ vtss_rc vtss_cil_port_kr_fw_req(struct vtss_state_s         *vtss_state,
 #endif
 
 vtss_rc vtss_cil_debug_info_print(struct vtss_state_s           *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 vtss_rc vtss_cil_port_map_set(struct vtss_state_s *vtss_state);
 vtss_rc vtss_cil_restart_conf_set(struct vtss_state_s *vtss_state);
@@ -666,7 +666,7 @@ vtss_rc        vtss_cmn_port_usxgmii_aneg_get(u32                       value,
                                               vtss_port_usxgmii_aneg_t *usxgmii);
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_port_debug_print(struct vtss_state_s           *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info);
 #endif
 

@@ -1520,10 +1520,10 @@ static vtss_rc jr2_qos_cpu_port_shaper_set(vtss_state_t        *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 static vtss_rc jr2_debug_qos_scheduler_element(vtss_state_t *vtss_state,
-                                               const vtss_debug_printf_t pr,
-                                               const char               *header,
-                                               const u32                 layer,
-                                               const u32                 se)
+                                               lmu_ss_t     *ss,
+                                               const char   *header,
+                                               const u32     layer,
+                                               const u32     se)
 {
     JR2_WRM(VTSS_HSCH_HSCH_MISC_HSCH_CFG_CFG,
             VTSS_F_HSCH_HSCH_MISC_HSCH_CFG_CFG_HSCH_LAYER(layer) |
@@ -1531,25 +1531,25 @@ static vtss_rc jr2_debug_qos_scheduler_element(vtss_state_t *vtss_state,
             VTSS_M_HSCH_HSCH_MISC_HSCH_CFG_CFG_HSCH_LAYER |
                 VTSS_M_HSCH_HSCH_MISC_HSCH_CFG_CFG_CFG_SE_IDX);
 
-    vtss_jr2_debug_reg_header(pr, header);
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_HSCH_CFG_CIR_CFG(se), se,
+    vtss_jr2_debug_reg_header(ss, header);
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_HSCH_HSCH_CFG_CIR_CFG(se), se,
                             "HSCH_CFG_CIR_CFG");
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_HSCH_CFG_EIR_CFG(se), se,
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_HSCH_HSCH_CFG_EIR_CFG(se), se,
                             "HSCH_CFG_EIR_CFG");
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_HSCH_CFG_SE_CFG(se), se,
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_HSCH_HSCH_CFG_SE_CFG(se), se,
                             "HSCH_CFG_SE_CFG");
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_HSCH_CFG_SE_CONNECT(se),
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_HSCH_HSCH_CFG_SE_CONNECT(se),
                             se, "HSCH_CFG_SE_CONNECT");
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_HSCH_HSCH_CFG_SE_DLB_SENSE(se),
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_HSCH_HSCH_CFG_SE_DLB_SENSE(se),
                             se, "HSCH_CFG_SE_DLB_SENSE");
 
     return VTSS_RC_OK;
 }
 
-static void jr2_debug_qos_ingress_mapping(vtss_state_t             *vtss_state,
-                                          const vtss_debug_printf_t pr,
-                                          const u32                 ix_start,
-                                          const int                 length)
+static void jr2_debug_qos_ingress_mapping(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
+                                          const u32     ix_start,
+                                          const int     length)
 {
     u32  ix, col;
     int  len;
@@ -1558,23 +1558,23 @@ static void jr2_debug_qos_ingress_mapping(vtss_state_t             *vtss_state,
     for (len = 0; len < length; len++) {
         ix = ix_start + len;
         VTSS_SPRINTF(buf, "Index %u, (%u of %u)", ix, len + 1, length);
-        vtss_jr2_debug_reg_header(pr, buf);
+        vtss_jr2_debug_reg_header(ss, buf);
         VTSS_SPRINTF(buf, " MAP_TBL[%u]:SET_CTRL", ix);
-        vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_CL_MAP_TBL_SET_CTRL(ix),
+        vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_CL_MAP_TBL_SET_CTRL(ix),
                            buf);
         for (col = 0; col < 8; col++) {
             VTSS_SPRINTF(buf, " MAP_TBL[%u]:MAP_ENTRY[%u]", ix, col);
-            vtss_jr2_debug_reg(vtss_state, pr,
+            vtss_jr2_debug_reg(vtss_state, ss,
                                VTSS_ANA_CL_MAP_TBL_MAP_ENTRY(ix, col), buf);
         }
     }
 }
 
-static void jr2_debug_qos_egress_mapping(vtss_state_t             *vtss_state,
-                                         const vtss_debug_printf_t pr,
-                                         const u32                 res,
-                                         const u32                 ix_start,
-                                         const int                 length)
+static void jr2_debug_qos_egress_mapping(vtss_state_t *vtss_state,
+                                         lmu_ss_t     *ss,
+                                         const u32     res,
+                                         const u32     ix_start,
+                                         const int     length)
 {
     u32  ix, col, addr;
     int  len;
@@ -1583,16 +1583,16 @@ static void jr2_debug_qos_egress_mapping(vtss_state_t             *vtss_state,
     for (len = 0; len < length; len++) {
         ix = ix_start + len;
         VTSS_SPRINTF(buf, "Index %u, (%u of %u)", ix, len + 1, length);
-        vtss_jr2_debug_reg_header(pr, buf);
+        vtss_jr2_debug_reg_header(ss, buf);
         for (col = 0; col < 8; col++) {
             addr = (ix * 8) + col;
             if (res == 0) { // Resource A
                 VTSS_SPRINTF(buf, " MAP_RES_A[%u]:MAP_VAL_A", addr);
-                vtss_jr2_debug_reg(vtss_state, pr,
+                vtss_jr2_debug_reg(vtss_state, ss,
                                    VTSS_REW_MAP_RES_A_MAP_VAL_A(addr), buf);
             } else { // Resource B
                 VTSS_SPRINTF(buf, " MAP_RES_B[%u]:MAP_VAL_B", addr);
-                vtss_jr2_debug_reg(vtss_state, pr,
+                vtss_jr2_debug_reg(vtss_state, ss,
                                    VTSS_REW_MAP_RES_B_MAP_VAL_B(addr), buf);
             }
         }
@@ -1600,11 +1600,12 @@ static void jr2_debug_qos_egress_mapping(vtss_state_t             *vtss_state,
 }
 
 static void jr2_debug_qos_mapping(vtss_state_t                   *vtss_state,
-                                  const vtss_debug_printf_t       pr,
+                                  lmu_ss_t                       *ss,
                                   const vtss_debug_info_t *const  info,
                                   const vtss_qos_map_adm_t *const m)
 {
     u32 i, res;
+    u16 key;
 
     for (res = 0; res < VTSS_QOS_MAP_RESOURCES; res++) {
         char buf[64];
@@ -1612,15 +1613,15 @@ static void jr2_debug_qos_mapping(vtss_state_t                   *vtss_state,
             continue; /* Resource not present */
         }
         VTSS_SPRINTF(buf, "QoS %s Mapping Tables Res %u", m->name, res);
-        vtss_debug_print_header(pr, buf);
+        vtss_debug_print_header(ss, buf);
         if (info->full) {
             if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
                 for (i = 0; i < VTSS_QOS_INGRESS_MAP_ROWS; i++) {
-                    jr2_debug_qos_ingress_mapping(vtss_state, pr, i, 1);
+                    jr2_debug_qos_ingress_mapping(vtss_state, ss, i, 1);
                 }
             } else {
                 for (i = 0; i < VTSS_QOS_EGRESS_MAP_ROWS; i++) {
-                    jr2_debug_qos_egress_mapping(vtss_state, pr, res, i, 1);
+                    jr2_debug_qos_egress_mapping(vtss_state, ss, res, i, 1);
                 }
             }
         } else {
@@ -1629,12 +1630,13 @@ static void jr2_debug_qos_mapping(vtss_state_t                   *vtss_state,
 
             i = 0;
             while (i < m->ix[res].free) {
-                len = m->key2len(m->ix[res].entry[i].key);
+                key = m->ix[res].entry[i].key;
+                len = m->key2len(key);
                 if (m->ix[res].entry[i].id != VTSS_QOS_MAP_ID_NONE) {
                     if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
-                        jr2_debug_qos_ingress_mapping(vtss_state, pr, i, len);
+                        jr2_debug_qos_ingress_mapping(vtss_state, ss, i, len);
                     } else {
-                        jr2_debug_qos_egress_mapping(vtss_state, pr, res, i,
+                        jr2_debug_qos_egress_mapping(vtss_state, ss, res, i,
                                                      len);
                     }
                     empty = FALSE;
@@ -1643,7 +1645,7 @@ static void jr2_debug_qos_mapping(vtss_state_t                   *vtss_state,
                     i += len;
                 } else {
                     pr("Error: ix[%u].entry[%u].key %d gives zero length!\n",
-                       res, i, m->ix[res].entry[i].key);
+                       res, i, key);
                     break;
                 }
             }
@@ -1656,16 +1658,16 @@ static void jr2_debug_qos_mapping(vtss_state_t                   *vtss_state,
     }
 }
 
-static vtss_rc jr2_debug_qos_leak_chain(vtss_state_t             *vtss_state,
-                                        const vtss_debug_printf_t pr,
+static vtss_rc jr2_debug_qos_leak_chain(vtss_state_t *vtss_state,
+                                        lmu_ss_t     *ss,
                                         const vtss_debug_info_t *const info)
 {
     u32                    layer, group, se, cnt, leak_cfg;
-    u32                    sys_clk_per_100ps;
+    u32                    sys_clk_per_100ps, prev, next;
     vtss_qos_leak_layer_t *ll;
     vtss_qos_leak_group_t *lg;
 
-    vtss_debug_print_header(pr, "QoS Leak List Config");
+    vtss_debug_print_header(ss, "QoS Leak List Config");
 
     JR2_RD(VTSS_HSCH_HSCH_MISC_SYS_CLK_PER, &sys_clk_per_100ps);
     pr("HSCH:HSCH_MISC:SYS_CLK_PER.SYS_CLK_PER_100PS: %u\n\n",
@@ -1687,10 +1689,12 @@ static vtss_rc jr2_debug_qos_leak_chain(vtss_state_t             *vtss_state,
                    &leak_cfg);
             lg = &ll->group[group];
             se = lg->head.next;
+            prev = lg->head.prev;
+            next = lg->head.next;
             pr("%5u %5u %2u %8u %3u %8u %6u %6u %4u %4u ", layer, group,
                VTSS_X_HSCH_HSCH_LEAK_LISTS_HSCH_LEAK_CFG_LEAK_ERR(leak_cfg),
                lg->max_rate, lg->resolution, lg->leak_time, lg->max_ses,
-               lg->cur_ses, lg->head.next, lg->head.prev);
+               lg->cur_ses, next, prev);
 
             if (lg->head.enabled) {
                 u32 val, hw_next;
@@ -1713,7 +1717,9 @@ static vtss_rc jr2_debug_qos_leak_chain(vtss_state_t             *vtss_state,
                         pr("Error: cnt %u > %u!\n", cnt, lg->max_ses);
                         break;
                     }
-                    pr("%u<%u>%u ", ll->entry[se].prev, se, ll->entry[se].next);
+                    prev = ll->entry[se].prev;
+                    next = ll->entry[se].next;
+                    pr("%u<%u>%u ", prev, se, next);
                     /* Check for consistency with leak chain in hw */
                     if (layer == 3) { /* Queue shapers */
                         JR2_RD(VTSS_HSCH_QSHP_ALLOC_CFG_QSHP_CONNECT(se), &val);
@@ -1769,7 +1775,7 @@ static vtss_rc jr2_qos_status_get(vtss_state_t      *vtss_state,
 }
 
 static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32            i, port, value, pol_idx, se, layer;
@@ -1799,12 +1805,12 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
     if (!info->has_action) {
         pr("QoS WRED Config has been moved to 'debug api cil wm'\n\n");
 
-        jr2_debug_qos_leak_chain(vtss_state, pr, info);
+        jr2_debug_qos_leak_chain(vtss_state, ss, info);
 
-        jr2_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.imap);
-        jr2_debug_qos_mapping(vtss_state, pr, info, &vtss_state->qos.emap);
+        jr2_debug_qos_mapping(vtss_state, ss, info, &vtss_state->qos.imap);
+        jr2_debug_qos_mapping(vtss_state, ss, info, &vtss_state->qos.emap);
 
-        vtss_debug_print_header(pr, "QoS DSCP Config");
+        vtss_debug_print_header(ss, "QoS DSCP Config");
 
         pr("DSCP Trans CLS DPL Rewr Trust Remap\n");
         for (i = 0; i < 64; i++) {
@@ -1821,7 +1827,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS DSCP Classification from QoS Config");
+        vtss_debug_print_header(ss, "QoS DSCP Classification from QoS Config");
 
         pr("QoS DSCP_DP0 DSCP_DP1 DSCP_DP2 DSCP_DP3\n");
         for (i = 0; i < 8; i++) {
@@ -1838,29 +1844,29 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Storm Policers");
-        vtss_jr2_debug_reg_header(pr, "Storm Policers");
+        vtss_debug_print_header(ss, "QoS Storm Policers");
+        vtss_jr2_debug_reg_header(ss, "Storm Policers");
         for (i = 0; i < 8; i++) {
             vtss_jr2_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_RATE_CFG(i), i,
                 "POL_STORM_RATE_CFG");
             vtss_jr2_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_THRES_CFG(i), i,
                 "POL_STORM_THRES_CFG");
-            vtss_jr2_debug_reg_inst(vtss_state, pr,
+            vtss_jr2_debug_reg_inst(vtss_state, ss,
                                     VTSS_ANA_AC_POL_POL_ALL_CFG_POL_STORM_CTRL(i),
                                     i, "POL_STORM_CTRL");
         }
-        vtss_jr2_debug_reg(vtss_state, pr,
+        vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
                            "POL_ALL_CFG");
         pr("\n");
 
         /* Per port configuration starts here */
 
-        vtss_debug_print_header(pr, "QoS Port Classification Config");
+        vtss_debug_print_header(ss, "QoS Port Classification Config");
 
         pr("LP CP PCP CLS DEI DPL TC_CLS TC_DPL DC_CLS DC_DPL W_GRP\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1889,7 +1895,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         pr("\n");
 
         vtss_debug_print_header(
-            pr,
+            ss,
             "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
 
         pr("LP CP QoS class (8*DEI+PCP)           DP level (8*DEI+PCP)\n");
@@ -1925,7 +1931,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Port Tag Remarking Config");
+        vtss_debug_print_header(ss, "QoS Port Tag Remarking Config");
 
         pr("LP CP MPCP MDEI PCP DEI\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1945,7 +1951,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Port Tag Remarking Map");
+        vtss_debug_print_header(ss, "QoS Port Tag Remarking Map");
 
         pr("LP CP PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1978,7 +1984,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Port DSCP Remarking Config");
+        vtss_debug_print_header(ss, "QoS Port DSCP Remarking Config");
 
         pr("LP CP I_Mode Keep Trans Update Remap\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1999,7 +2005,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Port Policers");
+        vtss_debug_print_header(ss, "QoS Port Policers");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
             int policer;
@@ -2008,37 +2014,37 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
             }
             port = VTSS_CHIP_PORT(port_no);
             VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             for (policer = 0; policer < VTSS_PORT_POLICERS; policer++) {
                 pol_idx = ((VTSS_PORT_POLICERS * port) + policer);
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_ANA_AC_POL_POL_PORT_CFG_POL_PORT_THRES_CFG_0(pol_idx),
                     pol_idx, "THRES_CFG_0");
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_ANA_AC_POL_POL_PORT_CFG_POL_PORT_THRES_CFG_1(pol_idx),
                     pol_idx, "THRES_CFG_1");
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_ANA_AC_POL_POL_PORT_CFG_POL_PORT_RATE_CFG(pol_idx),
                     pol_idx, "RATE_CFG");
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_CFG(port, policer),
                     pol_idx, "POL_PORT_CFG");
             }
             vtss_jr2_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_GAP(port), port, "GAP");
             vtss_jr2_debug_reg_inst(
-                vtss_state, pr,
+                vtss_state, ss,
                 VTSS_ANA_AC_POL_POL_ALL_CFG_POL_PORT_FC_CFG(port), port,
                 "POL_PORT_FC_CFG");
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Queue Policers");
+        vtss_debug_print_header(ss, "QoS Queue Policers");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
             if (info->port_list[port_no] == 0) {
@@ -2046,39 +2052,39 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
             }
             port = VTSS_CHIP_PORT(port_no);
             VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             for (queue = 0; queue < 8; queue++) {
                 pol_idx = VTSS_QUEUE_POL_IDX(port, queue);
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_ANA_AC_POL_SDLB_MISC_CFG(pol_idx),
                                         pol_idx, "MISC_CFG");
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_ANA_AC_POL_SDLB_DLB_CFG(pol_idx),
                                         pol_idx, "DLB_CFG");
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_ANA_AC_POL_SDLB_LB_CFG(pol_idx, 0),
                                         pol_idx, "LB_CFG_0");
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_ANA_AC_POL_SDLB_LB_CFG(pol_idx, 1),
                                         pol_idx, "LB_CFG_1");
             }
         }
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Hsch leak lists");
-        vtss_jr2_debug_reg_header(pr, "Hsch leak lists");
+        vtss_debug_print_header(ss, "QoS Hsch leak lists");
+        vtss_jr2_debug_reg_header(ss, "Hsch leak lists");
 #if defined(VTSS_ARCH_JAGUAR_2_C)
         for (i = 0; i <= 3; i++) {
             u32 leak_group;
             for (leak_group = 0; leak_group <= 3; leak_group++) {
                 VTSS_SPRINTF(buf, "HSCH_TIMER_CFG_%u", i);
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_HSCH_HSCH_LEAK_LISTS_HSCH_TIMER_CFG(i, leak_group),
                     leak_group, buf);
                 VTSS_SPRINTF(buf, "HSCH_LEAK_CFG_%u", i);
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_HSCH_HSCH_LEAK_LISTS_HSCH_LEAK_CFG(i, leak_group),
                     leak_group, buf);
             }
@@ -2089,7 +2095,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
             for (leak_group = 0; leak_group <= 3; leak_group++) {
                 VTSS_SPRINTF(buf, "HSCH_LEAK_CFG_%u", i);
                 vtss_jr2_debug_reg_inst(
-                    vtss_state, pr,
+                    vtss_state, ss,
                     VTSS_HSCH_HSCH_LEAK_LISTS_HSCH_LEAK_CFG(i, leak_group),
                     leak_group, buf);
             }
@@ -2099,7 +2105,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
 #endif
         pr("\n");
 
-        vtss_debug_print_header(pr, "QoS Scheduler Config");
+        vtss_debug_print_header(ss, "QoS Scheduler Config");
 
         pr("LP CP LA   SE WRR FRM_MODE C0 C1 C2 C3 C4 C5 C6 C7\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -2135,7 +2141,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
         pr("\n");
 
         vtss_debug_print_header(
-            pr,
+            ss,
             "QoS Port Shapers (Uses elements from layer 2 indexed by chip port)");
         /* Select layer 2 */
         layer = 2;
@@ -2150,11 +2156,11 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
             }
             port = VTSS_CHIP_PORT(port_no);
             VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-            jr2_debug_qos_scheduler_element(vtss_state, pr, buf, layer, port);
+            jr2_debug_qos_scheduler_element(vtss_state, ss, buf, layer, port);
         }
         pr("\n");
 
-        vtss_debug_print_header(pr,
+        vtss_debug_print_header(ss,
                                 "QoS Queue Shapers (Uses elements from layer 0)");
         /* Select layer 0 */
         layer = 0;
@@ -2173,29 +2179,29 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
                 se = JR2_HSCH_L0_SE(port, queue);
                 VTSS_SPRINTF(buf, "Port %u (%u), queue %u", port, port_no,
                              queue);
-                jr2_debug_qos_scheduler_element(vtss_state, pr, buf, layer, se);
+                jr2_debug_qos_scheduler_element(vtss_state, ss, buf, layer, se);
             }
         }
         pr("\n");
 
         vtss_debug_print_header(
-            pr,
+            ss,
             "QoS CPU Shapers (Uses elements from layer 2 indexed by chip port)");
         for (i = 0; i < 2; i++) {
             port = (VTSS_CHIP_PORT_CPU_0 + i);
             VTSS_SPRINTF(buf, "CPU %u, CP %u", i, port);
-            jr2_debug_qos_scheduler_element(vtss_state, pr, buf, 2, port);
+            jr2_debug_qos_scheduler_element(vtss_state, ss, buf, 2, port);
             se = (JR2_L0_SE_CPU_0 + i);
-            vtss_jr2_debug_reg_inst(vtss_state, pr,
+            vtss_jr2_debug_reg_inst(vtss_state, ss,
                                     VTSS_HSCH_QSHP_ALLOC_CFG_QSHP_ALLOC_CFG(se),
                                     se, "HSCH_QSHP_ALLOC_CFG");
             JR2_WR(VTSS_HSCH_HSCH_MISC_HSCH_CFG_CFG,
                    VTSS_F_HSCH_HSCH_MISC_HSCH_CFG_CFG_CFG_SE_IDX(se));
             for (queue = 0; queue < 8; queue++) {
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_HSCH_QSHP_CFG_QSHP_CIR_CFG(queue),
                                         queue, "HSCH_QSHP_CIR_CFG");
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_HSCH_QSHP_CFG_QSHP_CFG(queue),
                                         queue, "HSCH_QSHP_CFG");
             }
@@ -2204,7 +2210,7 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
 
         /* Only show the hierarchy if HQoS is not present, otherwise use the
          * HQoS debug cmd */
-        vtss_debug_print_header(pr, "QoS Layer 0 + Layer 1 SEs");
+        vtss_debug_print_header(ss, "QoS Layer 0 + Layer 1 SEs");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
             if (info->port_list[port_no] == 0) {
@@ -2216,15 +2222,15 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
                 l0_se = JR2_HSCH_L0_SE(port, queue);
                 VTSS_SPRINTF(buf, "Port %u (%u), queue %u", port, port_no,
                              queue);
-                vtss_jr2_debug_reg_header(pr, buf);
-                vtss_jr2_debug_reg_inst(vtss_state, pr,
+                vtss_jr2_debug_reg_header(ss, buf);
+                vtss_jr2_debug_reg_inst(vtss_state, ss,
                                         VTSS_HSCH_HSCH_L0_CFG_HSCH_L0_CFG(l0_se),
                                         l0_se, "HSCH_L0_CFG_HSCH_L0_CFG");
             }
             l1_se = port;
             VTSS_SPRINTF(buf, "L1 Scheduling element %u", l1_se);
-            vtss_jr2_debug_reg_header(pr, buf);
-            vtss_jr2_debug_reg_inst(vtss_state, pr,
+            vtss_jr2_debug_reg_header(ss, buf);
+            vtss_jr2_debug_reg_inst(vtss_state, ss,
                                     VTSS_HSCH_HSCH_L1_CFG_HSCH_L1_CFG(l1_se),
                                     l1_se, "HSCH_L1_CFG_HSCH_L1_CFG");
         }
@@ -2232,19 +2238,19 @@ static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
     }
 
     if (!info->has_action || clm) {
-        vtss_debug_print_header(pr, "CLM_B Info:");
-        VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, pr, info));
+        vtss_debug_print_header(ss, "CLM_B Info:");
+        VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, ss, info));
     }
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_jr2_qos_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, jr2_debug_qos,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

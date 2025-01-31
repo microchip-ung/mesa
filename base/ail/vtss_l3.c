@@ -126,6 +126,27 @@ static void integrity_update(vtss_inst_t inst)
     integrity_update(inst);                                                    \
     VTSS_EXIT();
 
+static void ss_mac(lmu_ss_t *ss, vtss_mac_t *mac)
+{
+    for (int i = 0; i < 6; i++) {
+        LMU_SS_FMT(ss, "%s%02x%s", i == 0 ? "" : "-", mac->addr[i]);
+    }
+}
+
+static void ss_ipv4(lmu_ss_t *ss, vtss_ipv4_t u)
+{
+    for (int i = 0; i < 4; i++) {
+        LMU_SS_FMT(ss, "%s%u", i == 0 ? "" : ".", (u >> (24 - i * 8)) & 0xff);
+    }
+}
+
+static void ss_ipv6(lmu_ss_t *ss, vtss_ipv6_t *ipv6)
+{
+    for (int i = 0; i < 16; i++) {
+        LMU_SS_FMT(ss, "%s%02x", i == 0 || (i & 1) ? "" : ":", ipv6->addr[i]);
+    }
+}
+
 /* finds and returns an unused rleg id for the provided vlan. Will fail if the
  * given vlan is allready configured, or if no more rlegs are aviable. */
 static inline vtss_rc rleg_id_get_new(vtss_state_t        *vtss_state,
@@ -2230,7 +2251,7 @@ vtss_rc vtss_l3_debug_sticky_clear(const vtss_inst_t inst)
 }
 
 void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
-                         const vtss_debug_printf_t      pr,
+                         lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info)
 {
     u32                        i, j, cnt = 0, counter;
@@ -2257,7 +2278,9 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
        : m == VTSS_ROUTING_RLEG_MAC_MODE_SINGLE ? "SINGLE"
                                                 : "UNKNOWN",
        m);
-    pr("Base address:   " MAC_FORMAT "\n\n", MAC_ARGS(l3->common.base_address));
+    pr("Base address:   ");
+    ss_mac(ss, &l3->common.base_address);
+    pr("\n\n");
 
     pr("Router Legs:\n");
     pr("============\n");
@@ -2316,13 +2339,15 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
                          net->prefix_size);
             pr("%-20s", buf);
             if (net->grp == NULL) {
-                pr(IPV4_FORMAT "\n", IPV4_ARGS(net->nh.dip.addr.ipv4));
+                ss_ipv4(ss, net->nh.dip.addr.ipv4);
+                pr("\n");
             } else {
                 for (nh = net->grp->list; nh != NULL; nh = nh->next) {
                     if (nh != net->grp->list) {
                         pr("%-20s", "");
                     }
-                    pr(IPV4_FORMAT "\n", IPV4_ARGS(nh->nh.dip.addr.ipv4));
+                    ss_ipv4(ss, nh->nh.dip.addr.ipv4);
+                    pr("\n");
                 }
             }
         } else {
@@ -2330,15 +2355,15 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
                          net->prefix_size);
             pr("%-45s", buf);
             if (net->grp == NULL) {
-                pr(IPV6_FORMAT "-%u\n", IPV6_ARGS(net->nh.dip.addr.ipv6),
-                   net->nh.vid);
+                ss_ipv6(ss, &net->nh.dip.addr.ipv6);
+                pr("-%u\n", net->nh.vid);
             } else {
                 for (nh = net->grp->list; nh != NULL; nh = nh->next) {
                     if (nh != net->grp->list) {
                         pr("%-45s", "");
                     }
-                    pr(IPV6_FORMAT "-%u\n", IPV6_ARGS(nh->nh.dip.addr.ipv6),
-                       nh->nh.vid);
+                    ss_ipv6(ss, &nh->nh.dip.addr.ipv6);
+                    pr("-%u\n", nh->nh.vid);
                 }
             }
         }
@@ -2360,10 +2385,11 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
                 pr("%-20s", "");
             }
             if (nh->nh.dip.type == VTSS_IP_TYPE_IPV4) {
-                pr(IPV4_FORMAT "\n", IPV4_ARGS(nh->nh.dip.addr.ipv4));
+                ss_ipv4(ss, nh->nh.dip.addr.ipv4);
+                pr("\n");
             } else {
-                pr(IPV6_FORMAT "/%u\n", IPV6_ARGS(nh->nh.dip.addr.ipv6),
-                   nh->nh.vid);
+                ss_ipv6(ss, &nh->nh.dip.addr.ipv6);
+                pr("/%u\n", nh->nh.vid);
             }
         }
     }
@@ -2388,8 +2414,10 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
             VTSS_SPRINTF(buf, IPV4_FORMAT, IPV4_ARGS(nb->nh.dip.addr.ipv4));
             pr("%-17s" MAC_FORMAT "\n", buf, MAC_ARGS(nb->dmac));
         } else {
-            pr(IPV6_FORMAT "  " MAC_FORMAT "  %u\n",
-               IPV6_ARGS(nb->nh.dip.addr.ipv6), MAC_ARGS(nb->dmac), nb->nh.vid);
+            ss_ipv6(ss, &nb->nh.dip.addr.ipv6);
+            pr("  ");
+            ss_mac(ss, &nb->dmac);
+            pr("  %u\n", nb->nh.vid);
         }
     }
     pr("\n");
@@ -2455,8 +2483,11 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
         }
         pr("%-20s  ", buf);
         pr("%-10d", mc_net->tbl);
-        mc_net->src_rleg == VTSS_VID_NULL ? pr("%-10s", "Disabled")
-                                          : pr("%-10d", mc_net->tbl);
+        if (mc_net->src_rleg == VTSS_VID_NULL) {
+            pr("%-10s", "Disabled");
+        } else {
+            pr("%-10d", mc_net->tbl);
+        }
         pr("%-20d\n", counter);
     }
     pr("%d entries found\n\n", cnt);
@@ -2470,8 +2501,11 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
             continue;
         }
         pr("%-5u%-7d", i, t->cnt);
-        t->rpf == VTSS_L3_MC_RPF_DIS ? pr("%-10s", "Disabled")
-                                     : pr("%-10d", t->rpf);
+        if (t->rpf == VTSS_L3_MC_RPF_DIS) {
+            pr("%-10s", "Disabled");
+        } else {
+            pr("%-10d", t->rpf);
+        }
         empty = 1;
         for (j = 0; j < 4; j++) {
             for (cnt = 0; cnt < 32; cnt++) {

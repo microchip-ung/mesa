@@ -1291,78 +1291,78 @@ static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     u32 qu, i, j, cfg, cur, max;
 
-    vtss_fa_debug_reg_header(pr, "FRAME_COPY_CFG");
+    vtss_fa_debug_reg_header(ss, "FRAME_COPY_CFG");
     for (qu = 0; qu < 12; qu++) {
         if (qu < 8) {
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_CPU_QU");
         } else if (qu == 8) {
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_LRN_ALL");
         } else {
-            vtss_fa_debug_reg_inst(vtss_state, pr,
+            vtss_fa_debug_reg_inst(vtss_state, ss,
                                    REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_MIRROR_PROBE");
         }
     }
     pr("\n");
 
-    vtss_fa_debug_reg_header(pr, "IFH_CTRL");
+    vtss_fa_debug_reg_header(ss, "IFH_CTRL");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
 
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_REW_IFH_CTRL(port)), port,
                                "KEEP_IFH_SEL");
     }
     pr("\n");
 
-    vtss_fa_debug_reg_header(pr, "PORT_CFG");
+    vtss_fa_debug_reg_header(ss, "PORT_CFG");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ASM_PORT_CFG(port)), port,
                                "PORT_CFG");
     }
     pr("\n");
 
-    vtss_fa_debug_reg_header(pr, "PORT_STATUS");
+    vtss_fa_debug_reg_header(ss, "PORT_STATUS");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_ASM_PORT_STICKY(port)), port,
                                "PORT_STATUS");
         REG_WR(VTSS_ASM_PORT_STICKY(port), 0xFFFFFFFF);
     }
     pr("\n");
 
-    vtss_fa_debug_reg_header(pr, "DEVCPU_QS");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG),
+    vtss_fa_debug_reg_header(ss, "DEVCPU_QS");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG),
                       "XTR_CFG");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG),
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG),
                       "INJ_FRM_CNT");
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_DEVCPU_QS_XTR_DATA_PRESENT),
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_DATA_PRESENT),
                       "XTR_DATA_PRESENT");
     for (i = 0; i < 2; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i)), i,
                                "XTR_GRP_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i)), i,
                                "INJ_GRP_CFG");
     }
     pr("\n");
 
-    vtss_fa_debug_reg_header(pr, "QFWD");
+    vtss_fa_debug_reg_header(ss, "QFWD");
     for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, pr,
+        vtss_fa_debug_reg_inst(vtss_state, ss,
                                REG_ADDR(VTSS_QFWD_SWITCH_PORT_MODE(i)), i,
                                "PORT_MODE");
     }
@@ -1385,11 +1385,11 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_fa_packet_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, fa_debug_pkt,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 #endif
 

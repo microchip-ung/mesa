@@ -14,7 +14,7 @@
 // gracefully return. Note: This macro is sometimes used with code that MUST be
 // executed - even on non-debug builds -, so if you don't like to have VTSS_EG()
 // calls, then rewrite the macro to avoid that call.
-#define FDMA_ASSERT(grp, expr, code)                                           \
+#define FDMA_ASSERT(grp, exss, code)                                           \
     do {                                                                       \
         if (!(expr)) {                                                         \
             VTSS_EG((VTSS_TRACE_GROUP_FDMA_##grp), "Assert failed: " #expr);   \
@@ -136,7 +136,7 @@ static vtss_rc fa_fdma_stats_clr(vtss_state_t *const vstate)
 // fa_debug_print()
 /*****************************************************************************/
 static vtss_rc fa_debug_print(vtss_state_t *const            vstate,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     return VTSS_RC_OK;

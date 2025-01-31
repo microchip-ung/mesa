@@ -973,11 +973,11 @@ vtss_rc vtss_cmn_hw_prot_port_disable_set(struct vtss_state_s *vtss_state,
                                               member[VTSS_PORT_ARRAY_SIZE]);
 #endif /* VTSS_FEATURE_HW_PROT */
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_debug_print_mac_entry(const vtss_debug_printf_t pr,
-                                const char               *name,
-                                BOOL                     *header,
-                                vtss_mac_table_entry_t   *entry,
-                                u32                       pgid);
+void vtss_debug_print_mac_entry(lmu_ss_t               *ss,
+                                const char             *name,
+                                BOOL                   *header,
+                                vtss_mac_table_entry_t *entry,
+                                u32                     pgid);
 #endif
 #if defined(VTSS_FEATURE_IPV4_MC_SIP) || defined(VTSS_FEATURE_IPV6_MC_SIP)
 u32     vtss_cmn_ip2u32(vtss_ip_addr_internal_t *ip, BOOL ipv6);
@@ -1080,7 +1080,7 @@ vtss_xstat_entry_t *vtss_estat_lookup(struct vtss_state_s       *vtss_state,
 
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_l2_debug_print(struct vtss_state_s           *vtss_state,
-                         const vtss_debug_printf_t      pr,
+                         lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info);
 #endif
 #endif /* VTSS_FEATURE_LAYER2 */

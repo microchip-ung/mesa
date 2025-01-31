@@ -1778,7 +1778,7 @@ vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
 
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc fa_serdes_tx_eq_tune(vtss_state_t              *vtss_state,
-                             const vtss_debug_printf_t  pr,
+                             lmu_ss_t                  *ss,
                              u32                        port_no,
                              vtss_port_kr_coef_type_t   coef,
                              vtss_port_kr_coef_update_t action)
@@ -1840,10 +1840,10 @@ vtss_rc fa_serdes_tx_eq_tune(vtss_state_t              *vtss_state,
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
 
 #if VTSS_OPT_DEBUG_PRINT
-static vtss_rc fa_port_kr_square_wave(vtss_state_t             *vtss_state,
-                                      const vtss_debug_printf_t pr,
-                                      u32                       port_no,
-                                      BOOL                      ena)
+static vtss_rc fa_port_kr_square_wave(vtss_state_t *vtss_state,
+                                      lmu_ss_t     *ss,
+                                      u32           port_no,
+                                      BOOL          ena)
 {
     u32 indx, type, sd_tgt;
     /* Map API port to Serdes instance */
@@ -1957,10 +1957,10 @@ static vtss_rc fa_port_kr_square_wave(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_dfe_set(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 u32                       port_no,
-                                 BOOL                      ena)
+static vtss_rc fa_serdes_dfe_set(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 u32           port_no,
+                                 BOOL          ena)
 {
     u32 indx, type, sd_tgt, sd_lane_tgt = 0;
     /* Map API port to Serdes instance */
@@ -2087,9 +2087,9 @@ static vtss_rc fa_serdes_oscal_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_oscal_ena(vtss_state_t             *vtss_state,
-                                   const vtss_debug_printf_t pr,
-                                   u32                       port_no)
+static vtss_rc fa_serdes_oscal_ena(vtss_state_t *vtss_state,
+                                   lmu_ss_t     *ss,
+                                   u32           port_no)
 {
     u32 indx, type, sd_tgt;
     /* Map API port to Serdes instance */
@@ -2102,9 +2102,9 @@ static vtss_rc fa_serdes_oscal_ena(vtss_state_t             *vtss_state,
 }
 #endif
 
-static vtss_rc fa_serdes_dfe_read(vtss_state_t             *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  u32                       port_no)
+static vtss_rc fa_serdes_dfe_read(vtss_state_t *vtss_state,
+                                  lmu_ss_t     *ss,
+                                  u32           port_no)
 {
     u32 indx, type, val, sd_tgt;
     /* Map API port to Serdes instance */
@@ -2214,7 +2214,7 @@ u32 fa_eye_height_num(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 num)
 
 static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                                    const vtss_debug_printf_t pr,
+                                    lmu_ss_t *ss,
 #endif
                                     u32 port_no)
 {
@@ -2226,7 +2226,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
     sd_tgt = fa_get_lane_target(vtss_state, type, indx);
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr) {
+    if (ss) {
         pr("Adjust %s VGA\n", type == FA_SERDES_TYPE_10G  ? "10G"
                               : type == FA_SERDES_TYPE_6G ? "6G"
                                                           : "25G");
@@ -2243,7 +2243,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             eye_height =
                 fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-            if (pr) {
+            if (ss) {
                 pr("cfg_eq_res:%d eye_height:%d\n", cfg_eq_res, eye_height);
             }
 #endif
@@ -2256,7 +2256,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
                 VTSS_F_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(reg_val[indx]),
                 VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr) {
+        if (ss) {
             pr("Using cfg_eq_res:%d \n", reg_val[indx]);
         }
 
@@ -2274,7 +2274,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             eye_height =
                 fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-            if (pr) {
+            if (ss) {
                 pr("ln_cfg_vga_ctrl:%d eye_height:%d\n", ln_cfg_vga_ctrl,
                    eye_height);
             }
@@ -2290,7 +2290,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
             VTSS_M_SD25G_TARGET_LANE_21_LN_CFG_VGA_CTRL_BYP_4_0);
 
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr) {
+        if (ss) {
             pr("Using ln_cfg_vga_ctrl:%d \n", reg_val[indx]);
         }
 #endif
@@ -2304,7 +2304,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state,
 
 static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                                    const vtss_debug_printf_t pr,
+                                    lmu_ss_t *ss,
 #endif
                                     u32 port_no)
 {
@@ -2323,7 +2323,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr) {
+    if (ss) {
         pr("Adjust %s EQR, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
@@ -2347,7 +2347,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr) {
+        if (ss) {
             pr("eqr_val:%d eye_height:%d\n", cfg_vga_ctrl, eye_height);
         }
 #endif
@@ -2370,7 +2370,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr) {
+    if (ss) {
         pr("Using eqr_ctrl:%d \n", reg_val[indx]);
     }
 #endif
@@ -2380,7 +2380,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state,
 
 static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                                    const vtss_debug_printf_t pr,
+                                    lmu_ss_t *ss,
 #endif
                                     u32 port_no)
 {
@@ -2399,7 +2399,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr) {
+    if (ss) {
         pr("Adjust %s EQC, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
@@ -2424,7 +2424,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr) {
+        if (ss) {
             pr("cfg_eqc_force:%d eye_height:%d\n", cfg_eqc_force, eye_height);
         }
 #endif
@@ -2446,7 +2446,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr) {
+    if (ss) {
         pr("Using cfg_eqc_force:%d \n", reg_val[indx]);
     }
 #endif
@@ -2522,9 +2522,9 @@ static vtss_rc fa_ctle_write(vtss_state_t *vtss_state,
 }
 
 #if VTSS_OPT_DEBUG_PRINT
-static vtss_rc fa_serdes_ctle_pr(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 u32                       port_no)
+static vtss_rc fa_serdes_ctle_pr(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 u32           port_no)
 {
     u32 eqr = 0, eqc = 0, vga = 0;
 
@@ -2539,7 +2539,7 @@ static vtss_rc fa_serdes_ctle_pr(vtss_state_t             *vtss_state,
 
 vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                              const vtss_debug_printf_t pr,
+                              lmu_ss_t *ss,
 #endif
                               u32  port_no,
                               BOOL ro,
@@ -2563,7 +2563,7 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
     VTSS_RC(rc);
     if (
 #if VTSS_OPT_DEBUG_PRINT
-        pr != NULL ||
+        ss != NULL ||
 #endif
         ro) {
         if (ro) {
@@ -2574,7 +2574,7 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
         } else {
 #if VTSS_OPT_DEBUG_PRINT
             pr("Before CTLE tuning:\n");
-            (void)fa_serdes_ctle_pr(vtss_state, pr, port_no);
+            (void)fa_serdes_ctle_pr(vtss_state, ss, port_no);
             pr("Eye height        :%d\n",
                fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES));
 #endif
@@ -2583,25 +2583,25 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
 
     rc = fa_serdes_vga_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                              pr,
+                              ss,
 #endif
                               port_no);
     VTSS_RC(rc);
     rc = fa_serdes_eqr_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                              pr,
+                              ss,
 #endif
                               port_no);
     VTSS_RC(rc);
     rc = fa_serdes_eqc_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                              pr,
+                              ss,
 #endif
                               port_no);
     VTSS_RC(rc);
     rc = fa_serdes_vga_adjust(vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                              pr,
+                              ss,
 #endif
                               port_no);
     VTSS_RC(rc);
@@ -2612,12 +2612,12 @@ vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
     };
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr == NULL) {
+    if (ss == NULL) {
         return VTSS_RC_OK;
     }
 
     pr("After CTLE tuning:\n");
-    (void)fa_serdes_ctle_pr(vtss_state, pr, port_no);
+    (void)fa_serdes_ctle_pr(vtss_state, ss, port_no);
     pr("Eye height        :%d\n",
        fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES));
 #endif
@@ -2661,7 +2661,7 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
                                         u32           sd_tgt
 #if VTSS_OPT_DEBUG_PRINT
                                         ,
-                                        const vtss_debug_printf_t pr
+                                        lmu_ss_t *ss
 #endif
 )
 {
@@ -2744,7 +2744,7 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
         vref_cnt++;
     }
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr != NULL) {
+    if (ss != NULL) {
         for (int i = vref_cnt; i >= 0; i--) {
             if ((i % 4 == 0) || i == 127) {
                 (void)buf_set(buf, eye_res[i]);
@@ -2785,7 +2785,7 @@ static vtss_rc fa_10g_kr_vref_incr(vtss_state_t *vtss_state,
 static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state,
                                     u32           sd_tgt,
 #if VTSS_OPT_DEBUG_PRINT
-                                    const vtss_debug_printf_t pr,
+                                    lmu_ss_t *ss,
 #endif
                                     u32 *height)
 {
@@ -2893,7 +2893,7 @@ static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state,
                                         u32           sd_tgt
 #if VTSS_OPT_DEBUG_PRINT
                                         ,
-                                        const vtss_debug_printf_t pr
+                                        lmu_ss_t *ss
 #endif
 )
 {
@@ -2943,7 +2943,7 @@ static vtss_rc fa_serdes_25g_normal_eye(vtss_state_t *vtss_state,
     }
 
 #if VTSS_OPT_DEBUG_PRINT
-    if (pr != NULL) {
+    if (ss != NULL) {
         for (int i = vref_cnt; i >= 0; i--) {
             if ((i % 4 == 0) || i == 127) {
                 (void)buf_set(buf, eye_res[i]);
@@ -2990,7 +2990,7 @@ static vtss_rc fa_serdes_25g_eye_dimension(vtss_state_t  *vtss_state,
 
 static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                                       const vtss_debug_printf_t pr,
+                                       lmu_ss_t *ss,
 #endif
                                        u32            action,
                                        vtss_port_no_t port_no,
@@ -3131,7 +3131,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
         rc = fa_serdes_25g_normal_eye(vtss_state, sd_tgt
 #if VTSS_OPT_DEBUG_PRINT
                                       ,
-                                      pr
+                                      ss
 #endif
         );
         VTSS_RC(rc);
@@ -3141,7 +3141,7 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
             *ret_val = height;
         }
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr != NULL) {
+        if (ss != NULL) {
             if (rc == VTSS_RC_ERROR) {
                 if (!ignore_error) {
                     VTSS_E("Eye scan fails to complete");
@@ -3178,24 +3178,24 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t *vtss_state,
 #endif // VTSS_FEATURE_SD_25G
 
 #if VTSS_OPT_DEBUG_PRINT
-#define FA_DEBUG_LANE(pr, addr, i, name)                                       \
+#define FA_DEBUG_LANE(ss, addr, i, name)                                       \
     FA_TGT                                                                     \
-    ? vtss_fa_debug_reg_inst(vtss_state, pr,                                   \
+    ? vtss_fa_debug_reg_inst(vtss_state, ss,                                   \
                              REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i,  \
                              (sd_type == FA_SERDES_TYPE_10G)                   \
                                  ? "VTSS_SD10G_LANE_TARGET_LANE_" name         \
                                  : "VTSS_SD6G_LANE_TARGET_LANE_" name)         \
-    : vtss_fa_debug_reg_inst(vtss_state, pr,                                   \
+    : vtss_fa_debug_reg_inst(vtss_state, ss,                                   \
                              REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i,  \
                              "VTSS_SD10G_LANE_TARGET_LANE_" name)
-#define FA_DEBUG_25G_LANE(pr, addr, i, name)                                   \
-    vtss_fa_debug_reg_inst(vtss_state, pr,                                     \
+#define FA_DEBUG_25G_LANE(ss, addr, i, name)                                   \
+    vtss_fa_debug_reg_inst(vtss_state, ss,                                     \
                            REG_ADDR(VTSS_SD25G_TARGET_CMU_##addr), i,          \
                            "VTSS_SD25G_TARGET_CMU_" name)
 
-static vtss_rc fa_serdes_dump(vtss_state_t             *vtss_state,
-                              const vtss_debug_printf_t pr,
-                              vtss_port_no_t            port_no)
+static vtss_rc fa_serdes_dump(vtss_state_t  *vtss_state,
+                              lmu_ss_t      *ss,
+                              vtss_port_no_t port_no)
 {
 
     u32 sd_type, indx, sd_tgt;
@@ -3209,90 +3209,90 @@ static vtss_rc fa_serdes_dump(vtss_state_t             *vtss_state,
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-        FA_DEBUG_25G_LANE(pr, 01(sd_tgt), indx, "01");
-        FA_DEBUG_25G_LANE(pr, 03(sd_tgt), indx, "03");
-        FA_DEBUG_25G_LANE(pr, 04(sd_tgt), indx, "04");
-        FA_DEBUG_25G_LANE(pr, 05(sd_tgt), indx, "05");
-        FA_DEBUG_25G_LANE(pr, 06(sd_tgt), indx, "06");
-        FA_DEBUG_25G_LANE(pr, 07(sd_tgt), indx, "07");
-        FA_DEBUG_25G_LANE(pr, 09(sd_tgt), indx, "09");
-        FA_DEBUG_25G_LANE(pr, 1B(sd_tgt), indx, "09");
-        FA_DEBUG_25G_LANE(pr, 0A(sd_tgt), indx, "0A");
-        FA_DEBUG_25G_LANE(pr, 0B(sd_tgt), indx, "0B");
-        FA_DEBUG_25G_LANE(pr, 0C(sd_tgt), indx, "0C");
-        FA_DEBUG_25G_LANE(pr, 0D(sd_tgt), indx, "0D");
-        FA_DEBUG_25G_LANE(pr, 0E(sd_tgt), indx, "0E");
-        FA_DEBUG_25G_LANE(pr, 0F(sd_tgt), indx, "0F");
-        FA_DEBUG_25G_LANE(pr, 13(sd_tgt), indx, "13");
-        FA_DEBUG_25G_LANE(pr, 18(sd_tgt), indx, "18");
-        FA_DEBUG_25G_LANE(pr, 19(sd_tgt), indx, "19");
-        FA_DEBUG_25G_LANE(pr, 1A(sd_tgt), indx, "1A");
-        FA_DEBUG_25G_LANE(pr, 1D(sd_tgt), indx, "1D");
-        FA_DEBUG_25G_LANE(pr, 1C(sd_tgt), indx, "1C");
-        FA_DEBUG_25G_LANE(pr, 1E(sd_tgt), indx, "1E");
-        FA_DEBUG_25G_LANE(pr, 22(sd_tgt), indx, "22");
-        FA_DEBUG_25G_LANE(pr, 25(sd_tgt), indx, "25");
-        FA_DEBUG_25G_LANE(pr, 26(sd_tgt), indx, "26");
-        FA_DEBUG_25G_LANE(pr, 28(sd_tgt), indx, "28");
-        FA_DEBUG_25G_LANE(pr, 2C(sd_tgt), indx, "2C");
-        FA_DEBUG_25G_LANE(pr, 2E(sd_tgt), indx, "2E");
-        FA_DEBUG_25G_LANE(pr, 30(sd_tgt), indx, "30");
-        FA_DEBUG_25G_LANE(pr, 31(sd_tgt), indx, "31");
-        FA_DEBUG_25G_LANE(pr, 40(sd_tgt), indx, "40");
-        FA_DEBUG_25G_LANE(pr, 43(sd_tgt), indx, "43");
-        FA_DEBUG_25G_LANE(pr, 43(sd_tgt), indx, "42");
-        FA_DEBUG_25G_LANE(pr, 44(sd_tgt), indx, "44");
-        FA_DEBUG_25G_LANE(pr, 45(sd_tgt), indx, "45");
-        FA_DEBUG_25G_LANE(pr, 46(sd_tgt), indx, "46");
-        FA_DEBUG_25G_LANE(pr, C0(sd_tgt), indx, "C0");
-        FA_DEBUG_25G_LANE(pr, FF(sd_tgt), indx, "FF");
+        FA_DEBUG_25G_LANE(ss, 01(sd_tgt), indx, "01");
+        FA_DEBUG_25G_LANE(ss, 03(sd_tgt), indx, "03");
+        FA_DEBUG_25G_LANE(ss, 04(sd_tgt), indx, "04");
+        FA_DEBUG_25G_LANE(ss, 05(sd_tgt), indx, "05");
+        FA_DEBUG_25G_LANE(ss, 06(sd_tgt), indx, "06");
+        FA_DEBUG_25G_LANE(ss, 07(sd_tgt), indx, "07");
+        FA_DEBUG_25G_LANE(ss, 09(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(ss, 1B(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(ss, 0A(sd_tgt), indx, "0A");
+        FA_DEBUG_25G_LANE(ss, 0B(sd_tgt), indx, "0B");
+        FA_DEBUG_25G_LANE(ss, 0C(sd_tgt), indx, "0C");
+        FA_DEBUG_25G_LANE(ss, 0D(sd_tgt), indx, "0D");
+        FA_DEBUG_25G_LANE(ss, 0E(sd_tgt), indx, "0E");
+        FA_DEBUG_25G_LANE(ss, 0F(sd_tgt), indx, "0F");
+        FA_DEBUG_25G_LANE(ss, 13(sd_tgt), indx, "13");
+        FA_DEBUG_25G_LANE(ss, 18(sd_tgt), indx, "18");
+        FA_DEBUG_25G_LANE(ss, 19(sd_tgt), indx, "19");
+        FA_DEBUG_25G_LANE(ss, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_25G_LANE(ss, 1D(sd_tgt), indx, "1D");
+        FA_DEBUG_25G_LANE(ss, 1C(sd_tgt), indx, "1C");
+        FA_DEBUG_25G_LANE(ss, 1E(sd_tgt), indx, "1E");
+        FA_DEBUG_25G_LANE(ss, 22(sd_tgt), indx, "22");
+        FA_DEBUG_25G_LANE(ss, 25(sd_tgt), indx, "25");
+        FA_DEBUG_25G_LANE(ss, 26(sd_tgt), indx, "26");
+        FA_DEBUG_25G_LANE(ss, 28(sd_tgt), indx, "28");
+        FA_DEBUG_25G_LANE(ss, 2C(sd_tgt), indx, "2C");
+        FA_DEBUG_25G_LANE(ss, 2E(sd_tgt), indx, "2E");
+        FA_DEBUG_25G_LANE(ss, 30(sd_tgt), indx, "30");
+        FA_DEBUG_25G_LANE(ss, 31(sd_tgt), indx, "31");
+        FA_DEBUG_25G_LANE(ss, 40(sd_tgt), indx, "40");
+        FA_DEBUG_25G_LANE(ss, 43(sd_tgt), indx, "43");
+        FA_DEBUG_25G_LANE(ss, 43(sd_tgt), indx, "42");
+        FA_DEBUG_25G_LANE(ss, 44(sd_tgt), indx, "44");
+        FA_DEBUG_25G_LANE(ss, 45(sd_tgt), indx, "45");
+        FA_DEBUG_25G_LANE(ss, 46(sd_tgt), indx, "46");
+        FA_DEBUG_25G_LANE(ss, C0(sd_tgt), indx, "C0");
+        FA_DEBUG_25G_LANE(ss, FF(sd_tgt), indx, "FF");
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 #endif
     } else {
-        FA_DEBUG_LANE(pr, 01(sd_tgt), indx, "01");
-        FA_DEBUG_LANE(pr, 02(sd_tgt), indx, "02");
-        FA_DEBUG_LANE(pr, 03(sd_tgt), indx, "03");
-        FA_DEBUG_LANE(pr, 04(sd_tgt), indx, "04");
-        FA_DEBUG_LANE(pr, 06(sd_tgt), indx, "06");
-        FA_DEBUG_LANE(pr, 0B(sd_tgt), indx, "0B");
-        FA_DEBUG_LANE(pr, 0C(sd_tgt), indx, "0C");
-        FA_DEBUG_LANE(pr, 0D(sd_tgt), indx, "0D");
-        FA_DEBUG_LANE(pr, 0E(sd_tgt), indx, "0E");
-        FA_DEBUG_LANE(pr, 0F(sd_tgt), indx, "0F");
-        FA_DEBUG_LANE(pr, 13(sd_tgt), indx, "13");
-        FA_DEBUG_LANE(pr, 14(sd_tgt), indx, "14");
-        FA_DEBUG_LANE(pr, 15(sd_tgt), indx, "15");
-        FA_DEBUG_LANE(pr, 16(sd_tgt), indx, "16");
-        FA_DEBUG_LANE(pr, 1A(sd_tgt), indx, "1A");
-        FA_DEBUG_LANE(pr, 22(sd_tgt), indx, "22");
-        FA_DEBUG_LANE(pr, 23(sd_tgt), indx, "23");
-        FA_DEBUG_LANE(pr, 24(sd_tgt), indx, "24");
-        FA_DEBUG_LANE(pr, 26(sd_tgt), indx, "26");
-        FA_DEBUG_LANE(pr, 2F(sd_tgt), indx, "2F");
-        FA_DEBUG_LANE(pr, 30(sd_tgt), indx, "30");
-        FA_DEBUG_LANE(pr, 31(sd_tgt), indx, "31");
-        FA_DEBUG_LANE(pr, 32(sd_tgt), indx, "32");
-        FA_DEBUG_LANE(pr, 33(sd_tgt), indx, "33");
-        FA_DEBUG_LANE(pr, 34(sd_tgt), indx, "34");
-        FA_DEBUG_LANE(pr, 35(sd_tgt), indx, "35");
-        FA_DEBUG_LANE(pr, 36(sd_tgt), indx, "36");
-        FA_DEBUG_LANE(pr, 37(sd_tgt), indx, "37");
-        FA_DEBUG_LANE(pr, 39(sd_tgt), indx, "39");
-        FA_DEBUG_LANE(pr, 3A(sd_tgt), indx, "3A");
-        FA_DEBUG_LANE(pr, 3C(sd_tgt), indx, "3C");
-        FA_DEBUG_LANE(pr, 41(sd_tgt), indx, "41");
-        FA_DEBUG_LANE(pr, 42(sd_tgt), indx, "42");
-        FA_DEBUG_LANE(pr, 48(sd_tgt), indx, "48");
-        FA_DEBUG_LANE(pr, 50(sd_tgt), indx, "50");
-        FA_DEBUG_LANE(pr, 52(sd_tgt), indx, "52");
-        FA_DEBUG_LANE(pr, 83(sd_tgt), indx, "83");
-        FA_DEBUG_LANE(pr, 93(sd_tgt), indx, "93");
-        FA_DEBUG_LANE(pr, 94(sd_tgt), indx, "94");
-        FA_DEBUG_LANE(pr, 9E(sd_tgt), indx, "9E");
-        FA_DEBUG_LANE(pr, A1(sd_tgt), indx, "A1");
-        FA_DEBUG_LANE(pr, A2(sd_tgt), indx, "A2");
+        FA_DEBUG_LANE(ss, 01(sd_tgt), indx, "01");
+        FA_DEBUG_LANE(ss, 02(sd_tgt), indx, "02");
+        FA_DEBUG_LANE(ss, 03(sd_tgt), indx, "03");
+        FA_DEBUG_LANE(ss, 04(sd_tgt), indx, "04");
+        FA_DEBUG_LANE(ss, 06(sd_tgt), indx, "06");
+        FA_DEBUG_LANE(ss, 0B(sd_tgt), indx, "0B");
+        FA_DEBUG_LANE(ss, 0C(sd_tgt), indx, "0C");
+        FA_DEBUG_LANE(ss, 0D(sd_tgt), indx, "0D");
+        FA_DEBUG_LANE(ss, 0E(sd_tgt), indx, "0E");
+        FA_DEBUG_LANE(ss, 0F(sd_tgt), indx, "0F");
+        FA_DEBUG_LANE(ss, 13(sd_tgt), indx, "13");
+        FA_DEBUG_LANE(ss, 14(sd_tgt), indx, "14");
+        FA_DEBUG_LANE(ss, 15(sd_tgt), indx, "15");
+        FA_DEBUG_LANE(ss, 16(sd_tgt), indx, "16");
+        FA_DEBUG_LANE(ss, 1A(sd_tgt), indx, "1A");
+        FA_DEBUG_LANE(ss, 22(sd_tgt), indx, "22");
+        FA_DEBUG_LANE(ss, 23(sd_tgt), indx, "23");
+        FA_DEBUG_LANE(ss, 24(sd_tgt), indx, "24");
+        FA_DEBUG_LANE(ss, 26(sd_tgt), indx, "26");
+        FA_DEBUG_LANE(ss, 2F(sd_tgt), indx, "2F");
+        FA_DEBUG_LANE(ss, 30(sd_tgt), indx, "30");
+        FA_DEBUG_LANE(ss, 31(sd_tgt), indx, "31");
+        FA_DEBUG_LANE(ss, 32(sd_tgt), indx, "32");
+        FA_DEBUG_LANE(ss, 33(sd_tgt), indx, "33");
+        FA_DEBUG_LANE(ss, 34(sd_tgt), indx, "34");
+        FA_DEBUG_LANE(ss, 35(sd_tgt), indx, "35");
+        FA_DEBUG_LANE(ss, 36(sd_tgt), indx, "36");
+        FA_DEBUG_LANE(ss, 37(sd_tgt), indx, "37");
+        FA_DEBUG_LANE(ss, 39(sd_tgt), indx, "39");
+        FA_DEBUG_LANE(ss, 3A(sd_tgt), indx, "3A");
+        FA_DEBUG_LANE(ss, 3C(sd_tgt), indx, "3C");
+        FA_DEBUG_LANE(ss, 41(sd_tgt), indx, "41");
+        FA_DEBUG_LANE(ss, 42(sd_tgt), indx, "42");
+        FA_DEBUG_LANE(ss, 48(sd_tgt), indx, "48");
+        FA_DEBUG_LANE(ss, 50(sd_tgt), indx, "50");
+        FA_DEBUG_LANE(ss, 52(sd_tgt), indx, "52");
+        FA_DEBUG_LANE(ss, 83(sd_tgt), indx, "83");
+        FA_DEBUG_LANE(ss, 93(sd_tgt), indx, "93");
+        FA_DEBUG_LANE(ss, 94(sd_tgt), indx, "94");
+        FA_DEBUG_LANE(ss, 9E(sd_tgt), indx, "9E");
+        FA_DEBUG_LANE(ss, A1(sd_tgt), indx, "A1");
+        FA_DEBUG_LANE(ss, A2(sd_tgt), indx, "A2");
     }
     return VTSS_RC_OK;
 }
@@ -3446,7 +3446,7 @@ vtss_rc fa_debug_serdes_set(vtss_state_t                         *vtss_state,
 
 static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
-                                       const vtss_debug_printf_t pr,
+                                       lmu_ss_t *ss,
 #endif
                                        u32            action,
                                        vtss_port_no_t port_no,
@@ -3570,14 +3570,14 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
         rc = fa_serdes_10g_normal_eye(vtss_state, sd_tgt
 #if VTSS_OPT_DEBUG_PRINT
                                       ,
-                                      pr
+                                      ss
 #endif
         );
         VTSS_RC(rc);
     } else if (action == 10) {
         rc = fa_serdes_10g_kr_eye(vtss_state, sd_tgt,
 #if VTSS_OPT_DEBUG_PRINT
-                                  pr,
+                                  ss,
 #endif
                                   &height);
         VTSS_RC(rc);
@@ -3585,7 +3585,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
             *ret_val = height;
         }
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr != NULL) {
+        if (ss != NULL) {
             pr("Eye height = %d\n", height);
         }
 #endif
@@ -3595,7 +3595,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
             *ret_val = height;
         }
 #if VTSS_OPT_DEBUG_PRINT
-        if (pr != NULL) {
+        if (ss != NULL) {
             if (rc == VTSS_RC_ERROR) {
                 if (!ignore_error) {
                     VTSS_E("Eye scan fails to complete");
@@ -3625,7 +3625,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t *vtss_state,
 
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info,
                              vtss_port_no_t                 port_no)
 {
@@ -3680,7 +3680,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
     }
     VTSS_SPRINTF(buf1, "SD%-2d %s", sd_indx, buf3);
     if (info->action == 1) {
-        vtss_fa_debug_reg_header(pr, buf);
+        vtss_fa_debug_reg_header(ss, buf);
     } else {
         if (info->action < 3) {
             pr("%-31s -> %-16s %s\n", buf, buf1, buf2);
@@ -3688,31 +3688,31 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
     }
 
     if (info->action == 1) {
-        VTSS_RC(fa_serdes_dump(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_dump(vtss_state, ss, port_no));
     } else if (info->action >= 2 && info->action <= 4) {
         if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
-            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, pr, info->action,
+            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action,
                                             port_no, &ret_val, 0));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
 #if defined(VTSS_FEATURE_SD_25G)
-            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, pr, info->action,
+            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, ss, info->action,
                                             port_no, &ret_val, 0));
 #endif
         }
     } else if (info->action == 5) {
         // Read DFE settings
-        VTSS_RC(fa_serdes_dfe_read(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_dfe_read(vtss_state, ss, port_no));
     } else if (info->action == 6) {
-        VTSS_RC(fa_serdes_ctle_pr(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_ctle_pr(vtss_state, ss, port_no));
     } else if (info->action == 7) {
 #if defined(VTSS_FEATURE_SD_25G)
-        VTSS_RC(fa_serdes_oscal_ena(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_oscal_ena(vtss_state, ss, port_no));
 #endif
     } else if (info->action == 8) {
-        VTSS_RC(fa_serdes_dfe_set(vtss_state, pr, port_no,
+        VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no,
                                   FALSE)); // DFE Disable
     } else if (info->action == 9) {
-        VTSS_RC(fa_serdes_dfe_set(vtss_state, pr, port_no, TRUE)); // DFE Enable
+        VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no, TRUE)); // DFE Enable
     } else if (info->action == 10) {
         u16 tap_dly = 0, tap_adv = 0, ampl = 0;
         VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv,
@@ -3721,17 +3721,17 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         pr("Tap_adv   (CM):%d\n", tap_adv);
         pr("Amplitude:(C0):%d\n", ampl);
     } else if (info->action == 11) {
-        VTSS_RC(fa_port_kr_square_wave(vtss_state, pr, port_no, TRUE));
+        VTSS_RC(fa_port_kr_square_wave(vtss_state, ss, port_no, TRUE));
     } else if (info->action == 12) {
-        VTSS_RC(fa_port_kr_square_wave(vtss_state, pr, port_no, FALSE));
+        VTSS_RC(fa_port_kr_square_wave(vtss_state, ss, port_no, FALSE));
     } else if (info->action == 13) {
-        VTSS_RC(fa_serdes_vga_adjust(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_vga_adjust(vtss_state, ss, port_no));
     } else if (info->action == 14) {
-        VTSS_RC(fa_serdes_eqr_adjust(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_eqr_adjust(vtss_state, ss, port_no));
     } else if (info->action == 15) {
-        VTSS_RC(fa_serdes_eqc_adjust(vtss_state, pr, port_no));
+        VTSS_RC(fa_serdes_eqc_adjust(vtss_state, ss, port_no));
     } else if (info->action == 16) {
-        VTSS_RC(fa_serdes_ctle_adjust(vtss_state, pr, port_no, FALSE, NULL,
+        VTSS_RC(fa_serdes_ctle_adjust(vtss_state, ss, port_no, FALSE, NULL,
                                       NULL, NULL));
     } else if (info->action >= 20 && info->action <= 26) {
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -3774,7 +3774,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
             action = VTSS_COEF_INCR;
             break;
         }
-        fa_serdes_tx_eq_tune(vtss_state, pr, port_no, coef, action);
+        fa_serdes_tx_eq_tune(vtss_state, ss, port_no, coef, action);
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
     }
 

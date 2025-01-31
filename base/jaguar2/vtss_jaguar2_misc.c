@@ -2000,49 +2000,49 @@ static vtss_rc jr2_vscope_scan_status_get(struct vtss_state_s *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define JR_DEBUG_GPIO(pr, addr, name)                                          \
-    JR2_DEBUG_REG_NAME(pr, DEVCPU_GCB, GPIO_GPIO_##addr, "GPIO_" name)
-#define JR_DEBUG_SIO(pr, addr, name)                                           \
-    JR2_DEBUG_REG_NAME(pr, DEVCPU_GCB, SIO_CTRL_SIO_##addr, "SIO_" name)
-#define JR_DEBUG_SIO_INST(pr, addr, i, name)                                   \
-    vtss_jr2_debug_reg_inst(vtss_state, pr,                                    \
+#define JR_DEBUG_GPIO(ss, addr, name)                                          \
+    JR2_DEBUG_REG_NAME(ss, DEVCPU_GCB, GPIO_GPIO_##addr, "GPIO_" name)
+#define JR_DEBUG_SIO(ss, addr, name)                                           \
+    JR2_DEBUG_REG_NAME(ss, DEVCPU_GCB, SIO_CTRL_SIO_##addr, "SIO_" name)
+#define JR_DEBUG_SIO_INST(ss, addr, i, name)                                   \
+    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, i,            \
                             "SIO_" name)
 
-#define JR_DEBUG_TGT(pr, name) jr_debug_tgt(pr, #name, VTSS_TO_##name)
+#define JR_DEBUG_TGT(ss, name) jr_debug_tgt(ss, #name, VTSS_TO_##name)
 
 static vtss_rc jr2_debug_misc(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32  i, g, count;
     char name[32];
     pr("Name          Target\n");
 
-    vtss_jr2_debug_reg_header(pr, "GPIOs");
-    JR_DEBUG_GPIO(pr, OUT, "OUT");
-    JR_DEBUG_GPIO(pr, OUT1, "OUT1");
-    JR_DEBUG_GPIO(pr, OE, "OE");
-    JR_DEBUG_GPIO(pr, OE1, "OE1");
-    JR_DEBUG_GPIO(pr, IN, "IN");
-    JR_DEBUG_GPIO(pr, IN1, "IN1");
-    JR_DEBUG_GPIO(pr, INTR, "INTR");
-    JR_DEBUG_GPIO(pr, INTR_ENA, "INTR_ENA");
-    JR_DEBUG_GPIO(pr, INTR_IDENT, "INTR_IDENT");
-    JR_DEBUG_GPIO(pr, ALT(0), "ALT_0(0-31)");
-    JR_DEBUG_GPIO(pr, ALT(1), "ALT_1(0-31)");
-    JR_DEBUG_GPIO(pr, ALT1(0), "ALT1_0(32-63)");
-    JR_DEBUG_GPIO(pr, ALT1(1), "ALT1_1(32-63)");
+    vtss_jr2_debug_reg_header(ss, "GPIOs");
+    JR_DEBUG_GPIO(ss, OUT, "OUT");
+    JR_DEBUG_GPIO(ss, OUT1, "OUT1");
+    JR_DEBUG_GPIO(ss, OE, "OE");
+    JR_DEBUG_GPIO(ss, OE1, "OE1");
+    JR_DEBUG_GPIO(ss, IN, "IN");
+    JR_DEBUG_GPIO(ss, IN1, "IN1");
+    JR_DEBUG_GPIO(ss, INTR, "INTR");
+    JR_DEBUG_GPIO(ss, INTR_ENA, "INTR_ENA");
+    JR_DEBUG_GPIO(ss, INTR_IDENT, "INTR_IDENT");
+    JR_DEBUG_GPIO(ss, ALT(0), "ALT_0(0-31)");
+    JR_DEBUG_GPIO(ss, ALT(1), "ALT_1(0-31)");
+    JR_DEBUG_GPIO(ss, ALT1(0), "ALT1_0(32-63)");
+    JR_DEBUG_GPIO(ss, ALT1(1), "ALT1_1(32-63)");
 
     /* pr("\n"); */
-    /* vtss_jr2_debug_reg_header(pr, "I2C/TWI"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_CFG(VTSS_TO_TWI),       "TWI_CFG"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_TAR(VTSS_TO_TWI),       "TWI_TAR"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_INTR_STAT(VTSS_TO_TWI), "INTR_STAT"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_INTR_MASK(VTSS_TO_TWI), "INTR_MASK"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_STAT(VTSS_TO_TWI),      "TWI_STAT"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_TXFLR(VTSS_TO_TWI),     "TWI_TXFLR"); */
-    /* JR2_DEBUG_REG_NAME(pr, TWI, TWI_RXFLR(VTSS_TO_TWI),     "TWI_RXFLR"); */
+    /* vtss_jr2_debug_reg_header(ss, "I2C/TWI"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_CFG(VTSS_TO_TWI),       "TWI_CFG"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_TAR(VTSS_TO_TWI),       "TWI_TAR"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_INTR_STAT(VTSS_TO_TWI), "INTR_STAT"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_INTR_MASK(VTSS_TO_TWI), "INTR_MASK"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_STAT(VTSS_TO_TWI),      "TWI_STAT"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_TXFLR(VTSS_TO_TWI),     "TWI_TXFLR"); */
+    /* JR2_DEBUG_REG_NAME(ss, TWI, TWI_RXFLR(VTSS_TO_TWI),     "TWI_RXFLR"); */
 
     pr("\n");
 
@@ -2053,69 +2053,69 @@ static vtss_rc jr2_debug_misc(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_SERVAL_T */
     for (g = 0; g < count; g++) {
         VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
-        vtss_jr2_debug_reg_header(pr, name);
+        vtss_jr2_debug_reg_header(ss, name);
 #if defined(VTSS_ARCH_SERVAL_T)
         for (i = 0; i < 4; i++) {
-            JR_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-            JR_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
-            JR_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
+            JR_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");
+            JR_DEBUG_SIO_INST(ss, INTR_POL(i), i, "INTR_POL");
+            JR_DEBUG_SIO_INST(ss, INTR(i), i, "INTR");
         }
-        JR_DEBUG_SIO(pr, INTR_ENA, "INTR_ENA");
-        JR_DEBUG_SIO(pr, PORT_ENA, "PORT_ENA");
-        JR_DEBUG_SIO(pr, CFG, "CFG");
-        JR_DEBUG_SIO(pr, CLOCK, "CLOCK");
+        JR_DEBUG_SIO(ss, INTR_ENA, "INTR_ENA");
+        JR_DEBUG_SIO(ss, PORT_ENA, "PORT_ENA");
+        JR_DEBUG_SIO(ss, CFG, "CFG");
+        JR_DEBUG_SIO(ss, CLOCK, "CLOCK");
         for (i = 0; i < 32; i++) {
-            JR_DEBUG_SIO_INST(pr, PORT_CFG(i), i, "PORT_CFG");
+            JR_DEBUG_SIO_INST(ss, PORT_CFG(i), i, "PORT_CFG");
         }
 #else
         for (i = 0; i < 4; i++) {
-            JR_DEBUG_SIO_INST(pr, INPUT_DATA(g, i), i, "INPUT_DATA");
-            JR_DEBUG_SIO_INST(pr, INTR_POL(g, i), i, "INTR_POL");
-            JR_DEBUG_SIO_INST(pr, INTR(g, i), i, "INTR");
+            JR_DEBUG_SIO_INST(ss, INPUT_DATA(g, i), i, "INPUT_DATA");
+            JR_DEBUG_SIO_INST(ss, INTR_POL(g, i), i, "INTR_POL");
+            JR_DEBUG_SIO_INST(ss, INTR(g, i), i, "INTR");
         }
-        JR_DEBUG_SIO(pr, INTR_ENA(g), "INTR_ENA");
-        JR_DEBUG_SIO(pr, PORT_ENA(g), "PORT_ENA");
-        JR_DEBUG_SIO(pr, CFG(g), "CFG");
-        JR_DEBUG_SIO(pr, CLOCK(g), "CLOCK");
+        JR_DEBUG_SIO(ss, INTR_ENA(g), "INTR_ENA");
+        JR_DEBUG_SIO(ss, PORT_ENA(g), "PORT_ENA");
+        JR_DEBUG_SIO(ss, CFG(g), "CFG");
+        JR_DEBUG_SIO(ss, CLOCK(g), "CLOCK");
         for (i = 0; i < 32; i++) {
-            JR_DEBUG_SIO_INST(pr, PORT_CFG(g, i), i, "PORT_CFG");
+            JR_DEBUG_SIO_INST(ss, PORT_CFG(g, i), i, "PORT_CFG");
         }
 #endif /* VTSS_ARCH_SERVAL_T */
         pr("\n");
     }
 
-    vtss_jr2_debug_reg_header(pr, "IRQs");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_RAW, "INTR_RAW");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_TRIGGER(0), "INTR_TRIGGER(0)");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_FORCE, "INTR_FORCE");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_STICKY, "INTR_STICKY");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_BYPASS, "INTR_BYPASS");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_ENA, "INTR_ENA");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_ENA_CLR, "INTR_ENA_CLR");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_ENA_SET, "INTR_ENA_SET");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, INTR_IDENT, "INTR_IDENT");
+    vtss_jr2_debug_reg_header(ss, "IRQs");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_RAW, "INTR_RAW");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_TRIGGER(0), "INTR_TRIGGER(0)");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_FORCE, "INTR_FORCE");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_STICKY, "INTR_STICKY");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_BYPASS, "INTR_BYPASS");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_ENA, "INTR_ENA");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_ENA_CLR, "INTR_ENA_CLR");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_ENA_SET, "INTR_ENA_SET");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, INTR_IDENT, "INTR_IDENT");
 
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, DEV_INTR_ENA, "DEV_INTR_ENA");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, DEV_INTR_STICKY, "DEV_INTR_STICKY");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, DEV_INTR_IDENT, "DEV_INTR_IDENT");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, DEV_INTR_ENA, "DEV_INTR_ENA");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, DEV_INTR_STICKY, "DEV_INTR_STICKY");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, DEV_INTR_IDENT, "DEV_INTR_IDENT");
 
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, DST_INTR_MAP(0), "DST_INTR_MAP(0)");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, DST_INTR_IDENT(0),
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, DST_INTR_MAP(0), "DST_INTR_MAP(0)");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, DST_INTR_IDENT(0),
                        "DST_INTR_IDENT(0)");
 
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_SRC_INTR_POL, "EXT_SRC_INTR_POL");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_DST_INTR_POL, "EXT_DST_INTR_POL");
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_INTR, EXT_DST_INTR_DRV, "EXT_DST_INTR_DRV");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_SRC_INTR_POL, "EXT_SRC_INTR_POL");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_DST_INTR_POL, "EXT_DST_INTR_POL");
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_DST_INTR_DRV, "EXT_DST_INTR_DRV");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_jr2_misc_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, jr2_debug_misc,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 

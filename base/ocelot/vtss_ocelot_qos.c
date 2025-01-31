@@ -842,7 +842,7 @@ static vtss_rc srvl_qos_status_get(vtss_state_t      *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32            i, port, pir, value, mode, terminal_se, dwrr_se;
@@ -856,7 +856,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
 
     pr("QoS WRED Config has been moved to 'debug api cil wm'\n\n");
 
-    vtss_debug_print_header(pr, "QoS Storm Control");
+    vtss_debug_print_header(ss, "QoS Storm Control");
 
     SRVL_RD(VTSS_ANA_ANA_STORMLIMIT_BURST, &value);
     pr("Burst: %u\n", VTSS_X_ANA_ANA_STORMLIMIT_BURST_STORM_BURST(value));
@@ -870,7 +870,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS DSCP Config");
+    vtss_debug_print_header(ss, "QoS DSCP Config");
 
     pr("DSCP Trans CLS DPL Rewr Trust Remap_DP0 Remap_DP1\n");
     for (i = 0; i < 64; i++) {
@@ -891,7 +891,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS DSCP Classification from QoS Config");
+    vtss_debug_print_header(ss, "QoS DSCP Classification from QoS Config");
 
     pr("QoS DSCP_DP0 DSCP_DP1\n");
     for (i = 0; i < 8; i++) {
@@ -906,7 +906,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
 
     /* Per port configuration starts here */
 
-    vtss_debug_print_header(pr, "QoS Port Classification Config");
+    vtss_debug_print_header(ss, "QoS Port Classification Config");
 
     pr("LP CP PCP CLS DEI DPL TC_EN DC_EN\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -931,7 +931,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     pr("\n");
 
     vtss_debug_print_header(
-        pr, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
+        ss, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
 
     pr("LP CP QoS class (8*DEI+PCP)           DP level (8*DEI+PCP)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -965,7 +965,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Scheduler Config");
+    vtss_debug_print_header(ss, "QoS Scheduler Config");
 
     pr("LP CP   SE Base IdxSel InpSel RR_ENA DWRR C0 C1 C2 C3 C4 C5 C6 C7\n");
     for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2);
@@ -999,7 +999,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port and Queue Shaper Config");
+    vtss_debug_print_header(ss, "QoS Port and Queue Shaper Config");
 
     pr("LP CP Queue SE  CBS  CIR    EBS  EIR    SE_PRIO SE_SPORT SE_DPORT Excess Credit SE_FRM_MODE\n");
     for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2);
@@ -1089,7 +1089,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS CPU Port Shaper Config");
+    vtss_debug_print_header(ss, "QoS CPU Port Shaper Config");
     pr("CPU CP SE  CBS  CIR\n");
     SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(CPU_PORT_0_SE_INDEX), &value);
     pr("%3u %2u %3u 0x%02x 0x%04x\n", 0, VTSS_CHIP_PORT_CPU_0,
@@ -1101,7 +1101,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
        VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value));
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Tag Remarking Config");
+    vtss_debug_print_header(ss, "QoS Port Tag Remarking Config");
 
     pr("LP CP MPCP MDEI PCP DEI\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1121,7 +1121,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port Tag Remarking Map");
+    vtss_debug_print_header(ss, "QoS Port Tag Remarking Map");
 
     pr("LP CP PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1151,7 +1151,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "QoS Port DSCP Remarking Config");
+    vtss_debug_print_header(ss, "QoS Port DSCP Remarking Config");
 
     pr("LP CP I_Mode Trans E_Mode\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -1170,27 +1170,27 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, pr, info));
+    VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, ss, info));
 
-    vtss_debug_print_header(pr, "QoS Port and Queue Policer");
+    vtss_debug_print_header(ss, "QoS Port and Queue Policer");
 
-    vtss_srvl_debug_reg_header(pr, "Policer Config (chip ports)");
+    vtss_srvl_debug_reg_header(ss, "Policer Config (chip ports)");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
         port = VTSS_CHIP_PORT(port_no);
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_POL_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_POL_CFG(port),
                                  port, "POL_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ANA_POL_MISC_POL_FLOWC(port), port,
                                  "POL_FLOWC");
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Policers");
+    vtss_debug_print_header(ss, "Policers");
 
     header = 1;
     for (i = 0; i < SRVL_POLICER_CNT; i++) {
@@ -1236,11 +1236,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_srvl_qos_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, srvl_debug_qos,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

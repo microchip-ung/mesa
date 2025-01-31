@@ -140,37 +140,37 @@ vtss_rc vtss_srvl_isdx_update(vtss_state_t *vtss_state,
                               u32           isdx_mask,
                               u32           pol_idx,
                               u32           voe_idx);
-void    vtss_srvl_debug_cnt(const vtss_debug_printf_t pr,
-                            const char               *col1,
-                            const char               *col2,
-                            vtss_chip_counter_t      *c1,
-                            vtss_chip_counter_t      *c2);
-void vtss_srvl_debug_reg_header(const vtss_debug_printf_t pr, const char *name);
-void vtss_srvl_debug_reg(vtss_state_t             *vtss_state,
-                         const vtss_debug_printf_t pr,
-                         u32                       addr,
-                         const char               *name);
-void vtss_srvl_debug_reg_inst(vtss_state_t             *vtss_state,
-                              const vtss_debug_printf_t pr,
-                              u32                       addr,
-                              u32                       i,
-                              const char               *name);
-void vtss_srvl_debug_print_port_header(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
-                                       const char               *txt);
-void vtss_srvl_debug_print_mask(const vtss_debug_printf_t pr, u32 mask);
+void    vtss_srvl_debug_cnt(lmu_ss_t            *ss,
+                            const char          *col1,
+                            const char          *col2,
+                            vtss_chip_counter_t *c1,
+                            vtss_chip_counter_t *c2);
+void    vtss_srvl_debug_reg_header(lmu_ss_t *ss, const char *name);
+void    vtss_srvl_debug_reg(vtss_state_t *vtss_state,
+                            lmu_ss_t     *ss,
+                            u32           addr,
+                            const char   *name);
+void    vtss_srvl_debug_reg_inst(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 u32           addr,
+                                 u32           i,
+                                 const char   *name);
+void    vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
+                                          const char   *txt);
+void    vtss_srvl_debug_print_mask(lmu_ss_t *ss, u32 mask);
 
-vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t             *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  vtss_sdx_entry_t         *isdx_list,
-                                  u32                       id,
-                                  BOOL                     *header,
-                                  BOOL                      ece);
+vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
+                                  lmu_ss_t         *ss,
+                                  vtss_sdx_entry_t *isdx_list,
+                                  u32               id,
+                                  BOOL             *header,
+                                  BOOL              ece);
 
 /* Port functions */
 vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_port_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
 vtss_rc vtss_srvl_port_max_tags_set(vtss_state_t  *vtss_state,
                                     vtss_port_no_t port_no);
@@ -194,7 +194,7 @@ vtss_rc vtss_srvl_gpio_mode(vtss_state_t          *vtss_state,
                             const vtss_gpio_mode_t mode);
 #endif /* VTSS_GPIOS */
 vtss_rc vtss_srvl_misc_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
 
 /* QoS functions */
@@ -214,24 +214,24 @@ vtss_rc vtss_srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
                                       u32                      dlb_sense_qos,
                                       vtss_shaper_calibrate_t *calibrate);
 vtss_rc vtss_srvl_qos_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 
 /* L2 functions */
 vtss_rc vtss_srvl_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_l2_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 
 /* Packet functions */
 vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_packet_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info);
 
 #if defined(VTSS_FEATURE_AFI_SWC)
 vtss_rc vtss_srvl_afi_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_AFI_SWC */
 
@@ -264,7 +264,7 @@ vtss_rc vtss_srvl_mpls_out_encap_raw_set(vtss_state_t *vtss_state,
 /* OAM functions */
 vtss_rc vtss_srvl_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_oam_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_VOP */
 
@@ -279,19 +279,19 @@ vtss_rc vtss_srvl_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                          vtss_vcap_key_type_t key_old,
                                          BOOL                 dmac_dip_new);
 vtss_rc vtss_srvl_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
 vtss_rc vtss_srvl_debug_is0_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 vtss_rc vtss_srvl_debug_es0_all(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
-vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info);
 BOOL    vtss_srvl_is1_oam_adv(vtss_state_t *vtss_state);
 
@@ -299,7 +299,7 @@ BOOL    vtss_srvl_is1_oam_adv(vtss_state_t *vtss_state);
 /* Timestamp functions */
 vtss_rc vtss_srvl_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_ts_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_TIMESTAMP */
 

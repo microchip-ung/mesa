@@ -1307,20 +1307,20 @@ static vtss_rc jr2_tx_frame_ifh(vtss_state_t                     *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc jr2_debug_pkt(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    JR2_DEBUG_REG_NAME(pr, ICPU_CFG_MANUAL, XTRINJ_MANUAL_CFG,
+    JR2_DEBUG_REG_NAME(ss, ICPU_CFG_MANUAL, XTRINJ_MANUAL_CFG,
                        "XTRINJ_MANUAL_CFG");
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_jr2_packet_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, jr2_debug_pkt,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

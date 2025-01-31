@@ -190,14 +190,14 @@ vtss_rc vtss_srvl_counter_update(vtss_state_t        *vtss_state,
  *  Debug print utility functions
  * ================================================================= */
 
-void vtss_srvl_debug_print_port_header(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
-                                       const char               *txt)
+void vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
+                                       const char   *txt)
 {
-    vtss_debug_print_port_header(vtss_state, pr, txt, VTSS_CHIP_PORTS + 1, 1);
+    vtss_debug_print_port_header(vtss_state, ss, txt, VTSS_CHIP_PORTS + 1, 1);
 }
 
-void vtss_srvl_debug_print_mask(const vtss_debug_printf_t pr, u32 mask)
+void vtss_srvl_debug_print_mask(lmu_ss_t *ss, u32 mask)
 {
     u32 port;
 
@@ -208,18 +208,18 @@ void vtss_srvl_debug_print_mask(const vtss_debug_printf_t pr, u32 mask)
     pr("  0x%08x\n", mask);
 }
 
-void vtss_srvl_debug_reg_header(const vtss_debug_printf_t pr, const char *name)
+void vtss_srvl_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%-32s  Tgt   Addr  ", name);
-    vtss_debug_print_reg_header(pr, buf);
+    vtss_debug_print_reg_header(ss, buf);
 }
 
-void vtss_srvl_debug_reg(vtss_state_t             *vtss_state,
-                         const vtss_debug_printf_t pr,
-                         u32                       addr,
-                         const char               *name)
+void vtss_srvl_debug_reg(vtss_state_t *vtss_state,
+                         lmu_ss_t     *ss,
+                         u32           addr,
+                         const char   *name)
 {
     u32  value;
     char buf[200];
@@ -227,27 +227,27 @@ void vtss_srvl_debug_reg(vtss_state_t             *vtss_state,
     if (vtss_srvl_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
         VTSS_SPRINTF(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
                      addr & 0x3fff);
-        vtss_debug_print_reg(pr, buf, value);
+        vtss_debug_print_reg(ss, buf, value);
     }
 }
 
-void vtss_srvl_debug_reg_inst(vtss_state_t             *vtss_state,
-                              const vtss_debug_printf_t pr,
-                              u32                       addr,
-                              u32                       i,
-                              const char               *name)
+void vtss_srvl_debug_reg_inst(vtss_state_t *vtss_state,
+                              lmu_ss_t     *ss,
+                              u32           addr,
+                              u32           i,
+                              const char   *name)
 {
     char buf[64];
 
     VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_srvl_debug_reg(vtss_state, pr, addr, buf);
+    vtss_srvl_debug_reg(vtss_state, ss, addr, buf);
 }
 
-void vtss_srvl_debug_cnt(const vtss_debug_printf_t pr,
-                         const char               *col1,
-                         const char               *col2,
-                         vtss_chip_counter_t      *c1,
-                         vtss_chip_counter_t      *c2)
+void vtss_srvl_debug_cnt(lmu_ss_t            *ss,
+                         const char          *col1,
+                         const char          *col2,
+                         vtss_chip_counter_t *c1,
+                         vtss_chip_counter_t *c2)
 {
     char buf[80];
 
@@ -264,12 +264,12 @@ void vtss_srvl_debug_cnt(const vtss_debug_printf_t pr,
     pr("\n");
 }
 
-vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t             *vtss_state,
-                                  const vtss_debug_printf_t pr,
-                                  vtss_sdx_entry_t         *isdx_list,
-                                  u32                       id,
-                                  BOOL                     *header,
-                                  BOOL                      ece)
+vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
+                                  lmu_ss_t         *ss,
+                                  vtss_sdx_entry_t *isdx_list,
+                                  u32               id,
+                                  BOOL             *header,
+                                  BOOL              ece)
 {
     vtss_sdx_entry_t *isdx;
     u32               value;
@@ -278,7 +278,7 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t             *vtss_state,
         if (*header) {
             pr("ISDX  %s    Port  FORCE_ENA  ES0_ENA  SDLBI  VOE  ",
                ece ? "ECE ID" : "IFLOW");
-            vtss_srvl_debug_print_port_header(vtss_state, pr, "");
+            vtss_srvl_debug_print_port_header(vtss_state, ss, "");
             *header = 0;
         }
         SRVL_WR(VTSS_ANA_ANA_TABLES_ISDXTIDX,
@@ -305,29 +305,29 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t             *vtss_state,
 
         SRVL_RD(VTSS_ANA_ANA_TABLES_ISDXACCESS, &value);
         vtss_srvl_debug_print_mask(
-            pr, VTSS_X_ANA_ANA_TABLES_ISDXACCESS_ISDX_PORT_MASK(value));
+            ss, VTSS_X_ANA_ANA_TABLES_ISDXACCESS_ISDX_PORT_MASK(value));
     }
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_srvl_misc_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_port_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_l2_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_vcap_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_qos_debug_print(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_packet_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_srvl_misc_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_port_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_l2_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_vcap_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_qos_debug_print(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_packet_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_AFI_SWC)
-    VTSS_RC(vtss_srvl_afi_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_srvl_afi_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_AFI_SWC */
 #if defined(VTSS_FEATURE_TIMESTAMP)
-    VTSS_RC(vtss_srvl_ts_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_srvl_ts_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_TIMESTAMP */
 #if defined(VTSS_FEATURE_VOP)
-    VTSS_RC(vtss_srvl_oam_debug_print(vtss_state, pr, info));
+    VTSS_RC(vtss_srvl_oam_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_VOP */
     return VTSS_RC_OK;
 }

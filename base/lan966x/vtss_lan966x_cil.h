@@ -223,37 +223,36 @@ vtss_rc vtss_lan966x_counter_update(vtss_state_t        *vtss_state,
                                     vtss_chip_counter_t *counter,
                                     BOOL                 clear);
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_lan966x_debug_print_port_header(vtss_state_t             *vtss_state,
-                                          const vtss_debug_printf_t pr,
-                                          const char               *txt);
-void vtss_lan966x_debug_print_mask(const vtss_debug_printf_t pr, u32 mask);
-void vtss_lan966x_debug_reg_header(const vtss_debug_printf_t pr,
-                                   const char               *name);
-void vtss_lan966x_debug_reg(vtss_state_t             *vtss_state,
-                            const vtss_debug_printf_t pr,
-                            u32                       addr,
-                            const char               *name);
-void vtss_lan966x_debug_reg_inst(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 u32                       addr,
-                                 u32                       i,
-                                 const char               *name);
-void vtss_lan966x_debug_cnt(const vtss_debug_printf_t pr,
-                            const char               *col1,
-                            const char               *col2,
-                            vtss_chip_counter_t      *c1,
-                            vtss_chip_counter_t      *c2);
+void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
+                                          const char   *txt);
+void vtss_lan966x_debug_print_mask(lmu_ss_t *ss, u32 mask);
+void vtss_lan966x_debug_reg_header(lmu_ss_t *ss, const char *name);
+void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
+                            lmu_ss_t     *ss,
+                            u32           addr,
+                            const char   *name);
+void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 u32           addr,
+                                 u32           i,
+                                 const char   *name);
+void vtss_lan966x_debug_cnt(lmu_ss_t            *ss,
+                            const char          *col1,
+                            const char          *col2,
+                            vtss_chip_counter_t *c1,
+                            vtss_chip_counter_t *c2);
 #endif
 
 // Port API
 vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_port_debug_print(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
-vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t             *vtss_state,
-                                     const vtss_debug_printf_t pr,
-                                     BOOL                      res_stat_cur);
+vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
+                                     lmu_ss_t     *ss,
+                                     BOOL          res_stat_cur);
 #endif
 vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t  *vtss_state,
                                        vtss_port_no_t port_no);
@@ -263,8 +262,8 @@ u32     vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue);
 // Packet API
 vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
-vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t             *vtss_state,
-                                        const vtss_debug_printf_t pr,
+vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
+                                        lmu_ss_t     *ss,
                                         const vtss_debug_info_t *const info);
 #endif
 
@@ -272,7 +271,7 @@ vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t             *vtss_state,
 vtss_rc vtss_lan966x_afi_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_afi_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info);
 #endif
 
@@ -280,7 +279,7 @@ vtss_rc vtss_lan966x_afi_debug_print(vtss_state_t                  *vtss_state,
 vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
 #endif
 vtss_rc vtss_lan966x_gpio_mode(vtss_state_t          *vtss_state,
@@ -297,7 +296,7 @@ void vtss_lan966x_is1_action_update(vtss_state_t      *vtss_state,
 #endif
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info);
 #endif
 
@@ -306,7 +305,7 @@ vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t                  *vtss_state,
 vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info);
 #endif
 vtss_rc vtss_lan966x_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
@@ -323,7 +322,7 @@ vtss_rc vtss_lan966x_qos_policer_conf_set(vtss_state_t        *vtss_state,
 vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info);
 #endif
 
@@ -339,16 +338,16 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                             BOOL                 dmac_dip_new);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
-vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t             *vtss_state,
-                                          const vtss_debug_printf_t pr,
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
                                           const vtss_debug_info_t *const info);
 vtss_rc vtss_lan966x_debug_is1(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 vtss_rc vtss_lan966x_debug_es0(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
 #endif
 
@@ -356,7 +355,7 @@ vtss_rc vtss_lan966x_debug_es0(vtss_state_t                  *vtss_state,
 vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info);
 #endif
 
@@ -364,7 +363,7 @@ vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t                  *vtss_state,
 vtss_rc vtss_lan966x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_mrp_debug_print(vtss_state_t                  *vtss_state,
-                                     const vtss_debug_printf_t      pr,
+                                     lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info);
 #endif
 

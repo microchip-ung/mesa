@@ -791,7 +791,7 @@ static char *debug_megid_string(u8 *megid)
 }
 
 void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
     u32                 i, div, vo_idx;
@@ -823,7 +823,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
     vtss_voi_conf_t  *voi_conf;
 #endif
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_OAM))
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_OAM))
         return;
 
     div = 0;

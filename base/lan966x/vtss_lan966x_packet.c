@@ -889,7 +889,7 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32  port, i;
@@ -898,24 +898,24 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
     // Analyzer CPU forwarding registers
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_lan966x_debug_reg_header(pr, buf);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_CPU_FWD_CFG(port)), port,
                                     "FWD_CFG");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_CPU_FWD_BPDU_CFG(port)), port,
                                     "BPDU_CFG");
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_CPU_FWD_GARP_CFG(port)), port,
                                     "GARP_CFG");
         pr("\n");
     }
 
     // Analyzer CPU queue mappings
-    vtss_lan966x_debug_reg_header(pr, "CPU Queues");
-    vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(ANA_CPUQ_CFG), "CPUQ_CFG");
+    vtss_lan966x_debug_reg_header(ss, "CPU Queues");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_CPUQ_CFG), "CPUQ_CFG");
     for (i = 0; i < 16; i++) {
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_CPUQ_8021_CFG(i)), i,
                                     "CPUQ_8021_CFG");
     }
@@ -923,23 +923,23 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
 
     // NPI port
     if (vtss_state->packet.npi_conf.enable) {
-        vtss_lan966x_debug_reg_header(pr, "NPI");
-        vtss_lan966x_debug_reg(vtss_state, pr, REG_ADDR(QSYS_EXT_CPU_CFG),
+        vtss_lan966x_debug_reg_header(ss, "NPI");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(QSYS_EXT_CPU_CFG),
                                "QSYS:EXT_CPU_CFG");
         port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
-        vtss_lan966x_debug_reg_inst(vtss_state, pr,
+        vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(SYS_PORT_MODE(port)), port,
                                     "SYS:PORT_MODE");
     }
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t             *vtss_state,
-                                        const vtss_debug_printf_t pr,
+vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
+                                        lmu_ss_t     *ss,
                                         const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, lan966x_debug_pkt,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

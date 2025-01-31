@@ -182,6 +182,11 @@ extern const char *vtss_func;
             return __rc__;                                                     \
     }
 
+// Debug print
+#define pr(fmt_str, ...)                                                       \
+    LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)             \
+    (ss, (fmt_str), ##__VA_ARGS__)
+
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 
 #define VTSS_CHIP_PORT(port_no) vtss_state->port.map[port_no].chip_port
@@ -315,7 +320,7 @@ typedef struct {
 
 #if VTSS_OPT_DEBUG_PRINT
     vtss_rc (*debug_info_print)(struct vtss_state_s           *vtss_state,
-                                const vtss_debug_printf_t      prntf,
+                                lmu_ss_t                      *ssntf,
                                 const vtss_debug_info_t *const info);
 #endif
 } vtss_cil_func_t;

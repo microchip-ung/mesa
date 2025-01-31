@@ -2058,7 +2058,7 @@ do_exit:
  * vtss_afi_debug_print()
  */
 void vtss_afi_debug_print(vtss_state_t                  *vtss_state,
-                          const vtss_debug_printf_t      pr,
+                          lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {
     vtss_afi_state_t *afi = &vtss_state->afi;
@@ -2069,7 +2069,7 @@ void vtss_afi_debug_print(vtss_state_t                  *vtss_state,
     u32               res_idx;
     i32               frm_idx;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_AFI)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_AFI)) {
         return;
     }
 

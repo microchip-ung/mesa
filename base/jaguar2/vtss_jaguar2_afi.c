@@ -154,7 +154,7 @@ static vtss_rc jr2_afi_clock_period_get(vtss_state_t *vtss_state)
  * jr2_afi_debug()
  */
 static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u64 t_us[8], base_us;
@@ -302,8 +302,8 @@ static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
         }
     }
 
-    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, pr, FALSE));
-    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, pr, TRUE));
+    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, ss, FALSE));
+    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, ss, TRUE));
 
     return VTSS_RC_OK;
 }
@@ -1914,11 +1914,11 @@ static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state,
  * vtss_jr2_afi_debug_print()
  */
 vtss_rc vtss_jr2_afi_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, jr2_afi_debug,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /*

@@ -913,7 +913,7 @@ vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t        *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc srvl_debug_mac_table(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     u32  value, port;
@@ -945,51 +945,51 @@ static vtss_rc srvl_debug_mac_table(vtss_state_t                  *vtss_state,
     SRVL_RD(VTSS_ANA_ANA_ANEVENTS, &value);
     SRVL_WR(VTSS_ANA_ANA_ANEVENTS, value);
 
-    vtss_debug_print_sticky(pr, "AUTOAGE", value,
+    vtss_debug_print_sticky(ss, "AUTOAGE", value,
                             VTSS_F_ANA_ANA_ANEVENTS_AUTOAGE);
-    vtss_debug_print_sticky(pr, "STORM_DROP", value,
+    vtss_debug_print_sticky(ss, "STORM_DROP", value,
                             VTSS_F_ANA_ANA_ANEVENTS_STORM_DROP);
-    vtss_debug_print_sticky(pr, "LEARN_DROP", value,
+    vtss_debug_print_sticky(ss, "LEARN_DROP", value,
                             VTSS_F_ANA_ANA_ANEVENTS_LEARN_DROP);
-    vtss_debug_print_sticky(pr, "AGED_ENTRY", value,
+    vtss_debug_print_sticky(ss, "AGED_ENTRY", value,
                             VTSS_F_ANA_ANA_ANEVENTS_AGED_ENTRY);
-    vtss_debug_print_sticky(pr, "CPU_LEARN_FAILED", value,
+    vtss_debug_print_sticky(ss, "CPU_LEARN_FAILED", value,
                             VTSS_F_ANA_ANA_ANEVENTS_CPU_LEARN_FAILED);
-    vtss_debug_print_sticky(pr, "AUTO_LEARN_FAILED", value,
+    vtss_debug_print_sticky(ss, "AUTO_LEARN_FAILED", value,
                             VTSS_F_ANA_ANA_ANEVENTS_AUTO_LEARN_FAILED);
-    vtss_debug_print_sticky(pr, "LEARN_REMOVE", value,
+    vtss_debug_print_sticky(ss, "LEARN_REMOVE", value,
                             VTSS_F_ANA_ANA_ANEVENTS_LEARN_REMOVE);
-    vtss_debug_print_sticky(pr, "AUTO_LEARNED", value,
+    vtss_debug_print_sticky(ss, "AUTO_LEARNED", value,
                             VTSS_F_ANA_ANA_ANEVENTS_AUTO_LEARNED);
-    vtss_debug_print_sticky(pr, "AUTO_MOVED", value,
+    vtss_debug_print_sticky(ss, "AUTO_MOVED", value,
                             VTSS_F_ANA_ANA_ANEVENTS_AUTO_MOVED);
-    vtss_debug_print_sticky(pr, "CLASSIFIED_DROP", value,
+    vtss_debug_print_sticky(ss, "CLASSIFIED_DROP", value,
                             VTSS_F_ANA_ANA_ANEVENTS_CLASSIFIED_DROP);
-    vtss_debug_print_sticky(pr, "CLASSIFIED_COPY", value,
+    vtss_debug_print_sticky(ss, "CLASSIFIED_COPY", value,
                             VTSS_F_ANA_ANA_ANEVENTS_CLASSIFIED_COPY);
-    vtss_debug_print_sticky(pr, "VLAN_DISCARD", value,
+    vtss_debug_print_sticky(ss, "VLAN_DISCARD", value,
                             VTSS_F_ANA_ANA_ANEVENTS_VLAN_DISCARD);
-    vtss_debug_print_sticky(pr, "FWD_DISCARD", value,
+    vtss_debug_print_sticky(ss, "FWD_DISCARD", value,
                             VTSS_F_ANA_ANA_ANEVENTS_FWD_DISCARD);
-    vtss_debug_print_sticky(pr, "MULTICAST_FLOOD", value,
+    vtss_debug_print_sticky(ss, "MULTICAST_FLOOD", value,
                             VTSS_F_ANA_ANA_ANEVENTS_MULTICAST_FLOOD);
-    vtss_debug_print_sticky(pr, "UNICAST_FLOOD", value,
+    vtss_debug_print_sticky(ss, "UNICAST_FLOOD", value,
                             VTSS_F_ANA_ANA_ANEVENTS_UNICAST_FLOOD);
-    vtss_debug_print_sticky(pr, "DEST_KNOWN", value,
+    vtss_debug_print_sticky(ss, "DEST_KNOWN", value,
                             VTSS_F_ANA_ANA_ANEVENTS_DEST_KNOWN);
-    vtss_debug_print_sticky(pr, "BUCKET3_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET3_MATCH", value,
                             VTSS_F_ANA_ANA_ANEVENTS_BUCKET3_MATCH);
-    vtss_debug_print_sticky(pr, "BUCKET2_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET2_MATCH", value,
                             VTSS_F_ANA_ANA_ANEVENTS_BUCKET2_MATCH);
-    vtss_debug_print_sticky(pr, "BUCKET1_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET1_MATCH", value,
                             VTSS_F_ANA_ANA_ANEVENTS_BUCKET1_MATCH);
-    vtss_debug_print_sticky(pr, "BUCKET0_MATCH", value,
+    vtss_debug_print_sticky(ss, "BUCKET0_MATCH", value,
                             VTSS_F_ANA_ANA_ANEVENTS_BUCKET0_MATCH);
-    vtss_debug_print_sticky(pr, "CPU_OPERATION", value,
+    vtss_debug_print_sticky(ss, "CPU_OPERATION", value,
                             VTSS_F_ANA_ANA_ANEVENTS_CPU_OPERATION);
-    vtss_debug_print_sticky(pr, "DMAC_LOOKUP", value,
+    vtss_debug_print_sticky(ss, "DMAC_LOOKUP", value,
                             VTSS_F_ANA_ANA_ANEVENTS_DMAC_LOOKUP);
-    vtss_debug_print_sticky(pr, "SMAC_LOOKUP", value,
+    vtss_debug_print_sticky(ss, "SMAC_LOOKUP", value,
                             VTSS_F_ANA_ANA_ANEVENTS_SMAC_LOOKUP);
     pr("\n");
 
@@ -997,18 +997,18 @@ static vtss_rc srvl_debug_mac_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc srvl_debug_src_table(vtss_state_t                  *vtss_state,
-                                    const vtss_debug_printf_t      pr,
+                                    lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
     u32 port, mask;
 
-    vtss_debug_print_header(pr, "Source Masks");
-    vtss_srvl_debug_print_port_header(vtss_state, pr, "Port  ");
+    vtss_debug_print_header(ss, "Source Masks");
+    vtss_srvl_debug_print_port_header(vtss_state, ss, "Port  ");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         SRVL_RD(VTSS_ANA_PGID_PGID(PGID_SRC + port), &mask);
         mask = VTSS_X_ANA_PGID_PGID_PGID(mask);
         pr("%-4u  ", port);
-        vtss_srvl_debug_print_mask(pr, mask);
+        vtss_srvl_debug_print_mask(ss, mask);
     }
     pr("\n");
 
@@ -1016,36 +1016,36 @@ static vtss_rc srvl_debug_src_table(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc srvl_debug_aggr(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     u32 ac, pgid, mask, value;
 
-    VTSS_RC(srvl_debug_src_table(vtss_state, pr, info));
+    VTSS_RC(srvl_debug_src_table(vtss_state, ss, info));
 
-    vtss_debug_print_header(pr, "Aggregation Masks");
-    vtss_srvl_debug_print_port_header(vtss_state, pr, "AC    ");
+    vtss_debug_print_header(ss, "Aggregation Masks");
+    vtss_srvl_debug_print_port_header(vtss_state, ss, "AC    ");
     for (ac = 0; ac < SRVL_ACS; ac++) {
         SRVL_RD(VTSS_ANA_PGID_PGID(PGID_AGGR + ac), &mask);
         mask = VTSS_X_ANA_PGID_PGID_PGID(mask);
         pr("%-4u  ", ac);
-        vtss_srvl_debug_print_mask(pr, mask);
+        vtss_srvl_debug_print_mask(ss, mask);
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Destination Masks");
-    vtss_srvl_debug_print_port_header(vtss_state, pr, "PGID  CPU  Queue  ");
+    vtss_debug_print_header(ss, "Destination Masks");
+    vtss_srvl_debug_print_port_header(vtss_state, ss, "PGID  CPU  Queue  ");
     for (pgid = 0; pgid < VTSS_PGID_LUTON26; pgid++) {
         SRVL_RD(VTSS_ANA_PGID_PGID(pgid), &value);
         mask = VTSS_X_ANA_PGID_PGID_PGID(value);
         pr("%-4u  %-3u  %-5u  ", pgid,
            mask & VTSS_BIT(VTSS_CHIP_PORT_CPU) ? 1 : 0,
            VTSS_X_ANA_PGID_PGID_CPUQ_DST_PGID(value));
-        vtss_srvl_debug_print_mask(pr, mask);
+        vtss_srvl_debug_print_mask(ss, mask);
     }
     pr("\n");
 
-    vtss_debug_print_header(pr, "Flooding PGIDs");
+    vtss_debug_print_header(ss, "Flooding PGIDs");
     SRVL_RD(VTSS_ANA_ANA_FLOODING, &value);
     pr("UNICAST    : %u\n", VTSS_X_ANA_ANA_FLOODING_FLD_UNICAST(value));
     pr("MULTICAST  : %u\n", VTSS_X_ANA_ANA_FLOODING_FLD_MULTICAST(value));
@@ -1056,15 +1056,15 @@ static vtss_rc srvl_debug_aggr(vtss_state_t                  *vtss_state,
     pr("MC6_DATA   : %u\n", VTSS_X_ANA_ANA_FLOODING_IPMC_FLD_MC6_DATA(value));
     pr("\n");
 
-    vtss_srvl_debug_reg_header(pr, "Aggr. Mode");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_COMMON_AGGR_CFG, "AGGR_CFG");
+    vtss_srvl_debug_reg_header(ss, "Aggr. Mode");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_COMMON_AGGR_CFG, "AGGR_CFG");
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 static vtss_rc srvl_debug_stp(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
     u32  port;
@@ -1074,9 +1074,9 @@ static vtss_rc srvl_debug_stp(vtss_state_t                  *vtss_state,
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
-            vtss_srvl_debug_reg_header(pr, "ANA");
+            vtss_srvl_debug_reg_header(ss, "ANA");
         header = 0;
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_ANA_PORT_PORT_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_PORT_CFG(port),
                                  port, "PORT_CFG");
     }
     if (!header)
@@ -1086,14 +1086,14 @@ static vtss_rc srvl_debug_stp(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc srvl_debug_vxlat(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
     BOOL header = 1;
 
-    VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_debug_es0_all(vtss_state, pr, info));
-    VTSS_RC(vtss_srvl_debug_isdx_list(vtss_state, pr,
+    VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_debug_es0_all(vtss_state, ss, info));
+    VTSS_RC(vtss_srvl_debug_isdx_list(vtss_state, ss,
                                       vtss_state->l2.sdx_info.iflow, 0, &header,
                                       FALSE));
 
@@ -1101,7 +1101,7 @@ static vtss_rc srvl_debug_vxlat(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
@@ -1126,26 +1126,26 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
             VTSS_SPRINTF(buf, "Port %u (CPU)", port);
         }
 
-        vtss_srvl_debug_reg_header(pr, buf);
+        vtss_srvl_debug_reg_header(ss, buf);
         if (port != VTSS_CHIP_PORT_CPU_1) {
-            vtss_srvl_debug_reg_inst(vtss_state, pr,
+            vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ANA_PORT_VLAN_CFG(port), port,
                                      "ANA:VLAN_CFG");
-            vtss_srvl_debug_reg_inst(vtss_state, pr,
+            vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ANA_PORT_DROP_CFG(port), port,
                                      "ANA:DROP_CFG");
         }
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_REW_PORT_PORT_VLAN_CFG(port), port,
                                  "REW:VLAN_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, pr, VTSS_REW_PORT_TAG_CFG(port),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_REW_PORT_TAG_CFG(port),
                                  port, "REW:TAG_CFG");
         pr("\n");
     }
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_SYS_SYSTEM_VLAN_ETYPE_CFG,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_SYS_SYSTEM_VLAN_ETYPE_CFG,
                         "ETYPE_CFG");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_ANA_ADVLEARN, "ADVLEARN");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_ANA_VLANMASK, "VLANMASK");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_ANA_ADVLEARN, "ADVLEARN");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_ANA_VLANMASK, "VLANMASK");
     pr("\n");
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
@@ -1169,7 +1169,7 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
         fid = vid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
         if (header)
-            vtss_srvl_debug_print_port_header(vtss_state, pr,
+            vtss_srvl_debug_print_port_header(vtss_state, ss,
                                               "VID   FID  Lrn  Mir  Flt  Prv  ");
         header = 0;
 
@@ -1178,7 +1178,7 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_MIRROR ? 1 : 0,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_SRC_CHK ? 1 : 0,
            value & VTSS_F_ANA_ANA_TABLES_VLANTIDX_VLAN_PRIV_VLAN ? 1 : 0);
-        vtss_srvl_debug_print_mask(pr, mask);
+        vtss_srvl_debug_print_mask(ss, mask);
 
         /* Leave critical region briefly */
         VTSS_EXIT_ENTER();
@@ -1190,19 +1190,19 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc srvl_debug_pvlan(vtss_state_t                  *vtss_state,
-                                const vtss_debug_printf_t      pr,
+                                lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    vtss_srvl_debug_reg_header(pr, "ANA");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ANA_ANA_ISOLATED_PORTS,
+    vtss_srvl_debug_reg_header(ss, "ANA");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_ANA_ISOLATED_PORTS,
                         "ISOLATED_PORTS");
     pr("\n");
 
-    return srvl_debug_src_table(vtss_state, pr, info);
+    return srvl_debug_src_table(vtss_state, ss, info);
 }
 
 static vtss_rc srvl_debug_mirror(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     u32 port, value, mask = 0;
@@ -1213,38 +1213,38 @@ static vtss_rc srvl_debug_mirror(vtss_state_t                  *vtss_state,
         if (value & VTSS_F_ANA_PORT_PORT_CFG_SRC_MIRROR_ENA)
             mask |= VTSS_BIT(port);
     }
-    vtss_srvl_debug_print_port_header(vtss_state, pr, "Mirror   ");
+    vtss_srvl_debug_print_port_header(vtss_state, ss, "Mirror   ");
     pr("Ingress  ");
-    vtss_srvl_debug_print_mask(pr, mask);
+    vtss_srvl_debug_print_mask(ss, mask);
     SRVL_RD(VTSS_ANA_ANA_EMIRRORPORTS, &mask);
     pr("Egress   ");
-    vtss_srvl_debug_print_mask(pr, mask);
+    vtss_srvl_debug_print_mask(ss, mask);
     SRVL_RD(VTSS_ANA_ANA_MIRRORPORTS, &mask);
     pr("Ports    ");
-    vtss_srvl_debug_print_mask(pr, mask);
+    vtss_srvl_debug_print_mask(ss, mask);
     pr("\n");
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_srvl_l2_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VLAN, srvl_debug_vlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PVLAN, srvl_debug_pvlan,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MAC_TABLE,
-                                   srvl_debug_mac_table, vtss_state, pr, info));
+                                   srvl_debug_mac_table, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_VXLAT, srvl_debug_vxlat,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_AGGR, srvl_debug_aggr,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, srvl_debug_stp,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR, srvl_debug_mirror,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
 
     return VTSS_RC_OK;
 }

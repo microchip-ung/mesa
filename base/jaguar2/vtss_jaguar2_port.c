@@ -3497,7 +3497,7 @@ static vtss_rc jr2_port_buf_qlim_set(vtss_state_t *vtss_state)
 }
 
 static vtss_rc jr2_debug_wm_qlim(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     const u32 GAZ_CORE_QUEUE_CNT = 27328;
@@ -3572,28 +3572,28 @@ static vtss_rc jr2_debug_wm_qlim(vtss_state_t                  *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define JR_DEBUG_MAC(pr, addr, i, name)                                        \
-    vtss_jr2_debug_reg_inst(vtss_state, pr,                                    \
+#define JR_DEBUG_MAC(ss, addr, i, name)                                        \
+    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEV1G_MAC_CFG_STATUS_MAC_##addr, i,           \
                             "MAC_" name)
-#define JR_DEBUG_PCS(pr, addr, i, name)                                        \
-    vtss_jr2_debug_reg_inst(vtss_state, pr,                                    \
+#define JR_DEBUG_PCS(ss, addr, i, name)                                        \
+    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_##addr, i,       \
                             "PCS_" name)
-#define JR_DEBUG_PCS_XAUI(pr, addr, i, name)                                   \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_DEV10G_PCS_XAUI_##addr, i,    \
+#define JR_DEBUG_PCS_XAUI(ss, addr, i, name)                                   \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV10G_PCS_XAUI_##addr, i,    \
                             "PCS_" name)
-#define JR_DEBUG_10G_MAC(pr, addr, i, name)                                    \
-    vtss_jr2_debug_reg_inst(vtss_state, pr,                                    \
+#define JR_DEBUG_10G_MAC(ss, addr, i, name)                                    \
+    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
                             VTSS_DEV10G_MAC_CFG_STATUS_MAC_##addr, i,          \
                             "MAC_" name)
-#define JR_DEBUG_FX100(pr, addr, i, name)                                      \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_DEV1G_PCS_FX100_##addr, i,    \
+#define JR_DEBUG_FX100(ss, addr, i, name)                                      \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_PCS_FX100_##addr, i,    \
                             name)
-#define JR_DEBUG_HSIO(pr, addr, name) JR2_DEBUG_REG_NAME(pr, HSIO, addr, name)
+#define JR_DEBUG_HSIO(ss, addr, name) JR2_DEBUG_REG_NAME(ss, HSIO, addr, name)
 
 static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info,
                                    vtss_port_no_t                 port_no)
 {
@@ -3602,61 +3602,61 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
 
     VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &inst, &type));
     if (VTSS_PORT_IS_1G(port)) {
-        vtss_jr2_debug_reg_inst(vtss_state, pr,
+        vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
                                 port, "DEV_RST_CTRL");
-        JR_DEBUG_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
-        JR_DEBUG_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        JR_DEBUG_MAC(pr, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
-        JR_DEBUG_MAC(pr, TAGS_CFG(tgt), port, "TAGS_CFG");
-        JR_DEBUG_PCS(pr, CFG(tgt), port, "CFG");
-        JR_DEBUG_PCS(pr, MODE_CFG(tgt), port, "MODE_CFG");
-        JR_DEBUG_PCS(pr, SD_CFG(tgt), port, "SD_CFG");
-        JR_DEBUG_PCS(pr, ANEG_CFG(tgt), port, "ANEG_CFG");
-        JR_DEBUG_PCS(pr, ANEG_STATUS(tgt), port, "ANEG_STATUS");
-        JR_DEBUG_PCS(pr, LINK_STATUS(tgt), port, "LINK_STATUS");
-        JR_DEBUG_FX100(pr, CONFIGURATION_PCS_FX100_CFG(tgt), port,
+        JR_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
+        JR_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        JR_DEBUG_MAC(ss, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
+        JR_DEBUG_MAC(ss, TAGS_CFG(tgt), port, "TAGS_CFG");
+        JR_DEBUG_PCS(ss, CFG(tgt), port, "CFG");
+        JR_DEBUG_PCS(ss, MODE_CFG(tgt), port, "MODE_CFG");
+        JR_DEBUG_PCS(ss, SD_CFG(tgt), port, "SD_CFG");
+        JR_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
+        JR_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
+        JR_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
+        JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port,
                        "PCS_FX100_CFG");
-        JR_DEBUG_FX100(pr, STATUS_PCS_FX100_STATUS(tgt), port, "FX100_STATUS");
+        JR_DEBUG_FX100(ss, STATUS_PCS_FX100_STATUS(tgt), port, "FX100_STATUS");
     } else {
         if (port_is_in_10g_mode(vtss_state, port_no)) {
 #if !defined(VTSS_ARCH_SERVAL_T)
-            JR_DEBUG_PCS_XAUI(pr, CONFIGURATION_PCS_XAUI_EXT_CFG(tgt), port,
+            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_EXT_CFG(tgt), port,
                               "EXT_CFG");
-            JR_DEBUG_PCS_XAUI(pr, CONFIGURATION_PCS_XAUI_CFG(tgt), port, "CFG");
-            JR_DEBUG_PCS_XAUI(pr, CONFIGURATION_PCS_XAUI_SD_CFG(tgt), port,
+            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_CFG(tgt), port, "CFG");
+            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_SD_CFG(tgt), port,
                               "SD_CFG");
-            JR_DEBUG_PCS_XAUI(pr, STATUS_PCS_XAUI_RX_STATUS(tgt), port,
+            JR_DEBUG_PCS_XAUI(ss, STATUS_PCS_XAUI_RX_STATUS(tgt), port,
                               "XAUI_RX_STATUS");
-            JR_DEBUG_PCS_XAUI(pr, STATUS_PCS_XAUI_RX_ERROR_STATUS(tgt), port,
+            JR_DEBUG_PCS_XAUI(ss, STATUS_PCS_XAUI_RX_ERROR_STATUS(tgt), port,
                               "XAUI_RX_ERROR_STATUS");
 #endif /* VTSS_ARCH_SERVAL_T */
-            JR_DEBUG_10G_MAC(pr, TX_MONITOR_STICKY(tgt), port,
+            JR_DEBUG_10G_MAC(ss, TX_MONITOR_STICKY(tgt), port,
                              "TX_MONITOR_STICKY");
-            JR_DEBUG_10G_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
-            JR_DEBUG_10G_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
+            JR_DEBUG_10G_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
+            JR_DEBUG_10G_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
         } else {
-            vtss_jr2_debug_reg_inst(vtss_state, pr,
+            vtss_jr2_debug_reg_inst(vtss_state, ss,
                                     VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
                                     port, "DEV_RST_CTRL");
-            JR_DEBUG_MAC(pr, ENA_CFG(tgt), port, "ENA_CFG");
-            JR_DEBUG_MAC(pr, MODE_CFG(tgt), port, "MODE_CFG");
-            JR_DEBUG_MAC(pr, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
-            JR_DEBUG_MAC(pr, TAGS_CFG(tgt), port, "TAGS_CFG");
-            JR_DEBUG_PCS(pr, CFG(tgt), port, "CFG");
-            JR_DEBUG_PCS(pr, MODE_CFG(tgt), port, "MODE_CFG");
-            JR_DEBUG_PCS(pr, SD_CFG(tgt), port, "SD_CFG");
-            JR_DEBUG_PCS(pr, ANEG_CFG(tgt), port, "ANEG_CFG");
-            JR_DEBUG_PCS(pr, ANEG_STATUS(tgt), port, "ANEG_STATUS");
-            JR_DEBUG_PCS(pr, LINK_STATUS(tgt), port, "LINK_STATUS");
-            JR_DEBUG_FX100(pr, CONFIGURATION_PCS_FX100_CFG(tgt), port,
+            JR_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
+            JR_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
+            JR_DEBUG_MAC(ss, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
+            JR_DEBUG_MAC(ss, TAGS_CFG(tgt), port, "TAGS_CFG");
+            JR_DEBUG_PCS(ss, CFG(tgt), port, "CFG");
+            JR_DEBUG_PCS(ss, MODE_CFG(tgt), port, "MODE_CFG");
+            JR_DEBUG_PCS(ss, SD_CFG(tgt), port, "SD_CFG");
+            JR_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
+            JR_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
+            JR_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
+            JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port,
                            "PCS_FX100_CFG");
-            JR_DEBUG_FX100(pr, STATUS_PCS_FX100_STATUS(tgt), port,
+            JR_DEBUG_FX100(ss, STATUS_PCS_FX100_STATUS(tgt), port,
                            "FX100_STATUS");
         }
     }
-    JR2_DEBUG_REGX_NAME(pr, DSM, CFG_RX_PAUSE_CFG, port, "RX_PAUSE_CFG");
-    JR2_DEBUG_REGX_NAME(pr, DSM, CFG_ETH_FC_CFG, port, "ETH_FC_CFG");
+    JR2_DEBUG_REGX_NAME(ss, DSM, CFG_RX_PAUSE_CFG, port, "RX_PAUSE_CFG");
+    JR2_DEBUG_REGX_NAME(ss, DSM, CFG_ETH_FC_CFG, port, "ETH_FC_CFG");
     pr("\n");
 
     if (VTSS_PORT_IS_10G(port)) {
@@ -3765,42 +3765,42 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
     for (i = inst; i < (inst + (type == JR2_SERDES_TYPE_10G ? 4 : 1)); i++) {
         if (type == JR2_SERDES_TYPE_1G) {
             VTSS_SPRINTF(buf, "SerDes1G_%u", i);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             VTSS_RC(jr2_sd1g_read(vtss_state, 1 << i));
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
                           "COMMON_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "100FX_MISC");
-            JR_DEBUG_HSIO(pr, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "100FX_MISC");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
                           "PLL_STATUS");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
-            JR_DEBUG_HSIO(pr, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
                           "DFT_STATUS");
         } else if (type == JR2_SERDES_TYPE_6G) {
             VTSS_SPRINTF(buf, "SerDes6G_%u", i);
-            vtss_jr2_debug_reg_header(pr, buf);
+            vtss_jr2_debug_reg_header(ss, buf);
             VTSS_RC(jr2_sd6g_read(vtss_state, 1 << i));
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG1, "IB_CFG1");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
                           "COMMON_CFG");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS0,
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS0,
                           "IB_STATUS0");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS1,
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS1,
                           "IB_STATUS1");
-            JR_DEBUG_HSIO(pr, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS,
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS,
                           "PLL_STATUS");
         } else {
         }
@@ -3810,7 +3810,7 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_port(vtss_state_t                  *vtss_state,
-                              const vtss_debug_printf_t      pr,
+                              lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 
 {
@@ -3855,14 +3855,14 @@ static vtss_rc jr2_debug_port(vtss_state_t                  *vtss_state,
             continue;
         port = VTSS_CHIP_PORT(port_no);
         VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_jr2_debug_reg_header(pr, buf);
-        VTSS_RC(jr2_debug_chip_port(vtss_state, pr, info, port_no));
+        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_RC(jr2_debug_chip_port(vtss_state, ss, info, port_no));
     } /* Port loop */
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_debug_port_counters(vtss_state_t             *vtss_state,
-                                       const vtss_debug_printf_t pr,
+static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
+                                       lmu_ss_t     *ss,
                                        const vtss_debug_info_t *const info,
                                        vtss_port_no_t                 port_no)
 {
@@ -3874,67 +3874,67 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t             *vtss_state,
     VTSS_RC(jr2_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
     if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
-        vtss_jr2_debug_cnt(pr, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes,
+        vtss_jr2_debug_cnt(ss, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes,
                            &cnt.tx_out_bytes);
-        vtss_jr2_debug_cnt(pr, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
-        vtss_jr2_debug_cnt(pr, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
-        vtss_jr2_debug_cnt(pr, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
+        vtss_jr2_debug_cnt(ss, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
+        vtss_jr2_debug_cnt(ss, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
+        vtss_jr2_debug_cnt(ss, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
     }
 
     if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
-        vtss_jr2_debug_cnt(pr, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
-        vtss_jr2_debug_cnt(pr, "unsup_opcode", NULL, &cnt.rx_unsup_opcode,
+        vtss_jr2_debug_cnt(ss, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
+        vtss_jr2_debug_cnt(ss, "unsup_opcode", NULL, &cnt.rx_unsup_opcode,
                            NULL);
-        vtss_jr2_debug_cnt(pr, "64", "", &cnt.rx_size64, &cnt.tx_size64);
-        vtss_jr2_debug_cnt(pr, "65_127", "", &cnt.rx_size65_127,
+        vtss_jr2_debug_cnt(ss, "64", "", &cnt.rx_size64, &cnt.tx_size64);
+        vtss_jr2_debug_cnt(ss, "65_127", "", &cnt.rx_size65_127,
                            &cnt.tx_size65_127);
-        vtss_jr2_debug_cnt(pr, "128_255", "", &cnt.rx_size128_255,
+        vtss_jr2_debug_cnt(ss, "128_255", "", &cnt.rx_size128_255,
                            &cnt.tx_size128_255);
-        vtss_jr2_debug_cnt(pr, "256_511", "", &cnt.rx_size256_511,
+        vtss_jr2_debug_cnt(ss, "256_511", "", &cnt.rx_size256_511,
                            &cnt.tx_size256_511);
-        vtss_jr2_debug_cnt(pr, "512_1023", "", &cnt.rx_size512_1023,
+        vtss_jr2_debug_cnt(ss, "512_1023", "", &cnt.rx_size512_1023,
                            &cnt.tx_size512_1023);
-        vtss_jr2_debug_cnt(pr, "1024_1526", "", &cnt.rx_size1024_1518,
+        vtss_jr2_debug_cnt(ss, "1024_1526", "", &cnt.rx_size1024_1518,
                            &cnt.tx_size1024_1518);
-        vtss_jr2_debug_cnt(pr, "jumbo", "", &cnt.rx_size1519_max,
+        vtss_jr2_debug_cnt(ss, "jumbo", "", &cnt.rx_size1519_max,
                            &cnt.tx_size1519_max);
-        vtss_jr2_debug_cnt(pr, "crc", NULL, &cnt.rx_crc_err, NULL);
-        vtss_jr2_debug_cnt(pr, "undersize", "multi_coll", &cnt.rx_undersize,
+        vtss_jr2_debug_cnt(ss, "crc", NULL, &cnt.rx_crc_err, NULL);
+        vtss_jr2_debug_cnt(ss, "undersize", "multi_coll", &cnt.rx_undersize,
                            &cnt.tx_multi_coll);
-        vtss_jr2_debug_cnt(pr, "fragments", "late_coll", &cnt.rx_fragments,
+        vtss_jr2_debug_cnt(ss, "fragments", "late_coll", &cnt.rx_fragments,
                            &cnt.tx_late_coll);
-        vtss_jr2_debug_cnt(pr, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err,
+        vtss_jr2_debug_cnt(ss, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err,
                            &cnt.tx_xcoll);
-        vtss_jr2_debug_cnt(pr, "oor_len_err", "defer",
+        vtss_jr2_debug_cnt(ss, "oor_len_err", "defer",
                            &cnt.rx_out_of_range_len_err, &cnt.tx_defer);
-        vtss_jr2_debug_cnt(pr, "oversize", "xdefer", &cnt.rx_oversize,
+        vtss_jr2_debug_cnt(ss, "oversize", "xdefer", &cnt.rx_oversize,
                            &cnt.tx_xdefer);
-        vtss_jr2_debug_cnt(pr, "jabbers", "backoff1", &cnt.rx_jabbers,
+        vtss_jr2_debug_cnt(ss, "jabbers", "backoff1", &cnt.rx_jabbers,
                            &cnt.tx_backoff1);
     }
 
     if (info->full || info->action == 1 || info->action == 3) {
-        vtss_jr2_debug_cnt(pr, "local_drops", NULL, &cnt.rx_local_drops, NULL);
-        vtss_jr2_debug_cnt(pr, "policer_drops", "queue_drops",
+        vtss_jr2_debug_cnt(ss, "local_drops", NULL, &cnt.rx_local_drops, NULL);
+        vtss_jr2_debug_cnt(ss, "policer_drops", "queue_drops",
                            &cnt.rx_policer_drops, &cnt.tx_queue_drops);
 
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_SPRINTF(rx_buf, "class_%u", i);
             VTSS_SPRINTF(tx_buf, "green_%u", i);
-            vtss_jr2_debug_cnt(pr, rx_buf, tx_buf, &cnt.rx_class[i],
+            vtss_jr2_debug_cnt(ss, rx_buf, tx_buf, &cnt.rx_class[i],
                                &cnt.tx_green_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_SPRINTF(tx_buf, "yellow_%u", i);
-            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_SPRINTF(tx_buf, "green_drops_%u", i);
-            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_SPRINTF(tx_buf, "yellow_drops_%u", i);
-            vtss_jr2_debug_cnt(pr, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
         }
     }
     pr("\n");
@@ -3943,7 +3943,7 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t             *vtss_state,
 }
 
 static vtss_rc jr2_debug_port_cnt(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     /*lint --e{454, 455} */ // Due to VTSS_EXIT_ENTER
@@ -3973,7 +3973,7 @@ static vtss_rc jr2_debug_port_cnt(vtss_state_t                  *vtss_state,
                VTSS_CHIP_PORT_CPU + port_no - vtss_state->port_count);
         }
         VTSS_EXIT_ENTER();
-        (void)jr2_debug_port_counters(vtss_state, pr, info, port_no);
+        (void)jr2_debug_port_counters(vtss_state, ss, info, port_no);
     }
     return VTSS_RC_OK;
 }
@@ -4032,13 +4032,13 @@ static const char *jr2_qsys_resource_to_str(u32 resource)
     return "INVALID";
 }
 
-static void jr2_debug_qres_print(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 u32                       idx,
-                                 vtss_phys_port_no_t       chip_port,
-                                 u32                       resource,
-                                 u32                       prio,
-                                 u32                       val)
+static void jr2_debug_qres_print(vtss_state_t       *vtss_state,
+                                 lmu_ss_t           *ss,
+                                 u32                 idx,
+                                 vtss_phys_port_no_t chip_port,
+                                 u32                 resource,
+                                 u32                 prio,
+                                 u32                 val)
 {
     char buf[20];
 
@@ -4046,9 +4046,9 @@ static void jr2_debug_qres_print(vtss_state_t             *vtss_state,
        jr2_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
 }
 
-vtss_rc vtss_jr2_port_debug_qres(vtss_state_t             *vtss_state,
-                                 const vtss_debug_printf_t pr,
-                                 BOOL                      res_stat_cur)
+vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state,
+                                 lmu_ss_t     *ss,
+                                 BOOL          res_stat_cur)
 {
     vtss_phys_port_no_t chip_port;
     u32 resource, resource_base, port_base, idx, prio, val, addr;
@@ -4063,7 +4063,7 @@ vtss_rc vtss_jr2_port_debug_qres(vtss_state_t             *vtss_state,
     addr = res_stat_cur ? VTSS_QRES_RES_CTRL_RES_STAT_CUR(511)
                         : VTSS_QRES_RES_CTRL_RES_STAT(511);
     JR2_RD(addr, &val);
-    jr2_debug_qres_print(vtss_state, pr, 511, -1, 0, 7, val);
+    jr2_debug_qres_print(vtss_state, ss, 511, -1, 0, 7, val);
 
     for (resource = 0; resource < 4; resource++) {
         resource_base = resource * 1024;
@@ -4076,7 +4076,7 @@ vtss_rc vtss_jr2_port_debug_qres(vtss_state_t             *vtss_state,
                 JR2_RD(addr, &val);
                 if (val) {
                     // Only print non-zero values or we will be flooded.
-                    jr2_debug_qres_print(vtss_state, pr, idx, chip_port,
+                    jr2_debug_qres_print(vtss_state, ss, idx, chip_port,
                                          resource, prio, val);
                 }
             }
@@ -4115,7 +4115,7 @@ static char *fa_kr_aneg_sm(u32 reg)
     }
 }
 
-static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
+static void print_reg_bit(lmu_ss_t *ss, BOOL bt, char *name)
 {
     if (bt) {
         pr("%s ", name);
@@ -4123,7 +4123,7 @@ static void print_reg_bit(const vtss_debug_printf_t pr, BOOL bt, char *name)
 }
 
 static vtss_rc jr2_debug_chip_kr(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info,
                                  vtss_port_no_t                 port_no)
 {
@@ -4184,21 +4184,21 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t                  *vtss_state,
     pr("an_hist            :0x%x  ",
        VTSS_X_KR_DEV7_AN_HIST_AN_HIST_AN_SM_HIST(hist));
     if (hist > 0) {
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 0, 1), "AN_ENA(0)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 1, 1), "XMI_DIS(1)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 2, 1), "ABI_DET(2)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 3, 1), "ACK_DET(3)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 4, 1), "LNK_CHK(4)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 5, 1), "COMPL_ACK(5)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 6, 1), "AN_GOOD_CHK(6)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 7, 1), "PRL_DET_FAUL(7)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 8, 1), "AN_GOOD(8)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 9, 1), "NXT_PG_WAIT(9)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 10, 1), "RATE_DET(10)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 11, 1), "TRAIN(11)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 12, 1), "RSRV(12)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 13, 1), "RSRV(13)");
-        print_reg_bit(pr, VTSS_EXTRACT_BITFIELD(hist, 14, 1), "NPRX(14)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 0, 1), "AN_ENA(0)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 1, 1), "XMI_DIS(1)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 2, 1), "ABI_DET(2)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 3, 1), "ACK_DET(3)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 4, 1), "LNK_CHK(4)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 5, 1), "COMPL_ACK(5)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 6, 1), "AN_GOOD_CHK(6)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 7, 1), "PRL_DET_FAUL(7)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 8, 1), "AN_GOOD(8)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 9, 1), "NXT_PG_WAIT(9)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 10, 1), "RATE_DET(10)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 11, 1), "TRAIN(11)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 12, 1), "RSRV(12)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 13, 1), "RSRV(13)");
+        print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 14, 1), "NPRX(14)");
     }
     pr("\n");
     pr("tr_rcvr_rdy:       :%d\n",
@@ -4242,7 +4242,7 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t                  *vtss_state,
 }
 
 static vtss_rc jr2_debug_kr(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 
 {
@@ -4265,17 +4265,17 @@ static vtss_rc jr2_debug_kr(vtss_state_t                  *vtss_state,
         if (!vtss_state->port.kr_conf[port_no].aneg.enable)
             continue;
 
-        VTSS_RC(jr2_debug_chip_kr(vtss_state, pr, info, port_no));
+        VTSS_RC(jr2_debug_chip_kr(vtss_state, ss, info, port_no));
     } /* Port loop */
 
     return VTSS_RC_OK;
 }
 
-static void jr2_debug_wm_dump(const vtss_debug_printf_t pr,
-                              const char               *reg_name,
-                              u32                      *value,
-                              u32                       i,
-                              u32                       multiplier)
+static void jr2_debug_wm_dump(lmu_ss_t   *ss,
+                              const char *reg_name,
+                              u32        *value,
+                              u32         i,
+                              u32         multiplier)
 {
     u32 q;
     pr("%-25s", reg_name);
@@ -4286,7 +4286,7 @@ static void jr2_debug_wm_dump(const vtss_debug_printf_t pr,
 }
 
 static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
-                            const vtss_debug_printf_t      pr,
+                            lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 
 {
@@ -4302,7 +4302,7 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
 #if defined(VTSS_ARCH_JAGUAR_2_CE) && !defined(VTSS_ARCH_SERVAL_T)
     // Show the qlimitation status instead if in use.
     if (vtss_state->init_conf.qs_conf.mode != VTSS_QS_MODE_DEFAULT) {
-        return jr2_debug_wm_qlim(vtss_state, pr, info);
+        return jr2_debug_wm_qlim(vtss_state, ss, info);
     }
 #endif /* VTSS_ARCH_JAGUAR_2_CE && !defined(VTSS_ARCH_SERVAL_T) */
 
@@ -4399,15 +4399,15 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
                    &q_val5[q]);
         }
 
-        jr2_debug_wm_dump(pr, "Queue level:", q_id, 8, 1);
+        jr2_debug_wm_dump(ss, "Queue level:", q_id, 8, 1);
         pr("-----------\n");
-        jr2_debug_wm_dump(pr, "Qu Ingr Buf Rsrv (Bytes) :", q_val1, 8,
+        jr2_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", q_val1, 8,
                           JR2_BUFFER_CELL_SZ);
-        jr2_debug_wm_dump(pr, "Qu Ingr Ref Rsrv (Frames):", q_val2, 8, 1);
-        jr2_debug_wm_dump(pr, "Qu Egr Buf Rsrv  (Bytes) :", q_val3, 8,
+        jr2_debug_wm_dump(ss, "Qu Ingr Ref Rsrv (Frames):", q_val2, 8, 1);
+        jr2_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", q_val3, 8,
                           JR2_BUFFER_CELL_SZ);
-        jr2_debug_wm_dump(pr, "Qu Egr Ref Rsrv  (Frames):", q_val4, 8, 1);
-        jr2_debug_wm_dump(pr, "Qu Ingr PFC      (Bytes) :", q_val5, 8,
+        jr2_debug_wm_dump(ss, "Qu Egr Ref Rsrv  (Frames):", q_val4, 8, 1);
+        jr2_debug_wm_dump(ss, "Qu Ingr PFC      (Bytes) :", q_val5, 8,
                           JR2_BUFFER_CELL_SZ);
         pr("\n");
 
@@ -4440,15 +4440,15 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
         JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((q + 496 + 3072)), &c_val4[q]);
         JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((q + 496 + 4096)), &c_val5[q]);
     }
-    jr2_debug_wm_dump(pr, "QoS level:", q_id, 8, 1);
+    jr2_debug_wm_dump(ss, "QoS level:", q_id, 8, 1);
     pr("-----------\n");
-    jr2_debug_wm_dump(pr, "QoS Ingr Buf       (Bytes) :", c_val1, 8,
+    jr2_debug_wm_dump(ss, "QoS Ingr Buf       (Bytes) :", c_val1, 8,
                       JR2_BUFFER_CELL_SZ);
-    jr2_debug_wm_dump(pr, "QoS Ingr Ref       (Frames):", c_val2, 8, 1);
-    jr2_debug_wm_dump(pr, "QoS Egr Buf        (Bytes) :", c_val3, 8,
+    jr2_debug_wm_dump(ss, "QoS Ingr Ref       (Frames):", c_val2, 8, 1);
+    jr2_debug_wm_dump(ss, "QoS Egr Buf        (Bytes) :", c_val3, 8,
                       JR2_BUFFER_CELL_SZ);
-    jr2_debug_wm_dump(pr, "QoS Egr Ref        (Frames):", c_val4, 8, 1);
-    jr2_debug_wm_dump(pr, "QoS Ingr Buf - PFC (Bytes) :", c_val5, 8,
+    jr2_debug_wm_dump(ss, "QoS Egr Ref        (Frames):", c_val4, 8, 1);
+    jr2_debug_wm_dump(ss, "QoS Ingr Buf - PFC (Bytes) :", c_val5, 8,
                       JR2_BUFFER_CELL_SZ);
     pr("\n");
 
@@ -4468,15 +4468,15 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
         JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((dp + 508 + 3072)), &dp_val4[dp]);
         JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((dp + 508 + 4096)), &dp_val5[dp]);
     }
-    jr2_debug_wm_dump(pr, "DP level:", dp_id, 4, 1);
+    jr2_debug_wm_dump(ss, "DP level:", dp_id, 4, 1);
     pr("-----------\n");
-    jr2_debug_wm_dump(pr, "DP Ingr Buf        (Bytes) :", dp_val1, 4,
+    jr2_debug_wm_dump(ss, "DP Ingr Buf        (Bytes) :", dp_val1, 4,
                       JR2_BUFFER_CELL_SZ);
-    jr2_debug_wm_dump(pr, "DP Ingr Ref        (Frames):", dp_val2, 4, 1);
-    jr2_debug_wm_dump(pr, "DP Egr Buf         (Bytes) :", dp_val3, 4,
+    jr2_debug_wm_dump(ss, "DP Ingr Ref        (Frames):", dp_val2, 4, 1);
+    jr2_debug_wm_dump(ss, "DP Egr Buf         (Bytes) :", dp_val3, 4,
                       JR2_BUFFER_CELL_SZ);
-    jr2_debug_wm_dump(pr, "DP Egr Ref         (Frames):", dp_val4, 4, 1);
-    jr2_debug_wm_dump(pr, "DP Ingr Buf - PFC  (Bytes) :", dp_val5, 4,
+    jr2_debug_wm_dump(ss, "DP Egr Ref         (Frames):", dp_val4, 4, 1);
+    jr2_debug_wm_dump(ss, "DP Ingr Buf - PFC  (Bytes) :", dp_val5, 4,
                       JR2_BUFFER_CELL_SZ);
     pr("\n");
 
@@ -4542,24 +4542,24 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_JAGUAR_2_C */
     }
 
-    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, pr, FALSE));
-    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, pr, TRUE));
+    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, ss, FALSE));
+    VTSS_RC(vtss_jr2_port_debug_qres(vtss_state, ss, TRUE));
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_jr2_port_debug_print(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, jr2_debug_port,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   jr2_debug_port_cnt, vtss_state, pr, info));
+                                   jr2_debug_port_cnt, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, jr2_debug_wm,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, jr2_debug_kr,
-                                   vtss_state, pr, info));
+                                   vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 

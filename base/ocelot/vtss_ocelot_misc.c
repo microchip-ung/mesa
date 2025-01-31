@@ -1136,145 +1136,143 @@ static vtss_rc srvl_sgpio_read(vtss_state_t            *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-static void srvl_debug_tgt(const vtss_debug_printf_t pr,
-                           const char               *name,
-                           u32                       to)
+static void srvl_debug_tgt(lmu_ss_t *ss, const char *name, u32 to)
 {
     u32 tgt = ((to >> 16) & 0x3f);
     pr("%-10s  0x%02x (%u)\n", name, tgt, tgt);
 }
 
-#define SRVL_DEBUG_TGT(pr, name) srvl_debug_tgt(pr, #name, VTSS_TO_##name)
-#define SRVL_DEBUG_GPIO(pr, addr, name)                                        \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr,      \
+#define SRVL_DEBUG_TGT(ss, name) srvl_debug_tgt(ss, #name, VTSS_TO_##name)
+#define SRVL_DEBUG_GPIO(ss, addr, name)                                        \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr,      \
                         "GPIO_" name)
-#define SRVL_DEBUG_SIO(pr, addr, name)                                         \
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr,   \
+#define SRVL_DEBUG_SIO(ss, addr, name)                                         \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr,   \
                         "SIO_" name)
-#define SRVL_DEBUG_SIO_INST(pr, addr, i, name)                                 \
-    vtss_srvl_debug_reg_inst(vtss_state, pr,                                   \
+#define SRVL_DEBUG_SIO_INST(ss, addr, i, name)                                 \
+    vtss_srvl_debug_reg_inst(vtss_state, ss,                                   \
                              VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, i,           \
                              "SIO_" name)
 
 static vtss_rc srvl_debug_misc(vtss_state_t                  *vtss_state,
-                               const vtss_debug_printf_t      pr,
+                               lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
     u32  i;
     char buf[32];
 
     pr("Name        Target\n");
-    SRVL_DEBUG_TGT(pr, DEVCPU_ORG);
-    SRVL_DEBUG_TGT(pr, SYS);
-    SRVL_DEBUG_TGT(pr, REW);
-    SRVL_DEBUG_TGT(pr, ES0);
-    SRVL_DEBUG_TGT(pr, S1);
-    SRVL_DEBUG_TGT(pr, S2);
-    SRVL_DEBUG_TGT(pr, DEVCPU_GCB);
-    SRVL_DEBUG_TGT(pr, DEVCPU_QS);
+    SRVL_DEBUG_TGT(ss, DEVCPU_ORG);
+    SRVL_DEBUG_TGT(ss, SYS);
+    SRVL_DEBUG_TGT(ss, REW);
+    SRVL_DEBUG_TGT(ss, ES0);
+    SRVL_DEBUG_TGT(ss, S1);
+    SRVL_DEBUG_TGT(ss, S2);
+    SRVL_DEBUG_TGT(ss, DEVCPU_GCB);
+    SRVL_DEBUG_TGT(ss, DEVCPU_QS);
 #ifdef VTSS_TO_HSIO
-    SRVL_DEBUG_TGT(pr, HSIO);
+    SRVL_DEBUG_TGT(ss, HSIO);
 #endif /* VTSS_TO_HSIO */
 #ifdef VTSS_TO_IS0
-    SRVL_DEBUG_TGT(pr, IS0);
+    SRVL_DEBUG_TGT(ss, IS0);
 #endif /* VTSS_TO_IS0 */
 #ifdef VTSS_TO_OAM_MEP
-    SRVL_DEBUG_TGT(pr, OAM_MEP);
+    SRVL_DEBUG_TGT(ss, OAM_MEP);
 #endif /* VTSS_TO_OAM_MEP */
     for (i = 0; i < VTSS_CHIP_PORTS; i++) {
         VTSS_SPRINTF(buf, "DEV_%u", i);
-        srvl_debug_tgt(pr, buf, VTSS_TO_DEV(i));
+        srvl_debug_tgt(ss, buf, VTSS_TO_DEV(i));
     }
     pr("\n");
-    SRVL_DEBUG_TGT(pr, QSYS);
-    SRVL_DEBUG_TGT(pr, ANA);
+    SRVL_DEBUG_TGT(ss, QSYS);
+    SRVL_DEBUG_TGT(ss, ANA);
 
-    vtss_srvl_debug_reg_header(pr, "GPIOs");
-    SRVL_DEBUG_GPIO(pr, OUT, "OUT");
-    SRVL_DEBUG_GPIO(pr, IN, "IN");
-    SRVL_DEBUG_GPIO(pr, OE, "OE");
-    SRVL_DEBUG_GPIO(pr, INTR, "INTR");
-    SRVL_DEBUG_GPIO(pr, INTR_ENA, "INTR_ENA");
-    SRVL_DEBUG_GPIO(pr, INTR_IDENT, "INTR_IDENT");
-    SRVL_DEBUG_GPIO(pr, ALT(0), "ALT_0");
-    SRVL_DEBUG_GPIO(pr, ALT(1), "ALT_1");
+    vtss_srvl_debug_reg_header(ss, "GPIOs");
+    SRVL_DEBUG_GPIO(ss, OUT, "OUT");
+    SRVL_DEBUG_GPIO(ss, IN, "IN");
+    SRVL_DEBUG_GPIO(ss, OE, "OE");
+    SRVL_DEBUG_GPIO(ss, INTR, "INTR");
+    SRVL_DEBUG_GPIO(ss, INTR_ENA, "INTR_ENA");
+    SRVL_DEBUG_GPIO(ss, INTR_IDENT, "INTR_IDENT");
+    SRVL_DEBUG_GPIO(ss, ALT(0), "ALT_0");
+    SRVL_DEBUG_GPIO(ss, ALT(1), "ALT_1");
     pr("\n");
 
-    vtss_srvl_debug_reg_header(pr, "SGPIO");
+    vtss_srvl_debug_reg_header(ss, "SGPIO");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INPUT_DATA(i), i, "INPUT_DATA");
-    SRVL_DEBUG_SIO(pr, CFG, "CFG");
-    SRVL_DEBUG_SIO(pr, CLOCK, "CLOCK");
+        SRVL_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");
+    SRVL_DEBUG_SIO(ss, CFG, "CFG");
+    SRVL_DEBUG_SIO(ss, CLOCK, "CLOCK");
     for (i = 0; i < 32; i++)
-        SRVL_DEBUG_SIO_INST(pr, PORT_CFG(i), i, "PORT_CFG");
-    SRVL_DEBUG_SIO(pr, PORT_ENA, "PORT_ENA");
+        SRVL_DEBUG_SIO_INST(ss, PORT_CFG(i), i, "PORT_CFG");
+    SRVL_DEBUG_SIO(ss, PORT_ENA, "PORT_ENA");
     for (i = 0; i < 3; i++)
-        SRVL_DEBUG_SIO_INST(pr, PWM_CFG(i), i, "PWM_CFG");
+        SRVL_DEBUG_SIO_INST(ss, PWM_CFG(i), i, "PWM_CFG");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR_POL(i), i, "INTR_POL");
+        SRVL_DEBUG_SIO_INST(ss, INTR_POL(i), i, "INTR_POL");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR_RAW(i), i, "INTR_RAW");
+        SRVL_DEBUG_SIO_INST(ss, INTR_RAW(i), i, "INTR_RAW");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR_TRIGGER0(i), i, "INTR_TRIGGER0");
+        SRVL_DEBUG_SIO_INST(ss, INTR_TRIGGER0(i), i, "INTR_TRIGGER0");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR_TRIGGER1(i), i, "INTR_TRIGGER1");
+        SRVL_DEBUG_SIO_INST(ss, INTR_TRIGGER1(i), i, "INTR_TRIGGER1");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR(i), i, "INTR");
-    SRVL_DEBUG_SIO(pr, INTR_ENA, "INTR_ENA");
+        SRVL_DEBUG_SIO_INST(ss, INTR(i), i, "INTR");
+    SRVL_DEBUG_SIO(ss, INTR_ENA, "INTR_ENA");
     for (i = 0; i < 4; i++)
-        SRVL_DEBUG_SIO_INST(pr, INTR_IDENT(i), i, "INTR_IDENT");
+        SRVL_DEBUG_SIO_INST(ss, INTR_IDENT(i), i, "INTR_IDENT");
     pr("\n");
 
-    vtss_srvl_debug_reg(vtss_state, pr,
+    vtss_srvl_debug_reg(vtss_state, ss,
                         VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GENERAL_STAT,
                         "GENERAL_STAT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_INTR_IDENT,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_INTR_IDENT,
                         "INTR_IDENT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_INTR_RAW,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_INTR_RAW,
                         "INTR_RAW");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_INTR_ENA,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_INTR_ENA,
                         "INTR_ENA");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_INTR_BYPASS,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_INTR_BYPASS,
                         "INTR_BYPASS");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_FDMA_FDMA_INTR_IDENT,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_FDMA_FDMA_INTR_IDENT,
                         "FDMA_INTR_IDENT");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_FDMA_FDMA_INTR_ENA,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_FDMA_FDMA_INTR_ENA,
                         "FDMA_INTR_ENA");
     for (i = 0; i < 4; i++) {
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ICPU_CFG_INTR_DST_INTR_MAP(i), i,
                                  "DST_INTR_MAP");
-        vtss_srvl_debug_reg_inst(vtss_state, pr,
+        vtss_srvl_debug_reg_inst(vtss_state, ss,
                                  VTSS_ICPU_CFG_INTR_DST_INTR_IDENT(i), i,
                                  "DST_INTR_IDENT");
     }
     // DEV_ALL IRQ
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_RAW,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_DEV_INTR_RAW,
                         "DEV_INTR_RAW");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_STICKY,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_DEV_INTR_STICKY,
                         "DEV_INTR_STICKY");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_ENA,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_DEV_INTR_ENA,
                         "DEV_INTR_ENA");
-    vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_INTR_DEV_INTR_IDENT,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_INTR_DEV_INTR_IDENT,
                         "DEV_INTR_IDENT");
     if (vtss_state->sys_config.using_pcie) {
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_CFG,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_CFG,
                             "PCIE_CFG");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_STAT,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_STAT,
                             "PCIE_STAT");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_AUX_CFG,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_AUX_CFG,
                             "PCIE_AUX_CFG");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_INTR,
                             "PCIE_INTR");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR_ENA,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_INTR_ENA,
                             "PCIE_INTR_ENA");
-        vtss_srvl_debug_reg(vtss_state, pr, VTSS_ICPU_CFG_PCIE_PCIE_INTR_IDENT,
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_PCIE_PCIE_INTR_IDENT,
                             "PCIE_INTR_IDENT");
-        vtss_srvl_debug_reg(vtss_state, pr,
+        vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_ICPU_CFG_PCIE_PCIE_INTR_COMMON_CFG,
                             "PCIE_INTR_COMMON_CFG");
         for (i = 0; i < 2; i++)
-            vtss_srvl_debug_reg_inst(vtss_state, pr,
+            vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ICPU_CFG_PCIE_PCIE_INTR_CFG(i), i,
                                      "PCIE_INTR_CFG");
     }
@@ -1283,11 +1281,11 @@ static vtss_rc srvl_debug_misc(vtss_state_t                  *vtss_state,
 }
 
 vtss_rc vtss_srvl_misc_debug_print(vtss_state_t                  *vtss_state,
-                                   const vtss_debug_printf_t      pr,
+                                   lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, srvl_debug_misc,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */

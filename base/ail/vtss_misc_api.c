@@ -700,12 +700,12 @@ vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
 /* - Debug print --------------------------------------------------- */
 
 static void vtss_debug_print_misc(vtss_state_t                  *vtss_state,
-                                  const vtss_debug_printf_t      pr,
+                                  lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
     vtss_chip_id_t chip_id;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MISC)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_MISC)) {
         return;
     }
 
@@ -719,7 +719,7 @@ static void vtss_debug_print_misc(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
-                                      const vtss_debug_printf_t      pr,
+                                      lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
     vtss_chip_no_t          chip_no;
@@ -729,7 +729,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
     vtss_sgpio_port_conf_t *port_conf;
     u32                     port, i, cnt;
 
-    if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_SER_GPIO)) {
+    if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_SER_GPIO)) {
         return;
     }
 
@@ -737,7 +737,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
     for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
         for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
             VTSS_SPRINTF(buf, "Device %u, Group %u", chip_no, group);
-            vtss_debug_print_header(pr, buf);
+            vtss_debug_print_header(ss, buf);
 
             conf = &vtss_state->misc.sgpio_conf[chip_no][group];
             pr("Bit Count   : %u\n", conf->bit_count);
@@ -795,13 +795,13 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
 #endif /* VTSS_FEATURE_SERIAL_GPIO */
 
 void vtss_misc_debug_print(vtss_state_t                  *vtss_state,
-                           const vtss_debug_printf_t      pr,
+                           lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {
-    vtss_debug_print_misc(vtss_state, pr, info);
+    vtss_debug_print_misc(vtss_state, ss, info);
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
-    vtss_debug_print_ser_gpio(vtss_state, pr, info);
+    vtss_debug_print_ser_gpio(vtss_state, ss, info);
 #endif
 }
 #endif // VTSS_OPT_DEBUG_PRINT

@@ -1586,16 +1586,16 @@ static vtss_rc jr2_voi_conf_set(vtss_state_t                *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_COM(pr, name)                                                        \
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_VOP_COMMON_##name, "COMMON:" #name)
-#define D_COM_I(pr, name, i)                                                   \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_VOP_COMMON_##name(i), (i),    \
+#define D_COM(ss, name)                                                        \
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_VOP_COMMON_##name, "COMMON:" #name)
+#define D_COM_I(ss, name, i)                                                   \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_VOP_COMMON_##name(i), (i),    \
                             "COMMON:" #name)
-#define D_VOE_I(pr, name, i)                                                   \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_VOP_VOE_##name(i), (i),       \
+#define D_VOE_I(ss, name, i)                                                   \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_VOP_VOE_##name(i), (i),       \
                             "VOE:" #name)
-#define D_VOE_II(pr, name, i1, i2)                                             \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_VOP_VOE_##name((i1), (i2)),   \
+#define D_VOE_II(ss, name, i1, i2)                                             \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_VOP_VOE_##name((i1), (i2)),   \
                             (i2), "VOE:" #name)
 #define DR_COM(name, v)                                                        \
     {                                                                          \
@@ -1613,20 +1613,20 @@ static vtss_rc jr2_voi_conf_set(vtss_state_t                *vtss_state,
     {                                                                          \
         JR2_RD(VTSS_VOP_VOE_##name((i1), (i2)), &v);                           \
     }
-#define D_D_MIP_I(pr, name, i)                                                 \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_ANA_CL_MIP_TBL_##name(i),     \
+#define D_D_MIP_I(ss, name, i)                                                 \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_ANA_CL_MIP_TBL_##name(i),     \
                             (i), "DOWN_MIP:" #name)
-#define D_U_MIP_I(pr, name, i)                                                 \
-    vtss_jr2_debug_reg_inst(vtss_state, pr, VTSS_REW_MIP_TBL_##name(i), (i),   \
+#define D_U_MIP_I(ss, name, i)                                                 \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_REW_MIP_TBL_##name(i), (i),   \
                             "UP_MIP:" #name)
-#define D_D_MIP_S(pr, name)                                                    \
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_ANA_CL_STICKY_##name,              \
+#define D_D_MIP_S(ss, name)                                                    \
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_CL_STICKY_##name,              \
                        "DOWN_MIP:" #name)
-#define D_U_MIP_S(pr, name)                                                    \
-    vtss_jr2_debug_reg(vtss_state, pr, VTSS_REW_COMMON_##name, "UP_MIP:" #name)
+#define D_U_MIP_S(ss, name)                                                    \
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_COMMON_##name, "UP_MIP:" #name)
 
 static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
-                             const vtss_debug_printf_t      pr,
+                             lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
     u32 i, k, v, w, voe_ctrl, voe_idx, div, tx_counter, rx_counter, voe_cnt,
@@ -1690,43 +1690,43 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
     }
 
     if (!info->has_action || vop) { /* VOP configuration must be printed */
-        vtss_jr2_debug_reg_header(pr, "VOP");
-        D_COM(pr, VOP_CTRL);
-        D_COM(pr, CPU_EXTR_CFG);
-        D_COM(pr, CPU_EXTR_CFG_1);
-        D_COM(pr, VERSION_CTRL);
-        D_COM(pr, VERSION_CTRL_2);
+        vtss_jr2_debug_reg_header(ss, "VOP");
+        D_COM(ss, VOP_CTRL);
+        D_COM(ss, CPU_EXTR_CFG);
+        D_COM(ss, CPU_EXTR_CFG_1);
+        D_COM(ss, VERSION_CTRL);
+        D_COM(ss, VERSION_CTRL_2);
         for (i = 0; i < 8; ++i) {
-            D_COM_I(pr, OAM_GENERIC_CFG, i);
+            D_COM_I(ss, OAM_GENERIC_CFG, i);
         }
-        D_COM(pr, LOC_CTRL);
+        D_COM(ss, LOC_CTRL);
         for (i = 0; i < 7; ++i) {
-            D_COM_I(pr, LOC_PERIOD_CFG, i);
+            D_COM_I(ss, LOC_PERIOD_CFG, i);
         }
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, HMO_PERIOD_CFG, i);
+            D_COM_I(ss, HMO_PERIOD_CFG, i);
         }
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, HMO_FORCE_SLOT_CFG, i);
+            D_COM_I(ss, HMO_FORCE_SLOT_CFG, i);
         }
-        D_COM(pr, HMO_TIMER_CFG);
+        D_COM(ss, HMO_TIMER_CFG);
 #endif
-        D_COM(pr, LOC_SCAN_STICKY);
-        D_COM(pr, MASTER_INTR_CTRL);
+        D_COM(ss, LOC_SCAN_STICKY);
+        D_COM(ss, MASTER_INTR_CTRL);
 #if defined(VTSS_ARCH_SERVAL_T)
-        D_COM(pr, VOE32_INTR);
+        D_COM(ss, VOE32_INTR);
 #endif
 #if defined(VTSS_ARCH_JAGUAR_2_C)
         for (i = 0; i < 2; ++i) {
-            D_COM_I(pr, VOE32_INTR, i);
+            D_COM_I(ss, VOE32_INTR, i);
         }
 #endif
         for (i = 0; i < 7; ++i) {
-            D_COM_I(pr, INTR, i);
+            D_COM_I(ss, INTR, i);
         }
-        D_COM(pr, COMMON_MEP_MC_MAC_LSB);
-        D_COM(pr, COMMON_MEP_MC_MAC_MSB);
+        D_COM(ss, COMMON_MEP_MC_MAC_LSB);
+        D_COM(ss, COMMON_MEP_MC_MAC_MSB);
         pr("\n");
     } /* Print VOP configurations */
 
@@ -1740,43 +1740,43 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
             DR_VOE_I(CONF_VOE_CTRL, i, v);
             if (info->full || (v & VTSS_M_VOP_VOE_CONF_VOE_CTRL_VOE_ENA) != 0) {
                 VTSS_SPRINTF(buf, "VOE_CONF %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
+                vtss_jr2_debug_reg_header(ss, buf);
                 DR_VOE_I(CONF_REG_VOE_MISC_CONFIG, i, w);
-                D_VOE_I(pr, CONF_REG_VOE_MISC_CONFIG, i);
-                D_VOE_I(pr, CONF_VOE_CTRL, i);
+                D_VOE_I(ss, CONF_REG_VOE_MISC_CONFIG, i);
+                D_VOE_I(ss, CONF_VOE_CTRL, i);
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
-                D_VOE_I(pr, CONF_VOE_MEPID_CFG, i);
-                D_VOE_I(pr, CONF_PEER_MEPID_CFG, i);
+                D_VOE_I(ss, CONF_VOE_MEPID_CFG, i);
+                D_VOE_I(ss, CONF_PEER_MEPID_CFG, i);
 #endif
-                D_VOE_I(pr, CONF_SAM_COSID_SEQ_CFG, i);
-                D_VOE_I(pr, CONF_SAM_NON_OAM_SEQ_CFG, i);
-                D_VOE_I(pr, CONF_PATH_VOE_CFG, i);
-                D_VOE_I(pr, CONF_OAM_CPU_COPY_CTRL, i);
-                D_VOE_I(pr, CONF_PDU_VOE_PASS, i);
-                D_VOE_I(pr, CONF_OAM_CNT_OAM_CTRL, i);
-                D_VOE_I(pr, CONF_OAM_CNT_DATA_CTRL, i);
-                D_VOE_I(pr, CONF_MEP_UC_MAC_LSB, i);
-                D_VOE_I(pr, CONF_MEP_UC_MAC_MSB, i);
-                D_VOE_I(pr, CONF_OAM_HW_CTRL, i);
-                D_VOE_I(pr, CONF_LOOPBACK_ENA, i);
-                D_VOE_I(pr, CONF_LOOPBACK_CFG, i);
-                D_VOE_I(pr, CONF_TX_TRANSID_UPDATE, i);
-                D_VOE_I(pr, CONF_CCM_CFG, i);
+                D_VOE_I(ss, CONF_SAM_COSID_SEQ_CFG, i);
+                D_VOE_I(ss, CONF_SAM_NON_OAM_SEQ_CFG, i);
+                D_VOE_I(ss, CONF_PATH_VOE_CFG, i);
+                D_VOE_I(ss, CONF_OAM_CPU_COPY_CTRL, i);
+                D_VOE_I(ss, CONF_PDU_VOE_PASS, i);
+                D_VOE_I(ss, CONF_OAM_CNT_OAM_CTRL, i);
+                D_VOE_I(ss, CONF_OAM_CNT_DATA_CTRL, i);
+                D_VOE_I(ss, CONF_MEP_UC_MAC_LSB, i);
+                D_VOE_I(ss, CONF_MEP_UC_MAC_MSB, i);
+                D_VOE_I(ss, CONF_OAM_HW_CTRL, i);
+                D_VOE_I(ss, CONF_LOOPBACK_ENA, i);
+                D_VOE_I(ss, CONF_LOOPBACK_CFG, i);
+                D_VOE_I(ss, CONF_TX_TRANSID_UPDATE, i);
+                D_VOE_I(ss, CONF_CCM_CFG, i);
                 for (k = 0; k < 12; ++k) {
-                    D_VOE_II(pr, CONF_CCM_MEGID_CFG, i, k);
+                    D_VOE_II(ss, CONF_CCM_MEGID_CFG, i, k);
                 }
-                D_VOE_I(pr, CONF_SLM_CONFIG, i);
-                D_VOE_I(pr, CONF_SLM_TEST_ID, i);
+                D_VOE_I(ss, CONF_SLM_CONFIG, i);
+                D_VOE_I(ss, CONF_SLM_TEST_ID, i);
                 for (k = 0; k < 12; ++k) {
-                    D_VOE_II(pr, CONF_SLM_PEER_LIST, i, k);
+                    D_VOE_II(ss, CONF_SLM_PEER_LIST, i, k);
                 }
 #if defined(VTSS_ARCH_JAGUAR_2_CE) && !defined(VTSS_ARCH_JAGUAR_2_B)
                 if (v & VTSS_M_VOP_VOE_CONF_VOE_CTRL_G_8113_1_ENA) {
-                    D_VOE_I(pr, CONF_G_8113_1_CFG, i);
-                    D_VOE_I(pr, CONF_G_8113_1_REMOTE_MIPID, i);
-                    D_VOE_I(pr, CONF_G_8113_1_REMOTE_MIPID1, i);
-                    D_VOE_I(pr, CONF_G_8113_1_REMOTE_MIPID2, i);
-                    D_VOE_I(pr, CONF_G_8113_1_REMOTE_MIPID3, i);
+                    D_VOE_I(ss, CONF_G_8113_1_CFG, i);
+                    D_VOE_I(ss, CONF_G_8113_1_REMOTE_MIPID, i);
+                    D_VOE_I(ss, CONF_G_8113_1_REMOTE_MIPID1, i);
+                    D_VOE_I(ss, CONF_G_8113_1_REMOTE_MIPID2, i);
+                    D_VOE_I(ss, CONF_G_8113_1_REMOTE_MIPID3, i);
                 }
 #endif
             }
@@ -1795,44 +1795,44 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
             DR_VOE_I(CONF_REG_VOE_MISC_CONFIG, i, w);
             if (info->full || (v & VTSS_M_VOP_VOE_CONF_VOE_CTRL_VOE_ENA) != 0) {
                 VTSS_SPRINTF(buf, "VOE_STAT %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
-                D_VOE_I(pr, STAT_RX_SEL_OAM_CNT, i);
-                D_VOE_I(pr, STAT_RX_OAM_FRM_CNT, i);
-                D_VOE_I(pr, STAT_TX_SEL_OAM_CNT, i);
-                D_VOE_I(pr, STAT_TX_OAM_FRM_CNT, i);
-                D_VOE_I(pr, STAT_CCM_RX_FRM_CNT, i);
-                D_VOE_I(pr, STAT_CCM_TX_SEQ_CFG, i);
-                D_VOE_I(pr, STAT_CCM_RX_SEQ_CFG, i);
-                D_VOE_I(pr, STAT_CCM_RX_WARNING, i);
-                D_VOE_I(pr, STAT_CCM_ERR, i);
-                D_VOE_I(pr, STAT_CCM_RX_ERR_1, i);
-                D_VOE_I(pr, STAT_LBM_TX_TRANSID_CFG, i);
-                D_VOE_I(pr, STAT_LBR_TX_FRM_CNT, i);
-                D_VOE_I(pr, STAT_LBR_RX_TRANSID_CFG, i);
-                D_VOE_I(pr, STAT_LBR_RX_FRM_CNT, i);
-                D_VOE_I(pr, STAT_LBR_RX_TRANSID_ERR_CNT, i);
-                D_VOE_I(pr, STAT_DM_PDU_CNT, i);
-                D_VOE_I(pr, STAT_LM_PDU_CNT, i);
-                D_VOE_I(pr, STAT_TX_OAM_DISCARD, i);
-                D_VOE_I(pr, STAT_RX_OAM_DISCARD, i);
-                D_VOE_I(pr, STAT_PDU_EXTRACT, i);
+                vtss_jr2_debug_reg_header(ss, buf);
+                D_VOE_I(ss, STAT_RX_SEL_OAM_CNT, i);
+                D_VOE_I(ss, STAT_RX_OAM_FRM_CNT, i);
+                D_VOE_I(ss, STAT_TX_SEL_OAM_CNT, i);
+                D_VOE_I(ss, STAT_TX_OAM_FRM_CNT, i);
+                D_VOE_I(ss, STAT_CCM_RX_FRM_CNT, i);
+                D_VOE_I(ss, STAT_CCM_TX_SEQ_CFG, i);
+                D_VOE_I(ss, STAT_CCM_RX_SEQ_CFG, i);
+                D_VOE_I(ss, STAT_CCM_RX_WARNING, i);
+                D_VOE_I(ss, STAT_CCM_ERR, i);
+                D_VOE_I(ss, STAT_CCM_RX_ERR_1, i);
+                D_VOE_I(ss, STAT_LBM_TX_TRANSID_CFG, i);
+                D_VOE_I(ss, STAT_LBR_TX_FRM_CNT, i);
+                D_VOE_I(ss, STAT_LBR_RX_TRANSID_CFG, i);
+                D_VOE_I(ss, STAT_LBR_RX_FRM_CNT, i);
+                D_VOE_I(ss, STAT_LBR_RX_TRANSID_ERR_CNT, i);
+                D_VOE_I(ss, STAT_DM_PDU_CNT, i);
+                D_VOE_I(ss, STAT_LM_PDU_CNT, i);
+                D_VOE_I(ss, STAT_TX_OAM_DISCARD, i);
+                D_VOE_I(ss, STAT_RX_OAM_DISCARD, i);
+                D_VOE_I(ss, STAT_PDU_EXTRACT, i);
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
-                D_VOE_I(pr, STAT_AUTO_HIT_ME_ONCE, i);
+                D_VOE_I(ss, STAT_AUTO_HIT_ME_ONCE, i);
 #endif
-                D_VOE_I(pr, STAT_SYNLM_EXTRACT, i);
-                D_VOE_I(pr, STAT_OAM_TX_STICKY, i);
-                D_VOE_I(pr, STAT_OAM_RX_STICKY, i);
-                D_VOE_I(pr, STAT_OAM_RX_STICKY2, i);
-                D_VOE_I(pr, STAT_CCM_STAT, i);
-                D_VOE_I(pr, STAT_CCM_RX_LAST, i);
-                D_VOE_I(pr, STAT_INTR_STICKY, i);
-                D_VOE_I(pr, STAT_INTR_ENA, i);
-                D_VOE_I(pr, STAT_SLM_TX_FRM_CNT, i);
-                D_VOE_I(pr, STAT_TX_OAM_DISCARD, i);
-                D_VOE_I(pr, STAT_RX_OAM_DISCARD, i);
-                D_VOE_I(pr, CCM_LM_CCM_TX_FCB_CFG, i);
-                D_VOE_I(pr, CCM_LM_CCM_RX_FCB_CFG, i);
-                D_VOE_I(pr, CRC_ERR_LBR_CRC_ERR_CNT, i);
+                D_VOE_I(ss, STAT_SYNLM_EXTRACT, i);
+                D_VOE_I(ss, STAT_OAM_TX_STICKY, i);
+                D_VOE_I(ss, STAT_OAM_RX_STICKY, i);
+                D_VOE_I(ss, STAT_OAM_RX_STICKY2, i);
+                D_VOE_I(ss, STAT_CCM_STAT, i);
+                D_VOE_I(ss, STAT_CCM_RX_LAST, i);
+                D_VOE_I(ss, STAT_INTR_STICKY, i);
+                D_VOE_I(ss, STAT_INTR_ENA, i);
+                D_VOE_I(ss, STAT_SLM_TX_FRM_CNT, i);
+                D_VOE_I(ss, STAT_TX_OAM_DISCARD, i);
+                D_VOE_I(ss, STAT_RX_OAM_DISCARD, i);
+                D_VOE_I(ss, CCM_LM_CCM_TX_FCB_CFG, i);
+                D_VOE_I(ss, CCM_LM_CCM_RX_FCB_CFG, i);
+                D_VOE_I(ss, CRC_ERR_LBR_CRC_ERR_CNT, i);
             }
         }
         pr("\n");
@@ -1941,21 +1941,21 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
             if ((v & VTSS_M_ANA_CL_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
-                D_D_MIP_I(pr, MIP_CFG, i);
-                D_D_MIP_I(pr, CCM_HMO_CTRL, i);
-                D_D_MIP_I(pr, MIP_CL_VID_CTRL, i);
-                D_D_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_D_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_jr2_debug_reg_header(ss, buf);
+                D_D_MIP_I(ss, MIP_CFG, i);
+                D_D_MIP_I(ss, CCM_HMO_CTRL, i);
+                D_D_MIP_I(ss, MIP_CL_VID_CTRL, i);
+                D_D_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_D_MIP_I(ss, LBM_MAC_LOW, i);
             }
 #else
             if ((v & VTSS_M_ANA_CL_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
-                D_D_MIP_I(pr, MIP_CFG, i);
-                D_D_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_D_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_jr2_debug_reg_header(ss, buf);
+                D_D_MIP_I(ss, MIP_CFG, i);
+                D_D_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_D_MIP_I(ss, LBM_MAC_LOW, i);
             }
 #endif
         }
@@ -1976,21 +1976,21 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
             if ((v & VTSS_M_REW_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
-                D_U_MIP_I(pr, MIP_CFG, i);
-                D_U_MIP_I(pr, CCM_HMO_CTRL, i);
-                D_U_MIP_I(pr, MIP_VID_CTRL, i);
-                D_U_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_U_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_jr2_debug_reg_header(ss, buf);
+                D_U_MIP_I(ss, MIP_CFG, i);
+                D_U_MIP_I(ss, CCM_HMO_CTRL, i);
+                D_U_MIP_I(ss, MIP_VID_CTRL, i);
+                D_U_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_U_MIP_I(ss, LBM_MAC_LOW, i);
             }
 #else
             if ((v & VTSS_M_REW_MIP_TBL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
                 VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
-                vtss_jr2_debug_reg_header(pr, buf);
-                D_U_MIP_I(pr, MIP_CFG, i);
-                D_U_MIP_I(pr, LBM_MAC_HIGH, i);
-                D_U_MIP_I(pr, LBM_MAC_LOW, i);
+                vtss_jr2_debug_reg_header(ss, buf);
+                D_U_MIP_I(ss, MIP_CFG, i);
+                D_U_MIP_I(ss, LBM_MAC_HIGH, i);
+                D_U_MIP_I(ss, LBM_MAC_LOW, i);
             }
 #endif
         }
@@ -1998,24 +1998,24 @@ static vtss_rc jr2_debug_oam(vtss_state_t                  *vtss_state,
 
     if (!info->has_action || mip_status) { /* MIP status must be printed */
         VTSS_SPRINTF(buf, "DOWN_MIP_STAT");
-        vtss_jr2_debug_reg_header(pr, buf);
-        D_D_MIP_S(pr, MIP_STICKY);
+        vtss_jr2_debug_reg_header(ss, buf);
+        D_D_MIP_S(ss, MIP_STICKY);
         pr("\n");
 
         VTSS_SPRINTF(buf, "UP_MIP_STAT");
-        vtss_jr2_debug_reg_header(pr, buf);
-        D_U_MIP_S(pr, MIP_STICKY_EVENT);
+        vtss_jr2_debug_reg_header(ss, buf);
+        D_U_MIP_S(ss, MIP_STICKY_EVENT);
     }
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_jr2_oam_debug_print(vtss_state_t                  *vtss_state,
-                                 const vtss_debug_printf_t      pr,
+                                 lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, jr2_debug_oam,
-                                  vtss_state, pr, info);
+                                  vtss_state, ss, info);
 }
 
 #undef D_COM

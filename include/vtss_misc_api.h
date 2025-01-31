@@ -250,6 +250,11 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info);
 vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
                               const vtss_debug_printf_t      prntf,
                               const vtss_debug_info_t *const info);
+
+vtss_rc vtss_debug_info_print_buf(const vtss_inst_t              inst,
+                                  const vtss_debug_info_t *const info,
+                                  const int                      len,
+                                  char                          *buf);
 #endif // VTSS_OPT_DEBUG_PRINT
 
 /* - API protection functions -------------------------------------- */
