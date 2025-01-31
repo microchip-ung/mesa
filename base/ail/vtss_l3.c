@@ -129,7 +129,7 @@ static void integrity_update(vtss_inst_t inst)
 static void ss_mac(lmu_ss_t *ss, vtss_mac_t *mac)
 {
     for (int i = 0; i < 6; i++) {
-        LMU_SS_FMT(ss, "%s%02x%s", i == 0 ? "" : "-", mac->addr[i]);
+        LMU_SS_FMT(ss, "%s%02x", i == 0 ? "" : "-", mac->addr[i]);
     }
 }
 

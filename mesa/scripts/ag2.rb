@@ -106,6 +106,7 @@ $methods_blacklist = [
     "mesa_symreg_data_get",
     "mesa_debug_info_get",
     "mesa_debug_info_print",
+    "mesa_debug_info_print_buf",
     "mesa_macsec_dbg_reg_dump",
     "mesa_macsec_dbg_fcb_block_reg_dump",
     "mesa_macsec_dbg_frm_match_handling_ctrl_reg_dump",
