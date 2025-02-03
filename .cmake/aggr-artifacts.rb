@@ -116,7 +116,7 @@ end
 run "rm -rf #{$out_name}"
 
 if $do_upload
-  cmd = [".cmake/artifactory-ci-upload"]
+  cmd = [".cmake/artifactory-ci"]
   cmd << "-vvv"
   cmd << "--dep-file .cmake/deps-bsp.json"
   cmd << "--dep-file .cmake/deps-docker.json"

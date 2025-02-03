@@ -258,7 +258,7 @@ end
 def save_manifest_file f
     f.seek 0
     f.truncate 0
-    f.write $m.to_json
+    f.write JSON.pretty_generate($m)
     f.close
 end
 
@@ -402,8 +402,33 @@ def http_put url, data, params = {}
     http_req(uri, req)
 end
 
+def http_del url
+    uri = URI(url)
+
+    req = Net::HTTP::Delete.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+    req.delete "Accept-Encoding"
+    req.delete "User-Agent"
+
+    # when deleting a file it is possible that the file is already deleted
+    begin
+        http_req(uri, req)
+    rescue
+    end
+end
+
 def http_get_prop url
     uri = URI(url + "?properties")
+
+    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+    req.delete "Accept-Encoding"
+    req.delete "User-Agent"
+
+    body, code = http_req(uri, req)
+    return body
+end
+
+def http_get url
+    uri = URI(url)
 
     req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
     req.delete "Accept-Encoding"
@@ -427,7 +452,7 @@ def http_get_keep_until url
         body = http_get_prop url
         m = JSON.parse(body)
         # apparently this is an array
-        raise "unexpected array length: #{m.inspect}" if m.class != Array or m.size != 1
+        #raise "unexpected array length: #{m.inspect}" if m.class != Array or m.size != 1
         return Time.parse m["properties"]["unge-keep-until"][0]
     rescue
         return Time.new
@@ -447,6 +472,10 @@ def http_set_keep_until url, keep_until
   base = "https://artifacts-aws.devops.microchip.com/artifactory"
   path = url_to_path url
   res = "#{base}/api/storage/#{path}"
+
+  if $dry_run
+      return
+  end
 
   http_put res, nil, {"properties" => "unge-keep-until=#{keep_until}", "recursive" => 0}
 end
@@ -498,7 +527,6 @@ def a_upload path, data
 
     dbg "Uploading (#{size_of_txt(data)}) to #{path}"
     body, code = http_put path, data
-    http_set_keep_until path, $keep_until
 end
 
 def update_keep_until_deps deps, indent = ""
@@ -576,6 +604,257 @@ def update_keep_until_deps deps, indent = ""
     end
 end
 
+def promote_build url
+    if not url.end_with? ("manifest.json")
+        puts "It is possible to promote only manifest.json files"
+        puts "As this will take care of promoting all dependencies"
+        exit -1
+    end
+
+    body = http_get url
+    manifest = JSON.parse(body)
+
+    # before going through the manifest file and updating the unge-keep-until
+    # property set the keep_until to a high value (100 years),
+    $keep_until = Time.now + ($days * 24 * 60 * 60)
+    update_keep_until_deps manifest["dependencies"]
+
+    # now update also the keep until on the manifest file
+    http_set_keep_until url, $keep_until + $buffer
+end
+
+def check_build url
+    if not url.end_with? ("manifest.json")
+        puts "It is possible to check only manifest.json files"
+        puts "As this will take care of checking all dependencies and the files"
+        exit -1
+    end
+
+    threads = []
+
+    body = http_get url
+    manifest = JSON.parse(body)
+    manifest["dependencies"].each do |d|
+        threads << Thread.new do
+            if d["type"] == "generic-file"
+                if not a_exists_folder_or_path d["generic-file-url"]
+                  err "Path #{d["generic-file-url"]} doesn't exist"
+                  exit
+                end
+            elsif d["type"] == "docker"
+                u = URI.parse("https://#{d["docker-path"]}")
+                repo = "unknown"
+                case u.port
+                when 7996
+                    repo = "ung-docker-dev-local"
+                else
+                    raise "Unexpected port: #{u.port}, in #{d.inspect}"
+                end
+                manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+                manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+
+                if not a_exists_folder_or_path manifest_file
+                  err "Path #{manifest_file} doesn't exist"
+                  exit
+                end
+            elsif d["type"] == "build-artifact"
+                puts d
+                check_build "#{d["build-artifact-url"]}/manifest.json"
+            end
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+
+    url = url.sub("manifest.json", "")
+    manifest["files"].each do |f|
+        threads << Thread.new do
+            if not a_exists_folder_or_path "#{url}/#{f["path"]}"
+                err "Path #{url}/#{f["path"]}"
+                exit
+            end
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+end
+
+def exists_manifest info
+    if info["children"].nil?
+      err "There is no children key for this info #{info} something is wrong"
+      exit
+    end
+
+    info["children"].each do |c|
+        next if c["folder"] == true
+        return true if c["uri"] == "/manifest.json"
+    end
+    return false;
+end
+
+def delete_manifest url
+    info "Delete manifest at path #{url}"
+
+    body = http_get url
+    manifest = JSON.parse(body)
+
+    time = http_get_keep_until url
+    if time > Time.now
+        return
+    end
+
+    threads = []
+    manifest["dependencies"].each do |d|
+        threads << Thread.new do
+            if d["type"] == "generic-file"
+                time = http_get_keep_until d["generic-file-url"]
+                if time < Time.now
+                    http_del d["generic-file=url"]
+                end
+            elsif d["type"] == "docker"
+                u = URI.parse("https://#{d["docker-path"]}")
+                repo = "unknown"
+                case u.port
+                when 7996
+                    repo = "ung-docker-dev-local"
+                else
+                    raise "Unexpected port: #{u.port}, in #{d.inspect}"
+                end
+                manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+                manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+
+                time = http_get_keep_until manifest_file
+                if time < Time.now
+                    http_del "#{repo}/#{u.path}/#{d["docker-tag"]}"
+                end
+            elsif d["type"] == "build-artifact"
+                delete_manifest "#{d["build-artifact-url"]}/manifest.json"
+            end
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+
+    url_path = url.sub("/manifest.json", "")
+    threads = []
+    manifest["files"].each do |f|
+        threads << Thread.new do
+            http_del "#{url_path}/#{f["path"]}"
+        end
+    end
+    threads.each do |t|
+        t.join
+    end
+
+    http_del url
+end
+
+def read_manifest_files url
+    body = http_get url
+    manifest = JSON.parse(body)
+
+    result = []
+    manifest["files"].each do |f|
+        result << "/#{f["path"]}"
+    end
+
+    result << "/manifest.json"
+
+    return result
+end
+
+def get_path_files url, folder_path
+    body = http_get url
+    info = JSON.parse(body)
+
+    result = []
+    info["children"].each do |c|
+        if c["folder"] == true
+            result += get_path_files "#{url}/#{c["uri"]}", "#{folder_path}#{c["uri"]}"
+        else
+            result << "#{folder_path}#{c["uri"]}"
+        end
+    end
+
+    return result
+end
+
+def clear_path base, url
+    # iterate all folders
+    #  if the folder contains a manifest file
+    #   - then check the keep until time if expire
+    #     - if expired, remove all the files from there
+    #     - if expired, look at dependecies and if they are also expired remove
+    #     them
+    #     - if not expired, iterate all files and compare with the files from
+    #     manifest, if there is a missmatch then remove the extra files
+    #  if the folder doesn't contain a manifest
+    #   - then look at the keep until time of the files underneed
+    #     - if expired then just remove it.
+    #     - if not expired then just continue.
+    #   - if there is no property, then remove it
+
+    content_base = "https://artifacts-aws.devops.microchip.com/artifactory/"
+
+    body = http_get "#{base}#{url}"
+    info = JSON.parse(body)
+
+    if exists_manifest(info)
+        time = http_get_keep_until "#{content_base}#{url}/manifest.json"
+        if time <= Time.now
+            delete_manifest "#{content_base}#{url}/manifest.json"
+
+            # call itself again to delete files that are not in manifest
+            clear_path base, url
+        else
+            # read the manifest files and the files under the current directory
+            files_manifest = read_manifest_files "#{content_base}#{url}/manifest.json"
+            files_path = get_path_files "#{base}#{url}", ""
+
+            # find files that are in the manifest file but not in files_path
+            tmp = files_manifest - files_path
+            if tmp.size != 0
+                puts "The following files don't exist anymore #{tmp}"
+            end
+
+            # find files that are in files path but not in the manifest files,
+            # these files need to be removed, there is an issue if someone does
+            # this
+            tmp = files_path - files_manifest
+            if tmp.size != 0
+                tmp.each do |f|
+                    http_del "#{base}#{url}/#{f}"
+                end
+            end
+        end
+    else
+        # if there is no manifest file in folder then just go through the childs
+        # and figure out if there are folders, in that case just go through,
+        # otherwise get the keep until and see if it needs to be deleted
+        info["children"].each do |c|
+            if c["folder"] == true
+                clear_path base, "#{url}#{c["uri"]}"
+            else
+                time = http_get_keep_until "#{content_base}#{url}#{c["uri"]}"
+                if time <= Time.now
+                    http_del "#{base}/#{url}/#{c["uri"]}"
+                end
+            end
+        end
+
+        # if there is nothing under this folder, it means that is an empty
+        # folder so just remove it
+        body = http_get "#{base}#{url}"
+        info = JSON.parse(body)
+        if info["children"].size == 0
+            http_del "#{content_base}#{url}"
+        end
+    end
+end
+
 VERSION = "0.0.1"
 NR_THREADS = 100
 $err = 0
@@ -597,21 +876,70 @@ $upload_folder_pop_cnt = 0
 $schema = JSONSchemer.schema(INLINE_SCHEMA)
 
 opt_parser = OptionParser.new do |opts|
-  opts.banner = """Usage: artifactory-ci-upload [options] [FILES/FOLDERS...]
+  opts.banner = """Usage: artifactory-ci [options] [FILES/FOLDERS...]
 
-This script will upload a list of file to artifactory, and once completed it
-will generate a manifest file as well.
+This is a multi-function tool which support a bunch of different commands all
+related to artifactory.
 
-The listed files will be uploaded to
-ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/...
+The command is provided using the '--command <cmd>' argument, and the tool change
+behavior according to the command.
 
-In addition to the listed files, it will generate a manifest.json file following
-the schema at [1] and set the UNGE-KEEP-UNTIL property to the current date + the
-number of days specified with the --duration <DAYS> option.
+Following is a descriptions of the different commands supported:
 
-[1] https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/schemas/unge-artifact-generic-manifest-schema-1.json
+--command upload: upload files to artifactory and once completed it will generate a
+  manifest file as well.
+
+  By default this mode is intended to be used in CI jobs where files are uploaded
+  to the following destination:
+
+  ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/...
+
+  In addition to the listed files, it will generate a manifest.json file following
+  the schema at [1] and set the UNGE-KEEP-UNTIL property to the current date + the
+  number of days specified with the --duration <DAYS> option.
+
+  [1] https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/schemas/unge-artifact-generic-manifest-schema-1.json
+
+  If not used in a CI context, then --dep-generic-file-dst options shall be used
+  to spcify the full destination path.
+
+--command delete: delete all files that have the property UNGE-KEEP-UNTIL older
+  than the current date.
+  It is required to pass the argument --artifactory-path and this needs to point
+  a folder. By default this command will not delete anything, it is required to
+  pass --no-dry-run to actually delete the files, otherwise will just print the
+  files that will be deleted
+
+--command check: check that all the dependencies and all the generated files of a
+  build exists.
+  If anything is missing an error will be reported. It is recommended to be used
+  before promoting a build or just run regulary to detect if something was deleted
+  by mistake.
+  It is required to pass the argument --artifactory-path and this needs to point
+  to a manifest.json file
+
+--command promote: promote an artifact defined by a manifest file.
+  This will cause the UNGE-KEEP-UNTIL property to be updated on the specified
+  manifest file and all dependencies.
+
+  The UNGE-KEEP-UNTIL property will only be updated, if the existing value is
+  smaller (earlier) then the new value. The new value is calculated using the
+  following formula: time-of-day + DAYS + 3-days
+
+  NOTE: The 3 days extra time is added, to lower the frequincy on how often to
+  promote all dependencies.
+
+  It is required to pass the argument --artifactory-path and this needs to point
+  to a manifest.json file By default this will not update the property UNGE-KEEP-UNTIL
+  it is required to pass --no-try-run to actually update the property.
+  If the argument --days is not passed then, the default value will be 10 days.
 
 Options:"""
+    opts.separator("\nCommand info:") ############################################
+    opts.on("--command <cmd>", "Command to execute, by default will be upload") do |c|
+        $cmd = c
+    end
+
     opts.separator("\nBuild/destination info:") ############################################
     opts.on("--git-repo <REPO>", "Repository. Default: ${git remote get-url origin} with transport layer removed") do |r|
         $repo = r
@@ -644,7 +972,7 @@ Options:"""
         $manifest_file = a
     end
 
-    opts.on("--no-manifest", "Do not create a manufest file - just upload a generic") do |a|
+    opts.on("--no-manifest", "Do not create a manifest file - just upload a generic") do |a|
         $no_manifest = true
     end
 
@@ -670,6 +998,10 @@ Options:"""
         $dep_generic_file_dst = s
     end
 
+    opts.on("--artifactory-path <STRING>", "Artifactory path from where to execute the command\n") do |s|
+        $artifactory_path = s
+    end
+
     opts.on("--skip-files-already-present", "If a file is already there, just skip it") do
         $skip_files_already_present = true
     end
@@ -687,6 +1019,10 @@ Options:"""
     end
 
     opts.separator("\nGeneral:") ###############################################
+    opts.on("--no-dry-run <VAL>", "Dry run the command") do
+        $dry_run = false
+    end
+
     opts.on("--version", "Script version") do |p|
         puts VERSION
         exit
@@ -710,6 +1046,18 @@ $upload_list = ARGV.clone
 if $incremental and $final
     puts "-i and -f are mutually exclusive"
     exit -1
+end
+
+if $cmd.nil?
+    $cmd = "upload"
+end
+
+if $cmd == "upload"
+    $dry_run = false
+end
+
+if $dry_run.nil?
+    $dry_run = true
 end
 
 if $repo.nil?
@@ -736,7 +1084,7 @@ if $branch.nil?
     end
 end
 
-if ($build_no.nil? or $build_no.size == 0) and not $no_manifest
+if $cmd == "upload" and ($build_no.nil? or $build_no.size == 0) and not $no_manifest
     puts "No build number!"
     exit -1
 end
@@ -747,6 +1095,14 @@ when /(bitbucket\.microchip\.com)\/scm\/(.*)\/(.*)\.git/
     $git_org = $2.upcase
     $git_repo_base = $3
 when /(bitbucket\.microchip\.com)\/(.*)\/(.*)\.git/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+when /(bitbucket\.microchip\.com):scm\/(.*)\/(.*)\.git/
+    $git_host = $1
+    $git_org = $2.upcase
+    $git_repo_base = $3
+when /(bitbucket\.microchip\.com):(.*)\/(.*)\.git/
     $git_host = $1
     $git_org = $2.upcase
     $git_repo_base = $3
@@ -765,7 +1121,7 @@ else
 end
 $repo = "#{$git_host}/#{$git_org}/#{$git_repo_base}"
 
-if $upload_list.size == 0 and not $final
+if $cmd == "upload" && $upload_list.size == 0 and not $final
     puts "No upload folder/file!"
     exit -1
 end
@@ -823,16 +1179,16 @@ $m_files = $m["files"]
 $files = []
 $m_deps = $m["dependencies"]
 
-if $repo != $m_build_info["repo"] or
+if $cmd == "upload" and ($repo != $m_build_info["repo"] or
         $branch != $m_build_info["branch"] or
         $build_no != $m_build_info["build-no"] or
         $sha != $m_build_info["git-sha"] or
         #$ts.to_s != $m_build_info["timestamp"] or
-        $days != $m["retention"]["initial-retention-time-days"]
+        $days != $m["retention"]["initial-retention-time-days"])
     puts "repo: #{$repo} != #{$m_build_info["repo"]}" if $repo != $m_build_info["repo"]
     puts "branch: #{$branch} != #{$m_build_info["branch"]}" if $branch != $m_build_info["branch"]
     puts "build_no: '#{$build_no}' != '#{$m_build_info["build-no"]}'" if $build_no != $m_build_info["build-no"]
-    puts "sha: #{$sha} != #{$m_build_info["git-sha"]}" if
+    puts "sha: #{$sha} != #{$m_build_info["git-sha"]}" if $sha != $m_build_info["git-sha"]
     puts "days: #{$days} != #{$m["retention"]["initial-retention-time-days"]}" if $days != $m["retention"]["initial-retention-time-days"]
     puts "The provided repo/branch/build-no/git-sha/timestamp/days does not match what is loaded from the manifest file!"
     exit -1
@@ -880,6 +1236,7 @@ if $dep_generic_file_dst
     $m_deps.each do |e|
         threads << Thread.new do
             a_upload(e["generic-file-url"], File.binread(e["generic-file-local-path"]))
+            http_set_keep_until e["generic-file-url"], $keep_until
             e.delete("local-path")
         end
     end
@@ -931,9 +1288,11 @@ end
 
 if $no_manifest
 
-elsif $final or $manifest_file.nil?
+elsif $cmd == "upload" and ($final or $manifest_file.nil?)
     dbg "upload manifest: #{$target_url}/manifest.json"
-    http_put "#{$target_url}/manifest.json", $m.to_json
+    http_put "#{$target_url}/manifest.json", JSON.pretty_generate($m)
+
+    http_set_keep_until "#{$target_url}/manifest.json", $keep_until + $buffer
 
     update_keep_until_deps $m_deps
 
@@ -942,4 +1301,24 @@ elsif $final or $manifest_file.nil?
         $manifest_file_h = nil
         File.unlink($manifest_file)
     end
+end
+
+if $cmd == "upload"
+    exit 0
+end
+
+if $cmd != "delete" and
+   $cmd != "promote" and
+   $cmd != "check"
+    puts "Invalid command"
+    exit -1
+end
+
+case $cmd
+when "promote"
+    promote_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
+when "check"
+    check_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
+when "delete"
+    clear_path "https://artifacts-aws.devops.microchip.com/artifactory/api/storage/", "#{$artifactory_path}"
 end
