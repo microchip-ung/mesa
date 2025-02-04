@@ -411,7 +411,9 @@ static mepa_rc lan8814_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
             lan8814_workaround_after_reset(dev);
             T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
             // Reconfigure the phy after reset
-            lan8814_conf_set(dev, &data->conf);
+            MEPA_EXIT(dev);
+            lan8814_conf_set(dev, &data->conf); // Has its own sets of ENTER/EXIT
+            MEPA_ENTER(dev);
             // EEE is Disabled on Power Up
             data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
             lan8814_eee_mode_conf_set(dev, data->eee_conf);
@@ -431,8 +433,8 @@ static mepa_rc lan8814_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
     }
     /* Recommended to Use MEPA API "mepa_framepreempt_set" to Enable/Disable Frame Preemption */
     //Configure frame preemption
-    lan8814_framepreempt_set(dev, rst_conf->framepreempt_en);
     MEPA_EXIT(dev);
+    lan8814_framepreempt_set(dev, rst_conf->framepreempt_en); // Has its own sets of ENTER/EXIT
     return MEPA_RC_OK;
 }
 
