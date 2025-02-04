@@ -44,6 +44,21 @@ static mepa_rc dummy_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_inf
     return MEPA_RC_OK;
 }
 
+static mepa_rc dummy_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
+{
+    return MEPA_RC_OK;
+}
+
+static mepa_rc dummy_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
+{
+    return MEPA_RC_OK;
+}
+
+static mepa_rc dummy_if_set(mepa_device_t *dev, mepa_port_interface_t mac_if)
+{
+    return MEPA_RC_OK;
+}
+
 static mepa_device_t *dummy_probe(mepa_driver_t                       *drv,
                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
@@ -74,6 +89,9 @@ mepa_drivers_t mepa_dummy_driver_init()
     dummy[0].mepa_driver_conf_set = dummy_conf_set;
     dummy[0].mepa_driver_probe = dummy_probe;
     dummy[0].mepa_driver_phy_info_get = dummy_info_get,
+    dummy[0].mepa_driver_conf_get = dummy_conf_get;
+    dummy[0].mepa_driver_reset = dummy_reset,
+    dummy[0].mepa_driver_if_set = dummy_if_set,
     res.phy_drv = dummy;
     res.count = 1;
 
