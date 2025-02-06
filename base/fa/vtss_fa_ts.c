@@ -29,14 +29,18 @@ static u64 nominal_tod_increment = 0;
 #define PTP_PIN_ACTION_NOSYNC 0
 #define PTP_PIN_ACTION_SYNC   3
 
+/* ACTION has to be done in two steps. First write SYNC and DOMAIN and then the
+ * ACTION. */
+/* This is a requirement on Laguna */
 #define FA_PTP_PIN_ACTION(pin, act, sync, dom)                                 \
     REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(pin),                                  \
-            VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(act) |                \
-                VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(sync) |             \
+            VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SYNC(sync) |                 \
                 VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_DOM(dom),                \
-            VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION |                     \
-                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SYNC |                   \
-                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_DOM);
+            VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SYNC |                       \
+                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_DOM);                    \
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(pin),                                  \
+            VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(act),                 \
+            VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION);
 
 static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t     *vtss_state,
                                           u32               io,

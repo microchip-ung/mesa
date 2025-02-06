@@ -99,6 +99,42 @@ def check_correction_field(domain)
     end
 end
 
+def tod_domain_shift_test
+    test "tod_domain_shift_test" do
+
+    #Check that TOD in a domain can be configured and is incremented
+    # Set TOD to 'second'
+    $tod_ts  = $ts.dut.call("mesa_ts_domain_timeofday_get", 0)
+    $tod_ts[0]["seconds"] = 1
+    $tod_ts[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_domain_timeofday_set", 0, $tod_ts[0])
+
+    $tod_ts  = $ts.dut.call("mesa_ts_domain_timeofday_get", 1)
+    $tod_ts[0]["seconds"] = 10
+    $tod_ts[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_domain_timeofday_set", 1, $tod_ts[0])
+
+    $tod_ts  = $ts.dut.call("mesa_ts_domain_timeofday_get", 2)
+    $tod_ts[0]["seconds"] = 100
+    $tod_ts[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_domain_timeofday_set", 2, $tod_ts[0])
+
+    $tod_0  = $ts.dut.call("mesa_ts_domain_timeofday_get", 0)
+    $tod_1  = $ts.dut.call("mesa_ts_domain_timeofday_get", 1)
+    $tod_2  = $ts.dut.call("mesa_ts_domain_timeofday_get", 2)
+
+    if (($tod_0[0]["seconds"] != 1) && ($tod_0[0]["seconds"] != 2))
+        t_e("TOD in domain 0 was not configured as expected.")
+    end
+    if (($tod_1[0]["seconds"] != 10) && ($tod_1[0]["seconds"] != 11))
+        t_e("TOD in domain 1 was not configured as expected.")
+    end
+    if (($tod_2[0]["seconds"] != 100) && ($tod_2[0]["seconds"] != 101))
+        t_e("TOD in domain 2 was not configured as expected.")
+    end
+    end
+end
+
 def tod_domain_test(domain, seconds)
     $data = ""
     $tod_ts = 0
@@ -349,6 +385,8 @@ end
 
 test "test_run" do
     # Test TOD domains using domain specific API
+    tod_domain_shift_test
+
     tod_domain_test(0, 10)
     tod_domain_test(1, 100)
     tod_domain_test(2, 1000)
