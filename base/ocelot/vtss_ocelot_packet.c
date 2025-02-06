@@ -33,33 +33,33 @@
  */
 static char *srvl_afi_chip_port_to_str(vtss_state_t       *vtss_state,
                                        vtss_phys_port_no_t chip_port,
-                                       char               *buf)
+                                       char               *str)
 {
     vtss_port_no_t port_no;
+    lmu_fmt_buf_t  buf;
 
     switch (chip_port) {
     case (vtss_phys_port_no_t)-1:
         // Special case just to get the print function print something special
-        VTSS_STRCPY(buf, "SHARED");
+        VTSS_FMT(buf, "SHARED");
         break;
 
-    case VTSS_CHIP_PORT_CPU: VTSS_STRCPY(buf, "CPU"); break;
+    case VTSS_CHIP_PORT_CPU: VTSS_FMT(buf, "CPU"); break;
 
     default:
         port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
                                                 chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
-            VTSS_SPRINTF(buf, "%u", port_no);
+            VTSS_FMT(buf, "%u", port_no);
         } else {
             // Port is not in port map. Odd.
             VTSS_E("chip_port = %u not in port map", chip_port);
-            VTSS_STRCPY(buf, "N/A");
+            VTSS_FMT(buf, "N/A");
         }
-
         break;
     }
-
-    return buf;
+    VTSS_STRCPY(str, buf.s);
+    return str;
 }
 
 /**
@@ -1660,13 +1660,13 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    u32  i, port;
-    char buf[32];
+    u32           i, port;
+    lmu_fmt_buf_t buf;
 
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_srvl_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u", port);
+        vtss_srvl_debug_reg_header(ss, buf.s);
         SRVL_DEBUG_CPU_FWD(ss, CFG(port), port, "CFG");
         SRVL_DEBUG_CPU_FWD(ss, BPDU_CFG(port), port, "BPDU_CFG");
         SRVL_DEBUG_CPU_FWD(ss, GARP_CFG(port), port, "GARP_CFG");

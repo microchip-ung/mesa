@@ -1888,19 +1888,19 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t port_no;
     u32            port;
-    char           buf[32];
+    lmu_fmt_buf_t  buf;
 #if !defined(VTSS_OPT_FPGA)
     u32 i;
 
-    VTSS_SPRINTF(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
-    vtss_lan966x_debug_reg_header(ss, buf);
+    VTSS_FMT(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
+    vtss_lan966x_debug_reg_header(ss, buf.s);
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_HW_CFG), "HW_CFG");
     pr("\n");
 
     for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
-        VTSS_SPRINTF(buf, "SD6G[%u]: %s", i,
-                     vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "SD6G[%u]: %s", i,
+                 vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG(i)),
                                "SD_CFG");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG2(i)),
@@ -1917,8 +1917,8 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
         if (port_no == VTSS_PORT_NO_NONE) {
             continue;
         }
-        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u (%u)", port, port_no);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_CLOCK_CFG(port)),
                                "CLOCK_CFG");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_ENA_CFG(port)),
@@ -1968,11 +1968,12 @@ static void lan966x_debug_cnt_inst(lmu_ss_t            *ss,
                                    vtss_chip_counter_t *c1,
                                    vtss_chip_counter_t *c2)
 {
-    char buf1[80], buf2[80];
+    lmu_fmt_buf_t buf1, buf2;
 
-    VTSS_SPRINTF(buf1, "%s_%u", col1 && VTSS_STRLEN(col1) ? col1 : col2, i);
-    VTSS_SPRINTF(buf2, "%s_%u", col2 && VTSS_STRLEN(col2) ? col2 : col1, i);
-    vtss_lan966x_debug_cnt(ss, col1 ? buf1 : col1, col2 ? buf2 : col2, c1, c2);
+    VTSS_FMT(buf1, "%s_%u", col1 && VTSS_STRLEN(col1) ? col1 : col2, i);
+    VTSS_FMT(buf2, "%s_%u", col2 && VTSS_STRLEN(col2) ? col2 : col1, i);
+    vtss_lan966x_debug_cnt(ss, col1 ? buf1.s : col1, col2 ? buf2.s : col2, c1,
+                           c2);
 }
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
@@ -1983,7 +1984,7 @@ static void lan966x_debug_cnt(lmu_ss_t            *ss,
                               vtss_dual_counter_t *c2)
 {
     u32                 i;
-    char                buf1[32], buf2[32];
+    lmu_fmt_buf_t       buf1, buf2;
     const char         *name;
     vtss_chip_counter_t ca, cb;
 
@@ -1995,17 +1996,17 @@ static void lan966x_debug_cnt(lmu_ss_t            *ss,
             name = "emac";
             ca.prev = c1->emac;
         }
-        VTSS_SPRINTF(buf1, "%s_%s", name, col1);
+        VTSS_FMT(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_lan966x_debug_cnt(ss, buf1, NULL, &ca, NULL);
+            vtss_lan966x_debug_cnt(ss, buf1.s, NULL, &ca, NULL);
         } else {
             if (VTSS_STRLEN(col2) != 0) {
-                VTSS_SPRINTF(buf2, "%s_%s", name, col2);
+                VTSS_FMT(buf2, "%s_%s", name, col2);
             } else {
-                VTSS_STRCPY(buf2, "");
+                VTSS_FMT(buf2, "");
             }
             cb.prev = (i ? c2->pmac : c2->emac);
-            vtss_lan966x_debug_cnt(ss, buf1, buf2, &ca, &cb);
+            vtss_lan966x_debug_cnt(ss, buf1.s, buf2.s, &ca, &cb);
         }
     }
 }
@@ -2146,35 +2147,36 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
 
 static char *lan966x_chip_port_to_str(vtss_state_t       *vtss_state,
                                       vtss_phys_port_no_t chip_port,
-                                      char               *buf)
+                                      char               *str)
 {
     vtss_port_no_t port_no;
+    lmu_fmt_buf_t  buf;
 
     switch (chip_port) {
     case -1:
         // Special case just to get the print function print something special
-        VTSS_STRCPY(buf, "SHARED");
+        VTSS_FMT(buf, "SHARED");
         break;
 
-    case VTSS_CHIP_PORT_CPU_0: VTSS_STRCPY(buf, "CPU0"); break;
+    case VTSS_CHIP_PORT_CPU_0: VTSS_FMT(buf, "CPU0"); break;
 
-    case VTSS_CHIP_PORT_CPU_1: VTSS_STRCPY(buf, "CPU1"); break;
+    case VTSS_CHIP_PORT_CPU_1: VTSS_FMT(buf, "CPU1"); break;
 
     default:
         port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
                                                 chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
-            VTSS_SPRINTF(buf, "%u", port_no);
+            VTSS_FMT(buf, "%u", port_no);
         } else {
             // Port is not in port map. Odd.
             VTSS_E("chip_port = %u not in port map", chip_port);
-            VTSS_STRCPY(buf, "N/A");
+            VTSS_FMT(buf, "N/A");
         }
 
         break;
     }
-
-    return buf;
+    VTSS_STRCPY(str, buf.s);
+    return str;
 }
 
 static const char *lan966x_qsys_resource_to_str(u32 resource)

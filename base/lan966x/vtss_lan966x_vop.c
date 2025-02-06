@@ -670,9 +670,9 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    u32  i, k, v, div, voe_idx;
-    char buf[80];
-    BOOL show, vop, voe, status, lm_counters;
+    u32           i, k, v, div, voe_idx;
+    BOOL          show, vop, voe, status, lm_counters;
+    lmu_fmt_buf_t buf;
 
     div = 0;
     voe_idx = 0;
@@ -768,8 +768,8 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
                 vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_BASIC_CTRL(i)), i,
                                             "MEP_BASIC_CTRL");
@@ -835,8 +835,8 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
                 vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_CCM_CFG(i)), i,
                                             "MEP_CCM_CFG");
@@ -881,11 +881,10 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
             REG_RD(MEP_BASIC_CTRL(i), &v);
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
 
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) {
-                    VTSS_SPRINTF(buf, "Priority %u", k);
                     vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                                 REG_ADDR(MEP_PORT_RX_FRM_CNT(i)),
                                                 ((i * VTSS_PRIO_ARRAY_SIZE) +

@@ -182,6 +182,13 @@ extern const char *vtss_func;
             return __rc__;                                                     \
     }
 
+#define VTSS_FMT(fmt_buf, fmt_str, ...)                                        \
+    do {                                                                       \
+        lmu_fmt_buf_init(&fmt_buf);                                            \
+        LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)         \
+        (&fmt_buf.ss, (fmt_str), ##__VA_ARGS__);                               \
+    } while (0)
+
 // Debug print
 #define pr(fmt_str, ...)                                                       \
     LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)             \

@@ -41,8 +41,6 @@ typedef struct {
 
 uint8_t lm_mesa_timeval_init(vtss_timeval_t *timeval);
 void   *lm_mesa_pseudo_malloc(uint32_t size);
-int     lm_mesa_sprintf(char *s, const char *format, ...);
-int     lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 
 #define VTSS_OS_RAND()       lmu_pseudo_rand()
 #define VTSS_OS_MALLOC(s, f) lm_mesa_pseudo_malloc(s)
@@ -55,8 +53,6 @@ int     lm_mesa_snprintf(char *s, uint32_t n, const char *format, ...);
 
 #define VTSS_STRLEN(s)      lmu_czstrlen(s)
 #define VTSS_STRCPY(sd, ss) lmu_czstrcpy(sd, ss)
-#define VTSS_SPRINTF(...)   lm_mesa_sprintf(__VA_ARGS__)
-#define VTSS_SNPRINTF(...)  lm_mesa_snprintf(__VA_ARGS__)
 
 #define VTSS_DIV64(dividend, divisor) ((dividend) / (divisor))
 #define VTSS_MOD64(dividend, divisor) ((dividend) % (divisor))

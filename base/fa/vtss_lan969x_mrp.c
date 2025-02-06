@@ -2033,7 +2033,7 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
                                  const vtss_debug_info_t *const info)
 {
     u32              i, v, div, mrp_idx;
-    char             buf[80];
+    lmu_fmt_buf_t    buf;
     BOOL             show, mrp, status, internal;
     vtss_mrp_data_t *mrp_data;
 
@@ -2085,8 +2085,8 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
 
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full || VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
-                VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "MRP %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_CTRL(i)), i,
                                        "MEP_MRP_CTRL");
@@ -2145,8 +2145,8 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
             }
         }
 
-        VTSS_SPRINTF(buf, "Relevant VOP configuration %u", 0);
-        vtss_fa_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Relevant VOP configuration %u", 0);
+        vtss_fa_debug_reg_header(ss, buf.s);
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_TICK_CFG), 0,
                                "VOP_TICK_CFG");
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_MRP_TS_CFG), 0,
@@ -2173,8 +2173,8 @@ static vtss_rc lan969x_debug_mrp(vtss_state_t                  *vtss_state,
 
             REG_RD(VTSS_VOP_MRP_MRP_CTRL(i), &v);
             if (info->full || VTSS_X_VOP_MRP_MRP_CTRL_MRP_ENA(v)) {
-                VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "MRP %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 vtss_fa_debug_reg_inst(vtss_state, ss,
                                        REG_ADDR(VTSS_VOP_MRP_MRP_STICKY(i)), i,
                                        "MEP_MRP_STICKY");

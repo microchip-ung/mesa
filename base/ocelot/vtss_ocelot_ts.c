@@ -1000,14 +1000,14 @@ static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    u32  port;
-    int  ix;
-    char buf[32];
+    u32           port;
+    int           ix;
+    lmu_fmt_buf_t buf;
 
     /* DEVCPU_PTP:PTP_PINS */
     for (ix = 0; ix <= 4; ix++) {
-        VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", ix);
-        vtss_srvl_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DEVCPU_PTP:PTP_PINS[%u]", ix);
+        vtss_srvl_debug_reg_header(ss, buf.s);
         vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(ix),
                             "PTP_PIN_CFG");
@@ -1063,14 +1063,14 @@ static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
     /* DEV:PORT_MODE */
     vtss_srvl_debug_reg_header(ss, "DEV:PORT_MODE");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "RX_PATH_DELAY_%u", port);
+        VTSS_FMT(buf, "RX_PATH_DELAY_%u", port);
         vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEV_PORT_MODE_RX_PATH_DELAY(VTSS_TO_DEV(port)),
-                            buf);
-        VTSS_SPRINTF(buf, "TX_PATH_DELAY_%u", port);
+                            buf.s);
+        VTSS_FMT(buf, "TX_PATH_DELAY_%u", port);
         vtss_srvl_debug_reg(vtss_state, ss,
                             VTSS_DEV_PORT_MODE_TX_PATH_DELAY(VTSS_TO_DEV(port)),
-                            buf);
+                            buf.s);
     }
 
     /* SYS:PTP (common to Serval1 and Ocelot) */
@@ -1084,23 +1084,23 @@ static vtss_rc srvl_debug_ts(vtss_state_t                  *vtss_state,
     /* SYS_PORT:PTP (common to Serval1 and Ocelot) */
     vtss_srvl_debug_reg_header(ss, "REW:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_CFG(port), buf);
-        VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
+        VTSS_FMT(buf, "PTP_CFG_%u", port);
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_CFG(port), buf.s);
+        VTSS_FMT(buf, "PTP_DLY1_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_DLY1_CFG(port),
-                            buf);
+                            buf.s);
     }
     /* ANA_PORT:PTP (common to Serval1 and Ocelot) */
     vtss_srvl_debug_reg_header(ss, "ANA:PORT");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "PTP_CFG_%u", port);
-        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_CFG(port), buf);
-        VTSS_SPRINTF(buf, "PTP_DLY1_CFG_%u", port);
+        VTSS_FMT(buf, "PTP_CFG_%u", port);
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_CFG(port), buf.s);
+        VTSS_FMT(buf, "PTP_DLY1_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_DLY1_CFG(port),
-                            buf);
-        VTSS_SPRINTF(buf, "PTP_DLY2_CFG_%u", port);
+                            buf.s);
+        VTSS_FMT(buf, "PTP_DLY2_CFG_%u", port);
         vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_PORT_PTP_DLY2_CFG(port),
-                            buf);
+                            buf.s);
     }
 
     /* ANA:: (common to Serval1 and Ocelot) */

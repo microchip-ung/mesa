@@ -233,7 +233,7 @@ static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
     pr("Idx FrmPtr Type  NextPtr InjCnt FrmInfo Delay [ns] Part0\n");
     pr("--- ------ ----- ------- ------ ------- ---------- ----------\n");
     for (idx = 0; idx < VTSS_ARRSZ(vtss_state->afi.dti_tbl); idx++) {
-        char buf0[20];
+        lmu_fmt_buf_t buf;
 
         JR2_RD(VTSS_AFI_DTI_MISC_DTI_CTRL(idx), &val);
 
@@ -245,12 +245,11 @@ static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
         // Get pointer to first frame table entry
         JR2_RD(VTSS_AFI_DTI_TBL_DTI_FRM(idx), &frm_ptr);
         frm_ptr = VTSS_X_AFI_DTI_TBL_DTI_FRM_FIRST_FRM_PTR(frm_ptr);
-        VTSS_SPRINTF(buf0, "%u", idx);
+        VTSS_FMT(buf, "%u", idx);
 
         while (1) {
-            u32  frm_next, frm_type, inj_cnt, frm_info, delay_cc;
-            u64  delay_ns;
-            char buf1[20], buf2[20], buf3[20];
+            u32 frm_next, frm_type, inj_cnt, frm_info, delay_cc;
+            u64 delay_ns;
 
             // Get what's in the first frame table entry
             JR2_RD(VTSS_AFI_FRM_TBL_FRM_NEXT_AND_TYPE(frm_ptr), &next_and_type);
@@ -271,25 +270,23 @@ static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
                 VTSS_EXTRACT_BITFIELD(part0, VTSS_AFI_FRM_TBL_PART0_DELAY_POS,
                                       VTSS_AFI_FRM_TBL_PART0_DELAY_WID);
 
+            pr("%3s 0x%04x %s 0x%05x", &buf, frm_ptr,
+               frm_type == 0 ? "Frame" : "Delay", frm_next);
             if (frm_type == 0) {
                 // Frame
-                VTSS_SPRINTF(buf1, "%6u", inj_cnt);     // Injection count
-                VTSS_SPRINTF(buf2, "0x%05x", frm_info); // Frame info
-                VTSS_SPRINTF(buf3, "%10s", "");         // Delay is N/A
+                pr("%6u", inj_cnt);     // Injection count
+                pr("0x%05x", frm_info); // Frame info
+                pr("%10s", "");         // Delay is N/A
             } else {
                 // Delay
                 delay_ns =
                     VTSS_DIV64(((u64)delay_cc * vtss_state->afi.clk_period_ps),
                                1000LLU);
-                VTSS_SPRINTF(buf1, "%6s", ""); // Injection count is N/A
-                VTSS_SPRINTF(buf2, "%7s", ""); // Frame info is N/A
-                VTSS_SPRINTF(buf3, "%10" PRIu64,
-                             delay_ns); // Delay in nanoseconds
+                pr("%6s", "");              // Injection count is N/A
+                pr("%7s", "");              // Frame info is N/A
+                pr("%10" PRIu64, delay_ns); // Delay in nanoseconds
             }
-
-            pr("%3s 0x%04x %-5s 0x%05x %s %s %s 0x%08x\n", buf0, frm_ptr,
-               frm_type == 0 ? "Frame" : "Delay", frm_next, buf1, buf2, buf3,
-               part0);
+            pr(" 0x%08x\n", part0);
 
             frm_ptr = frm_next;
 
@@ -298,7 +295,7 @@ static vtss_rc jr2_afi_debug(vtss_state_t                  *vtss_state,
             }
 
             // Only print the Idx column when we go no the next DTI table entry.
-            buf0[0] = '\0';
+            VTSS_FMT(buf, "");
         }
     }
 
@@ -627,32 +624,27 @@ static vtss_rc jr2_afi_port_link_down(vtss_state_t *const vtss_state,
  */
 static vtss_rc jr2_afi_hijack_error_print(vtss_state_t *const vtss_state)
 {
-    u32  cnt, val, idx;
-    char buf1[300], buf2[300];
+    u32           val, idx;
+    lmu_fmt_buf_t buf1, buf2;
 
-    cnt =
-        VTSS_SNPRINTF(buf1, sizeof(buf1), "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n",
-                      VTSS_CHIP_PORT_VD1);
+    VTSS_FMT(buf1, "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(3 * 1024 + VTSS_CHIP_PORT_VD1 * 8 +
                                            idx),
                &val);
-        cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,
-                             "Qu = %u: Cnt = %u\n", idx, val);
+        LMU_SS_FMT(&buf1.ss, "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2),
-                        "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n",
-                        VTSS_CHIP_PORT_VD1);
+    VTSS_FMT(buf2, "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n",
+             VTSS_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT_CUR(3 * 1024 +
                                                VTSS_CHIP_PORT_VD1 * 8 + idx),
                &val);
-        cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,
-                             "Qu = %u: Cnt = %u\n", idx, val);
+        LMU_SS_FMT(&buf2.ss, "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1, buf2);
+    VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1.s, buf2.s);
     return VTSS_RC_OK;
 }
 

@@ -892,13 +892,13 @@ static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    u32  port, i;
-    char buf[32];
+    u32           port, i;
+    lmu_fmt_buf_t buf;
 
     // Analyzer CPU forwarding registers
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u", port);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(ANA_CPU_FWD_CFG(port)), port,
                                     "FWD_CFG");

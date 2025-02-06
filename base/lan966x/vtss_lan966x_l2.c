@@ -1656,7 +1656,7 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
     vtss_xms_entry_t *ms;
     vtss_port_no_t    port_no;
     u32               i, idx, val;
-    char              buf[80];
+    lmu_fmt_buf_t     buf;
     BOOL              header = 1;
 
     for (sdx = vtss_state->l2.sdx_info.iflow; sdx != NULL; sdx = sdx->next) {
@@ -1700,8 +1700,8 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
         idx = ms->idx;
         for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_PORT_BF_GET(ms->port_list, port_no)) {
-                VTSS_SPRINTF(buf, "MSID %u, port %u", i, port_no);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "MSID %u, port %u", i, port_no);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
                 vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(QSYS_FRER_CFG_MBM(idx)),
                                             idx, "FRER_CFG_MBM");
@@ -1722,8 +1722,8 @@ static vtss_rc lan966x_debug_frer(vtss_state_t                  *vtss_state,
         if (vtss_state->l2.cstream_conf[i].recovery == 0) {
             continue;
         }
-        VTSS_SPRINTF(buf, "CSID %u", i);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "CSID %u", i);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                     REG_ADDR(QSYS_FRER_CFG_CMP(i)), i,
                                     "QSYS:FRER_CFG_CMP");
@@ -1743,9 +1743,9 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    u16  i, j;
-    char buf[80];
-    BOOL first = TRUE;
+    u16           i, j;
+    lmu_fmt_buf_t buf;
+    BOOL          first = TRUE;
 
     for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
         vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[i];
@@ -1771,8 +1771,8 @@ static vtss_rc lan966x_debug_psfp(vtss_state_t                  *vtss_state,
 
     for (i = 0; i < VTSS_PSFP_GATE_CNT; i++) {
         if (info->full || vtss_state->l2.psfp.gate[i].enable) {
-            VTSS_SPRINTF(buf, "PSFP Gate %u", i);
-            vtss_lan966x_debug_reg_header(ss, buf);
+            VTSS_FMT(buf, "PSFP Gate %u", i);
+            vtss_lan966x_debug_reg_header(ss, buf.s);
             REG_WR(ANA_SG_ACCESS_CTRL, ANA_SG_ACCESS_CTRL_SGID(i));
             vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_SG_CFG_1),
                                    "SG_CFG_1");
@@ -1830,7 +1830,7 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
     BOOL               header = 1;
     vtss_port_no_t     port_no;
     u32                port, value, mask = 0, fid;
-    char               buf[32];
+    lmu_fmt_buf_t      buf;
 
     for (port = 0; port < (VTSS_CHIP_PORTS + 2); port++) {
         if (port < VTSS_CHIP_PORTS) {
@@ -1838,15 +1838,15 @@ static vtss_rc lan966x_debug_vlan(vtss_state_t                  *vtss_state,
             if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) ==
                 VTSS_PORT_NO_NONE)
                 continue;
-            VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
+            VTSS_FMT(buf, "Port %u (%u)", port, port_no);
         } else {
             /* CPU ports */
             if (!info->full)
                 continue;
-            VTSS_SPRINTF(buf, "Port %u (CPU)", port);
+            VTSS_FMT(buf, "Port %u (CPU)", port);
         }
 
-        vtss_lan966x_debug_reg_header(ss, buf);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         if (port != VTSS_CHIP_PORT_CPU_1) {
             vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                         REG_ADDR(ANA_VLAN_CFG(port)), port,

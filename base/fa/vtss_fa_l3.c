@@ -440,7 +440,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
     BOOL                header = 1;
     vtss_vid_t          vid;
     u32                 i, value, enable, cfg0, cfg1;
-    char                buf0[16], buf1[16];
+    lmu_fmt_buf_t       buf;
     vtss_l3_counters_t *cnt;
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_L3)) {
@@ -473,24 +473,24 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
         REG_RD(VTSS_ANA_L3_RLEG_CTRL(i), &value);
         REG_RD(VTSS_ANA_L3_VRRP_CFG(i, 0), &cfg0);
         REG_RD(VTSS_ANA_L3_VRRP_CFG(i, 1), &cfg1);
-        VTSS_SPRINTF(buf0, "%u (%u/%u)",
-                     VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP4_VRID_ENA(value),
-                     VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP4_VRID(cfg0),
-                     VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP4_VRID(cfg1));
-        VTSS_SPRINTF(buf1, "%u (%u/%u)",
-                     VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_VRID_ENA(value),
-                     VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP6_VRID(cfg0),
-                     VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP6_VRID(cfg1));
-
-        pr("%-6u%-6u%-8u%-8u%-8u%-8u%-11u%-11u%-13s%-13s", i,
+        pr("%-6u%-6u%-8u%-8u%-8u%-8u%-11u%-11u", i,
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_EVID(value),
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP4_UC_ENA(value),
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_UC_ENA(value),
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP4_MC_ENA(value),
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_MC_ENA(value),
            VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP4_ICMP_REDIR_ENA(value),
-           VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(value), buf0, buf1);
-
+           VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(value));
+        VTSS_FMT(buf, "%u (%u/%u)",
+                 VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP4_VRID_ENA(value),
+                 VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP4_VRID(cfg0),
+                 VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP4_VRID(cfg1));
+        pr("%-13s", &buf);
+        VTSS_FMT(buf, "%u (%u/%u)",
+                 VTSS_X_ANA_L3_RLEG_CTRL_RLEG_IP6_VRID_ENA(value),
+                 VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP6_VRID(cfg0),
+                 VTSS_X_ANA_L3_VRRP_CFG_RLEG_IP6_VRID(cfg1));
+        pr("%-13s", &buf);
         REG_RD(VTSS_ANA_L3_VMID_MC(i), &value);
         pr("%-12d\n", VTSS_X_ANA_L3_VMID_MC_RLEG_IP4_MC_TTL(value));
     }

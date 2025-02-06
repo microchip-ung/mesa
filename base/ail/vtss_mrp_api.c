@@ -686,16 +686,6 @@ vtss_rc vtss_mrp_inst_create(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 
 #define YN(x) ((x) ? "Yes" : "No ")
 
-static char *debug_mac_string(const vtss_mac_t *m)
-{
-    static char buf[20];
-
-    VTSS_SPRINTF(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1],
-                 m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
-
-    return buf;
-}
-
 static char *debug_ring_role_string(const vtss_mrp_ring_role_t role, BOOL in)
 {
     switch (role) {
@@ -790,7 +780,7 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
                     pr("ring_state:%s  in_ring_state:%s  mac:%s\n",
                        debug_ring_state_string(mrp_data->ring_state),
                        debug_ring_state_string(mrp_data->in_ring_state),
-                       debug_mac_string(&mrp_data->conf.mac));
+                       vtss_mac_txt(&mrp_data->conf.mac));
                     pr("-----\n");
                 }
 

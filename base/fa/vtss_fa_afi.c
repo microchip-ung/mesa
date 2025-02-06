@@ -377,28 +377,23 @@ static vtss_rc fa_afi_port_link_down(vtss_state_t  *vtss_state,
 
 static vtss_rc fa_afi_hijack_error_print(vtss_state_t *vtss_state)
 {
-    u32  cnt, val, idx;
-    char buf1[300], buf2[300];
+    u32           val, idx;
+    lmu_fmt_buf_t buf1, buf2;
 
-    cnt = VTSS_SNPRINTF(buf1, sizeof(buf1),
-                        "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", RT_CHIP_PORT_VD1);
+    VTSS_FMT(buf1, "QRES:RES_CTRL[VD1 = %u]:RES_STAT\n", RT_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         REG_RD(VTSS_QRES_RES_STAT(3 * 1024 + RT_CHIP_PORT_VD1 * 8 + idx), &val);
-        cnt += VTSS_SNPRINTF(buf1 + cnt, sizeof(buf1) - cnt,
-                             "Qu = %u: Cnt = %u\n", idx, val);
+        LMU_SS_FMT(&buf1.ss, "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    cnt = VTSS_SNPRINTF(buf2, sizeof(buf2),
-                        "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n",
-                        RT_CHIP_PORT_VD1);
+    VTSS_FMT(buf2, "QRES:RES_CTRL[VD1 = %u]:RES_STAT_CUR\n", RT_CHIP_PORT_VD1);
     for (idx = 0; idx < 8; idx++) {
         REG_RD(VTSS_QRES_RES_STAT_CUR(3 * 1024 + RT_CHIP_PORT_VD1 * 8 + idx),
                &val);
-        cnt += VTSS_SNPRINTF(buf2 + cnt, sizeof(buf2) - cnt,
-                             "Qu = %u: Cnt = %u\n", idx, val);
+        LMU_SS_FMT(&buf2.ss, "Qu = %u: Cnt = %u\n", idx, val);
     }
 
-    VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1, buf2);
+    VTSS_E("CIL: Timeout waiting for NEW_FRM_CTRL.VLD\n%s\n%s", buf1.s, buf2.s);
     return VTSS_RC_OK;
 }
 

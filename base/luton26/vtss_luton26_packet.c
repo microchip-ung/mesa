@@ -830,8 +830,8 @@ static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    u32  i, port;
-    char buf[32];
+    u32           i, port;
+    lmu_fmt_buf_t buf;
 
     if (vtss_state->init_conf.packet_init_disable) {
         VTSS_I("Packet interface not supported");
@@ -840,8 +840,8 @@ static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
 
     /* Analyzer CPU forwarding registers */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_l26_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u", port);
+        vtss_l26_debug_reg_header(ss, buf.s);
         L26_DEBUG_CPU_FWD(ss, CFG(port), port, "CFG");
         L26_DEBUG_CPU_FWD(ss, BPDU_CFG(port), port, "BPDU_CFG");
         L26_DEBUG_CPU_FWD(ss, GARP_CFG(port), port, "GARP_CFG");

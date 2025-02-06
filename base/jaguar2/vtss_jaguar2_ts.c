@@ -1446,13 +1446,13 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
 {
     u32            port;
     vtss_port_no_t port_no;
-    char           buf[64];
+    lmu_fmt_buf_t  buf;
     int            idx;
 
     /* REW:PORT */
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "REW:PORT[%u]", port);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_MODE_CFG(port, 0),
                            "PTP_MODE_CFG[0]");
         vtss_jr2_debug_reg(vtss_state, ss, VTSS_REW_PORT_PTP_MODE_CFG(port, 1),
@@ -1483,28 +1483,28 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
                        "PTP_MISC_CTRL");
 
     for (idx = 0; idx <= 2; idx++) {
-        VTSS_SPRINTF(buf, "CLK_ADJ_CFG[%u]", idx);
+        VTSS_FMT(buf, "CLK_ADJ_CFG[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_CFG(idx), buf);
+                           VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_CFG(idx), buf.s);
     }
     for (idx = 0; idx <= 2; idx++) {
-        VTSS_SPRINTF(buf, "CLK_ADJ_FRQ[%u]", idx);
+        VTSS_FMT(buf, "CLK_ADJ_FRQ[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_FRQ(idx), buf);
+                           VTSS_DEVCPU_PTP_PTP_CFG_CLK_ADJ_FRQ(idx), buf.s);
     }
     for (idx = 0; idx <= 2; idx++) {
-        VTSS_SPRINTF(buf, "DOM_PTP_CLOCK_ID_MSB[%u]", idx);
+        VTSS_FMT(buf, "DOM_PTP_CLOCK_ID_MSB[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_MSB(idx), buf);
-        VTSS_SPRINTF(buf, "DOM_PTP_CLOCK_ID_LSB[%u]", idx);
+                           VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_MSB(idx), buf.s);
+        VTSS_FMT(buf, "DOM_PTP_CLOCK_ID_LSB[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_LSB(idx), buf);
-        VTSS_SPRINTF(buf, "DOM_PTP_SRC_PORT_CFG[%u]", idx);
+                           VTSS_ANA_ACL_PTP_DOM_PTP_CLOCK_ID_LSB(idx), buf.s);
+        VTSS_FMT(buf, "DOM_PTP_SRC_PORT_CFG[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_ANA_ACL_PTP_DOM_PTP_SRC_PORT_CFG(idx), buf);
-        VTSS_SPRINTF(buf, "PTP_DOM_PTP_MISC_CFG[%u]", idx);
+                           VTSS_ANA_ACL_PTP_DOM_PTP_SRC_PORT_CFG(idx), buf.s);
+        VTSS_FMT(buf, "PTP_DOM_PTP_MISC_CFG[%u]", idx);
         vtss_jr2_debug_reg(vtss_state, ss,
-                           VTSS_ANA_ACL_PTP_DOM_PTP_MISC_CFG(idx), buf);
+                           VTSS_ANA_ACL_PTP_DOM_PTP_MISC_CFG(idx), buf.s);
     }
 
     vtss_jr2_debug_reg(vtss_state, ss, VTSS_DEVCPU_PTP_PTP_CFG_PTP_PIN_INTR,
@@ -1516,8 +1516,8 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
-        VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg(vtss_state, ss,
                            VTSS_DEVCPU_PTP_PTP_PINS_PTP_PIN_CFG(idx),
                            "PTP_PIN_CFG");
@@ -1552,8 +1552,8 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
-            VTSS_SPRINTF(buf, "DEV1G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_jr2_debug_reg_header(ss, buf);
+            VTSS_FMT(buf, "DEV1G (port_no %u):DEV_CFG_STATUS", port_no);
+            vtss_jr2_debug_reg_header(ss, buf.s);
             vtss_jr2_debug_reg(
                 vtss_state, ss,
                 VTSS_DEV1G_DEV_CFG_STATUS_PTP_CFG(VTSS_TO_DEV1G(port)),
@@ -1562,8 +1562,8 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_SFI:
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
-            VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_jr2_debug_reg_header(ss, buf);
+            VTSS_FMT(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
+            vtss_jr2_debug_reg_header(ss, buf.s);
             vtss_jr2_debug_reg(
                 vtss_state, ss,
                 VTSS_DEV10G_DEV_CFG_STATUS_PTP_CFG(VTSS_TO_DEV(port)),

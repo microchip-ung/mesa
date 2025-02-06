@@ -451,13 +451,15 @@ static void vtss_vcap_pos_get(vtss_vcap_obj_t *obj,
 
 char *vtss_vcap_id_txt(vtss_state_t *vtss_state, vtss_vcap_id_t id)
 {
-    u32   high = ((id >> 32) & 0xffffffff);
-    u32   low = (id & 0xffffffff);
-    char *txt;
+    u32           high = ((id >> 32) & 0xffffffff);
+    u32           low = (id & 0xffffffff);
+    char         *txt;
+    lmu_fmt_buf_t buf;
 
     vtss_state->txt_buf_index++;
     txt = &vtss_state->txt_buf[(vtss_state->txt_buf_index & 1) ? 0 : 32];
-    VTSS_SPRINTF(txt, "0x%08x:0x%08x", high, low);
+    VTSS_FMT(buf, "0x%08x:0x%08x", high, low);
+    lmu_czstrcpy(txt, buf.s);
     return txt;
 }
 
@@ -1467,16 +1469,6 @@ vtss_rc vtss_cmn_ace_counter_clear(vtss_state_t       *vtss_state,
     return vtss_cmn_ace_get(vtss_state, ace_id, &counter, 1);
 }
 
-char *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf)
-{
-    if (policy_no == VTSS_ACL_POLICY_NO_NONE) {
-        VTSS_STRCPY(buf, "None");
-    } else {
-        VTSS_SPRINTF(buf, "%u", policy_no);
-    }
-    return buf;
-}
-
 /* - Access Control Lists ------------------------------------------ */
 
 static vtss_rc vtss_acl_policer_no_check(const vtss_acl_policer_no_t policer_no)
@@ -2449,7 +2441,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     vtss_acl_port_conf_t *conf;
     vtss_acl_action_t    *act;
     vtss_acl_policer_no_t policer_no;
-    char                  buf[64];
+    lmu_fmt_buf_t         buf;
 #endif
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_ACL)) {
@@ -2471,23 +2463,27 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
                                          0, 0);
             pr("\n");
         }
-        pr("%-6u%-8s%-5u%-6u%-7u", port_no,
-           vtss_acl_policy_no_txt(conf->policy_no, buf), act->cpu,
-           act->cpu_once, act->cpu_queue);
+        if (conf->policy_no == VTSS_ACL_POLICY_NO_NONE) {
+            VTSS_FMT(buf, "None");
+        } else {
+            VTSS_FMT(buf, "%u", conf->policy_no);
+        }
+        pr("%-6u%-8s%-5u%-6u%-7u", port_no, &buf, act->cpu, act->cpu_once,
+           act->cpu_queue);
         if (act->police) {
-            VTSS_SPRINTF(buf, "%u (ACL)", act->policer_no);
+            VTSS_FMT(buf, "%u (ACL)", act->policer_no);
 #if defined(VTSS_ARCH_LUTON26) && defined(VTSS_FEATURE_QOS_POLICER_DLB)
         } else if (act->evc_police) {
-            VTSS_SPRINTF(buf, "%u (EVC)", act->evc_policer_id);
+            VTSS_FMT(buf, "%u (EVC)", act->evc_policer_id);
 #endif /* VTSS_ARCH_LUTON26 && VTSS_FEATURE_QOS_POLICER_DLB */
         } else {
-            VTSS_STRCPY(buf, "Disabled");
+            VTSS_FMT(buf, "Disabled");
         }
-        pr("%-9s%-7u", buf, act->learn);
-        VTSS_SPRINTF(buf, "%s/%s/%s", vtss_acl_key_txt(conf->key.ipv4),
-                     vtss_acl_key_txt(conf->key.ipv6),
-                     vtss_acl_key_txt(conf->key.arp));
-        pr("%-19s", buf);
+        pr("%-9s%-7u", &buf, act->learn);
+        VTSS_FMT(buf, "%s/%s/%s", vtss_acl_key_txt(conf->key.ipv4),
+                 vtss_acl_key_txt(conf->key.ipv6),
+                 vtss_acl_key_txt(conf->key.arp));
+        pr("%-19s", &buf);
         pr("%-8u%-5s%-6s", act->mirror,
            act->ptp_action == VTSS_ACL_PTP_ACTION_NONE       ? "None"
            : act->ptp_action == VTSS_ACL_PTP_ACTION_ONE_STEP ? "One"
@@ -2518,27 +2514,27 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
         if (pol_conf->bit_rate_enable) {
             rate = pol_conf->bit_rate;
             if (rate == VTSS_BITRATE_DISABLED) {
-                VTSS_STRCPY(buf, "Disabled");
+                VTSS_FMT(buf, "Disabled");
             } else if (rate < 100000) {
-                VTSS_SPRINTF(buf, "%u kbps", rate);
+                VTSS_FMT(buf, "%u kbps", rate);
             } else if (rate < 100000000) {
-                VTSS_SPRINTF(buf, "%u Mbps", rate / 1000);
+                VTSS_FMT(buf, "%u Mbps", rate / 1000);
             } else {
-                VTSS_SPRINTF(buf, "%u Gbps", rate / 1000000);
+                VTSS_FMT(buf, "%u Gbps", rate / 1000000);
             }
         } else {
             rate = pol_conf->rate;
             if (rate == VTSS_PACKET_RATE_DISABLED) {
-                VTSS_STRCPY(buf, "Disabled");
+                VTSS_FMT(buf, "Disabled");
             } else if (rate < 100000) {
-                VTSS_SPRINTF(buf, "%u pps", rate);
+                VTSS_FMT(buf, "%u pps", rate);
             } else if (rate < 100000000) {
-                VTSS_SPRINTF(buf, "%u kpps", rate / 1000);
+                VTSS_FMT(buf, "%u kpps", rate / 1000);
             } else {
-                VTSS_SPRINTF(buf, "%u Mpps", rate / 1000000);
+                VTSS_FMT(buf, "%u Mpps", rate / 1000000);
             }
         }
-        pr("%-9u%-12s", policer_no, buf);
+        pr("%-9u%-12s", policer_no, &buf);
 #if defined(VTSS_ARCH_LUTON26)
         {
             vtss_policer_alloc_t *pol_alloc =

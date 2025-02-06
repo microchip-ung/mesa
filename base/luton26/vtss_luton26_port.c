@@ -2814,7 +2814,7 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
 {
     u32            i, value, port, tgt;
     vtss_port_no_t port_no;
-    char           buf[32];
+    lmu_fmt_buf_t  buf;
 
     L26_RD(VTSS_DEVCPU_GCB_MISC_MISC_CFG, &value);
     pr("Target  : 0x%04x/0x%04x\n", vtss_state->create.target,
@@ -2823,8 +2823,8 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
        VTSS_X_DEVCPU_GCB_MISC_MISC_CFG_SW_MODE(value));
 
     for (i = 0; info->full && i < 8; i++) {
-        VTSS_SPRINTF(buf, "SerDes1G_%u", i);
-        vtss_l26_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "SerDes1G_%u", i);
+        vtss_l26_debug_reg_header(ss, buf.s);
         VTSS_RC(l26_sd1g_read(vtss_state, 1 << i));
         L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_DES_CFG, "DES_CFG");
         L26_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
@@ -2845,8 +2845,8 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
     }
 
     for (i = 0; info->full && i < 4; i++) {
-        VTSS_SPRINTF(buf, "SerDes6G_%u", i);
-        vtss_l26_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "SerDes6G_%u", i);
+        vtss_l26_debug_reg_header(ss, buf.s);
         VTSS_RC(l26_sd6g_read(vtss_state, 1 << i));
         L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_DES_CFG, "DES_CFG");
         L26_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_IB_CFG, "IB_CFG");
@@ -2878,8 +2878,8 @@ static vtss_rc l26_debug_port(vtss_state_t                  *vtss_state,
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_l26_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u", port);
+        vtss_l26_debug_reg_header(ss, buf.s);
         tgt = VTSS_TO_DEV(port);
         vtss_l26_debug_reg_inst(vtss_state, ss,
                                 port > 9
@@ -2916,13 +2916,13 @@ static void l26_debug_cnt(lmu_ss_t            *ss,
                           vtss_chip_counter_t *c1,
                           vtss_chip_counter_t *c2)
 {
-    char buf[400];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "rx_%s:", col1);
-    pr("%-19s%19" PRIu64, buf, c1->prev);
+    VTSS_FMT(buf, "rx_%s:", col1);
+    pr("%-19s%19" PRIu64, &buf, c1->prev);
     if (col2 != NULL) {
-        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
-        pr("   %-19s%19" PRIu64, buf, c2->prev);
+        VTSS_FMT(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
+        pr("   %-19s%19" PRIu64, &buf, c2->prev);
     }
     pr("\n");
 }
@@ -2934,10 +2934,10 @@ static void l26_debug_cnt_inst(lmu_ss_t            *ss,
                                vtss_chip_counter_t *c1,
                                vtss_chip_counter_t *c2)
 {
-    char buf[200];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s_%u", col1, i);
-    l26_debug_cnt(ss, buf, col2, c1, c2);
+    VTSS_FMT(buf, "%s_%u", col1, i);
+    l26_debug_cnt(ss, buf.s, col2, c1, c2);
 }
 
 static vtss_rc l26_debug_port_cnt(vtss_state_t                  *vtss_state,

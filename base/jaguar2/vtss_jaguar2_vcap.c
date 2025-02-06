@@ -2620,24 +2620,24 @@ static vtss_rc jr2_debug_clm_all(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t port_no;
     u32            port, i, j;
-    char           buf[32];
+    lmu_fmt_buf_t  buf;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u (%u)", port, port_no);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         for (i = 0; i < 2; i++) {
             j = ((type == VTSS_VCAP_TYPE_CLM_A   ? 0
                   : type == VTSS_VCAP_TYPE_CLM_B ? 2
                                                  : 4) +
                  i);
-            VTSS_SPRINTF(buf, "ADV_CL_CFG_%u", port);
+            VTSS_FMT(buf, "ADV_CL_CFG_%u", port);
             vtss_jr2_debug_reg_inst(vtss_state, ss,
                                     VTSS_ANA_CL_PORT_ADV_CL_CFG(port, j), j,
-                                    buf);
+                                    buf.s);
         }
         pr("\n");
     }
@@ -4123,9 +4123,9 @@ static void jr2_debug_es0_tag(const char      *name,
                               u32              pcp_val,
                               u32              dei_val)
 {
-    lmu_ss_t *ss = data->ss;
-    u32       x;
-    char      buf[16];
+    lmu_ss_t     *ss = data->ss;
+    u32           x;
+    lmu_fmt_buf_t buf;
 
     x = jr2_act_get(data, tpid_sel, ES0_AL_TAG_A_TPID_SEL);
     pr("tpid_%s_sel:%u (%s) ", name, x,
@@ -4137,18 +4137,18 @@ static void jr2_debug_es0_tag(const char      *name,
        : x == ES0_ACT_TPID_SEL_CLASS    ? "class"
                                         : "?");
 
-    VTSS_SPRINTF(buf, "vid_%s", name);
+    VTSS_FMT(buf, "vid_%s", name);
     x = jr2_act_get(data, vid_sel, ES0_AL_TAG_A_VID_SEL);
-    pr("%s_sel:%u (%s) ", buf, x,
+    pr("%s_sel:%u (%s) ", &buf, x,
        x                                 ? "vid"
        : vid_sel == ES0_AO_TAG_C_VID_SEL ? "cl_vid"
                                          : "vid+cl_vid");
-    jr2_debug_action(data, buf, vid_val, ES0_AL_VID_A_VAL);
+    jr2_debug_action(data, buf.s, vid_val, ES0_AL_VID_A_VAL);
     pr("\n");
 
-    VTSS_SPRINTF(buf, "pcp_%s", name);
+    VTSS_FMT(buf, "pcp_%s", name);
     x = jr2_act_get(data, pcp_sel, ES0_AL_TAG_A_PCP_SEL);
-    pr("%s_sel:%u (%s) ", buf, x,
+    pr("%s_sel:%u (%s) ", &buf, x,
        x == ES0_ACT_PCP_SEL_CL_PCP    ? "cl-pcp"
        : x == ES0_ACT_PCP_SEL_PCP_ES0 ? "es0"
        : x == ES0_ACT_PCP_SEL_POPPED  ? "popped"
@@ -4157,11 +4157,11 @@ static void jr2_debug_es0_tag(const char      *name,
        : x == ES0_ACT_PCP_SEL_MAP_2   ? "map_3"
        : x == ES0_ACT_PCP_SEL_MAP_3   ? "map_3"
                                       : "?");
-    jr2_debug_action(data, buf, pcp_val, ES0_AL_PCP_A_VAL);
+    jr2_debug_action(data, buf.s, pcp_val, ES0_AL_PCP_A_VAL);
 
-    VTSS_SPRINTF(buf, "dei_%s", name);
+    VTSS_FMT(buf, "dei_%s", name);
     x = jr2_act_get(data, dei_sel, ES0_AL_TAG_A_DEI_SEL);
-    pr("%s_sel:%u (%s) ", buf, x,
+    pr("%s_sel:%u (%s) ", &buf, x,
        x == ES0_ACT_DEI_SEL_CL_DEI    ? "cl-dei"
        : x == ES0_ACT_DEI_SEL_DEI_ES0 ? "es0"
        : x == ES0_ACT_DEI_SEL_MAPPED  ? "mapped"
@@ -4171,7 +4171,7 @@ static void jr2_debug_es0_tag(const char      *name,
        : x == ES0_ACT_DEI_SEL_MAP_2   ? "map_2"
        : x == ES0_ACT_DEI_SEL_MAP_3   ? "map_3"
                                       : "?");
-    jr2_debug_action(data, buf, dei_val, ES0_AL_DEI_A_VAL);
+    jr2_debug_action(data, buf.s, dei_val, ES0_AL_DEI_A_VAL);
     pr("\n");
 }
 
@@ -4631,15 +4631,15 @@ static vtss_rc jr2_debug_acl(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t port_no;
     u32            port, i;
-    char           buf[32];
+    lmu_fmt_buf_t  buf;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u (%u)", port, port_no);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_ACL_VCAP_S2_VCAP_S2_CFG(port), port,
                                 "VCAP_S2_CFG");
@@ -4653,8 +4653,8 @@ static vtss_rc jr2_debug_acl(vtss_state_t                  *vtss_state,
     }
 
     for (i = 0; i < VTSS_ACL_POLICERS; i++) {
-        VTSS_SPRINTF(buf, "Policer %u", i);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Policer %u", i);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ACL_CTRL(i), i,
                                 "ACL_CTRL");
@@ -4668,8 +4668,8 @@ static vtss_rc jr2_debug_acl(vtss_state_t                  *vtss_state,
     }
 
     for (i = 0; i < VTSS_VCAP_RANGE_CHK_CNT; i++) {
-        VTSS_SPRINTF(buf, "Range %u", i);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Range %u", i);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_ACL_VCAP_S2_VCAP_S2_RNG_CTRL(i), i,
                                 "S2_RNG_CTRL");
@@ -4930,10 +4930,10 @@ static vtss_rc jr2_es0_eflow_update(vtss_state_t         *vtss_state,
 static vtss_rc jr2_debug_clm_raw(vtss_state_t    *vtss_state,
                                  jr2_vcap_data_t *data)
 {
-    lmu_ss_t *ss = data->ss;
-    u32       ofs;
-    u32       len;
-    char      name[20];
+    lmu_ss_t     *ss = data->ss;
+    u32           ofs;
+    u32           len;
+    lmu_fmt_buf_t buf;
 
     /* Check VCAP type */
     switch (data->vcap_type) {
@@ -4972,8 +4972,8 @@ static vtss_rc jr2_debug_clm_raw(vtss_state_t    *vtss_state,
     default:              VTSS_E("not X1/X2/X4/X8/X16"); return VTSS_RC_ERROR;
     }
     for (ofs = 0; ofs < len; ofs += 32) {
-        VTSS_SPRINTF(name, "%3u", ofs);
-        jr2_debug_bits(data, name, ofs, (ofs + 32 > len ? len - ofs : 32));
+        VTSS_FMT(buf, "%3u", ofs);
+        jr2_debug_bits(data, buf.s, ofs, (ofs + 32 > len ? len - ofs : 32));
         pr("\n");
     }
     return VTSS_RC_OK;

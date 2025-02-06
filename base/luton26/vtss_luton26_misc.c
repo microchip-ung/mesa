@@ -1003,8 +1003,8 @@ static vtss_rc l26_debug_misc(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    u32  port, i;
-    char buf[32];
+    u32           port, i;
+    lmu_fmt_buf_t buf;
 
     pr("Name        Target\n");
     L26_DEBUG_TGT(ss, DEVCPU_ORG);
@@ -1019,8 +1019,8 @@ static vtss_rc l26_debug_misc(vtss_state_t                  *vtss_state,
     L26_DEBUG_TGT(ss, DEVCPU_PI);
     L26_DEBUG_TGT(ss, MACRO_CTRL);
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "DEV_%u", port);
-        l26_debug_tgt(ss, buf, VTSS_TO_DEV(port));
+        VTSS_FMT(buf, "DEV_%u", port);
+        l26_debug_tgt(ss, buf.s, VTSS_TO_DEV(port));
     }
     pr("\n");
 

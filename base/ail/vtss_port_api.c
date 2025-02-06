@@ -1603,16 +1603,17 @@ static char *irq2txt(u32 irq)
 
 static void dump_irq(u32 p, u32 irq)
 {
-    char buf[200] = {0}, *b=&buf[0];
+    lmu_fmt_buf_t char buf;
 
-    b += VTSS_SPRINTF(b, "p:%d ",p);
+    lmu_fmt_buf_init(lmu_fmt_buf_t &buf);
+    LMU_SS_FMT(&buf.ss, "p:%d ",p);
     for (u32 i = 4; i < 31; i++) {
         if (((1 << i) & irq) > 0) {
-            b += VTSS_SPRINTF(b, "%s ",irq2txt((1 << i)));
+            LMU_SS_FMT(&buf.ss, "%s ",irq2txt((1 << i)));
         }
     }
     if ((irq & 0xf) > 0) {
-        b += VTSS_SPRINTF(b, "%s ",fa_kr_aneg_rate(irq & 0xf));
+        LMU_SS_FMT(&buf.ss, "%s ",fa_kr_aneg_rate(irq & 0xf));
     }
 }
 
@@ -2306,7 +2307,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
     const char       *mode;
     const char       *aneg;
     BOOL              header = 1;
-    char              buf[32];
+    lmu_fmt_buf_t     buf;
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PORT)) {
         return;
@@ -2320,8 +2321,9 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
 
         if (header) {
             header = 0;
-            VTSS_SPRINTF(buf, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
-            vtss_debug_print_header(ss, buf);
+            lmu_fmt_buf_init(&buf);
+            LMU_SS_FMT(&buf.ss, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
+            vtss_debug_print_header(ss, buf.s);
             pr("Port  Chip Port  Chip  ");
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
     defined(VTSS_ARCH_LAN969X)
@@ -2381,14 +2383,15 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
                        vtss_state->port.clause_37[port_no].enable
                    ? "Yes"
                    : "No";
-        VTSS_SPRINTF(buf, "%s",
-                     vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
+        lmu_fmt_buf_init(&buf);
+        LMU_SS_FMT(&buf.ss, "%s",
+                   vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
         if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
-            VTSS_SPRINTF(buf + VTSS_STRLEN(buf), "(%s)",
-                         vtss_media_type_if_txt(conf->serdes.media_type));
+            LMU_SS_FMT(&buf.ss, "(%s)",
+                       vtss_media_type_if_txt(conf->serdes.media_type));
         }
         pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s", port_no,
-           vtss_port_if_txt(conf->if_type), buf, mode, aneg,
+           vtss_port_if_txt(conf->if_type), &buf, mode, aneg,
            vtss_bool_txt(conf->flow_control.obey),
            vtss_bool_txt(conf->flow_control.generate));
 #if defined(VTSS_FEATURE_PFC)
@@ -2474,13 +2477,13 @@ static void vtss_debug_port_cnt(lmu_ss_t           *ss,
                                 vtss_port_counter_t c1,
                                 vtss_port_counter_t c2)
 {
-    char buf[200];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "Rx %s:", col1);
-    pr("%-19s%19" PRIu64 "   ", buf, c1);
+    VTSS_FMT(buf, "Rx %s:", col1);
+    pr("%-19s%19" PRIu64 "   ", &buf, c1);
     if (col2 != NULL) {
-        VTSS_SPRINTF(buf, "Tx %s:", VTSS_STRLEN(col2) ? col2 : col1);
-        pr("%-19s%19" PRIu64, buf, c2);
+        VTSS_FMT(buf, "Tx %s:", VTSS_STRLEN(col2) ? col2 : col1);
+        pr("%-19s%19" PRIu64, &buf, c2);
     }
     pr("\n");
 }
@@ -2494,7 +2497,7 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
     vtss_port_rmon_counters_t          *rmon = &counters.rmon;
     vtss_port_if_group_counters_t      *ifg = &counters.if_group;
     vtss_port_ethernet_like_counters_t *eth = &counters.ethernet_like;
-    char                                buf[80];
+    lmu_fmt_buf_t                       buf;
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PORT_CNT)) {
         return;
@@ -2512,8 +2515,8 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
             vtss_cil_port_counters_clear(vtss_state, port_no) != VTSS_RC_OK) {
             continue;
         }
-        VTSS_SPRINTF(buf, "Port %u Counters", port_no);
-        vtss_debug_print_header(ss, buf);
+        VTSS_FMT(buf, "Port %u Counters", port_no);
+        vtss_debug_print_header(ss, buf.s);
 
         /* Basic counters */
         vtss_debug_port_cnt(ss, "Packets", "", rmon->rx_etherStatsPkts,
@@ -2565,8 +2568,8 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
 
             /* Priority counters */
             for (prio = VTSS_PRIO_START; prio < VTSS_PRIO_END; prio++) {
-                VTSS_SPRINTF(buf, "Class %u", prio);
-                vtss_debug_port_cnt(ss, buf, "",
+                VTSS_FMT(buf, "Class %u", prio);
+                vtss_debug_port_cnt(ss, buf.s, "",
                                     prop->rx_prio[prio - VTSS_PRIO_START],
                                     prop->tx_prio[prio - VTSS_PRIO_START]);
             }

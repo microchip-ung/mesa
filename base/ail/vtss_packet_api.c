@@ -748,7 +748,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
                              const vtss_debug_info_t *const info)
 {
     u32                    i;
-    char                   buf[16];
+    lmu_fmt_buf_t          buf;
     vtss_packet_rx_conf_t *conf = &vtss_state->packet.rx_conf;
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_PACKET)) {
@@ -796,8 +796,8 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 
     vtss_debug_print_value(ss, "BPDU", conf->reg.bpdu_cpu_only);
     for (i = 0; i < 16; i++) {
-        VTSS_SPRINTF(buf, "GARP_%u", i);
-        vtss_debug_print_value(ss, buf, conf->reg.garp_cpu_only[i]);
+        VTSS_FMT(buf, "GARP_%u", i);
+        vtss_debug_print_value(ss, buf.s, conf->reg.garp_cpu_only[i]);
     }
     vtss_debug_print_value(ss, "IPMC", conf->reg.ipmc_ctrl_cpu_copy);
     vtss_debug_print_value(ss, "IGMP", conf->reg.igmp_cpu_only);
@@ -830,8 +830,8 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
         vtss_debug_print_value(ss, "NPI_PORT",
                                vtss_state->packet.npi_conf.port_no);
         for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
-            VTSS_SPRINTF(buf, "REDIR:CPUQ_%u", i);
-            vtss_debug_print_value(ss, buf, conf->queue[i].npi.enable);
+            VTSS_FMT(buf, "REDIR:CPUQ_%u", i);
+            vtss_debug_print_value(ss, buf.s, conf->queue[i].npi.enable);
         }
     }
     pr("\n");
@@ -849,8 +849,8 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
     vtss_debug_print_header(ss, "CPU Queue Shaper");
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
-        VTSS_SPRINTF(buf, "CPU_Queue_%u", i);
-        vtss_debug_print_value(ss, buf, conf->queue[i].rate);
+        VTSS_FMT(buf, "CPU_Queue_%u", i);
+        vtss_debug_print_value(ss, buf.s, conf->queue[i].rate);
     }
 #endif
 }

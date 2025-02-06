@@ -6963,7 +6963,7 @@ static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
     vtss_ingress_counters_t cnt;
     vtss_counter_t          c[3];
     u16                     i, j;
-    char                    buf[80];
+    lmu_fmt_buf_t           buf;
     BOOL                    first = TRUE;
 
     vtss_debug_print_xrow(vtss_state, ss, info,
@@ -6977,13 +6977,13 @@ static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
             first = FALSE;
             pr("Ingress Counters:\n\n");
             pr("ID    SDX   IDX   CNT  COSID  Green/Yellow/Red Frames  ");
-            VTSS_STRCPY(buf, "Green/Yellow/Red Bytes");
+            VTSS_FMT(buf, "Green/Yellow/Red Bytes");
 #if defined(VTSS_FEATURE_PSFP)
             if (vtss_state->init_conf.psfp_counters_enable) {
-                VTSS_STRCPY(buf, "Match/GateDiscard/SduDiscard");
+                VTSS_FMT(buf, "Match/GateDiscard/SduDiscard");
             }
 #endif
-            pr("%s\n", buf);
+            pr("%s\n", &buf);
         }
         for (j = 0; j < stat->cnt; j++) {
             if (j == 0) {
@@ -6994,10 +6994,10 @@ static void vtss_debug_print_istat(vtss_state_t                  *vtss_state,
             pr("%-7u", j);
             if (vtss_cil_l2_icnt_get(vtss_state, vtss_icnt_idx(stat, j),
                                      &cnt) == VTSS_RC_OK) {
-                VTSS_SPRINTF(buf, "%" PRIu64 "/%" PRIu64 "/%" PRIu64,
-                             cnt.rx_green.frames, cnt.rx_yellow.frames,
-                             cnt.rx_red.frames);
-                pr("%-25s", buf);
+                VTSS_FMT(buf, "%" PRIu64 "/%" PRIu64 "/%" PRIu64,
+                         cnt.rx_green.frames, cnt.rx_yellow.frames,
+                         cnt.rx_red.frames);
+                pr("%-25s", &buf);
                 c[0] = cnt.rx_green.bytes;
                 c[1] = cnt.rx_yellow.bytes;
                 c[2] = cnt.rx_red.bytes;
@@ -7026,7 +7026,7 @@ static void vtss_debug_print_estat(vtss_state_t                  *vtss_state,
     vtss_egress_counters_t cnt;
     u16                    i, j;
     BOOL                   first = TRUE;
-    char                   buf[80];
+    lmu_fmt_buf_t          buf;
 
     vtss_debug_print_xrow(vtss_state, ss, info,
                           &vtss_state->l2.estat_table.hdr);
@@ -7049,9 +7049,9 @@ static void vtss_debug_print_estat(vtss_state_t                  *vtss_state,
             pr("%-7u", j);
             if (vtss_cil_l2_ecnt_get(vtss_state, stat->idx + j, &cnt) ==
                 VTSS_RC_OK) {
-                VTSS_SPRINTF(buf, "%" PRIu64 "/%" PRIu64, cnt.tx_green.frames,
-                             cnt.tx_yellow.frames);
-                pr("%-21s", buf);
+                VTSS_FMT(buf, "%" PRIu64 "/%" PRIu64, cnt.tx_green.frames,
+                         cnt.tx_yellow.frames);
+                pr("%-21s", &buf);
                 pr("%" PRIu64 "/%" PRIu64, cnt.tx_green.bytes,
                    cnt.tx_yellow.bytes);
             }
@@ -7065,14 +7065,11 @@ static void vtss_debug_print_estat(vtss_state_t                  *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_PSFP)
-static char *vtss_opt_bool_str(vtss_opt_bool_t *b, char *buf)
+static char *vtss_opt_bool_str(vtss_opt_bool_t *b, lmu_fmt_buf_t *buf)
 {
-    if (b->enable) {
-        VTSS_SPRINTF(buf, "%u", b->value ? 1 : 0);
-    } else {
-        VTSS_SPRINTF(buf, "%s", "-");
-    }
-    return buf;
+    lmu_fmt_buf_init(buf);
+    LMU_SS_FMT(&buf->ss, b->enable ? (b->value ? "1" : "0") : "-");
+    return buf->s;
 }
 #endif
 
@@ -7121,8 +7118,8 @@ static void vtss_debug_print_dlb(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_PSFP)
             {
                 vtss_dlb_policer_status_t status;
-                char                      buf[16];
-                pr("%s/%-7u%u", vtss_opt_bool_str(&conf->mark_all_red, buf),
+                lmu_fmt_buf_t             buf;
+                pr("%s/%-7u%u", vtss_opt_bool_str(&conf->mark_all_red, &buf),
                    vtss_cil_l2_policer_status_get(vtss_state, pol->idx + j,
                                                   &status) == VTSS_RC_OK
                        ? status.mark_all_red
@@ -7157,10 +7154,10 @@ static void vtss_debug_frer_cnt(lmu_ss_t      *ss,
                                 const char    *name,
                                 vtss_counter_t cnt)
 {
-    char buf[80];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s:", name);
-    pr("%-19s%19" PRIu64 "   \n", buf, cnt);
+    VTSS_FMT(buf, "%s:", name);
+    pr("%-19s%19" PRIu64 "   \n", &buf, cnt);
 }
 
 static void vtss_debug_print_frer_cnt(lmu_ss_t *ss, vtss_frer_counters_t *c)
@@ -7264,40 +7261,43 @@ static void vtss_debug_print_frer(vtss_state_t                  *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_PSFP)
-static char *vtss_opt_prio_str(vtss_opt_prio_t *p, char *buf)
+static char *vtss_opt_prio_str(vtss_opt_prio_t *p, lmu_fmt_buf_t *buf)
 {
+    lmu_fmt_buf_init(buf);
     if (p->enable) {
-        VTSS_SPRINTF(buf, "%u", p->value);
+        LMU_SS_FMT(&buf->ss, "%u", p->value);
     } else {
-        VTSS_SPRINTF(buf, "%s", "-");
+        LMU_SS_FMT(&buf->ss, "%s", "-");
     }
-    return buf;
+    return buf->s;
 }
 
-static char *vtss_ts_str(vtss_timestamp_t *ts, char *buf, int max)
+static char *vtss_ts_str(vtss_timestamp_t *ts, lmu_fmt_buf_t *buf)
 {
+    char str[64];
 #if defined(VTSS_OPSYS_LINUX)
     time_t     time = ts->seconds;
     struct tm  timeinfo;
     struct tm *t = localtime_r(&time, &timeinfo);
-    strftime(buf, max, "%Y-%m-%d %H:%M:%S", t);
+    strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", t);
 #else
-    VTSS_MEMSET(buf, 0, max);
+    str[0] = 0;
 #endif
-    VTSS_SPRINTF((buf + VTSS_STRLEN(buf)), ".%09u (%u-%u)", ts->nanoseconds,
-                 ts->seconds, ts->nanoseconds);
 
-    return buf;
+    lmu_fmt_buf_init(buf);
+    LMU_SS_FMT(&buf->ss, "%s.%09u (%u-%u)", str, ts->nanoseconds, ts->seconds,
+               ts->nanoseconds);
+    return buf->s;
 }
 
 static void vtss_debug_print_gcl(lmu_ss_t             *ss,
                                  vtss_psfp_gcl_conf_t *conf,
                                  vtss_psfp_gcl_t      *gcl)
 {
-    u16  i;
-    char buf[64];
+    u16           i;
+    lmu_fmt_buf_t buf;
 
-    pr("BaseTime : %s\n", vtss_ts_str(&conf->base_time, buf, sizeof(buf)));
+    pr("BaseTime : %s\n", vtss_ts_str(&conf->base_time, &buf));
     pr("CycleTime: %u-%u\n", conf->cycle_time, conf->cycle_time_ext);
     for (i = 0; i < gcl->gcl_length; i++) {
         vtss_psfp_gce_t *gce = &gcl->gce[i];
@@ -7305,7 +7305,7 @@ static void vtss_debug_print_gcl(lmu_ss_t             *ss,
             pr("\nIndex  Open  Priority  TimeInt     OctetMax\n");
         }
         pr("%-7u%-6u%-10s%-12u%u\n", i, gce->gate_open ? 1 : 0,
-           vtss_opt_prio_str(&gce->prio, buf), gce->time_interval,
+           vtss_opt_prio_str(&gce->prio, &buf), gce->time_interval,
            gce->octet_max);
     }
 }
@@ -7316,7 +7316,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
 {
     u16                i;
     BOOL               first = TRUE;
-    char               buf[64];
+    lmu_fmt_buf_t      buf;
     vtss_psfp_state_t *psfp = &vtss_state->l2.psfp;
 
     for (i = 0; i < VTSS_PSFP_FILTER_CNT; i++) {
@@ -7332,7 +7332,7 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
             pr("%-6u", i);
             vtss_debug_print_w6(ss, conf->gate_enable, conf->gate_id);
             pr("%-8u%s/%u\n", conf->max_sdu,
-               vtss_opt_bool_str(&conf->block_oversize, buf),
+               vtss_opt_bool_str(&conf->block_oversize, &buf),
                vtss_cil_l2_psfp_filter_status_get(vtss_state, i, &status) ==
                        VTSS_RC_OK
                    ? status.block_oversize
@@ -7355,22 +7355,21 @@ static void vtss_debug_print_psfp(vtss_state_t                  *vtss_state,
             pr("Gate ID  : %u\n", i);
             pr("Enabled  : %u\n", conf->enable ? 1 : 0);
             pr("Open     : %u\n", conf->gate_open ? 1 : 0);
-            pr("Priority : %s\n", vtss_opt_prio_str(&conf->prio, buf));
+            pr("Priority : %s\n", vtss_opt_prio_str(&conf->prio, &buf));
             pr("InvRx    : %s\n",
-               vtss_opt_bool_str(&conf->close_invalid_rx, buf));
+               vtss_opt_bool_str(&conf->close_invalid_rx, &buf));
             pr("OctExc   : %s\n",
-               vtss_opt_bool_str(&conf->close_octets_exceeded, buf));
+               vtss_opt_bool_str(&conf->close_octets_exceeded, &buf));
             pr("Change   : %u\n", conf->config_change ? 1 : 0);
             vtss_debug_print_gcl(ss, &conf->config, &psfp->admin_gcl[i]);
             pr("\n");
             if (vtss_gate_status_get(vtss_state, i, &status) == VTSS_RC_OK) {
                 pr("Status\n");
                 pr("Open     : %u\n", status.gate_open ? 1 : 0);
-                pr("Priority : %s\n", vtss_opt_prio_str(&status.prio, buf));
+                pr("Priority : %s\n", vtss_opt_prio_str(&status.prio, &buf));
                 pr("ChgTime  : %s\n",
-                   vtss_ts_str(&status.config_change_time, buf, sizeof(buf)));
-                pr("CurTime  : %s\n",
-                   vtss_ts_str(&status.current_time, buf, sizeof(buf)));
+                   vtss_ts_str(&status.config_change_time, &buf));
+                pr("CurTime  : %s\n", vtss_ts_str(&status.current_time, &buf));
                 pr("Pending  : %u\n", status.config_pending ? 1 : 0);
                 pr("InvRx    : %u\n", status.close_invalid_rx);
                 pr("OctExc   : %u\n", status.close_octets_exceeded);
@@ -8986,12 +8985,12 @@ static void vtss_debug_vlan_cnt(lmu_ss_t                  *ss,
                                 const char                *name,
                                 vtss_vlan_counter_types_t *cnt)
 {
-    char buf[80];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s Packets:", name);
-    pr("%-19s%19" PRIu64 "   ", buf, cnt->frames);
-    VTSS_SPRINTF(buf, "%s Octets:", name);
-    pr("%-19s%19" PRIu64, buf, cnt->bytes);
+    VTSS_FMT(buf, "%s Packets:", name);
+    pr("%-19s%19" PRIu64 "   ", &buf, cnt->frames);
+    VTSS_FMT(buf, "%s Octets:", name);
+    pr("%-19s%19" PRIu64, &buf, cnt->bytes);
     pr("\n");
 }
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
@@ -9513,7 +9512,7 @@ static void vtss_debug_print_eps(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t   port_no;
     vtss_port_eps_t *eps;
-    char             buf[16];
+    lmu_fmt_buf_t    buf;
     BOOL             header = 1;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
@@ -9527,11 +9526,11 @@ static void vtss_debug_print_eps(vtss_state_t                  *vtss_state,
         }
         eps = &vtss_state->l2.port_protect[port_no];
         if (eps->conf.port_no == VTSS_PORT_NO_NONE) {
-            VTSS_STRCPY(buf, "None");
+            VTSS_FMT(buf, "None");
         } else {
-            VTSS_SPRINTF(buf, "%-4u", eps->conf.port_no);
+            VTSS_FMT(buf, "%-4u", eps->conf.port_no);
         }
-        pr("%-4u  %-10s  %-4s  %s\n", port_no, buf,
+        pr("%-4u  %-10s  %-4s  %s\n", port_no, &buf,
            eps->conf.type == VTSS_EPS_PORT_1_PLUS_1 ? "1+1" : "1:1",
            eps->selector == VTSS_EPS_SELECTOR_WORKING ? "Working"
                                                       : "Protection");
@@ -9558,7 +9557,7 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
     vtss_ipmc_info_t *ipmc = &vtss_state->l2.ipmc;
     vtss_ipmc_src_t  *src;
     vtss_ipmc_dst_t  *dst;
-    char              buf[80];
+    lmu_fmt_buf_t     buf;
     u32               ipv6, src_free_count = 0, dst_free_count = 0;
     BOOL              header;
 
@@ -9583,7 +9582,7 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
 
     /* SIP Table */
     for (ipv6 = 0; ipv6 < 2; ipv6++) {
-        VTSS_SPRINTF(buf, ipv6 ? "  %-40s" : "  %-11s", "DIP");
+        VTSS_FMT(buf, ipv6 ? "  %-40s" : "  %-11s", "DIP");
         for (src = ipmc->obj.src_used[ipv6]; src != NULL; src = src->next) {
             pr("%-6s%-6s%-6s%s\n", "Type", "VID", "FID", "SIP");
             pr("%-6s%-6u%-6u", src->data.ssm ? "SSM" : "ASM", src->data.vid,
@@ -9596,7 +9595,7 @@ static void vtss_debug_print_ipmc(vtss_state_t                  *vtss_state,
             header = 1;
             for (dst = src->dest; dst != NULL; dst = dst->next) {
                 if (header) {
-                    vtss_debug_print_port_header(vtss_state, ss, buf, 0, 1);
+                    vtss_debug_print_port_header(vtss_state, ss, buf.s, 0, 1);
                     header = 0;
                 }
                 pr("  ");
@@ -9634,17 +9633,17 @@ static void vtss_debug_cnt(lmu_ss_t      *ss,
                            vtss_counter_t c1,
                            vtss_counter_t c2)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
     if (col1 != NULL) {
-        VTSS_SPRINTF(buf, "Rx %s:", col1);
-        pr("%-19s%19" PRIu64 "   ", buf, c1);
+        VTSS_FMT(buf, "Rx %s:", col1);
+        pr("%-19s%19" PRIu64 "   ", &buf, c1);
     } else {
         pr("%-41s", "");
     }
     if (col2 != NULL) {
-        VTSS_SPRINTF(buf, "Tx %s:", strlen(col2) ? col2 : col1);
-        pr("%-19s%19" PRIu64, buf, c2);
+        VTSS_FMT(buf, "Tx %s:", strlen(col2) ? col2 : col1);
+        pr("%-19s%19" PRIu64, &buf, c2);
     }
     pr("\n");
 }
@@ -9677,7 +9676,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
     vtss_rb_node_t       node;
     vtss_rb_proxy_node_t pnode;
     u8                  *p;
-    char                 buf[32], *s;
+    lmu_fmt_buf_t        buf;
 
     // RedBox configuration
     for (i = 0; i < VTSS_REDBOX_CNT; i++) {
@@ -9690,16 +9689,16 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
             header = 0;
             pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age  SV       SV-Discard\n");
         }
-        s = buf;
+        lmu_fmt_buf_init(&buf);
         if (conf->port_a == VTSS_PORT_NO_NONE) {
-            s += VTSS_SPRINTF(s, "-/");
+            LMU_SS_FMT(&buf.ss, "-/");
         } else {
-            s += VTSS_SPRINTF(s, "%u/", conf->port_a);
+            LMU_SS_FMT(&buf.ss, "%u/", conf->port_a);
         }
         if (conf->port_b == VTSS_PORT_NO_NONE) {
-            s += VTSS_SPRINTF(s, "-");
+            LMU_SS_FMT(&buf.ss, "-");
         } else {
-            s += VTSS_SPRINTF(s, "%u", conf->port_b);
+            LMU_SS_FMT(&buf.ss, "%u", conf->port_b);
         }
         pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%-8u%-9s%u\n", i,
            m == VTSS_RB_MODE_DISABLED  ? "Disabled"
@@ -9708,7 +9707,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
            : m == VTSS_RB_MODE_HSR_PRP ? "HSR-PRP"
            : m == VTSS_RB_MODE_HSR_HSR ? "HSR-HSR"
                                        : "?",
-           buf, conf->net_id, conf->lan_id, conf->nt_dmac_disable,
+           buf.s, conf->net_id, conf->lan_id, conf->nt_dmac_disable,
            conf->nt_age_time, conf->pnt_age_time, conf->dd_age_time,
            conf->sv == VTSS_RB_SV_FORWARD    ? "Forward"
            : conf->sv == VTSS_RB_SV_DISCARD  ? "Discard"
@@ -9764,12 +9763,16 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
                node.type == VTSS_RB_NODE_TYPE_DAN   ? "DAN"
                : node.type == VTSS_RB_NODE_TYPE_SAN ? "SAN"
                                                     : "?");
-            VTSS_SPRINTF(buf, "%u/%u", node.port_a.fwd, node.port_b.fwd);
-            pr("%-9s", buf);
-            VTSS_SPRINTF(buf, "%u/%u", node.port_a.age, node.port_b.age);
-            pr("%-9s", buf);
-            VTSS_SPRINTF(buf, "%u/%u", node.port_a.cnt.rx, node.port_b.cnt.rx);
-            pr("%-23s", buf);
+            lmu_fmt_buf_init(&buf);
+            LMU_SS_FMT(&buf.ss, "%u/%u", node.port_a.fwd, node.port_b.fwd);
+            pr("%-9s", buf.s);
+            lmu_fmt_buf_init(&buf);
+            LMU_SS_FMT(&buf.ss, "%u/%u", node.port_a.age, node.port_b.age);
+            pr("%-9s", buf.s);
+            lmu_fmt_buf_init(&buf);
+            LMU_SS_FMT(&buf.ss, "%u/%u", node.port_a.cnt.rx,
+                       node.port_b.cnt.rx);
+            pr("%-23s", buf.s);
             pr("%u/%u\n", node.port_a.cnt.rx_wrong_lan,
                node.port_b.cnt.rx_wrong_lan);
         }

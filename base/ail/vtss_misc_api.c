@@ -724,7 +724,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
 {
     vtss_chip_no_t          chip_no;
     vtss_sgpio_group_t      group;
-    char                    buf[64];
+    lmu_fmt_buf_t           buf;
     vtss_sgpio_conf_t      *conf;
     vtss_sgpio_port_conf_t *port_conf;
     u32                     port, i, cnt;
@@ -736,8 +736,8 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
     /* Print CIL information for all devices and groups */
     for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
         for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
-            VTSS_SPRINTF(buf, "Device %u, Group %u", chip_no, group);
-            vtss_debug_print_header(ss, buf);
+            VTSS_FMT(buf, "Device %u, Group %u", chip_no, group);
+            vtss_debug_print_header(ss, buf.s);
 
             conf = &vtss_state->misc.sgpio_conf[chip_no][group];
             pr("Bit Count   : %u\n", conf->bit_count);

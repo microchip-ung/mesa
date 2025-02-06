@@ -1375,10 +1375,10 @@ static void jr2_debug_pmask_header(vtss_state_t *vtss_state,
                                    lmu_ss_t     *ss,
                                    const char   *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%-34s", name == NULL ? "Port" : name);
-    vtss_jr2_debug_print_port_header(vtss_state, ss, buf);
+    VTSS_FMT(buf, "%-34s", name == NULL ? "Port" : name);
+    vtss_jr2_debug_print_port_header(vtss_state, ss, buf.s);
 }
 
 static void jr2_debug_pmask(lmu_ss_t *ss, const char *name, u64 pmask)
@@ -1396,9 +1396,9 @@ static vtss_rc jr2_debug_vlan_entry(vtss_state_t *vtss_state,
                                     vtss_vid_t    vlan_idx,
                                     BOOL          header)
 {
-    u32  value;
-    u64  pmask;
-    char buf[64];
+    u32           value;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     JR2_RDX_PMASK(VTSS_ANA_L3_VLAN_VLAN_MASK_CFG, vlan_idx, &pmask);
     JR2_RD(VTSS_ANA_L3_VLAN_VLAN_CFG(vlan_idx), &value);
@@ -1407,15 +1407,15 @@ static vtss_rc jr2_debug_vlan_entry(vtss_state_t *vtss_state,
         jr2_debug_pmask_header(vtss_state, ss,
                                "VID  IDX   FID  MSTI  L/F/M/F/P");
     }
-    VTSS_SPRINTF(buf, "%-5u%-6u%-5u%-6u%u/%u/%u/%u/%u", vid, vlan_idx,
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FID(value),
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR(value),
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(value) ? 0 : 1,
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(value),
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
-                 VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(value));
-    jr2_debug_pmask(ss, buf, pmask);
+    VTSS_FMT(buf, "%-5u%-6u%-5u%-6u%u/%u/%u/%u/%u", vid, vlan_idx,
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FID(value),
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MSTP_PTR(value),
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_LRN_DIS(value) ? 0 : 1,
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_FLOOD_DIS(value) ? 0 : 1,
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_MIRROR_ENA(value),
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_IGR_FILTER_ENA(value),
+             VTSS_X_ANA_L3_VLAN_VLAN_CFG_VLAN_PRIVATE_ENA(value));
+    jr2_debug_pmask(ss, buf.s, pmask);
 
     return VTSS_RC_OK;
 }
@@ -1443,15 +1443,15 @@ static vtss_rc jr2_debug_vlan(vtss_state_t                  *vtss_state,
     BOOL               header = 1;
     u32                port;
     u64                pmask = 0;
-    char               buf[32];
+    lmu_fmt_buf_t      buf;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u (%u)", port, port_no);
+        vtss_jr2_debug_reg_header(ss, buf.s);
         vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_ANA_CL_PORT_VLAN_FILTER_CTRL(port, 0),
                                 port, "ANA:VLAN_FILTER_CTRL");
@@ -1526,16 +1526,16 @@ static vtss_rc jr2_debug_src_table(vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
-    u32  port;
-    u64  pmask;
-    char buf[32];
+    u32           port;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     vtss_debug_print_header(ss, "Source Masks");
     jr2_debug_pmask_header(vtss_state, ss, NULL);
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         JR2_RDX_PMASK(VTSS_ANA_AC_SRC_SRC_CFG, port, &pmask);
-        VTSS_SPRINTF(buf, "%u", port);
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "%u", port);
+        jr2_debug_pmask(ss, buf.s, pmask);
     }
     pr("\n");
 
@@ -1546,16 +1546,16 @@ static vtss_rc jr2_debug_aggr_table(vtss_state_t                  *vtss_state,
                                     lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
-    u32  ac;
-    u64  pmask;
-    char buf[32];
+    u32           ac;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     vtss_debug_print_header(ss, "Aggregation Masks");
     jr2_debug_pmask_header(vtss_state, ss, "AC");
     for (ac = 0; ac < 16; ac++) {
         JR2_RDX_PMASK(VTSS_ANA_AC_AGGR_AGGR_CFG, ac, &pmask);
-        VTSS_SPRINTF(buf, "%u", ac);
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "%u", ac);
+        jr2_debug_pmask(ss, buf.s, pmask);
     }
     pr("\n");
 
@@ -1569,9 +1569,9 @@ static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
                                     u32                            pgid_end,
                                     BOOL                          *header)
 {
-    u32  pgid, value, cpu_copy;
-    u64  pmask;
-    char buf[32];
+    u32           pgid, value, cpu_copy;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     if (!header || *header) {
         vtss_debug_print_header(ss, "Destination Masks");
@@ -1589,24 +1589,22 @@ static vtss_rc jr2_debug_pgid_table(vtss_state_t                  *vtss_state,
         cpu_copy = VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_COPY_ENA(value);
         if (pgid > 60 && pmask == 0 && !cpu_copy && !info->full)
             continue;
-        VTSS_SPRINTF(buf, "%-5u%-11s%-5u%-5u%-5u", pgid,
-                     pgid == PGID_UC_FLOOD       ? "UC"
-                     : pgid == PGID_MC_FLOOD     ? "MC"
-                     : pgid == PGID_IPV4_MC_DATA ? "IPv4 Data"
-                     : pgid == PGID_IPV4_MC_CTRL ? "IPv4 Ctrl"
-                     : pgid == PGID_IPV6_MC_DATA ? "IPv6 Data"
-                     : pgid == PGID_IPV6_MC_CTRL ? "IPv6 Ctrl"
-                     : pgid == PGID_DROP         ? "DROP"
-                     : pgid == PGID_FLOOD        ? "FLOOD"
-                     : (pgid >= PGID_GLAG_START) &&
-                             (pgid <
-                              PGID_GLAG_START + VTSS_GLAGS * VTSS_GLAG_PORTS)
-                         ? "GLAG"
-                         : "",
-                     cpu_copy,
-                     VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_QU(value),
-                     VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_STACK_TYPE_ENA(value));
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "%-5u%-11s%-5u%-5u%-5u", pgid,
+                 pgid == PGID_UC_FLOOD       ? "UC"
+                 : pgid == PGID_MC_FLOOD     ? "MC"
+                 : pgid == PGID_IPV4_MC_DATA ? "IPv4 Data"
+                 : pgid == PGID_IPV4_MC_CTRL ? "IPv4 Ctrl"
+                 : pgid == PGID_IPV6_MC_DATA ? "IPv6 Data"
+                 : pgid == PGID_IPV6_MC_CTRL ? "IPv6 Ctrl"
+                 : pgid == PGID_DROP         ? "DROP"
+                 : pgid == PGID_FLOOD        ? "FLOOD"
+                 : (pgid >= PGID_GLAG_START) &&
+                         (pgid < PGID_GLAG_START + VTSS_GLAGS * VTSS_GLAG_PORTS)
+                     ? "GLAG"
+                     : "",
+                 cpu_copy, VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_PGID_CPU_QU(value),
+                 VTSS_X_ANA_AC_PGID_PGID_MISC_CFG_STACK_TYPE_ENA(value));
+        jr2_debug_pmask(ss, buf.s, pmask);
     }
 
     if (!header) {
@@ -1824,18 +1822,18 @@ static vtss_rc jr2_debug_stp(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    u32  msti;
-    u64  pmask;
-    char buf[16];
+    u32           msti;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     jr2_debug_pmask_header(vtss_state, ss, NULL);
     for (msti = VTSS_MSTI_START; msti < VTSS_MSTI_END; msti++) {
         JR2_RDX_PMASK(VTSS_ANA_L3_MSTP_MSTP_LRN_CFG, msti, &pmask);
-        VTSS_SPRINTF(buf, "MSTP_LRN_CFG_%u", msti);
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "MSTP_LRN_CFG_%u", msti);
+        jr2_debug_pmask(ss, buf.s, pmask);
         JR2_RDX_PMASK(VTSS_ANA_L3_MSTP_MSTP_FWD_CFG, msti, &pmask);
-        VTSS_SPRINTF(buf, "MSTP_FWD_CFG_%u", msti);
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "MSTP_FWD_CFG_%u", msti);
+        jr2_debug_pmask(ss, buf.s, pmask);
     }
     pr("\n");
 
@@ -1846,16 +1844,16 @@ static vtss_rc jr2_debug_mirror(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    u32  i, j;
-    u64  pmask;
-    char buf[32];
+    u32           i, j;
+    u64           pmask;
+    lmu_fmt_buf_t buf;
 
     for (i = 0; i < 3; i++) {
-        VTSS_SPRINTF(buf, "%s Probe",
-                     i == JR2_MIRROR_PROBE_RX   ? "Rx"
-                     : i == JR2_MIRROR_PROBE_TX ? "Tx"
-                                                : "VLAN");
-        vtss_jr2_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "%s Probe",
+                 i == JR2_MIRROR_PROBE_RX   ? "Rx"
+                 : i == JR2_MIRROR_PROBE_TX ? "Tx"
+                                            : "VLAN");
+        vtss_jr2_debug_reg_header(ss, buf.s);
         j = QFWD_FRAME_COPY_CFG_MIRROR_PROBE(i);
         vtss_jr2_debug_reg_inst(vtss_state, ss,
                                 VTSS_QFWD_SYSTEM_FRAME_COPY_CFG(j), j,
@@ -1876,8 +1874,8 @@ static vtss_rc jr2_debug_mirror(vtss_state_t                  *vtss_state,
 
         jr2_debug_pmask_header(vtss_state, ss, NULL);
         JR2_RDX_PMASK(VTSS_ANA_AC_MIRROR_PROBE_PROBE_PORT_CFG, i, &pmask);
-        VTSS_SPRINTF(buf, "PROBE_PORT_CFG_%u", i);
-        jr2_debug_pmask(ss, buf, pmask);
+        VTSS_FMT(buf, "PROBE_PORT_CFG_%u", i);
+        jr2_debug_pmask(ss, buf.s, pmask);
         pr("\n");
     }
 

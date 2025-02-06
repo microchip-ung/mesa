@@ -118,10 +118,10 @@ void vtss_fa_debug_print_reg_header(lmu_ss_t *ss, const char *name)
 
 void vtss_fa_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%-34s", name);
-    vtss_fa_debug_print_reg_header(ss, buf);
+    VTSS_FMT(buf, "%-34s", name);
+    vtss_fa_debug_print_reg_header(ss, buf.s);
 }
 
 static void fa_debug_reg_clr(vtss_state_t *vtss_state,
@@ -130,13 +130,13 @@ static void fa_debug_reg_clr(vtss_state_t *vtss_state,
                              const char   *name,
                              BOOL          clr)
 {
-    u32  value;
-    char buf[100];
+    u32           value;
+    lmu_fmt_buf_t buf;
 
     if (vtss_fa_rd(vtss_state, addr, &value) == VTSS_RC_OK &&
         (clr == 0 || vtss_fa_wr(vtss_state, addr, value) == VTSS_RC_OK)) {
-        VTSS_SPRINTF(buf, "%-32s  0x%07x", name, addr);
-        vtss_debug_print_reg(ss, buf, value);
+        VTSS_FMT(buf, "%-32s  0x%07x", name, addr);
+        vtss_debug_print_reg(ss, buf.s, value);
     }
 }
 
@@ -154,10 +154,10 @@ void vtss_fa_debug_reg_inst(vtss_state_t *vtss_state,
                             u32           i,
                             const char   *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_fa_debug_reg(vtss_state, ss, addr, buf);
+    VTSS_FMT(buf, "%s_%u", name, i);
+    vtss_fa_debug_reg(vtss_state, ss, addr, buf.s);
 }
 
 void vtss_fa_debug_sticky(vtss_state_t *vtss_state,
@@ -174,17 +174,17 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
                        vtss_chip_counter_t *c1,
                        vtss_chip_counter_t *c2)
 {
-    char buf[80];
+    lmu_fmt_buf_t buf;
 
     if (col1 == NULL) {
         pr("%-41s", "");
     } else {
-        VTSS_SPRINTF(buf, "rx_%s:", col1);
-        pr("%-28s%10" PRIu64 "   ", buf, c1->value);
+        VTSS_FMT(buf, "rx_%s:", col1);
+        pr("%-28s%10" PRIu64 "   ", &buf, c1->value);
     }
     if (col2 != NULL) {
-        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
-        pr("%-28s%10" PRIu64, buf, c2->value);
+        VTSS_FMT(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
+        pr("%-28s%10" PRIu64, &buf, c2->value);
     }
     pr("\n");
 }
@@ -2222,11 +2222,10 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
     } dev_per_speed_t;
 
     dev_per_speed_t dev_per_speed[DEV_IDX_CNT] = {}, *d;
-    u32  dev, delay, required_bw, cal_len, speed, idx, cal_idx, active_dev_cnt;
-    u32  bw_per_slot, slots_required;
-    char buf[4 * FA_DSM_CAL_MAX_DEVS_PER_TAXI];
-    int  sz;
-    BOOL interlink_active = FALSE, works;
+    u32 dev, delay, required_bw, cal_len, speed, idx, cal_idx, active_dev_cnt;
+    u32 bw_per_slot, slots_required;
+    lmu_fmt_buf_t buf;
+    BOOL          interlink_active = FALSE, works;
 
 #if defined(VTSS_FEATURE_REDBOX)
     // Get the required delay and bandwidth.
@@ -2369,17 +2368,15 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
     for (idx = 0; idx < DEV_IDX_CNT; idx++) {
         d = &dev_per_speed[idx];
 
-        sz = 0;
-        buf[0] = '\0';
+        lmu_fmt_buf_init(&buf);
         for (dev = 0; dev < d->dev_cnt; dev++) {
-            sz +=
-                VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, " %u ", d->devs[dev]);
+            LMU_SS_FMT(&buf.ss, " %u ", d->devs[dev]);
         }
 
         VTSS_I(
             "idx = %u: speed = %5u, dev_cnt = %u, slots_required = %u, slots_between_repeats = %u, devs = %s",
             idx, IDX2SPEED(idx), d->dev_cnt, d->slots_required,
-            d->slots_between_repeats, buf);
+            d->slots_between_repeats, buf.s);
     }
 
     for (cal_idx = 0; cal_idx < cal_len; cal_idx++) {
@@ -2458,9 +2455,8 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
         u32  taxi_bw;
         u32  interlink_dev, dev;
         BOOL first, cal_changed;
-        char buf[2 * FA_DSM_CAL_LEN];
-        int  sz;
         vtss_phys_port_no_t interlink_chip_port;
+        lmu_fmt_buf_t       buf;
 
 #if defined(VTSS_FEATURE_REDBOX)
         vtss_rb_conf_t *rb_conf;
@@ -2551,26 +2547,21 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
             if (force || cal_changed) {
                 // Print calendar
                 first = TRUE;
-                sz = 0;
-                buf[0] = '\0';
+                lmu_fmt_buf_init(&buf);
                 for (p = 0; p < cal_len; p++) {
                     dev = calendar[p];
                     if (dev == TAXI_SLOT_UNUSED ||
                         dev == TAXI_SLOT_UNUSED_BUT_LOCKED) {
-                        sz +=
-                            VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, "%s%c",
-                                          first ? "" : " ",
-                                          dev == TAXI_SLOT_UNUSED ? '-' : 'L');
+                        LMU_SS_FMT(&buf.ss, "%s%c", first ? "" : " ",
+                                   dev == TAXI_SLOT_UNUSED ? '-' : 'L');
                     } else {
-                        sz += VTSS_SNPRINTF(buf + sz, sizeof(buf) - sz, "%s%u",
-                                            first ? "" : " ", dev);
+                        LMU_SS_FMT(&buf.ss, "%s%u", first ? "" : " ", dev);
                     }
-
                     first = FALSE;
                 }
 
                 VTSS_I("Taxi: %u, calendar length: %u, calendar: %s\n", taxi,
-                       cal_len, buf);
+                       cal_len, buf.s);
 
                 // Set calendar
                 VTSS_RC(fa_dsm_set_calendar(vtss_state, taxi, calendar,

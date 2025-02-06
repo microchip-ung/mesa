@@ -210,10 +210,10 @@ void vtss_srvl_debug_print_mask(lmu_ss_t *ss, u32 mask)
 
 void vtss_srvl_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%-32s  Tgt   Addr  ", name);
-    vtss_debug_print_reg_header(ss, buf);
+    VTSS_FMT(buf, "%-32s  Tgt   Addr  ", name);
+    vtss_debug_print_reg_header(ss, buf.s);
 }
 
 void vtss_srvl_debug_reg(vtss_state_t *vtss_state,
@@ -221,13 +221,13 @@ void vtss_srvl_debug_reg(vtss_state_t *vtss_state,
                          u32           addr,
                          const char   *name)
 {
-    u32  value;
-    char buf[200];
+    u32           value;
+    lmu_fmt_buf_t buf;
 
     if (vtss_srvl_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        VTSS_SPRINTF(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
-                     addr & 0x3fff);
-        vtss_debug_print_reg(ss, buf, value);
+        VTSS_FMT(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
+                 addr & 0x3fff);
+        vtss_debug_print_reg(ss, buf.s, value);
     }
 }
 
@@ -237,10 +237,10 @@ void vtss_srvl_debug_reg_inst(vtss_state_t *vtss_state,
                               u32           i,
                               const char   *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_srvl_debug_reg(vtss_state, ss, addr, buf);
+    VTSS_FMT(buf, "%s_%u", name, i);
+    vtss_srvl_debug_reg(vtss_state, ss, addr, buf.s);
 }
 
 void vtss_srvl_debug_cnt(lmu_ss_t            *ss,
@@ -249,17 +249,17 @@ void vtss_srvl_debug_cnt(lmu_ss_t            *ss,
                          vtss_chip_counter_t *c1,
                          vtss_chip_counter_t *c2)
 {
-    char buf[80];
+    lmu_fmt_buf_t buf;
 
     if (col1 == NULL) {
         pr("%-41s", "");
     } else {
-        VTSS_SPRINTF(buf, "rx_%s:", col1);
-        pr("%-28s%10" PRIu64 "   ", buf, c1->prev);
+        VTSS_FMT(buf, "rx_%s:", col1);
+        pr("%-28s%10" PRIu64 "   ", &buf, c1->prev);
     }
     if (col2 != NULL) {
-        VTSS_SPRINTF(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
-        pr("%-28s%10" PRIu64, buf, c2 ? c2->prev : (u64)0);
+        VTSS_FMT(buf, "tx_%s:", VTSS_STRLEN(col2) ? col2 : col1);
+        pr("%-28s%10" PRIu64, &buf, c2 ? c2->prev : (u64)0);
     }
     pr("\n");
 }

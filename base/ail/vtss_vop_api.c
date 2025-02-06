@@ -693,16 +693,6 @@ void kaboom_print( void )
 
 #define YN(x) ((x) ? "Yes" : "No ")
 
-static char *debug_mac_string(const vtss_mac_t *m)
-{
-    static char buf[20];
-
-    VTSS_SPRINTF(buf, "%02X-%02X-%02X-%02X-%02X-%02X", m->addr[0], m->addr[1],
-                 m->addr[2], m->addr[3], m->addr[4], m->addr[5]);
-
-    return buf;
-}
-
 static char *debug_dmac_check_string(const vtss_voe_dmac_check_t dmac_check)
 {
     switch (dmac_check) {
@@ -752,42 +742,6 @@ static char *debug_period_string(const vtss_voe_ccm_period_t period)
 #endif
     }
     return ("INVALID");
-}
-
-static char *to_string(u8 *megid, u32 length)
-{
-    static char buf_ret[100];
-
-    if (length > sizeof(buf_ret)) {
-        length = sizeof(buf_ret);
-    }
-
-    VTSS_SNPRINTF(buf_ret, length, "%s", megid);
-
-    return (buf_ret);
-}
-
-static char *debug_megid_string(u8 *megid)
-{
-    static char
-        buf_ret[220]; /* Have to make this buffer extra long as the compiler
-                         generates warning when doing VTSS_SNPRINTF() if the
-                         composed string is longer than the buffer size !!! */
-    u32 domain_length, name_length, name_off;
-
-    if (megid[0] == 01) { /* Maintenance name not present. */
-        VTSS_SNPRINTF(buf_ret, sizeof(buf_ret), "%02u-%02u-%02u-%s", megid[0],
-                      megid[1], megid[2], &megid[3]);
-    } else { /* Maintenance name present.*/
-        domain_length = megid[1];
-        name_length = megid[3 + domain_length];
-        name_off = 2 + domain_length;
-        VTSS_SNPRINTF(buf_ret, sizeof(buf_ret), "%02u-%02u-%s-%02u-%02u-%s",
-                      megid[0], megid[1], to_string(&megid[2], domain_length),
-                      megid[name_off], megid[name_off + 1],
-                      to_string(&megid[name_off + 2], name_length));
-    }
-    return (buf_ret);
 }
 
 void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
@@ -865,7 +819,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
     if (!info->has_action || vop) { /* VOP configuration must be printed */
         pr("VOP Config:\n\n");
 
-        pr("Multicast MAC: %s\n", debug_mac_string(&vop_conf->multicast_dmac));
+        pr("Multicast MAC: %s\n", vtss_mac_txt(&vop_conf->multicast_dmac));
 
 #if defined(VTSS_FEATURE_VOP_V2)
         pr("Auto copy: Period[0]:%u us Period[1]:%u us\n",
@@ -926,7 +880,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s  loop_iflow_id: %u  block_mel_high:%s\n",
                        YN(voe_conf->enable),
-                       debug_mac_string(&voe_conf->unicast_mac),
+                       vtss_mac_txt(&voe_conf->unicast_mac),
                        voe_conf->meg_level,
                        debug_dmac_check_string(voe_conf->dmac_check_type),
                        voe_conf->loop_iflow_id, YN(voe_conf->block_mel_high));
@@ -934,14 +888,14 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 #if !defined(VTSS_ARCH_LAN966X)
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s  loop_iflow_id: %u\n",
                        YN(voe_conf->enable),
-                       debug_mac_string(&voe_conf->unicast_mac),
+                       vtss_mac_txt(&voe_conf->unicast_mac),
                        voe_conf->meg_level,
                        debug_dmac_check_string(voe_conf->dmac_check_type),
                        voe_conf->loop_iflow_id);
 #else
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s\n",
                        YN(voe_conf->enable),
-                       debug_mac_string(&voe_conf->unicast_mac),
+                       vtss_mac_txt(&voe_conf->unicast_mac),
                        voe_conf->meg_level,
                        debug_dmac_check_string(voe_conf->dmac_check_type));
 #endif
@@ -950,6 +904,8 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                 }
 
                 if (info->full || voe_cc_conf->enable) {
+                    lmu_fmt_buf_t buf;
+                    u8           *m, max = 100;
 #if !defined(VTSS_ARCH_LAN966X)
                     pr("CC enable:%4s  cpu_copy:%s  seq_no_update:%s  count_as_selected:%s  period %s  prio:%u  peer_mepid %u  rdi_set %u\n",
                        YN(voe_cc_conf->enable),
@@ -970,9 +926,29 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                        voe_cc_conf->expected_peer_mepid,
                        vtss_state->oam.voe_rdi_conf[i]);
 #endif
-                    pr("          %4s  megid:%s\n", " ",
-                       debug_megid_string(voe_cc_conf->expected_megid));
-                    pr("-----\n");
+                    pr("          %4s  megid:", " ");
+                    m = voe_cc_conf->expected_megid;
+                    pr("%02u-%02u-", m[0], m[1]);
+                    if (m[0] == 1) {
+                        // Maintenance name not present
+                        VTSS_FMT(buf, "%s", (char *)&m[3]);
+                        buf.s[max] = 0;
+                        pr("%02u-%s", m[2], &buf);
+                    } else {
+                        // Maintenance name present
+                        u8  domain_length = m[1];
+                        u8  name_length = m[3 + domain_length];
+                        u16 name_off = (2 + domain_length);
+
+                        VTSS_FMT(buf, "%s", (char *)&m[2]);
+                        buf.s[domain_length > max ? max : domain_length] = 0;
+                        pr("%s-", &buf);
+
+                        VTSS_FMT(buf, "%s", (char *)&m[name_off + 2]);
+                        buf.s[name_length > max ? max : name_length] = 0;
+                        pr("%02u-%02u-%s", m[name_off], m[name_off + 1], &buf);
+                    }
+                    pr("\n-----\n");
                 }
 
 #if defined(VTSS_FEATURE_VOP_CFM)
@@ -1221,7 +1197,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                 if (info->full || voi_conf->enable) {
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  lbm_cpu_redir: %s  ltm_cpu_redir: %s  raps_handle: %s\n",
                        YN(voi_conf->enable),
-                       debug_mac_string(&voi_conf->unicast_mac),
+                       vtss_mac_txt(&voi_conf->unicast_mac),
                        voi_conf->meg_level, YN(voi_conf->lbm_cpu_redir),
                        YN(voi_conf->ltm_cpu_redir),
                        debug_raps_handling_string(voi_conf->raps_handling));

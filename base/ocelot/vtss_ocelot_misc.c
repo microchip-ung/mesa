@@ -1158,8 +1158,8 @@ static vtss_rc srvl_debug_misc(vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    u32  i;
-    char buf[32];
+    u32           i;
+    lmu_fmt_buf_t buf;
 
     pr("Name        Target\n");
     SRVL_DEBUG_TGT(ss, DEVCPU_ORG);
@@ -1180,8 +1180,8 @@ static vtss_rc srvl_debug_misc(vtss_state_t                  *vtss_state,
     SRVL_DEBUG_TGT(ss, OAM_MEP);
 #endif /* VTSS_TO_OAM_MEP */
     for (i = 0; i < VTSS_CHIP_PORTS; i++) {
-        VTSS_SPRINTF(buf, "DEV_%u", i);
-        srvl_debug_tgt(ss, buf, VTSS_TO_DEV(i));
+        VTSS_FMT(buf, "DEV_%u", i);
+        srvl_debug_tgt(ss, buf.s, VTSS_TO_DEV(i));
     }
     pr("\n");
     SRVL_DEBUG_TGT(ss, QSYS);

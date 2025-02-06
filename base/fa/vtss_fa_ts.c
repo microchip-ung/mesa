@@ -1531,14 +1531,14 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
                            lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {
-    u32  port;
-    char buf[64];
-    int  idx;
+    u32           port;
+    lmu_fmt_buf_t buf;
+    int           idx;
 
     /* REW:PORT */
     for (port = 0; port <= RT_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_fa_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "REW:PORT[%u]", port);
+        vtss_fa_debug_reg_header(ss, buf.s);
         vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 0)),
                           "PTP_MODE_CFG[0]");
@@ -1604,8 +1604,8 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
 
     /* DEVCPU_PTP:PTP_PINS */
     for (idx = 0; idx <= 3; idx++) {
-        VTSS_SPRINTF(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
-        vtss_fa_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
+        vtss_fa_debug_reg_header(ss, buf.s);
         vtss_fa_debug_reg(vtss_state, ss,
                           REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx)),
                           "PTP_PIN_CFG");
@@ -1642,18 +1642,18 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
     /* ANA_ACL::PTP_MASTER */
     vtss_fa_debug_reg_header(ss, "ANA_ACL::PTP_MASTER_CFG");
     for (idx = 0; idx < VTSS_TS_RESP_CTRL_ARRAY_SIZE; idx++) {
-        VTSS_SPRINTF(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
+        VTSS_FMT(buf, "PTP_CLOCK_ID_MSB[%u]", idx);
         vtss_fa_debug_reg(vtss_state, ss,
-                          REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx)), buf);
-        VTSS_SPRINTF(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
+                          REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_MSB(idx)), buf.s);
+        VTSS_FMT(buf, "PTP_CLOCK_ID_LSB[%u]", idx);
         vtss_fa_debug_reg(vtss_state, ss,
-                          REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx)), buf);
-        VTSS_SPRINTF(buf, "PTP_SRC_PORT_CFG[%u]", idx);
+                          REG_ADDR(VTSS_ANA_ACL_PTP_CLOCK_ID_LSB(idx)), buf.s);
+        VTSS_FMT(buf, "PTP_SRC_PORT_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, ss,
-                          REG_ADDR(VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx)), buf);
-        VTSS_SPRINTF(buf, "PTP_MISC_CFG[%u]", idx);
+                          REG_ADDR(VTSS_ANA_ACL_PTP_SRC_PORT_CFG(idx)), buf.s);
+        VTSS_FMT(buf, "PTP_MISC_CFG[%u]", idx);
         vtss_fa_debug_reg(vtss_state, ss,
-                          REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CFG(idx)), buf);
+                          REG_ADDR(VTSS_ANA_ACL_PTP_MISC_CFG(idx)), buf.s);
     }
 
     vtss_port_no_t port_no;
@@ -1669,8 +1669,8 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_SGMII_2G5:
         case VTSS_PORT_INTERFACE_100FX:
         case VTSS_PORT_INTERFACE_QSGMII:
-            VTSS_SPRINTF(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
-            vtss_fa_debug_reg_header(ss, buf);
+            VTSS_FMT(buf, "DEV1G (port_no %u):PTP_CFG_STATUS", port_no);
+            vtss_fa_debug_reg_header(ss, buf.s);
             vtss_fa_debug_reg(vtss_state, ss,
                               REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV2G5(port))),
                               "PTP_CFG");
@@ -1698,8 +1698,8 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
         case VTSS_PORT_INTERFACE_SFI:
         case VTSS_PORT_INTERFACE_XAUI:
         case VTSS_PORT_INTERFACE_RXAUI:
-            VTSS_SPRINTF(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
-            vtss_fa_debug_reg_header(ss, buf);
+            VTSS_FMT(buf, "DEV10G (port_no %u):DEV_CFG_STATUS", port_no);
+            vtss_fa_debug_reg_header(ss, buf.s);
             vtss_fa_debug_reg(vtss_state, ss,
                               REG_ADDR(VTSS_DEV1G_PTP_CFG(VTSS_TO_DEV10G(port))),
                               "PTP_CFG");

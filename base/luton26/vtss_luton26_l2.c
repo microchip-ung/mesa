@@ -1336,11 +1336,11 @@ static vtss_rc l26_debug_vlan(vtss_state_t                  *vtss_state,
     vtss_vlan_entry_t *vlan_entry;
     BOOL               header = 1;
     u32                port, value, mask = 0;
-    char               buf[32];
+    lmu_fmt_buf_t      buf;
 
     for (port = 0; port <= VTSS_CHIP_PORT_CPU_1; port++) {
-        VTSS_SPRINTF(buf, "Port %u", port);
-        vtss_l26_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "Port %u", port);
+        vtss_l26_debug_reg_header(ss, buf.s);
         if (port != VTSS_CHIP_PORT_CPU_1) {
             vtss_l26_debug_reg_inst(vtss_state, ss,
                                     VTSS_ANA_PORT_VLAN_CFG(port), port,

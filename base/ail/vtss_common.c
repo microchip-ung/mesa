@@ -305,12 +305,14 @@ const char *vtss_bool_txt(BOOL enabled)
 
 char *vtss_mac_txt(vtss_mac_t *mac)
 {
-    static char buf[18];
-    u8         *p = mac->addr;
+    static char   str[18];
+    u8           *p = mac->addr;
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3],
-                 p[4], p[5]);
-    return buf;
+    VTSS_FMT(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4],
+             p[5]);
+    lmu_czstrcpy(str, buf.s);
+    return str;
 }
 
 #if VTSS_OPT_DEBUG_PRINT
@@ -699,7 +701,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
                                     const vtss_debug_info_t *const info)
 {
     vtss_rc        rc = VTSS_RC_OK;
-    char           buf[80];
+    lmu_fmt_buf_t  buf;
     vtss_chip_no_t chip_no;
 
     if (info->layer != VTSS_DEBUG_LAYER_ALL &&
@@ -713,8 +715,8 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
             continue;
         }
         VTSS_SELECT_CHIP(chip_no);
-        VTSS_SPRINTF(buf, "Chip Interface Layer[%u]", chip_no);
-        vtss_debug_print_header_underlined(ss, buf, 1);
+        VTSS_FMT(buf, "Chip Interface Layer[%u]", chip_no);
+        vtss_debug_print_header_underlined(ss, buf.s, 1);
         rc = vtss_cil_debug_info_print(vtss_state, ss, info);
     }
     return rc;

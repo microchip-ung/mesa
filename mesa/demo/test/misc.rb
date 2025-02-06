@@ -441,3 +441,48 @@ test "policer-counter" do
     $ts.dut.run("mesa-cmd port stati #{port + 1}")
     $ts.dut.run("mesa-cmd port stati pa")
 end
+
+test "api-dump" do
+    break
+    layer_table = [ "ail", "cil"]
+    group_table = [
+     "init",
+     "misc",
+     "port",
+     "counters",
+#     "phy",
+     "vlan",
+     "pvlan",
+     "mac_table",
+     "acl",
+     "qos",
+     "aggr",
+     "stp",
+     "mirror",
+     "erps",
+     "eps",
+     "redbox",
+     "packet",
+#     "fdma",
+      "ts",
+#      "phy_ts",
+      "wm",
+#      "lrn",
+      "ipmc",
+      "vxlat",
+      "oam",
+      "mrp",
+      "sgpio",
+      "l3",
+      "afi",
+#      "macsec",
+      "serdes",
+      "kr",
+      "mux",
+    ]
+    group_table.each do |g|
+        layer_table.each do |l|
+            $ts.dut.run("mesa-cmd debug api #{l} #{g}")
+        end
+    end
+end

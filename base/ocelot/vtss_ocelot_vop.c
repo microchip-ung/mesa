@@ -1143,9 +1143,9 @@ static vtss_rc srvl_debug_oam(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    u32  i, k, v, div, voe_idx, voe_cnt;
-    char buf[80];
-    BOOL show, vop, resources, voe, status, lm_counters;
+    u32           i, k, v, div, voe_idx, voe_cnt;
+    lmu_fmt_buf_t buf;
+    BOOL          show, vop, resources, voe, status, lm_counters;
 
     div = 0;
     voe_idx = 0;
@@ -1220,8 +1220,8 @@ static vtss_rc srvl_debug_oam(vtss_state_t                  *vtss_state,
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full ||
                 (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_srvl_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_srvl_debug_reg_header(ss, buf.s);
                 D_COM_I(ss, VOE_CFG, i);
                 D_COM_I(ss, UPMEP_LM_CNT_VLD, i);
                 D_COM_I(ss, VOE_MAP_CTRL, i);
@@ -1265,8 +1265,8 @@ static vtss_rc srvl_debug_oam(vtss_state_t                  *vtss_state,
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full ||
                 (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_srvl_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_srvl_debug_reg_header(ss, buf.s);
                 D_VOE_I(ss, LBR_RX_FRM_CNT, i);
                 D_VOE_I(ss, LBR_RX_TRANSID_CFG, i);
                 D_VOE_I(ss, LBM_TX_TRANSID_CFG, i);
@@ -1305,11 +1305,10 @@ static vtss_rc srvl_debug_oam(vtss_state_t                  *vtss_state,
             DR_VOE_I(BASIC_CTRL, i, v);
             if (info->full ||
                 (v & VTSS_F_OAM_MEP_VOE_BASIC_CTRL_VOE_ENA) != 0) {
-                VTSS_SPRINTF(buf, "VOE %u", i);
-                vtss_srvl_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE %u", i);
+                vtss_srvl_debug_reg_header(ss, buf.s);
 
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) {
-                    VTSS_SPRINTF(buf, "Priority %u", k);
                     if (i < VTSS_PATH_SERVICE_VOE_CNT) {
                         D_RX_VOE_PM_I(ss, MEP_RX_FRM_CNT, i, k);
                         D_TX_VOE_PM_I(ss, MEP_TX_FRM_CNT, i, k);

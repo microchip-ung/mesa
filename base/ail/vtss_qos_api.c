@@ -2334,27 +2334,25 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        int                   pcp, dei, class_ct = 0, dpl_ct = 0;
-        char                  class_buf[40], dpl_buf[40];
+        int                   pcp, dei;
+        lmu_fmt_buf_t         class_buf, dpl_buf;
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
+        const char           *delim = "";
         if (info->port_list[port_no] == 0) {
             continue;
         }
+        lmu_fmt_buf_init(&class_buf);
+        lmu_fmt_buf_init(&dpl_buf);
         for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
-                const char *delim =
-                    ((pcp == VTSS_PCP_START) && (dei == VTSS_DEI_START)) ? ""
-                                                                         : ",";
-                class_ct +=
-                    VTSS_SNPRINTF(class_buf + class_ct,
-                                  sizeof(class_buf) - class_ct, "%s%u", delim,
-                                  port_conf->qos_class_map[pcp][dei]);
-                dpl_ct += VTSS_SNPRINTF(dpl_buf + dpl_ct,
-                                        sizeof(dpl_buf) - dpl_ct, "%s%u", delim,
-                                        port_conf->dp_level_map[pcp][dei]);
+                LMU_SS_FMT(&class_buf.ss, "%s%u", delim,
+                           port_conf->qos_class_map[pcp][dei]);
+                LMU_SS_FMT(&dpl_buf.ss, "%s%u", delim,
+                           port_conf->dp_level_map[pcp][dei]);
+                delim = ",";
             }
         }
-        pr("%4u %s %s\n", port_no, class_buf, dpl_buf);
+        pr("%4u %s %s\n", port_no, &class_buf, &dpl_buf);
     }
     pr("\n");
 
@@ -2516,25 +2514,25 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        int class, dpl, pcp_ct = 0, dei_ct = 0;
-        char                  pcp_buf[40], dei_buf[40];
+        int class, dpl;
+        lmu_fmt_buf_t         pcp_buf, dei_buf;
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
+        const char           *delim = "";
         if (info->port_list[port_no] == 0) {
             continue;
         }
+        lmu_fmt_buf_init(&pcp_buf);
+        lmu_fmt_buf_init(&dei_buf);
         for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class ++) {
             for (dpl = 0; dpl < 2; dpl++) {
-                const char *delim =
-                    ((class == VTSS_QUEUE_START) && (dpl == 0)) ? "" : ",";
-                pcp_ct += VTSS_SNPRINTF(pcp_buf + pcp_ct,
-                                        sizeof(pcp_buf) - pcp_ct, "%s%u", delim,
-                                        port_conf->tag_pcp_map[class][dpl]);
-                dei_ct += VTSS_SNPRINTF(dei_buf + dei_ct,
-                                        sizeof(dei_buf) - dei_ct, "%s%u", delim,
-                                        port_conf->tag_dei_map[class][dpl]);
+                LMU_SS_FMT(&pcp_buf.ss, "%s%u", delim,
+                           port_conf->tag_pcp_map[class][dpl]);
+                LMU_SS_FMT(&dei_buf.ss, "%s%u", delim,
+                           port_conf->tag_dei_map[class][dpl]);
+                delim = ",";
             }
         }
-        pr("%4u %s %s\n", port_no, pcp_buf, dei_buf);
+        pr("%4u %s %s\n", port_no, &pcp_buf, &dei_buf);
     }
     pr("\n");
 

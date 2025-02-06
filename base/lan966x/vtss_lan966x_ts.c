@@ -1084,15 +1084,15 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
 {
     u32            port;
     vtss_port_no_t port_no;
-    char           buf[64];
+    lmu_fmt_buf_t  buf;
     int            idx;
 
     /* REW:PORT */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "REW:PORT[%u]", port);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "REW:PORT[%u]", port);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(REW_PTP_MISC_CFG(port)),
                                "REW_PTP_MISC_CFG");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(REW_PTP_EDLY_CFG(port)),
@@ -1114,8 +1114,8 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "SYS:PTPPORT[%u]", port);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "SYS:PTPPORT[%u]", port);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PCH_CFG(port)),
                                "SYS_PCH_CFG");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PTP_CFG(port)),
@@ -1149,8 +1149,8 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
 
     /* PTP:PTP_PINS */
     for (idx = 0; idx <= 7; idx++) {
-        VTSS_SPRINTF(buf, "PTP:PTP_PINS[%u]", idx);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "PTP:PTP_PINS[%u]", idx);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_PIN_CFG(idx)),
                                "PTP_PIN_CFG");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(PTP_TOD_SEC_MSB(idx)),
@@ -1184,13 +1184,13 @@ static vtss_rc lan966x_debug_ts(vtss_state_t                  *vtss_state,
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
         port = VTSS_CHIP_PORT(port_no);
-        VTSS_SPRINTF(buf, "DEV:PORT_MODE[%u]", port);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DEV:PORT_MODE[%u]", port);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PTP_MISC_CFG(port)),
                                "PTP_MISC_CFG");
 
-        VTSS_SPRINTF(buf, "DEV[%u]:PHASE_DETECTOR_CTRL[0-1]", port);
-        vtss_lan966x_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DEV[%u]:PHASE_DETECTOR_CTRL[0-1]", port);
+        vtss_lan966x_debug_reg_header(ss, buf.s);
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PHAD_CTRL(port, 0)),
                                "PHAD_CTRL[0]");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PHAD_CTRL(port, 1)),

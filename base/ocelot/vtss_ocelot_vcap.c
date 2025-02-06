@@ -213,9 +213,9 @@ static void srvl_debug_bytes(srvl_debug_info_t *info,
                              u32                offset,
                              u32                len)
 {
-    lmu_ss_t *ss = info->ss;
-    u32       i, n, count;
-    char      buf[64];
+    lmu_ss_t     *ss = info->ss;
+    u32           i, n, count;
+    lmu_fmt_buf_t buf;
 
     n = (len % 32);
     if (n == 0)
@@ -231,8 +231,8 @@ static void srvl_debug_bytes(srvl_debug_info_t *info,
         /* Three or more chunks, use one output line for each */
         count = VTSS_DIV_ROUND_UP(len, 32);
         for (i = 0; i < count; i++) {
-            VTSS_SPRINTF(buf, "%s_%u", name, count - i - 1);
-            srvl_debug_bits(info, buf, offset, n);
+            VTSS_FMT(buf, "%s_%u", name, count - i - 1);
+            srvl_debug_bits(info, buf.s, offset, n);
             if (n <= 24)
                 pr("\n");
             offset += n;
@@ -2329,9 +2329,9 @@ vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    u32  port, i;
-    BOOL header = 1;
-    char buf[32];
+    u32           port, i;
+    BOOL          header = 1;
+    lmu_fmt_buf_t buf;
 
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
@@ -2342,10 +2342,10 @@ vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
         vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_VCAP_CFG(port),
                                  port, "VCAP_CFG");
         for (i = 0; i < 3; i++) {
-            VTSS_SPRINTF(buf, "VCAP_S1_CFG_%u", port);
+            VTSS_FMT(buf, "VCAP_S1_CFG_%u", port);
             vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ANA_PORT_VCAP_S1_KEY_CFG(port, i), i,
-                                     buf);
+                                     buf.s);
         }
     }
     if (!header)
@@ -3528,8 +3528,8 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 {
     lmu_ss_t *ss = info->ss;
     ;
-    u32  i, x, offs;
-    char buf[20], buf_1[16];
+    u32           i, x, offs;
+    lmu_fmt_buf_t buf, buf_1;
 
     if (info->is_action) {
         /* Print action */
@@ -3545,11 +3545,11 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 
         /* Loop over TAG_A/TAG_B fields */
         for (i = 0; i < 2; i++) {
-            VTSS_SPRINTF(buf, "_%s", i ? "b" : "a");
+            VTSS_FMT(buf, "_%s", i ? "b" : "a");
             offs = (i ? (ES0_AO_TAG_B_TPID_SEL - ES0_AO_TAG_A_TPID_SEL) : 0);
             x = srvl_act_bs_get(info, ES0_AO_TAG_A_TPID_SEL + offs,
                                 ES0_AL_TAG_A_TPID_SEL);
-            pr("tpid%s:%u (%s) ", buf, x,
+            pr("tpid%s:%u (%s) ", &buf, x,
                x == TAG_TPID_CFG_0x8100     ? "c"
                : x == TAG_TPID_CFG_0x88A8   ? "s"
                : x == TAG_TPID_CFG_PTPID    ? "port"
@@ -3558,11 +3558,11 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 
             x = srvl_act_bs_get(info, ES0_AO_TAG_A_VID_SEL + offs,
                                 ES0_AL_TAG_A_VID_SEL);
-            pr("vid%s:%u (%svid%s_val) ", buf, x, x ? "" : "cl_vid+", buf);
+            pr("vid%s:%u (%svid%s_val) ", &buf, x, x ? "" : "cl_vid+", &buf);
 
             x = srvl_act_bs_get(info, ES0_AO_TAG_A_PCP_SEL + offs,
                                 ES0_AL_TAG_A_PCP_SEL);
-            pr("pcp%s:%u (%s) ", buf, x,
+            pr("pcp%s:%u (%s) ", &buf, x,
                x == ES0_ACT_PCP_SEL_CL_PCP    ? "cl_pcp"
                : x == ES0_ACT_PCP_SEL_PCP_ES0 ? "pcp_es0"
                : x == ES0_ACT_PCP_SEL_MAPPED  ? "mapped"
@@ -3571,7 +3571,7 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
 
             x = srvl_act_bs_get(info, ES0_AO_TAG_A_DEI_SEL + offs,
                                 ES0_AL_TAG_A_DEI_SEL);
-            pr("dei%s:%u (%s)\n", buf, x,
+            pr("dei%s:%u (%s)\n", &buf, x,
                x == ES0_ACT_DEI_SEL_CL_DEI    ? "cl_dei"
                : x == ES0_ACT_DEI_SEL_DEI_ES0 ? "dei_es0"
                : x == ES0_ACT_DEI_SEL_MAPPED  ? "mapped"
@@ -3579,15 +3579,15 @@ static vtss_rc srvl_debug_es0(srvl_debug_info_t *info)
                                               : "?");
 
             offs = (i ? (ES0_AO_VID_B_VAL - ES0_AO_VID_A_VAL) : 0);
-            VTSS_SPRINTF(buf_1, "_%s_val", i ? "b" : "a");
-            VTSS_SPRINTF(buf, "vid%s", buf_1);
-            srvl_debug_fld(info, buf, ES0_AO_VID_A_VAL + offs,
+            VTSS_FMT(buf_1, "_%s_val", i ? "b" : "a");
+            VTSS_FMT(buf, "vid%s", &buf_1);
+            srvl_debug_fld(info, buf.s, ES0_AO_VID_A_VAL + offs,
                            ES0_AL_VID_A_VAL);
-            VTSS_SPRINTF(buf, "pcp%s", buf_1);
-            srvl_debug_fld(info, buf, ES0_AO_PCP_A_VAL + offs,
+            VTSS_FMT(buf, "pcp%s", &buf_1);
+            srvl_debug_fld(info, buf.s, ES0_AO_PCP_A_VAL + offs,
                            ES0_AL_PCP_A_VAL);
-            VTSS_SPRINTF(buf, "dei%s", buf_1);
-            srvl_debug_fld(info, buf, ES0_AO_DEI_A_VAL + offs,
+            VTSS_FMT(buf, "dei%s", &buf_1);
+            srvl_debug_fld(info, buf.s, ES0_AO_DEI_A_VAL + offs,
                            ES0_AL_DEI_A_VAL);
             pr("\n");
         }

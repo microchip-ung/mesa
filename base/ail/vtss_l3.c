@@ -41,20 +41,8 @@
 #define IPV6N_FORMAT IPV6_FORMAT "/%hhu"
 #define IPV6N_ARG(X) IPV6_ARGS((X).address), (X).prefix_size
 
-#define IPV6_UC_FORMAT  "net: " IPV6N_FORMAT ", next-hop: " IPV6_FORMAT
-#define IPV6_UC_ARGS(X) IPV6N_ARG((X).network), IPV6_ARGS((X).destination)
-
 #define IPV4N_FORMAT IPV4_FORMAT "/%hhu"
 #define IPV4N_ARG(X) IPV4_ARGS((X).address), (X).prefix_size
-
-#define IPV4_UC_FORMAT  "net: " IPV4N_FORMAT ", next-hop: " IPV4_FORMAT
-#define IPV4_UC_ARGS(X) IPV4N_ARG((X).network), IPV4_ARGS((X).destination)
-
-#define IPV4_MC_FORMAT  "group: " IPV4_FORMAT ", sip: " IPV4_FORMAT
-#define IPV4_MC_ARGS(X) IPV4_ARGS((X).group), IPV4_ARGS((X).source)
-
-#define IPV6_MC_FORMAT  "group: " IPV6_FORMAT ", sip: " IPV6_FORMAT
-#define IPV6_MC_ARGS(X) IPV6_ARGS((X).group), IPV6_ARGS((X).source)
 
 void vtss_l3_integrity_check(const vtss_state_t *vs,
                              const char         *file,
@@ -145,6 +133,18 @@ static void ss_ipv6(lmu_ss_t *ss, vtss_ipv6_t *ipv6)
     for (int i = 0; i < 16; i++) {
         LMU_SS_FMT(ss, "%s%02x", i == 0 || (i & 1) ? "" : ":", ipv6->addr[i]);
     }
+}
+
+static void ss_ipv4_net(lmu_ss_t *ss, vtss_ipv4_t u, vtss_prefix_size_t pfx)
+{
+    ss_ipv4(ss, u);
+    LMU_SS_FMT(ss, "/%u", pfx);
+}
+
+static void ss_ipv6_net(lmu_ss_t *ss, vtss_ipv6_t *ipv6, vtss_prefix_size_t pfx)
+{
+    ss_ipv6(ss, ipv6);
+    LMU_SS_FMT(ss, "/%u", pfx);
 }
 
 /* finds and returns an unused rleg id for the provided vlan. Will fail if the
@@ -319,78 +319,79 @@ static vtss_rc rleg_update(vtss_state_t                    *vtss_state,
 
 #if VTSS_OPT_TRACE
 static char *vtss_routing_entry_to_string(const vtss_routing_entry_t
-                                              *const entry,
-                                          char      *buf,
-                                          unsigned   size)
+                                              *const     entry,
+                                          lmu_fmt_buf_t *buf)
 {
+    lmu_ss_t      *ss = &buf->ss;
+    vtss_ipv4_uc_t ipv4 = entry->route.ipv4_uc;
+    vtss_ipv6_uc_t ipv6 = entry->route.ipv6_uc;
+
+    lmu_fmt_buf_init(buf);
+
     switch (entry->type) {
-    case VTSS_ROUTING_ENTRY_TYPE_INVALID:
-        VTSS_SNPRINTF(buf, size, "INVALID");
-        break;
+    case VTSS_ROUTING_ENTRY_TYPE_INVALID: LMU_SS_FMT(ss, "INVALID"); break;
 
     case VTSS_ROUTING_ENTRY_TYPE_IPV6_UC:
-        VTSS_SNPRINTF(buf, size, IPV6_UC_FORMAT,
-                      IPV6_UC_ARGS(entry->route.ipv6_uc));
+        LMU_SS_FMT(ss, "net: ");
+        ss_ipv6_net(ss, &ipv6.network.address, ipv6.network.prefix_size);
+        LMU_SS_FMT(ss, ", next-hop: ");
+        ss_ipv6(ss, &ipv6.destination);
         break;
 
     case VTSS_ROUTING_ENTRY_TYPE_IPV4_UC:
-        VTSS_SNPRINTF(buf, size, IPV4_UC_FORMAT,
-                      IPV4_UC_ARGS(entry->route.ipv4_uc));
+        LMU_SS_FMT(ss, "net: ");
+        ss_ipv4_net(ss, ipv4.network.address, ipv4.network.prefix_size);
+        LMU_SS_FMT(ss, ", next-hop: ");
+        ss_ipv4(ss, ipv4.destination);
         break;
-    default: VTSS_SNPRINTF(buf, size, "UNKNOWN"); break;
+    default: LMU_SS_FMT(ss, "UNKNOWN"); break;
     }
-
-    return buf;
+    return buf->s;
 }
 
 static char *vtss_routing_mc_entry_to_string(const vtss_routing_mc_entry_t
-                                                 *const entry,
-                                             char      *buf,
-                                             unsigned   size)
+                                                 *const     entry,
+                                             lmu_fmt_buf_t *buf)
 {
-    if (entry->type == VTSS_RT_TYPE_IPV4_MC) {
-        VTSS_SNPRINTF(buf, size, IPV4_MC_FORMAT,
-                      IPV4_MC_ARGS(entry->route.ipv4_mc));
-    } else {
-        VTSS_SNPRINTF(buf, size, IPV6_MC_FORMAT,
-                      IPV6_MC_ARGS(entry->route.ipv6_mc));
-    }
+    lmu_ss_t      *ss = &buf->ss;
+    vtss_ipv4_mc_t ipv4 = entry->route.ipv4_mc;
+    vtss_ipv6_mc_t ipv6 = entry->route.ipv6_mc;
 
-    return buf;
+    lmu_fmt_buf_init(buf);
+    LMU_SS_FMT(ss, "group: ");
+    if (entry->type == VTSS_RT_TYPE_IPV4_MC) {
+        ss_ipv4(ss, ipv4.group);
+        LMU_SS_FMT(ss, ", sip: ");
+        ss_ipv4(ss, ipv4.source);
+    } else {
+        ss_ipv6(ss, &ipv6.group);
+        LMU_SS_FMT(ss, ", sip: ");
+        ss_ipv6(ss, &ipv6.source);
+    }
+    return buf->s;
 }
 
 static char *vtss_neighbour_to_string(const vtss_l3_neighbour_t *const entry,
-                                      char                            *buf,
-                                      unsigned                         size)
+                                      lmu_fmt_buf_t                   *buf)
 {
-    unsigned c;
+    lmu_ss_t           *ss = &buf->ss;
+    vtss_l3_neighbour_t nb = *entry;
 
-    c = VTSS_SNPRINTF(buf, size, "dmac: " MAC_FORMAT ", vid: %u, ip: ",
-                      MAC_ARGS(entry->dmac), entry->vlan);
+    lmu_fmt_buf_init(buf);
+    LMU_SS_FMT(ss, "dmac: ");
+    ss_mac(ss, &nb.dmac);
+    LMU_SS_FMT(ss, ", vid: %u, ip: ", nb.vlan);
 
-    if (c + 1 >= size)
-        goto END;
-    else
-        size -= c;
+    switch (nb.dip.type) {
+    case VTSS_IP_TYPE_NONE: LMU_SS_FMT(ss, "INVALID"); break;
 
-    switch (entry->dip.type) {
-    case VTSS_IP_TYPE_NONE: VTSS_SNPRINTF(buf + c, size, "INVALID"); break;
+    case VTSS_IP_TYPE_IPV4: ss_ipv4(ss, nb.dip.addr.ipv4); break;
 
-    case VTSS_IP_TYPE_IPV4:
-        VTSS_SNPRINTF(buf + c, size, IPV4_FORMAT,
-                      IPV4_ARGS(entry->dip.addr.ipv4));
-        break;
+    case VTSS_IP_TYPE_IPV6: ss_ipv6(ss, &nb.dip.addr.ipv6); break;
 
-    case VTSS_IP_TYPE_IPV6:
-        VTSS_SNPRINTF(buf + c, size, IPV6_FORMAT,
-                      IPV6_ARGS(entry->dip.addr.ipv6));
-        break;
-
-    default: VTSS_SNPRINTF(buf + c, size, "UNKNOWN"); break;
+    default: LMU_SS_FMT(ss, "UNKNOWN"); break;
     }
-
-END:
-    return buf;
+    return buf->s;
 }
 #endif
 
@@ -1989,10 +1990,10 @@ vtss_rc vtss_l3_route_add(const vtss_inst_t                 inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_entry_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_routing_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2062,10 +2063,10 @@ vtss_rc vtss_l3_route_del(const vtss_inst_t                 inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_entry_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_routing_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2090,10 +2091,10 @@ vtss_rc vtss_l3_neighbour_add(const vtss_inst_t                inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_neighbour_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_neighbour_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2110,10 +2111,10 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t                inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_neighbour_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_neighbour_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2130,10 +2131,10 @@ vtss_rc vtss_l3_mc_route_add(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2151,10 +2152,10 @@ vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2171,10 +2172,10 @@ vtss_rc vtss_l3_mc_route_del(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
+    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2192,11 +2193,11 @@ vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
     I("Add rleg:%d for group %s", dest_rleg,
-      vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
+      vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2214,11 +2215,11 @@ vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t                    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
-    char buf[128];
+    lmu_fmt_buf_t buf;
 #endif
 
     I("Del rleg:%d for %s", dest_rleg,
-      vtss_routing_mc_entry_to_string(entry, buf, sizeof(buf)));
+      vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2259,7 +2260,7 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
     vtss_l3_state_t           *l3 = &vtss_state->l3;
     vtss_l3_net_t             *net;
     vtss_l3_mc_rt_t           *mc_net;
-    char                       buf[128];
+    lmu_fmt_buf_t              buf;
     vtss_ip_type_t             type = VTSS_IP_TYPE_NONE;
     vtss_l3_nh_grp_t          *grp;
     vtss_l3_nh_t              *nh;
@@ -2334,10 +2335,10 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
             }
             pr("NextHop\n");
         }
+        lmu_fmt_buf_init(&buf);
         if (type == VTSS_IP_TYPE_IPV4) {
-            VTSS_SPRINTF(buf, IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4),
-                         net->prefix_size);
-            pr("%-20s", buf);
+            ss_ipv4_net(&buf.ss, net->network.addr.ipv4, net->prefix_size);
+            pr("%-20s", &buf);
             if (net->grp == NULL) {
                 ss_ipv4(ss, net->nh.dip.addr.ipv4);
                 pr("\n");
@@ -2351,9 +2352,8 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
                 }
             }
         } else {
-            VTSS_SPRINTF(buf, IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6),
-                         net->prefix_size);
-            pr("%-45s", buf);
+            ss_ipv6_net(&buf.ss, &net->network.addr.ipv6, net->prefix_size);
+            pr("%-45s", &buf);
             if (net->grp == NULL) {
                 ss_ipv6(ss, &net->nh.dip.addr.ipv6);
                 pr("-%u\n", net->nh.vid);
@@ -2411,8 +2411,9 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
             pr("\n");
         }
         if (type == VTSS_IP_TYPE_IPV4) {
-            VTSS_SPRINTF(buf, IPV4_FORMAT, IPV4_ARGS(nb->nh.dip.addr.ipv4));
-            pr("%-17s" MAC_FORMAT "\n", buf, MAC_ARGS(nb->dmac));
+            lmu_fmt_buf_init(&buf);
+            ss_ipv4(&buf.ss, nb->nh.dip.addr.ipv4);
+            pr("%-17s" MAC_FORMAT "\n", &buf, MAC_ARGS(nb->dmac));
         } else {
             ss_ipv6(ss, &nb->nh.dip.addr.ipv6);
             pr("  ");
@@ -2457,31 +2458,30 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
             VTSS_RC_OK) {
             pr("Could not get entry\n");
         }
+        lmu_fmt_buf_init(&buf);
         if (mc_net->network.type == VTSS_IP_TYPE_IPV4) {
-            VTSS_SPRINTF(buf, IPV4N_FORMAT,
-                         IPV4_ARGS(mc_net->network.addr.ipv4), 32);
-            pr("%-20s  ", buf);
+            ss_ipv4_net(&buf.ss, mc_net->network.addr.ipv4, 32);
+            pr("%-20s  ", &buf);
+            lmu_fmt_buf_init(&buf);
             if (mc_net->sip.addr.ipv4 > 0) {
-                VTSS_SPRINTF(buf, IPV4N_FORMAT,
-                             IPV4_ARGS(mc_net->sip.addr.ipv4), 32);
+                ss_ipv4_net(&buf.ss, mc_net->sip.addr.ipv4, 32);
             } else {
-                VTSS_SPRINTF(buf, "don't care");
+                LMU_SS_FMT(&buf.ss, "don't care");
             }
         } else {
-            VTSS_SPRINTF(buf, IPV6N_FORMAT,
-                         IPV6_ARGS(mc_net->network.addr.ipv6), 128);
-            pr("%-45s\n", buf);
+            ss_ipv6_net(&buf.ss, &mc_net->network.addr.ipv6, 128);
+            pr("%-45s\n", &buf);
+            lmu_fmt_buf_init(&buf);
             for (j = 0, i = 0; i < 16; i++) {
                 j += mc_net->sip.addr.ipv6.addr[i];
             }
             if (j > 0) {
-                VTSS_SPRINTF(buf, IPV6N_FORMAT,
-                             IPV6_ARGS(mc_net->sip.addr.ipv6), 32);
+                ss_ipv6_net(&buf.ss, &mc_net->sip.addr.ipv6, 32);
             } else {
-                VTSS_SPRINTF(buf, "don't care");
+                LMU_SS_FMT(&buf.ss, "don't care");
             }
         }
-        pr("%-20s  ", buf);
+        pr("%-20s  ", &buf);
         pr("%-10d", mc_net->tbl);
         if (mc_net->src_rleg == VTSS_VID_NULL) {
             pr("%-10s", "Disabled");

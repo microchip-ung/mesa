@@ -193,10 +193,10 @@ static vtss_rc l26_setup_cpu_if(vtss_state_t                 *vtss_state,
 
 void vtss_l26_debug_reg_header(lmu_ss_t *ss, const char *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%-18s  Tgt   Addr", name);
-    vtss_debug_print_reg_header(ss, buf);
+    VTSS_FMT(buf, "%-18s  Tgt   Addr", name);
+    vtss_debug_print_reg_header(ss, buf.s);
 }
 
 void vtss_l26_debug_reg(vtss_state_t *vtss_state,
@@ -204,13 +204,13 @@ void vtss_l26_debug_reg(vtss_state_t *vtss_state,
                         u32           addr,
                         const char   *name)
 {
-    u32  value;
-    char buf[100];
+    u32           value;
+    lmu_fmt_buf_t buf;
 
     if (vtss_l26_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        VTSS_SPRINTF(buf, "%-18s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
-                     addr & 0x3fff);
-        vtss_debug_print_reg(ss, buf, value);
+        VTSS_FMT(buf, "%-18s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
+                 addr & 0x3fff);
+        vtss_debug_print_reg(ss, buf.s, value);
     }
 }
 
@@ -220,10 +220,10 @@ void vtss_l26_debug_reg_inst(vtss_state_t *vtss_state,
                              u32           i,
                              const char   *name)
 {
-    char buf[64];
+    lmu_fmt_buf_t buf;
 
-    VTSS_SPRINTF(buf, "%s_%u", name, i);
-    vtss_l26_debug_reg(vtss_state, ss, addr, buf);
+    VTSS_FMT(buf, "%s_%u", name, i);
+    vtss_l26_debug_reg(vtss_state, ss, addr, buf.s);
 }
 
 void vtss_l26_debug_print_port_header(vtss_state_t *vtss_state,

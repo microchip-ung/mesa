@@ -850,7 +850,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     int            queue;
     BOOL           header = 1;
     vtss_port_no_t port_no;
-    char           buf[16];
+    lmu_fmt_buf_t  buf;
 
     /* Global configuration starts here */
 
@@ -936,32 +936,32 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     pr("LP CP QoS class (8*DEI+PCP)           DP level (8*DEI+PCP)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        int  pcp, dei, class_ct = 0, dpl_ct = 0;
-        char class_buf[40], dpl_buf[40];
+        int           pcp, dei;
+        lmu_fmt_buf_t class_buf, dpl_buf;
+        const char   *delim = "";
         if (!info->port_list[port_no]) {
             continue;
         }
         port = VTSS_CHIP_PORT(port_no);
+        lmu_fmt_buf_init(&class_buf);
+        lmu_fmt_buf_init(&dpl_buf);
         for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
             for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
-                const char *delim =
-                    ((pcp == VTSS_PCP_START) && (dei == VTSS_DEI_START)) ? ""
-                                                                         : ",";
                 SRVL_RD(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(port,
                                                           (8 * dei + pcp)),
                         &value);
-                class_ct += VTSS_SNPRINTF(
-                    class_buf + class_ct, sizeof(class_buf) - class_ct, "%s%u",
-                    delim,
+                LMU_SS_FMT(
+                    &class_buf.ss, "%s%u", delim,
                     VTSS_X_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(value));
-                dpl_ct += VTSS_SNPRINTF(
-                    dpl_buf + dpl_ct, sizeof(dpl_buf) - dpl_ct, "%s%u", delim,
+                LMU_SS_FMT(
+                    &dpl_buf.ss, "%s%u", delim,
                     VTSS_BOOL(
                         value &
                         VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_DP_PCP_DEI_VAL));
+                delim = ",";
             }
         }
-        pr("%2u %2u %s %s\n", port_no, port, class_buf, dpl_buf);
+        pr("%2u %2u %s %s\n", port_no, port, &class_buf, &dpl_buf);
     }
     pr("\n");
 
@@ -975,17 +975,17 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
                 continue;
             }
             port = VTSS_CHIP_PORT(port_no);
-            VTSS_SPRINTF(buf, "%2u", port_no);
+            VTSS_FMT(buf, "%2u", port_no);
         } else {
             i = (port_no - vtss_state->port_count);
             port = (VTSS_CHIP_PORT_CPU_0 + i);
-            VTSS_SPRINTF(buf, "C%u", i);
+            VTSS_FMT(buf, "C%u", i);
         }
         dwrr_se = TERMINAL_SE_INDEX_OFFSET + port;
         SRVL_RD(VTSS_QSYS_QMAP_QMAP(port), &qmap);
         SRVL_RD(VTSS_QSYS_HSCH_SE_CFG(dwrr_se), &value);
         pr("%s %2u %4u %4u %6u %6u %6u %4u",
-           buf,  // Logical port
+           &buf, // Logical port
            port, // Chip port
            dwrr_se, VTSS_X_QSYS_QMAP_QMAP_SE_BASE(qmap),
            VTSS_X_QSYS_QMAP_QMAP_SE_IDX_SEL(qmap),
@@ -1010,18 +1010,18 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
                 continue;
             }
             port = VTSS_CHIP_PORT(port_no);
-            VTSS_SPRINTF(buf, "%2u", port_no);
+            VTSS_FMT(buf, "%2u", port_no);
         } else {
             i = (port_no - vtss_state->port_count);
             port = (VTSS_CHIP_PORT_CPU_0 + i);
-            VTSS_SPRINTF(buf, "C%u", i);
+            VTSS_FMT(buf, "C%u", i);
         }
         terminal_se = TERMINAL_SE_INDEX_OFFSET + port;
 
         SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(terminal_se), &value);
         SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(terminal_se), &eir);
         SRVL_RD(VTSS_QSYS_HSCH_SE_DLB_SENSE(terminal_se), &sense);
-        pr("%s %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ", buf, port,
+        pr("%s %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ", &buf, port,
            terminal_se, VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
            VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
            VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir),
@@ -1126,28 +1126,30 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     pr("LP CP PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
-        int class, dpl, pcp_ct = 0, dei_ct = 0;
-        char pcp_buf[40], dei_buf[40];
+        int class, dpl;
+        lmu_fmt_buf_t pcp_buf, dei_buf;
+        const char   *delim = "";
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
+        lmu_fmt_buf_init(&pcp_buf);
+        lmu_fmt_buf_init(&dei_buf);
         for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class ++) {
             for (dpl = 0; dpl < 2; dpl++) {
-                const char *delim =
-                    ((class == VTSS_QUEUE_START) && (dpl == 0)) ? "" : ",";
                 SRVL_RD(VTSS_REW_PORT_PCP_DEI_QOS_MAP_CFG(port,
                                                           (8 * dpl + class)),
                         &value);
-                pcp_ct += VTSS_SNPRINTF(
-                    pcp_buf + pcp_ct, sizeof(pcp_buf) - pcp_ct, "%s%u", delim,
+                LMU_SS_FMT(
+                    &pcp_buf.ss, "%s%u", delim,
                     VTSS_X_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(value));
-                dei_ct += VTSS_SNPRINTF(
-                    dei_buf + dei_ct, sizeof(dei_buf) - dei_ct, "%s%u", delim,
+                LMU_SS_FMT(
+                    &dei_buf.ss, "%s%u", delim,
                     VTSS_BOOL(value &
                               VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL));
+                delim = ",";
             }
         }
-        pr("%2u %2u %s %s\n", port_no, port, pcp_buf, dei_buf);
+        pr("%2u %2u %s %s\n", port_no, port, &pcp_buf, &dei_buf);
     }
     pr("\n");
 

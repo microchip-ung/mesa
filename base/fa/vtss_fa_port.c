@@ -2825,30 +2825,25 @@ static vtss_rc fa_port_flush_poll(vtss_state_t       *vtss_state,
         }
 
         if (delay_cnt++ == 2000) {
-            u32  base, idx, cnt;
-            char buf[300];
-            buf[sizeof(buf) - 1] = '\0';
+            u32           base, idx;
+            lmu_fmt_buf_t buf;
 
-            cnt =
-                VTSS_SNPRINTF(buf, sizeof(buf) - 1,
-                              "QRES:RES_CTRL[chip-port = %u]:RES_STAT\n", port);
-
+            VTSS_FMT(buf, "QRES:RES_CTRL[chip-port = %u]:RES_STAT\n", port);
             for (resource = 0; resource < 4; resource++) {
                 base = resource * 1024 + port * VTSS_PRIOS;
                 for (prio = 0; prio < VTSS_PRIOS; prio++) {
                     idx = base + prio;
                     REG_RD(VTSS_QRES_RES_STAT(idx), &value);
                     if (value) {
-                        cnt += VTSS_SNPRINTF(
-                            buf + cnt, sizeof(buf) - 1 - cnt,
-                            "res = %u, prio = %u => idx = %u val = %u\n",
-                            resource, prio, idx, value);
+                        LMU_SS_FMT(&buf.ss,
+                                   "res = %u, prio = %u => idx = %u val = %u\n",
+                                   resource, prio, idx, value);
                     }
                 }
             }
 
             VTSS_E("Flush timeout chip port %u. %s queue not empty\n%s", port,
-                   failing_mem, buf);
+                   failing_mem, buf.s);
             break;
         }
 
@@ -5202,7 +5197,7 @@ static vtss_rc fa_debug_port(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t port_no;
     u32            port;
-    char           buf[32];
+    lmu_fmt_buf_t  buf;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
          port_no++) {
@@ -5213,18 +5208,18 @@ static vtss_rc fa_debug_port(vtss_state_t                  *vtss_state,
         port = VTSS_CHIP_PORT(port_no);
 
         if (fa_is_high_speed_device(vtss_state, port_no)) {
-            VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no,
-                         VTSS_PORT_IS_25G(port)   ? "25G"
-                         : VTSS_PORT_IS_10G(port) ? "10G"
-                         : VTSS_PORT_IS_5G(port)  ? "5G"
-                                                  : "2G5",
-                         vtss_port_dev_index(vtss_state, port));
+            VTSS_FMT(buf, "Chip port %u (%u) Dev%s_%d", port, port_no,
+                     VTSS_PORT_IS_25G(port)   ? "25G"
+                     : VTSS_PORT_IS_10G(port) ? "10G"
+                     : VTSS_PORT_IS_5G(port)  ? "5G"
+                                              : "2G5",
+                     vtss_port_dev_index(vtss_state, port));
         } else {
-            VTSS_SPRINTF(buf, "Chip port %u (%u) Dev%s_%d", port, port_no,
-                         "2G5", port);
+            VTSS_FMT(buf, "Chip port %u (%u) Dev%s_%d", port, port_no, "2G5",
+                     port);
         }
 
-        vtss_fa_debug_reg_header(ss, buf);
+        vtss_fa_debug_reg_header(ss, buf.s);
 
         VTSS_RC(fa_debug_chip_port(vtss_state, ss, info, port_no));
     } /* Port loop */
@@ -5240,7 +5235,7 @@ static void fa_debug_dual_cnt(lmu_ss_t            *ss,
                               BOOL                 mixed)
 {
     u32                 i;
-    char                buf1[32], buf2[32];
+    lmu_fmt_buf_t       buf1, buf2;
     const char         *name;
     vtss_chip_counter_t ca, cb;
 
@@ -5252,20 +5247,20 @@ static void fa_debug_dual_cnt(lmu_ss_t            *ss,
             name = "emac";
             ca.value = c1->emac;
         }
-        VTSS_SPRINTF(buf1, "%s_%s", name, col1);
+        VTSS_FMT(buf1, "%s_%s", name, col1);
         if (col2 == NULL) {
-            vtss_fa_debug_cnt(ss, buf1, NULL, &ca, NULL);
+            vtss_fa_debug_cnt(ss, buf1.s, NULL, &ca, NULL);
         } else {
             if (mixed) {
-                VTSS_SPRINTF(buf2, "%s", col2);
+                VTSS_FMT(buf2, "%s", col2);
                 col2 = NULL;
             } else if (VTSS_STRLEN(col2) != 0) {
-                VTSS_SPRINTF(buf2, "%s_%s", name, col2);
+                VTSS_FMT(buf2, "%s_%s", name, col2);
             } else {
-                VTSS_STRCPY(buf2, "");
+                VTSS_FMT(buf2, "");
             }
             cb.value = (i ? c2->pmac : c2->emac);
-            vtss_fa_debug_cnt(ss, buf1, buf2, &ca, &cb);
+            vtss_fa_debug_cnt(ss, buf1.s, buf2.s, &ca, &cb);
         }
     }
 }
@@ -5297,7 +5292,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t                  *vtss_state,
                                       vtss_port_no_t                 port_no)
 {
     u32                     i;
-    char                    rx_buf[32], tx_buf[32];
+    lmu_fmt_buf_t           rx_buf, tx_buf;
     vtss_port_fa_counters_t cnt;
 
     VTSS_MEMSET(&cnt, 0, sizeof(vtss_port_fa_counters_t));
@@ -5360,22 +5355,24 @@ static vtss_rc fa_debug_port_counters(vtss_state_t                  *vtss_state,
                           &cnt.rx_policer_drops, &cnt.tx_queue_drops);
 
         for (i = 0; i < VTSS_PRIOS; i++) {
-            VTSS_SPRINTF(rx_buf, "class_%u", i);
-            VTSS_SPRINTF(tx_buf, "green_%u", i);
-            vtss_fa_debug_cnt(ss, rx_buf, tx_buf, &cnt.rx_class[i],
+            VTSS_FMT(rx_buf, "class_%u", i);
+            VTSS_FMT(tx_buf, "green_%u", i);
+            vtss_fa_debug_cnt(ss, rx_buf.s, tx_buf.s, &cnt.rx_class[i],
                               &cnt.tx_green_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            VTSS_SPRINTF(tx_buf, "yellow_%u", i);
-            vtss_fa_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_yellow_class[i]);
+            VTSS_FMT(tx_buf, "yellow_%u", i);
+            vtss_fa_debug_cnt(ss, NULL, tx_buf.s, NULL,
+                              &cnt.tx_yellow_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            VTSS_SPRINTF(tx_buf, "green_drops_%u", i);
-            vtss_fa_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_green_drops[i]);
+            VTSS_FMT(tx_buf, "green_drops_%u", i);
+            vtss_fa_debug_cnt(ss, NULL, tx_buf.s, NULL, &cnt.tx_green_drops[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
-            VTSS_SPRINTF(tx_buf, "yellow_drops_%u", i);
-            vtss_fa_debug_cnt(ss, NULL, tx_buf, NULL, &cnt.tx_yellow_drops[i]);
+            VTSS_FMT(tx_buf, "yellow_drops_%u", i);
+            vtss_fa_debug_cnt(ss, NULL, tx_buf.s, NULL,
+                              &cnt.tx_yellow_drops[i]);
         }
     }
     pr("\n");
@@ -5423,36 +5420,37 @@ static vtss_rc fa_debug_port_cnt(vtss_state_t                  *vtss_state,
 
 static char *fa_chip_port_to_str(vtss_state_t       *vtss_state,
                                  vtss_phys_port_no_t chip_port,
-                                 char               *buf)
+                                 char               *str)
 {
     vtss_port_no_t port_no;
+    lmu_fmt_buf_t  buf;
 
     if (chip_port == -1) {
         // Special case just to get the print function print something special
-        VTSS_STRCPY(buf, "SHARED");
+        VTSS_FMT(buf, "SHARED");
     } else if (chip_port == RT_CHIP_PORT_CPU_0) {
-        VTSS_STRCPY(buf, "CPU0");
+        VTSS_FMT(buf, "CPU0");
     } else if (chip_port == RT_CHIP_PORT_CPU_1) {
-        VTSS_STRCPY(buf, "CPU1");
+        VTSS_FMT(buf, "CPU1");
     } else if (chip_port == RT_CHIP_PORT_VD0) {
-        VTSS_STRCPY(buf, "VD0");
+        VTSS_FMT(buf, "VD0");
     } else if (chip_port == RT_CHIP_PORT_VD1) {
-        VTSS_STRCPY(buf, "VD1");
+        VTSS_FMT(buf, "VD1");
     } else if (chip_port == RT_CHIP_PORT_VD2) {
-        VTSS_STRCPY(buf, "VD2");
+        VTSS_FMT(buf, "VD2");
     } else {
         port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
                                                 chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
-            VTSS_SPRINTF(buf, "%u", port_no);
+            VTSS_FMT(buf, "%u", port_no);
         } else {
             // Port is not in port map. Odd.
             VTSS_E("chip_port = %u not in port map", chip_port);
-            VTSS_STRCPY(buf, "N/A");
+            VTSS_FMT(buf, "N/A");
         }
     }
-
-    return buf;
+    lmu_czstrcpy(str, buf.s);
+    return str;
 }
 
 static const char *fa_qsys_resource_to_str(u32 resource)

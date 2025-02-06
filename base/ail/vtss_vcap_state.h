@@ -1640,7 +1640,6 @@ vtss_rc vtss_cmn_ace_counter_get(struct vtss_state_s      *vtss_state,
                                  vtss_ace_counter_t *const counter);
 vtss_rc vtss_cmn_ace_counter_clear(struct vtss_state_s *vtss_state,
                                    const vtss_ace_id_t  ace_id);
-char   *vtss_acl_policy_no_txt(vtss_acl_policy_no_t policy_no, char *buf);
 #endif // VTSS_FEATURE_IS2
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_vcap_debug_print_acl(struct vtss_state_s           *vtss_state,

@@ -2015,10 +2015,10 @@ static vtss_rc jr2_debug_misc(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    u32  i, g, count;
-    char name[32];
-    pr("Name          Target\n");
+    u32           i, g, count;
+    lmu_fmt_buf_t buf;
 
+    pr("Name          Target\n");
     vtss_jr2_debug_reg_header(ss, "GPIOs");
     JR_DEBUG_GPIO(ss, OUT, "OUT");
     JR_DEBUG_GPIO(ss, OUT1, "OUT1");
@@ -2052,8 +2052,8 @@ static vtss_rc jr2_debug_misc(vtss_state_t                  *vtss_state,
     count = 3;
 #endif /* VTSS_ARCH_SERVAL_T */
     for (g = 0; g < count; g++) {
-        VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
-        vtss_jr2_debug_reg_header(ss, name);
+        VTSS_FMT(buf, "SGPIOs Group:%u", g);
+        vtss_jr2_debug_reg_header(ss, buf.s);
 #if defined(VTSS_ARCH_SERVAL_T)
         for (i = 0; i < 4; i++) {
             JR_DEBUG_SIO_INST(ss, INPUT_DATA(i), i, "INPUT_DATA");

@@ -651,6 +651,12 @@ void lmu_str_init_str128(lmu_str128_t *in, lmu_str_t *out)
     out->end = in->data + 128;
 }
 
+void lmu_str_init_str256(lmu_str256_t *in, lmu_str_t *out)
+{
+    out->begin = in->data;
+    out->end = in->data + 256;
+}
+
 void lmu_cstr_init_str4(const lmu_str4_t *in, lmu_cstr_t *out)
 {
     out->begin = in->data;
@@ -685,6 +691,12 @@ void lmu_cstr_init_str128(const lmu_str128_t *in, lmu_cstr_t *out)
 {
     out->begin = in->data;
     out->end = in->data + 128;
+}
+
+void lmu_cstr_init_str256(const lmu_str256_t *in, lmu_cstr_t *out)
+{
+    out->begin = in->data;
+    out->end = in->data + 256;
 }
 
 void lmu_ss_init_str4(lmu_str4_t *in, lmu_ss_t *out)
@@ -725,6 +737,13 @@ void lmu_ss_init_str64(lmu_str64_t *in, lmu_ss_t *out)
 void lmu_ss_init_str128(lmu_str128_t *in, lmu_ss_t *out)
 {
     lmu_str_init_str128(in, &out->buf);
+    out->overflow = 0;
+    out->sslength = 0;
+}
+
+void lmu_ss_init_str256(lmu_str256_t *in, lmu_ss_t *out)
+{
+    lmu_str_init_str256(in, &out->buf);
     out->overflow = 0;
     out->sslength = 0;
 }
@@ -1164,6 +1183,16 @@ void lmu_fmt_str(lmu_fmt_state_t *state, const lmu_str_t *str)
 {
     lmu_fmt_t  fmt = {};
     lmu_cstr_t s = {.begin = str->begin, .end = str->end};
+
+    if (lmu_ss_fmt_next(state, &fmt)) {
+        lmu_str_copy_fill(state->ss, &s, &fmt);
+    }
+}
+
+void lmu_fmt_buf(lmu_fmt_state_t *state, const lmu_fmt_buf_t *buf)
+{
+    lmu_fmt_t  fmt = {};
+    lmu_cstr_t s = {.begin = buf->ss.buf.begin, .end = buf->ss.buf.end};
 
     if (lmu_ss_fmt_next(state, &fmt)) {
         lmu_str_copy_fill(state->ss, &s, &fmt);
@@ -2116,6 +2145,15 @@ lmu_str_split_t lmu_cstr_split(const lmu_cstr_t *in, lmu_parse_t delim,
     }
 
     return LMU_STR_SPLIT_TOKEN;
+}
+
+void lmu_fmt_buf_init(lmu_fmt_buf_t *buf)
+{
+    lmu_ss_init_str256(&buf->buf, &buf->ss);
+    buf->ss.buf.end--;
+    *buf->ss.buf.end = 0;
+    buf->s = buf->ss.buf.begin;
+    *buf->s = 0;
 }
 
 void lmu_ss_append_char(lmu_ss_t *ss, char c)

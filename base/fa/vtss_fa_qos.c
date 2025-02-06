@@ -4664,17 +4664,17 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t *vtss_state,
                                             const u32     ix_start,
                                             const int     length)
 {
-    u32  ix, col, value;
-    int  len;
-    char buf[100];
+    u32           ix, col, value;
+    int           len;
+    lmu_fmt_buf_t buf;
 
     for (len = 0; len < length; len++) {
         ix = ix_start + len;
         pr("Index %u, (%u of %u)\n", ix, len + 1, length);
         pr("%-32s: PATH  TC  DP  COSID  QOS  DEI  PCP  DSCP\n", "");
         REG_RD(VTSS_ANA_CL_SET_CTRL(ix), &value);
-        VTSS_SPRINTF(buf, "    MAP_TBL[%u]:SET_CTRL", ix);
-        pr("%-32s: %4u  %2u  %2u  %5u  %3u  %3u  %3u  %4u\n", buf,
+        VTSS_FMT(buf, "    MAP_TBL[%u]:SET_CTRL", ix);
+        pr("%-32s: %4u  %2u  %2u  %5u  %3u  %3u  %3u  %4u\n", &buf,
            VTSS_X_ANA_CL_SET_CTRL_PATH_ENA(value),
            VTSS_X_ANA_CL_SET_CTRL_TC_ENA(value),
            VTSS_X_ANA_CL_SET_CTRL_DP_ENA(value),
@@ -4687,9 +4687,9 @@ static vtss_rc fa_debug_qos_ingress_mapping(vtss_state_t *vtss_state,
            "");
         for (col = 0; col < 8; col++) {
             REG_RD(VTSS_ANA_CL_MAP_ENTRY(ix, col), &value);
-            VTSS_SPRINTF(buf, "    MAP_TBL[%u]:MAP_ENTRY[%u]", ix, col);
+            VTSS_FMT(buf, "    MAP_TBL[%u]:MAP_ENTRY[%u]", ix, col);
             pr("%-32s: %7u  %10u  %10u  %2u  %2u  %5u  %3u  %3u  %3u  %4u\n",
-               buf, VTSS_X_ANA_CL_MAP_ENTRY_FWD_DIS(value),
+               &buf, VTSS_X_ANA_CL_MAP_ENTRY_FWD_DIS(value),
                VTSS_X_ANA_CL_MAP_ENTRY_PATH_COLOR_VAL(value),
                VTSS_X_ANA_CL_MAP_ENTRY_PATH_COSID_VAL(value),
                VTSS_X_ANA_CL_MAP_ENTRY_TC_VAL(value),
@@ -4713,20 +4713,20 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t *vtss_state,
                                            const u32     ix_start,
                                            const int     length)
 {
-    u32  ix, col, addr, value;
-    int  len;
-    char buf[100];
+    u32           ix, col, addr, value;
+    int           len;
+    lmu_fmt_buf_t buf;
 
     for (len = 0; len < length; len++) {
         ix = ix_start + len;
-        VTSS_SPRINTF(buf, "Index %u, (%u of %u)", ix, len + 1, length);
-        pr("%-32s: OAM_COLOR  OAM_COSID  TC  DSCP  DEI  PCP\n", buf);
+        VTSS_FMT(buf, "Index %u, (%u of %u)", ix, len + 1, length);
+        pr("%-32s: OAM_COLOR  OAM_COSID  TC  DSCP  DEI  PCP\n", &buf);
         for (col = 0; col < 8; col++) {
             addr = (ix * 8) + col;
             if (res == 0) { // Resource A
                 REG_RD(VTSS_REW_MAP_VAL_A(addr), &value);
-                VTSS_SPRINTF(buf, "    MAP_RES_A[%u]:MAP_VAL_A", addr);
-                pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n", buf,
+                VTSS_FMT(buf, "    MAP_RES_A[%u]:MAP_VAL_A", addr);
+                pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n", &buf,
                    VTSS_X_REW_MAP_VAL_A_OAM_COLOR(value),
                    VTSS_X_REW_MAP_VAL_A_OAM_COSID(value),
                    VTSS_X_REW_MAP_VAL_A_TC_VAL(value),
@@ -4735,8 +4735,8 @@ static vtss_rc fa_debug_qos_egress_mapping(vtss_state_t *vtss_state,
                    VTSS_X_REW_MAP_VAL_A_PCP_VAL(value));
             } else { // Resource B
                 REG_RD(VTSS_REW_MAP_VAL_B(addr), &value);
-                VTSS_SPRINTF(buf, "    MAP_RES_B[%u]:MAP_VAL_B", addr);
-                pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n", buf,
+                VTSS_FMT(buf, "    MAP_RES_B[%u]:MAP_VAL_B", addr);
+                pr("%-32s: %9u  %9u  %2u  %4u  %3u  %3u\n", &buf,
                    VTSS_X_REW_MAP_VAL_B_OAM_COLOR(value),
                    VTSS_X_REW_MAP_VAL_B_OAM_COSID(value),
                    VTSS_X_REW_MAP_VAL_B_TC_VAL(value),
@@ -4757,16 +4757,16 @@ static void fa_debug_qos_mapping(vtss_state_t                   *vtss_state,
                                  const vtss_debug_info_t *const  info,
                                  const vtss_qos_map_adm_t *const m)
 {
-    u32 i, res;
-    u16 key;
+    u32           i, res;
+    u16           key;
+    lmu_fmt_buf_t buf;
 
     for (res = 0; res < VTSS_QOS_MAP_RESOURCES; res++) {
-        char buf[64];
         if (m->ix[res].entry == NULL) {
             continue; /* Resource not present */
         }
-        VTSS_SPRINTF(buf, "QoS %s Mapping Tables Res %u", m->name, res);
-        vtss_debug_print_header(ss, buf);
+        VTSS_FMT(buf, "QoS %s Mapping Tables Res %u", m->name, res);
+        vtss_debug_print_header(ss, buf.s);
         if (info->full) {
             if (m->kind == VTSS_QOS_MAP_KIND_INGRESS) {
                 for (i = 0; i < VTSS_QOS_INGRESS_MAP_ROWS; i++) {
@@ -5147,8 +5147,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
-            u32  dei, pcp, class_ct = 0, dpl_ct = 0;
-            char class_buf[40], dpl_buf[40];
+            u32           dei, pcp;
+            lmu_fmt_buf_t class_buf, dpl_buf;
             if (!info->port_list[port_no]) {
                 continue;
             }
@@ -5181,24 +5181,25 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             pr("%-32s: %2u\n", "DEFAULT_COSID_VAL",
                VTSS_X_ANA_CL_QOS_CFG_DEFAULT_COSID_VAL(value));
             pr("%-32s:\n", "PCP_DEI_MAP_CFG (8 * DEI + PCP)");
+            lmu_fmt_buf_init(&class_buf);
+            lmu_fmt_buf_init(&dpl_buf);
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
+                const char *delim = " | ";
                 for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
-                    const char *delim = (pcp == VTSS_PCP_START) ? " | " : ",";
                     REG_RD(VTSS_ANA_CL_PCP_DEI_MAP_CFG(chip_port,
                                                        (8 * dei + pcp)),
                            &value);
-                    class_ct += VTSS_SNPRINTF(
-                        class_buf + class_ct, sizeof(class_buf) - class_ct,
-                        "%s%u", delim,
+                    LMU_SS_FMT(
+                        &class_buf.ss, "%s%u", delim,
                         VTSS_X_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_QOS_VAL(value));
-                    dpl_ct += VTSS_SNPRINTF(
-                        dpl_buf + dpl_ct, sizeof(dpl_buf) - dpl_ct, "%s%u",
-                        delim,
+                    LMU_SS_FMT(
+                        &dpl_buf.ss, "%s%u", delim,
                         VTSS_X_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_DP_VAL(value));
+                    delim = ",";
                 }
             }
-            pr("%-32s: %s\n", "    PCP_DEI_QOS_VAL", class_buf);
-            pr("%-32s: %s\n", "    PCP_DEI_DP_VAL", dpl_buf);
+            pr("%-32s: %s\n", "    PCP_DEI_QOS_VAL", &class_buf);
+            pr("%-32s: %s\n", "    PCP_DEI_DP_VAL", &dpl_buf);
             pr("\n");
         }
         pr("Global configuration:\n");
@@ -6013,8 +6014,9 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
-            u32  layer = 2, se, cost_ct = 0;
-            char cost_buf[40];
+            u32           layer = 2, se;
+            lmu_fmt_buf_t cost_buf;
+            const char   *delim = "";
             if (!info->port_list[port_no]) {
                 continue;
             }
@@ -6032,28 +6034,27 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                VTSS_X_HSCH_SE_CFG_SE_DWRR_CNT(value));
             pr("%-32s: %2u\n", "SE_DWRR_FRM_MODE",
                VTSS_X_HSCH_SE_CFG_SE_DWRR_FRM_MODE(value));
+            lmu_fmt_buf_init(&cost_buf);
             for (i = VTSS_QUEUE_START; i < VTSS_QUEUE_END; i++) {
-                const char *delim = (i == VTSS_QUEUE_START) ? "" : " ";
                 REG_RD(VTSS_HSCH_DWRR_ENTRY(i), &value);
-                cost_ct +=
-                    VTSS_SNPRINTF(cost_buf + cost_ct,
-                                  sizeof(cost_buf) - cost_ct, "%s%2u", delim,
-                                  VTSS_X_HSCH_DWRR_ENTRY_DWRR_COST(value));
+                LMU_SS_FMT(&cost_buf.ss, "%s%2u", delim,
+                           VTSS_X_HSCH_DWRR_ENTRY_DWRR_COST(value));
+                delim = ",";
             }
             pr("%-32s: %s\n", "DWRR_COST", "C0 C1 C2 C3 C4 C5 C6 C7");
-            pr("%-32s: %s\n", "", cost_buf);
+            pr("%-32s: %s\n", "", &cost_buf);
 
             pr("\n");
         }
 
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
-            char buf[32];
-            u32  port, tgt;
+            lmu_fmt_buf_t buf;
+            u32           port, tgt;
             if (info->port_list[port_no]) {
                 port = VTSS_CHIP_PORT(port_no);
-                VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "Port %u (%u)", port, port_no);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
                     tgt = VTSS_TO_HIGH_DEV(port);
                     vtss_fa_debug_reg_inst(
@@ -6188,10 +6189,9 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
              port_no++) {
-            u32  i, pcp_de0, pcp_de1, dei_de0, dei_de1;
-            u32  pcp_de0_ct = 0, pcp_de1_ct = 0, dei_de0_ct = 0, dei_de1_ct = 0;
-            char pcp_de0_buf[40], pcp_de1_buf[40], dei_de0_buf[40],
-                dei_de1_buf[40];
+            u32           i, pcp_de0, pcp_de1, dei_de0, dei_de1;
+            lmu_fmt_buf_t pcp_de0_buf, pcp_de1_buf, dei_de0_buf, dei_de1_buf;
+            const char   *delim = "";
             if (!info->port_list[port_no]) {
                 continue;
             }
@@ -6207,39 +6207,31 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                VTSS_X_REW_TAG_CTRL_TAG_PCP_CFG(value));
             pr("%-32s: %2u\n", "TAG_DEI_CFG",
                VTSS_X_REW_TAG_CTRL_TAG_DEI_CFG(value));
+            lmu_fmt_buf_init(&pcp_de0_buf);
+            lmu_fmt_buf_init(&pcp_de1_buf);
+            lmu_fmt_buf_init(&dei_de0_buf);
+            lmu_fmt_buf_init(&dei_de1_buf);
             for (i = VTSS_QUEUE_START; i < VTSS_QUEUE_END; i++) {
-                const char *delim = (i == VTSS_QUEUE_START) ? " " : ",";
                 REG_RD(VTSS_REW_PCP_MAP_DE0(port_no, i), &pcp_de0);
                 REG_RD(VTSS_REW_PCP_MAP_DE1(port_no, i), &pcp_de1);
                 REG_RD(VTSS_REW_DEI_MAP_DE0(port_no, i), &dei_de0);
                 REG_RD(VTSS_REW_DEI_MAP_DE1(port_no, i), &dei_de1);
-                pcp_de0_ct +=
-                    VTSS_SNPRINTF(pcp_de0_buf + pcp_de0_ct,
-                                  sizeof(pcp_de0_buf) - pcp_de0_ct, "%s%u",
-                                  delim,
-                                  VTSS_X_REW_PCP_MAP_DE0_PCP_DE0(pcp_de0));
-                pcp_de1_ct +=
-                    VTSS_SNPRINTF(pcp_de1_buf + pcp_de1_ct,
-                                  sizeof(pcp_de1_buf) - pcp_de1_ct, "%s%u",
-                                  delim,
-                                  VTSS_X_REW_PCP_MAP_DE1_PCP_DE1(pcp_de1));
-                dei_de0_ct +=
-                    VTSS_SNPRINTF(dei_de0_buf + dei_de0_ct,
-                                  sizeof(dei_de0_buf) - dei_de0_ct, "%s%u",
-                                  delim,
-                                  VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de0));
-                dei_de1_ct +=
-                    VTSS_SNPRINTF(dei_de1_buf + dei_de1_ct,
-                                  sizeof(dei_de1_buf) - dei_de1_ct, "%s%u",
-                                  delim,
-                                  VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de1));
+                LMU_SS_FMT(&pcp_de0_buf.ss, "%s%u", delim,
+                           VTSS_X_REW_PCP_MAP_DE0_PCP_DE0(pcp_de0));
+                LMU_SS_FMT(&pcp_de1_buf.ss, "%s%u", delim,
+                           VTSS_X_REW_PCP_MAP_DE1_PCP_DE1(pcp_de1));
+                LMU_SS_FMT(&dei_de0_buf.ss, "%s%u", delim,
+                           VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de0));
+                LMU_SS_FMT(&dei_de1_buf.ss, "%s%u", delim,
+                           VTSS_X_REW_DEI_MAP_DE0_DEI_DE0(dei_de1));
+                delim = ",";
             }
             pr("%-32s:\n", "PCP_MAP_DEx[CL_QoS]");
-            pr("%-32s: %s\n", "    PCP_DE0", pcp_de0_buf);
-            pr("%-32s: %s\n", "    PCP_DE1", pcp_de1_buf);
+            pr("%-32s: %s\n", "    PCP_DE0", &pcp_de0_buf);
+            pr("%-32s: %s\n", "    PCP_DE1", &pcp_de1_buf);
             pr("%-32s:\n", "DEI_MAP_DEx[CL_QoS]");
-            pr("%-32s: %s\n", "    DEI_DE0", dei_de0_buf);
-            pr("%-32s: %s\n", "    DEI_DE1", dei_de1_buf);
+            pr("%-32s: %s\n", "    DEI_DE0", &dei_de0_buf);
+            pr("%-32s: %s\n", "    DEI_DE1", &dei_de1_buf);
             REG_RD(VTSS_REW_DSCP_MAP(chip_port), &value);
             pr("%-32s: %2u\n", "DSCP_UPDATE_ENA",
                VTSS_X_REW_DSCP_MAP_DSCP_UPDATE_ENA(value));

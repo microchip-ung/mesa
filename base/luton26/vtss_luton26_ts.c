@@ -712,9 +712,9 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
                             lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
-    u32  value;
-    u32  port;
-    char buf[32];
+    u32           value;
+    u32           port;
+    lmu_fmt_buf_t buf;
 
     /* DEVCPU_GCB: PTP_TIMER */
     vtss_l26_debug_reg_header(ss, "GCB:PTP_TIMER");
@@ -776,8 +776,8 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
     vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_STATUS, "PTP_STATUS");
     vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_DELAY, "PTP_DELAY");
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        VTSS_SPRINTF(buf, "PTP_CFG(%u)", port);
-        vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_CFG(port), buf);
+        VTSS_FMT(buf, "PTP_CFG(%u)", port);
+        vtss_l26_debug_reg(vtss_state, ss, VTSS_SYS_PTP_PTP_CFG(port), buf.s);
     }
 
     /* ANA:: */

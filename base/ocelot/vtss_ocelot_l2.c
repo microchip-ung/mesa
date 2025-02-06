@@ -1110,7 +1110,7 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
     BOOL               header = 1;
     vtss_port_no_t     port_no;
     u32                port, value, mask = 0, fid;
-    char               buf[32];
+    lmu_fmt_buf_t      buf;
 
     for (port = 0; port < (VTSS_CHIP_PORTS + 2); port++) {
         if (port < VTSS_CHIP_PORTS) {
@@ -1118,15 +1118,15 @@ static vtss_rc srvl_debug_vlan(vtss_state_t                  *vtss_state,
             if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) ==
                 VTSS_PORT_NO_NONE)
                 continue;
-            VTSS_SPRINTF(buf, "Port %u (%u)", port, port_no);
+            VTSS_FMT(buf, "Port %u (%u)", port, port_no);
         } else {
             /* CPU ports */
             if (!info->full)
                 continue;
-            VTSS_SPRINTF(buf, "Port %u (CPU)", port);
+            VTSS_FMT(buf, "Port %u (CPU)", port);
         }
 
-        vtss_srvl_debug_reg_header(ss, buf);
+        vtss_srvl_debug_reg_header(ss, buf.s);
         if (port != VTSS_CHIP_PORT_CPU_1) {
             vtss_srvl_debug_reg_inst(vtss_state, ss,
                                      VTSS_ANA_PORT_VLAN_CFG(port), port,

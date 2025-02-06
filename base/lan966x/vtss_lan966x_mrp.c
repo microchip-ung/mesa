@@ -1948,7 +1948,7 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t                  *vtss_state,
                                  const vtss_debug_info_t *const info)
 {
     u32              i, v, div, mrp_idx;
-    char             buf[80];
+    lmu_fmt_buf_t    buf;
     BOOL             show, mrp, status, internal;
     vtss_mrp_data_t *mrp_data;
 
@@ -2000,8 +2000,8 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t                  *vtss_state,
 
             REG_RD(MEP_MRP_CTRL(i), &v);
             if (info->full || MEP_MRP_CTRL_MRP_ENA_X(v)) {
-                VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "MRP %u", i);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
                 vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_MRP_CTRL(i)), i,
                                             "MEP_MRP_CTRL");
@@ -2068,8 +2068,8 @@ static vtss_rc lan966x_debug_mrp(vtss_state_t                  *vtss_state,
 
             REG_RD(MEP_MRP_CTRL(i), &v);
             if (info->full || MEP_MRP_CTRL_MRP_ENA_X(v)) {
-                VTSS_SPRINTF(buf, "MRP %u", i);
-                vtss_lan966x_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "MRP %u", i);
+                vtss_lan966x_debug_reg_header(ss, buf.s);
                 vtss_lan966x_debug_reg_inst(vtss_state, ss,
                                             REG_ADDR(MEP_MRP_STICKY(i)), i,
                                             "MEP_MRP_STICKY");

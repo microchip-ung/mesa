@@ -309,6 +309,7 @@ void lmu_str_init_str16(lmu_str16_t *in, lmu_str_t *out);
 void lmu_str_init_str32(lmu_str32_t *in, lmu_str_t *out);
 void lmu_str_init_str64(lmu_str64_t *in, lmu_str_t *out);
 void lmu_str_init_str128(lmu_str128_t *in, lmu_str_t *out);
+void lmu_str_init_str256(lmu_str256_t *in, lmu_str_t *out);
 
 // Same as above but with const data for read-only.
 void lmu_cstr_init_str4(const lmu_str4_t *in, lmu_cstr_t *out);
@@ -317,6 +318,7 @@ void lmu_cstr_init_str16(const lmu_str16_t *in, lmu_cstr_t *out);
 void lmu_cstr_init_str32(const lmu_str32_t *in, lmu_cstr_t *out);
 void lmu_cstr_init_str64(const lmu_str64_t *in, lmu_cstr_t *out);
 void lmu_cstr_init_str128(const lmu_str128_t *in, lmu_cstr_t *out);
+void lmu_cstr_init_str256(const lmu_str256_t *in, lmu_cstr_t *out);
 
 // String stream type. Allowing to build strings by appending content to a
 // buffer.
@@ -339,6 +341,7 @@ void lmu_ss_init_str16(lmu_str16_t *in, lmu_ss_t *out);
 void lmu_ss_init_str32(lmu_str32_t *in, lmu_ss_t *out);
 void lmu_ss_init_str64(lmu_str64_t *in, lmu_ss_t *out);
 void lmu_ss_init_str128(lmu_str128_t *in, lmu_ss_t *out);
+void lmu_ss_init_str256(lmu_str256_t *in, lmu_ss_t *out);
 
 size_t lmu_ss_cap(lmu_ss_t *ss);
 
@@ -526,6 +529,14 @@ lmu_bool_t lmu_ss_fmt_next(lmu_fmt_state_t *state, lmu_fmt_t *fmt);
 void       lmu_ss_fmt_last(lmu_fmt_state_t *state);
 void       lmu_ss_fmt_no_args(lmu_ss_t *ss, const char *fmt);
 
+typedef struct {
+    lmu_ss_t     ss;
+    lmu_str256_t buf;
+    char         *s;
+} lmu_fmt_buf_t;
+
+void lmu_fmt_buf_init(lmu_fmt_buf_t *buf);
+
 void lmu_ss_append_czstr(lmu_ss_t *ss, const char *cstr);
 void lmu_ss_append_cstr(lmu_ss_t *ss, const lmu_cstr_t *str);
 void lmu_ss_append_char(lmu_ss_t *ss, char c);
@@ -573,6 +584,7 @@ void lmu_ss_append_char(lmu_ss_t *ss, char c);
         lmu_str_t *         : lmu_fmt_str,                                     \
         lmu_cstr_t *        : lmu_fmt_cstr,                                    \
         const lmu_cstr_t *  : lmu_fmt_cstr,                                    \
+        lmu_fmt_buf_t *     : lmu_fmt_buf,                                    \
         lm_ipv4_t *         : lmu_fmt_ipv4,                                    \
         lm_ipv4_prefix_t *  : lmu_fmt_ipv4_prefix,                             \
         lm_ipv6_t *         : lmu_fmt_ipv6,                                    \
@@ -610,6 +622,7 @@ void lmu_fmt_bool(lmu_fmt_state_t *state, lmu_bool_t val);
 void lmu_fmt_char(lmu_fmt_state_t *state, char val);
 void lmu_fmt_cstr(lmu_fmt_state_t *state, const lmu_cstr_t *str);
 void lmu_fmt_czstr(lmu_fmt_state_t *state, const char *val);
+void lmu_fmt_buf(lmu_fmt_state_t *state, const lmu_fmt_buf_t *buf);
 void lmu_fmt_i16(lmu_fmt_state_t *state, int16_t ival);
 void lmu_fmt_i32(lmu_fmt_state_t *state, int32_t ival);
 void lmu_fmt_i64(lmu_fmt_state_t *state, int64_t ival);

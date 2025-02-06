@@ -1709,7 +1709,7 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
 {
     u32 i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt,
         dmip_cnt;
-    char buf[32];
+    lmu_fmt_buf_t buf;
     BOOL show, vop, voe, status, clm, es0, isdx, lm_counters, d_mip, u_mip,
         mip_status, resources;
 
@@ -1823,8 +1823,8 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
             DR_VOE_I(VOE_CTRL, i, w);
             if (info->full || (v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) {
-                VTSS_SPRINTF(buf, "VOE_CONF %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE_CONF %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 D_VOE_I(ss, VOE_MISC_CONFIG, i);
                 D_VOE_I(ss, VOE_COMMON_CFG, i);
                 D_VOE_I(ss, VOE_CTRL, i);
@@ -1874,8 +1874,8 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             }
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
             if (info->full || (v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) {
-                VTSS_SPRINTF(buf, "VOE_STAT %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "VOE_STAT %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 D_VOE_I(ss, RX_SEL_OAM_CNT, i);
                 D_VOE_I(ss, RX_OAM_FRM_CNT, i);
                 D_VOE_I(ss, TX_SEL_OAM_CNT, i);
@@ -1929,7 +1929,6 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             DR_VOE_I(VOE_COMMON_CFG, i, w);
             if ((v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) !=
                 0) { /* Only print for active VOEs */
-                VTSS_SPRINTF(buf, "VOE_LM_COUNTERS %u", i);
                 pr("VOE_LM_COUNTERS %u\n", i);
                 pr("COS     TX counter      RX counter\n");
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE;
@@ -2018,8 +2017,8 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v);
             if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
-                VTSS_SPRINTF(buf, "DOWN_MIP_CONF %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "DOWN_MIP_CONF %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 D_D_MIP_I(ss, MIP_CFG, i);
                 D_D_MIP_I(ss, CCM_HMO_CTRL, i);
                 D_D_MIP_I(ss, MIP_CL_VID_CTRL, i);
@@ -2042,8 +2041,8 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
             REG_RD(VTSS_REW_MIP_CFG(i), &v);
             if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) !=
                 0) { /* Only print for active MIPs */
-                VTSS_SPRINTF(buf, "UP_MIP_CONF %u", i);
-                vtss_fa_debug_reg_header(ss, buf);
+                VTSS_FMT(buf, "UP_MIP_CONF %u", i);
+                vtss_fa_debug_reg_header(ss, buf.s);
                 D_U_MIP_I(ss, MIP_CFG, i);
                 D_U_MIP_I(ss, CCM_HMO_CTRL, i);
                 D_U_MIP_I(ss, MIP_VID_CTRL, i);
@@ -2054,13 +2053,13 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
     }
 
     if (!info->has_action || mip_status) { /* MIP status must be printed */
-        VTSS_SPRINTF(buf, "DOWN_MIP_STAT");
-        vtss_fa_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "DOWN_MIP_STAT");
+        vtss_fa_debug_reg_header(ss, buf.s);
         D_D_MIP_S(ss, MIP_STICKY);
         pr("\n");
 
-        VTSS_SPRINTF(buf, "UP_MIP_STAT");
-        vtss_fa_debug_reg_header(ss, buf);
+        VTSS_FMT(buf, "UP_MIP_STAT");
+        vtss_fa_debug_reg_header(ss, buf.s);
         D_U_MIP_S(ss, MIP_STICKY_EVENT);
     }
 

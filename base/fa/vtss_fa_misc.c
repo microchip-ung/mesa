@@ -1295,10 +1295,10 @@ static vtss_rc fa_debug_misc(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    u32  i, g;
-    char name[32];
-    pr("Name          Target\n");
+    u32           i, g;
+    lmu_fmt_buf_t buf;
 
+    pr("Name          Target\n");
     vtss_fa_debug_reg_header(ss, "GPIOs");
     FA_DEBUG_GPIO(ss, OUT, "OUT");
     FA_DEBUG_GPIO(ss, OUT1, "OUT1");
@@ -1315,8 +1315,8 @@ static vtss_rc fa_debug_misc(vtss_state_t                  *vtss_state,
     FA_DEBUG_GPIO(ss, ALT1(1), "ALT1_1(32-63)");
     pr("\n");
     for (g = 0; g < VTSS_SGPIO_GROUPS; g++) {
-        VTSS_SPRINTF(name, "SGPIOs Group:%u", g);
-        vtss_fa_debug_reg_header(ss, name);
+        VTSS_FMT(buf, "SGPIOs Group:%u", g);
+        vtss_fa_debug_reg_header(ss, buf.s);
         for (i = 0; i < 4; i++) {
 #if defined(VTSS_ARCH_SPARX5)
             FA_DEBUG_SIO_INST(ss, INPUT_DATA(g, i), i, "INPUT_DATA");
