@@ -1689,6 +1689,86 @@ static vtss_rc srvl_serdes_cfg(vtss_state_t        *vtss_state,
     } else {
         VTSS_RC(srvl_sd1g_cfg(vtss_state, port_no, addr));
     }
+    // Update all 4 ports in the QSGMII group
+    if (mode == VTSS_SERDES_MODE_QSGMII) {
+        u32 p = (VTSS_CHIP_PORT(port_no) / 4) * 4;
+        for (u32 cnt = 0; cnt < 4; cnt++) {
+            for (u32 port_no = VTSS_PORT_NO_START;
+                 port_no < vtss_state->port_count; port_no++) {
+                if (p + cnt == VTSS_CHIP_PORT(port_no)) {
+                    vtss_state->port.serdes_mode[port_no] =
+                        VTSS_SERDES_MODE_QSGMII;
+                }
+            }
+        }
+    }
+
+    return VTSS_RC_OK;
+}
+
+// Re-start IB calibration by toggle ib_cal_ena
+static vtss_rc srvl_sd6g_recalibrate(vtss_state_t *vtss_state,
+                                     u32           addr,
+                                     u32           offs)
+{
+    VTSS_RC(srvl_sd6g_lock(vtss_state));
+    VTSS_RC(srvl_sd6g_read(vtss_state, addr));
+
+    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG,
+             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_REG_PAT_SEL_OFFSET(
+                 offs) |
+                 0,
+             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_REG_PAT_SEL_OFFSET |
+                 VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_CAL_ENA);
+
+    VTSS_RC(srvl_sd6g_write(vtss_state, addr));
+    SRVL_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG,
+             VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_REG_PAT_SEL_OFFSET(
+                 offs) |
+                 VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_CAL_ENA,
+             VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_REG_PAT_SEL_OFFSET |
+                 VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_IB_CFG_IB_CAL_ENA);
+
+    VTSS_RC(srvl_sd6g_write(vtss_state, addr));
+    VTSS_RC(srvl_sd6g_unlock(vtss_state));
+
+    VTSS_MSLEEP(100);
+
+    return VTSS_RC_OK;
+}
+
+// Ocelot Post port QSGMII specific check for Rx lock
+static vtss_rc srvl_port_QSGMII_post_check(vtss_state_t *vtss_state)
+{
+    // The QSGMII PLL can sometimes take very long time to stabilize. It usually
+    // helps when calibration is restarted. However, if restarted too soon,
+    // there is also a risk we will continue to restart it just before it
+    // completes. Therefore, increase time between restarts, to make sure that
+    // it eventually completes.
+    static u32 recalib_cnt = 0;
+    static u32 recalib_start = 1;
+
+    u32 value;
+
+    SRVL_RD(VTSS_HSIO_HW_CFGSTAT_HW_CFG, &value);
+    if ((value & VTSS_F_HSIO_HW_CFGSTAT_HW_CFG_QSGMII_ENA) == 0) {
+        return VTSS_RC_OK;
+    }
+
+    SRVL_RD(VTSS_HSIO_HW_CFGSTAT_HW_QSGMII_STAT, &value);
+    if ((value & 0x1) == 0) {
+        if (recalib_cnt == 0) {
+            recalib_cnt = recalib_start;
+            VTSS_RC(srvl_sd6g_recalibrate(vtss_state, 1, 1));
+            if (recalib_start < 32) {
+                recalib_start++;
+            }
+        } else {
+            recalib_cnt--;
+        }
+    } else {
+        recalib_start = 1;
+    }
     return VTSS_RC_OK;
 }
 
@@ -3550,7 +3630,7 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_PORT_MAP:
         VTSS_RC(srvl_port_buf_conf_set(vtss_state));
         break;
-    default: break;
+    default: srvl_port_QSGMII_post_check(vtss_state); break;
     }
     return VTSS_RC_OK;
 }
