@@ -1307,6 +1307,8 @@ typedef struct {
 #define VTSS_FA_ES0_CNT VTSS_STREAM_CNT
 #elif defined(VTSS_ARCH_LAN969X)
 #define VTSS_FA_ES0_CNT 1536
+#elif defined(VTSS_ARCH_LAIKA)
+#define VTSS_FA_ES0_CNT 1024
 #else
 #define VTSS_FA_ES0_CNT 4096
 #endif
@@ -1327,6 +1329,8 @@ typedef struct {
 
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_FA_ES2_CNT 2048 /* 1024 rows allowing 2048 half rules */
+#elif defined(VTSS_ARCH_LAIKA)
+#define VTSS_FA_ES2_CNT 64 /* 64 rows allowing 128 half rules */
 #else
 #define VTSS_FA_ES2_CNT 512 /* 512 rows allowing 256 half rules */
 #endif
