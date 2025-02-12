@@ -2884,6 +2884,33 @@ static vtss_rc fa_port_flush_poll(vtss_state_t       *vtss_state,
     return VTSS_RC_OK;
 }
 
+static inline vtss_rc fa_dev1g_rst_ctrl(vtss_state_t *vtss_state,
+                                        u32           tgt,
+                                        u32           clk_spd,
+                                        BOOL          usx_pcs_rst,
+                                        BOOL          pcs_rst,
+                                        BOOL          mac_rst)
+{
+    u32 mask = VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
+               VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
+               VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
+               VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
+               VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST;
+    u32 val = VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd) |
+              VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_rst) |
+              VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_rst) |
+              VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(mac_rst) |
+              VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(mac_rst);
+#if !defined(VTSS_ARCH_LAIKA)
+    mask |= VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
+            VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST;
+    val |= VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(usx_pcs_rst) |
+           VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(usx_pcs_rst);
+#endif
+    REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt), val, mask);
+    return VTSS_RC_OK;
+}
+
 /* Port disable and flush procedure */
 static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
                              const vtss_port_no_t port_no,
@@ -2970,21 +2997,7 @@ static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
                     VTSS_M_DEV10G_DEV_RST_CTRL_MAC_TX_RST);
     } else {
         if (!rgmii) {
-            REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                    VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(3) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(1) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(1) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(1) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(1) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(1) |
-                        VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(1),
-                    VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                        VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+            fa_dev1g_rst_ctrl(vtss_state, tgt, 3, TRUE, TRUE, TRUE);
         }
     }
 
@@ -3590,21 +3603,8 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t        *vtss_state,
                    VTSS_M_DEV1G_MAC_ENA_CFG_TX_ENA);
 
         /* Take MAC and  PCS (SGMII/Serdes or USX) clock out of reset */
-        REG_WRM(VTSS_DEV1G_DEV_RST_CTRL(tgt),
-                VTSS_F_DEV1G_DEV_RST_CTRL_SPEED_SEL(clk_spd) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST(!pcs_usx) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST(!pcs_usx) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_TX_RST(pcs_usx || rgmii) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_PCS_RX_RST(pcs_usx || rgmii) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_TX_RST(0) |
-                    VTSS_F_DEV1G_DEV_RST_CTRL_MAC_RX_RST(0),
-                VTSS_M_DEV1G_DEV_RST_CTRL_SPEED_SEL |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_USX_PCS_RX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_PCS_RX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_TX_RST |
-                    VTSS_M_DEV1G_DEV_RST_CTRL_MAC_RX_RST);
+        fa_dev1g_rst_ctrl(vtss_state, tgt, clk_spd, !pcs_usx, pcs_usx || rgmii,
+                          FALSE);
     }
 
     /* Must take the PCS out of reset for all 4 QSGMII instances */
