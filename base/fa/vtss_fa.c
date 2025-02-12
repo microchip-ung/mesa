@@ -1702,8 +1702,18 @@ static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr)
                                       {24, 25, 99, 99, 99, 99, 99, 99, 99, 99},
                                       {26, 27, 99, 99, 99, 99, 99, 99, 99, 99}
     };
+    static const u32 lk_taxi_ports[FA_DSM_CAL_TAXIS]
+                                  [FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
+                                      {0,  2,  4,  6,  1,  3,  5,  7 },
+                                      {8,  10, 12, 14, 9,  11, 13, 15},
+                                      {16, 18, 20, 22, 17, 19, 21, 23},
+                                      {24, 26, 28, 30, 25, 27, 29, 31}
+    };
 
-    if (FA_TGT) {
+    if (LK_TGT) {
+        VTSS_MEMCPY(port_ptr, &lk_taxi_ports[taxi],
+                    sizeof(u32) * RT_DSM_CAL_MAX_DEVS_PER_TAXI);
+    } else if (FA_TGT) {
         VTSS_MEMCPY(port_ptr, &fa_taxi_ports[taxi],
                     sizeof(u32) * RT_DSM_CAL_MAX_DEVS_PER_TAXI);
 
@@ -2452,7 +2462,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
 {
     u32 calendar[FA_DSM_CAL_LEN], taxi;
 
-    if (FA_TGT) {
+    if (FA_TGT || LK_TGT) {
         i32 avg_len[FA_DSM_CAL_LEN];
 
         for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
