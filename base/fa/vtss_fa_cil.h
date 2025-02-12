@@ -93,7 +93,7 @@
 #define RT_ACL_CNT_SIZE               1024
 #define RT_ES2_CNT_SIZE               512
 #define RT_IP6PFX_CNT                 16
-#define RT_PGID_FA                    (1024 + 30)
+#define RT_PGID_FA                    (1024 + 32)
 #define RT_DSM_CAL_MAX_DEVS_PER_TAXI  8
 #define RT_DSM_CAL_TAXIS              4
 #define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
