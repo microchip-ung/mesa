@@ -78,6 +78,14 @@ extern "C" {
 #define VTSS_UP_VOI_CNT                                                        \
     (31) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
          // cannot be addressed by ES0 action - 0 has the meaning of no MIB
+#elif defined(VTSS_ARCH_LAIKA)         // Laika
+#define VTSS_PATH_SERVICE_VOE_CNT (32) // Number of path/service VOEs in HW
+#define VTSS_PORT_VOE_BASE_IDX    (32) // Index of first port VOE
+#define VTSS_PORT_VOE_CNT         (32) // Number of port VOEs in HW
+#define VTSS_DOWN_VOI_CNT         (32) // Number of down VOI (MIP) in HW
+#define VTSS_UP_VOI_CNT                                                        \
+    (31) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
+         // cannot be addressed by ES0 action - 0 has the meaning of no MIB
 #else
 #error "not defined expected architure for VOP V2"
 #endif
