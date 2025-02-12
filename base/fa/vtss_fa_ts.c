@@ -1682,10 +1682,12 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV2G5(port))),
                 "PTP_TXDLY_CFG");
+#if !defined(VTSS_ARCH_LAIKA)
             vtss_fa_debug_reg(
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV2G5(port))),
                 "PTP_PREDICT_CFG");
+#endif
             vtss_fa_debug_reg(
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV2G5(port))),
@@ -1711,10 +1713,12 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_TXDLY_CFG(VTSS_TO_DEV10G(port))),
                 "PTP_TXDLY_CFG");
+#if !defined(VTSS_ARCH_LAIKA)
             vtss_fa_debug_reg(
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_PTP_PREDICT_CFG(VTSS_TO_DEV10G(port))),
                 "PTP_PREDICT_CFG");
+#endif
             vtss_fa_debug_reg(
                 vtss_state, ss,
                 REG_ADDR(VTSS_DEV1G_DEV_TX_CFG(VTSS_TO_DEV10G(port))),
