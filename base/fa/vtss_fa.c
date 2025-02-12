@@ -541,8 +541,9 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     case VTSS_TARGET_LAN9698TSN:
     case VTSS_TARGET_LAN9693VAO:
     case VTSS_TARGET_LAN9698:    return 102000;
-
-    default: {
+    // Laika:
+    case VTSS_TARGET_P64H: return 240000;
+    default:               {
     }
     }
     return 0;
