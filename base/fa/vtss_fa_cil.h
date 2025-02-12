@@ -88,8 +88,8 @@
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_1 2621420
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680
-#define RT_LB_GROUP_CNT               5
-#define RT_LB_SET_CNT                 496
+#define RT_LB_GROUP_CNT               6
+#define RT_LB_SET_CNT                 512
 #define RT_ACL_CNT_SIZE               1024
 #define RT_ES2_CNT_SIZE               512
 #define RT_IP6PFX_CNT                 256
