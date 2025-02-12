@@ -393,7 +393,8 @@ u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
     case VTSS_CORE_CLOCK_250MHZ: return 4000;
     case VTSS_CORE_CLOCK_328MHZ: return 3047;
     case VTSS_CORE_CLOCK_500MHZ: return 2000;
-    case VTSS_CORE_CLOCK_625MHZ:
+    case VTSS_CORE_CLOCK_625MHZ: return 1600;
+    case VTSS_CORE_CLOCK_733MHZ: return 1364;
     default:                     {
     };
     }
@@ -748,6 +749,13 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
             freq = 0; // Not supported
         }
         break;
+    case VTSS_TARGET_P64H:
+        if (f == VTSS_CORE_CLOCK_DEFAULT) {
+            freq = VTSS_CORE_CLOCK_733MHZ;
+        } else if (f == VTSS_CORE_CLOCK_733MHZ) {
+            freq = 0; // Not supported
+        }
+        break;
 
     default:
         VTSS_E("Target (%x) not supported", vtss_state->create.target);
@@ -757,7 +765,10 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     /* Update state with chosen frequency */
     vtss_state->init_conf.core_clock.freq = freq;
 
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_LAIKA)
+    // Laika only
+    pol_upd_int = 780;
+#elif defined(VTSS_ARCH_SPARX5)
     {
         u32 clk_div;
 
@@ -1267,6 +1278,8 @@ static i32 clock2bw(vtss_core_clock_freq_t freq)
         return 166000; /* 500000 / 3 = 166Gb */
     } else if (freq == VTSS_CORE_CLOCK_625MHZ) {
         return 208000; /* 625000 / 3 = 208Gb */
+    } else if (freq == VTSS_CORE_CLOCK_733MHZ) {
+        return 244333; /* 733000 / 3 = 251Gb */
     } else {
         VTSS_E("Core clock not supported");
     }

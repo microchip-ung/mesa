@@ -458,6 +458,7 @@ typedef enum {
     VTSS_CORE_CLOCK_328MHZ,  /**< 328.19095313549 MHz core (Laguna) */
     VTSS_CORE_CLOCK_500MHZ,  /**< 500MHZ core clock frequency (FA) */
     VTSS_CORE_CLOCK_625MHZ,  /**< 625MHZ core clock frequency (FA) */
+    VTSS_CORE_CLOCK_733MHZ,  /**< 733MHZ core clock frequency (Laika) */
 } vtss_core_clock_freq_t;
 
 typedef enum {

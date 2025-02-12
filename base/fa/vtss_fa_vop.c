@@ -2217,6 +2217,11 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     service_voe_alloc_idx = 0;
 
     switch (vtss_state->init_conf.core_clock.freq) {
+    case VTSS_CORE_CLOCK_733MHZ:
+        /* system clock is 1,364 ns (733 MHz) and LOC_BASE_TICK_CNT is default
+         * 50, i.e. 68 ns */
+        loc_base = 68; /* ns */
+        break;
     case VTSS_CORE_CLOCK_625MHZ:
     case VTSS_CORE_CLOCK_DEFAULT:
         /* system clock is 1,6 ns (625 MHz) and LOC_BASE_TICK_CNT is default 50,
