@@ -68,9 +68,9 @@
 #define RT_CMU_CNT                    6
 #define RT_BUFFER_MEMORY              4194304
 #define RT_BUFFER_REFERENCE           22795
-#define RT_RES_CFG_MAX_PORT_IDX       280
-#define RT_RES_CFG_MAX_PRIO_IDX       315
-#define RT_RES_CFG_MAX_COLOUR_IDX     323
+#define RT_RES_CFG_MAX_PORT_IDX       296
+#define RT_RES_CFG_MAX_PRIO_IDX       333
+#define RT_RES_CFG_MAX_COLOUR_IDX     341
 #define RT_CORE_QUEUE_CNT             9030
 #define RT_TAS_NUMBER_OF_LISTS        60
 #define RT_TAS_NUMBER_OF_PROFILES     60
