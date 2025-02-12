@@ -172,11 +172,13 @@ u32 vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port)
     case 25: return VTSS_TO_DEV2G5_25;
     case 26: return VTSS_TO_DEV2G5_26;
     case 27: return VTSS_TO_DEV2G5_27;
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAIKA)
     case 28: return VTSS_TO_DEV2G5_28;
     case 29: return VTSS_TO_DEV2G5_29;
     case 30: return VTSS_TO_DEV2G5_30;
     case 31: return VTSS_TO_DEV2G5_31;
+#endif
+#if defined(VTSS_ARCH_SPARX5)
     case 32: return VTSS_TO_DEV2G5_32;
     case 33: return VTSS_TO_DEV2G5_33;
     case 34: return VTSS_TO_DEV2G5_34;
@@ -210,7 +212,8 @@ u32 vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port)
     case 62: return VTSS_TO_DEV2G5_62;
     case 63: return VTSS_TO_DEV2G5_63;
     case 64: return VTSS_TO_DEV2G5_64;
-#else
+#endif
+#if defined(VTSS_ARCH_LAN969X)
     case 28: return VTSS_TO_DEVRGMII_0;
     case 29: return VTSS_TO_DEVRGMII_1;
 #endif
@@ -222,10 +225,12 @@ u32 vtss_to_dev5g(vtss_state_t *vtss_state, u32 port)
 {
     u32 p = vtss_port_dev_index(vtss_state, port);
     switch (p) {
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     case 0: return VTSS_TO_DEV5G_0;
     case 1: return VTSS_TO_DEV5G_1;
     case 2: return VTSS_TO_DEV5G_2;
     case 3: return VTSS_TO_DEV5G_3;
+#endif
 #if defined(VTSS_ARCH_SPARX5)
     case 4:  return VTSS_TO_DEV5G_4;
     case 5:  return VTSS_TO_DEV5G_5;
@@ -255,9 +260,15 @@ u32 vtss_to_dev10g(vtss_state_t *vtss_state, u32 port)
     case 7: return VTSS_TO_DEV10G_7;
     case 8: return VTSS_TO_DEV10G_8;
     case 9: return VTSS_TO_DEV10G_9;
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAIKA)
     case 10: return VTSS_TO_DEV10G_10;
     case 11: return VTSS_TO_DEV10G_11;
+#endif
+#if defined(VTSS_ARCH_LAIKA)
+    case 12: return VTSS_TO_DEV10G_12;
+    case 13: return VTSS_TO_DEV10G_13;
+    case 14: return VTSS_TO_DEV10G_14;
+    case 15: return VTSS_TO_DEV10G_15;
 #endif
     default: VTSS_E("illegal 10G port number %d", port); return 0;
     }
@@ -285,10 +296,12 @@ u32 vtss_to_pcs5g(vtss_state_t *vtss_state, u32 port)
 {
     u32 p = vtss_port_dev_index(vtss_state, port);
     switch (p) {
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     case 0: return VTSS_TO_PCS5G_BR_0;
     case 1: return VTSS_TO_PCS5G_BR_1;
     case 2: return VTSS_TO_PCS5G_BR_2;
     case 3: return VTSS_TO_PCS5G_BR_3;
+#endif
 #if defined(VTSS_ARCH_SPARX5)
     case 4:  return VTSS_TO_PCS5G_BR_4;
     case 5:  return VTSS_TO_PCS5G_BR_5;
@@ -318,9 +331,15 @@ u32 vtss_to_pcs10g(vtss_state_t *vtss_state, u32 port)
     case 7: return VTSS_TO_PCS10G_BR_7;
     case 8: return VTSS_TO_PCS10G_BR_8;
     case 9: return VTSS_TO_PCS10G_BR_9;
-#if defined(VTSS_ARCH_SPARX5)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAIKA)
     case 10: return VTSS_TO_PCS10G_BR_10;
     case 11: return VTSS_TO_PCS10G_BR_11;
+#endif
+#if defined(VTSS_ARCH_LAIKA)
+    case 12: return VTSS_TO_PCS10G_BR_12;
+    case 13: return VTSS_TO_PCS10G_BR_13;
+    case 14: return VTSS_TO_PCS10G_BR_14;
+    case 15: return VTSS_TO_PCS10G_BR_15;
 #endif
     default: VTSS_E("illegal 10G port number %d", p); return 0;
     }
@@ -352,6 +371,7 @@ u32 vtss_to_sd10g_kr(vtss_state_t *vtss_state, u32 port)
                  // index 12.
     }
     switch (p) {
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
     case 0: return VTSS_TO_SD10G_KR_0;
     case 1: return VTSS_TO_SD10G_KR_1;
     case 2: return VTSS_TO_SD10G_KR_2;
@@ -362,6 +382,7 @@ u32 vtss_to_sd10g_kr(vtss_state_t *vtss_state, u32 port)
     case 7: return VTSS_TO_SD10G_KR_7;
     case 8: return VTSS_TO_SD10G_KR_8;
     case 9: return VTSS_TO_SD10G_KR_9;
+#endif
 #if defined(VTSS_ARCH_SPARX5)
     case 10: return VTSS_TO_SD10G_KR_10;
     case 11: return VTSS_TO_SD10G_KR_11;
