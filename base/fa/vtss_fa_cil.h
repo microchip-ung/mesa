@@ -61,7 +61,7 @@
 
 // CIL constants, which are different for FA/LA/LK
 #if defined(VTSS_ARCH_LAIKA)
-#define RT_CHIP_PORTS                 30
+#define RT_CHIP_PORTS                 32
 #define RT_SERDES_10G_START           0
 #define RT_SERDES_25G_START           0
 #define RT_SERDES_CNT                 10
