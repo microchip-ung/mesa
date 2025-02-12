@@ -71,7 +71,7 @@
 #define RT_RES_CFG_MAX_PORT_IDX       296
 #define RT_RES_CFG_MAX_PRIO_IDX       333
 #define RT_RES_CFG_MAX_COLOUR_IDX     341
-#define RT_CORE_QUEUE_CNT             9030
+#define RT_CORE_QUEUE_CNT             11914
 #define RT_TAS_NUMBER_OF_LISTS        60
 #define RT_TAS_NUMBER_OF_PROFILES     60
 #define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
