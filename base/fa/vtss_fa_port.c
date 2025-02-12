@@ -653,7 +653,9 @@ BOOL vtss_fa_port_is_high_speed(vtss_state_t *vtss_state, u32 port)
     }
 
     if (VTSS_PORT_IS_5G(port)) {
+#if !defined(VTSS_ARCH_LAIKA)
         REG_RD(VTSS_PORT_CONF_DEV5G_MODES, &value);
+#endif
     } else if (VTSS_PORT_IS_10G(port)) {
         REG_RD(VTSS_PORT_CONF_DEV10G_MODES, &value);
     } else if (VTSS_PORT_IS_25G(port)) {
@@ -3992,9 +3994,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 
         /* Enable/disable shadow device */
         if (VTSS_PORT_IS_5G(port)) {
+#if !defined(VTSS_ARCH_LAIKA)
             mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
             REG_WRM(VTSS_PORT_CONF_DEV5G_MODES, use_primary_dev ? 0 : mask,
                     mask);
+#endif
         } else if (VTSS_PORT_IS_10G(port)) {
             mask = VTSS_BIT(fla_port_dev_index(vtss_state, port, TRUE));
             REG_WRM(VTSS_PORT_CONF_DEV10G_MODES, use_primary_dev ? 0 : mask,
@@ -5684,7 +5688,9 @@ static vtss_rc fa_port_init(vtss_state_t *vtss_state)
     REG_WR(VTSS_XQS_STAT_CNT_CFG, VTSS_F_XQS_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
 
     /* Reset the Port Mux (not done through chip-soft-reset) */
+#if !defined(VTSS_ARCH_LAIKA)
     REG_WR(VTSS_PORT_CONF_DEV5G_MODES, 0);
+#endif
     REG_WR(VTSS_PORT_CONF_DEV10G_MODES, 0);
     REG_WR(VTSS_PORT_CONF_QSGMII_ENA, 0);
     REG_WR(VTSS_PORT_CONF_USXGMII_ENA, 0);
