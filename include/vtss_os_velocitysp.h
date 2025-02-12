@@ -17,12 +17,14 @@ typedef unsigned char  u8;  /**<  8-bit unsigned */
 typedef unsigned short u16; /**< 16-bit unsigned */
 typedef unsigned int   u32; /**< 32-bit unsigned */
 
-#ifdef __aarch64__
+#if __INTPTR_MAX__ == __INT64_MAX__
 typedef signed long   i64; /**< 64-bit signed */
 typedef unsigned long u64; /**< 64-bit unsigned */
-#else
+#elif __INTPTR_MAX__ == __INT32_MAX__
 typedef signed long long   i64; /**< 64-bit signed */
 typedef unsigned long long u64; /**< 64-bit unsigned */
+#else
+#error "Environment not 32 or 64-bit."
 #endif
 
 typedef unsigned char BOOL; /**< Boolean implemented as 8-bit unsigned */
