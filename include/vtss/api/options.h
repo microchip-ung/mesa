@@ -161,6 +161,10 @@
 #define VTSS_ARCH_S5I    /**< SparX-5i architecture */
 #endif
 
+#if defined(VTSS_CHIP_P64H)
+#define VTSS_ARCH_LAIKA /**< Laika */
+#endif
+
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_10G          /**< 10G ports */
 #define VTSS_FEATURE_MISC         /**< Miscellaneous */

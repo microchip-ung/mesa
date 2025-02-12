@@ -303,6 +303,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         break;
 #endif /* VTSS_ARCH_JAGUAR_2 */
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    case VTSS_TARGET_P64H:
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7549:
     case VTSS_TARGET_7552:

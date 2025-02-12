@@ -22,6 +22,7 @@ extern "C" {
 typedef enum {
     VTSS_TARGET_CU_PHY,                    /**< Cu PHY family */
     VTSS_TARGET_10G_PHY,                   /**< 10G PHY family */
+    VTSS_TARGET_P64H = 0x6500,             /**< P64H switch */
     VTSS_TARGET_SPARX_III_10_UM = 0x7420,  /**< SparxIII-10 unmanaged switch */
     VTSS_TARGET_SPARX_III_17_UM = 0x7421,  /**< SparxIII-17 unmanaged switch */
     VTSS_TARGET_SPARX_III_25_UM = 0x7422,  /**< SparxIII-25 unmanaged switch */
