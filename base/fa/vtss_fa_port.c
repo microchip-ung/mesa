@@ -491,16 +491,18 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t        *vtss_state,
                                           vtss_port_clause_37_status_t
                                               *const status)
 {
-    u32                       tgt, adv, aneg, port = VTSS_CHIP_PORT(port_no);
-    vtss_port_interface_t     if_type = vtss_state->port.conf[port_no].if_type;
+    u32                   tgt, adv, aneg = 0, port = VTSS_CHIP_PORT(port_no);
+    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
     vtss_port_usxgmii_aneg_t *usxgmii = &status->autoneg.partner.usxgmii;
 
     if (if_type == VTSS_PORT_INTERFACE_QXGMII ||
         if_type == VTSS_PORT_INTERFACE_DXGMII_5G) {
         tgt = VTSS_TO_DEV2G5(port);
+#if !defined(VTSS_ARCH_LAIKA)
         REG_RD(VTSS_DEV1G_USXGMII_ANEG_STATUS(tgt), &aneg);
         REG_WR(VTSS_DEV1G_USXGMII_ANEG_STATUS(tgt),
                aneg); /* Clear PAGE_RX_STICKY */
+#endif
     } else {
         tgt = VTSS_TO_HIGH_DEV(port);
         REG_RD(VTSS_DEV10G_USXGMII_ANEG_STATUS(tgt), &aneg);
@@ -512,8 +514,10 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t        *vtss_state,
         REG_BF(DEV10G_USXGMII_ANEG_STATUS_ANEG_COMPLETE, aneg);
     adv = VTSS_X_DEV10G_USXGMII_ANEG_STATUS_LP_ADV_ABILITY(aneg);
     VTSS_RC(vtss_cmn_port_usxgmii_aneg_get(adv, usxgmii));
+#if !defined(VTSS_ARCH_LAIKA)
     status->link = !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_PAGE_RX_STICKY(aneg) &&
                    !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_LINK_DOWN_STATUS(aneg);
+#endif
 
     return VTSS_RC_OK;
 }
@@ -2369,9 +2373,13 @@ static vtss_rc fa_enable_usx_extender(vtss_state_t        *vtss_state,
             port = p - (16 * cnt);
             tgt = VTSS_TO_DEV2G5(port);
 
+#if !defined(VTSS_ARCH_LAIKA)
             REG_WRM(VTSS_DEV1G_USXGMII_ANEG_CFG(tgt),
                     VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1),
                     VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT);
+#else
+            (void)tgt;
+#endif
         }
     }
 
@@ -3104,6 +3112,7 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
     }
 
     if (!dev_high) {
+#if !defined(VTSS_ARCH_LAIKA)
         REG_WRM(VTSS_DEV1G_USXGMII_RX_RADAPT_CFG(tgt),
                 VTSS_F_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_ADD_LVL(3) |
                     VTSS_F_DEV1G_USXGMII_RX_RADAPT_CFG_RX_RADAPT_DROP_LVL(7) |
@@ -3143,6 +3152,7 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
                 VTSS_M_DEV1G_USXGMII_GMII_XGMII_MAP_CFG_LFS_MAX_NON_FAULT_SEQ |
                 VTSS_M_DEV1G_USXGMII_GMII_XGMII_MAP_CFG_LFS_MAX_FAULT_SEQ);
 
+#endif
     } else {
         REG_WRM(VTSS_DEV10G_USXGMII_TX_RADAPT_CFG(tgt),
                 VTSS_F_DEV10G_USXGMII_TX_RADAPT_CFG_TX_RADAPT_ADD_LVL(4) |
