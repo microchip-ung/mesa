@@ -3049,9 +3049,13 @@ static vtss_rc fa_sd_power_save(vtss_state_t        *vtss_state,
             } else {
                 sd_tgt = VTSS_TO_SD10G_LANE(indx);
             }
+#if !defined(VTSS_ARCH_LAIKA)
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_06(sd_tgt),
                     VTSS_F_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER(power_down),
                     VTSS_M_SD10G_LANE_TARGET_LANE_06_CFG_PD_DRIVER);
+#else
+            (void)sd_tgt;
+#endif
         }
     }
 
@@ -4077,6 +4081,7 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
 
         if (status->link_down) {
             /* Reset the serdes for re-calibration */
+#if !defined(VTSS_ARCH_LAIKA)
             u32 indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
             u32 sd_lane_tgt = VTSS_TO_SD_LANE(indx);
             REG_WRM(VTSS_SD_LANE_TARGET_SD_LANE_CFG(sd_lane_tgt),
@@ -4088,6 +4093,7 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
                     VTSS_M_SD_LANE_TARGET_SD_LANE_CFG_LANE_RX_RST);
             VTSS_MSLEEP(1);
 
+#endif
             /* Clear the stickies and re-read */
             REG_WR(VTSS_DEV1G_PCS_FX100_STATUS(tgt), value);
             VTSS_MSLEEP(1);
@@ -4134,10 +4140,12 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
             } else {
                 sd_tgt = VTSS_TO_SD10G_LANE(sd_indx);
             }
+#if !defined(VTSS_ARCH_LAIKA)
             /* Check the analog loss of signal detect of the 10G-Serdes */
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DF(sd_tgt), &val2);
             analog_sd = !VTSS_X_SD10G_LANE_TARGET_LANE_DF_PMA2PCS_RXEI_FILTERED(
                 val2); // 0 = link
+#endif
         }
 
         /* MAC10G Tx Monitor Sticky bit Register */

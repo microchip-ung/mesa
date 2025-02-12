@@ -1000,6 +1000,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t        *vtss_state,
                 VTSS_X_SD25G_CFG_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
 #endif
         } else {
+#if !defined(VTSS_ARCH_LAIKA)
             REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
             sd_rx_delay_var =
                 VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
@@ -1012,6 +1013,7 @@ static vtss_rc fa_ts_status_change(vtss_state_t        *vtss_state,
                 delay_var_factor[2].rx = 37200;
                 delay_var_factor[2].tx = 49600;
             }
+#endif
         }
         VTSS_D("sd_rx_delay_var %u  sd_tx_delay_var %u", sd_rx_delay_var,
                sd_tx_delay_var);
