@@ -307,7 +307,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 #define VTSS_AFI_FAST_INJ_CNT                                                  \
     32 /**< Maximum number of simultaneous fast injections */
 #elif defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) ||             \
-    defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAIKA)
 #define VTSS_AFI_FAST_INJ_CNT                                                  \
     16 /**< Maximum number of simultaneous fast injections */
 #else
