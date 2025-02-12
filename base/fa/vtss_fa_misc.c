@@ -3,7 +3,7 @@
 
 #include "vtss_fa_cil.h"
 
-#if defined(VTSS_ARCH_FA)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 
 /* - CIL functions ------------------------------------------------- */
 
@@ -1444,4 +1444,4 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     return VTSS_RC_OK;
 }
-#endif /* VTSS_ARCH_FA */
+#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
