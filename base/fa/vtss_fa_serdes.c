@@ -7,7 +7,7 @@
 #include "vtss_fa_sd10g28_setup.h"
 #include "vtss_fa_sd25g28_setup.h"
 
-#if defined(VTSS_ARCH_FA)
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 
 u32 vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx)
 {
@@ -4363,4 +4363,4 @@ vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#endif /* VTSS_ARCH_FA */
+#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
