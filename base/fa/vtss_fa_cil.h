@@ -59,8 +59,49 @@
 #define LK_TGT 0
 #endif
 
-// CIL constants, which are different for FA/LA
-#if defined(VTSS_ARCH_SPARX5)
+// CIL constants, which are different for FA/LA/LK
+#if defined(VTSS_ARCH_LAIKA)
+#define RT_CHIP_PORTS                 30
+#define RT_SERDES_10G_START           0
+#define RT_SERDES_25G_START           0
+#define RT_SERDES_CNT                 10
+#define RT_CMU_CNT                    6
+#define RT_BUFFER_MEMORY              1572864
+#define RT_BUFFER_REFERENCE           8548
+#define RT_RES_CFG_MAX_PORT_IDX       280
+#define RT_RES_CFG_MAX_PRIO_IDX       315
+#define RT_RES_CFG_MAX_COLOUR_IDX     323
+#define RT_CORE_QUEUE_CNT             9030
+#define RT_TAS_NUMBER_OF_LISTS        60
+#define RT_TAS_NUMBER_OF_PROFILES     60
+#define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
+#define RT_HSCH_LAYERS                4
+#define RT_HSCH_L0_SES                1120
+#define RT_HSCH_L1_SES                32
+#define RT_HSCH_L2_SES                35
+#define RT_HSCH_L3_QSHPS              1120
+#define RT_HSCH_MAX_RATE_GROUP_0      655355
+#define RT_HSCH_MAX_RATE_GROUP_1      1048568
+#define RT_HSCH_MAX_RATE_GROUP_2      6553550
+#define RT_HSCH_MAX_RATE_GROUP_3      10485680
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_0 1048568
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_1 2621420
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680
+#define RT_LB_GROUP_CNT               5
+#define RT_LB_SET_CNT                 496
+#define RT_ACL_CNT_SIZE               1024
+#define RT_ES2_CNT_SIZE               512
+#define RT_IP6PFX_CNT                 256
+#define RT_PGID_FA                    (1024 + 30)
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI  10
+#define RT_DSM_CAL_TAXIS              5
+#define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
+#define RT_ALT_LDST_PIN               5
+#define RT_ALT_PPS_PIN                4
+#define RT_TOD_ACC_PIN                                                         \
+    7 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#elif defined(VTSS_ARCH_SPARX5)
 #define RT_CHIP_PORTS                 65
 #define RT_SERDES_10G_START           13
 #define RT_SERDES_25G_START           25
