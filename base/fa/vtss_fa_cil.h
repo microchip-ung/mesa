@@ -66,8 +66,8 @@
 #define RT_SERDES_25G_START           0
 #define RT_SERDES_CNT                 10
 #define RT_CMU_CNT                    6
-#define RT_BUFFER_MEMORY              1572864
-#define RT_BUFFER_REFERENCE           8548
+#define RT_BUFFER_MEMORY              4194304
+#define RT_BUFFER_REFERENCE           22795
 #define RT_RES_CFG_MAX_PORT_IDX       280
 #define RT_RES_CFG_MAX_PRIO_IDX       315
 #define RT_RES_CFG_MAX_COLOUR_IDX     323
