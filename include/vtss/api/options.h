@@ -373,6 +373,14 @@
 #endif                               // !VTSS_OPT_LIGHT
 #endif
 
+// VTSS_ARCH_LAIKA specific features
+#if defined(VTSS_ARCH_LAIKA)
+#define VTSS_FEATURE_QOS_TAS_LIST_LINKED    /**< QoS: Time Aware Scheduling list \
+                                               elements are linked */
+#define VTSS_FEATURE_ACL_EXT_ETYPE          /**< ACL Ethernet Type extended rules with \
+                                               MAC address matching */
+#endif
+
 #if defined(VTSS_CHIP_SPARX_IV_44) || defined(VTSS_CHIP_SPARX_IV_52) ||        \
     defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)
 #define VTSS_ARCH_JAGUAR_2            /**< Jaguar-2 architecture */
