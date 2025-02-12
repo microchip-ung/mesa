@@ -1139,7 +1139,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
     /* Set ASM/DSM watermarks for cpu traffic (see JR2) - needed here or handled
      * by wm function ? TBD-BJO */
-#if !defined(VTSS_OPT_EMUL)
+#if !defined(VTSS_OPT_EMUL) && !defined(VTSS_ARCH_LAIKA)
     u32 value;
     REG_RD(VTSS_CPU_GENERAL_STAT, &value);
     vtss_state->sys_config.vcore_cfg = VTSS_X_CPU_GENERAL_STAT_VCORE_CFG(value);
@@ -1170,7 +1170,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->sys_config.using_vcoreiii,
            vtss_state->sys_config.using_vrap,
            vtss_state->sys_config.using_pcie);
-#endif /* VTSS_OPT_EMUL */
+#endif /* VTSS_OPT_EMUL/VTSS_ARCH_LAIKA */
     /* Read chip ID to check CPU interface */
     VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
