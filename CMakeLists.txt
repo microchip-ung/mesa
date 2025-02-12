@@ -307,6 +307,7 @@ API_TARGET(LIB lan9698RED            CHIP 969X          DEFS -DVTSS_OPT_PORT_COU
 API_TARGET(LIB lan969x               CHIP 969X          DEFS -DVTSS_OPT_PORT_COUNT=30)
 API_TARGET(LIB lan969x_lm            CHIP 969X          DEFS -DVTSS_OPT_PORT_COUNT=30 -DVTSS_OPT_LIGHT=1 -DVTSS_OPT_TRACE=0 -DVTSS_OPT_TRACE_ERROR=0 -DVTSS_OPT_DEBUG_PRINT=1)
 API_TARGET(LIB p64h_lm               CHIP P64H          DEFS -DVTSS_OPT_LIGHT=1)
+API_TARGET(LIB p64h                  CHIP P64H)
 
 mesa_export_compile_commands_recursive(${mesa_active_target})
 
