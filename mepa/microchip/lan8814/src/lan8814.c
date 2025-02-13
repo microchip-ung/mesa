@@ -13,13 +13,6 @@
 
 extern mepa_ts_driver_t lan8814_ts_drivers;
 
-static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info);
-static mepa_rc lan8814_if_get(mepa_device_t *dev, mepa_port_speed_t speed, mepa_port_interface_t *mac_if);
-static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config);
-static mepa_rc lan8814_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena);
-static mepa_rc lan8814_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable);
-static mepa_rc lan8814_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_conf_t conf);
-
 mepa_rc lan8814_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
     if (dev->callout->miim_read(dev->callout_ctx, addr, value) != MESA_RC_OK) {
@@ -27,6 +20,7 @@ mepa_rc lan8814_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value
     }
     return MEPA_RC_OK;
 }
+
 mepa_rc lan8814_direct_reg_wr(mepa_device_t *dev, uint16_t addr, uint16_t value, uint16_t mask)
 {
     uint16_t reg_val = value;
@@ -118,11 +112,6 @@ mepa_rc lan8814_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint
     // write the value
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value, mask));
     return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_delete(mepa_device_t *dev)
-{
-    return mepa_delete_int(dev);
 }
 
 static mepa_rc lan8814_get_device_info(mepa_device_t *dev)
@@ -339,7 +328,7 @@ static mepa_rc lan8814_workaround_fifo_reset(mepa_device_t *dev)
 
 // Frame pre-emption bit must be set before setting TSU_ENABLE bit in TSU_GENERAL_CONFIG register.
 // It also implies that it must be called before lan8814_ts_mode_set API.
-static mepa_rc lan8814_framepreempt_set(mepa_device_t *dev, mepa_bool_t const enable)
+static mepa_rc lan8814_framepreempt_set_(mepa_device_t *dev, mepa_bool_t const enable)
 {
     uint16_t val;
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -348,8 +337,6 @@ static mepa_rc lan8814_framepreempt_set(mepa_device_t *dev, mepa_bool_t const en
 
     if (!data || !base_dev || !base_data)
         return MEPA_RC_OK;
-
-    MEPA_ENTER(dev);
 
     //Update base port with reset_conf::framepreempt_en
     if (base_dev == dev)
@@ -363,8 +350,6 @@ static mepa_rc lan8814_framepreempt_set(mepa_device_t *dev, mepa_bool_t const en
     else
         val &= ~LAN8814_PTP_TSU_GEN_CONF_PREEMPTION_EN;
     EP_WRM(dev, LAN8814_PTP_TSU_GEN_CONF, val, LAN8814_DEF_MASK);
-
-    MEPA_EXIT(dev);
 
     return MEPA_RC_OK;
 }
@@ -382,286 +367,6 @@ static mepa_rc lan8814_selftest_stop(struct mepa_device *dev)
         WR(dev, LAN8814_RESV_CON_LOOP, 0xfc00);
     }
 
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-    MEPA_ENTER(dev);
-    switch(rst_conf->reset_point) {
-        case MEPA_RESET_POINT_DEFAULT:
-            if (!data->init_done) {
-                lan8814_init_conf(dev);
-                lan8814_rev_workaround(dev);
-                lan8814_qsgmii_aneg(dev, FALSE);
-                data->init_done = TRUE;
-                data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
-                if (data->dev.model == 0x26) {
-                    data->crc_workaround = TRUE;
-                    data->aneg_after_link_up = FALSE;
-                }
-            }
-            //Clear self-test if enabled before reset
-            lan8814_selftest_stop(dev);
-            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
-            MEPA_MSLEEP(1);
-            // Some of the work-around registers get cleared after reset. So, they are called here
-            // after every reset.
-            lan8814_workaround_after_reset(dev);
-            T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
-            // Reconfigure the phy after reset
-            MEPA_EXIT(dev);
-            lan8814_conf_set(dev, &data->conf); // Has its own sets of ENTER/EXIT
-            MEPA_ENTER(dev);
-            // EEE is Disabled on Power Up
-            data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
-            lan8814_eee_mode_conf_set(dev, data->eee_conf);
-            if (data->events) {
-                lan8814_event_enable_set(dev, data->events, TRUE);
-            }
-            // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
-            // This must be applied after Mac serdes is configured
-            if (data->dev.model == 0x26) {
-                EP_WR(dev, LAN8814_QSGMII_SOFT_RESET, 0x1);
-                WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-                data->post_mac_rst = TRUE;
-            }
-            break;
-        default:
-            break;
-    }
-    /* Recommended to Use MEPA API "mepa_framepreempt_set" to Enable/Disable Frame Preemption */
-    //Configure frame preemption
-    MEPA_EXIT(dev);
-    lan8814_framepreempt_set(dev, rst_conf->framepreempt_en); // Has its own sets of ENTER/EXIT
-    return MEPA_RC_OK;
-}
-
-mepa_rc lan8814_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-    data->rep_cnt = rep_cnt;
-    return MEPA_RC_OK;
-}
-
-mepa_rc lan8814_downshift_conf_set(mepa_device_t *dev, const lan8814_phy_downshift_t *dsh)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-    if (!dsh->dsh_enable && data->dsh_conf.dsh_enable) {
-        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-    }
-    data->dsh_conf.dsh_enable = dsh->dsh_enable;
-    data->dsh_conf.dsh_thr_cnt = dsh->dsh_thr_cnt;
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_downshift(mepa_device_t *dev)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-    uint16_t val = 0;
-    // Max_Timer is the no of attempts the link status needs to be checked with a time interval of 1 secs.
-    // Default value for Max_Timer will be 4 .
-    RD(dev, LAN8814_ANEG_MSTR_SLV_CTRL, &val);
-    T_I(MEPA_TRACE_GRP_GEN,"Starting Downshift to 100M on port:%d", data->port_no);
-    val &= ~(LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
-    T_I(MEPA_TRACE_GRP_GEN, "Speed Changed to 100M");
-    WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val, LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
-    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
-    // Restart aneg After downshift has been performed in the port
-    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-    data->dsh_complete = 1; // set a downshift complete flag
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
-{
-    uint16_t val, val2, val3 = 0;
-    phy_data_t *data = (phy_data_t *) dev->data;
-
-    MEPA_ENTER(dev);
-    //MEPA-835: Downshift happens when port is put into power down. Return the link status as slow
-    if (!data->conf.admin.enable) {
-         T_D(MEPA_TRACE_GRP_GEN,"Polling cannot be done as Port %d is powered Down", data->port_no);
-         memset(status, 0, sizeof(mepa_status_t));
-         data->link_status = status->link;
-         data->speed_status = status->speed;
-         data->fdx_status   = status->fdx;
-         data->loop_cnt = 0;
-         data->aneg_flag = 0;
-         data->dsh_complete = 0;
-         MEPA_EXIT(dev);
-         return MESA_RC_OK;
-     }
-    RD(dev, LAN8814_BASIC_STATUS, &val);
-    status->link = (val & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
-
-    if (data->loopback.near_end_ena == TRUE) {
-        // loops back to Mac. Ignore Line side status to Link partner.
-        status->link = 1;
-    }
-    if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
-        uint16_t lp_sym_pause = 0, lp_asym_pause = 0;
-        // Default values
-        status->speed = MEPA_SPEED_UNDEFINED;
-        status->fdx = 1;
-        // check if auto-negotiation is completed or not
-        if (!data->loopback.near_end_ena && status->link && !(val & LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) {
-            T_I(MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
-            status->link = 0;
-        } else if (data->loopback.near_end_ena) {
-            status->speed = MEPA_SPEED_1G;
-        }
-        // Auto Downshift Feature: Downshift allows an interface to link at a lower advertised speed when unable to establish a stable link at the maximum speed.
-        // Both the Downshift and MEPA 555 ANEG State Machine Stuck Fix has same criteria. When Downshift is enabled, the Restart ANEG happens first and still couldn't
-        // establish the link then perform downshift to 100M.
-        RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val3);
-        RD(dev, LAN8814_CONTROL, &val2);
-        if (data->dsh_conf.dsh_enable && !status->link && ((val2 && LAN8814_F_1000T_SPEED_STATUS) && (val3 && LAN8814_F_LINK_DET) && (data->aneg_flag)) && !data->dsh_complete) {
-            data->loop_cnt++;
-            if (data->loop_cnt > data->dsh_conf.dsh_thr_cnt * data->rep_cnt) {
-               lan8814_downshift(dev);
-               data->loop_cnt = 0;
-               data->aneg_flag = FALSE;
-               T_I(MEPA_TRACE_GRP_GEN, "Downshift on port %d", data->port_no);
-            }
-            T_I(MEPA_TRACE_GRP_GEN, "Downshift capable on port %d dsh_loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
-        }
-        // MEPA 555: This is a SW workaround for the ANEG state machine hung.
-        // Check link up and aneg status complete when a valid signal is detected from link partner wait for 2 secs, couldn't establish link restart ANEG state Machine.
-        if (!status->link && !(val & (LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) && (val3 & LAN8814_F_SIG_DET) && !data->aneg_flag) {
-            data->loop_cnt++;
-            T_I(MEPA_TRACE_GRP_GEN, "Aneg not complete on port %d loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
-            if (data->loop_cnt > 2 * data->rep_cnt) { // default value for rep cnt to be 1sec
-                T_I(MEPA_TRACE_GRP_GEN, "Aneg state machine stuck!! restarting ANEG on port %d", data->port_no);
-                data->loop_cnt = 0;
-                WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-                data->aneg_flag = TRUE;
-            }
-        }
-
-        if (!status->link || data->loopback.near_end_ena) {
-            // No need to read aneg values when link is down or when near-end loopback enabled.
-            goto end;
-        }
-        // Obtain speed and duplex from link partner's advertised capability.
-        RD(dev, LAN8814_ANEG_LP_BASE, &val);
-        RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val2);
-        // 1G half duplex is not supported. Refer direct register - 9
-        if (((val2 & LAN8814_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
-            data->conf.aneg.speed_1g_fdx) && !data->dsh_complete) {
-            // Work-around for CRC errors begin.
-            if (data->crc_workaround) {
-                if (!((val2 & LAN8814_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
-                    (val2 & LAN8814_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
-                    !data->post_mac_rst) {
-                        //link not completely up
-                        status->link = 0;
-                } else if (!data->aneg_after_link_up) {// poll the status for 1 iteration assuming the polling interval is 1 second apart.
-                    T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
-                    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-                    data->aneg_after_link_up = TRUE;
-                    data->loop_cnt = 0;
-                    status->link = 0;
-                } else if (data->aneg_after_link_up) {// After auto-negotiation restarted, set the link status as up.
-                    status->speed = MEPA_SPEED_1G;
-                    status->fdx = 1;
-                    data->crc_workaround = FALSE;
-                    data->aneg_after_link_up = FALSE;
-                } else {
-                    T_I(MEPA_TRACE_GRP_GEN, "no link");
-                    status->link = 0;
-                }
-            // Work-around for CRC errors end.
-            } else {
-                status->speed = MEPA_SPEED_1G;
-                status->fdx = 1;
-            }
-        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
-                   data->conf.aneg.speed_100m_fdx) {
-            status->speed = MEPA_SPEED_100M;
-            status->fdx = 1;
-        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_HALF_DUP) &&
-                   data->conf.aneg.speed_100m_hdx) {
-            status->speed = MEPA_SPEED_100M;
-            status->fdx = 0;
-        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_FULL_DUP) &&
-                   data->conf.aneg.speed_10m_fdx) {
-            status->speed = MEPA_SPEED_10M;
-            status->fdx = 1;
-        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_HALF_DUP) &&
-                   data->conf.aneg.speed_10m_hdx) {
-            status->speed = MEPA_SPEED_10M;
-            status->fdx = 0;
-        }
-        // Get flow control status
-        lp_sym_pause = (val & LAN8814_F_ANEG_LP_BASE_SYM_PAUSE) ? 1 : 0;
-        lp_asym_pause = (val & LAN8814_F_ANEG_LP_BASE_ASYM_PAUSE) ? 1 : 0;
-        status->aneg.obey_pause = data->conf.flow_control && (lp_sym_pause || lp_asym_pause);
-        status->aneg.generate_pause = data->conf.flow_control && lp_sym_pause;
-    } else {
-        uint8_t speed;
-        // Forced speed
-        RD(dev, LAN8814_BASIC_CONTROL, &val2);
-        speed = (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
-                (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
-        status->speed = (speed == 0) ? MEPA_SPEED_10M :
-                        (speed == 1) ? MEPA_SPEED_100M :
-                        (speed == 2) ? MEPA_SPEED_1G : MEPA_SPEED_UNDEFINED;
-        status->fdx = !!(val2 & LAN8814_F_BASIC_CTRL_DUP_MODE);
-        //check that aneg is not enabled.
-        if (val2 & LAN8814_F_BASIC_CTRL_ANEG_ENA) {
-            T_W(MEPA_TRACE_GRP_GEN, "Aneg is enabled for forced speed config on port %d", data->port_no);
-        }
-
-        // MEPA 503 workaround starts
-        RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val2);
-        RD(dev, LAN8814_CONTROL, &val);
-        if (status->speed == MEPA_SPEED_100M && ((val2 & LAN8814_F_LINK_DET) && !status->link)) {
-            if((data->loop_cnt++ > 2 * data->rep_cnt)) {
-                val |= LAN8814_F_CONTROL_SOFT_RESET;
-                WRM(dev, LAN8814_CONTROL, val, LAN8814_F_CONTROL_SOFT_RESET);
-                T_I(MEPA_TRACE_GRP_GEN, "DSP soft reset for link up on Port %d", data->port_no);
-                data->loop_cnt = 0;
-            }
-        }
-        // MEPA 503 workaround ends here
-    }
-
-end:
-    if (data->dev.model == 0x26) {
-        if (status->link != data->link_status) {
-            if (status->link) { // link up
-                if ( data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
-                    if (data->conf.mac_if_aneg_ena) {
-                        // copy the capabilities on host side
-                        lan8814_qsgmii_tx_abilities(dev, status->speed, status->fdx);
-                    }
-                }
-                if ((status->speed == MEPA_SPEED_10M || status->speed == MEPA_SPEED_100M) &&
-                    (status->fdx == FALSE)) {
-                    lan8814_workaround_half_duplex(dev);
-                }
-            } else {// link down event.
-                lan8814_workaround_fifo_reset(dev);
-                if (data->dsh_complete) {
-                    val |= (LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
-                    T_I(MEPA_TRACE_GRP_GEN, "link Down Readvertising 1G Speed Changed on port: %d", data->port_no);
-                    WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val, LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
-                    data->loop_cnt = data->dsh_complete = 0;
-                    data->aneg_after_link_up = FALSE;
-                }
-            }
-            data->loop_cnt = 0;
-            data->aneg_flag = 0;
-            T_I(MEPA_TRACE_GRP_GEN,"After restart workaround on port->no:%d and data->dsh_loop_cnt:%d", data->port_no, data->loop_cnt);
-        }
-    }
-    data->link_status = status->link;
-    data->speed_status = status->speed;
-    data->fdx_status   = status->fdx;
-    MEPA_EXIT(dev);
-    T_D(MEPA_TRACE_GRP_GEN, "port %d status link %d, speed %d, fdx %d", data->port_no, status->link, status->speed, status->fdx);
     return MEPA_RC_OK;
 }
 
@@ -710,14 +415,52 @@ static mepa_rc lan8814_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t
     return MEPA_RC_OK;
 }
 
-static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
+// Enable events
+static mepa_rc lan8814_event_enable_set_(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    uint16_t ev_mask = 0, i, val;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_event_t ev_in = event;
+    data->events = enable ? (data->events | event) :
+                   (data->events & ~event);
+    for (i = 0; i < sizeof(mepa_event_t) * 8; i++) {
+        switch (ev_in & (1 << i)) {
+        case MEPA_LINK_LOS:
+            ev_mask = ev_mask | LAN8814_F_GPHY_INTR_ENA_LINK_DOWN; // bit2
+            ev_in = ev_in & ~MEPA_LINK_LOS;
+            break;
+        case MEPA_FAST_LINK_FAIL:
+            // Enable Fast link config
+            val = LAN8814_FLF_CFG_STAT_LINK_DOWN | LAN8814_FLF_CFG_STAT_FLF_ENABLE;
+            EP_WRM(dev, LAN8814_FLF_CONFIG_STATUS, enable ? val : 0, val);
+
+            ev_mask = ev_mask | LAN8814_F_GPHY_INTR_ENA_FLF_INTR; // bit 12
+            ev_in = ev_in & ~MEPA_FAST_LINK_FAIL;
+            break;
+        default:
+            // Not yet implemented
+            break;
+        }
+        // If all events are processed, break.
+        if (!ev_in) {
+            break;
+        }
+    }
+
+    WRM(dev, LAN8814_GPHY_INTR_ENA, enable ? ev_mask : 0, ev_mask);
+    T_I(MEPA_TRACE_GRP_GEN, "events enabled 0x%x \n", data->events);
+
+    return rc;
+}
+
+static mepa_rc lan8814_conf_set_(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t new_value, mask, old_value;
     mepa_bool_t restart_aneg = FALSE;
     mepa_bool_t qsgmii_aneg = config->speed != MEPA_SPEED_AUTO ? FALSE : config->mac_if_aneg_ena;
 
-    MEPA_ENTER(dev);
     if (config->admin.enable) {
         // Check & configure MDI mode as needed
         lan8814_conf_mdi_mode(dev, config->mdi_mode);
@@ -794,7 +537,6 @@ static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
 
-
     if (data->dev.model == 0x27) {
         /* APPL-5492:
            9662 platform: set bit 14 in reg 31. The bit is defined as reserved, but used
@@ -810,21 +552,138 @@ static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     T_D(MEPA_TRACE_GRP_GEN, "events during configuration 0x%x\n", new_value);
     data->conf = *config;
     data->conf.mac_if_aneg_ena = qsgmii_aneg;
-    MEPA_EXIT(dev);
 
     // Enable events again.
-    lan8814_event_enable_set(dev, data->events, TRUE);
+    lan8814_event_enable_set_(dev, data->events, TRUE);
     return MEPA_RC_OK;
 }
 
-static mepa_rc lan8814_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
+static mepa_rc lan8814_eee_mode_conf_set_(mepa_device_t *dev, const mepa_phy_eee_conf_t conf)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    BOOL reconfigure = FALSE;
+
+    if (conf.eee_mode == MEPA_EEE_REG_UPDATE) {
+        // Called with re-configure registers but don't change state
+        reconfigure = TRUE;
+        data->eee_conf.eee_mode = conf.eee_ena_phy ? MEPA_EEE_ENABLE : MEPA_EEE_DISABLE;
+        data->eee_conf.eee_ena_phy = conf.eee_ena_phy;
+    } else if ((conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_DISABLE)) {
+        // current state is Enabled, New state is disable. Re-configure registers and change state.
+        reconfigure = TRUE;
+        data->eee_conf.eee_ena_phy = FALSE;
+    } else if (!(conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_ENABLE)) {
+        // current state is Disabled, New state is enable. Re-configure registers and change state.
+        reconfigure = TRUE;
+        data->eee_conf.eee_ena_phy = TRUE;
+    }
+
+    // Copy the EEE mode to phy_data_t only when eee_mode is not REG_UPDATE
+    if (conf.eee_mode != MEPA_EEE_REG_UPDATE) {
+        data->eee_conf.eee_mode = conf.eee_mode;
+    }
+
+    if (reconfigure) {
+        T_I(MEPA_TRACE_GRP_GEN, "New EEE Enable = %d, port = %d", data->eee_conf.eee_mode, data->port_no);
+        // Enable Or Disable EEE
+        if (data->eee_conf.eee_ena_phy) {
+            T_I(MEPA_TRACE_GRP_GEN, "EEE Enabled: 100/1000BaseT Advertisements for Port = %d", data->port_no);
+            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,(LAN8814_EEE_100_BT | LAN8814_EEE_1000_BT)); // Enable 100BaseT and 1000BaseT advertisement
+        } else {
+            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,0); //Disable EEE Advertisement
+        }
+        // Restart Autonegotiation
+        T_I(MEPA_TRACE_GRP_GEN, "restart auto neg - Needed for disable/enable EEE advertisement, port", data->port_no);
+        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_reset_(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    switch(rst_conf->reset_point) {
+        case MEPA_RESET_POINT_DEFAULT:
+            if (!data->init_done) {
+                lan8814_init_conf(dev);
+                lan8814_rev_workaround(dev);
+                lan8814_qsgmii_aneg(dev, FALSE);
+                data->init_done = TRUE;
+                data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
+                if (data->dev.model == 0x26) {
+                    data->crc_workaround = TRUE;
+                    data->aneg_after_link_up = FALSE;
+                }
+            }
+            //Clear self-test if enabled before reset
+            lan8814_selftest_stop(dev);
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
+            MEPA_MSLEEP(1);
+            // Some of the work-around registers get cleared after reset. So, they are called here
+            // after every reset.
+            lan8814_workaround_after_reset(dev);
+            T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
+            // Reconfigure the phy after reset
+            lan8814_conf_set_(dev, &data->conf); // Has its own sets of ENTER/EXIT
+            // EEE is Disabled on Power Up
+            data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
+            lan8814_eee_mode_conf_set_(dev, data->eee_conf);
+            if (data->events) {
+                lan8814_event_enable_set_(dev, data->events, TRUE);
+            }
+            // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
+            // This must be applied after Mac serdes is configured
+            if (data->dev.model == 0x26) {
+                EP_WR(dev, LAN8814_QSGMII_SOFT_RESET, 0x1);
+                WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+                data->post_mac_rst = TRUE;
+            }
+            break;
+        default:
+            break;
+    }
+
+    /* Recommended to Use MEPA API "mepa_framepreempt_set" to Enable/Disable Frame Preemption */
+    //Configure frame preemption
+    lan8814_framepreempt_set_(dev, rst_conf->framepreempt_en); // Has its own sets of ENTER/EXIT
+    return MEPA_RC_OK;
+}
+
+mepa_rc lan8814_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    data->rep_cnt = rep_cnt;
+    return MEPA_RC_OK;
+}
+
+mepa_rc lan8814_downshift_conf_set(mepa_device_t *dev, const lan8814_phy_downshift_t *dsh)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    if (!dsh->dsh_enable && data->dsh_conf.dsh_enable) {
+        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+    }
+    data->dsh_conf.dsh_enable = dsh->dsh_enable;
+    data->dsh_conf.dsh_thr_cnt = dsh->dsh_thr_cnt;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_downshift(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-
-    MEPA_ENTER(dev);
-    *config = data->conf;
-    MEPA_EXIT(dev);
-    T_D(MEPA_TRACE_GRP_GEN, "returning phy config on port %d", data->port_no);
+    uint16_t val = 0;
+    // Max_Timer is the no of attempts the link status needs to be checked with a time interval of 1 secs.
+    // Default value for Max_Timer will be 4 .
+    RD(dev, LAN8814_ANEG_MSTR_SLV_CTRL, &val);
+    T_I(MEPA_TRACE_GRP_GEN,"Starting Downshift to 100M on port:%d", data->port_no);
+    val &= ~(LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
+    T_I(MEPA_TRACE_GRP_GEN, "Speed Changed to 100M");
+    WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val, LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
+    // Restart aneg After downshift has been performed in the port
+    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+    data->dsh_complete = 1; // set a downshift complete flag
     return MEPA_RC_OK;
 }
 
@@ -842,169 +701,6 @@ static mepa_rc mas_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
 {
     *mac_if = MESA_PORT_INTERFACE_SGMII;
     return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_if_set(mepa_device_t *dev,
-                           mepa_port_interface_t mac_if)
-{
-    if (mac_if != MESA_PORT_INTERFACE_QSGMII) {
-        return MEPA_RC_ERROR;
-    }
-
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
-                           mepa_port_interface_t *mac_if)
-{
-
-    MEPA_ENTER(dev);
-    *mac_if = MESA_PORT_INTERFACE_QSGMII;
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *status)
-{
-    uint16_t val;
-    phy_data_t *data = (phy_data_t *)dev->data;
-    MEPA_ENTER(dev);
-    RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val);
-    status->master_cfg_fault = (val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
-    status->master = val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
-    MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, "aneg status get mstr %d port %d", status->master, data->port_no);
-    return MEPA_RC_OK;
-}
-
-// read direct registers for debugging
-static mepa_rc lan8814_direct_reg_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
-{
-    mepa_rc rc;
-    uint16_t addr = address & 0x1f;
-
-    MEPA_ENTER(dev);
-    rc = lan8814_direct_reg_rd(dev, addr, value);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// write direct registers. Used for debugging.
-static mepa_rc lan8814_direct_reg_write(mepa_device_t *dev, uint32_t address, uint16_t value)
-{
-    mepa_rc rc;
-    uint16_t addr = address & 0x1f;
-
-    MEPA_ENTER(dev);
-    rc = lan8814_direct_reg_wr(dev, addr, value, 0xFFFF);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// read extended page/mmd register for debugging
-static mepa_rc lan8814_ext_mmd_reg_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
-{
-    mepa_rc rc;
-    uint16_t page_mmd = (address >> 16) & 0xffff;
-    uint16_t addr = address & 0xffff;
-    uint16_t mmd = (page_mmd >> 11);
-
-    MEPA_ENTER(dev);
-    if (mmd) {
-        rc = lan8814_mmd_reg_rd(dev, mmd, addr, value);
-    } else {
-        rc = lan8814_ext_reg_rd(dev, page_mmd, addr, value);
-    }
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// write extended page/mmd register. Used for debugging.
-static mepa_rc lan8814_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint16_t value)
-{
-    mepa_rc rc;
-    uint16_t page_mmd = (address >> 16) & 0xffff;
-    uint16_t addr = address & 0xffff;
-    uint16_t mmd = (page_mmd >> 11);
-
-    MEPA_ENTER(dev);
-    if (mmd) {
-        rc = lan8814_mmd_reg_wr(dev, mmd, addr, value, 0xFFFF);
-    } else {
-        rc = lan8814_ext_reg_wr(dev, page_mmd, addr, value, 0xFFFF);
-    }
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// Enable events
-static mepa_rc lan8814_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable)
-{
-    mepa_rc rc = MEPA_RC_OK;
-    uint16_t ev_mask = 0, i, val;
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_event_t ev_in = event;
-    data->events = enable ? (data->events | event) :
-                   (data->events & ~event);
-    MEPA_ENTER(dev);
-    for (i = 0; i < sizeof(mepa_event_t) * 8; i++) {
-        switch (ev_in & (1 << i)) {
-        case MEPA_LINK_LOS:
-            ev_mask = ev_mask | LAN8814_F_GPHY_INTR_ENA_LINK_DOWN; // bit2
-            ev_in = ev_in & ~MEPA_LINK_LOS;
-            break;
-        case MEPA_FAST_LINK_FAIL:
-            // Enable Fast link config
-            val = LAN8814_FLF_CFG_STAT_LINK_DOWN | LAN8814_FLF_CFG_STAT_FLF_ENABLE;
-            EP_WRM(dev, LAN8814_FLF_CONFIG_STATUS, enable ? val : 0, val);
-
-            ev_mask = ev_mask | LAN8814_F_GPHY_INTR_ENA_FLF_INTR; // bit 12
-            ev_in = ev_in & ~MEPA_FAST_LINK_FAIL;
-            break;
-        default:
-            // Not yet implemented
-            break;
-        }
-        // If all events are processed, break.
-        if (!ev_in) {
-            break;
-        }
-    }
-    WRM(dev, LAN8814_GPHY_INTR_ENA, enable ? ev_mask : 0, ev_mask);
-    T_I(MEPA_TRACE_GRP_GEN, "events enabled 0x%x \n", data->events);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// Get current enabled events
-static mepa_rc lan8814_event_enable_get(mepa_device_t *dev, mepa_event_t *const event)
-{
-    mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data = (phy_data_t *)dev->data;
-    MEPA_ENTER(dev);
-    *event = data->events;
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-// Poll the status of currently enabled events
-static mepa_rc lan8814_event_status_poll(mepa_device_t *dev, mepa_event_t *const status)
-{
-    uint16_t val;
-    mepa_rc rc = MEPA_RC_OK;
-    phy_data_t *data = (phy_data_t *)dev->data;
-    *status = 0;
-    MEPA_ENTER(dev);
-    rc = RD(dev, LAN8814_GPHY_INTR_STATUS, &val);
-    if (val & LAN8814_F_GPHY_INTR_ENA_LINK_DOWN) {
-        *status |= data->events & MEPA_LINK_LOS;
-    }
-    if (val & LAN8814_F_GPHY_INTR_ENA_FLF_INTR) {
-        *status |= data->events & MEPA_FAST_LINK_FAIL;
-    }
-    MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, " port %d events polled 0x%x val %x\n", data->port_no, *status, val);
-    return rc;
 }
 
 // Returns gpio using port number and led number
@@ -1084,6 +780,7 @@ static uint8_t led_mepa_mode_to_lan8814(mepa_gpio_mode_t mode)
     }
     return ret;
 }
+
 // In LAN8814, LED0 of software Api maps to LED1 of hardware,
 //          LED1 of software Api maps to LED2 of hardware.
 static mepa_rc lan8814_led_mode_set(mepa_device_t *dev, mepa_gpio_mode_t led_mode, mepa_led_num_t led_num)
@@ -1144,385 +841,7 @@ static mepa_rc lan8814_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_con
     return MEPA_RC_OK;
 }
 
-// Set gpio mode to input, output or alternate function
-static mepa_rc lan8814_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
-{
-    mepa_rc rc = MEPA_RC_OK;
-
-    // LAN8814 has 0-23 gpios.
-    if (gpio_conf->gpio_no > 23) {
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
-        return MEPA_RC_NOT_IMPLEMENTED;
-    }
-    MEPA_ENTER(dev);
-    rc = lan8814_gpio_mode_private(dev, gpio_conf);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-static mepa_rc lan8814_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t value)
-{
-    uint16_t val = 0;
-
-    // LAN8814 has 0-23 gpios.
-    if (gpio_no > 23) {
-        return MEPA_RC_NOT_IMPLEMENTED;
-    }
-    MEPA_ENTER(dev);
-    if (gpio_no < 16) {
-        val = 1 << gpio_no;
-        EP_WRM(dev, LAN8814_GPIO_DATA2, value ? val : 0, val);
-    } else if (gpio_no < 24) {
-        val = 1 << (gpio_no - 16);
-        EP_WRM(dev, LAN8814_GPIO_DATA1, value ? val : 0, val);
-    } else {
-        // Not supported. Illegal for LAN8814.
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
-    }
-
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-static mepa_rc lan8814_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t *const value)
-{
-    uint16_t val = 0;
-
-    // LAN8814 has 0-23 gpios.
-    if (gpio_no > 23) {
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
-        return MEPA_RC_NOT_IMPLEMENTED;
-    }
-    MEPA_ENTER(dev);
-    if (gpio_no < 16) {
-        EP_RD(dev, LAN8814_GPIO_DATA2, &val);
-        *value = (val >> gpio_no) & 0x1 ? TRUE : FALSE;
-    } else if (gpio_no < 24) {
-        EP_RD(dev, LAN8814_GPIO_DATA1, &val);
-        *value = ((val >> (gpio_no - 16)) & 0x1) ? TRUE : FALSE;
-    }
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-// Link the base port
-static mepa_rc lan8814_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-    phy_data_t *base_data = (phy_data_t *)base_dev->data;
-
-    MEPA_ENTER(dev);
-    data->base_dev = base_dev;
-    data->packet_idx = packet_idx;
-    T_I(MEPA_TRACE_GRP_GEN, "Linking port %d with base-port %d", data->port_no, base_data->port_no);
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
-{
-    phy_data_t *data = (phy_data_t *)(dev->data);
-    phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
-
-    phy_info->cap = 0;
-    // Read SKU ID and assign Part no
-    if (dev->drv->id == LAN8814_DEF_DRV_ID || dev->drv->id == LAN8814_INT_PHY_DRV_ID) {
-        // For LAN8814 inside lan9668 the driver id is different and the SKU No is 0 upon read.
-	// Assigning part No based on Driver
-        phy_info->part_number = 8814;
-    } else if (dev->drv->id == LAN8804_SKU) {
-        phy_info->part_number = 8804;
-    }
-    phy_info->revision = data->dev.rev;
-    phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3 : MEPA_CAP_TS_MASK_NONE;
-    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
-    if (dev->drv->id == LAN8804_SKU) {
-        phy_info->ts_base_port = 0;
-        phy_info->ts_base = 0;
-    } else {
-        phy_info->ts_base_port = base_data ? base_data->port_no : 0;
-        phy_info->ts_base = data->base_dev;
-    }
-    return MEPA_RC_OK;
-}
-
-static mepa_device_t *lan8814_probe(mepa_driver_t *drv,
-                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
-                                 struct mepa_board_conf              *board_conf)
-{
-    mepa_device_t *dev;
-    phy_data_t *data;
-
-    // MEPA:692 A remapping of driver workaround for correctly identifying the LAN8814 SKU's
-    mepa_drivers_t lan8814_drv = mepa_lan8814_driver_init();
-    uint16_t sku = 0;
-    if (callout->miim_read && callout->miim_write) {
-        // Write Reg 22 as 4 to access EP4 registers space
-        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, 4);
-        // Write Reg 23 as 11 to read reg 11 in EP4
-        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, 11);
-        // Initiate Data read operation
-        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, 0x4004);
-        // Read Reg 23 for SKU value read in EP 4.11
-        callout->miim_read(callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, &sku);
-    } else {
-        T_E(MEPA_TRACE_GRP_GEN, "callout read/write is not present for port:%d", board_conf->numeric_handle);
-        return 0;
-    }
-
-    if (sku == LAN8804_SKU) {
-        drv = &lan8814_drv.phy_drv[1];
-    }
-    // MEPA:692 Workaround ends
-
-    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
-    if (!dev) {
-        T_E(MEPA_TRACE_GRP_GEN, "Dev creation failed for Port %d", board_conf->numeric_handle);
-        return NULL;
-    }
-
-    data = dev->data;
-    data->port_no = board_conf->numeric_handle;
-    data->events = 0;
-
-#ifdef REG_DBG
-    (void) lan8814_reg_dump(dev);
-#endif
-
-    T_I(MEPA_TRACE_GRP_GEN, "lan8814 driver probed for port %d", data->port_no);
-    return dev;
-}
-
-static mepa_rc lan8814_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_conf_t conf)
-{
-    phy_data_t *data = (phy_data_t *)(dev->data);
-    BOOL reconfigure = FALSE;
-
-    if (conf.eee_mode == MEPA_EEE_REG_UPDATE) {
-        // Called with re-configure registers but don't change state
-        reconfigure = TRUE;
-        data->eee_conf.eee_mode = conf.eee_ena_phy ? MEPA_EEE_ENABLE : MEPA_EEE_DISABLE;
-        data->eee_conf.eee_ena_phy = conf.eee_ena_phy;
-    } else if ((conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_DISABLE)) {
-        // current state is Enabled, New state is disable. Re-configure registers and change state.
-        reconfigure = TRUE;
-        data->eee_conf.eee_ena_phy = FALSE;
-    } else if (!(conf.eee_ena_phy) && (conf.eee_mode == MEPA_EEE_ENABLE)) {
-        // current state is Disabled, New state is enable. Re-configure registers and change state.
-        reconfigure = TRUE;
-        data->eee_conf.eee_ena_phy = TRUE;
-    }
-
-    // Copy the EEE mode to phy_data_t only when eee_mode is not REG_UPDATE
-    if (conf.eee_mode != MEPA_EEE_REG_UPDATE) {
-        data->eee_conf.eee_mode = conf.eee_mode;
-    }
-
-    if (reconfigure) {
-        T_I(MEPA_TRACE_GRP_GEN, "New EEE Enable = %d, port = %d", data->eee_conf.eee_mode, data->port_no);
-        // Enable Or Disable EEE
-        if (data->eee_conf.eee_ena_phy) {
-            T_I(MEPA_TRACE_GRP_GEN, "EEE Enabled: 100/1000BaseT Advertisements for Port = %d", data->port_no);
-            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,(LAN8814_EEE_100_BT | LAN8814_EEE_1000_BT)); // Enable 100BaseT and 1000BaseT advertisement
-        } else {
-            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,0); //Disable EEE Advertisement
-        }
-        // Restart Autonegotiation
-        T_I(MEPA_TRACE_GRP_GEN, "restart auto neg - Needed for disable/enable EEE advertisement, port", data->port_no);
-        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-    }
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *const config)
-{
-    phy_data_t *data = (phy_data_t *)(dev->data);
-    *config = data->eee_conf;
-    T_I(MEPA_TRACE_GRP_GEN, "returning EEE phy config on port %d", data->port_no);
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_eee_status_get(mepa_device_t *dev, u8 *const advertisement, BOOL *const rx_in_power_save_state, BOOL *const tx_in_power_save_state)
-{
-    u16 reg_value = 0;
-    *rx_in_power_save_state = FALSE;
-    *tx_in_power_save_state = FALSE;
-
-    MMD_RD(dev, LAN8814_LINK_PARTNER_EEE_ABILITY, &reg_value); // Get the Link Partnr Advertisement
-    *advertisement = reg_value >> 1; // Bit 0 is reserved.
-
-    MMD_RD(dev, LAN8814_EEE_PCS_STATUS, &reg_value);
-
-    //Bit 8 is Rx LPI Indication. See Datasheet
-    if (reg_value & 0x0100){
-        *rx_in_power_save_state = TRUE;
-    }
-    //Bit 9 is tx LPI Indication. See Datsheet.
-    if (reg_value & 0x0200){
-        *tx_in_power_save_state = TRUE;
-    }
-    return MEPA_RC_OK;
-}
-
 #if !defined MEPA_LAN8814_LIGHT
-// Set Isolate mode
-static mepa_rc lan8814_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
-{
-
-    MEPA_ENTER(dev);
-
-    if (iso_en == TRUE) {
-        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ISO_MODE_EN, LAN8814_F_BASIC_CTRL_ISO_MODE_EN);
-    } else {
-        WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_ISO_MODE_EN);
-    }
-
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-// Set loopback modes in phy
-static mepa_rc lan8814_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loopback)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    if ((loopback->mac_serdes_input_ena == TRUE) || (loopback->mac_serdes_facility_ena == TRUE) ||
-        (loopback->mac_serdes_equip_ena == TRUE) || (loopback->media_serdes_input_ena == TRUE) ||
-        (loopback->media_serdes_facility_ena == TRUE) || (loopback->media_serdes_equip_ena == TRUE)) {
-        // Not supported on LAN8814
-        return MEPA_RC_NOT_IMPLEMENTED;
-    }
-    MEPA_ENTER(dev);
-    // Far end loopback
-    if (loopback->far_end_ena == TRUE) {
-        WRM(dev, LAN8814_PCS_LOOP_POLARITY_CTRL, LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP,
-            LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP);
-    } else if (data->loopback.far_end_ena == TRUE) {
-        WRM(dev, LAN8814_PCS_LOOP_POLARITY_CTRL, 0, LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP);
-    }
-    if (loopback->near_end_ena == TRUE) {
-        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_LOOPBACK, LAN8814_F_BASIC_CTRL_LOOPBACK);
-        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
-            // Set 1000mbps speed for loopback when there is auto-negotiation mode. While removing loopback, restore the original mode.
-            // Disable auto-negotiation
-            WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_ANEG_ENA);
-            // Set 1000mbps speed
-            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0);
-        }
-    } else if (data->loopback.near_end_ena == TRUE) {
-        WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_LOOPBACK);
-        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
-            // Remove 1000mbps config applied while setting loopback.
-            WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, 0, LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA |
-                LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
-            // Enable aneg
-            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG,
-                LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-        }
-        if (data->dev.rev <= 3) {
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_5, 0x6677);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_6, 0x6677);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_8, 0x4377);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_11, 0x4377);
-        }
-    }
-    if (loopback->connector_ena == TRUE) {
-        WR(dev, LAN8814_RESV_CON_LOOP, 0xfc08);
-    } else if (data->loopback.connector_ena == TRUE) {
-        WR(dev, LAN8814_RESV_CON_LOOP, 0xfc00);
-    }
-    if (loopback->qsgmii_pcs_tbi_ena == TRUE) { // Enable tbi loopback
-        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK,
-               LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
-    } else if (data->loopback.qsgmii_pcs_tbi_ena == TRUE) { // Disable tbi loopback
-        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, 0, LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
-    }
-    if (loopback->qsgmii_pcs_gmii_ena == TRUE) { // Enable gmii loopback
-        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK,
-               LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
-    } else if (data->loopback.qsgmii_pcs_gmii_ena == TRUE) { // Disable gmii loopback
-        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, 0, LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
-    }
-    if (loopback->qsgmii_serdes_ena == TRUE) { // Enable qsgmii serdes loopback.
-        // Serdes configuration would affect all the 4 ports.
-        EP_WRM(dev, LAN8814_QSGMII_SERDES_MISC_CTRL, LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE,
-               LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
-    } else if (data->loopback.qsgmii_serdes_ena == TRUE) {
-        EP_WRM(dev, LAN8814_QSGMII_SERDES_MISC_CTRL, 0, LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
-    }
-    data->loopback = *loopback;
-    MEPA_EXIT(dev);
-    T_I(MEPA_TRACE_GRP_GEN, "loopback enabled\n");
-    return MEPA_RC_OK;
-}
-mepa_rc lan8814_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loopback)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-
-    MEPA_ENTER(dev);
-    *loopback = data->loopback;
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-    mepa_gpio_conf_t gpio_conf;
-    uint16_t divider = 1;
-    uint16_t clkout_src = 7;
-    mepa_rc rc = MEPA_RC_OK;
-
-    MEPA_ENTER(dev);
-    // Enable recovered clock outputs in gpio
-    gpio_conf.mode = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
-    rc = lan8814_gpio_mode_private(dev, &gpio_conf);
-
-    switch (conf->freq) {
-    case MEPA_FREQ_25M:
-        divider = 5; // 125Mhz/25Mhz = 5
-        break;
-    case MEPA_FREQ_31_25M:
-        divider = 4; // 125Mhz/31.25Mhz = 4
-        break;
-    case MEPA_FREQ_125M:
-    default:
-        divider = 1; // 125Mhz/125Mhz = 1
-        break;
-    }
-    switch (conf->src) {
-    case MEPA_SYNCE_CLOCK_SRC_DISABLED:
-        clkout_src = 7; // Forces Recovered Clock Output to 0
-        break;
-    case MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA:
-        clkout_src = data->packet_idx % 4;
-        break;
-    case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1:
-        clkout_src = 0b100; // Recovered Clock Input 1
-        break;
-    case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2:
-        clkout_src = 0b101; // Recovered Clock Input 2
-        break;
-    case MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA:
-    default:
-        T_W(MEPA_TRACE_GRP_GEN, "Invalid valid clock source, port-no : %d\n", dev->numeric_handle);
-        break;
-    }
-    T_I(MEPA_TRACE_GRP_GEN, "port_ena %d divider %d\n", clkout_src, divider);
-    if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
-        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_SEL_1, clkout_src);
-        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_DIV_1, divider);
-    } else if (conf->dst == MEPA_SYNCE_CLOCK_DST_2) {
-        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_SEL_2, clkout_src);
-        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_DIV_2, divider);
-    }
-
-    MEPA_EXIT(dev);
-
-    data->synce_conf = *conf;
-    return rc;
-}
-
 // wait in loop while cable diagnostics is running.
 static mepa_bool_t lan8814_wait_for_cable_diagnostics(mepa_device_t *dev)
 {
@@ -1540,10 +859,14 @@ static mepa_bool_t lan8814_wait_for_cable_diagnostics(mepa_device_t *dev)
             break;
         }
     }
+
     T_D(MEPA_TRACE_GRP_GEN, "ret = %d cnt= %d value=0x%x\n", ret, cnt, value);
     return ret;
 }
-//Before starting cable diagnostics, do necessary phy configuration like reset speed config.
+#endif
+
+#if !defined MEPA_LAN8814_LIGHT
+// Before starting cable diagnostics, do necessary phy configuration like reset speed config.
 static mepa_rc lan8814_cab_diag_enter_config(mepa_device_t *dev)
 {
     //Steps to be done before cable diagnostics
@@ -1557,46 +880,54 @@ static mepa_rc lan8814_cab_diag_enter_config(mepa_device_t *dev)
     MEPA_MSLEEP(50);
     return MEPA_RC_OK;
 }
+#endif
+
+#if !defined MEPA_LAN8814_LIGHT
 // After exiting cable diagnostics/self-test , restore phy configuration.
-static mepa_rc lan8814_restore_config(mepa_device_t *dev)
+static mepa_rc lan8814_restore_config_(mepa_device_t *dev)
 {
     mepa_reset_param_t rst_cfg = {};
 
     rst_cfg.reset_point = MEPA_RESET_POINT_DEFAULT;
     // Restore configuration after cable diagnostics/self-test.
-    lan8814_reset(dev, &rst_cfg);
+    lan8814_reset_(dev, &rst_cfg);
     return MEPA_RC_OK;
 }
+#endif
+
+#if !defined MEPA_LAN8814_LIGHT
 // LAN8814 phy dignostics is calculated only when there is no remote link partner for the port.
 // For mode values {0,1} corresponding to {VTSS_PHY_MODE_ANEG, VTSS_PHY_MODE_FORCED}, diagnostics is calculated.
 // For power down mode(2), diagnostics is not calculated.
-static mepa_rc lan8814_cab_diag_start(mepa_device_t *dev, int32_t mode)
+static mepa_rc lan8814_cab_diag_start_(mepa_device_t *dev, int32_t mode)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     uint16_t value, mask = 0, pair, status;
     mepa_cable_diag_result_t *res = &data->cable_diag;
 
     T_I(MEPA_TRACE_GRP_GEN, "port=%d mode=%d\n", data->port_no, mode);
-    MEPA_ENTER(dev);
+
     // Initialize diagnostics
     for (pair = 0; pair < 4; pair++) {
         res->status[pair] = MEPA_CABLE_DIAG_STATUS_UNKNOWN;
         res->length[pair] = 0;
         res->link = FALSE;
     }
+
     // return for power down mode
     if (mode == LAN8814_CABLE_MODE_POWER_DOWN) {
-        MEPA_EXIT(dev);
         return MEPA_RC_ERROR;
     }
-    /*Updated the res->link parameter of cable_diag result based upon the poll status */
+
+    /* Updated the res->link parameter of cable_diag result based upon the poll status */
     RD(dev, LAN8814_BASIC_STATUS, &value);
     res->link = (value & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
-    /*If link is Up do not perform cable diagnostics operation just return */
+
+    /* If link is Up do not perform cable diagnostics operation just return */
     if(res->link) {
-        MEPA_EXIT(dev);
         return MEPA_RC_OK;
     }
+
     lan8814_cab_diag_enter_config(dev);
     for (pair = 0; pair < 4; pair++) {
         // clear diag test ena before starting
@@ -1622,49 +953,13 @@ static mepa_rc lan8814_cab_diag_start(mepa_device_t *dev, int32_t mode)
             }
         }
     }
-    MEPA_EXIT(dev);
-    lan8814_restore_config(dev);
+
+    lan8814_restore_config_(dev);
     return MEPA_RC_OK;
 }
-static mepa_rc lan8814_cab_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-    MEPA_ENTER(dev);
-    *res = data->cable_diag;
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
+#endif
 
-// Open Alliance TC1 / TC12 DCQ Signal Quality Index(SQI) method.
-// Default values of MSE(mean square error) in SQI Table registers(1.232 - 1.238) is used for mapping signal quality indices 0-7.
-// SQI for pair A is returned from this function.
-static mepa_rc lan8814_sqi_read(mepa_device_t *dev, uint32_t *const value)
-{
-    phy_data_t *data = (phy_data_t *) dev->data;
-    uint16_t val;
-
-    MEPA_ENTER(dev);
-
-    // SQI is supported only for 100Mbps and 1Gbps
-    // SQI values should not be available if link is down
-    if ((data->conf.speed ==  MEPA_SPEED_10M) || !data->link_status || !data->conf.admin.enable) {
-        MEPA_EXIT(dev);
-        return MEPA_RC_ERROR;
-    }
-
-    EP_RD(dev, LAN8814_DCQ_CTRL, &val);
-    val &= ~LAN8814_M_DCQ_CTRL_CHANNEL_MASK; // Getting SQI value for channel 0;
-    val |= LAN8814_F_DCQ_CTRL_READ_CAPTURE; // Enable this bit for capturing SQI values
-    EP_WR(dev, LAN8814_DCQ_CTRL, val);
-
-    EP_RD(dev, LAN8814_DCQ_SQI, &val);
-
-    *value = LAN8814_X_DCQ_SQI_VALUE(val);
-
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_port_flow_mapping_get(uint8_t packet_idx, mepa_bool_t ingress, int *map_val)
 {
     switch (packet_idx % 4) {
@@ -1686,116 +981,10 @@ static mepa_rc lan8814_port_flow_mapping_get(uint8_t packet_idx, mepa_bool_t ing
 
     return MEPA_RC_OK;
 }
+#endif
 
-static mepa_rc lan8814_start_of_frame_conf_set(mepa_device_t *dev, const mepa_start_of_frame_conf_t *const sof_conf)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-    mepa_gpio_conf_t gpio_conf;
-    int rc = MEPA_RC_OK;
-    uint16_t val;
-    int map_val;
-
-    MEPA_ENTER(dev);
-
-    rc = lan8814_port_flow_mapping_get(data->packet_idx, sof_conf->ingress, &map_val);
-    if (rc < 0) {
-       MEPA_EXIT(dev);
-       return rc;
-    }
-
-    EP_RD(dev, LAN8814_GPIO_SOF_SEL, &val);
-    switch (sof_conf->sof_no) {
-    case 0:
-        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF0;
-        val |= map_val;
-        gpio_conf.gpio_no = 15;
-        break;
-    case 1:
-        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF1;
-        val |= (map_val << 3);
-        gpio_conf.gpio_no = 21;
-        break;
-    case 2:
-        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF2;
-        val |= (map_val << 6);
-        gpio_conf.gpio_no = 16;
-        break;
-    case 3:
-        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF3;
-        val |= (map_val << 9);
-        gpio_conf.gpio_no = 23;
-        break;
-    default:
-        MEPA_EXIT(dev);
-        return MEPA_RC_ERROR;
-    }
-
-    if (sof_conf->sof_preemption_mode > 3) {
-        MEPA_EXIT(dev);
-        return MEPA_RC_ERROR;
-    }
-
-    // Enabling SOF for corresponding port, direction and GPIO
-    EP_WR(dev, LAN8814_GPIO_SOF_SEL, val);
-
-    // Enabling SOF preemption
-    EP_RD(dev, LAN8814_SOF, &val);
-    val &= ~LAN8814_M_SOF_PREEMPTION_ENABLE;
-    val |= sof_conf->sof_preemption_mode << 8;
-    EP_WR(dev, LAN8814_SOF, val);
-
-    gpio_conf.mode = MEPA_GPIO_MODE_OUT;
-    rc = lan8814_gpio_mode_private(dev, &gpio_conf);
-    if (rc < 0) {
-       MEPA_EXIT(dev);
-       return rc;
-    }
-
-    data->sof_conf = *sof_conf;
-
-    MEPA_EXIT(dev);
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_start_of_frame_conf_get(mepa_device_t *dev, mepa_start_of_frame_conf_t *const value)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    MEPA_ENTER(dev);
-
-    *value = data->sof_conf;
-
-    MEPA_EXIT(dev);
-
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_framepreempt_conf_set(mepa_device_t *dev, const mepa_bool_t enable)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-    MEPA_ENTER(dev);
-    //Configure frame preemption
-    rc = lan8814_framepreempt_set(dev, enable);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-
-static mepa_rc lan8814_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const value)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-    phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
-
-    MEPA_ASSERT(value == NULL);
-    MEPA_ENTER(dev);
-
-    *value = (base_data ? base_data->framepreempt_en : FALSE);
-    MEPA_EXIT(dev);
-
-    return MEPA_RC_OK;
-}
-
-static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selftest_info_t *inf)
+#if !defined MEPA_LAN8814_LIGHT
+static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selftest_info_t *inf)
 {
     uint16_t val;
     uint8_t retry = 0;
@@ -1806,8 +995,6 @@ static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selfte
 
     if ((inf->speed != MEPA_SPEED_1G) && (inf->mdi == MEPA_MEDIA_MODE_AUTO))
 	return MEPA_RC_ERROR;
-
-    MEPA_ENTER(dev);
 
     EP_RD(dev, LAN8814_SELFTEST_PGEN_EN, &val);
     if (val & LAN8814_F_SELFTEST_PGEN_EN) {
@@ -1870,6 +1057,7 @@ static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selfte
 	    link_up = TRUE;
             break;
         }
+
         MEPA_MSLEEP(10);
     }
 
@@ -1897,95 +1085,19 @@ static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selfte
     // 4. Start self-test
     EP_WR(dev, LAN8814_SELFTEST_PGEN_EN, LAN8814_F_SELFTEST_PGEN_EN);
 
-
-    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 
 ret_err:
-    MEPA_EXIT(dev);
-
-    //Restore PHY Config
-    lan8814_restore_config(dev);
-
+    // Restore PHY Config
+    lan8814_restore_config_(dev);
     return MEPA_RC_ERROR;
 
 en_err:
-    MEPA_EXIT(dev);
-
     return MEPA_RC_ERROR;
 }
+#endif
 
-static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const inf)
-{
-    uint16_t val;
-    uint16_t lo, hi;
-
-    if (inf == NULL)
-	return MEPA_RC_ERROR;
-
-    inf->frames = 0;
-    inf->good_cnt = 0;
-    inf->err_cnt = 0;
-
-    MEPA_ENTER(dev);
-
-    EP_RD(dev, LAN8814_SELFTEST_PGEN_EN, &val);
-    if (!(val & LAN8814_F_SELFTEST_PGEN_EN)) {
-        T_W(MEPA_TRACE_GRP_GEN, "Self-Test is not Enabled!\n");
-        goto ret_err;
-    }
-
-    inf->mdi = MEPA_MEDIA_MODE_AUTO;
-    RD(dev, LAN8814_GPHY_DBG_CTL1, &val);
-    if (val & LAN8814_F_MDI_SET)
-        inf->mdi = MEPA_MEDIA_MODE_MDI;
-    else if (val & LAN8814_F_SWAPOFF)
-        inf->mdi = MEPA_MEDIA_MODE_MDIX;
-
-    inf->speed = MESA_SPEED_10M;
-    RD(dev, LAN8814_BASIC_CONTROL, &val);
-    if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)
-        inf->speed = MESA_SPEED_100M;
-    else if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1)
-        inf->speed = MESA_SPEED_1G;
-
-    EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_HI, &val);
-    inf->frames = val;
-    inf->frames = (inf->frames)<< 16;
-    EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_LO, &val);
-    inf->frames |= val;
-
-    // 5. check counter value
-    lo = hi = 0;
-    //Self-Test Correct Count HI Register / Self-Test Correct Count LO Register
-    EP_RD(dev, LAN8814_SELFTEST_GOOD_CNT_LO, &lo);
-    EP_RD(dev, LAN8814_SELFTEST_GOOD_CNT_HI, &hi);
-    inf->good_cnt = hi;
-    inf->good_cnt = ((inf->good_cnt) << 16) | lo;
-
-    lo = hi = 0;
-    //Self-Test Error Count HI Register / Self-Test Error Count LO Register
-    EP_RD(dev, LAN8814_SELFTEST_ERR_CNT_LO, &lo);
-    EP_RD(dev, LAN8814_SELFTEST_ERR_CNT_HI, &hi);
-    inf->err_cnt = hi;
-    inf->err_cnt = ((inf->err_cnt) << 16) | lo;
-
-    T_D(MEPA_TRACE_GRP_GEN, "speed=%d mdi=%d frames=0x%x good=0x%x err=0x%x\n",
-	inf->speed, inf->mdi, inf->frames, inf->good_cnt, inf->err_cnt);
-
-    if (inf->frames && (inf->frames == (inf->good_cnt + inf->err_cnt)))
-	lan8814_selftest_stop(dev);
-
-    MEPA_EXIT(dev);
-
-    return MEPA_RC_OK;
-
-ret_err:
-    MEPA_EXIT(dev);
-
-    return MEPA_RC_ERROR;
-}
-
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_serdes_set(mepa_device_t *dev, uint16_t addr, uint16_t data, uint8_t op_rd)
 {
     uint16_t val;
@@ -2005,13 +1117,17 @@ static mepa_rc lan8814_serdes_set(mepa_device_t *dev, uint16_t addr, uint16_t da
     }
     return MEPA_RC_OK;
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 struct serd_set {
     uint16_t addr;
     uint16_t data;
     uint8_t op_rd;
 };
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_prbs7_init(mepa_device_t *dev)
 {
     mepa_rc rc;
@@ -2092,9 +1208,12 @@ static mepa_rc lan8814_prbs7_init(mepa_device_t *dev)
             if (rc < 0)
                 return rc;
         }
+
     return MEPA_RC_OK;
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_prbs7_clk(mepa_device_t *dev, mepa_prbs_clock_t clk)
 {
     mepa_rc rc;
@@ -2137,7 +1256,9 @@ static mepa_rc lan8814_prbs7_clk(mepa_device_t *dev, mepa_prbs_clock_t clk)
         return MEPA_RC_ERROR;
     return MEPA_RC_OK;
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_prbs7_loopback(mepa_device_t *dev, mepa_prbs_loopback_t loopback)
 {
     mepa_rc rc;
@@ -2167,7 +1288,9 @@ static mepa_rc lan8814_prbs7_loopback(mepa_device_t *dev, mepa_prbs_loopback_t l
         return MEPA_RC_ERROR;
     return MEPA_RC_OK;
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_prbs7_enable(mepa_device_t *dev)
 {
     mepa_rc rc;
@@ -2190,7 +1313,9 @@ static mepa_rc lan8814_prbs7_enable(mepa_device_t *dev)
     }
     return MEPA_RC_OK;
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_prbs7_set(mepa_device_t *dev, mepa_bool_t enable, mepa_prbs_clock_t clk, mepa_prbs_loopback_t loopback)
 {
     mepa_rc rc = MEPA_RC_OK;
@@ -2220,84 +1345,9 @@ static mepa_rc lan8814_prbs7_set(mepa_device_t *dev, mepa_bool_t enable, mepa_pr
 
     return MEPA_RC_OK;
 }
+#endif
 
-static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    if (prbs_conf == NULL) {
-        return MEPA_RC_ERROR;
-    }
-
-    if (type >= MEPA_PHY_PRBS_TYPE_CNT || direction >= MEPA_PHY_DIRECTION_CNT) {
-        return MEPA_RC_ERROR;
-    }
-
-    if (direction == MEPA_PHY_DIRECTION_HOST && type == MEPA_PHY_PRBS_TYPE_SERDES) {
-        mepa_rc rc = MEPA_RC_OK;
-
-        if (prbs_conf->prbsn_sel == MEPA_PRBS7){
-
-            MEPA_ENTER(dev);
-            rc = lan8814_prbs7_set(dev, prbs_conf->enable, prbs_conf->clk, prbs_conf->loopback);
-            MEPA_EXIT(dev);
-
-            data->prbs_conf = *prbs_conf;
-            return rc < 0 ? rc : MEPA_RC_OK;
-        }
-    }
-    return MEPA_RC_ERROR;
-}
-
-static mepa_rc lan8814_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
-{
-    phy_data_t *data = (phy_data_t *)dev->data;
-
-    MEPA_ENTER(dev);
-
-    *prbs_conf = data->prbs_conf;
-
-    MEPA_EXIT(dev);
-
-    return MEPA_RC_OK;
-
-}
-
-static mepa_rc lan8814_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    if (value->prbsn_sel == MEPA_PRBS7) {
-        MEPA_ENTER(dev);
-        //Introducing one error into sequence
-        rc = lan8814_serdes_set(dev, 0x1015, 0x0014, 0);
-        MEPA_EXIT(dev);
-    }
-
-    return rc;
-}
-
-static mepa_rc lan8814_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
-{
-    uint16_t val;
-
-    if (value->prbsn_sel == MEPA_PRBS7) {
-
-        MEPA_ENTER(dev);
-        EP_WR(dev, LAN8814_SERDES_CR_ADDR, 0x1017); // Check for  errors
-        EP_RD(dev, LAN8814_SERDES_CR_CONTROL, &val);
-        val &= ~LAN8814_F_SERDES_CR_CONTROL_1;
-        val |= LAN8814_F_SERDES_CR_CONTROL_0;
-        EP_WR(dev, LAN8814_SERDES_CR_CONTROL, val);
-        EP_RD(dev, LAN8814_SERDES_CR_DATA, &val);
-        value->no_of_errors = val;
-        MEPA_EXIT(dev);
-
-        return MEPA_RC_OK;
-    }
-    return MEPA_RC_ERROR;
-}
-
+#if !defined MEPA_LAN8814_LIGHT
 static void lan8814_phy_deb_pr_reg (mepa_device_t *dev,
                                 const mepa_debug_print_t pr,
                                 uint16_t mmd, uint16_t page, uint16_t addr,
@@ -2320,7 +1370,9 @@ static void lan8814_phy_deb_pr_reg (mepa_device_t *dev,
         pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), id, addr, *value);
     }
 }
+#endif
 
+#if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
                              const mepa_debug_print_t pr)
 {
@@ -2448,7 +1500,769 @@ static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
 
     return MEPA_RC_OK;
 }
+#endif
 
+static mepa_rc lan8814_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_reset_(dev, rst_conf);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+static mepa_rc lan8814_delete(mepa_device_t *dev)
+{
+    return mepa_delete_int(dev);
+}
+
+static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
+{
+    uint16_t val, val2, val3 = 0;
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    std::move(dev);
+
+    // MEPA-835: Downshift happens when port is put into power down. Return the link status as slow
+    if (!data->conf.admin.enable) {
+         T_D(MEPA_TRACE_GRP_GEN,"Polling cannot be done as Port %d is powered Down", data->port_no);
+         memset(status, 0, sizeof(mepa_status_t));
+         data->link_status = status->link;
+         data->speed_status = status->speed;
+         data->fdx_status   = status->fdx;
+         data->loop_cnt = 0;
+         data->aneg_flag = 0;
+         data->dsh_complete = 0;
+         MEPA_EXIT(dev);
+         return MESA_RC_OK;
+     }
+    RD(dev, LAN8814_BASIC_STATUS, &val);
+    status->link = (val & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
+
+    if (data->loopback.near_end_ena == TRUE) {
+        // loops back to Mac. Ignore Line side status to Link partner.
+        status->link = 1;
+    }
+
+    if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+        uint16_t lp_sym_pause = 0, lp_asym_pause = 0;
+        // Default values
+        status->speed = MEPA_SPEED_UNDEFINED;
+        status->fdx = 1;
+        // check if auto-negotiation is completed or not
+        if (!data->loopback.near_end_ena && status->link && !(val & LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) {
+            T_I(MEPA_TRACE_GRP_GEN, "Aneg is not completed for port %d", data->port_no);
+            status->link = 0;
+        } else if (data->loopback.near_end_ena) {
+            status->speed = MEPA_SPEED_1G;
+        }
+
+        // Auto Downshift Feature: Downshift allows an interface to link at a lower advertised speed when unable to establish a stable link at the maximum speed.
+        // Both the Downshift and MEPA 555 ANEG State Machine Stuck Fix has same criteria. When Downshift is enabled, the Restart ANEG happens first and still couldn't
+        // establish the link then perform downshift to 100M.
+        RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val3);
+        RD(dev, LAN8814_CONTROL, &val2);
+        if (data->dsh_conf.dsh_enable && !status->link && ((val2 && LAN8814_F_1000T_SPEED_STATUS) && (val3 && LAN8814_F_LINK_DET) && (data->aneg_flag)) && !data->dsh_complete) {
+            data->loop_cnt++;
+            if (data->loop_cnt > data->dsh_conf.dsh_thr_cnt * data->rep_cnt) {
+               lan8814_downshift(dev);
+               data->loop_cnt = 0;
+               data->aneg_flag = FALSE;
+               T_I(MEPA_TRACE_GRP_GEN, "Downshift on port %d", data->port_no);
+            }
+            T_I(MEPA_TRACE_GRP_GEN, "Downshift capable on port %d dsh_loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+        }
+
+        // MEPA 555: This is a SW workaround for the ANEG state machine hung.
+        // Check link up and aneg status complete when a valid signal is detected from link partner wait for 2 secs, couldn't establish link restart ANEG state Machine.
+        if (!status->link && !(val & (LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) && (val3 & LAN8814_F_SIG_DET) && !data->aneg_flag) {
+            data->loop_cnt++;
+            T_I(MEPA_TRACE_GRP_GEN, "Aneg not complete on port %d loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+            if (data->loop_cnt > 2 * data->rep_cnt) { // default value for rep cnt to be 1sec
+                T_I(MEPA_TRACE_GRP_GEN, "Aneg state machine stuck!! restarting ANEG on port %d", data->port_no);
+                data->loop_cnt = 0;
+                WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+                data->aneg_flag = TRUE;
+            }
+        }
+
+        if (!status->link || data->loopback.near_end_ena) {
+            // No need to read aneg values when link is down or when near-end loopback enabled.
+            goto end;
+        }
+
+        // Obtain speed and duplex from link partner's advertised capability.
+        RD(dev, LAN8814_ANEG_LP_BASE, &val);
+        RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val2);
+        // 1G half duplex is not supported. Refer direct register - 9
+        if (((val2 & LAN8814_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
+            data->conf.aneg.speed_1g_fdx) && !data->dsh_complete) {
+            // Work-around for CRC errors begin.
+            if (data->crc_workaround) {
+                if (!((val2 & LAN8814_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
+                    (val2 & LAN8814_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
+                    !data->post_mac_rst) {
+                        //link not completely up
+                        status->link = 0;
+                } else if (!data->aneg_after_link_up) {// poll the status for 1 iteration assuming the polling interval is 1 second apart.
+                    T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
+                    WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+                    data->aneg_after_link_up = TRUE;
+                    data->loop_cnt = 0;
+                    status->link = 0;
+                } else if (data->aneg_after_link_up) {// After auto-negotiation restarted, set the link status as up.
+                    status->speed = MEPA_SPEED_1G;
+                    status->fdx = 1;
+                    data->crc_workaround = FALSE;
+                    data->aneg_after_link_up = FALSE;
+                } else {
+                    T_I(MEPA_TRACE_GRP_GEN, "no link");
+                    status->link = 0;
+                }
+            // Work-around for CRC errors end.
+            } else {
+                status->speed = MEPA_SPEED_1G;
+                status->fdx = 1;
+            }
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_FULL_DUP) &&
+                   data->conf.aneg.speed_100m_fdx) {
+            status->speed = MEPA_SPEED_100M;
+            status->fdx = 1;
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_100_X_HALF_DUP) &&
+                   data->conf.aneg.speed_100m_hdx) {
+            status->speed = MEPA_SPEED_100M;
+            status->fdx = 0;
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_FULL_DUP) &&
+                   data->conf.aneg.speed_10m_fdx) {
+            status->speed = MEPA_SPEED_10M;
+            status->fdx = 1;
+        } else if ((val & LAN8814_F_ANEG_LP_BASE_10_T_HALF_DUP) &&
+                   data->conf.aneg.speed_10m_hdx) {
+            status->speed = MEPA_SPEED_10M;
+            status->fdx = 0;
+        }
+
+        // Get flow control status
+        lp_sym_pause = (val & LAN8814_F_ANEG_LP_BASE_SYM_PAUSE) ? 1 : 0;
+        lp_asym_pause = (val & LAN8814_F_ANEG_LP_BASE_ASYM_PAUSE) ? 1 : 0;
+        status->aneg.obey_pause = data->conf.flow_control && (lp_sym_pause || lp_asym_pause);
+        status->aneg.generate_pause = data->conf.flow_control && lp_sym_pause;
+    } else {
+        uint8_t speed;
+        // Forced speed
+        RD(dev, LAN8814_BASIC_CONTROL, &val2);
+        speed = (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
+                (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
+        status->speed = (speed == 0) ? MEPA_SPEED_10M :
+                        (speed == 1) ? MEPA_SPEED_100M :
+                        (speed == 2) ? MEPA_SPEED_1G : MEPA_SPEED_UNDEFINED;
+        status->fdx = !!(val2 & LAN8814_F_BASIC_CTRL_DUP_MODE);
+        //check that aneg is not enabled.
+        if (val2 & LAN8814_F_BASIC_CTRL_ANEG_ENA) {
+            T_W(MEPA_TRACE_GRP_GEN, "Aneg is enabled for forced speed config on port %d", data->port_no);
+        }
+
+        // MEPA 503 workaround starts
+        RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val2);
+        RD(dev, LAN8814_CONTROL, &val);
+        if (status->speed == MEPA_SPEED_100M && ((val2 & LAN8814_F_LINK_DET) && !status->link)) {
+            if((data->loop_cnt++ > 2 * data->rep_cnt)) {
+                val |= LAN8814_F_CONTROL_SOFT_RESET;
+                WRM(dev, LAN8814_CONTROL, val, LAN8814_F_CONTROL_SOFT_RESET);
+                T_I(MEPA_TRACE_GRP_GEN, "DSP soft reset for link up on Port %d", data->port_no);
+                data->loop_cnt = 0;
+            }
+        }
+        // MEPA 503 workaround ends here
+    }
+
+end:
+    if (data->dev.model == 0x26) {
+        if (status->link != data->link_status) {
+            if (status->link) { // link up
+                if ( data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+                    if (data->conf.mac_if_aneg_ena) {
+                        // copy the capabilities on host side
+                        lan8814_qsgmii_tx_abilities(dev, status->speed, status->fdx);
+                    }
+                }
+                if ((status->speed == MEPA_SPEED_10M || status->speed == MEPA_SPEED_100M) &&
+                    (status->fdx == FALSE)) {
+                    lan8814_workaround_half_duplex(dev);
+                }
+            } else {// link down event.
+                lan8814_workaround_fifo_reset(dev);
+                if (data->dsh_complete) {
+                    val |= (LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
+                    T_I(MEPA_TRACE_GRP_GEN, "link Down Readvertising 1G Speed Changed on port: %d", data->port_no);
+                    WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val, LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+                    data->loop_cnt = data->dsh_complete = 0;
+                    data->aneg_after_link_up = FALSE;
+                }
+            }
+            data->loop_cnt = 0;
+            data->aneg_flag = 0;
+            T_I(MEPA_TRACE_GRP_GEN,"After restart workaround on port->no:%d and data->dsh_loop_cnt:%d", data->port_no, data->loop_cnt);
+        }
+    }
+    data->link_status = status->link;
+    data->speed_status = status->speed;
+    data->fdx_status   = status->fdx;
+    MEPA_EXIT(dev);
+    T_D(MEPA_TRACE_GRP_GEN, "port %d status link %d, speed %d, fdx %d", data->port_no, status->link, status->speed, status->fdx);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_conf_set_(dev, config);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+static mepa_rc lan8814_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    std::move(dev);
+    *config = data->conf;
+    MEPA_EXIT(dev);
+    T_D(MEPA_TRACE_GRP_GEN, "returning phy config on port %d", data->port_no);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_if_set(mepa_device_t *dev,
+                           mepa_port_interface_t mac_if)
+{
+    if (mac_if != MESA_PORT_INTERFACE_QSGMII) {
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
+                           mepa_port_interface_t *mac_if)
+{
+
+    *mac_if = MESA_PORT_INTERFACE_QSGMII;
+    return MEPA_RC_OK;
+}
+
+static mepa_device_t *lan8814_probe(mepa_driver_t *drv,
+                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
+                                 struct mepa_board_conf              *board_conf)
+{
+    mepa_device_t *dev;
+    phy_data_t *data;
+
+    // MEPA-692: A remapping of driver workaround for correctly identifying the LAN8814 SKU's
+    mepa_drivers_t lan8814_drv = mepa_lan8814_driver_init();
+    uint16_t sku = 0;
+    if (callout->miim_read && callout->miim_write) {
+        // Write Reg 22 as 4 to access EP4 registers space
+        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, 4);
+        // Write Reg 23 as 11 to read reg 11 in EP4
+        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, 11);
+        // Initiate Data read operation
+        callout->miim_write(callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, 0x4004);
+        // Read Reg 23 for SKU value read in EP 4.11
+        callout->miim_read(callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, &sku);
+    } else {
+        T_E(MEPA_TRACE_GRP_GEN, "callout read/write is not present for port:%d", board_conf->numeric_handle);
+        return 0;
+    }
+
+    if (sku == LAN8804_SKU) {
+        drv = &lan8814_drv.phy_drv[1];
+    }
+    // MEPA-692: Workaround ends
+
+    dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
+    if (!dev) {
+        T_E(MEPA_TRACE_GRP_GEN, "Dev creation failed for Port %d", board_conf->numeric_handle);
+        return NULL;
+    }
+
+    data = dev->data;
+    data->port_no = board_conf->numeric_handle;
+    data->events = 0;
+
+#ifdef REG_DBG
+    (void)lan8814_reg_dump(dev);
+#endif
+
+    T_I(MEPA_TRACE_GRP_GEN, "lan8814 driver probed for port %d", data->port_no);
+    return dev;
+}
+
+static mepa_rc lan8814_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *status)
+{
+    uint16_t val;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    std::move(dev);
+    RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val);
+    status->master_cfg_fault = (val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
+    status->master = val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
+    MEPA_EXIT(dev);
+    T_I(MEPA_TRACE_GRP_GEN, "aneg status get mstr %d port %d", status->master, data->port_no);
+    return MEPA_RC_OK;
+}
+
+// read direct registers for debugging
+static mepa_rc lan8814_direct_reg_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    mepa_rc rc;
+    uint16_t addr = address & 0x1f;
+
+    std::move(dev);
+    rc = lan8814_direct_reg_rd(dev, addr, value);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+// write direct registers. Used for debugging.
+static mepa_rc lan8814_direct_reg_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    mepa_rc rc;
+    uint16_t addr = address & 0x1f;
+
+    std::move(dev);
+    rc = lan8814_direct_reg_wr(dev, addr, value, 0xFFFF);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+// read extended page/mmd register for debugging
+static mepa_rc lan8814_ext_mmd_reg_read(mepa_device_t *dev, uint32_t address, uint16_t *const value)
+{
+    mepa_rc rc;
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+    uint16_t mmd = (page_mmd >> 11);
+
+    std::move(dev);
+    if (mmd) {
+        rc = lan8814_mmd_reg_rd(dev, mmd, addr, value);
+    } else {
+        rc = lan8814_ext_reg_rd(dev, page_mmd, addr, value);
+    }
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+// write extended page/mmd register. Used for debugging.
+static mepa_rc lan8814_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, uint16_t value)
+{
+    mepa_rc rc;
+    uint16_t page_mmd = (address >> 16) & 0xffff;
+    uint16_t addr = address & 0xffff;
+    uint16_t mmd = (page_mmd >> 11);
+
+    std::move(dev);
+    if (mmd) {
+        rc = lan8814_mmd_reg_wr(dev, mmd, addr, value, 0xFFFF);
+    } else {
+        rc = lan8814_ext_reg_wr(dev, page_mmd, addr, value, 0xFFFF);
+    }
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+static mepa_rc lan8814_event_enable_set(mepa_device_t *dev, mepa_event_t event, mepa_bool_t enable)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_event_enable_set_(dev, event, enable);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+// Get current enabled events
+static mepa_rc lan8814_event_enable_get(mepa_device_t *dev, mepa_event_t *const event)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    std::move(dev);
+    *event = data->events;
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+// Poll the status of currently enabled events
+static mepa_rc lan8814_event_status_poll(mepa_device_t *dev, mepa_event_t *const status)
+{
+    uint16_t val;
+    mepa_rc rc = MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *)dev->data;
+    *status = 0;
+    std::move(dev);
+    rc = RD(dev, LAN8814_GPHY_INTR_STATUS, &val);
+    if (val & LAN8814_F_GPHY_INTR_ENA_LINK_DOWN) {
+        *status |= data->events & MEPA_LINK_LOS;
+    }
+    if (val & LAN8814_F_GPHY_INTR_ENA_FLF_INTR) {
+        *status |= data->events & MEPA_FAST_LINK_FAIL;
+    }
+    MEPA_EXIT(dev);
+    T_I(MEPA_TRACE_GRP_GEN, " port %d events polled 0x%x val %x\n", data->port_no, *status, val);
+    return rc;
+}
+
+// Set gpio mode to input, output or alternate function
+static mepa_rc lan8814_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t *gpio_conf)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    // LAN8814 has 0-23 gpios.
+    if (gpio_conf->gpio_no > 23) {
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    std::move(dev);
+    rc = lan8814_gpio_mode_private(dev, gpio_conf);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+static mepa_rc lan8814_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t value)
+{
+    uint16_t val = 0;
+
+    // LAN8814 has 0-23 gpios.
+    if (gpio_no > 23) {
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    std::move(dev);
+    if (gpio_no < 16) {
+        val = 1 << gpio_no;
+        EP_WRM(dev, LAN8814_GPIO_DATA2, value ? val : 0, val);
+    } else if (gpio_no < 24) {
+        val = 1 << (gpio_no - 16);
+        EP_WRM(dev, LAN8814_GPIO_DATA1, value ? val : 0, val);
+    } else {
+        // Not supported. Illegal for LAN8814.
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+    }
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t *const value)
+{
+    uint16_t val = 0;
+
+    // LAN8814 has 0-23 gpios.
+    if (gpio_no > 23) {
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+
+    std::move(dev);
+    if (gpio_no < 16) {
+        EP_RD(dev, LAN8814_GPIO_DATA2, &val);
+        *value = (val >> gpio_no) & 0x1 ? TRUE : FALSE;
+    } else if (gpio_no < 24) {
+        EP_RD(dev, LAN8814_GPIO_DATA1, &val);
+        *value = ((val >> (gpio_no - 16)) & 0x1) ? TRUE : FALSE;
+    }
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
+// Link the base port
+static mepa_rc lan8814_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    phy_data_t *base_data = (phy_data_t *)base_dev->data;
+
+    std::move(dev);
+    data->base_dev = base_dev;
+    data->packet_idx = packet_idx;
+    T_I(MEPA_TRACE_GRP_GEN, "Linking port %d with base-port %d", data->port_no, base_data->port_no);
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
+
+    phy_info->cap = 0;
+    // Read SKU ID and assign Part no
+    if (dev->drv->id == LAN8814_DEF_DRV_ID || dev->drv->id == LAN8814_INT_PHY_DRV_ID) {
+        // For LAN8814 inside lan9668 the driver id is different and the SKU No is 0 upon read.
+	// Assigning part No based on Driver
+        phy_info->part_number = 8814;
+    } else if (dev->drv->id == LAN8804_SKU) {
+        phy_info->part_number = 8804;
+    }
+    phy_info->revision = data->dev.rev;
+    phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3 : MEPA_CAP_TS_MASK_NONE;
+    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    if (dev->drv->id == LAN8804_SKU) {
+        phy_info->ts_base_port = 0;
+        phy_info->ts_base = 0;
+    } else {
+        phy_info->ts_base_port = base_data ? base_data->port_no : 0;
+        phy_info->ts_base = data->base_dev;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_conf_t conf)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_eee_mode_conf_set_(dev, conf);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+static mepa_rc lan8814_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *const config)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+
+    std::move(dev);
+    *config = data->eee_conf;
+    MEPA_EXIT(dev);
+
+    T_I(MEPA_TRACE_GRP_GEN, "returning EEE phy config on port %d", data->port_no);
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8814_eee_status_get(mepa_device_t *dev, u8 *const advertisement, BOOL *const rx_in_power_save_state, BOOL *const tx_in_power_save_state)
+{
+    u16 reg_value = 0;
+    *rx_in_power_save_state = FALSE;
+    *tx_in_power_save_state = FALSE;
+
+    MMD_RD(dev, LAN8814_LINK_PARTNER_EEE_ABILITY, &reg_value); // Get the Link Partnr Advertisement
+    *advertisement = reg_value >> 1; // Bit 0 is reserved.
+
+    MMD_RD(dev, LAN8814_EEE_PCS_STATUS, &reg_value);
+
+    //Bit 8 is Rx LPI Indication. See Datasheet
+    if (reg_value & 0x0100){
+        *rx_in_power_save_state = TRUE;
+    }
+    //Bit 9 is tx LPI Indication. See Datsheet.
+    if (reg_value & 0x0200){
+        *tx_in_power_save_state = TRUE;
+    }
+
+    return MEPA_RC_OK;
+}
+
+#if !defined(MEPA_LAN8814_LIGHT)
+// LAN8814 phy dignostics is calculated only when there is no remote link partner for the port.
+// For mode values {0,1} corresponding to {VTSS_PHY_MODE_ANEG, VTSS_PHY_MODE_FORCED}, diagnostics is calculated.
+// For power down mode(2), diagnostics is not calculated.
+static mepa_rc lan8814_cab_diag_start(mepa_device_t *dev, int32_t mode)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_cab_diag_start_(dev, mode);
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_cab_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    std::move(dev);
+    *res = data->cable_diag;
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+// Set loopback modes in phy
+static mepa_rc lan8814_loopback_set(mepa_device_t *dev, const mepa_loopback_t *loopback)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    if ((loopback->mac_serdes_input_ena == TRUE) || (loopback->mac_serdes_facility_ena == TRUE) ||
+        (loopback->mac_serdes_equip_ena == TRUE) || (loopback->media_serdes_input_ena == TRUE) ||
+        (loopback->media_serdes_facility_ena == TRUE) || (loopback->media_serdes_equip_ena == TRUE)) {
+        // Not supported on LAN8814
+        return MEPA_RC_NOT_IMPLEMENTED;
+    }
+    std::move(dev);
+    // Far end loopback
+    if (loopback->far_end_ena == TRUE) {
+        WRM(dev, LAN8814_PCS_LOOP_POLARITY_CTRL, LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP,
+            LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP);
+    } else if (data->loopback.far_end_ena == TRUE) {
+        WRM(dev, LAN8814_PCS_LOOP_POLARITY_CTRL, 0, LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP);
+    }
+    if (loopback->near_end_ena == TRUE) {
+        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_LOOPBACK, LAN8814_F_BASIC_CTRL_LOOPBACK);
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+            // Set 1000mbps speed for loopback when there is auto-negotiation mode. While removing loopback, restore the original mode.
+            // Disable auto-negotiation
+            WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_ANEG_ENA);
+            // Set 1000mbps speed
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0);
+        }
+    } else if (data->loopback.near_end_ena == TRUE) {
+        WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_LOOPBACK);
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+            // Remove 1000mbps config applied while setting loopback.
+            WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, 0, LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA |
+                LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+            // Enable aneg
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG,
+                LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+        }
+        if (data->dev.rev <= 3) {
+            EP_WR(dev, LAN8814_POWER_MGMT_MODE_5, 0x6677);
+            EP_WR(dev, LAN8814_POWER_MGMT_MODE_6, 0x6677);
+            EP_WR(dev, LAN8814_POWER_MGMT_MODE_8, 0x4377);
+            EP_WR(dev, LAN8814_POWER_MGMT_MODE_11, 0x4377);
+        }
+    }
+    if (loopback->connector_ena == TRUE) {
+        WR(dev, LAN8814_RESV_CON_LOOP, 0xfc08);
+    } else if (data->loopback.connector_ena == TRUE) {
+        WR(dev, LAN8814_RESV_CON_LOOP, 0xfc00);
+    }
+    if (loopback->qsgmii_pcs_tbi_ena == TRUE) { // Enable tbi loopback
+        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK,
+               LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
+    } else if (data->loopback.qsgmii_pcs_tbi_ena == TRUE) { // Disable tbi loopback
+        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, 0, LAN8814_F_QSGMII_PCS1G_DBG_TBI_HOST_LOOPBACK);
+    }
+    if (loopback->qsgmii_pcs_gmii_ena == TRUE) { // Enable gmii loopback
+        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK,
+               LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
+    } else if (data->loopback.qsgmii_pcs_gmii_ena == TRUE) { // Disable gmii loopback
+        EP_WRM(dev, LAN8814_QSGMII_PCS1G_DEBUG, 0, LAN8814_F_QSGMII_PCS1G_DBG_GMII_LOOPBACK);
+    }
+    if (loopback->qsgmii_serdes_ena == TRUE) { // Enable qsgmii serdes loopback.
+        // Serdes configuration would affect all the 4 ports.
+        EP_WRM(dev, LAN8814_QSGMII_SERDES_MISC_CTRL, LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE,
+               LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
+    } else if (data->loopback.qsgmii_serdes_ena == TRUE) {
+        EP_WRM(dev, LAN8814_QSGMII_SERDES_MISC_CTRL, 0, LAN8814_F_QSGMII_SERDES_MISC_CTRL_LB_MODE);
+    }
+    data->loopback = *loopback;
+    MEPA_EXIT(dev);
+    T_I(MEPA_TRACE_GRP_GEN, "loopback enabled\n");
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+mepa_rc lan8814_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loopback)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    std::move(dev);
+    *loopback = data->loopback;
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_recovered_clk_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+    mepa_gpio_conf_t gpio_conf;
+    uint16_t divider = 1;
+    uint16_t clkout_src = 7;
+    mepa_rc rc = MEPA_RC_OK;
+
+    std::move(dev);
+    // Enable recovered clock outputs in gpio
+    gpio_conf.mode = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
+    rc = lan8814_gpio_mode_private(dev, &gpio_conf);
+
+    switch (conf->freq) {
+    case MEPA_FREQ_25M:
+        divider = 5; // 125Mhz/25Mhz = 5
+        break;
+    case MEPA_FREQ_31_25M:
+        divider = 4; // 125Mhz/31.25Mhz = 4
+        break;
+    case MEPA_FREQ_125M:
+    default:
+        divider = 1; // 125Mhz/125Mhz = 1
+        break;
+    }
+    switch (conf->src) {
+    case MEPA_SYNCE_CLOCK_SRC_DISABLED:
+        clkout_src = 7; // Forces Recovered Clock Output to 0
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA:
+        clkout_src = data->packet_idx % 4;
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1:
+        clkout_src = 0b100; // Recovered Clock Input 1
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2:
+        clkout_src = 0b101; // Recovered Clock Input 2
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA:
+    default:
+        T_W(MEPA_TRACE_GRP_GEN, "Invalid valid clock source, port-no : %d\n", dev->numeric_handle);
+        break;
+    }
+    T_I(MEPA_TRACE_GRP_GEN, "port_ena %d divider %d\n", clkout_src, divider);
+    if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
+        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_SEL_1, clkout_src);
+        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_DIV_1, divider);
+    } else if (conf->dst == MEPA_SYNCE_CLOCK_DST_2) {
+        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_SEL_2, clkout_src);
+        EP_WR(dev, LAN8814_RCVRD_CLK_OUT_DIV_2, divider);
+    }
+
+    MEPA_EXIT(dev);
+
+    data->synce_conf = *conf;
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+// Set Isolate mode
+static mepa_rc lan8814_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
+{
+
+    std::move(dev);
+
+    if (iso_en == TRUE) {
+        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ISO_MODE_EN, LAN8814_F_BASIC_CTRL_ISO_MODE_EN);
+    } else {
+        WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_ISO_MODE_EN);
+    }
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
 static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
                                     const mepa_debug_print_t pr,
                                     const mepa_debug_info_t   *const info)
@@ -2460,39 +2274,347 @@ static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
     (void)lan8814_info_get(dev, &phy_info);
     (void)lan8814_if_get(dev, MEPA_SPEED_1G,  &mac_if);
 
+    std::move(dev);
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
-        MEPA_ENTER(dev);
         pr("Port:%d   Family:LAN8814   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
            phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
-        MEPA_EXIT(dev);
     }
 
     if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
-        //PHY Debugging
-        switch(info->group)
-        {
-        case MEPA_DEBUG_GROUP_ALL:
-        case MEPA_DEBUG_GROUP_PHY:
-        {
-            MEPA_ENTER(dev);
+        if (info->group == MEPA_DEBUG_GROUP_ALL || info->group == MEPA_DEBUG_GROUP_PHY) {
+            // PHY Debugging
             rc = lan8814_reg_dump(dev, pr);
-            MEPA_EXIT(dev);
-        }
-        break;
-        default:
-            rc = MEPA_RC_OK;
         }
     }
 
-    //PHY_TS Debugging
+    MEPA_EXIT(dev);
+
+    // PHY_TS Debugging
     if (!(dev->drv->id == LAN8804_SKU)) { // not applicable to LAN8804
         lan8814_ts_debug_info_dump(dev, pr, info);
     }
 
     return rc;
 }
+#endif
 
-#endif //!defined MEPA_LAN8814_LIGHT
+#if !defined(MEPA_LAN8814_LIGHT)
+// Open Alliance TC1 / TC12 DCQ Signal Quality Index(SQI) method.
+// Default values of MSE(mean square error) in SQI Table registers(1.232 - 1.238) is used for mapping signal quality indices 0-7.
+// SQI for pair A is returned from this function.
+static mepa_rc lan8814_sqi_read(mepa_device_t *dev, uint32_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    uint16_t   val;
+    mepa_rc    rc;
+
+    std::move(dev);
+
+    // SQI is supported only for 100Mbps and 1Gbps
+    // SQI values should not be available if link is down
+    if ((data->conf.speed ==  MEPA_SPEED_10M) || !data->link_status || !data->conf.admin.enable) {
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    EP_RD(dev, LAN8814_DCQ_CTRL, &val);
+    val &= ~LAN8814_M_DCQ_CTRL_CHANNEL_MASK; // Getting SQI value for channel 0;
+    val |= LAN8814_F_DCQ_CTRL_READ_CAPTURE; // Enable this bit for capturing SQI values
+    EP_WR(dev, LAN8814_DCQ_CTRL, val);
+
+    EP_RD(dev, LAN8814_DCQ_SQI, &val);
+
+    *value = LAN8814_X_DCQ_SQI_VALUE(val);
+
+    rc = MEPA_RC_OK;
+
+do_exit:
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_start_of_frame_conf_set(mepa_device_t *dev, const mepa_start_of_frame_conf_t *const sof_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_gpio_conf_t gpio_conf;
+    int rc;
+    uint16_t val;
+    int map_val;
+
+    std::move(dev);
+
+    rc = lan8814_port_flow_mapping_get(data->packet_idx, sof_conf->ingress, &map_val);
+    if (rc != MEPA_RC_OK) {
+        goto do_exit;
+    }
+
+    EP_RD(dev, LAN8814_GPIO_SOF_SEL, &val);
+    switch (sof_conf->sof_no) {
+    case 0:
+        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF0;
+        val |= map_val;
+        gpio_conf.gpio_no = 15;
+        break;
+    case 1:
+        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF1;
+        val |= (map_val << 3);
+        gpio_conf.gpio_no = 21;
+        break;
+    case 2:
+        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF2;
+        val |= (map_val << 6);
+        gpio_conf.gpio_no = 16;
+        break;
+    case 3:
+        val &= ~LAN8814_M_GPIO_SOF_SEL_SOF3;
+        val |= (map_val << 9);
+        gpio_conf.gpio_no = 23;
+        break;
+    default:
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    if (sof_conf->sof_preemption_mode > 3) {
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    // Enabling SOF for corresponding port, direction and GPIO
+    EP_WR(dev, LAN8814_GPIO_SOF_SEL, val);
+
+    // Enabling SOF preemption
+    EP_RD(dev, LAN8814_SOF, &val);
+    val &= ~LAN8814_M_SOF_PREEMPTION_ENABLE;
+    val |= sof_conf->sof_preemption_mode << 8;
+    EP_WR(dev, LAN8814_SOF, val);
+
+    gpio_conf.mode = MEPA_GPIO_MODE_OUT;
+    rc = lan8814_gpio_mode_private(dev, &gpio_conf);
+    if (rc != MEPA_RC_OK) {
+       goto do_exit;
+    }
+
+    data->sof_conf = *sof_conf;
+    rc = MEPA_RC_OK;
+
+do_exit:
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_start_of_frame_conf_get(mepa_device_t *dev, mepa_start_of_frame_conf_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    std::move(dev);
+    *value = data->sof_conf;
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const value)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
+
+    MEPA_ASSERT(value == NULL);
+
+    std::move(dev);
+    *value = (base_data ? base_data->framepreempt_en : FALSE);
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_framepreempt_set(mepa_device_t *dev, const mepa_bool_t enable)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    std::move(dev);
+    rc = lan8814_framepreempt_set_(dev, enable);
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selftest_info_t *inf)
+{
+    mepa_rc rc;
+
+    std::move(dev);
+    rc = lan8814_selftest_start_(dev, inf);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const inf)
+{
+    uint16_t val;
+    uint16_t lo, hi;
+    mepa_rc  rc;
+
+    if (inf == NULL)
+	return MEPA_RC_ERROR;
+
+    inf->frames = 0;
+    inf->good_cnt = 0;
+    inf->err_cnt = 0;
+
+    std::move(dev);
+
+    EP_RD(dev, LAN8814_SELFTEST_PGEN_EN, &val);
+    if (!(val & LAN8814_F_SELFTEST_PGEN_EN)) {
+        T_W(MEPA_TRACE_GRP_GEN, "Self-Test is not Enabled!\n");
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    inf->mdi = MEPA_MEDIA_MODE_AUTO;
+    RD(dev, LAN8814_GPHY_DBG_CTL1, &val);
+    if (val & LAN8814_F_MDI_SET)
+        inf->mdi = MEPA_MEDIA_MODE_MDI;
+    else if (val & LAN8814_F_SWAPOFF)
+        inf->mdi = MEPA_MEDIA_MODE_MDIX;
+
+    inf->speed = MESA_SPEED_10M;
+    RD(dev, LAN8814_BASIC_CONTROL, &val);
+    if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)
+        inf->speed = MESA_SPEED_100M;
+    else if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1)
+        inf->speed = MESA_SPEED_1G;
+
+    EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_HI, &val);
+    inf->frames = val;
+    inf->frames = (inf->frames)<< 16;
+    EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_LO, &val);
+    inf->frames |= val;
+
+    // 5. check counter value
+    lo = hi = 0;
+    //Self-Test Correct Count HI Register / Self-Test Correct Count LO Register
+    EP_RD(dev, LAN8814_SELFTEST_GOOD_CNT_LO, &lo);
+    EP_RD(dev, LAN8814_SELFTEST_GOOD_CNT_HI, &hi);
+    inf->good_cnt = hi;
+    inf->good_cnt = ((inf->good_cnt) << 16) | lo;
+
+    lo = hi = 0;
+    //Self-Test Error Count HI Register / Self-Test Error Count LO Register
+    EP_RD(dev, LAN8814_SELFTEST_ERR_CNT_LO, &lo);
+    EP_RD(dev, LAN8814_SELFTEST_ERR_CNT_HI, &hi);
+    inf->err_cnt = hi;
+    inf->err_cnt = ((inf->err_cnt) << 16) | lo;
+
+    T_D(MEPA_TRACE_GRP_GEN, "speed=%d mdi=%d frames=0x%x good=0x%x err=0x%x\n",
+	inf->speed, inf->mdi, inf->frames, inf->good_cnt, inf->err_cnt);
+
+    if (inf->frames && (inf->frames == (inf->good_cnt + inf->err_cnt))) {
+	lan8814_selftest_stop(dev);
+    }
+
+    rc = MEPA_RC_OK;
+
+do_exit:
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    if (prbs_conf == NULL) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (type >= MEPA_PHY_PRBS_TYPE_CNT || direction >= MEPA_PHY_DIRECTION_CNT) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (direction == MEPA_PHY_DIRECTION_HOST && type == MEPA_PHY_PRBS_TYPE_SERDES) {
+        mepa_rc rc = MEPA_RC_OK;
+
+        if (prbs_conf->prbsn_sel == MEPA_PRBS7){
+
+            std::move(dev);
+            rc = lan8814_prbs7_set(dev, prbs_conf->enable, prbs_conf->clk, prbs_conf->loopback);
+            MEPA_EXIT(dev);
+
+            data->prbs_conf = *prbs_conf;
+            return rc < 0 ? rc : MEPA_RC_OK;
+        }
+    }
+
+    return MEPA_RC_ERROR;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    std::move(dev);
+    *prbs_conf = data->prbs_conf;
+    MEPA_EXIT(dev);
+
+    return MEPA_RC_OK;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    if (value->prbsn_sel == MEPA_PRBS7) {
+        std::move(dev);
+        //Introducing one error into sequence
+        rc = lan8814_serdes_set(dev, 0x1015, 0x0014, 0);
+        MEPA_EXIT(dev);
+    }
+
+    return rc;
+}
+#endif
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8814_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
+{
+    uint16_t val;
+    mepa_rc  rc = MEPA_RC_ERROR;
+
+    if (value->prbsn_sel == MEPA_PRBS7) {
+        std::move(dev);
+        EP_WR(dev, LAN8814_SERDES_CR_ADDR, 0x1017); // Check for  errors
+        EP_RD(dev, LAN8814_SERDES_CR_CONTROL, &val);
+        val &= ~LAN8814_F_SERDES_CR_CONTROL_1;
+        val |= LAN8814_F_SERDES_CR_CONTROL_0;
+        EP_WR(dev, LAN8814_SERDES_CR_CONTROL, val);
+        EP_RD(dev, LAN8814_SERDES_CR_DATA, &val);
+        value->no_of_errors = val;
+        MEPA_EXIT(dev);
+
+        rc = MEPA_RC_OK;
+    }
+
+    return rc;
+}
+#endif
 
 mepa_drivers_t mepa_lan8814_driver_init()
 {
@@ -2538,7 +2660,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_start_of_frame_conf_set = lan8814_start_of_frame_conf_set,
             .mepa_driver_start_of_frame_conf_get = lan8814_start_of_frame_conf_get,
             .mepa_driver_framepreempt_get = lan8814_framepreempt_get,
-            .mepa_driver_framepreempt_set = lan8814_framepreempt_conf_set,
+            .mepa_driver_framepreempt_set = lan8814_framepreempt_set,
             .mepa_driver_selftest_start = lan8814_selftest_start,
             .mepa_driver_selftest_read = lan8814_selftest_read,
             .mepa_driver_prbs_set = lan8814_prbs_set,
@@ -2631,7 +2753,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_sqi_read = lan8814_sqi_read,
             .mepa_driver_start_of_frame_conf_set = lan8814_start_of_frame_conf_set,
             .mepa_driver_start_of_frame_conf_get = lan8814_start_of_frame_conf_get,
-            .mepa_driver_framepreempt_set = lan8814_framepreempt_conf_set,
+            .mepa_driver_framepreempt_set = lan8814_framepreempt_set,
             .mepa_driver_framepreempt_get = lan8814_framepreempt_get,
             .mepa_driver_selftest_start = lan8814_selftest_start,
             .mepa_driver_selftest_read = lan8814_selftest_read,
