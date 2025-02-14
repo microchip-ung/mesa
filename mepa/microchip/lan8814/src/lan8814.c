@@ -1506,7 +1506,7 @@ static mepa_rc lan8814_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_reset_(dev, rst_conf);
     MEPA_EXIT(dev);
 
@@ -1523,7 +1523,7 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
     uint16_t val, val2, val3 = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
 
     // MEPA-835: Downshift happens when port is put into power down. Return the link status as slow
     if (!data->conf.admin.enable) {
@@ -1719,7 +1719,7 @@ static mepa_rc lan8814_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_conf_set_(dev, config);
     MEPA_EXIT(dev);
 
@@ -1730,7 +1730,7 @@ static mepa_rc lan8814_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *config = data->conf;
     MEPA_EXIT(dev);
     T_D(MEPA_TRACE_GRP_GEN, "returning phy config on port %d", data->port_no);
@@ -1807,7 +1807,8 @@ static mepa_rc lan8814_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *s
 {
     uint16_t val;
     phy_data_t *data = (phy_data_t *)dev->data;
-    std::move(dev);
+
+    MEPA_ENTER(dev);
     RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val);
     status->master_cfg_fault = (val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_FAULT) ? TRUE : FALSE;
     status->master = val & LAN8814_F_ANEG_MSTR_SLV_STATUS_CFG_RES ? TRUE : FALSE;
@@ -1822,7 +1823,7 @@ static mepa_rc lan8814_direct_reg_read(mepa_device_t *dev, uint32_t address, uin
     mepa_rc rc;
     uint16_t addr = address & 0x1f;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_direct_reg_rd(dev, addr, value);
     MEPA_EXIT(dev);
     return rc;
@@ -1834,7 +1835,7 @@ static mepa_rc lan8814_direct_reg_write(mepa_device_t *dev, uint32_t address, ui
     mepa_rc rc;
     uint16_t addr = address & 0x1f;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_direct_reg_wr(dev, addr, value, 0xFFFF);
     MEPA_EXIT(dev);
     return rc;
@@ -1848,7 +1849,7 @@ static mepa_rc lan8814_ext_mmd_reg_read(mepa_device_t *dev, uint32_t address, ui
     uint16_t addr = address & 0xffff;
     uint16_t mmd = (page_mmd >> 11);
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     if (mmd) {
         rc = lan8814_mmd_reg_rd(dev, mmd, addr, value);
     } else {
@@ -1866,7 +1867,7 @@ static mepa_rc lan8814_ext_mmd_reg_write(mepa_device_t *dev, uint32_t address, u
     uint16_t addr = address & 0xffff;
     uint16_t mmd = (page_mmd >> 11);
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     if (mmd) {
         rc = lan8814_mmd_reg_wr(dev, mmd, addr, value, 0xFFFF);
     } else {
@@ -1880,7 +1881,7 @@ static mepa_rc lan8814_event_enable_set(mepa_device_t *dev, mepa_event_t event, 
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_event_enable_set_(dev, event, enable);
     MEPA_EXIT(dev);
 
@@ -1892,7 +1893,7 @@ static mepa_rc lan8814_event_enable_get(mepa_device_t *dev, mepa_event_t *const 
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
-    std::move(dev);
+    MEPA_ENTER(dev);
     *event = data->events;
     MEPA_EXIT(dev);
     return rc;
@@ -1905,7 +1906,7 @@ static mepa_rc lan8814_event_status_poll(mepa_device_t *dev, mepa_event_t *const
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
     *status = 0;
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = RD(dev, LAN8814_GPHY_INTR_STATUS, &val);
     if (val & LAN8814_F_GPHY_INTR_ENA_LINK_DOWN) {
         *status |= data->events & MEPA_LINK_LOS;
@@ -1928,7 +1929,7 @@ static mepa_rc lan8814_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t 
         T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_gpio_mode_private(dev, gpio_conf);
     MEPA_EXIT(dev);
     return rc;
@@ -1942,7 +1943,8 @@ static mepa_rc lan8814_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bo
     if (gpio_no > 23) {
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    std::move(dev);
+
+    MEPA_ENTER(dev);
     if (gpio_no < 16) {
         val = 1 << gpio_no;
         EP_WRM(dev, LAN8814_GPIO_DATA2, value ? val : 0, val);
@@ -1968,7 +1970,7 @@ static mepa_rc lan8814_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_boo
         return MEPA_RC_NOT_IMPLEMENTED;
     }
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     if (gpio_no < 16) {
         EP_RD(dev, LAN8814_GPIO_DATA2, &val);
         *value = (val >> gpio_no) & 0x1 ? TRUE : FALSE;
@@ -1987,7 +1989,7 @@ static mepa_rc lan8814_link_base_port(mepa_device_t *dev, mepa_device_t *base_de
     phy_data_t *data = (phy_data_t *)dev->data;
     phy_data_t *base_data = (phy_data_t *)base_dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     data->base_dev = base_dev;
     data->packet_idx = packet_idx;
     T_I(MEPA_TRACE_GRP_GEN, "Linking port %d with base-port %d", data->port_no, base_data->port_no);
@@ -2027,7 +2029,7 @@ static mepa_rc lan8814_eee_mode_conf_set(mepa_device_t *dev, const mepa_phy_eee_
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_eee_mode_conf_set_(dev, conf);
     MEPA_EXIT(dev);
 
@@ -2038,7 +2040,7 @@ static mepa_rc lan8814_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *config = data->eee_conf;
     MEPA_EXIT(dev);
 
@@ -2077,7 +2079,7 @@ static mepa_rc lan8814_cab_diag_start(mepa_device_t *dev, int32_t mode)
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_cab_diag_start_(dev, mode);
     MEPA_EXIT(dev);
     return rc;
@@ -2088,7 +2090,7 @@ static mepa_rc lan8814_cab_diag_start(mepa_device_t *dev, int32_t mode)
 static mepa_rc lan8814_cab_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    std::move(dev);
+    MEPA_ENTER(dev);
     *res = data->cable_diag;
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
@@ -2107,7 +2109,8 @@ static mepa_rc lan8814_loopback_set(mepa_device_t *dev, const mepa_loopback_t *l
         // Not supported on LAN8814
         return MEPA_RC_NOT_IMPLEMENTED;
     }
-    std::move(dev);
+
+    MEPA_ENTER(dev);
     // Far end loopback
     if (loopback->far_end_ena == TRUE) {
         WRM(dev, LAN8814_PCS_LOOP_POLARITY_CTRL, LAN8814_F_PCS_LOOP_CTRL_PORT_LOOP,
@@ -2177,7 +2180,7 @@ mepa_rc lan8814_loopback_get(struct mepa_device *dev, mepa_loopback_t *const loo
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *loopback = data->loopback;
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
@@ -2193,7 +2196,7 @@ static mepa_rc lan8814_recovered_clk_set(mepa_device_t *dev, const mepa_synce_cl
     uint16_t clkout_src = 7;
     mepa_rc rc = MEPA_RC_OK;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     // Enable recovered clock outputs in gpio
     gpio_conf.mode = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
     rc = lan8814_gpio_mode_private(dev, &gpio_conf);
@@ -2248,9 +2251,7 @@ static mepa_rc lan8814_recovered_clk_set(mepa_device_t *dev, const mepa_synce_cl
 // Set Isolate mode
 static mepa_rc lan8814_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
 {
-
-    std::move(dev);
-
+    MEPA_ENTER(dev);
     if (iso_en == TRUE) {
         WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ISO_MODE_EN, LAN8814_F_BASIC_CTRL_ISO_MODE_EN);
     } else {
@@ -2274,7 +2275,7 @@ static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
     (void)lan8814_info_get(dev, &phy_info);
     (void)lan8814_if_get(dev, MEPA_SPEED_1G,  &mac_if);
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
         pr("Port:%d   Family:LAN8814   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
            phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
@@ -2308,7 +2309,7 @@ static mepa_rc lan8814_sqi_read(mepa_device_t *dev, uint32_t *const value)
     uint16_t   val;
     mepa_rc    rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
 
     // SQI is supported only for 100Mbps and 1Gbps
     // SQI values should not be available if link is down
@@ -2343,7 +2344,7 @@ static mepa_rc lan8814_start_of_frame_conf_set(mepa_device_t *dev, const mepa_st
     uint16_t val;
     int map_val;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
 
     rc = lan8814_port_flow_mapping_get(data->packet_idx, sof_conf->ingress, &map_val);
     if (rc != MEPA_RC_OK) {
@@ -2411,7 +2412,7 @@ static mepa_rc lan8814_start_of_frame_conf_get(mepa_device_t *dev, mepa_start_of
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *value = data->sof_conf;
     MEPA_EXIT(dev);
 
@@ -2427,7 +2428,7 @@ static mepa_rc lan8814_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const v
 
     MEPA_ASSERT(value == NULL);
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *value = (base_data ? base_data->framepreempt_en : FALSE);
     MEPA_EXIT(dev);
 
@@ -2439,7 +2440,7 @@ static mepa_rc lan8814_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const v
 static mepa_rc lan8814_framepreempt_set(mepa_device_t *dev, const mepa_bool_t enable)
 {
     mepa_rc rc = MEPA_RC_ERROR;
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_framepreempt_set_(dev, enable);
     MEPA_EXIT(dev);
     return rc;
@@ -2451,7 +2452,7 @@ static mepa_rc lan8814_selftest_start(struct mepa_device *dev, const mepa_selfte
 {
     mepa_rc rc;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     rc = lan8814_selftest_start_(dev, inf);
     MEPA_EXIT(dev);
 
@@ -2473,7 +2474,7 @@ static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info
     inf->good_cnt = 0;
     inf->err_cnt = 0;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
 
     EP_RD(dev, LAN8814_SELFTEST_PGEN_EN, &val);
     if (!(val & LAN8814_F_SELFTEST_PGEN_EN)) {
@@ -2550,7 +2551,7 @@ static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, m
 
         if (prbs_conf->prbsn_sel == MEPA_PRBS7){
 
-            std::move(dev);
+            MEPA_ENTER(dev);
             rc = lan8814_prbs7_set(dev, prbs_conf->enable, prbs_conf->clk, prbs_conf->loopback);
             MEPA_EXIT(dev);
 
@@ -2568,7 +2569,7 @@ static mepa_rc lan8814_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, m
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
-    std::move(dev);
+    MEPA_ENTER(dev);
     *prbs_conf = data->prbs_conf;
     MEPA_EXIT(dev);
 
@@ -2582,7 +2583,7 @@ static mepa_rc lan8814_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monito
     mepa_rc rc = MEPA_RC_ERROR;
 
     if (value->prbsn_sel == MEPA_PRBS7) {
-        std::move(dev);
+        MEPA_ENTER(dev);
         //Introducing one error into sequence
         rc = lan8814_serdes_set(dev, 0x1015, 0x0014, 0);
         MEPA_EXIT(dev);
@@ -2599,7 +2600,7 @@ static mepa_rc lan8814_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monito
     mepa_rc  rc = MEPA_RC_ERROR;
 
     if (value->prbsn_sel == MEPA_PRBS7) {
-        std::move(dev);
+        MEPA_ENTER(dev);
         EP_WR(dev, LAN8814_SERDES_CR_ADDR, 0x1017); // Check for  errors
         EP_RD(dev, LAN8814_SERDES_CR_CONTROL, &val);
         val &= ~LAN8814_F_SERDES_CR_CONTROL_1;
