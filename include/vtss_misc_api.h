@@ -1091,9 +1091,7 @@ typedef struct {
     } while (0); /**< VTSS_OS_TIMESTAMP() provides the implementation that     \
                     will fill in the timestamp. */
 
-/* - Fan control functions -------------------------------------- */
-#if defined(VTSS_FEATURE_FAN)
-
+/* - Temperature Sensor ----------------------------------------- */
 #if defined(VTSS_FEATURE_TEMP_SENSOR)
 /**
  * \brief Initialize the temperature sensor
@@ -1116,7 +1114,11 @@ vtss_rc vtss_temp_sensor_init(const vtss_inst_t inst, const BOOL enable);
  **/
 
 vtss_rc vtss_temp_sensor_get(const vtss_inst_t inst, i16 *temperature);
-#endif
+
+#endif /* VTSS_FEATURE_TEMP_SENSOR */
+
+/* - Fan control functions -------------------------------------- */
+#if defined(VTSS_FEATURE_FAN)
 
 /** \brief FAN PWM frequency */
 typedef enum {
