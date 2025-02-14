@@ -474,6 +474,24 @@ vtss_rc vtss_port_status_get(const vtss_inst_t         inst,
     return rc;
 }
 
+vtss_rc vtss_port_pcs_status_get(const vtss_inst_t        inst,
+                                 const vtss_port_no_t     port_no,
+                                 vtss_pcs_status_t *const status)
+{
+    vtss_rc rc = VTSS_RC_ERROR;
+    ;
+#if defined(VTSS_ARCH_LAN966X)
+    vtss_state_t *vtss_state;
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
+        VTSS_RC_OK) {
+        rc = vtss_cil_pcs_status_get(vtss_state, port_no, status);
+    }
+    VTSS_EXIT();
+#endif
+    return rc;
+}
+
 vtss_rc vtss_port_counters_update(const vtss_inst_t    inst,
                                   const vtss_port_no_t port_no)
 {

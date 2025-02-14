@@ -970,8 +970,12 @@ static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
     u32     delay = 0, value;
     vtss_rc rc = VTSS_RC_OK;
 
-    /* 1: Reset the PCS Rx clock domain  */
-    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
+    if (!(is_internal_cu(vtss_state, port) &&
+          vtss_state->port.conf[port_no].if_type ==
+              VTSS_PORT_INTERFACE_SGMII)) {
+        /* 1: Reset the PCS Rx clock domain (but not for dual port)  */
+        REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
+    }
 
     /* 2: Disable MAC frame reception */
     REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_RX_ENA_M);
@@ -1045,6 +1049,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
+    BOOL                   sgmii_mode_ena;
 #if !defined(VTSS_OPT_FPGA)
     u32                idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t mode_req = VTSS_SERDES_MODE_DISABLE;
@@ -1199,12 +1204,17 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
     REG_WR(DEV_MAC_HDX_CFG(port), value);
 
     // Choose SGMII or SerDes PCS mode
-    REG_WR(DEV_PCS1G_MODE_CFG(port), DEV_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii));
+    sgmii_mode_ena = is_internal_cu(vtss_state, port) ? 0 : sgmii;
+    REG_WR(DEV_PCS1G_MODE_CFG(port),
+           DEV_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii_mode_ena));
 
     // PCS setup
     if (sgmii) {
         // Set whole register
-        REG_WR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
+        if (!is_internal_cu(vtss_state, port)) {
+            REG_WR(DEV_PCS1G_ANEG_CFG(port),
+                   DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
+        }
     } else {
         // Clear specific bit only
         REG_WRM_CLR(DEV_PCS1G_ANEG_CFG(port),
@@ -1221,7 +1231,9 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 
     if (conf->if_type == VTSS_PORT_INTERFACE_SGMII ||
         conf->if_type == VTSS_PORT_INTERFACE_SGMII_2G5) {
-        REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
+        if (!is_internal_cu(vtss_state, port)) {
+            REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
+        }
     } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         // Complete SGMII aneg
         REG_WR(DEV_PCS1G_ANEG_CFG(port),
@@ -1399,6 +1411,69 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
         status->speed = VTSS_SPEED_2500M;
         status->fdx = 1;
     }
+    return VTSS_RC_OK;
+}
+
+// Used for DUAL mode when the PCS is active even though GMII is used
+vtss_rc vtss_cil_pcs_status_get(vtss_state_t            *vtss_state,
+                                const vtss_port_no_t     port_no,
+                                vtss_pcs_status_t *const status)
+{
+    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    vtss_port_clause_37_status_t cl37;
+    vtss_port_status_t           vaui;
+    u32                          val, port = VTSS_CHIP_PORT(port_no);
+
+    // Expecting to see in status->if_type:
+    // VTSS_PORT_INTERFACE_VAUI        : (2G5, no-aneg)
+    // VTSS_PORT_INTERFACE_SERDES      : (1G, aneg enabled/disabled)
+    // VTSS_PORT_INTERFACE_SGMII_CISCO : (1G, aneg enbled)
+    // 100FX and >2G5 are not supported by Maserati.
+
+    // 1. Store and change the 'if_type' temporarily to locate the PCS
+    // 2. Check the Serdes config and change if needed
+    // 3. Check the PCS and enable if needed
+
+    vtss_state->port.conf[port_no].if_type = status->if_type;
+    if (status->if_type == VTSS_PORT_INTERFACE_VAUI) {
+        // 2G5 - no aneg
+        if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_2G5) {
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
+                                       VTSS_SERDES_MODE_2G5));
+            REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
+        }
+        vtss_cil_port_status_get(vtss_state, port_no, &vaui);
+        status->link = vaui.link;
+    } else if (status->if_type == VTSS_PORT_INTERFACE_SERDES) {
+        // 1000BaseX (aneg/no-aneg is set by the application).
+        if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_SGMII) {
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
+                                       VTSS_SERDES_MODE_SGMII));
+        }
+        vtss_cil_port_clause_37_status_get(vtss_state, port_no, &cl37);
+        status->link = cl37.link;
+    } else if (status->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
+        // Copper SFP  (aneg only)
+        if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_SGMII) {
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
+                                       VTSS_SERDES_MODE_SGMII));
+        }
+        REG_RD(DEV_PCS1G_ANEG_CFG(port), &val);
+        if ((DEV_PCS1G_ANEG_CFG_ADV_ABILITY_X(val) != 1) ||
+            (DEV_PCS1G_ANEG_CFG_ENA_X(val) != 1)) {
+            REG_WR(DEV_PCS1G_ANEG_CFG(port),
+                   DEV_PCS1G_ANEG_CFG_ADV_ABILITY(1) |
+                       DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
+                       DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) |
+                       DEV_PCS1G_ANEG_CFG_ENA(1));
+        }
+        vtss_cil_port_clause_37_status_get(vtss_state, port_no, &cl37);
+        status->link = cl37.link;
+    } else {
+        VTSS_E("Interface '%d' not supported\n", status->if_type);
+    }
+    vtss_state->port.conf[port_no].if_type = if_type;
+
     return VTSS_RC_OK;
 }
 

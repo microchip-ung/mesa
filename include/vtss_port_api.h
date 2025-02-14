@@ -363,6 +363,19 @@ vtss_rc vtss_port_status_get(const vtss_inst_t         inst,
                              vtss_port_status_t *const status);
 
 /**
+ * \brief Get PCS status.
+ *
+ * \param inst [IN]     Target instance reference.
+ * \param port_no [IN]  Port number (mapped to PCS).
+ * \param status [OUT]  PCS structure with interface type as an input
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_port_pcs_status_get(const vtss_inst_t        inst,
+                                 const vtss_port_no_t     port_no,
+                                 vtss_pcs_status_t *const status);
+
+/**
  * \brief Update counters for port.
  *
  * \param inst [IN]     Target instance reference.

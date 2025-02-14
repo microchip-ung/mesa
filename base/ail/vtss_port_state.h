@@ -557,6 +557,9 @@ vtss_rc vtss_cil_port_clause_37_status_get(struct vtss_state_s *vtss_state,
 vtss_rc vtss_cil_port_status_get(struct vtss_state_s      *vtss_state,
                                  const vtss_port_no_t      port_no,
                                  vtss_port_status_t *const status);
+vtss_rc vtss_cil_pcs_status_get(struct vtss_state_s     *vtss_state,
+                                const vtss_port_no_t     port_no,
+                                vtss_pcs_status_t *const status);
 vtss_rc vtss_cil_port_kr_ctle_adjust(struct vtss_state_s *vtss_state,
                                      const vtss_port_no_t port_no);
 vtss_rc vtss_cil_port_kr_ctle_get(struct vtss_state_s    *vtss_state,

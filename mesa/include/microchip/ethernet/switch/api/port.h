@@ -237,6 +237,12 @@ mesa_rc mesa_port_conf_get(const mesa_inst_t       inst,
 mesa_rc mesa_port_status_get(const mesa_inst_t         inst,
                              const mesa_port_no_t      port_no,
                              mesa_port_status_t *const status);
+// Get PCS status.
+// port_no [IN]  Port number.
+// status [OUT]  PCS status structure.
+mesa_rc mesa_port_pcs_status_get(const mesa_inst_t        inst,
+                                 const mesa_port_no_t     port_no,
+                                 mesa_pcs_status_t *const status);
 
 // Port bulk config state
 typedef enum {

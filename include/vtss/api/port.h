@@ -246,6 +246,12 @@ typedef struct {
                     is a copper link. FALSE if link is fiber link or No Media */
 } vtss_port_status_t;
 
+// Port PCS parameter struct
+typedef struct {
+    vtss_port_interface_t if_type; /**< Input:  If_type (to choose PCS)  */
+    BOOL                  link;    /**< Output: Link or not  */
+} vtss_pcs_status_t;
+
 #ifdef __cplusplus
 }
 #endif
