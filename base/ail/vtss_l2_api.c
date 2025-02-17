@@ -6595,17 +6595,9 @@ vtss_rc vtss_cmn_vce_add(vtss_state_t           *vtss_state,
     is1->port_no = vtss_cmn_first_port_no_get(vtss_state, vce->key.port_list);
     is1->flags = VTSS_IS1_FLAG_TRI_VID;
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+#if !defined(VTSS_ARCH_LUTON26)
     vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key,
                           &data.key_size);
-#endif
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
-    if (vtss_state->arch == VTSS_ARCH_JR2 ||
-        vtss_state->arch == VTSS_ARCH_ANT) {
-        vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key,
-                              &data.key_size);
-    }
 #endif
 
     /* Check that the entry can be added */
@@ -7550,16 +7542,10 @@ static vtss_rc vtss_vt_is1_entry_add(vtss_state_t *vtss_state,
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     is1->lookup = 1; /* Second lookup */
+#endif
+#if !defined(VTSS_ARCH_LUTON26)
     vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key,
                           &key_size);
-#endif /* VTSS_ARCH_OCELOT */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
-    if (vtss_state->arch == VTSS_ARCH_JR2 ||
-        vtss_state->arch == VTSS_ARCH_ANT) {
-        vtss_cmn_key_type_get(vtss_state, is1->port_no, is1->lookup, key,
-                              &key_size);
-    }
 #endif
     data.key_size = key_size;
 
@@ -7640,17 +7626,6 @@ static vtss_rc vtss_vt_es0_entry_del(vtss_state_t *vtss_state,
     id = vtss_vt_es0_vte_id_get(conf, port_no);
     return vtss_vcap_del(vtss_state, &vtss_state->vcap.es0.obj,
                          VTSS_ES0_USER_VLAN, id);
-}
-
-/* Helper function to calculate number of set bits in a byte */
-static u8 bitcount(u8 n)
-{
-    u8 cnt = 0;
-    while (n) {
-        n &= (n - 1);
-        cnt++;
-    }
-    return cnt;
 }
 
 static BOOL vtss_vlan_trans_group_match(const vtss_vlan_trans_grp2vlan_conf_t *a,
@@ -7951,90 +7926,113 @@ static void vtss_vlan_trans_group_trans_cnt(vtss_state_t *vtss_state,
     *eg_cnt = tx_cnt;
 }
 
+// Determine key size for ingress VLAN translation
+static vtss_vcap_key_size_t vtss_vx_key_size_get(vtss_state_t  *vtss_state,
+                                                 vtss_port_no_t port_no)
+{
+    vtss_vcap_key_size_t key_size = VTSS_VCAP_KEY_SIZE_FULL;
+#if !defined(VTSS_ARCH_LUTON26)
+    vtss_is1_key_t key;
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
+    u8 lookup = 1;
+#else
+    u8 lookup = 0;
+#endif
+    vtss_cmn_key_type_get(vtss_state, port_no, lookup, &key, &key_size);
+#endif
+    return key_size;
+}
+
 static vtss_rc vtss_vlan_trans_res_check(vtss_state_t *vtss_state,
                                          const u16     group_id,
                                          const u8     *ports)
 {
     vtss_vlan_trans_port2grp_t       *port_list = &vtss_state->l2.vt_port_conf;
     vtss_vlan_trans_port2grp_entry_t *tmp;
-    vtss_vlan_trans_port2grp_conf_t   conf;
-    BOOL                              del_entry, grp_found = FALSE;
-    u32                               i, k, port_cnt, in_cnt, eg_cnt;
+    vtss_vlan_trans_port2grp_conf_t  *conf;
+    BOOL                              del_entry;
+    vtss_port_no_t                    port_no, port_first, orig_port_first;
+    u32                               port_cnt, in_cnt, eg_cnt;
     u32                               orig_port_cnt = 0;
-    u32        is1_add = 0, is1_del = 0, es0_add = 0, es0_del = 0;
-    vtss_res_t res;
+    vtss_vcap_key_size_t              key_size;
+    vtss_res_t                        res;
+    vtss_res_chg_t                   *chg;
 
+    vtss_cmn_res_init(&res);
+#if defined(VTSS_FEATURE_CLM)
+    chg = &res.clm_b;
+#else
+    chg = &res.is1;
+#endif
+    orig_port_first = VTSS_PORT_NO_NONE;
     for (tmp = port_list->used; tmp != NULL; tmp = tmp->next) {
-        conf = tmp->conf; // Copy configuration
-        if (group_id != conf.group_id) {
+        conf = &tmp->conf;
+        if (group_id != conf->group_id) {
+            // Check if we are moving ports from another group
             port_cnt = 0;
             del_entry = TRUE;
-            for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
-                for (k = 0; k < 8; k++) {
-                    if (ports[i] & conf.ports[i] & (1 << k)) {
+            port_first = VTSS_PORT_NO_NONE;
+            for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+                if (VTSS_PORT_BF_GET(conf->ports, port_no)) {
+                    if (port_first == VTSS_PORT_NO_NONE) {
+                        port_first = port_no;
+                    }
+                    if (VTSS_PORT_BF_GET(ports, port_no)) {
+                        // Port will be removed from group
                         port_cnt++;
+                    } else {
+                        // The group has more ports left
+                        del_entry = FALSE;
                     }
                 }
-                /* Remove the ports and check if more ports are left */
-                conf.ports[i] &= ~(ports[i]);
-                if (conf.ports[i]) {
-                    del_entry = FALSE;
-                }
             }
-            if (port_cnt != 0) {
-                /* Get number of VLAN Translations defined for this group */
-                vtss_vlan_trans_group_trans_cnt(vtss_state, conf.group_id,
+            if (port_cnt > 0) {
+                vtss_vlan_trans_group_trans_cnt(vtss_state, conf->group_id,
                                                 &in_cnt, &eg_cnt);
-                if (del_entry && in_cnt) {
-                    is1_del++;
+                if (del_entry) {
+                    // The first port gives the key size of deleted ingress rule
+                    key_size = vtss_vx_key_size_get(vtss_state, port_first);
+                    chg->del_key[key_size] += in_cnt;
                 }
-                es0_del += (port_cnt * eg_cnt);
+                res.es0.del += (port_cnt * eg_cnt);
             }
         } else {
-            grp_found = TRUE;
-            orig_port_cnt = 0;
-            port_cnt = 0;
-            for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
-                orig_port_cnt += bitcount(conf.ports[i]);
-                conf.ports[i] |= ports[i];
-                port_cnt += bitcount(conf.ports[i]);
+            // Count old number of ports in group
+            for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+                if (VTSS_PORT_BF_GET(conf->ports, port_no)) {
+                    if (orig_port_first == VTSS_PORT_NO_NONE) {
+                        orig_port_first = port_no;
+                    }
+                    orig_port_cnt++;
+                }
             }
-            /* Get number of VLAN Translations defined for this group */
-            vtss_vlan_trans_group_trans_cnt(vtss_state, group_id, &in_cnt,
-                                            &eg_cnt);
-            VTSS_D("in_cnt = %u, eg_cnt = %u, port_cnt = %u, orig_port_cnt = %u",
-                   in_cnt, eg_cnt, port_cnt, orig_port_cnt);
-            /* IS1 entry will only get updated */
-            es0_add += (eg_cnt * (port_cnt - orig_port_cnt));
         }
     }
 
-    if (grp_found == FALSE) {
-        port_cnt = 0;
-        for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
-            port_cnt += bitcount(ports[i]);
+    // Current group changes
+    vtss_vlan_trans_group_trans_cnt(vtss_state, group_id, &in_cnt, &eg_cnt);
+    if (orig_port_cnt > 0) {
+        // The first port gives the key size of deleted ingress rule
+        key_size = vtss_vx_key_size_get(vtss_state, orig_port_first);
+        chg->del_key[key_size] += in_cnt;
+    }
+    port_cnt = 0;
+    port_first = VTSS_PORT_NO_NONE;
+    for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+        if (VTSS_PORT_BF_GET(ports, port_no)) {
+            if (port_first == VTSS_PORT_NO_NONE) {
+                port_first = port_no;
+            }
+            port_cnt++;
         }
-        /* Get number of VLAN Translations defined for this group */
-        vtss_vlan_trans_group_trans_cnt(vtss_state, group_id, &in_cnt, &eg_cnt);
-        is1_add += in_cnt;
-        VTSS_D("in_cnt = %u, eg_cnt = %u, port_cnt = %u", in_cnt, eg_cnt,
-               port_cnt);
-        es0_add += eg_cnt * port_cnt;
     }
-    VTSS_D("is1_add = %u, is1_del = %u, es0_add = %u, es0_del = %u", is1_add,
-           is1_del, es0_add, es0_del);
-
-    /* Resource check based on add/delete count */
-    vtss_cmn_res_init(&res);
-    if (vtss_state->arch == VTSS_ARCH_JR2) {
-        res.clm_b.add = is1_add;
-        res.clm_b.del = is1_del;
-    } else {
-        res.is1.add = is1_add;
-        res.is1.del = is1_del;
+    if (port_cnt > 0) {
+        // The first port gives the key size of added ingress rule
+        key_size = vtss_vx_key_size_get(vtss_state, port_first);
+        chg->add_key[key_size] += in_cnt;
     }
-    res.es0.add = es0_add;
-    res.es0.del = es0_del;
+    res.es0.del += (orig_port_cnt * eg_cnt);
+    res.es0.add += eg_cnt * port_cnt;
     return vtss_cmn_res_check(vtss_state, &res);
 }
 
@@ -8052,12 +8050,16 @@ static vtss_rc vtss_vlan_trans_port_list_del(vtss_state_t *vtss_state,
     /* Delete all the port to group mappings corresponding to the ports list */
     for (tmp = list->used, prev = NULL; tmp != NULL;) {
         modified_entry = FALSE;
+        del_entry = TRUE;
         conf = tmp->conf; // Copy configuration
         for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
             if (ports[i] & conf.ports[i]) {
                 modified_entry = TRUE;
                 /* Remove the ports */
                 tmp->conf.ports[i] &= ~(ports[i]);
+                if (tmp->conf.ports[i]) {
+                    del_entry = FALSE;
+                }
             }
         }
         /* As a result of port deletes, if an entry exists with no ports, delete
@@ -8065,12 +8067,6 @@ static vtss_rc vtss_vlan_trans_port_list_del(vtss_state_t *vtss_state,
         if (modified_entry == TRUE) {
             vtss_vlan_trans_group_hw_entries_del(vtss_state, conf.group_id,
                                                  conf.ports);
-            del_entry = TRUE;
-            for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
-                if (tmp->conf.ports[i]) {
-                    del_entry = FALSE;
-                }
-            }
             if (del_entry) { /* None of the ports is valid, so delete the entry */
                 if (prev == NULL) { /* Delete the first node */
                     /* Remove from the used list */
@@ -8106,12 +8102,12 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
                                       const vtss_vlan_trans_grp2vlan_conf_t
                                           *const conf_add)
 {
-    u8              ports[VTSS_VLAN_TRANS_PORT_BF_SIZE], port_cnt = 0;
-    vtss_port_no_t  port_no;
-    BOOL            ports_exist = TRUE;
-    u32             i;
-    vtss_res_t      res;
-    vtss_res_chg_t *chg;
+    u8                   ports[VTSS_VLAN_TRANS_PORT_BF_SIZE], port_cnt = 0;
+    vtss_port_no_t       port_no, port_first;
+    BOOL                 ports_exist = TRUE;
+    vtss_res_t           res;
+    vtss_res_chg_t      *chg;
+    vtss_vcap_key_size_t key_size;
     vtss_vlan_trans_grp2vlan_conf_t conf;
 
     VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
@@ -8124,12 +8120,25 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
 
     // Calculate and check ressources
     vtss_cmn_res_init(&res);
-    chg = (vtss_state->arch == VTSS_ARCH_JR2 ? &res.clm_c : &res.is1);
+#if defined(VTSS_FEATURE_CLM)
+    chg = &res.clm_b;
+#else
+    chg = &res.is1;
+#endif
     if (ports_exist == TRUE) {
-        for (i = 0; i < VTSS_VLAN_TRANS_PORT_BF_SIZE; i++) {
-            port_cnt += bitcount(ports[i]);
+        port_first = VTSS_PORT_NO_NONE;
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (VTSS_PORT_BF_GET(ports, port_no)) {
+                if (port_first == VTSS_PORT_NO_NONE) {
+                    port_first = port_no;
+                }
+                port_cnt++;
+            }
         }
         VTSS_I("VLAN Translation: Port Count = %u", port_cnt);
+
+        // The first port gives the key size of the ingress rule
+        key_size = vtss_vx_key_size_get(vtss_state, port_first);
 
         /* We need one IS1 entry and port_cnt number of ES0 VLAN Translations.
          * Check for VCAP resources */
@@ -8137,7 +8146,7 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
         if (vtss_vlan_trans_group_list_get(vtss_state, &conf) == VTSS_RC_OK) {
             if (conf.dir != VTSS_VLAN_TRANS_DIR_EGRESS) {
                 // Ingress rule must be deleted
-                chg->del = 1;
+                chg->del_key[key_size] = 1;
             }
             if (conf.dir != VTSS_VLAN_TRANS_DIR_INGRESS) {
                 // Egress rules must be deleted
@@ -8146,7 +8155,7 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
         }
         if (conf_add->dir != VTSS_VLAN_TRANS_DIR_EGRESS) {
             // Ingress rule must be added/updated
-            chg->add = 1;
+            chg->add_key[key_size] = 1;
         }
         if (conf_add->dir != VTSS_VLAN_TRANS_DIR_INGRESS) {
             // Egress rules must be added/updated
@@ -8159,13 +8168,13 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t *vtss_state,
     VTSS_RC(vtss_vlan_trans_group_list_add(vtss_state, conf_add));
 
     if (ports_exist == TRUE) {
-        if (chg->del) {
+        if (chg->del_key[key_size]) {
             // Delete ingress rule
             if ((vtss_vt_is1_entry_del(vtss_state, &conf)) != VTSS_RC_OK) {
                 return VTSS_RC_ERROR;
             }
         }
-        if (chg->add) {
+        if (chg->add_key[key_size]) {
             // Add/update ingress rule
             if ((vtss_vt_is1_entry_add(vtss_state, conf_add, ports)) !=
                 VTSS_RC_OK) {
@@ -8238,8 +8247,7 @@ vtss_rc vtss_cmn_vlan_trans_group_get(vtss_state_t *vtss_state,
                                       vtss_vlan_trans_grp2vlan_conf_t *conf,
                                       BOOL                             next)
 {
-    vtss_vlan_trans_grp2vlan_t *list = &vtss_state->l2.vt_trans_conf;
-    ;
+    vtss_vlan_trans_grp2vlan_t       *list = &vtss_state->l2.vt_trans_conf;
     vtss_vlan_trans_grp2vlan_entry_t *tmp;
     BOOL                              next_entry = FALSE;
 
