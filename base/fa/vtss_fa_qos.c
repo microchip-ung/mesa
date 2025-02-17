@@ -3738,6 +3738,7 @@ static vtss_rc tas_list_start(vtss_state_t             *vtss_state,
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
                                          const vtss_port_no_t port_no)
 {
+
     /* This must be done when the link comes up and link speed has been
      * negotiated. */
     if (FA_TGT) {
@@ -5032,31 +5033,23 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 #endif
     u64                  min_rate, lowest_max_nxt;
     vtss_qos_lb_group_t *group, *group_nxt;
-    BOOL                 show_act, basics_act, gen_pol_act, service_pol_grp_act,
-        service_pol_set_act, port_pol_act, storm_pol_act, schedul_act, band_act,
-        shape_act, leak_act, wred_act, tag_remark_act, tas_act, tas_state_act,
-        tas_count_act, print_queue_act;
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    BOOL ingr_mapping_act = FALSE;
-#endif
-#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-    BOOL egr_mapping_act = FALSE;
-#endif
+    BOOL                 show_act, basics_act, ingr_mapping_act, gen_pol_act,
+        service_pol_grp_act, service_pol_set_act, port_pol_act, storm_pol_act,
+        schedul_act, band_act, shape_act, leak_act, wred_act, tag_remark_act,
+        egr_mapping_act, tas_act, tas_state_act, tas_count_act, print_queue_act;
 
     VTSS_D("has_action %u  action %u", info->has_action, info->action);
 
-    show_act = basics_act = gen_pol_act = service_pol_grp_act =
-        service_pol_set_act = port_pol_act = storm_pol_act = schedul_act =
-            tas_act = band_act = shape_act = leak_act = wred_act =
-                tag_remark_act = tas_state_act = tas_count_act =
-                    print_queue_act = FALSE;
+    show_act = basics_act = ingr_mapping_act = gen_pol_act =
+        service_pol_grp_act = service_pol_set_act = port_pol_act =
+            storm_pol_act = schedul_act = tas_act = band_act = shape_act =
+                leak_act = wred_act = tag_remark_act = egr_mapping_act =
+                    tas_state_act = tas_count_act = print_queue_act = FALSE;
 
     if (info->has_action) { /* Action parameter is present */
         show_act = (info->action == 0) ? TRUE : FALSE;
         basics_act = (info->action == 1) ? TRUE : FALSE;
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
         ingr_mapping_act = (info->action == 2) ? TRUE : FALSE;
-#endif
         gen_pol_act = (info->action == 3) ? TRUE : FALSE;
         port_pol_act = (info->action == 4) ? TRUE : FALSE;
         storm_pol_act = (info->action == 5) ? TRUE : FALSE;
@@ -5069,9 +5062,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         leak_act = (info->action == 12) ? TRUE : FALSE;
         wred_act = (info->action == 13) ? TRUE : FALSE;
         tag_remark_act = (info->action == 14) ? TRUE : FALSE;
-#if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
         egr_mapping_act = (info->action == 15) ? TRUE : FALSE;
-#endif
         service_pol_grp_act = (info->action == 16) ? TRUE : FALSE;
         service_pol_set_act = (info->action == 17) ? TRUE : FALSE;
         print_queue_act = (info->action == 18) ? TRUE : FALSE;
@@ -5113,6 +5104,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         show_act, basics_act, ingr_mapping_act, gen_pol_act, port_pol_act,
         storm_pol_act, schedul_act, band_act, shape_act, leak_act, wred_act,
         tag_remark_act, egr_mapping_act);
+    (void)ingr_mapping_act;
+    (void)egr_mapping_act;
 
     if (show_act) {
         pr("QOS Debug Group action:\n");
