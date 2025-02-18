@@ -974,12 +974,16 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
     while (i < len) {
         c = buf[i++];
         if (c == '\0') {
+            VTSS_ENTER();
             prntf(buf + j);
+            VTSS_EXIT();
             break;
         } else if (i == (j + 128)) {
             c = buf[i];
             buf[i] = '\0';
+            VTSS_ENTER();
             prntf(buf + j);
+            VTSS_EXIT();
             buf[i] = c;
             j = i;
         }
