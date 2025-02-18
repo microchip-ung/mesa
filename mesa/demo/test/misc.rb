@@ -486,3 +486,55 @@ test "api-dump" do
         end
     end
 end
+
+test "vlan-translation-resources" do
+    break
+    port = $ts.dut.p[0]
+
+    if (false)
+        # Laguna
+        # Consume 5 other VCAP super blocks
+        ace = $ts.dut.call("mesa_hace_init", "MESA_ACE_TYPE_IPV4")
+        ace["id"] = 1
+        $ts.dut.call("mesa_hace_add", "MESA_HACL_TYPE_IRACL", 0, ace)
+        513.times do |i|
+            ace["id"] = (i + 1)
+            ace["key"]["type_ext"] = true
+            ace["key"]["ipv4"]["sip_smac"]["enable"] = (i == 1)
+            $ts.dut.call("mesa_hace_add", "MESA_HACL_TYPE_IPACL", 0, ace)
+        end
+
+        # One VCE in the same block as translations
+        vce = $ts.dut.call("mesa_vce_init", "MESA_VCE_TYPE_ANY")
+        vce["id"] = 1
+        $ts.dut.call("mesa_vce_add", 0, vce)
+
+        # Use full keys
+        c = $ts.dut.call("mesa_vcl_port_conf_get", port)
+        c["key_type"] = "MESA_VCAP_KEY_TYPE_MAC_IP_ADDR"
+        $ts.dut.call("mesa_vcl_port_conf_set", port, c)
+    else
+        # Maserati, use full keys
+        c = $ts.dut.call("mesa_vcap_port_conf_get", port)
+        c["key_type_is1_1"] = "MESA_VCAP_KEY_TYPE_MAC_IP_ADDR"
+        $ts.dut.call("mesa_vcap_port_conf_set", port, c)
+    end
+
+    # Add translations
+    group = 1
+    c = {}
+    c[:group_id] = group
+    c[:trans_vid] = 1000
+    c[:dir] = "MESA_VLAN_TRANS_DIR_INGRESS"
+    256.times do |i|
+        c[:vid] = (i + 1)
+        $ts.dut.call("mesa_vlan_trans_group_add", c)
+    end
+
+    # Map port to group
+    c = {}
+    c[:group_id] =  group
+    c[:port_list] = "#{port}"
+    $ts.dut.call("mesa_vlan_trans_group_to_port_set", c)
+    #$ts.dut.run("mesa-cmd debug api ai vx")
+end
