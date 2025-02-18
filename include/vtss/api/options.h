@@ -248,6 +248,9 @@
                                            */
 #define VTSS_FEATURE_ACL_EXT_MAC          /**< ACL extended IPv4/IPv6 rules with MAC \
                                              address matching */
+#if !defined(VTSS_OPT_FPGA)
+#define VTSS_FEATURE_TEMP_SENSOR /**< Temperature Sensor */
+#endif
 
 #if !VTSS_OPT_LIGHT
 #if !defined(VTSS_OPT_FPGA)
@@ -308,8 +311,7 @@
 #define VTSS_FEATURE_MAC_CPU_QUEUE               /**< CPU queue per MAC address */
 #define VTSS_FEATURE_EEE                         /**< Energy Efficient Ethernet */
 #if !defined(VTSS_OPT_FPGA)
-#define VTSS_FEATURE_FAN         /**< Fan control */
-#define VTSS_FEATURE_TEMP_SENSOR /**< Temperature Sensor */
+#define VTSS_FEATURE_FAN /**< Fan control */
 #endif
 #define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
 #define VTSS_FEATURE_PTP_RS422                   /**< Support for the RS422 serial/1PPS \
