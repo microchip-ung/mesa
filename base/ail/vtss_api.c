@@ -989,7 +989,9 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
         }
     }
     if (i >= len) {
+        VTSS_ENTER();
         prntf("\n--- Truncated due to buffer size ---\n");
+        VTSS_EXIT();
     }
     VTSS_OS_FREE(buf, VTSS_MEM_FLAGS_NONE);
     return rc;
