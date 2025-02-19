@@ -165,6 +165,12 @@
 #define VTSS_ARCH_LAIKA /**< Laika */
 #endif
 
+/** VTSS_ARCH_FA is a group of achitectures */
+#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) ||                 \
+    defined(VTSS_ARCH_LAIKA)
+#define VTSS_ARCH_FA
+#endif
+
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #define VTSS_FEATURE_10G          /**< 10G ports */
 #define VTSS_FEATURE_MISC         /**< Miscellaneous */

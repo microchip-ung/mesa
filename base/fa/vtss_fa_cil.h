@@ -6,10 +6,6 @@
 
 #include "vtss_api.h"
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
-#define VTSS_ARCH_FA
-#endif
-
 #if defined(VTSS_ARCH_FA)
 #define VTSS_TRACE_LAYER VTSS_TRACE_LAYER_CIL
 #include "../ail/vtss_state.h"
