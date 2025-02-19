@@ -96,8 +96,7 @@ typedef struct {
 typedef struct {
     i32            chip_port; /**< Set to -1 if not used */
     vtss_chip_no_t chip_no;   /**< Chip number, multi-chip targets */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     vtss_internal_bw_t
         max_bw; /**< Max internal bandwidth reserved for the port */
 #endif          /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_SPARX5 */
@@ -105,11 +104,10 @@ typedef struct {
     u8 miim_addr; /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
     vtss_chip_no_t
         miim_chip_no; /**< MII management chip number, multi-chip targets */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) ||                 \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
     vtss_port_sgpio_map_t sd_map; /**< PCS signal detect to SGPIO bit map */
     vtss_gpio_sd_map_t    sd_gpio_map; /**< PCS signal detect to GPIO SD map */
-#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X || VTSS_ARCH_LAN966X */
+#endif                                 /* VTSS_ARCH_FA || VTSS_ARCH_LAN966X */
 } vtss_port_map_t;
 
 /**

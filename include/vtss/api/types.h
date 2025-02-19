@@ -589,8 +589,7 @@ typedef u8 vtss_dp_level_t;
 typedef vtss_dp_level_t vtss_dpl_t;
 #define VTSS_DPLS 2 /**< Default number of drop precedence levels */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #undef VTSS_DPLS
 #define VTSS_DPLS 4 /**< Number of drop precedence levels */
 #endif /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
@@ -689,8 +688,7 @@ typedef u16 vtss_qos_egress_map_id_t;
     VTSS_QOS_MAP_ID_NONE /**< ID for unallocated/unused */
 
 // TBD_VK: Check the defined values when the FA datasheet is available
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 #if VTSS_OPT_LIGHT
 #define VTSS_QOS_TAS_GCL_LEN_MAX                                               \
     8 /**< Maximum supported length of TAS gate control list */
@@ -869,7 +867,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
 #endif                           /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #undef VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
@@ -877,7 +875,7 @@ typedef u32 vtss_packet_tx_grp_t;
     2 /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
-#endif                           /* VTSS_ARCH_SPARX5 */
+#endif                           /* VTSS_ARCH_FA */
 
 #if defined(VTSS_ARCH_LAN966X)
 #undef VTSS_PACKET_RX_QUEUE_CNT
@@ -1231,8 +1229,7 @@ typedef enum {
  ****************************************************************************/
 /** \brief ACL policer number */
 typedef u32 vtss_acl_policer_no_t;
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #define VTSS_ACL_POLICERS 32 /**< Number of ACL policers */
 #else
 #define VTSS_ACL_POLICERS 16 /**< Number of ACL policers */
@@ -1374,8 +1371,7 @@ typedef u8 vtss_clock_identity[VTSS_CLOCK_IDENTITY_LENGTH];
  * SYNCE types
  ****************************************************************************/
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE                                         \
     4 /**< SYNCE clock out port numberarray size */
 #else

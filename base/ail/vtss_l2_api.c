@@ -4818,7 +4818,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA)
 #if defined(VTSS_FEATURE_VOP)
         if (eflow->conf.voe_idx <
             VTSS_PORT_VOE_BASE_IDX) { /* Do not point to a Port VOE */
@@ -8405,7 +8405,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_get(vtss_state_t *vtss_state,
 
 BOOL vtss_vlan_counters_enabled(vtss_state_t *vtss_state)
 {
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     if (!vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
         // VLAN counters are not supported by target
         return FALSE;
@@ -9470,8 +9470,7 @@ static void vtss_debug_print_mirror(vtss_state_t                  *vtss_state,
 
     vtss_debug_print_port_none(ss, "Mirror Port      ", conf->port_no);
     pr("Mirror Forwarding: %s\n", vtss_bool_txt(conf->fwd_enable));
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     pr("Mirror Tag       : %s\n", conf->tag == VTSS_MIRROR_TAG_NONE ? "None"
                                   : conf->tag == VTSS_MIRROR_TAG_C  ? "C-Tag"
                                   : conf->tag == VTSS_MIRROR_TAG_S  ? "S-Tag"

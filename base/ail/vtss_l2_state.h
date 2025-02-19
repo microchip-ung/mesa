@@ -47,7 +47,7 @@ typedef struct {
 #define VTSS_PGIDS VTSS_PGID_JAGUAR_2
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #if VTSS_OPT_LIGHT
 #define VTSS_PGID_FA 128
 #else
@@ -55,7 +55,7 @@ typedef struct {
 #endif
 #undef VTSS_PGIDS
 #define VTSS_PGIDS VTSS_PGID_FA
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_FA */
 
 /* Pseudo PGID for IPv4/IPv6 MC */
 #define VTSS_PGID_NONE VTSS_PGIDS
@@ -541,8 +541,7 @@ typedef struct {
 typedef struct {
     u32 max_count; /* Maximum number of rules */
     u32 poll_idx;  /* Counter polling index */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     vtss_sdx_counters_t sdx_table[VTSS_EVC_STAT_CNT];
 #else
     vtss_sdx_counters_t
@@ -856,8 +855,7 @@ typedef struct {
 
     vtss_sflow_port_conf_t sflow_conf[VTSS_PORT_ARRAY_SIZE];
     u32                    sflow_max_power_of_two;
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     u32 sflow_ena_cnt; /* Count - the number of ports on which sFlow is enabled */
 #endif
 

@@ -416,7 +416,7 @@ vtss_vcap_key_size_t vtss_vcap_key_type2size(vtss_vcap_key_type_t key_type)
     vtss_vcap_key_size_t key_size;
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
     key_size = VTSS_VCAP_KEY_SIZE_SIXTH;
 #else
     key_size = VTSS_VCAP_KEY_SIZE_EIGHTH;
@@ -1515,8 +1515,7 @@ vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t           inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t                inst,
                               const vtss_acl_sip_idx_t         idx,
                               const vtss_acl_sip_conf_t *const conf)
@@ -2282,8 +2281,7 @@ static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
         high = ((cur->id >> 32) & 0xffffffff);
         user = cur->user;
         name = (user == VTSS_IS0_USER_EVC ? "EVC" :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
                 user == VTSS_IS1_USER_MCE_0 ? "MCE_0"
                 :
 #else
@@ -2293,8 +2291,7 @@ static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
                 user == VTSS_IS1_USER_VCL    ? "VCL"
                 : user == VTSS_IS1_USER_VLAN ? "VLAN"
                 :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
                 user == VTSS_IS1_USER_MCE_1   ? "MCE_1"
                 : user == VTSS_IS1_USER_MCE_2 ? "MCE_2"
                 :
@@ -2324,8 +2321,7 @@ static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
                 : user == VTSS_IS2_USER_ERACL    ? "E-RACL"
                 : user == VTSS_ES0_USER_TCL      ? "TCL"
                 :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
                 user == VTSS_ES0_USER_MCE_0 ? "MCE_0"
                 :
 #else
@@ -2334,8 +2330,7 @@ static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
 #endif
                 user == VTSS_ES0_USER_VLAN ? "VLAN"
                 :
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
                 user == VTSS_ES0_USER_MCE_1   ? "MCE_1"
                 : user == VTSS_ES0_USER_MCE_2 ? "MCE_2"
                 :
@@ -2546,7 +2541,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers",
                               ss, info);
     vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers",

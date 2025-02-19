@@ -171,7 +171,7 @@
 #define VTSS_ARCH_FA
 #endif
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #define VTSS_FEATURE_10G          /**< 10G ports */
 #define VTSS_FEATURE_MISC         /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO  /**< Serial GPIO control */
@@ -351,7 +351,7 @@
 #define VTSS_FEATURE_TIMESTAMP_PCH               /**< TS PCH hardware support */
 #define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
 #endif                                           // !VTSS_OPT_LIGHT
-#endif /* VTSS_ARCH_SPARX5 || VTSS_ARCH_LAN969X */
+#endif                                           // VTSS_ARCH_FA
 
 // VTSS_ARCH_SPARX5 specific features
 #if defined(VTSS_ARCH_SPARX5)
@@ -856,8 +856,7 @@
 #define VTSS_FEATURE_L2_MSTP /**< MSTP */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_VOP_V2    /**< Version 2 OAM implementation. Jaguar2 and  \
                                   forward */
@@ -866,7 +865,7 @@
 
 #if defined(VTSS_ARCH_SERVAL_CE) || defined(VTSS_ARCH_OCELOT) ||               \
     defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA)
 #define VTSS_FEATURE_VOP_CFM    /**< OAM/VOE supporting full 802.1 CFM         \
                                    implementation */
 #endif

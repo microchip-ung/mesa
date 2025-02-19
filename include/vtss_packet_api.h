@@ -368,7 +368,7 @@ typedef enum {
           VLAN tag) */
 
 // Find the largest required header size.
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #define VTSS_PACKET_HDR_SIZE_BYTES                                             \
     VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is     \
                                      only useful if you only compile for one   \
@@ -705,7 +705,7 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
                                   u32 *const bin_hdr_len);
 
 /* Maximum Rx/Tx IFH length */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #define VTSS_PACKET_TX_IFH_MAX 36 /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX 36 /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_JAGUAR_2)

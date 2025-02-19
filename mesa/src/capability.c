@@ -63,7 +63,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
     3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
 #define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                  \
     207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
 #define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN /* FA-FIXME */                      \
     25 /* kbps.         1 *     25.040 =         25.040 bps.       */
 #define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX /* FA-FIXME */                      \
@@ -140,7 +140,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
 #define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                     \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN /* FA-FIXME */                       \
     100 /* kbps.         1 *    100.000 =        100.000 bps.   */
 #define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX /* FA-FIXME */                       \
@@ -214,8 +214,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
     VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
 #define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX                                  \
     VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_SPARX5) ||                                             \
-    defined(VTSS_ARCH_LAN969X)             /* Same as port policer */
+#elif defined(VTSS_ARCH_FA)                /* Same as port policer */
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN /* FA-FIXME */                      \
     VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX /* FA-FIXME */                      \
@@ -258,7 +257,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX  0 /* undefined */
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN 0 /* undefined */
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX 0 /* undefined */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MIN /* FA-FIXME */                        \
     VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MAX /* FA-FIXME */                        \
@@ -283,7 +282,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
     5 /* Local definition of external synchronisation event ID */
 #define MESA_BIT(x) (1 << (x))
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)
 {
     vtss_state_t *vtss_state;
@@ -577,8 +576,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PACKET_MASQ_PORT:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -607,8 +605,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PACKET_AUTO_TAGGING:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -684,8 +681,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     // Layer 2
     case MESA_CAP_L2_MAC_ADDR_CNT:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 32768;
 #else
         c = 8192;
@@ -710,7 +706,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_VLAN_COUNTERS:
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_VLAN_COUNTERS);
 #else
         c = 1;
@@ -725,8 +721,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_MIRROR_TAG:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -753,15 +748,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_MSTP_HW:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 32767;
 #elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||               \
     defined(VTSS_ARCH_LAN966X)
@@ -798,7 +791,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_FRER:
 #if defined(VTSS_FEATURE_FRER)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_FRER);
 #else
         c = 1;
@@ -820,7 +813,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_PSFP:
 #if defined(VTSS_FEATURE_PSFP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_PSFP);
 #else
         c = 1;
@@ -866,7 +859,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_MAC_INDEX_TABLE:
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_MAC_INDEX_TABLE);
 #else
         c = 1;
@@ -875,7 +868,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
     case MESA_CAP_L2_REDBOX_CNT:
 #if defined(VTSS_FEATURE_REDBOX)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_REDBOX) ? VTSS_REDBOX_CNT : 0;
 #else
         c = VTSS_REDBOX_CNT;
@@ -972,8 +965,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT:
-#if defined(VTSS_FEATURE_QOS_TAS) && defined(VTSS_ARCH_SPARX5) ||              \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_FEATURE_QOS_TAS) && defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -1114,7 +1106,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_FRAME_PREEMPTION:
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_QOS_FRAME_PREEMPTION);
 #else
         c = 1;
@@ -1281,7 +1273,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_OT:
 #if defined(VTSS_FEATURE_QOS_OT)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_QOS_OT);
 #else
         c = 1;
@@ -1625,7 +1617,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     break;
 
     case MESA_CAP_VOP_CCM_DEFECT:
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -1649,8 +1641,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_SYNCE_IN_TYPE:
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -1695,7 +1686,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // Timestamping
     case MESA_CAP_TS:
 #if defined(VTSS_FEATURE_TIMESTAMP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1705,7 +1696,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_LATENCY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_LATENCY_COMP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1715,7 +1706,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_ORG_TIME:
 #if defined(VTSS_FEATURE_TIMESTAMP_ORG_TIME)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1725,7 +1716,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_P2P_DELAY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_P2P_DELAY_COMP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1735,7 +1726,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_ASYMMETRY_COMP:
 #if defined(VTSS_FEATURE_TIMESTAMP_ASYMMETRY_COMP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1785,7 +1776,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_MISSING_INTERRUPT:
 #if defined(VTSS_MISSING_TIMESTAMP_INTERRUPT)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1795,7 +1786,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_MISSING_TX_INTERRUPT:
 #if defined(VTSS_MISSING_TX_TIMESTAMP_INTERRUPT)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1805,8 +1796,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_ALT_CLOCK:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA) /* TBD_henrikb */
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1818,7 +1809,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_DELAY_REQ_AUTO_RESP:
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1828,7 +1819,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_PTP_RS422:
 #if defined(VTSS_FEATURE_PTP_RS422)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1844,7 +1835,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_TS_PCH:
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
 #else
         c = 1;
@@ -1939,8 +1930,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_C_DTC_SUPPORTED:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1996,7 +1986,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
 #elif defined(VTSS_ARCH_LAN966X)
         c = 9;
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
         /* Jaguar 3 architectures */
         c = 10;
 #else
@@ -2093,7 +2083,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // MRP
     case MESA_CAP_MRP:
 #if defined(VTSS_FEATURE_MRP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_MRP);
 #else
         c = 1;
@@ -2103,7 +2093,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_MRP_CNT:
 #if defined(VTSS_FEATURE_MRP)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_MRP) ? VTSS_MRP_CNT : 0;
 #else
         c = VTSS_MRP_CNT;
@@ -2125,7 +2115,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     // SGPIO to signal detect mapping
     case MESA_CAP_MISC_SGPIO_MAP:
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;

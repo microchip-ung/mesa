@@ -2325,16 +2325,14 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             LMU_SS_FMT(&buf.ss, "Mapping (VTSS_PORTS = %u)", VTSS_PORTS);
             vtss_debug_print_header(ss, buf.s);
             pr("Port  Chip Port  Chip  ");
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
             pr("Max BW  ");
 #endif
             pr("MIIM Bus  MIIM Addr  MIIM Chip\n");
         }
         map = &vtss_state->port.map[port_no];
         pr("%-6u%-11d%-6u", port_no, map->chip_port, map->chip_no);
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         pr("%-8s", map->max_bw == VTSS_BW_1G     ? "1G"
                    : map->max_bw == VTSS_BW_2G5  ? "2G5"
                    : map->max_bw == VTSS_BW_5G   ? "5G"

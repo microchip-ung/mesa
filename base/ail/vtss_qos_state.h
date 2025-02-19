@@ -7,8 +7,7 @@
 #if defined(VTSS_FEATURE_QOS)
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 
 #define VTSS_QOS_DWRR_COST_BIT_WIDTH 5
 
@@ -101,8 +100,7 @@ typedef struct {
 
 #define VTSS_POL_STAT_NONE 0 /* The NO Policer/SDX statistics value */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_JR_SDX_CNT  511
 #define VTSS_JR_POL_CNT  512  /* EVC policers */
@@ -367,7 +365,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
 #define VTSS_HSCH_L2_SES 57   /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS                                                     \
     (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
 #define VTSS_HSCH_LAYERS 4 /**< Number of layers (L0, L1, L2 and QSCH) */
 #if defined(VTSS_ARCH_LAN969X) && VTSS_OPT_LIGHT
 #define VTSS_HSCH_L0_SES 1120 /**< Number of scheduler elements in layer 0 */
@@ -416,7 +414,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
 #define VTSS_HSCH_MAX_RATE_GROUP_3                                             \
     26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
 #endif       /* defined(VTSS_CHIP_7538) */
-#elif defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_FA)
 
 #endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) ||      \
           defined(VTSS_ARCH_JAGUAR_2_C) */
@@ -467,7 +465,7 @@ typedef struct {
         l2_alloc[VTSS_HSCH_L2_SES]; /**< Allocation of layer 2 entries. Only
                                        accessed through layer[2].entry above */
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) ||            \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA)
     vtss_qos_leak_entry_t
         l3_alloc[VTSS_HSCH_L3_QSHPS]; /**< Allocation of layer 3 (queue shaper)
                                          entries. Only accessed through
@@ -479,7 +477,7 @@ typedef struct {
 #endif /* defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #define VTSS_TAS_NUMBER_OF_LISTS    (0x7F + 1)
 #define VTSS_TAS_NUMBER_OF_PROFILES 100
 #define VTSS_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
@@ -570,7 +568,7 @@ typedef struct {
 } vtss_qos_fp_state_t;
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 typedef struct {
     u32 min_burst;    /* Minimum burst size and granularity in bytes */
     u32 pup_interval; /* Configures
@@ -673,7 +671,7 @@ typedef struct {
 #endif /* VTSS_ARCH_LUTON26 */
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     vtss_qos_lb_group_t lb_groups[LB_GROUP_CNT];
     u16 lb_set_grp_idx[LB_SET_CNT]; /* The LB group index for this LB set */
 #endif

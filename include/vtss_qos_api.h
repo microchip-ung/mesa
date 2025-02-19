@@ -173,8 +173,7 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t            inst,
 #if defined(VTSS_ARCH_SERVAL_T)
 #define VTSS_PORT_POLICERS                                                     \
     2 /**< Number of Port policers (per port) available in HW */
-#elif defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||              \
-    defined(VTSS_ARCH_LAN969X)
+#elif defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #define VTSS_PORT_POLICERS                                                     \
     4 /**< Number of Port policers (per port) available in HW */
 #else
@@ -226,8 +225,7 @@ typedef struct {
 typedef struct {
     vtss_policer_type_t type;   /**< Policer type */
     BOOL                enable; /**< Enable/disable policer */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     BOOL cm;        /**< Colour Mode (TRUE means colour aware) */
 #endif              /* VTSS_ARCH_JAGUAR_2 */
     BOOL cf;        /**< Coupling Flag */

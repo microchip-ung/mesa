@@ -17,7 +17,7 @@
 #include "../jaguar2/vtss_jaguar2.h"
 #endif
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #include "../fa/vtss_fa.h"
 #endif
 
@@ -302,7 +302,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         VTSS_RC(vtss_jaguar2_inst_create(vtss_state));
         break;
 #endif /* VTSS_ARCH_JAGUAR_2 */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     case VTSS_TARGET_P64H:
     case VTSS_TARGET_7546:
     case VTSS_TARGET_7549:
@@ -329,7 +329,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         arch = VTSS_ARCH_ANT;
         VTSS_RC(vtss_fa_inst_create(vtss_state));
         break;
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_FA */
 #if defined(VTSS_ARCH_LAN966X)
     case VTSS_TARGET_LAN9662:
     case VTSS_TARGET_LAN9668:

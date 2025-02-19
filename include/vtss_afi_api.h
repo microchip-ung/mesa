@@ -208,7 +208,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
                       preamble) */
 #endif
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_AFI_SLOW_INJ_CNT                                                  \
     4096 /**< Maximum number of simultaneous slow injections */

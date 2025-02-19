@@ -15,8 +15,8 @@
 #define VTSS_VOE_ID_SIZE VTSS_VOE_CNT
 #endif /* VTSS_ARCH_OCELOT */
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X)
 #define VTSS_TS_ID_SIZE                10
 #define TS_IDS_RESERVED_FOR_SW         10
 #define TS_PORT_ID_PORT_NUMBER_DEFAULT 0x9ABC
@@ -25,14 +25,13 @@
 typedef struct {
     vtss_ts_ext_clock_mode_t ext_clock_mode;
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X)
+    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
     vtss_ts_ext_clock_mode_t ext_clock_mode_alt;
     vtss_ts_alt_clock_mode_t alt_clock_mode;
 #endif
     i32 adj[VTSS_TS_DOMAIN_ARRAY_SIZE];
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_HENRIKB */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X) /* TBD_HENRIKB */
     vtss_timestamp_t
         sample_ts[VTSS_TS_DOMAIN_ARRAY_SIZE]; /* Sampled timestamp pr domain */
     u64 sample_tc[VTSS_TS_DOMAIN_ARRAY_SIZE]; /* Timecounter corresponding to
@@ -171,8 +170,7 @@ typedef struct {
     vtss_rc (*domain_adjtimer_set)(struct vtss_state_s *vtss_state, u32 domain);
     vtss_rc (*freq_offset_get)(struct vtss_state_s *vtss_state, i32 *adj);
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X) /* TBD_HENRIKB */
+    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X) /* TBD_HENRIKB */
     vtss_rc (*alt_clock_saved_get)(struct vtss_state_s *vtss_state, u64 *saved);
     vtss_rc (*alt_clock_mode_set)(struct vtss_state_s *vtss_state);
     vtss_rc (*timeofday_next_pps_set)(struct vtss_state_s    *vtss_state,
@@ -210,9 +208,9 @@ typedef struct {
     vtss_rc (*smac_set)(struct vtss_state_s *vtss_state,
                         vtss_port_no_t       port_no);
 #endif // defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) ||                \
-    defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) ||                \
+    defined(VTSS_ARCH_OCELOT)
     vtss_rc (*external_io_mode_set)(struct vtss_state_s *vtss_state, u32 io);
     vtss_rc (*saved_timeofday_get)(struct vtss_state_s *vtss_state,
                                    u32                  io,
@@ -242,18 +240,18 @@ typedef struct {
 #if defined(VTSS_ARCH_OCELOT)
     BOOL add_sub_option;
 #endif /* VTSS_ARCH_OCELOT */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) ||                \
-    defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) ||                \
+    defined(VTSS_ARCH_OCELOT)
     vtss_ts_ext_io_mode_t io_cfg[VTSS_TS_IO_ARRAY_SIZE];
 #endif /* VTSS_ARCH_JAGUAR2 */
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 #if defined(VTSS_ARCH_JAGUAR_2)
     vtss_ts_autoresp_dom_cfg_t auto_resp_cfg[VTSS_TS_DOMAIN_ARRAY_SIZE];
 #endif /* VTSS_ARCH_JAGUAR2 */
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     vtss_ts_autoresp_dom_cfg_t auto_resp_cfg[VTSS_TS_RESP_CTRL_ARRAY_SIZE];
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_FA */
 #endif /* VTSS_FEATURE_DELAY_REQ_AUTO_RESP */
 } vtss_ts_state_t;
 

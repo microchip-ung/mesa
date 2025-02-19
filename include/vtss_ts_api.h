@@ -46,8 +46,7 @@ extern "C" {
 #define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
@@ -72,14 +71,12 @@ extern "C" {
 #define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 /** \brief Jaguar 2 minimum adjustment rate in units of 0,1 ppb. */
 #define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 /** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock
  * output/input. */
 #define VTSS_TS_IO_ARRAY_SIZE 8
@@ -105,8 +102,7 @@ extern "C" {
 #define VTSS_TS_DOMAIN_ARRAY_SIZE 1
 #endif
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) ||                 \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 /** \brief Number of Automatic Delay Response controllers in SparX-5 */
 #define VTSS_TS_RESP_CTRL_ARRAY_SIZE 4
 #endif
@@ -444,8 +440,7 @@ vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst,
 vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t inst, i32 *const adj);
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 /**
  * \brief parameter for setting the alternative  clock mode.
  */
@@ -582,9 +577,9 @@ vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t inst,
                                         const vtss_ts_ext_clock_mode_t
                                             *const ext_clock_mode);
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) ||                \
-    defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) ||                \
+    defined(VTSS_ARCH_OCELOT)
 /**
  * \brief parameter for setting the external io mode.
  * Architecture:
@@ -845,9 +840,8 @@ typedef enum {
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode; /**< Hardware Timestamping mode for a port(EXTERNAL or
                             INTERNAL) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) ||                \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
+    defined(VTSS_ARCH_LAN966X)
     u32 domain; /**< Hardware timestamping domain for a port */
 #endif
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)

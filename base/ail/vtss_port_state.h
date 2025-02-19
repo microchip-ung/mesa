@@ -450,7 +450,7 @@ typedef struct {
 
 #define VTSS_SD6G_40_CNT 3
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 #define VTSS_SD28_CNT 33
 #endif
 
@@ -460,7 +460,7 @@ typedef struct {
     vtss_port_conf_t   conf[VTSS_PORT_ARRAY_SIZE];
     BOOL               conf_set_called[VTSS_PORT_ARRAY_SIZE];
     vtss_serdes_mode_t sd6g40_mode[VTSS_SD6G_40_CNT];
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     vtss_serdes_mode_t sd28_mode[VTSS_SD28_CNT];
     u32                cmu_enable_mask;
     BOOL               link[VTSS_PORT_ARRAY_SIZE];

@@ -289,7 +289,7 @@ typedef struct {
 } vtss_synce_state_t;
 #endif /* VTSS_FEATURE_SYNCE */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 typedef enum {
     FEATURE_VLAN_COUNTERS, // VLAN counters are only supported for SMB devices
     FEATURE_QOS_FRAME_PREEMPTION, // Frame Preemption support (802.1Qbu and
@@ -441,7 +441,7 @@ typedef struct vtss_state_s {
     int   txt_buf_index; /* Index to text buffer */
     void *app_data;      /**< Application data pointer */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
     BOOL vtss_features[FEATURE_LAST];
     u32 *reg_group_offset;
     u32 *reg_group_sz_offset;

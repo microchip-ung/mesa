@@ -142,7 +142,7 @@
 #endif /* VTSS_ARCH_SERVAL_T */
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_FA)
 
 // SparX-5 has 10 super VCAP blocks, each with 256 rows of 12 entries (52 bits
 // each). This means that a single block will give us 256*12 = 3072 entries.
@@ -180,7 +180,7 @@
 //
 // Currently the IP MC supports up to 128 egress router legs.
 
-#endif /* VTSS_ARCH_SPARX5 */
+#endif /* VTSS_ARCH_FA */
 
 #ifdef __cplusplus
 extern "C" {
