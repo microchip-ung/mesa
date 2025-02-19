@@ -397,8 +397,6 @@ static void fa_pcb135_init_port(meba_inst_t        inst,
     uint32_t              chip_port;
     mesa_internal_bw_t    bw;
 
-    printf("board->port_cfg = %d\n", board->port_cfg);
-
     switch (board->port_cfg) {
     case VTSS_BOARD_CONF_24x1G_4x10G_NPI:
         if (port_no < 24) {
