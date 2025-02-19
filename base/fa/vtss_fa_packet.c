@@ -399,6 +399,8 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_ARCH_LAIKA)
+
 static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 {
     u32 queue, byte_swap, port = RT_CHIP_PORT_CPU_1, grp = 1;
@@ -611,6 +613,8 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
+#endif /* VTSS_ARCH_LAIKA */
+
 #define VSTAX                                                                  \
     73 /* The IFH bit position of the first VSTAX bit. This is because the     \
           VSTAX bit positions in Data sheet is starting from zero. */
@@ -752,6 +756,8 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_ARCH_LAIKA)
+
 static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
                            u8 *const                    data,
                            const u32                    buflen,
@@ -784,6 +790,8 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
     }
     return rc;
 }
+
+#endif /* VTSS_ARCH_LAIKA */
 
 static u32 fa_plpt_to_ifh(vtss_state_t             *vtss_state,
                           vtss_packet_pipeline_pt_t plpt)
@@ -1202,6 +1210,8 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
     return VTSS_RC_OK;
 }
 
+#if !defined(VTSS_ARCH_LAIKA)
+
 static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
                                    const vtss_packet_tx_ifh_t *const ifh,
                                    const u8 *const                   frame,
@@ -1288,6 +1298,8 @@ static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
     return fa_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
 
+#endif /* VTSS_ARCH_LAIKA */
+
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
@@ -1343,6 +1355,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
+#if !defined(VTSS_ARCH_LAIKA)
     vtss_fa_debug_reg_header(ss, "DEVCPU_QS");
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG),
                       "XTR_CFG");
@@ -1359,6 +1372,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
                                "INJ_GRP_CFG");
     }
     pr("\n");
+#endif
 
     vtss_fa_debug_reg_header(ss, "QFWD");
     for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
@@ -1492,9 +1506,11 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_conf_set = fa_rx_conf_set;
+#if !defined(VTSS_ARCH_LAIKA)
         state->rx_frame = fa_rx_frame;
         state->tx_frame_ifh = fa_tx_frame_ifh;
+#endif
+        state->rx_conf_set = fa_rx_conf_set;
         state->rx_hdr_decode = fa_rx_hdr_decode;
         state->rx_ifh_size = VTSS_FA_RX_IFH_SIZE;
         state->tx_hdr_encode = fa_tx_hdr_encode;
