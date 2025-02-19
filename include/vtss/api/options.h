@@ -263,7 +263,7 @@
 #endif
 
 #if !VTSS_OPT_LIGHT
-#if !defined(VTSS_OPT_FPGA)
+#if !defined(VTSS_OPT_FPGA) && !defined(VTSS_ARCH_LAIKA)
 #define VTSS_FEATURE_PORT_KR_IRQ    /**< 10G/25GBase KR, 802.3ap clause 72     \
                                        (training) and clause 73 (aneg). IRQ    \
                                        controlled */
@@ -320,20 +320,22 @@
 #define VTSS_FEATURE_MAC_AGE_AUTO                /**< Automatic MAC address ageing */
 #define VTSS_FEATURE_MAC_CPU_QUEUE               /**< CPU queue per MAC address */
 #define VTSS_FEATURE_EEE                         /**< Energy Efficient Ethernet */
-#if !defined(VTSS_OPT_FPGA)
+#if !defined(VTSS_OPT_FPGA) && !defined(VTSS_ARCH_LAIKA)
 #define VTSS_FEATURE_FAN /**< Fan control */
 #endif
-#define VTSS_FEATURE_VCL                         /**< VLAN Control Lists */
-#define VTSS_FEATURE_PTP_RS422                   /**< Support for the RS422 serial/1PPS \
-                                                    interface */
-#define VTSS_FEATURE_DELAY_REQ_AUTO_RESP         /**< Delay_Req/Resp processing \
-                                                    supported in hardware */
-#define VTSS_FEATURE_SYNC_ANN_AUTO_TRANSMIT      /**< Sync and Announce packet auto \
-                                                    generation in hardware */
-#define VTSS_FEATURE_NPI                         /**< NPI port */
-#define VTSS_FEATURE_LED_POW_REDUC               /**< LED power reduction */
-#define VTSS_FEATURE_INTERRUPTS                  /**< Port Interrupt support */
-#define VTSS_FEATURE_IRQ_CONTROL                 /**< General IRQ support */
+#define VTSS_FEATURE_VCL                       /**< VLAN Control Lists */
+#define VTSS_FEATURE_PTP_RS422                 /**< Support for the RS422 serial/1PPS \
+                                                  interface */
+#define VTSS_FEATURE_DELAY_REQ_AUTO_RESP       /**< Delay_Req/Resp processing  \
+                                                  supported in hardware */
+#define VTSS_FEATURE_SYNC_ANN_AUTO_TRANSMIT    /**< Sync and Announce packet auto \
+                                                  generation in hardware */
+#define VTSS_FEATURE_NPI                       /**< NPI port */
+#define VTSS_FEATURE_LED_POW_REDUC             /**< LED power reduction */
+#define VTSS_FEATURE_INTERRUPTS                /**< Port Interrupt support */
+#if !defined(VTSS_ARCH_LAIKA)
+#define VTSS_FEATURE_IRQ_CONTROL /**< General IRQ support */
+#endif
 #define VTSS_FEATURE_VLAN_TRANSLATION            /**< VLAN Translation */
 #define VTSS_FEATURE_SFLOW                       /**< sFlow feature    */
 #define VTSS_FEATURE_MIRROR_CPU                  /**< CPU mirroring */
@@ -349,9 +351,11 @@
 #define VTSS_FEATURE_PORT_DYNAMIC                /**< Support for dynamic (run-time) port \
                                                     change within a serdes  */
 #define VTSS_FEATURE_TIMESTAMP_PCH               /**< TS PCH hardware support */
-#define VTSS_FEATURE_SYNCE                       /**< SYNCE - L1 syncronization feature */
-#endif                                           // !VTSS_OPT_LIGHT
-#endif                                           // VTSS_ARCH_FA
+#if !defined(VTSS_ARCH_LAIKA)
+#define VTSS_FEATURE_SYNCE /**< SYNCE - L1 syncronization feature */
+#endif
+#endif // !VTSS_OPT_LIGHT
+#endif // VTSS_ARCH_FA
 
 // VTSS_ARCH_SPARX5 specific features
 #if defined(VTSS_ARCH_SPARX5)
