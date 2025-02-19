@@ -532,7 +532,7 @@ void       lmu_ss_fmt_no_args(lmu_ss_t *ss, const char *fmt);
 typedef struct {
     lmu_ss_t     ss;
     lmu_str256_t buf;
-    char         *s;
+    char        *s;
 } lmu_fmt_buf_t;
 
 void lmu_fmt_buf_init(lmu_fmt_buf_t *buf);

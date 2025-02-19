@@ -6,6 +6,8 @@ cmake_minimum_required(VERSION 3.27)
 project(lm_utils C ASM)
 enable_language(C ASM)
 
+option(LM_UTILS_LIBRARY_TYPE_OBJECT "Create an object library instead of static/shared library" OFF)
+
 if (${LM_TEST_ENABLE})
     include_directories(${acutest_SOURCE_DIR})
 endif()
@@ -33,7 +35,13 @@ list(APPEND lm_utils_src src/lm_utils_memcpy.c)
 list(APPEND lm_utils_src src/lm_utils_memmove.c)
 list(APPEND lm_utils_src src/lm_utils_memset.c)
 
-add_library(lm_utils ${lm_utils_src})
+if (${LM_UTILS_LIBRARY_TYPE_OBJECT})
+    add_library(lm_utils OBJECT ${lm_utils_src})
+    target_compile_options(lm_utils PRIVATE -fPIC)
+else ()
+    add_library(lm_utils ${lm_utils_src})
+endif ()
+
 target_include_directories(lm_utils PRIVATE ${lm_utils_SOURCE_DIR}/include)
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_compile_definitions(lm_utils PRIVATE -DLMU_OS_LINUX)

@@ -2151,9 +2151,9 @@ void lmu_fmt_buf_init(lmu_fmt_buf_t *buf)
 {
     lmu_ss_init_str256(&buf->buf, &buf->ss);
     buf->ss.buf.end--;
-    *buf->ss.buf.end = 0;
+    *buf->ss.buf.end = '\0';
     buf->s = buf->ss.buf.begin;
-    *buf->s = 0;
+    *buf->s = '\0';
 }
 
 void lmu_ss_append_char(lmu_ss_t *ss, char c)

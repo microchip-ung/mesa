@@ -96,17 +96,17 @@
     ACTION(X) LMU_PP_FOREACH_7(ACTION, __VA_ARGS__)
 #define LMU_PP_FOREACH_9(ACTION, X, ...)                                       \
     ACTION(X) LMU_PP_FOREACH_8(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_10(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_10(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_9(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_11(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_11(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_10(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_12(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_12(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_11(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_13(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_13(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_12(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_14(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_14(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_13(ACTION, __VA_ARGS__)
-#define LMU_PP_FOREACH_15(ACTION, X, ...)                                       \
+#define LMU_PP_FOREACH_15(ACTION, X, ...)                                      \
     ACTION(X) LMU_PP_FOREACH_14(ACTION, __VA_ARGS__)
 #define LMU_PP_FOREACH(ACTION, ...)                                            \
     LMU_PP_VA_ARGS_OVERLOAD(LMU_PP_FOREACH_, ##__VA_ARGS__)                    \
@@ -130,17 +130,17 @@
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_7(ACTION, A0, __VA_ARGS__)
 #define LMU_PP_FOREACH_1ARG_9(ACTION, A0, X, ...)                              \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_8(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_10(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_10(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_9(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_11(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_11(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_10(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_12(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_12(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_11(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_13(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_13(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_12(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_14(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_14(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_13(ACTION, A0, __VA_ARGS__)
-#define LMU_PP_FOREACH_1ARG_15(ACTION, A0, X, ...)                              \
+#define LMU_PP_FOREACH_1ARG_15(ACTION, A0, X, ...)                             \
     ACTION(A0, X) LMU_PP_FOREACH_1ARG_14(ACTION, A0, __VA_ARGS__)
 #define LMU_PP_FOREACH_1ARG(ACTION, A0, ...)                                   \
     LMU_PP_VA_ARGS_OVERLOAD(LMU_PP_FOREACH_1ARG_, ##__VA_ARGS__)               \
