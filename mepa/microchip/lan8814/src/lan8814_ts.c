@@ -2334,8 +2334,6 @@ mepa_rc lan8814_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], 
     T_I(MEPA_TRACE_GRP_TS, "FIFO entries read = %d ts[0]: msg_type 0x%x crc_src_port 0x%x", *num, ts_list[0].sig.msg_type, ts_list[0].sig.crc_src_port);
 
     return MEPA_RC_OK;
-
-    MEPA_EXIT(dev);
 }
 
 mepa_rc lan8814_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t reg_dump)
