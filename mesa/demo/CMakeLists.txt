@@ -111,7 +111,6 @@ macro(APP_TARGET)
         json-c
         ${A_MESA}
         ${A_MEBA}_static
-        lm_utils
     )
     set_target_properties(${A_NAME} PROPERTIES OUTPUT_NAME "mesa-demo-${A_MESA}")
 
