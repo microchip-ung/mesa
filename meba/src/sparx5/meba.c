@@ -397,6 +397,8 @@ static void fa_pcb135_init_port(meba_inst_t        inst,
     uint32_t              chip_port;
     mesa_internal_bw_t    bw;
 
+    printf("board->port_cfg = %d\n", board->port_cfg);
+
     switch (board->port_cfg) {
     case VTSS_BOARD_CONF_24x1G_4x10G_NPI:
         if (port_no < 24) {
@@ -518,6 +520,8 @@ static void fa_pcb135_init_port(meba_inst_t        inst,
             update_entry(inst, entry, MESA_PORT_INTERFACE_SFI, bw,
                          56 + port_no - 48); // 25G: 60-63
         } else if (port_no == 56) {
+            // Make sure that this PHY doesn't mess with other PHYs.
+            entry->phy_base_port = port_no;
             update_entry(inst, entry, MESA_PORT_INTERFACE_SGMII, MESA_BW_1G,
                          64);
         } else {
