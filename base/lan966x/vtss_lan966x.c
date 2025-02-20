@@ -53,6 +53,53 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
     return rc;
 }
 
+// Read or write register indirectly
+static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs,
+                                           u32           addr,
+                                           u32          *value,
+                                           BOOL          is_read)
+{
+    u32 i, ctrl;
+
+    // Setup address mapped to VCore domain
+    addr = (addr * 4 + 0xe0000000);
+    VTSS_RC(lan966x_wr_direct(vs, REG_ADDR(GCB_VA_ADDR), addr));
+
+    // Initiate access
+    if (is_read) {
+        VTSS_RC(lan966x_rd_direct(vs, REG_ADDR(GCB_VA_DATA), value));
+    } else {
+        VTSS_RC(lan966x_wr_direct(vs, REG_ADDR(GCB_VA_DATA), *value));
+    }
+
+    // Wait for operation to complete
+    for (i = 0;; i++) {
+        if (i == 100000) {
+            return VTSS_RC_ERROR;
+        }
+        VTSS_RC(lan966x_rd_direct(vs, REG_ADDR(GCB_VA_CTRL), &ctrl));
+        if (GCB_VA_CTRL_VA_BUSY_X(ctrl)) {
+            continue;
+        } else if (is_read) {
+            VTSS_RC(lan966x_rd_direct(vs, REG_ADDR(GCB_VA_DATA_INERT), value));
+        }
+        break;
+    }
+    return VTSS_RC_OK;
+}
+
+static vtss_rc lan966x_rd_indirect(vtss_state_t *vtss_state,
+                                   u32           reg,
+                                   u32          *value)
+{
+    return lan966x_reg_indirect_access(vtss_state, reg, value, TRUE);
+}
+
+static vtss_rc lan966x_wr_indirect(vtss_state_t *vtss_state, u32 reg, u32 value)
+{
+    return lan966x_reg_indirect_access(vtss_state, reg, &value, FALSE);
+}
+
 /* ================================================================= *
  *  Utility functions
  * ================================================================= */
@@ -294,7 +341,7 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
-    u32 val;
+    u32 val, addr;
 #if defined(VTSS_OPT_FPGA)
     u32 diff, err;
 
@@ -324,6 +371,13 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         VTSS_MSLEEP(100);
     }
 #endif
+
+    // Make sure that GPIO 32/33 can be used for SGPIO
+    addr = REG_ADDR(CPU_GENERAL_CTRL);
+    if (lan966x_rd_indirect(vtss_state, addr, &val) == VTSS_RC_OK) {
+        val |= CPU_GENERAL_CTRL_IF_MIIM_SLV_ENA_M;
+        lan966x_wr_indirect(vtss_state, addr, val);
+    }
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));
 
