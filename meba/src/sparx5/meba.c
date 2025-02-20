@@ -633,8 +633,7 @@ static void fa_pcb135_board_init(meba_inst_t inst)
         gpio_no = 19;
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
         (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
-        (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
-        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+        VTSS_MSLEEP(10);
         (void)mesa_gpio_write(NULL, 0, gpio_no, 1);
 
         // Delay for gpy241 phy coming out of reset
