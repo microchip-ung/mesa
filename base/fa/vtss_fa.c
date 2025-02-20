@@ -753,7 +753,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
     case VTSS_TARGET_P64H:
         if (f == VTSS_CORE_CLOCK_DEFAULT) {
             freq = VTSS_CORE_CLOCK_733MHZ;
-        } else if (f == VTSS_CORE_CLOCK_733MHZ) {
+        } else if (f != VTSS_CORE_CLOCK_733MHZ) {
             freq = 0; // Not supported
         }
         break;
@@ -1285,7 +1285,7 @@ static i32 clock2bw(vtss_core_clock_freq_t freq)
     } else if (freq == VTSS_CORE_CLOCK_625MHZ) {
         return 208000; /* 625000 / 3 = 208Gb */
     } else if (freq == VTSS_CORE_CLOCK_733MHZ) {
-        return 244333; /* 733000 / 3 = 251Gb */
+        return 244333; /* 733000 / 3 = 244Gb */
     } else {
         VTSS_E("Core clock not supported");
     }
