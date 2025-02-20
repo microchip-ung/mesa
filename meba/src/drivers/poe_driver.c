@@ -14,6 +14,9 @@
 #include "../meba_generic.h"
 #include "poe_driver.h"
 
+/* Get array size */
+#define VTSS_ARRSZ(t) (sizeof(t) / sizeof(t[0]))
+
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
 
 #define INTERUPTIBLE_POE_OFF_TIME                                              \
@@ -8088,8 +8091,8 @@ void meba_pd69200bt_driver_init(meba_poe_ctrl_inst_t       *inst,
     inst->psu_map_length = psu_map_length;
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Done", __FUNCTION__);
 
-    for (int i = 0; i < 2; i++) {
-        memset(&(poe_controller[i]), 0, sizeof(poe_controller_t) * 2);
+    memset(poe_controller, 0, sizeof(poe_controller));
+    for (i = 0; i < VTSS_ARRSZ(poe_controller); i++) {
         poe_controller[i].save_poe_param_once = TRUE;
     }
 
