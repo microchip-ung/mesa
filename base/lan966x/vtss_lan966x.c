@@ -53,6 +53,7 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
     return rc;
 }
 
+#if !defined(VTSS_OPT_FPGA)
 // Read or write register indirectly
 static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs,
                                            u32           addr,
@@ -99,6 +100,7 @@ static vtss_rc lan966x_wr_indirect(vtss_state_t *vtss_state, u32 reg, u32 value)
 {
     return lan966x_reg_indirect_access(vtss_state, reg, &value, FALSE);
 }
+#endif
 
 /* ================================================================= *
  *  Utility functions
@@ -370,7 +372,6 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         REG_WR(GCB_SOFT_RST, GCB_SOFT_RST_SOFT_SWC_RST(1));
         VTSS_MSLEEP(100);
     }
-#endif
 
     // Make sure that GPIO 32/33 can be used for SGPIO
     addr = REG_ADDR(CPU_GENERAL_CTRL);
@@ -378,6 +379,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         val |= CPU_GENERAL_CTRL_IF_MIIM_SLV_ENA_M;
         lan966x_wr_indirect(vtss_state, addr, val);
     }
+#endif
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));
 
