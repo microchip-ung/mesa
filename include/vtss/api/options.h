@@ -890,7 +890,7 @@
 #define VTSS_STREAM_CNT 64
 #endif
 // Number of ACEs
-#define VTSS_ACE_CNT 64
+#define VTSS_ACE_CNT 68
 #endif
 
 /* ================================================================= *
