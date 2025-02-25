@@ -376,7 +376,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     // Make sure that GPIO 32/33 can be used for SGPIO
     addr = REG_ADDR(CPU_GENERAL_CTRL);
     if (lan966x_rd_indirect(vtss_state, addr, &val) == VTSS_RC_OK) {
-        val |= CPU_GENERAL_CTRL_IF_MIIM_SLV_ENA_M;
+        val &= ~CPU_GENERAL_CTRL_IF_MIIM_SLV_ENA_M;
         lan966x_wr_indirect(vtss_state, addr, val);
     }
 #endif
