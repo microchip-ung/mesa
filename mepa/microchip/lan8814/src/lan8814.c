@@ -661,11 +661,13 @@ mepa_rc lan8814_rep_count_set(mepa_device_t *dev, const uint8_t rep_cnt)
 mepa_rc lan8814_downshift_conf_set(mepa_device_t *dev, const lan8814_phy_downshift_t *dsh)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
+    MEPA_ENTER(dev);
     if (!dsh->dsh_enable && data->dsh_conf.dsh_enable) {
         WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
     }
     data->dsh_conf.dsh_enable = dsh->dsh_enable;
     data->dsh_conf.dsh_thr_cnt = dsh->dsh_thr_cnt;
+    MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
 
@@ -2617,6 +2619,56 @@ static mepa_rc lan8814_prbs_monitor_get(mepa_device_t *dev, mepa_phy_prbs_monito
 }
 #endif
 
+#if !defined(MEPA_LAN8814_LIGHT)
+/**
+ * This function is used to control the QSGMII serdes Tx eye amplitude with
+ * TX_LEVEL[6:0] and TX_BOOST[13:7] to control the pre-emphasis level of
+ * transmitter output (used upon frequency loss).
+ */
+static mepa_rc lan8814_serdes_tx_conf_set(mepa_device_t *dev, const mepa_serdes_tx_conf_t *const tx_conf)
+{
+    uint16_t      value     = 0;
+    phy_data_t    *data     = (phy_data_t *)dev->data, *base_data;
+    mepa_device_t *base_dev = (mepa_device_t *)data->base_dev;
+    mepa_rc       rc;
+
+    MEPA_ASSERT(base_dev == NULL);
+
+    base_data = (phy_data_t *)base_dev->data;
+
+    // Since QSGMII soft reset and serdes configuration registers are global,
+    // this needs to be only configured via base port.
+    if (base_dev != dev) {
+        T_E(MEPA_TRACE_GRP_GEN,"Base port:%d needs to be passed", base_data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
+    MEPA_ENTER(dev);
+
+    rc = MEPA_RC_ERROR;
+    if (tx_conf->boost > 127) {
+        T_E(MEPA_TRACE_GRP_GEN, "boost: %u exceeds maximum value of 127", tx_conf->boost);
+        goto do_exit;
+    }
+
+    if (tx_conf->level > 127) {
+        T_E(MEPA_TRACE_GRP_GEN, "level: %u exceeds maximum value of 127", tx_conf->level);
+        goto do_exit;
+    }
+
+    value = ((LAN8814_QSGMII_SERDES_TX_LEVEL(tx_conf->level)) | LAN8814_QSGMII_SERDES_TX_BOOST(tx_conf->boost));
+    T_I(MEPA_TRACE_GRP_GEN,"level: %u = 0x%x and boost: %u = 0x%x => value = 0x%x", tx_conf->level, tx_conf->level, tx_conf->boost, tx_conf->boost, value);
+
+    EP_WRM(base_dev, LAN8814_QSGMII_SERDES_TX_CTRL, value, 0x3fff);
+    EP_WRM(base_dev, LAN8814_QSGMII_SOFT_RESET, LAN8814_QSGMII_SOFT_RESET_BIT, LAN8814_QSGMII_SOFT_RESET_BIT);
+    rc = MEPA_RC_OK;
+
+do_exit:
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
     static const int nr_lan8814_drivers = 3;
@@ -2668,6 +2720,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_prbs_get = lan8814_prbs_get,
             .mepa_driver_prbs_monitor_set = lan8814_prbs_monitor_set,
             .mepa_driver_prbs_monitor_get = lan8814_prbs_monitor_get,
+            .mepa_driver_serdes_tx_conf_set = lan8814_serdes_tx_conf_set,
 #endif //!defined MEPA_LAN8814_LIGHT
         },
         {
@@ -2715,6 +2768,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_prbs_get = lan8814_prbs_get,
             .mepa_driver_prbs_monitor_set = lan8814_prbs_monitor_set,
             .mepa_driver_prbs_monitor_get = lan8814_prbs_monitor_get,
+            .mepa_driver_serdes_tx_conf_set = lan8814_serdes_tx_conf_set,
 #endif //!defined MEPA_LAN8814_LIGHT
         },
         {
@@ -2762,6 +2816,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_prbs_get = lan8814_prbs_get,
             .mepa_driver_prbs_monitor_set = lan8814_prbs_monitor_set,
             .mepa_driver_prbs_monitor_get = lan8814_prbs_monitor_get,
+            .mepa_driver_serdes_tx_conf_set = lan8814_serdes_tx_conf_set,
 #endif //!defined MEPA_LAN8814_LIGHT
         },
     };

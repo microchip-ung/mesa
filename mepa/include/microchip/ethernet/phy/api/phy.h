@@ -977,6 +977,22 @@ mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_con
 mepa_rc mepa_prbs_monitor_get(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
 
 /**
+ * \brief Configure serdes Tx parameters for a particular port.
+ *
+ * This API is used to control the QSGMII serdes Tx eye amplitude with
+ * TX_LEVEL[6:0] and TX_BOOST[13:7] to control the pre-emphasis level of
+ * transmitter output (used upon frequency loss).
+ *
+ * \param dev      [IN] mepa driver
+ * \param tx_conf  [IN] tx_level parameter
+ *
+ * \return Return code.
+ *  MEPA_RC_OK  on Sucess
+ *  MEPA_RC_ERROR on Fail
+ **/
+mepa_rc mepa_serdes_tx_conf_set(struct mepa_device *dev, const mepa_serdes_tx_conf_t *const tx_conf);
+
+/**
  * \brief To get phy capability
  *
  * \param dev            [IN]  Driver instance.

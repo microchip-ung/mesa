@@ -784,6 +784,21 @@ typedef mepa_rc (*mepa_driver_warmrestart_conf_end_t)(struct mepa_device *dev);
 typedef mepa_rc (*mepa_driver_warmrestart_sync_t)(struct mepa_device *dev);
 
 /**
+ * \brief Configure serdes Tx parameters for a particular port.
+ *
+ * This API is used to control various Serdes Tx configuration parameters,
+ * hereunder Tx eye amplitude.
+
+ * \param dev      [IN] mepa driver
+ * \param tx_conf  [IN] Serdes Tx configuration
+ *
+ * \return Return code.
+ *  MEPA_RC_OK  on Sucess
+ *  MEPA_RC_ERROR on Fail
+ **/
+typedef mepa_rc (*mepa_driver_serdes_tx_conf_set_t)(struct mepa_device *dev, const mepa_serdes_tx_conf_t *const tx_conf);
+
+/**
  * \brief To get phy capability
  *
  * \param dev            [IN]  Driver instance.
@@ -851,6 +866,7 @@ typedef struct mepa_driver {
     mepa_driver_warmrestart_conf_get_t mepa_driver_warmrestart_conf_get;
     mepa_driver_warmrestart_conf_end_t mepa_driver_warmrestart_conf_end;
     mepa_driver_warmrestart_conf_set_t mepa_driver_warmrestart_conf_set;
+    mepa_driver_serdes_tx_conf_set_t   mepa_driver_serdes_tx_conf_set;
     mepa_ts_driver_t                   *mepa_ts;
     mepa_macsec_driver_t               *mepa_macsec;
     mepa_tc10_driver_t                 *mepa_tc10;
@@ -933,7 +949,6 @@ mepa_drivers_t mepa_lan887x_driver_init(void);
 
 /** \brief Dummy SW driver */
 mepa_drivers_t mepa_dummy_driver_init();
-
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_ */

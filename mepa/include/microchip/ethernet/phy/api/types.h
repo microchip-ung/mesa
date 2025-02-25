@@ -617,13 +617,18 @@ typedef struct {
     mepa_restart_version_t  version_prev;    /* Previous version */
 } mepa_restart_info_t;
 
+/** \brief Represents the serdes Tx configuration that is applied to PHY. */
+typedef struct {
+    uint8_t level; /**< Adjust the amplitude of the Signal(eye hieght). Maximum value is 127 */
+    uint8_t boost; /**< Boost the signal strength upon frequency loss.  Maximum value is 127 */
+} mepa_serdes_tx_conf_t;
+
 /** \brief Capability info */
 typedef enum {
     MEPA_CAP_MACSEC_SECY_CNT = 100000000, /* MACSec Secy count */
     MEPA_CAP_MACSEC_MAX_SA,               /* MACSec Max SA */
     MEPA_CAP_MACSEC_MAX_SC                /* MACSec Max SC */
 } mepa_cap_t;
-
 
 #include <microchip/ethernet/hdr_end.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 #endif /**< _MICROCHIP_ETHERNET_PHY_API_TYPES_H_ */
