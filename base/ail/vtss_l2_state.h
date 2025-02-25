@@ -731,6 +731,8 @@ vtss_rc vtss_cil_l2_rb_cap_get(struct vtss_state_s *vtss_state,
                                vtss_rb_cap_t *const cap);
 vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state,
                                 const vtss_rb_id_t   rb_id);
+vtss_rc vtss_cil_l2_rb_ptp_conf_set(struct vtss_state_s *vtss_state,
+                                    const vtss_rb_id_t   rb_id);
 vtss_rc vtss_cil_l2_rb_counters_update(struct vtss_state_s *vtss_state,
                                        const vtss_rb_id_t   rb_id,
                                        BOOL                 clear);
@@ -907,10 +909,11 @@ typedef struct {
     vtss_rcl_vid_entry_t rcl_vid[VTSS_RCL_VID_CNT];
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
-    vtss_rb_conf_t rb_conf[VTSS_REDBOX_CNT];
-    vtss_rb_conf_t rb_conf_old;
-    vtss_rb_cnt_t  rb_cnt[VTSS_REDBOX_CNT];
-    u32            rb_poll_idx; // Counter polling index
+    vtss_rb_conf_t     rb_conf[VTSS_REDBOX_CNT];
+    vtss_rb_ptp_conf_t rb_ptp_conf[VTSS_REDBOX_CNT];
+    vtss_rb_conf_t     rb_conf_old;
+    vtss_rb_cnt_t      rb_cnt[VTSS_REDBOX_CNT];
+    u32                rb_poll_idx; // Counter polling index
 #endif
 } vtss_l2_state_t;
 

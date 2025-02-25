@@ -115,7 +115,7 @@ end
 test "disable-flow-control", false do
     $ts.dut.run("mesa-cmd port maxframe 1524")
     $ts.dut.run("mesa-cmd port flow control disable")
-    sleep(1)
+    test_sleep(1)
     dut_port_state_up($ts.dut.p)
 end
 
@@ -421,6 +421,126 @@ test_table =
                fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "BOTH"},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {lan_id: 1}}]}]
+    },
+    {
+        # PTP frames redirected to interlink, duplicates not discarded
+        txt: "PTP untagged Ethernet Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "ETHERNET"},
+        tab: [{frm: {et: 0x88f7},
+               fwd: [{idx_tx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+              {frm: {et: 0x88f7},
+               fwd: [{idx_tx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+              {frm: {et: 0x88f8},
+               fwd: [{idx_tx: "b", hsr: {}},
+                     {idx_rx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 1}]
+    },
+    {
+        # PTP frames redirected to interlink
+        txt: "PTP tagged Ethernet Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "ETHERNET", vid: 1},
+        tab: [{frm: {et: 0x88f7},
+               fwd: [{idx_tx: "a", vid: 1, hsr: {}},
+                     {idx_rx: "c", vid: 1},
+                     {idx_rx: "d", vid: 1}]},
+              {frm: {et: 0x88f7},
+               fwd: [{idx_tx: "a", vid: 2, hsr: {}},
+                     {idx_rx: "b", vid: 2, hsr: {}},
+                     {idx_rx: "c", vid: 2},
+                     {idx_rx: "d", vid: 2}]},
+              {frm: {et: 0x88f7},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 2}]
+    },
+    {
+        # PTP frames redirected to interlink
+        txt: "PTP untagged IPv4 Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "IPV4"},
+        tab: [{frm: {cmd: "ipv4 udp dport 319 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+              {frm: {cmd: "ipv4 udp dport 320 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+              {frm: {cmd: "ipv4 udp dport 321 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 1}]
+    },
+    {
+        # PTP frames redirected to interlink
+        txt: "PTP tagged IPv4 Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "IPV4", vid: 1},
+        tab: [{frm: {cmd: "ipv4 udp dport 319 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", vid: 1, hsr: {}},
+                     {idx_rx: "c", vid: 1},
+                     {idx_rx: "d", vid: 1}]},
+              {frm: {cmd: "ipv4 udp dport 319 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+              {frm: {cmd: "ipv4 udp dport 319 data pattern cnt 18"},
+               fwd: [{idx_tx: "a", vid: 2, hsr: {}},
+                     {idx_rx: "b", vid: 2, hsr: {}},
+                     {idx_rx: "c", vid: 2},
+                     {idx_rx: "d", vid: 2}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 2}]
+    },
+    {
+        # PTP frames redirected to interlink
+        txt: "PTP untagged IPv6 Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "IPV6"},
+        tab: [{frm: {len: 48, cmd: "ipv6 udp dport 319"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+
+             {frm: {len: 48, cmd: "ipv6 udp dport 320"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+
+             {frm: {len: 48, cmd: "ipv6 udp dport 321"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 1}]
+    },
+    {
+        # PTP frames redirected to interlink
+        txt: "PTP tagged IPv6 Rx on LRE",
+        cfg: {mode: "HSR_SAN", ptp: "IPV6", vid: 1},
+        tab: [{frm: {len: 48, cmd: "ipv6 udp dport 320"},
+               fwd: [{idx_tx: "a", vid: 1, hsr: {}},
+                     {idx_rx: "c", vid: 1},
+                     {idx_rx: "d", vid: 1}]},
+
+             {frm: {len: 48, cmd: "ipv6 udp dport 320"},
+               fwd: [{idx_tx: "a", hsr: {}},
+                     {idx_rx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]},
+             {frm: {len: 48, cmd: "ipv6 udp dport 320"},
+               fwd: [{idx_tx: "a", vid: 2, hsr: {}},
+                     {idx_rx: "b", vid: 2, hsr: {}},
+                     {idx_rx: "c", vid: 2},
+                     {idx_rx: "d", vid: 2}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 2}]
     },
     {
         txt: "port A/B duplicate discard towards port A/B/C/D",
@@ -990,6 +1110,16 @@ test_table =
                      {idx_rx: "b", hsr: {}}]}]
     },
     {
+        # PTP frames redirected to interlink, duplicates not discarded
+        txt: "PTP untagged Ethernet Rx on LRE",
+        cfg: {mode: "HSR_PRP", ptp: "ETHERNET"},
+        tab: [{frm: {et: 0x88f7},
+               fwd: [{idx_tx: "b", hsr: {}},
+                     {idx_rx: "c"},
+                     {idx_rx: "d"}]}],
+        cnt: [{port: "c", name: "tx_dupl_zero", val: 0}]
+    },
+    {
         txt: "port A duplicate discard towards port B/C/D",
         cfg: {mode: "HSR_PRP", dd_age_time: 20000},
         tab: [
@@ -1302,6 +1432,7 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
     if (ptp != nil)
         dmac = "01:1b:19:00:00:00"
     end
+    add_cmd = fld_get(f, :cmd, nil)
     len = fld_get(f, :len, 46)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
@@ -1380,6 +1511,8 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 if (src != nil)
                     cmd += (" hdr-portNumber 0x%04x" % src)
                 end
+            elsif (add_cmd != nil)
+                cmd += " #{add_cmd}"
             else
                 cmd += " et 0x#{et.to_s(16)} data pattern cnt #{len}"
             end
@@ -1440,7 +1573,7 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
     wait = fld_get(entry, :wait)
     if (wait > 0)
         # Wait a number of seconds
-        sleep(wait)
+        test_sleep(wait)
     end
 end
 
@@ -1503,6 +1636,15 @@ def redbox_test(t)
     mode = fld_get(cfg, :mode, "DISABLED")
     rb_conf_set(rb_id, mode, $ts.dut.p[$rb[:idx_a]], $ts.dut.p[$rb[:idx_b]], cfg);
     dd_age_time = fld_get(cfg, :dd_age_time)
+
+    # PTP configuration
+    ptp = fld_get(cfg, :ptp, nil)
+    if (ptp != nil)
+        conf = $ts.dut.call("mesa_rb_ptp_conf_get", $rb_id)
+        conf["mode"] = ("MESA_RB_PTP_MODE_" + ptp)
+        conf["vid"] = fld_get(cfg, :vid)
+        $ts.dut.call("mesa_rb_ptp_conf_set", $rb_id, conf)
+    end
 
     # Remove nodes and proxy nodes from previous tests
     $ts.dut.call("mesa_rb_node_table_clear", rb_id, "MESA_RB_CLEAR_ALL")
@@ -1574,7 +1716,7 @@ def redbox_test(t)
     if (idx_dis != nil)
         idx_dis = rb_idx(idx_dis)
         $ts.dut.run("mesa-cmd port state #{$ts.dut.p[idx_dis] + 1} disable")
-        sleep(5)
+        test_sleep(5)
     end
 
     # Clear counters
@@ -1719,7 +1861,7 @@ def redbox_test(t)
     # Enable port again
     if (idx_dis != nil)
         $ts.dut.run("mesa-cmd port state #{$ts.dut.p[idx_dis] + 1} enable")
-        sleep(5)
+        test_sleep(5)
     end
 end
 

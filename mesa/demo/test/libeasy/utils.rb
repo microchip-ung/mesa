@@ -1153,3 +1153,8 @@ def io_str_wr(addr, str, io = "QSPI")
             i = (i + cnt)
     end
 end
+
+def test_sleep(n)
+    t_i("sleeping #{n} seconds")
+    sleep(n)
+end

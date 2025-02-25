@@ -1627,6 +1627,34 @@ mesa_rc mesa_rb_conf_set(const mesa_inst_t           inst,
                          const mesa_rb_id_t          rb_id,
                          const mesa_rb_conf_t *const conf);
 
+// RedBox PTP filter mode
+typedef enum {
+    MESA_RB_PTP_MODE_DISABLED, // PTP unaware
+    MESA_RB_PTP_MODE_ETHERNET, // PTP Ethernet Type 0x88F7
+    MESA_RB_PTP_MODE_IPV4,     // PTP IPv4/UDP destination port 319/320
+    MESA_RB_PTP_MODE_IPV6,     // PTP IPv6/UDP destination port 319/320
+} mesa_rb_ptp_mode_t;
+
+// RedBox PTP filter configuration
+typedef struct {
+    mesa_rb_ptp_mode_t mode; // PTP filter mode
+    mesa_vid_t         vid;  // VLAN ID or MESA_VID_NULL (untagged)
+} mesa_rb_ptp_conf_t;
+
+// Get RedBox PTP configuration.
+// rb_id [IN]  RedBox ID.
+// conf [OUT]  RedBox PTP configuration structure.
+mesa_rc mesa_rb_ptp_conf_get(const mesa_inst_t         inst,
+                             const mesa_rb_id_t        rb_id,
+                             mesa_rb_ptp_conf_t *const conf);
+
+// Set RedBox PTP configuration.
+// rb_id [IN]  RedBox ID.
+// conf [IN]   RedBox PTP configuration structure.
+mesa_rc mesa_rb_ptp_conf_set(const mesa_inst_t               inst,
+                             const mesa_rb_id_t              rb_id,
+                             const mesa_rb_ptp_conf_t *const conf);
+
 // RedBox port counters
 typedef struct {
     mesa_counter_t rx_local;      // Rx link-local (BPDU) frames

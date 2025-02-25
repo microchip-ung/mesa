@@ -2850,6 +2850,34 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t           inst,
                          const vtss_rb_id_t          rb_id,
                          const vtss_rb_conf_t *const conf);
 
+// RedBox PTP filter mode
+typedef enum {
+    VTSS_RB_PTP_MODE_DISABLED, // PTP unaware
+    VTSS_RB_PTP_MODE_ETHERNET, // PTP Ethernet Type 0x88F7
+    VTSS_RB_PTP_MODE_IPV4,     // PTP IPv4/UDP destination port 319/320
+    VTSS_RB_PTP_MODE_IPV6,     // PTP IPv6/UDP destination port 319/320
+} vtss_rb_ptp_mode_t;
+
+// RedBox PTP filter configuration
+typedef struct {
+    vtss_rb_ptp_mode_t mode; // PTP filter mode
+    vtss_vid_t         vid;  // VLAN ID or VTSS_VID_NULL (untagged)
+} vtss_rb_ptp_conf_t;
+
+// Get RedBox PTP configuration.
+// rb_id [IN]  RedBox ID.
+// conf [OUT]  RedBox PTP configuration structure.
+vtss_rc vtss_rb_ptp_conf_get(const vtss_inst_t         inst,
+                             const vtss_rb_id_t        rb_id,
+                             vtss_rb_ptp_conf_t *const conf);
+
+// Set RedBox PTP configuration.
+// rb_id [IN]  RedBox ID.
+// conf [IN]   RedBox PTP configuration structure.
+vtss_rc vtss_rb_ptp_conf_set(const vtss_inst_t               inst,
+                             const vtss_rb_id_t              rb_id,
+                             const vtss_rb_ptp_conf_t *const conf);
+
 // RedBox port counters
 typedef struct {
     vtss_counter_t rx_local;      // Rx link-local (BPDU) frames

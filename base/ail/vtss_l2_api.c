@@ -8718,6 +8718,39 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t           inst,
     return rc;
 }
 
+vtss_rc vtss_rb_ptp_conf_get(const vtss_inst_t         inst,
+                             const vtss_rb_id_t        rb_id,
+                             vtss_rb_ptp_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc       rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        *conf = vtss_state->l2.rb_ptp_conf[rb_id];
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
+vtss_rc vtss_rb_ptp_conf_set(const vtss_inst_t               inst,
+                             const vtss_rb_id_t              rb_id,
+                             const vtss_rb_ptp_conf_t *const conf)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc       rc;
+
+    VTSS_RC(vtss_rb_id_check(rb_id));
+    VTSS_ENTER();
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        vtss_state->l2.rb_ptp_conf[rb_id] = *conf;
+        rc = vtss_cil_l2_rb_ptp_conf_set(vtss_state, rb_id);
+    }
+    VTSS_EXIT();
+    return rc;
+}
+
 static void vtss_rb_port_cnt_get(vtss_rb_port_cnt_t            *cnt,
                                  vtss_rb_port_counters_t *const counters)
 {

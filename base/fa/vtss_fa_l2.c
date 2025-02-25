@@ -1915,6 +1915,12 @@ vtss_rc vtss_cil_l2_rb_cap_get(vtss_state_t        *vtss_state,
 #define FA_RB_MSK_C    0x4 // Interlink (C)
 #define FA_RB_MSK_ALL  0x7 // All ports (A/B/C)
 
+// PTP awareness
+#define FA_RB_PTP_NONE 0
+#define FA_RB_PTP_ETH  1
+#define FA_RB_PTP_IPV4 2
+#define FA_RB_PTP_IPV6 3
+
 static u32 fa_rb_sv(vtss_rb_sv_t sv)
 {
     return (sv == VTSS_RB_SV_DISCARD    ? FA_RB_SV_DISCARD
@@ -1983,7 +1989,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t      *vtss_state,
             hsr_filter =
                 FA_RB_FLT_NOT_HSR; // Discard non-HSR-tagged frames on LRE
         } else {
-            tag_mode = FA_RB_TAG_PRP;
+            tag_mode = FA_RB_TAG_PRP_NONE;
             prp_aware = 1;
             prxy_dmac_msk = FA_RB_MSK_NONE; // Discard on LRE if DMAC is proxy
             ht = FA_HT_PROXY;               // Learn proxy nodes on Interlink
@@ -2058,6 +2064,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t      *vtss_state,
                VTSS_F_RB_PORT_CFG_HSR_AWARE_ENA(hsr_aware) |
                VTSS_F_RB_PORT_CFG_PRP_AWARE_ENA(prp_aware));
 
+    // Enable PTP on LRE ports
+    REG_WR(VTSS_RB_PTP_CFG(tgt, j), VTSS_F_RB_PTP_CFG_PTP_ENA(lre));
+
     return VTSS_RC_OK;
 }
 
@@ -2110,7 +2119,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t      *vtss_state,
     u32             tgt = fa_rb_tgt(rb_id);
     u32             mode, ena = 1, hsr = 0, ct_ena = 0;
     u32             port_a = 0, port_b = 0, next_a = 0, next_b = 0, net_id, j;
-    u32             age, clk_period, val, unit, mask = 0x4, port, sv;
+    u32             age, clk_period, val, msk, unit, mask = 0x4, port, sv;
     u64             x64;
 
     switch (conf->mode) {
@@ -2146,17 +2155,23 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t      *vtss_state,
             mask |= 0x2;
         }
     }
-    REG_WR(VTSS_RB_RB_CFG(tgt), VTSS_F_RB_RB_CFG_KEEP_PRP_ALL_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_ABORT_DISC_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) |
-                                    VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_IRI_ENA(1) |
-                                    VTSS_F_RB_RB_CFG_KEEP_INT_ENA(hsr) |
-                                    VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) |
-                                    VTSS_F_RB_RB_CFG_RB_MODE(mode) |
-                                    VTSS_F_RB_RB_CFG_RB_ENA(ena));
+    val =
+        (VTSS_F_RB_RB_CFG_KEEP_PRP_ALL_ENA(1) |
+         VTSS_F_RB_RB_CFG_ABORT_DISC_ENA(1) |
+         VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) |
+         VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
+         VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) |
+         VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) | VTSS_F_RB_RB_CFG_IRI_ENA(1) |
+         VTSS_F_RB_RB_CFG_KEEP_INT_ENA(hsr) | VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) |
+         VTSS_F_RB_RB_CFG_RB_MODE(mode) | VTSS_F_RB_RB_CFG_RB_ENA(ena));
+    msk = (VTSS_M_RB_RB_CFG_KEEP_PRP_ALL_ENA | VTSS_M_RB_RB_CFG_ABORT_DISC_ENA |
+           VTSS_M_RB_RB_CFG_DEFAULT_FWD_MASK |
+           VTSS_M_RB_RB_CFG_RCT_MISSING_DISC_ENA |
+           VTSS_M_RB_RB_CFG_RCT_VALIDATE_ENA | VTSS_M_RB_RB_CFG_DAN_DETECT_ENA |
+           VTSS_M_RB_RB_CFG_IRI_ENA | VTSS_M_RB_RB_CFG_KEEP_INT_ENA |
+           VTSS_M_RB_RB_CFG_HSR_TAG_SEL | VTSS_M_RB_RB_CFG_RB_MODE |
+           VTSS_M_RB_RB_CFG_RB_ENA);
+    REG_WRM(VTSS_RB_RB_CFG(tgt), val, msk);
     if (ena) {
         if (conf->port_a == VTSS_PORT_NO_NONE) {
             next_a = 1;
@@ -2261,6 +2276,83 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t      *vtss_state,
     // configuration.
     return fa_dsm_calc_and_apply_calendar(
         vtss_state, FALSE /* don't force a new calendar */);
+}
+
+vtss_rc vtss_cil_l2_rb_ptp_conf_set(vtss_state_t      *vtss_state,
+                                    const vtss_rb_id_t rb_id)
+{
+    u32                 tgt = fa_rb_tgt(rb_id);
+    vtss_rb_ptp_conf_t *conf = &vtss_state->l2.rb_ptp_conf[rb_id];
+    u32                 mode, vid_sel, flt_sel, dd_dis = FA_RB_MSK_C;
+    u32                 i, j, val, dport;
+
+    if (conf->vid == VTSS_VID_NULL) {
+        // Match untagged
+        vid_sel = 0;
+        flt_sel = 0x00;
+    } else {
+        // Match tagged
+        vid_sel = 1;
+        flt_sel = 0x02;
+    }
+    switch (conf->mode) {
+    case VTSS_RB_PTP_MODE_ETHERNET:
+        // DMAC ignored
+        mode = FA_RB_PTP_ETH;
+        break;
+    case VTSS_RB_PTP_MODE_IPV4:
+        // DMAC and DIP ignored
+        mode = FA_RB_PTP_IPV4;
+        flt_sel |= 0x10;
+        break;
+    case VTSS_RB_PTP_MODE_IPV6:
+        // DMAC and DIP ignored
+        mode = FA_RB_PTP_IPV6;
+        flt_sel |= 0x10;
+        break;
+    default:
+        mode = FA_RB_PTP_NONE;
+        vid_sel = 0;
+        flt_sel = 0x00;
+        dd_dis = FA_RB_MSK_NONE;
+        break;
+    }
+    REG_WRM(VTSS_RB_RB_CFG(tgt), VTSS_F_RB_RB_CFG_PTP_AWARE_SEL(mode),
+            VTSS_M_RB_RB_CFG_PTP_AWARE_SEL);
+    REG_WR(VTSS_RB_PTP_MISC_CFG(tgt),
+           VTSS_F_RB_PTP_MISC_CFG_PTP_RCT_DIS(1) |
+               VTSS_F_RB_PTP_MISC_CFG_PTP_REDIR_INT_ENA(1) |
+               VTSS_F_RB_PTP_MISC_CFG_PTP_DUPL_DISC_DIS(dd_dis));
+    for (i = 0; i < 16; i++) {
+        if ((i % 2) == 0) {
+            REG_WR(VTSS_RB_PTP_FILTER_CFG(tgt, i / 2),
+                   VTSS_F_RB_PTP_FILTER_CFG_PTP_HSR_SEL(1) |
+                       VTSS_F_RB_PTP_FILTER_CFG_PTP_VID_SEL(vid_sel) |
+                       VTSS_F_RB_PTP_FILTER_CFG_PTP_FILTER_SEL(flt_sel));
+        }
+        dport = (i < 8 ? 319 : 320);
+        val = 0;
+        if (mode == FA_RB_PTP_ETH) {
+            j = (i % 2);
+        } else if (mode == FA_RB_PTP_IPV4) {
+            j = (i % 4);
+            if (j == 3) {
+                val = dport;
+            }
+        } else if (mode == FA_RB_PTP_IPV6) {
+            j = (i % 8);
+            if (j == 6) {
+                val = dport;
+            }
+        } else {
+            j = 0;
+        }
+        if (j == 1) {
+            val = (conf->vid << 16);
+        }
+        REG_WR(VTSS_RB_PTP_DATA(tgt, i), val);
+    }
+    return VTSS_RC_OK;
 }
 
 #define RB_CNT(name, i, j, cnt, clear)                                         \
@@ -3437,9 +3529,11 @@ static void fa_debug_rb_fld(lmu_ss_t   *ss,
 
     VTSS_FMT(buf, "%s%s", prefix ? prefix : "", name);
     if ((p = strstr(buf.s, "_CFG_")) != NULL) {
-        p[4] = ':';
+        if (p[5] < '0' || p[5] > '9') {
+            p[4] = ':';
+        }
     }
-    pr("%-28s ", &buf);
+    pr("%-30s ", &buf);
     for (i = 0; i < cnt; i++) {
         v = (val[i] & mask);
         for (j = 0; j < 32; j++) {
@@ -3548,6 +3642,9 @@ static vtss_rc fa_debug_redbox(vtss_state_t                  *vtss_state,
         FA_DEBUG_RB_FLD(&val, RB_CFG_RCT_VALIDATE_ENA);
         FA_DEBUG_RB_FLD(&val, RB_CFG_DAN_DETECT_ENA);
         FA_DEBUG_RB_FLD(&val, RB_CFG_IRI_ENA);
+        FA_DEBUG_RB_FLD_NL(&val, RB_CFG_PTP_AWARE_SEL);
+        pr("(%u:NONE, %u:ETH, %u:IPV4, %u:IPV6)\n", FA_RB_PTP_NONE,
+           FA_RB_PTP_ETH, FA_RB_PTP_IPV4, FA_RB_PTP_IPV6);
         FA_DEBUG_RB_FLD(&val, RB_CFG_KEEP_INT_ENA);
         FA_DEBUG_RB_FLD_NL(&val, RB_CFG_HSR_TAG_SEL);
         pr("(0:OUTER, 1:MIDDLE, 2:INNER, 3:RESV)\n");
@@ -3579,7 +3676,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t                  *vtss_state,
         fa_debug_rb_fld(ss, &val,
                         VTSS_M_RB_DISC_ACCESS_CTRL_AUTOLRN_REPLACE_RULE_ENA,
                         "AUTO_REPLACE_RULE_ENA", "DISC:", FALSE, 1);
-        pr("(B0:DUPL_MULTI, B1:SEQ, B2:AGE, B3:RANDOM, B4: DUPL_ONE)\n");
+        pr("(B0:DUPL_MULTI, B1:SEQ, B2:AGE, B3:RANDOM, B4:DUPL_ONE)\n");
         lmu_fmt_buf_init(&buf);
         for (j = 0; j < 4; j++) {
             LMU_SS_FMT(&buf.ss, "%s%u:%u%s", j == 0 ? "(" : "", j,
@@ -3674,6 +3771,11 @@ static vtss_rc fa_debug_redbox(vtss_state_t                  *vtss_state,
         FA_DEBUG_RB_PORT_FLD(x, PORT_CFG_PRP_AWARE_ENA);
 
         for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
+            REG_RD(VTSS_RB_PTP_CFG(tgt, j), &x[j]);
+        }
+        FA_DEBUG_RB_PORT_FLD(x, PTP_CFG_PTP_ENA);
+
+        for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
             REG_RD(VTSS_RB_BPDU_CFG(tgt, j), &x[j]);
         }
         FA_DEBUG_RB_PORT_FLD(x, BPDU_CFG_BPDU_REDIR_ENA);
@@ -3712,6 +3814,26 @@ static vtss_rc fa_debug_redbox(vtss_state_t                  *vtss_state,
                         "REW:PTP_MISC_CFG:PTP_TAG_DIS", NULL, TRUE, 2);
         fa_debug_rb_fld(ss, x, VTSS_M_REW_PTP_MISC_CFG_PTP_RB_PRP_LAN,
                         "REW:PTP_MISC_CFG:PTP_PRP_LAN", NULL, TRUE, 2);
+
+        REG_RD(VTSS_RB_PTP_MISC_CFG(tgt), &val);
+        FA_DEBUG_RB_FLD(&val, PTP_MISC_CFG_PTP_RCT_DIS);
+        FA_DEBUG_RB_FLD(&val, PTP_MISC_CFG_PTP_REDIR_INT_ENA);
+        FA_DEBUG_RB_FLD(&val, PTP_MISC_CFG_PTP_DUPL_DISC_DIS);
+        for (j = 0; j < 8; j++) {
+            REG_RD(VTSS_RB_PTP_FILTER_CFG(tgt, j), &val);
+            VTSS_FMT(buf, "PTP_FILTER_CFG_%u:", j);
+            fa_debug_rb_fld(ss, &val, VTSS_M_RB_PTP_FILTER_CFG_PTP_HSR_SEL,
+                            "HSR_SEL", buf.s, TRUE, 1);
+            fa_debug_rb_fld(ss, &val, VTSS_M_RB_PTP_FILTER_CFG_PTP_VID_SEL,
+                            "VID_SEL", buf.s, TRUE, 1);
+            fa_debug_rb_fld(ss, &val, VTSS_M_RB_PTP_FILTER_CFG_PTP_FILTER_SEL,
+                            "FILTER_SEL", buf.s, FALSE, 1);
+            pr("B0:DMAC, B1:VID, B2:HSR, B3:DIP, B4:DPORT\n");
+        }
+        for (j = 0; j < 16; j++) {
+            VTSS_FMT(buf, "PTP_DATA_%u", j);
+            FA_DEBUG_RB_REG(REG_ADDR(VTSS_RB_PTP_DATA(tgt, j)), buf.s);
+        }
 
         if (info->full) {
             for (j = 0; j < VTSS_RB_PORT_CNT; j++) {
