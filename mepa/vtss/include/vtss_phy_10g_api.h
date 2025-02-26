@@ -1800,7 +1800,7 @@ typedef struct {
  *   VTSS_RC_ERROR on error.
  **/
 vtss_rc vtss_phy_10g_auto_failover_set(const vtss_inst_t      inst,
-                                       const vtss_phy_10g_auto_failover_conf_t  *const mode);
+                                       vtss_phy_10g_auto_failover_conf_t  *const mode);
 
 
 /**

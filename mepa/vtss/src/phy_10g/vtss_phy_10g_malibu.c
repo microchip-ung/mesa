@@ -12669,7 +12669,7 @@ static vtss_rc malibu_phy_10g_auto_failover_set(struct vtss_state_s *vtss_state,
                 ALT_SRCx_M);
         if (mode->evnt == VTSS_PHY_10G_AUTO_FAILOVER_EVENT_NONE && is_host == TRUE) {
             VTSS_I("existing alternate port of %u is %u \n",port_no,vtss_state->phy_10g_state[port_no].alt_port_no);
-            vtss_state->phy_10g_state[port_no].alt_port_no = get_front_port_from_channel_id(vtss_state,port_no,mode->channel_id, vtss_state->phy_10g_state[port_no].chip_no);
+            vtss_state->phy_10g_state[port_no].alt_port_no = get_front_port_from_channel_id(vtss_state,port_no,mode->channel_id,mode->chip_no);
             VTSS_I("On port %u , modified alternate port to %u \n",port_no,vtss_state->phy_10g_state[port_no].alt_port_no);
         } 
         /* Filter enable or disable */
